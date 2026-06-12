@@ -1,0 +1,122 @@
+name: medai
+description: MedAI - Your intelligent medicine tracker
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  
+  # State management
+  provider: ^6.1.1
+  
+  # Storage
+  shared_preferences: ^2.2.2
+  
+  # Navigation
+  go_router: ^13.0.1
+  
+  # HTTP / API
+  http: ^1.2.0
+  
+  # Fonts
+  google_fonts: ^6.2.1
+  
+  # Image picker (camera + gallery)
+  image_picker: ^1.0.7
+  
+  # QR Code generation
+  qr_flutter: ^4.1.0
+  # Local notifications
+  flutter_local_notifications: ^21.0.0
+  
+  # Date/time
+  intl: ^0.20.2
+  
+  # File handling
+  path_provider: ^2.1.5
+  path: ^1.9.0
+  
+  # Share
+  share_plus: ^12.0.1
+  
+  # UUID for IDs
+  uuid: ^4.3.3
+  
+  # Animations
+  flutter_animate: ^4.5.0
+  
+  cupertino_icons: ^1.0.2
+  timezone: ^0.11.0
+  health: ^13.3.1
+  permission_handler: ^11.3.1
+
+  # ── Firebase ────────────────────────────────────────────────────────
+  firebase_core: ^3.13.0
+  firebase_auth: ^5.5.3
+  cloud_firestore: ^5.6.5
+  firebase_storage: ^12.3.2
+  firebase_messaging: ^15.2.4
+  cloud_functions: ^5.3.4
+  google_sign_in: ^6.2.2
+  sign_in_with_apple: ^6.1.4
+  camera: ^0.12.0
+  image: ^4.5.0
+  google_generative_ai: ^0.4.0
+  flutter_dotenv: ^6.0.0
+  logger: ^2.6.2
+  flutter_image_compress: ^2.4.0
+  firebase_crashlytics: ^4.3.10
+  firebase_analytics: ^11.6.0
+  firebase_performance: ^0.10.1+10
+  firebase_app_check: ^0.3.1+15
+  pdf: ^3.11.3
+  printing: ^5.14.2
+  encrypt: ^5.0.3
+  flutter_secure_storage: ^10.0.0
+  flutter_timezone: ^5.0.0
+  mobile_scanner: ^6.0.0
+  local_auth: ^3.0.1
+  audioplayers: ^6.6.0
+  flutter_dynamic_icon_plus: ^1.4.0
+  purchases_flutter: ^8.0.0
+  in_app_review: ^2.0.9
+  url_launcher: ^6.3.2
+  app_links: ^6.1.1
+  confetti: ^0.7.0
+  live_activities: ^2.4.3
+  speech_to_text: ^7.3.0
+  flutter_tts: ^4.2.5
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^3.0.0
+  flutter_launcher_icons: ^0.13.1
+  mocktail: ^1.0.4
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  remove_alpha_ios: true
+  macos:
+    generate: true
+    image_path: "assets/images/app_icon.png"
+  image_path: "assets/images/app_icon.png"
+  min_sdk_android: 21
+
+flutter:
+  generate: true
+  uses-material-design: true
+  
+  assets:
+    - assets/images/
+    - assets/audio/
+    - .env
+
+

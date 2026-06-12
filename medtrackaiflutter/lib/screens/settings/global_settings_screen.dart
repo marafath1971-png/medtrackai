@@ -1,0 +1,761 @@
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../../providers/app_state.dart';
+import '../../theme/app_theme.dart';
+import '../../l10n/app_localizations.dart';
+import '../../widgets/shared/shared_widgets.dart';
+import '../../core/utils/haptic_engine.dart';
+import '../../models/constants.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+// ══════════════════════════════════════════════════════════════════════
+// GLOBAL SETTINGS SCREEN (Cal AI Industrial Authority Refined)
+// ══════════════════════════════════════════════════════════════════════
+
+class GlobalSettingsScreen extends StatefulWidget {
+  const GlobalSettingsScreen({super.key});
+
+  @override
+  State<GlobalSettingsScreen> createState() => _GlobalSettingsScreenState();
+}
+
+class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
+  late UserProfile _profile;
+
+  // Using global kCountries and local _languages
+  static const List<Map<String, String>> _languages = [
+    {'code': 'en', 'label': 'English', 'flag': '🇺🇸'},
+    {'code': 'es', 'label': 'Español (Spanish)', 'flag': '🇪🇸'},
+    {'code': 'fr', 'label': 'Français (French)', 'flag': '🇫🇷'},
+    {'code': 'ja', 'label': '日本語 (Japanese)', 'flag': '🇯🇵'},
+    {'code': 'ko', 'label': '한국어 (Korean)', 'flag': '🇰🇷'},
+    {'code': 'ms', 'label': 'Bahasa Melayu', 'flag': '🇲🇾'},
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _profile = context.read<AppState>().profile ?? UserProfile();
+  }
+
+  Future<void> _save(UserProfile updated) async {
+    HapticEngine.selection();
+    setState(() => _profile = updated);
+    await context.read<AppState>().saveProfile(updated);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+    final s = AppLocalizations.of(context)!;
+    final L = context.L;
+    final topPad = MediaQuery.of(context).padding.top;
+
+    return Scaffold(
+      backgroundColor: _profile.amoledMode && isDark ? Colors.black : L.bg,
+      body: Stack(
+        children: [
+          ListView(
+            padding: EdgeInsets.fromLTRB(20, topPad + 110, 20, 120),
+            physics: const BouncingScrollPhysics(),
+            children: [
+              // ── LOCALIZATION BLOCK ───────────────────────
+              _IndustrialSection(
+                label: 'LOCALIZATION',
+                icon: '🌐',
+                L: L,
+                children: [
+                  _PickerTile(
+                    label: 'Country',
+                    value: kCountries.firstWhere(
+                        (c) => c['c'] == _profile.country,
+                        orElse: () => kCountries[0])['v']!,
+                    flag: kCountries.firstWhere(
+                        (c) => c['c'] == _profile.country,
+                        orElse: () => kCountries[0])['e']!,
+                    onTap: () async {
+                      final res = await showModalBottomSheet<String>(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => _PickerSheet(
+                            title: 'Select Country',
+                            items: kCountries
+                                .map((c) => {
+                                      'code': c['c']!,
+                                      'label': c['v']!,
+                                      'flag': c['e']!
+                                    })
+                                .toList(),
+                            selectedCode: _profile.country),
+                      );
+                      if (!mounted || res == null) return;
+                      _save(_profile.copyWith(country: res));
+                    },
+                    L: L,
+                  ),
+                  _PickerTile(
+                    label: 'Language',
+                    value: _languages.firstWhere(
+                        (l) => l['code'] == _profile.preferredLanguage,
+                        orElse: () => _languages[0])['label']!,
+                    flag: _languages.firstWhere(
+                        (l) => l['code'] == _profile.preferredLanguage,
+                        orElse: () => _languages[0])['flag']!,
+                    onTap: () async {
+                      final res = await showModalBottomSheet<String>(
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => _PickerSheet(
+                            title: 'Select Language',
+                            items: _languages,
+                            selectedCode: _profile.preferredLanguage),
+                      );
+                      if (!mounted || res == null) return;
+                      _save(_profile.copyWith(preferredLanguage: res));
+                    },
+                    L: L,
+                    isLast: true,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              // ── CLINICAL MODES BLOCK ─────────────────────
+              _IndustrialSection(
+                label: 'CLINICAL MODES',
+                icon: '🔬',
+                L: L,
+                children: [
+                  _ToggleTile(
+                    title: s.showGenericNames,
+                    subtitle: s.showGenericNamesSubtitle,
+                    value: _profile.showGenericNames,
+                    onChanged: (v) =>
+                        _save(_profile.copyWith(showGenericNames: v)),
+                    L: L,
+                  ),
+                  _ToggleTile(
+                    title: s.shabbatMode,
+                    subtitle: s.shabbatModeSubtitle,
+                    value: _profile.shabbatMode,
+                    onChanged: (v) => _save(_profile.copyWith(shabbatMode: v)),
+                    L: L,
+                  ),
+                  _ToggleTile(
+                    title: 'Diabetes Metrics',
+                    subtitle: 'Synchronize blood glucose logs',
+                    value: _profile.diabetesMode,
+                    onChanged: (v) => _save(_profile.copyWith(diabetesMode: v)),
+                    L: L,
+                  ),
+                  _ToggleTile(
+                    title: 'Hypertension Tracking',
+                    subtitle: 'Synchronize systolic/diastolic logs',
+                    value: _profile.hypertensionMode,
+                    onChanged: (v) =>
+                        _save(_profile.copyWith(hypertensionMode: v)),
+                    L: L,
+                    isLast: true,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              // ── VITAL CONNECTIVITY BLOCK ─────────────────
+              _IndustrialSection(
+                label: 'VITAL CONNECTIVITY',
+                icon: '❤️',
+                L: L,
+                children: [
+                  _ToggleTile(
+                    title: 'Auto-Sync Health',
+                    subtitle: 'Keep vitals synchronized in background',
+                    value: context.watch<AppState>().healthAutoSync,
+                    onChanged: (v) =>
+                        context.read<AppState>().setHealthAutoSync(v),
+                    L: L,
+                    isLast: true,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              const SizedBox(height: 24),
+
+              // ── ACCOUNT ARCHITECTURE BLOCK ───────────────
+              _IndustrialSection(
+                label: 'ACCOUNT ARCHITECTURE',
+                icon: '📂',
+                L: L,
+                children: [
+                  _AccountActionTile(
+                    icon: '📤',
+                    title: 'Export Health Data (CSV)',
+                    subtitle: 'Generate a clinical report of your vitals',
+                    onTap: () {
+                      HapticEngine.selection();
+                      context.read<AppState>().exportDataCSV();
+                    },
+                    L: L,
+                  ),
+                  _AccountActionTile(
+                    icon: '🧹',
+                    title: 'Clear Local Cache',
+                    subtitle: 'Free up space and refresh local state',
+                    onTap: () => _confirmReset(context, L),
+                    L: L,
+                  ),
+                  _AccountActionTile(
+                    icon: '⚠️',
+                    title: 'Delete Account Permanently',
+                    subtitle: 'Erase all personal health records',
+                    color: Colors.red,
+                    isLast: true,
+                    onTap: () => _confirmDelete(context, L),
+                    L: L,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 24),
+
+              // ── SYSTEM BLOCK ─────────────────────────────
+              _IndustrialSection(
+                label: 'SYSTEM',
+                icon: '⚙️',
+                L: L,
+                children: [
+                  _AccountActionTile(
+                    icon: '📜',
+                    title: 'Privacy Policy',
+                    onTap: () async {
+                      HapticEngine.selection();
+                      final url = Uri.parse('https://example.com/privacy-policy-2026');
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                      } else {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Could not open Privacy Policy.')),
+                          );
+                        }
+                      }
+                    },
+                    L: L,
+                  ),
+                  _AccountActionTile(
+                    icon: '⚖️',
+                    title: 'Terms of Service',
+                    onTap: () async {
+                      HapticEngine.selection();
+                      final url = Uri.parse('https://example.com/terms-of-service-2026');
+                      if (await canLaunchUrl(url)) {
+                        await launchUrl(url, mode: LaunchMode.externalApplication);
+                      } else {
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text('Could not open Terms of Service.')),
+                          );
+                        }
+                      }
+                    },
+                    L: L,
+                  ),
+                  _AccountActionTile(
+                    icon: '💬',
+                    title: 'Support & Feedback',
+                    isLast: true,
+                    onTap: () {
+                      HapticEngine.selection();
+                    },
+                    L: L,
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 48),
+
+              // ── SYSTEM INTEGRITY FOOTER ──
+              Center(
+                child: Column(
+                  children: [
+                    Text(
+                      'MEDTRACK AI 1.0',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: L.text.withValues(alpha: 0.15),
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 4.0,
+                        fontSize: 9,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'BUILD_2026.04.RC1 • STABLE',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: L.text.withValues(alpha: 0.1),
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1.0,
+                        fontSize: 8,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 120),
+            ],
+          ),
+
+          // ── PREMIUM GLASS HEADER ──
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: ClipRRect(
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(24, topPad + 12, 20, 16),
+                  decoration: BoxDecoration(
+                    color: L.bg.withValues(alpha: 0.8),
+                    border: Border(
+                        bottom: BorderSide(
+                            color: L.border.withValues(alpha: 0.08),
+                            width: 0.5)),
+                  ),
+                  child: Row(
+                    children: [
+                      BouncingButton(
+                        onTap: () => Navigator.pop(context),
+                        child: Text('←',
+                            style: TextStyle(
+                                color: L.text,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900)),
+                      ),
+                      const SizedBox(width: 20),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'PREFERENCES',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: L.sub.withValues(alpha: 0.4),
+                                letterSpacing: 2.0,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 10,
+                              ),
+                            ),
+                            Text(
+                              'Settings',
+                              style: AppTypography.headlineMedium.copyWith(
+                                color: L.text,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 26,
+                                height: 1.1,
+                                letterSpacing: -1.0,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmReset(BuildContext context, AppThemeColors L) {
+    HapticEngine.alertWarning();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: L.bg,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text('RESET CACHE?',
+            style: AppTypography.titleLarge
+                .copyWith(fontWeight: FontWeight.w900, color: L.text)),
+        content: Text(
+            'This will clear local temporary files. Your medications and health records will remain safe.',
+            style: AppTypography.bodySmall
+                .copyWith(color: L.text.withValues(alpha: 0.7), height: 1.5)),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('CANCEL',
+                style: AppTypography.labelLarge.copyWith(color: L.sub)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.read<AppState>().showToast('Cache cleared successfully');
+            },
+            child: Text('RESET',
+                style: AppTypography.labelLarge
+                    .copyWith(color: L.text, fontWeight: FontWeight.w900)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _confirmDelete(BuildContext context, AppThemeColors L) {
+    HapticEngine.heavyImpact();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: L.bg,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        title: Text('DELETE ACCOUNT?',
+            style: AppTypography.titleLarge.copyWith(
+                fontWeight: FontWeight.w900, color: Colors.red.shade400)),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+                'This action is irreversible. All health data, medication history, and vitals will be permanently erased.',
+                style: AppTypography.bodySmall
+                    .copyWith(color: L.text.withValues(alpha: 0.7), height: 1.5)),
+            const SizedBox(height: 20),
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.red.withValues(alpha: 0.2)),
+              ),
+              child: Row(
+                children: [
+                  const Text('⚠️', style: TextStyle(fontSize: 14)),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text('PROTOCOL_SENSITIVE: DATA_DELETION_FINAL',
+                        style: AppTypography.labelSmall.copyWith(
+                            color: Colors.red.shade400,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 9,
+                            letterSpacing: 1.0)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: Text('CANCEL',
+                style: AppTypography.labelLarge.copyWith(color: L.sub)),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(ctx);
+              context.read<AppState>().deleteAccount();
+            },
+            child: Text('CONFIRM DELETE',
+                style: AppTypography.labelLarge.copyWith(
+                    color: Colors.red.shade400, fontWeight: FontWeight.w900)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ── Account Action Tile ───────────────────────────────────────────────
+class _AccountActionTile extends StatelessWidget {
+  final String icon, title;
+  final String? subtitle;
+  final Color? color;
+  final VoidCallback onTap;
+  final AppThemeColors L;
+  final bool isLast;
+  const _AccountActionTile(
+      {required this.icon,
+      required this.title,
+      this.subtitle,
+      this.color,
+      required this.onTap,
+      required this.L,
+      this.isLast = false});
+
+  @override
+  Widget build(BuildContext context) {
+    final tileColor = color ?? L.text;
+    return Container(
+      decoration: BoxDecoration(
+          border: isLast
+              ? null
+              : Border(
+                  bottom: BorderSide(
+                      color: L.border.withValues(alpha: 0.05), width: 0.5))),
+      child: ListTile(
+        onTap: onTap,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: tileColor.withValues(alpha: 0.06),
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: Center(
+              child: Text(icon, style: const TextStyle(fontSize: 18))),
+        ),
+        title: Text(
+          title.toUpperCase(),
+          style: AppTypography.labelLarge.copyWith(
+              color: tileColor,
+              fontWeight: FontWeight.w900,
+              fontSize: 13,
+              letterSpacing: 0.2),
+        ),
+        subtitle: subtitle != null
+            ? Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Text(subtitle!,
+                    style: AppTypography.bodySmall.copyWith(
+                        color: L.text.withValues(alpha: 0.45),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 11)),
+              )
+            : null,
+        trailing: Text('→',
+            style: TextStyle(
+                color: L.sub.withValues(alpha: 0.3),
+                fontSize: 18,
+                fontWeight: FontWeight.w900)),
+      ),
+    );
+  }
+}
+
+class _IndustrialSection extends StatelessWidget {
+  final String label;
+  final String icon;
+  final List<Widget> children;
+  final AppThemeColors L;
+  const _IndustrialSection(
+      {required this.label,
+      required this.icon,
+      required this.children,
+      required this.L});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 12, bottom: 12),
+          child: Row(children: [
+            Text(icon, style: const TextStyle(fontSize: 14)),
+            const SizedBox(width: 10),
+            Text(label,
+                style: AppTypography.labelSmall.copyWith(
+                    color: L.text.withValues(alpha: 0.4),
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 2.0,
+                    fontSize: 10)),
+          ]),
+        ),
+        SquircleCard(
+          padding: EdgeInsets.zero,
+          child: Column(children: children),
+        ),
+      ],
+    );
+  }
+}
+
+class _ToggleTile extends StatelessWidget {
+  final String title, subtitle;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  final AppThemeColors L;
+  final bool isLast;
+  const _ToggleTile(
+      {required this.title,
+      required this.subtitle,
+      required this.value,
+      required this.onChanged,
+      required this.L,
+      this.isLast = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          border: isLast
+              ? null
+              : Border(
+                  bottom: BorderSide(
+                      color: L.border.withValues(alpha: 0.05), width: 0.5))),
+      child: ListTile(
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        title: Text(title,
+            style: AppTypography.labelLarge.copyWith(
+              color: L.text,
+              fontWeight: FontWeight.w900,
+              fontSize: 16,
+              letterSpacing: -0.3,
+            )),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 4),
+          child: Text(subtitle,
+              style: AppTypography.bodySmall.copyWith(
+                  color: L.text.withValues(alpha: 0.5),
+                  fontWeight: FontWeight.w500,
+                  height: 1.4,
+                  fontSize: 12)),
+        ),
+        trailing: AppToggle(
+          value: value,
+          onChanged: (v) {
+            HapticEngine.selection();
+            onChanged(v);
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _PickerTile extends StatelessWidget {
+  final String label, value, flag;
+  final VoidCallback onTap;
+  final AppThemeColors L;
+  final bool isLast;
+  const _PickerTile(
+      {required this.label,
+      required this.value,
+      required this.flag,
+      required this.onTap,
+      required this.L,
+      this.isLast = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+          border: isLast
+              ? null
+              : Border(
+                  bottom: BorderSide(
+                      color: L.border.withValues(alpha: 0.05), width: 0.5))),
+      child: ListTile(
+        onTap: onTap,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+        title: Text(label,
+            style: AppTypography.labelLarge.copyWith(
+                color: L.text, fontWeight: FontWeight.w900, fontSize: 15)),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text('$flag $value',
+                style: AppTypography.bodySmall.copyWith(
+                    color: L.text.withValues(alpha: 0.8),
+                    fontWeight: FontWeight.w900,
+                    fontSize: 13,
+                    letterSpacing: -0.2)),
+            const SizedBox(width: 10),
+            Text('→',
+                style: TextStyle(
+                    color: L.sub.withValues(alpha: 0.3),
+                    fontSize: 18,
+                    fontWeight: FontWeight.w900)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PickerSheet extends StatelessWidget {
+  final String title;
+  final List<Map<String, String>> items;
+  final String selectedCode;
+  const _PickerSheet(
+      {required this.title, required this.items, required this.selectedCode});
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    return Container(
+      constraints:
+          BoxConstraints(maxHeight: MediaQuery.of(context).size.height * 0.7),
+      decoration: BoxDecoration(
+          color: L.bg,
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(32))),
+      child: SafeArea(
+        top: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 12),
+            Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                    color: L.border.withValues(alpha: 0.3),
+                    borderRadius: BorderRadius.circular(2))),
+            const SizedBox(height: 24),
+            Text(title,
+                style: AppTypography.titleLarge.copyWith(
+                    fontWeight: FontWeight.w900, color: L.text, fontSize: 18)),
+            const SizedBox(height: 24),
+            Flexible(
+              child: ListView.builder(
+                shrinkWrap: true,
+                padding: const EdgeInsets.fromLTRB(20, 0, 20, 48),
+                itemCount: items.length,
+                itemBuilder: (context, index) {
+                  final item = items[index];
+                  final isSelected = item['code'] == selectedCode;
+                  return ListTile(
+                    onTap: () {
+                      HapticEngine.selection();
+                      Navigator.pop(context, item['code']);
+                    },
+                    title: Text(item['label']!.toUpperCase(),
+                        style: AppTypography.labelLarge.copyWith(
+                            fontWeight:
+                                isSelected ? FontWeight.w900 : FontWeight.w700,
+                            color: isSelected
+                                ? L.text
+                                : L.sub.withValues(alpha: 0.5),
+                            fontSize: 14,
+                            letterSpacing: 0.5)),
+                    trailing: isSelected
+                        ? Text('✓',
+                            style: TextStyle(
+                                color: L.text,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w900))
+                        : null,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

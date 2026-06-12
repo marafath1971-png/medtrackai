@@ -1,0 +1,939 @@
+import 'dart:ui';
+import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
+import '../../providers/app_state.dart';
+import '../../theme/app_theme.dart';
+import '../../core/utils/date_formatter.dart';
+import '../../services/auth_service.dart';
+import '../../core/utils/haptic_engine.dart';
+import '../../widgets/shared/shared_widgets.dart';
+
+// Modular Widgets
+import 'widgets/caregiver_widgets.dart';
+import 'widgets/monitoring_widgets.dart';
+import 'widgets/add_cg_flow.dart';
+import 'widgets/join_as_cg_view.dart';
+import 'widgets/alert_log_widgets.dart';
+import 'widgets/demo_widgets.dart';
+import '../../widgets/common/premium_empty_state.dart';
+import '../../widgets/common/paywall_sheet.dart';
+
+enum FamilyView {
+  hub,
+  addStep1,
+  addStep2,
+  addStep3,
+  dashboard,
+  join,
+  escalation
+}
+
+class FamilyTab extends StatefulWidget {
+  const FamilyTab({super.key});
+
+  @override
+  State<FamilyTab> createState() => _FamilyTabState();
+}
+
+class _FamilyTabState extends State<FamilyTab> {
+  FamilyView _view = FamilyView.hub;
+  Caregiver? _newCg;
+  String _inviteCode = '';
+  Caregiver? _dashboardCg;
+  MissedAlert? _alertDetail;
+
+  final _nameCtrl = TextEditingController();
+  final _contactCtrl = TextEditingController();
+  String _relation = 'Spouse';
+  String _avatar = '👨‍⚕️';
+  int _pivot = 1; // Default to Family Circle as per reference style
+  int _alertDelay = 30;
+  bool _isScrolled = false;
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    _nameCtrl.dispose();
+    _contactCtrl.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    final scrolled = _scrollController.offset > 10;
+    if (scrolled != _isScrolled) {
+      setState(() => _isScrolled = scrolled);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final state = Provider.of<AppState>(context);
+    final L = context.L;
+
+    Widget child;
+    if (_alertDetail != null) {
+      child = AlertDetailView(
+          key: const ValueKey('alertDetail'),
+          alert: _alertDetail!,
+          onBack: () => setState(() => _alertDetail = null),
+          L: L);
+    } else if (_dashboardCg != null) {
+      child = ProtectorInsights(
+          key: const ValueKey('dashboard'),
+          cg: _dashboardCg!,
+          state: state,
+          onBack: () => setState(() => _dashboardCg = null),
+          L: L);
+    } else if (_view == FamilyView.join) {
+      child = JoinAsCaregiverView(
+          key: const ValueKey('join'),
+          state: state,
+          L: L,
+          onBack: () => setState(() => _view = FamilyView.hub),
+          onJoined: (cg) {
+            setState(() => _view = FamilyView.hub);
+          });
+    } else {
+      switch (_view) {
+        case FamilyView.addStep1:
+          child = AddCgStep1(
+              key: const ValueKey('add1'),
+              nameCtrl: _nameCtrl,
+              contactCtrl: _contactCtrl,
+              relation: _relation,
+              avatar: _avatar,
+              alertDelay: _alertDelay,
+              onRelChange: (v) => setState(() => _relation = v),
+              onAvatarChange: (v) => setState(() => _avatar = v),
+              onDelayChange: (v) => setState(() => _alertDelay = v),
+              L: L,
+              onBack: () => setState(() => _view = FamilyView.hub),
+              onNext: () async {
+                final s = Provider.of<AppState>(context, listen: false);
+                final patientUid = AuthService.uid ?? '';
+                const colors = [
+                  '#111111',
+                  '#1A1A1A',
+                  '#222222',
+                  '#2A2A2A',
+                  '#333333'
+                ];
+                final color = colors[s.caregivers.length % colors.length];
+                final cg = Caregiver(
+                  id: DateTime.now().millisecondsSinceEpoch,
+                  name: _nameCtrl.text.trim(),
+                  relation: _relation,
+                  contact: _contactCtrl.text.trim(),
+                  avatar: _avatar,
+                  alertDelay: _alertDelay,
+                  addedAt: todayStr(),
+                  color: color,
+                  patientUid: patientUid,
+                );
+                s.addCaregiver(cg);
+                final code = await s.createInvite(cg);
+                setState(() {
+                  _newCg = cg;
+                  _inviteCode = code;
+                  _view = FamilyView.addStep2;
+                });
+              });
+          break;
+        case FamilyView.addStep2:
+          child = AddCgStep2(
+              key: const ValueKey('add2'),
+              cg: _newCg!,
+              inviteCode: _inviteCode,
+              L: L,
+              onNext: () {
+                final state = Provider.of<AppState>(context, listen: false);
+                state.activateCaregiver(_newCg!.id);
+                setState(() => _view = FamilyView.addStep3);
+              });
+          break;
+        case FamilyView.addStep3:
+          child = AddCgStep3(
+              key: const ValueKey('add3'),
+              cg: _newCg!,
+              L: L,
+              onDone: () {
+                setState(() {
+                  _view = FamilyView.hub;
+                  _nameCtrl.clear();
+                  _contactCtrl.clear();
+                });
+              });
+          break;
+        case FamilyView.escalation:
+          child = EscalationDemoView(
+              key: const ValueKey('esc'),
+              L: L,
+              onBack: () => setState(() => _view = FamilyView.hub));
+          break;
+        default:
+          child = HubView(
+              key: const ValueKey('hub'),
+              state: state,
+              L: L,
+              pivot: _pivot,
+              isScrolled: _isScrolled,
+              scrollController: _scrollController,
+              onPivotChanged: (v) => setState(() => _pivot = v),
+              onAddCg: () {
+                if (state.isPremium) {
+                  setState(() => _view = FamilyView.addStep1);
+                } else {
+                  PaywallSheet.show(context);
+                }
+              },
+              onJoin: () {
+                if (state.isPremium) {
+                  setState(() => _view = FamilyView.join);
+                } else {
+                  PaywallSheet.show(context);
+                }
+              },
+              onDashboard: (cg) => setState(() => _dashboardCg = cg),
+              onAlertDetail: (a) => setState(() => _alertDetail = a),
+              onMarkSeen: () => state.markAlertsAsSeen(),
+              onEscalationDemo: () {
+                if (state.isPremium) {
+                  setState(() => _view = FamilyView.escalation);
+                } else {
+                  PaywallSheet.show(context);
+                }
+              });
+      }
+    }
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 300),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (w, anim) => FadeTransition(
+        opacity: anim,
+        child: SlideTransition(
+          position:
+              Tween<Offset>(begin: const Offset(0.05, 0), end: Offset.zero)
+                  .animate(anim),
+          child: w,
+        ),
+      ),
+      child: child,
+    );
+  }
+}
+
+class HubView extends StatelessWidget {
+  final AppState state;
+  final AppThemeColors L;
+  final int pivot;
+  final bool isScrolled;
+  final ScrollController scrollController;
+  final ValueChanged<int> onPivotChanged;
+  final VoidCallback onAddCg, onJoin, onMarkSeen, onEscalationDemo;
+  final void Function(Caregiver) onDashboard;
+  final void Function(MissedAlert) onAlertDetail;
+
+  const HubView({
+    super.key,
+    required this.state,
+    required this.L,
+    required this.pivot,
+    required this.isScrolled,
+    required this.scrollController,
+    required this.onPivotChanged,
+    required this.onAddCg,
+    required this.onJoin,
+    required this.onDashboard,
+    required this.onAlertDetail,
+    required this.onMarkSeen,
+    required this.onEscalationDemo,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final activeCount =
+        state.caregivers.where((c) => c.status == "active").length;
+    final unseenCount = state.missedAlerts.where((a) => !a.seen).length;
+
+    return Scaffold(
+      backgroundColor: L.meshBg,
+      body: Stack(
+        children: [
+          // ── PREMIUM HEADER BACKGROUND ──
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: 120,
+            child: Container(
+              decoration: BoxDecoration(
+                color: L.meshBg,
+                border: Border(
+                    bottom: BorderSide(
+                        color: L.border.withValues(alpha: 0.1), width: 0.5)),
+              ),
+            ),
+          ),
+
+          // ── SCROLLABLE CONTENT ──
+          SingleChildScrollView(
+            controller: scrollController,
+            physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics()),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: 140 + MediaQuery.of(context).padding.top),
+
+                // ── HUB CONTENT ──
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Protectors Hub',
+                        style: AppTypography.headlineLarge.copyWith(
+                          color: L.text,
+                          fontSize: 28,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: -1.0,
+                        ),
+                      )
+                          .animate()
+                          .fadeIn(duration: 400.ms)
+                          .slideY(begin: 0.1, end: 0),
+
+                      const SizedBox(height: 20),
+
+                      // Circle Snapshot Bento (High-Fidelity)
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _CircleStatBento(
+                              label: 'PROTECTORS',
+                              value: '$activeCount',
+                              emoji: '🛡️',
+                              L: L,
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _CircleStatBento(
+                              label: 'MONITORING',
+                              value: unseenCount > 0 ? 'URGENT' : 'SECURE',
+                              emoji: unseenCount > 0 ? '🚨' : '🛡️',
+                              iconColor: unseenCount > 0 ? L.error : L.success,
+                              L: L,
+                              glow: unseenCount > 0,
+                            ),
+                          ),
+                        ],
+                      ).animate(delay: 200.ms).fadeIn(),
+
+                      const SizedBox(height: 24),
+
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: L.fill.withValues(alpha: 0.05),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                _CompactPivotPill(
+                                  label: 'Family',
+                                  active: pivot == 1,
+                                  onTap: () => onPivotChanged(1),
+                                  L: L,
+                                ),
+                                const SizedBox(width: 4),
+                                _CompactPivotPill(
+                                  label: 'Care',
+                                  active: pivot == 0,
+                                  onTap: () => onPivotChanged(0),
+                                  L: L,
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 24),
+
+                      if (unseenCount > 0)
+                        BouncingButton(
+                          onTap: onMarkSeen,
+                          child: Container(
+                            margin: const EdgeInsets.only(bottom: 24),
+                            padding: const EdgeInsets.all(20),
+                            decoration: BoxDecoration(
+                              color: L.error,
+                              borderRadius: AppRadius.roundL,
+                              border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.3),
+                                  width: 1.5),
+                              boxShadow: [
+                                BoxShadow(
+                                    color: L.error.withValues(alpha: 0.5),
+                                    blurRadius: 24,
+                                    offset: const Offset(0, 10))
+                              ],
+                            ),
+                            child: Row(
+                              children: [
+                                const Text('🚨', style: TextStyle(fontSize: 24))
+                                    .animate(
+                                        onPlay: (c) => c.repeat(reverse: true))
+                                    .scale(
+                                        begin: const Offset(1.0, 1.0),
+                                        end: const Offset(1.2, 1.2),
+                                        duration: 600.ms),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'URGENT MONITORING',
+                                        style:
+                                            AppTypography.labelSmall.copyWith(
+                                          color: Colors.white
+                                              .withValues(alpha: 0.8),
+                                          fontWeight: FontWeight.w900,
+                                          letterSpacing: 1.5,
+                                        ),
+                                      ),
+                                      Text(
+                                        '$unseenCount missed medication alerts',
+                                        style:
+                                            AppTypography.titleMedium.copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w900,
+                                          fontSize: 15,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                                const Text('→',
+                                    style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w900)),
+                              ],
+                            ),
+                          ),
+                        )
+                            .animate(onPlay: (c) => c.repeat(reverse: true))
+                            .shimmer(
+                                duration: 1500.ms,
+                                color: Colors.white.withValues(alpha: 0.2)),
+
+                      // CONTENT BASED ON PIVOT
+                      if (pivot == 1) ...[
+                        // FAMILY CIRCLE (Monitoring others)
+                        if (state.monitoredPatients.isEmpty)
+                          _buildEmptyMonitoringState(L, onJoin)
+                              .animate()
+                              .fadeIn(duration: 600.ms)
+                        else ...[
+                          ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: state.monitoredPatients.length,
+                            itemBuilder: (context, index) {
+                              final p = state.monitoredPatients[index];
+                              return PatientCard(
+                                patient: p,
+                                state: state,
+                                L: L,
+                                onTap: () {
+                                  onDashboard(Caregiver(
+                                    id: 0,
+                                    name: p['name'] ?? 'Patient',
+                                    relation: p['relation'] ?? 'Family',
+                                    patientUid: p['uid'],
+                                    addedAt: p['addedAt'] ?? 'just now',
+                                    avatar: p['avatar'] ?? '👤',
+                                  ));
+                                },
+                              ).animate().fadeIn(
+                                  delay: (100 + index * 50).ms,
+                                  duration: 500.ms);
+                            },
+                          ),
+                        ],
+                      ] else ...[
+                        // ACCOUNT SECURITY / MY CAREGIVERS
+                        if (state.profile?.familyMembers.isNotEmpty ?? false) ...[
+                          Text('Managing',
+                              style: AppTypography.titleLarge.copyWith(
+                                color: L.text,
+                                fontWeight: FontWeight.w800,
+                                fontSize: 16,
+                                letterSpacing: -0.3,
+                              )),
+                          const SizedBox(height: 12),
+                          SizedBox(
+                            height: 70,
+                            child: ListView.builder(
+                              scrollDirection: Axis.horizontal,
+                              itemCount: state.profile!.familyMembers.length,
+                              itemBuilder: (context, index) {
+                                final member = state.profile!.familyMembers[index];
+                                return GestureDetector(
+                                  onTap: () {
+                                    HapticEngine.selection();
+                                    state.switchProfile(member);
+                                    state.showToast('Switched to ${member.name}');
+                                  },
+                                  onLongPress: () {
+                                    HapticEngine.alertWarning();
+                                    showDialog(
+                                      context: context,
+                                      builder: (ctx) => AlertDialog(
+                                        title: const Text('Remove Profile?'),
+                                        content: Text('This will stop all reminders for ${member.name}. History for this member will be preserved in the cloud.'),
+                                        actions: [
+                                          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+                                          TextButton(
+                                            onPressed: () {
+                                              state.removeFamilyMember(member.id);
+                                              Navigator.pop(ctx);
+                                            },
+                                            child: const Text('Remove', style: TextStyle(color: Colors.red)),
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    width: 140,
+                                    margin: const EdgeInsets.only(right: 12),
+                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    decoration: BoxDecoration(
+                                      color: L.card,
+                                      borderRadius: BorderRadius.circular(16),
+                                      border: Border.all(
+                                        color: member.isCritical 
+                                            ? Colors.red.withValues(alpha: 0.3) 
+                                            : L.border.withValues(alpha: 0.1),
+                                        width: member.isCritical ? 1.5 : 1.0,
+                                      ),
+                                      boxShadow: L.shadowSoft,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Stack(
+                                          clipBehavior: Clip.none,
+                                          children: [
+                                            Text(member.avatar, style: const TextStyle(fontSize: 18)),
+                                            if (member.isCritical)
+                                              Positioned(
+                                                top: -4,
+                                                right: -4,
+                                                child: Container(
+                                                  width: 8,
+                                                  height: 8,
+                                                  decoration: const BoxDecoration(
+                                                    color: Colors.red,
+                                                    shape: BoxShape.circle,
+                                                  ),
+                                                ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+                                                  begin: const Offset(1, 1),
+                                                  end: const Offset(1.2, 1.2),
+                                                  duration: 1.seconds,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                        const SizedBox(width: 10),
+                                        Expanded(
+                                          child: Text(
+                                            member.name,
+                                            style: AppTypography.labelSmall.copyWith(
+                                              color: L.text,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(height: 32),
+                        ],
+
+                        if (state.caregivers.isEmpty)
+                          _buildEmptyState(L, onAddCg)
+                              .animate()
+                              .fadeIn(duration: 600.ms)
+                        else ...[
+                          ListView.builder(
+                            padding: EdgeInsets.zero,
+                            shrinkWrap: true,
+                            physics: const NeverScrollableScrollPhysics(),
+                            itemCount: state.caregivers.length,
+                            itemBuilder: (context, index) => CaregiverCard(
+                              cg: state.caregivers[index],
+                              state: state,
+                              L: L,
+                              onDashboard: () =>
+                                  onDashboard(state.caregivers[index]),
+                            ).animate().fadeIn(
+                                delay: (100 + index * 50).ms, duration: 500.ms),
+                          ),
+                        ],
+                      ],
+
+                      const SizedBox(height: 32),
+
+                      // ALERT LOG
+                      if (state.missedAlerts.isNotEmpty) ...[
+                        Text('Recent Activity',
+                            style: AppTypography.titleLarge.copyWith(
+                              color: L.primary,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 18,
+                              letterSpacing: -0.3,
+                            )),
+                        const SizedBox(height: 14),
+                        ListView.builder(
+                          padding: EdgeInsets.zero,
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: state.missedAlerts.length,
+                          itemBuilder: (context, index) => AlertLogCard(
+                            alert: state.missedAlerts[index],
+                            L: L,
+                            onTap: () =>
+                                onAlertDetail(state.missedAlerts[index]),
+                          ).animate().fadeIn(
+                              delay: (300 + index * 50).ms, duration: 500.ms),
+                        ),
+                      ],
+
+                      const SizedBox(height: 24),
+                      SimulateMissCard(L: L, onSimulate: onEscalationDemo),
+                      const SizedBox(height: 140),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ── PREMIUM HEADER ──
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: _FamilyHeader(
+              scrollOffset:
+                  scrollController.hasClients ? scrollController.offset : 0,
+              isActive: activeCount > 0 || state.monitoredPatients.isNotEmpty,
+              L: L,
+              onAdd: onAddCg,
+              onJoin: onJoin,
+            ),
+          ),
+        ],
+      ),
+      floatingActionButton: pivot == 1
+          ? null
+          : Padding(
+              padding: const EdgeInsets.only(bottom: 90),
+              child: FloatingActionButton.extended(
+                onPressed: onAddCg,
+                backgroundColor: L.text,
+                elevation: 0,
+                shape: RoundedRectangleBorder(borderRadius: AppRadius.roundM),
+                icon: const Text('➕',
+                    style: TextStyle(color: Colors.white, fontSize: 14)),
+                label: const Text('Add Guardian',
+                    style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 13,
+                        letterSpacing: 0.5)),
+              ),
+            ).animate().scale(delay: 400.ms, curve: Curves.easeOutBack),
+    );
+  }
+
+  Widget _buildEmptyState(AppThemeColors L, VoidCallback onAddCg) {
+    return PremiumEmptyState(
+      title: 'No guardians found',
+      subtitle:
+          'Invite family or medical professionals to monitor your medication safety.',
+      emoji: '🛡️',
+      actionLabel: 'Invite Guardian',
+      onAction: onAddCg,
+    );
+  }
+
+  Widget _buildEmptyMonitoringState(AppThemeColors L, VoidCallback onJoin) {
+    return PremiumEmptyState(
+      title: 'Protect your family',
+      subtitle:
+          'Join as a caregiver to see real-time health updates for your loved ones.',
+      emoji: '🫂',
+      actionLabel: 'Join Circle',
+      onAction: onJoin,
+    );
+  }
+}
+
+class _CompactPivotPill extends StatelessWidget {
+  final String label;
+  final bool active;
+  final VoidCallback onTap;
+  final AppThemeColors L;
+
+  const _CompactPivotPill({
+    required this.label,
+    required this.active,
+    required this.onTap,
+    required this.L,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () {
+        HapticEngine.selection();
+        onTap();
+      },
+      child: AnimatedContainer(
+        duration: 250.ms,
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        decoration: BoxDecoration(
+          color: active ? L.text : Colors.transparent,
+          borderRadius: AppRadius.roundXS,
+        ),
+        child: Text(
+          label,
+          style: AppTypography.labelSmall.copyWith(
+            color: active ? L.bg : L.sub.withValues(alpha: 0.6),
+            fontSize: 12,
+            fontWeight: FontWeight.w900,
+            letterSpacing: 0.5,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FamilyHeader extends StatelessWidget {
+  final double scrollOffset;
+  final bool isActive;
+  final AppThemeColors L;
+  final VoidCallback onAdd, onJoin;
+
+  const _FamilyHeader({
+    required this.scrollOffset,
+    required this.isActive,
+    required this.L,
+    required this.onAdd,
+    required this.onJoin,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final double opacity = (scrollOffset / 60).clamp(0.0, 1.0);
+    final topPad = MediaQuery.of(context).padding.top;
+
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        child: AnimatedContainer(
+          duration: 200.ms,
+          padding: EdgeInsets.fromLTRB(20, topPad + 12, 20, 16),
+          decoration: BoxDecoration(
+            color: L.meshBg.withValues(alpha: opacity * 0.8),
+            border: Border(
+                bottom: BorderSide(
+                    color: L.border.withValues(alpha: opacity * 0.08),
+                    width: 0.5)),
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'FAMILY',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: L.sub.withValues(alpha: 0.4),
+                        letterSpacing: 2.0,
+                        fontWeight: FontWeight.w900,
+                        fontSize: 10,
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        Text(
+                          '🫂 Circle',
+                          style: AppTypography.headlineMedium.copyWith(
+                            color: L.text,
+                            fontWeight: FontWeight.w900,
+                            fontSize: 26,
+                            height: 1.1,
+                            letterSpacing: -1.0,
+                          ),
+                        ),
+                        if (isActive) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            width: 10,
+                            height: 10,
+                            decoration: BoxDecoration(
+                                color: L.success,
+                                shape: BoxShape.circle,
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: L.success.withValues(alpha: 0.5),
+                                      blurRadius: 8)
+                                ]),
+                          )
+                              .animate(onPlay: (c) => c.repeat(reverse: true))
+                              .fade(begin: 0.3, end: 1.0, duration: 1.seconds)
+                              .scale(
+                                  begin: const Offset(0.8, 0.8),
+                                  end: const Offset(1.2, 1.2)),
+                        ]
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              BouncingButton(
+                onTap: onJoin,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: L.fill,
+                    borderRadius: AppRadius.roundS,
+                  ),
+                  child: const Center(
+                      child: Center(
+                          child: Text('📲', style: TextStyle(fontSize: 20)))),
+                ),
+              ),
+              const SizedBox(width: 10),
+              BouncingButton(
+                onTap: onAdd,
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: L.text,
+                    borderRadius: AppRadius.roundS,
+                    boxShadow: [
+                      BoxShadow(
+                          color: L.text.withValues(alpha: 0.15),
+                          blurRadius: 16,
+                          offset: const Offset(0, 4))
+                    ],
+                  ),
+                  child: const Center(
+                      child: Center(
+                          child: Text('➕', style: TextStyle(fontSize: 20)))),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _CircleStatBento extends StatelessWidget {
+  final String label, value;
+  final String emoji;
+  final Color? iconColor;
+  final AppThemeColors L;
+  final bool glow;
+  const _CircleStatBento(
+      {required this.label,
+      required this.value,
+      required this.emoji,
+      this.iconColor,
+      required this.L,
+      this.glow = false});
+  @override
+  Widget build(BuildContext context) => SquircleCard(
+        padding: const EdgeInsets.all(20),
+        radius: 24,
+        borderWidth: 0.5,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: (iconColor ?? L.primary).withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Text(emoji,
+                      style: TextStyle(
+                          fontSize: 12, color: iconColor ?? L.primary)),
+                )
+                    .animate(
+                        target: glow ? 1 : 0,
+                        onPlay: (c) => c.repeat(reverse: true))
+                    .scale(
+                        begin: const Offset(1.0, 1.0),
+                        end: const Offset(1.2, 1.2),
+                        curve: Curves.easeInOut),
+                const SizedBox(width: 10),
+                Text(label,
+                    style: AppTypography.labelSmall.copyWith(
+                        color: L.sub.withValues(alpha: 0.4),
+                        fontWeight: FontWeight.w900,
+                        fontSize: 10,
+                        letterSpacing: 1.0)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(value,
+                style: AppTypography.displaySmall.copyWith(
+                  color: L.text,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 22,
+                  letterSpacing: -0.5,
+                  height: 1.0,
+                )),
+          ],
+        ),
+      );
+}
