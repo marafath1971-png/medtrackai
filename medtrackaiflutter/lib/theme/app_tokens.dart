@@ -46,12 +46,12 @@ class AppDurations {
 }
 
 class AppRadius {
-  static const double xs = 8;
-  static const double s = 12;
-  static const double m = 18;
-  static const double l = 28;
-  static const double xl = 44;
-  static const double squircle = 32;
+  static const double xs = 4;
+  static const double s = 8;
+  static const double m = 12;
+  static const double l = 16;
+  static const double xl = 20; // Enforcing 20pt card radius
+  static const double squircle = 24;
   static const double max = 999;
 
   static BorderRadius get roundXS => BorderRadius.circular(xs);
@@ -61,6 +61,12 @@ class AppRadius {
   static BorderRadius get roundXL => BorderRadius.circular(xl);
   static BorderRadius get roundSquircle => BorderRadius.circular(squircle);
   static BorderRadius get circle => BorderRadius.circular(max);
+}
+
+class AppCurves {
+  // Spring transition: damping 0.8, response 0.4 approximation
+  static const Curve spring = ElasticOutCurve(0.8);
+  static const Curve smooth = Curves.fastOutSlowIn;
 }
 
 class AppTypography {

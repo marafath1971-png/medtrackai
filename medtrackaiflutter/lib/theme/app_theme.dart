@@ -11,16 +11,16 @@ export 'app_tokens.dart';
 
 class AppColors {
   // ── Brand ─────────────────────────────────────────────
-  static const Color primaryBlue = Color(0xFF000000);
-  static const Color primaryBlueDark = Color(0xFF000000);
+  static const Color primaryBlue = Color(0xFF0A0A0C); // Dark-first
+  static const Color primaryBlueDark = Color(0xFF0A0A0C);
   static const Color primaryBlueLight = Color(0xFF1A1A1A);
-  static const Color limeAccent = Color(0xFFCDFF00); // 2026 Core Accent
+  static const Color limeAccent = Color(0xFF00E5A0); // 2026 Core Accent (Electric Mint)
 
-  static const Color black = Color(0xFF000000);
+  static const Color black = Color(0xFF0A0A0C);
   static const Color white = Color(0xFFFFFFFF);
   static const Color meshBg = Color(0xFFFFFFFF); // Pure white for minimal light mode
 
-  static const Color grey50 = Color(0xFFFFFFFF);
+  static const Color grey50 = Color(0xFFFAFAFA);
   static const Color grey100 = Color(0xFFF5F5F5);
   static const Color grey200 = Color(0xFFE5E5E5);
   static const Color grey300 = Color(0xFFD4D4D4);
@@ -134,7 +134,7 @@ class AppTheme {
 
   static ThemeData dark({bool isAmoled = true, String? accentHex}) {
     const accent = AppColors.limeAccent;
-    const bg = AppColors.black; // OLED Perfect Black strictly enforced
+    const bg = AppColors.black; // OLED Perfect Black strictly enforced (#0A0A0C)
     const surface = AppColors.black; // Surfaces meld into background
     const surfaceContainer = AppColors.grey950; // Ultra subtle lift
 

@@ -817,9 +817,10 @@ void _showTrendDrilldown(
                 SizedBox(
                   width: 10,
                   height: 10,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    valueColor: AlwaysStoppedAnimation<Color>(L.sub),
+                  child: AppShimmer(
+                    width: 10,
+                    height: 10,
+                    shape: BoxShape.circle,
                   ),
                 ),
             ],

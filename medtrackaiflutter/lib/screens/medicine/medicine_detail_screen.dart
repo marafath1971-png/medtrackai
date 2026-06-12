@@ -11,7 +11,6 @@ import '../../widgets/common/modern_time_picker.dart';
 import '../../widgets/common/mesh_gradient.dart';
 import 'widgets/body_impact_card.dart';
 import 'widgets/inline_ai_coach.dart';
-import '../../widgets/common/app_shimmer.dart';
 // ══════════════════════════════════════════════════════════════════════
 // MEDICINE DETAIL SCREEN (Cal AI Industrial Hub Refined)
 // ══════════════════════════════════════════════════════════════════════
@@ -147,6 +146,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                       );
                       return BodyImpactCard(
                         impact: impact,
+                        medName: med.name,
                         onAskAIPressed: () => InlineAiCoach.show(context, med, impact: impact),
                       ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.05, end: 0);
                     }),

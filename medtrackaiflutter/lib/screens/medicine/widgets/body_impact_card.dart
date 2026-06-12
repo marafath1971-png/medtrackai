@@ -2,15 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../theme/app_theme.dart';
 import '../../../../domain/entities/body_impact.dart';
+import '../../../widgets/biohacking/pharma_timeline_widget.dart';
 
 class BodyImpactCard extends StatelessWidget {
   final BodyImpactSummary impact;
   final VoidCallback? onAskAIPressed;
+  final String? medName;
 
   const BodyImpactCard({
     super.key,
     required this.impact,
     this.onAskAIPressed,
+    this.medName,
   });
 
   @override
@@ -98,37 +101,17 @@ class BodyImpactCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 24),
 
-                // 2. Journey Timeline (Pharmacokinetics)
-                if (impact.timelineEffects.isNotEmpty) ...[
-                  Text(
-                    'TIMELINE OF EFFECTS',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: L.sub.withValues(alpha: 0.5),
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildTimeline(L, impact.timelineEffects),
-                  const SizedBox(height: 24),
-                ],
+                // 2. Journey Timeline & Body Systems (Pharmacokinetics)
+                PharmaTimelineWidget(
+                  medName: medName ?? 'Medicine',
+                  onsetMinutes: impact.onsetMinutes.toDouble(),
+                  peakHours: impact.peakHours,
+                  durationHours: impact.durationHours,
+                  targetOrgans: impact.bodySystems,
+                ),
+                const SizedBox(height: 24),
 
-                // 3. Body Systems Grid
-                if (impact.bodySystems.isNotEmpty) ...[
-                  Text(
-                    'SYSTEMS AFFECTED',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: L.sub.withValues(alpha: 0.5),
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildSystemsGrid(L, impact.bodySystems),
-                  const SizedBox(height: 24),
-                ],
-
-                // 4. Wow Facts Carousel
+                // 3. Wow Facts Carousel
                 if (impact.ahaFacts.isNotEmpty) ...[
                   _buildAhaCarousel(L, impact.ahaFacts),
                   const SizedBox(height: 24),
@@ -172,110 +155,6 @@ class BodyImpactCard extends StatelessWidget {
         ],
       ),
     ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.05, end: 0);
-  }
-
-  Widget _buildTimeline(AppThemeColors L, List<Map<String, dynamic>> effects) {
-    return Column(
-      children: effects.asMap().entries.map((entry) {
-        final index = entry.key;
-        final effect = entry.value;
-        final isLast = index == effects.length - 1;
-
-        return Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Column(
-              children: [
-                Container(
-                  width: 12,
-                  height: 12,
-                  decoration: BoxDecoration(
-                    color: index == 0 ? L.primary : L.sub.withValues(alpha: 0.3),
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                        color: index == 0 ? L.primary : Colors.transparent,
-                        width: 2),
-                  ),
-                ),
-                if (!isLast)
-                  Container(
-                    width: 2,
-                    height: 40,
-                    color: L.border.withValues(alpha: 0.5),
-                  ),
-              ],
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Padding(
-                padding: EdgeInsets.only(bottom: isLast ? 0 : 20.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      effect['time']?.toString().toUpperCase() ?? 'N/A',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: index == 0 ? L.primary : L.text,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      effect['effect']?.toString() ?? '',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: L.sub,
-                        height: 1.3,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        );
-      }).toList(),
-    );
-  }
-
-  Widget _buildSystemsGrid(AppThemeColors L, List<String> systems) {
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: systems.map((sys) {
-        final lower = sys.toLowerCase();
-        String emoji = '🧬';
-        if (lower.contains('brain') || lower.contains('nervous')) emoji = '🧠';
-        if (lower.contains('heart') || lower.contains('cardio')) emoji = '🫀';
-        if (lower.contains('stomach') || lower.contains('digest')) emoji = '🫃';
-        if (lower.contains('liver')) emoji = '🩸';
-        if (lower.contains('kidney') || lower.contains('renal')) emoji = '🫘';
-        if (lower.contains('lung') || lower.contains('respir')) emoji = '🫁';
-
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-          decoration: BoxDecoration(
-            color: L.card,
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: L.border.withValues(alpha: 0.3)),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 16)),
-              const SizedBox(width: 8),
-              Text(
-                sys.toUpperCase(),
-                style: AppTypography.labelSmall.copyWith(
-                  color: L.text,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 10,
-                ),
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    );
   }
 
   Widget _buildAhaCarousel(AppThemeColors L, List<String> facts) {

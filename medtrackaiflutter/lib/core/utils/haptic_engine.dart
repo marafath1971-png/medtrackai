@@ -44,4 +44,22 @@ class HapticEngine {
     await Future.delayed(const Duration(milliseconds: 50));
     await HapticFeedback.heavyImpact();
   }
+
+  // ── New Required Methods ────────────────────────────────────────
+
+  static Future<void> lightTap() async {
+    await HapticFeedback.lightImpact();
+  }
+
+  static Future<void> successDose() async {
+    await HapticFeedback.mediumImpact();
+    await Future.delayed(const Duration(milliseconds: 80));
+    await HapticFeedback.mediumImpact();
+  }
+
+  static Future<void> heavyMilestone() async {
+    await HapticFeedback.heavyImpact();
+    await Future.delayed(const Duration(milliseconds: 150));
+    await HapticFeedback.vibrate();
+  }
 }

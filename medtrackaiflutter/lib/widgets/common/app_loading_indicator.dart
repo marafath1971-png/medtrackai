@@ -46,18 +46,6 @@ class AppLoadingIndicator extends StatelessWidget {
                   curve: Curves.easeInOut,
                 ),
 
-            // ── Outer Spinning Arc
-            SizedBox(
-              width: size * 1.2,
-              height: size * 1.2,
-              child: CircularProgressIndicator(
-                strokeWidth: 2,
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.black.withValues(alpha: 0.1),
-                ),
-              ),
-            ).animate(onPlay: (c) => c.repeat()).rotate(duration: 2000.ms),
-
             // ── The Logo
             Image.asset(
               'assets/images/home_logo.png',

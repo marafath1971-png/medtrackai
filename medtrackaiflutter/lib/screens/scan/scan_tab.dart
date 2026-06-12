@@ -1514,6 +1514,7 @@ class _ResultModalState extends State<_ResultModal> {
                   if (widget.result.bodyImpact != null) ...[
                     BodyImpactCard(
                       impact: widget.result.bodyImpact!,
+                      medName: _nameController.text,
                       onAskAIPressed: () {
                         // Create a temporary Medicine instance for the coach context
                         final tempMed = Medicine(
