@@ -11,6 +11,7 @@ import '../../widgets/common/modern_time_picker.dart';
 import '../../widgets/common/mesh_gradient.dart';
 import 'widgets/body_impact_card.dart';
 import 'widgets/inline_ai_coach.dart';
+import '../../widgets/common/app_shimmer.dart';
 // ══════════════════════════════════════════════════════════════════════
 // MEDICINE DETAIL SCREEN (Cal AI Industrial Hub Refined)
 // ══════════════════════════════════════════════════════════════════════
@@ -83,7 +84,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
 
     if (med.id == -1) {
       WidgetsBinding.instance.addPostFrameCallback((_) => widget.onBack());
-      return const Scaffold(body: Center(child: CircularProgressIndicator()));
+      return const Scaffold(body: Center(child: AppShimmer(width: 64, height: 64, shape: BoxShape.circle)));
     }
 
     final adherence = context

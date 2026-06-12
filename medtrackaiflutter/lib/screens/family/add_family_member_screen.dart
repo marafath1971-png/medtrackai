@@ -5,6 +5,7 @@ import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../core/utils/haptic_engine.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../../widgets/common/app_shimmer.dart';
 
 class AddFamilyMemberScreen extends StatefulWidget {
   const AddFamilyMemberScreen({super.key});
@@ -310,9 +311,10 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                     ? const SizedBox(
                         width: 24,
                         height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3,
-                          valueColor: AlwaysStoppedAnimation(Colors.white),
+                        child: AppShimmer(
+                          width: 24,
+                          height: 24,
+                          shape: BoxShape.circle,
                         ),
                       )
                     : Text(

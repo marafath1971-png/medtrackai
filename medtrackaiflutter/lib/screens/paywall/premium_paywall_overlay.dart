@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
 import '../../services/purchases_service.dart';
 import '../../core/utils/haptic_engine.dart';
+import '../../widgets/common/app_shimmer.dart';
 
 
 // ══════════════════════════════════════════════════════════════
@@ -450,9 +451,10 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
               ? const SizedBox(
                   width: 22,
                   height: 22,
-                  child: CircularProgressIndicator(
-                    strokeWidth: 2,
-                    color: Colors.white54,
+                  child: AppShimmer(
+                    width: 22,
+                    height: 22,
+                    shape: BoxShape.circle,
                   ),
                 )
               : Text(

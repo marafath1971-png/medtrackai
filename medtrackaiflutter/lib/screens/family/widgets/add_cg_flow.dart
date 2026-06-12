@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../providers/app_state.dart';
 import '../../../models/constants.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/common/app_shimmer.dart';
 
 class AddHeader extends StatelessWidget {
   final int step;
@@ -577,8 +578,8 @@ class _AddCgStep2State extends State<AddCgStep2> {
                               SizedBox(
                                   width: 24,
                                   height: 24,
-                                  child: CircularProgressIndicator(
-                                      strokeWidth: 2.5, color: L.green)),
+                                  child: AppShimmer(
+                                      width: 24, height: 24, shape: BoxShape.circle)),
                               const SizedBox(height: 12),
                               Text('Waiting for caregiver to join...',
                                   style: AppTypography.labelLarge.copyWith(

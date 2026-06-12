@@ -42,7 +42,6 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget> with Single
   late AnimationController _pulseController;
   late Animation<double> _pulseAnimation;
   String? _selectedOrgan;
-  bool _isCinematicMode = false;
   double? _lastSnappedPoint;
 
   @override
@@ -234,7 +233,6 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget> with Single
   void _enterCinematicMode() {
     HapticEngine.heavyImpact();
     setState(() {
-      _isCinematicMode = true;
       // Slow down breathing pulse animation for recording
       _pulseController.duration = const Duration(milliseconds: 3000);
       _pulseController.repeat(reverse: true);
@@ -455,7 +453,6 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget> with Single
       ),
     ).then((_) {
       setState(() {
-        _isCinematicMode = false;
         // Restore standard breathing pulse duration
         _pulseController.duration = const Duration(milliseconds: 1500);
         _pulseController.repeat(reverse: true);
