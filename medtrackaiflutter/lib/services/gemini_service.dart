@@ -1020,18 +1020,44 @@ Short paragraph, conversational, friendly but professional. No markdown bolding,
 Example: "$patientName is doing great with their morning heart medication, but seems to be missing the evening doses lately. A friendly nudge around 8 PM might help keep them on track!"
 ''';
 
-    try {
-      final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
-        apiKey: _apiKey,
-      );
-      final response = await model.generateContent([Content.text(prompt)]);
-      return response.text?.trim() ??
-          "No insights available at this time. Keep monitoring for more data!";
-    } catch (e) {
-      appLogger.w('[GeminiService] Protector insight failed: $e');
-      return "Unable to generate AI Insight. Please check back later.";
+    for (final config in _standardModels) {
+      final modelName = config['model']!;
+      try {
+        final result = await FirebaseFunctions.instance
+            .httpsCallable('geminiProxy')
+            .call({
+          'prompt': prompt,
+          'model': modelName,
+        }).timeout(const Duration(seconds: 30));
+
+        final text = (result.data['text'] as String?)?.trim() ?? '';
+        if (text.isNotEmpty) return text;
+      } catch (e) {
+        final s = e.toString().toLowerCase();
+        // Fallback to direct API if proxy is missing/misconfigured
+        if ((s.contains('not-found') || s.contains('404')) &&
+            _apiKey.isNotEmpty) {
+          appLogger.w(
+              '[GeminiService] Protector proxy missing. Falling back to direct API for $modelName.');
+          try {
+            final model = GenerativeModel(
+              model: modelName,
+              apiKey: _apiKey,
+            );
+            final response =
+                await model.generateContent([Content.text(prompt)]);
+            final text = response.text?.trim() ?? '';
+            if (text.isNotEmpty) return text;
+          } catch (fallbackErr) {
+            appLogger.w(
+                '[GeminiService] Protector direct fallback failed: $fallbackErr');
+          }
+        } else {
+          appLogger.w('[GeminiService] Protector insight failed with $modelName: $e');
+        }
+      }
     }
+    return "Unable to generate AI Insight. Please check back later.";
   }
 
   // ─────────────────────────────────────────────────────────────────
@@ -1213,14 +1239,16 @@ Rules:
 
     for (final config in _standardModels) {
       final modelName = config['model']!;
-      final apiVersion = config['version']!;
       try {
-        final model = _getModel(modelName, apiVersion: apiVersion);
-        final response =
-            await _withRetry(() => model.generateContent([Content.text(prompt)]));
+        final result = await FirebaseFunctions.instance
+            .httpsCallable('geminiProxy')
+            .call({
+          'prompt': prompt,
+          'model': modelName,
+        }).timeout(const Duration(seconds: 30));
 
-        if (response.text != null && response.text!.isNotEmpty) {
-          final raw = response.text!.trim();
+        final raw = (result.data['text'] as String?)?.trim() ?? '';
+        if (raw.isNotEmpty) {
           final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(raw);
           if (jsonMatch != null) {
             final data =
@@ -1237,8 +1265,43 @@ Rules:
           }
         }
       } catch (e) {
-        appLogger
-            .w('[GeminiService] parseConversationalLog $modelName failed: $e');
+        final s = e.toString().toLowerCase();
+        // Fallback to direct API if proxy is missing/misconfigured
+        if ((s.contains('not-found') || s.contains('404')) &&
+            _apiKey.isNotEmpty) {
+          appLogger.w(
+              '[GeminiService] ConvLog proxy missing. Falling back to direct API for $modelName.');
+          try {
+            final model =
+                _getModel(modelName, apiVersion: config['version']!);
+            final response = await _withRetry(
+                () => model.generateContent([Content.text(prompt)]));
+            final raw = response.text?.trim() ?? '';
+            if (raw.isNotEmpty) {
+              final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(raw);
+              if (jsonMatch != null) {
+                final data =
+                    json.decode(jsonMatch.group(0)!) as Map<String, dynamic>;
+                final isSuccess = data['success'] == true;
+                final confirmation =
+                    data['confirmation'] as String? ?? 'Dose logged ✅';
+                if (isSuccess) {
+                  appLogger.i(
+                      '[GeminiService] ConvLog direct fallback parsed: $data');
+                  return Success(confirmation);
+                } else {
+                  return Error(ScanFailure(confirmation));
+                }
+              }
+            }
+          } catch (fallbackErr) {
+            appLogger.w(
+                '[GeminiService] ConvLog direct fallback failed: $fallbackErr');
+          }
+        } else {
+          appLogger.w(
+              '[GeminiService] parseConversationalLog $modelName failed: $e');
+        }
         continue;
       }
     }
