@@ -18,6 +18,7 @@ import 'widgets/dashboard_widgets.dart';
 import '../home/widgets/voice_assistant_overlay.dart';
 import '../../services/voice_service.dart';
 import '../../widgets/modals/clinical_report_modal.dart';
+import '../../widgets/biohacking/pharma_timeline_widget.dart';
 
 class DashboardTab extends StatefulWidget {
   const DashboardTab({super.key});
@@ -152,6 +153,21 @@ class _DashboardTabState extends State<DashboardTab> {
                   // --- BIOMETRIC BENTO (Task 1) ---
                   _buildBiometricBento(context, state, L, s),
                   const SizedBox(height: 32),
+
+                  // --- PHARMACOKINETICS VISUALIZER (Hook D) ---
+                  if (meds.isNotEmpty) ...[
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenPadding),
+                      child: PharmaTimelineWidget(
+                        medName: meds.first.name,
+                        onsetMinutes: 30, // Mock data for demo
+                        peakHours: 2.5,
+                        durationHours: 6.0,
+                        targetOrgans: const ['Brain', 'Nervous System'],
+                      ),
+                    ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.1, end: 0),
+                    const SizedBox(height: 32),
+                  ],
 
                   // --- TIMELINE PILL SELECTOR ---
                   Padding(

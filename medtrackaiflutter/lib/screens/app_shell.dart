@@ -12,6 +12,7 @@ import 'scan/scan_tab.dart';
 import 'dashboard/dashboard_tab.dart';
 import 'alarms/alarms_tab.dart';
 import 'security/lock_screen.dart';
+import 'social/stack_circles_screen.dart';
 import '../services/analytics_service.dart';
 import '../widgets/modals/dose_celebration_modal.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -255,6 +256,8 @@ class _AppShellState extends State<AppShell>
         return const DashboardTab();
       case 2:
         return const AlarmsTab();
+      case 3:
+        return const StackCirclesScreen();
       default:
         return const SizedBox.shrink();
     }
@@ -262,18 +265,20 @@ class _AppShellState extends State<AppShell>
 
   Widget _buildBottomIsland(AppThemeColors L, int unseenAlerts) {
     final isDark = context.select<AppState, bool>((s) => s.darkMode);
-    const labels = ['Home', 'Analytics', 'Alarms'];
+    const labels = ['Home', 'Analytics', 'Alarms', 'Circles'];
     const activeIcons = [
       Icons.home_rounded,
       Icons.bar_chart_rounded,
       Icons.alarm_on_rounded,
+      Icons.group_rounded,
     ];
     const inactiveIcons = [
       Icons.home_outlined,
       Icons.bar_chart_outlined,
       Icons.alarm_outlined,
+      Icons.group_outlined,
     ];
-    final badges = [0, 0, unseenAlerts];
+    final badges = [0, 0, unseenAlerts, 0];
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(28),
@@ -310,7 +315,7 @@ class _AppShellState extends State<AppShell>
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: List.generate(
-                    3,
+                    4,
                     (i) => _buildNavItem(
                       i,
                       activeIcons[i],
@@ -351,7 +356,7 @@ class _AppShellState extends State<AppShell>
             HapticEngine.selection();
             setState(() => _tab = index);
             AnalyticsService.logScreenView(
-                ['Home', 'Analytics', 'Alarms'][index]);
+                ['Home', 'Analytics', 'Alarms', 'Circles'][index]);
           }
         },
         behavior: HitTestBehavior.opaque,

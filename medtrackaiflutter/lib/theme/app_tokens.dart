@@ -35,11 +35,14 @@ class AppSpacing {
 }
 
 class AppDurations {
+  static const Duration micro = Duration(milliseconds: 120);
   static const Duration fast = Duration(milliseconds: 200);
   static const Duration medium = Duration(milliseconds: 400);
   static const Duration slow = Duration(milliseconds: 800);
   static const Duration shimmer = Duration(milliseconds: 1500);
   static const Duration bounce = Duration(milliseconds: 600);
+  static const Duration breathe = Duration(milliseconds: 2500); // For idle pulsing animations
+  static const Duration hero = Duration(milliseconds: 350); // Page hero transitions
 }
 
 class AppRadius {
@@ -300,23 +303,23 @@ class AppGradients {
         end: Alignment.bottomCenter,
       );
 
-  /// Emerald green — Neutrally adjusted for high contrast
+  /// Emerald green — 2026 bright biohacking green
   static LinearGradient get healthGreen => const LinearGradient(
-        colors: [Color(0xFF2D6A4F), Color(0xFF1B4332)],
+        colors: [Color(0xFF10B981), Color(0xFF059669)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
 
   /// Warm amber — Neutrally adjusted for high contrast
   static LinearGradient get warningAmber => const LinearGradient(
-        colors: [Color(0xFFB45309), Color(0xFF78350F)],
+        colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
 
   /// Red gradient — for danger / missed dose
   static LinearGradient get dangerRed => const LinearGradient(
-        colors: [Color(0xFF991B1B), Color(0xFF7F1D1D)],
+        colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
@@ -333,5 +336,69 @@ class AppGradients {
         colors: [Color(0xFFFF5E5E), Color(0xFFE5004F)],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
+      );
+
+  // ── 2026 Biohacking Premium Gradients ────────────────────
+
+  /// Neon Lime — primary brand viral gradient
+  static LinearGradient get neonLime => const LinearGradient(
+        colors: [Color(0xFFCDFF00), Color(0xFF76FF03)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+
+  /// Cyan Flash — performance/biohacking state
+  static LinearGradient get cyanFlash => const LinearGradient(
+        colors: [Color(0xFF00E5FF), Color(0xFF00B0FF)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+
+  /// Purple Dusk — premium milestone
+  static LinearGradient get purpleDusk => const LinearGradient(
+        colors: [Color(0xFF7C3AED), Color(0xFFDB2777)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+
+  /// Gold Legend — 1-year streak
+  static LinearGradient get goldLegend => const LinearGradient(
+        colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+
+  /// Sunrise — morning doses, warm energy
+  static LinearGradient get sunrise => const LinearGradient(
+        colors: [Color(0xFFFBBF24), Color(0xFFF97316)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+
+  /// Midnight Blue — night/sleep doses
+  static LinearGradient get midnightBlue => const LinearGradient(
+        colors: [Color(0xFF4338CA), Color(0xFF1E1B4B)],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+
+  /// Creates a customized glow gradient for any accent color
+  static LinearGradient glow(Color color) => LinearGradient(
+        colors: [
+          color,
+          color.withValues(alpha: 0.5),
+        ],
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
+
+  /// Radial ambient glow for card backgrounds
+  static RadialGradient radialGlow(Color color, {double intensity = 0.15}) =>
+      RadialGradient(
+        colors: [
+          color.withValues(alpha: intensity),
+          Colors.transparent,
+        ],
+        radius: 0.8,
       );
 }

@@ -16,6 +16,7 @@ import '../../services/share_service.dart';
 import '../../services/review_service.dart';
 import '../../widgets/common/modern_time_picker.dart';
 import '../paywall/premium_paywall_overlay.dart';
+import 'supplement_interaction_scanner.dart';
 
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:path/path.dart' as p;
@@ -582,8 +583,43 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    BouncingButton(
+                      onTap: () {
+                        HapticEngine.selection();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const SupplementInteractionScanner(),
+                          ),
+                        );
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        decoration: BoxDecoration(
+                          gradient: AppGradients.cyanFlash,
+                          borderRadius: BorderRadius.circular(20),
+                          boxShadow: AppShadows.glow(const Color(0xFF00E5FF), intensity: 0.3),
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.bolt_rounded, color: Colors.white, size: 16),
+                            const SizedBox(width: 6),
+                            Text(
+                              'SYNERGY SCANNER',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.0,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
                     _buildCategoryPill(),
-                    const SizedBox(height: 20), // Slightly reduced from 24
+                    const SizedBox(height: 20),
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 40),
                       child: _buildBottomControls(),

@@ -408,7 +408,7 @@ class GeminiService {
         : '';
     return '''
 <SYSTEM>You are an expert clinical pharmacist and multi-market drug information specialist.</SYSTEM>
-<TASK>Analyze the provided medicine packaging image and extract all medical and regulatory information.</TASK>
+<TASK>Analyze the provided medicine/supplement packaging image and extract all medical and regulatory information. If multiple supplements are in the image, analyze them for synergy or dangerous interactions.</TASK>
 $loc
 $halalNote
 Examine the ${hint ?? ''} medicine packaging image carefully.
@@ -428,7 +428,7 @@ Return ONLY valid JSON with NO markdown, NO code fences, NO explanations:
   "whenToTake": "Specific timing guidance.",
   "withFood": true,
   "sideEffects": "Common side effects.",
-  "interactions": "Known drug interactions.",
+  "interactions": "Known drug interactions. If multiple supplements are scanned, explicitly describe their synergy (e.g. 'God Stack: L-Theanine + Caffeine') or danger.",
   "warnings": "Key warnings.",
   "storage": "Storage instructions.",
   "category": "Prescription|OTC|Supplement|TCM|Herbal",
@@ -1159,5 +1159,91 @@ Rules:
       return const Error(ScanFailure(
           "The AI couldn't generate a safety profile right now. Please try again later."));
     });
+  }
+
+  // ══════════════════════════════════════════════
+  // CONVERSATIONAL LOG PARSER
+  // Powers the AI Quick Log Sheet (TikTok Viral Feature)
+  // ══════════════════════════════════════════════
+
+  /// Parse natural language dose log text into a structured confirmation.
+  /// Input: "I took 1 Aspirin 10 minutes ago"
+  /// Output: "Aspirin 81mg logged at 9:15 AM ✅"
+  static Future<Result<String>> parseConversationalLog(String input) async {
+    const promptTemplate = '''
+You are a medical logging assistant inside a medication tracker app.
+A user typed the following message to log a medication dose:
+
+USER INPUT: "{INPUT}"
+
+Extract the following details from this natural language message:
+- Medicine name (required)
+- Dosage/amount (if mentioned)
+- Time of intake (if mentioned, relative like "10 mins ago" or absolute like "8am")
+
+Respond ONLY with a JSON object in this exact format:
+{
+  "success": true,
+  "medicine": "Aspirin",
+  "dosage": "81mg",
+  "time_taken": "9:15 AM",
+  "confirmation": "Aspirin 81mg logged at 9:15 AM ✅"
+}
+
+If you cannot extract a medicine name, respond with:
+{
+  "success": false,
+  "confirmation": "Could not identify a medication in your message."
+}
+
+Rules:
+- Never add medical advice or recommendations
+- If time is relative (e.g., "10 minutes ago"), calculate from current time
+- Current time is: {TIME}
+- Keep confirmation message short and friendly (under 60 chars)
+- This is for medication logging only — do not respond to anything else
+''';
+
+    final now = DateTime.now();
+    final timeStr =
+        '${now.hour}:${now.minute.toString().padLeft(2, '0')} ${now.hour < 12 ? 'AM' : 'PM'}';
+    final prompt = promptTemplate
+        .replaceAll('{INPUT}', input)
+        .replaceAll('{TIME}', timeStr);
+
+    for (final config in _standardModels) {
+      final modelName = config['model']!;
+      final apiVersion = config['version']!;
+      try {
+        final model = _getModel(modelName, apiVersion: apiVersion);
+        final response =
+            await _withRetry(() => model.generateContent([Content.text(prompt)]));
+
+        if (response.text != null && response.text!.isNotEmpty) {
+          final raw = response.text!.trim();
+          final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(raw);
+          if (jsonMatch != null) {
+            final data =
+                json.decode(jsonMatch.group(0)!) as Map<String, dynamic>;
+            final isSuccess = data['success'] == true;
+            final confirmation =
+                data['confirmation'] as String? ?? 'Dose logged ✅';
+            if (isSuccess) {
+              appLogger.i('[GeminiService] Conversational log parsed: $data');
+              return Success(confirmation);
+            } else {
+              return Error(ScanFailure(confirmation));
+            }
+          }
+        }
+      } catch (e) {
+        appLogger
+            .w('[GeminiService] parseConversationalLog $modelName failed: $e');
+        continue;
+      }
+    }
+
+    return const Error(ScanFailure(
+        'AI could not parse your log. Try: "I took 1 Aspirin at 8am"'));
   }
 }

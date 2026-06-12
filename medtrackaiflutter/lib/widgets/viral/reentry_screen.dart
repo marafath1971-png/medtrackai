@@ -2,7 +2,6 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
-import '../../widgets/shared/shared_widgets.dart';
 import '../../core/utils/haptic_engine.dart';
 
 class ReentryScreen extends StatelessWidget {
@@ -47,7 +46,7 @@ class ReentryScreen extends StatelessWidget {
                     shape: BoxShape.circle,
                     boxShadow: AppShadows.soft,
                   ),
-                  child: Center(
+                  child: const Center(
                     child: Text('👋', style: TextStyle(fontSize: 40)),
                   ),
                 ).animate().scale(delay: 100.ms, curve: Curves.easeOutBack),

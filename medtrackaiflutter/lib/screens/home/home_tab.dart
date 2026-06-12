@@ -17,6 +17,7 @@ import 'widgets/settings_modal_new.dart';
 import 'widgets/profile_selector_ribbon.dart';
 import 'widgets/voice_assistant_overlay.dart';
 import '../../widgets/viral/share_milestone_card.dart';
+import '../../widgets/viral/ai_quick_log_sheet.dart';
 import '../medicine/medicine_detail_screen.dart';
 
 class HomeTab extends StatefulWidget {
@@ -203,7 +204,12 @@ class _HomeTabState extends State<HomeTab> {
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
                       sliver: SliverToBoxAdapter(
-                        child: _ShareMilestoneCardCTA(streak: streak)
+                        child: _ShareMilestoneCardCTA(
+                          streak: streak,
+                          dosePct: dosePct,
+                          userName: context.select<AppState, String>((s) => s.activeProfile?.name ?? s.profile?.name ?? ''),
+                          totalDosesTaken: takenCount,
+                        )
                             .animate()
                             .fadeIn(duration: 600.ms, delay: 300.ms)
                             .slideX(begin: 0.1, end: 0),
@@ -390,6 +396,13 @@ class _HomeTabState extends State<HomeTab> {
             )),
 
         const VoiceAssistantOverlay(),
+
+        // --- AI QUICK LOG FLOATING BUTTON ---
+        Positioned(
+          bottom: 110 + MediaQuery.of(context).padding.bottom,
+          left: 20,
+          child: _AiQuickLogFAB(),
+        ),
       ],
     );
   }
@@ -448,6 +461,96 @@ class _HomeTabState extends State<HomeTab> {
       child: visible
           ? SizedBox.expand(key: ValueKey(key), child: child)
           : const SizedBox.shrink(),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────
+// AI QUICK LOG FAB — Floating action chip for conversational logging
+// ─────────────────────────────────────────────────────────────
+class _AiQuickLogFAB extends StatefulWidget {
+  const _AiQuickLogFAB();
+
+  @override
+  State<_AiQuickLogFAB> createState() => _AiQuickLogFABState();
+}
+
+class _AiQuickLogFABState extends State<_AiQuickLogFAB>
+    with SingleTickerProviderStateMixin {
+  bool _pressed = false;
+  late AnimationController _glowCtrl;
+  late Animation<double> _glowAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _glowCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+    _glowAnim = Tween<double>(begin: 0.2, end: 0.5).animate(
+      CurvedAnimation(parent: _glowCtrl, curve: Curves.easeInOutSine),
+    );
+  }
+
+  @override
+  void dispose() {
+    _glowCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTapDown: (_) {
+        HapticEngine.selection();
+        setState(() => _pressed = true);
+      },
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: () => AiQuickLogSheet.show(context),
+      child: AnimatedBuilder(
+        animation: _glowAnim,
+        builder: (context, child) => AnimatedScale(
+          scale: _pressed ? 0.92 : 1.0,
+          duration: 150.ms,
+          curve: Curves.easeOutCubic,
+          child: Container(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              gradient: AppGradients.neonLime,
+              borderRadius: BorderRadius.circular(24),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.limeAccent
+                      .withValues(alpha: _glowAnim.value),
+                  blurRadius: 20,
+                  spreadRadius: 2,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.auto_awesome_rounded,
+                    color: Colors.black, size: 16),
+                const SizedBox(width: 8),
+                Text(
+                  'AI Log',
+                  style: AppTypography.labelLarge.copyWith(
+                    color: Colors.black,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
@@ -937,59 +1040,106 @@ class _AdherenceScoreCard extends StatelessWidget {
 
 class _ShareMilestoneCardCTA extends StatelessWidget {
   final int streak;
-  const _ShareMilestoneCardCTA({required this.streak});
+  final double dosePct;
+  final String userName;
+  final int totalDosesTaken;
+  const _ShareMilestoneCardCTA({
+    required this.streak,
+    this.dosePct = 0.0,
+    this.userName = '',
+    this.totalDosesTaken = 0,
+  });
 
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final gradColors = _getStreakGradient(streak);
     return GestureDetector(
       onTap: () {
         HapticEngine.selection();
-        ShareMilestoneCard.share(context, streak);
+        ShareMilestoneCard.share(
+          context,
+          streak,
+          adherencePct: dosePct,
+          userName: userName,
+          totalDosesTaken: totalDosesTaken,
+        );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              AppColors.limeAccent.withValues(alpha: 0.15),
-              AppColors.limeAccent.withValues(alpha: 0.02),
+              gradColors[0].withValues(alpha: 0.12),
+              gradColors[1].withValues(alpha: 0.04),
             ],
           ),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: AppColors.limeAccent.withValues(alpha: 0.3)),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: gradColors[0].withValues(alpha: 0.3), width: 0.8),
+          boxShadow: [
+            BoxShadow(
+              color: gradColors[0].withValues(alpha: 0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
         ),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                color: AppColors.limeAccent.withValues(alpha: 0.2),
+                gradient: LinearGradient(colors: gradColors),
                 shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: gradColors[0].withValues(alpha: 0.35),
+                    blurRadius: 12,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              child: const Icon(Icons.share_rounded, size: 16, color: AppColors.limeAccent),
+              child: const Icon(Icons.share_rounded, size: 18, color: Colors.white),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: 14),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Share your $streak-day streak 🔥',
-                    style: AppTypography.titleMedium.copyWith(color: L.text, fontSize: 14),
+                    '🔥 Share your $streak-day streak!',
+                    style: AppTypography.titleMedium.copyWith(
+                      color: L.text,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                    ),
                   ),
+                  const SizedBox(height: 2),
                   Text(
-                    'Inspire others with your consistency',
-                    style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.6)),
+                    'Inspire your followers on TikTok & Instagram',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: L.sub.withValues(alpha: 0.55),
+                      fontSize: 12,
+                    ),
                   ),
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded, color: L.sub),
+            Icon(Icons.chevron_right_rounded,
+                color: gradColors[0].withValues(alpha: 0.7), size: 22),
           ],
         ),
       ),
     );
+  }
+
+  List<Color> _getStreakGradient(int streak) {
+    if (streak >= 365) return [const Color(0xFFFFD700), const Color(0xFFFFA500)];
+    if (streak >= 100) return [const Color(0xFFE040FB), const Color(0xFF7C4DFF)];
+    if (streak >= 30) return [const Color(0xFF00E5FF), const Color(0xFF00B0FF)];
+    if (streak >= 14) return [const Color(0xFF69FF47), const Color(0xFF00E676)];
+    if (streak >= 7) return [const Color(0xFFFF6D00), const Color(0xFFFF3D00)];
+    return [const Color(0xFFCDFF00), const Color(0xFF76FF03)];
   }
 }
 
