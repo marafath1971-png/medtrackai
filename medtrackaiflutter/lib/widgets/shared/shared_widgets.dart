@@ -7,6 +7,8 @@ import '../../core/utils/haptic_engine.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../core/utils/color_utils.dart';
 import '../../domain/entities/medicine.dart';
+import '../common/app_shimmer.dart';
+export '../common/app_shimmer.dart';
 
 // ══════════════════════════════════════════════
 // RING CHART (CustomPainter — matches JSX Ring component)
@@ -139,13 +141,13 @@ class AppToggle extends StatelessWidget {
         if (!value) {
           HapticEngine.success();
         } else {
-          HapticEngine.light();
+          HapticEngine.lightTap();
         }
         onChanged(!value);
       },
       child: AnimatedContainer(
-        duration: 500.ms,
-        curve: Curves.elasticOut,
+        duration: const Duration(milliseconds: 400),
+        curve: AppCurves.spring,
         width: 52,
         height: 30,
         decoration: BoxDecoration(
@@ -154,8 +156,8 @@ class AppToggle extends StatelessWidget {
         ),
         child: Stack(children: [
           AnimatedAlign(
-            duration: 500.ms,
-            curve: Curves.elasticOut,
+            duration: const Duration(milliseconds: 400),
+            curve: AppCurves.spring,
             alignment: value ? Alignment.centerRight : Alignment.centerLeft,
             child: Padding(
               padding: const EdgeInsets.all(3),
@@ -209,7 +211,7 @@ class GlassCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    final r = borderRadius ?? AppRadius.roundSquircle;
+    final r = borderRadius ?? AppRadius.roundXL;
 
     return ClipPath(
       clipper: ShapeBorderClipper(
@@ -280,9 +282,9 @@ class BouncingButton extends StatefulWidget {
     super.key,
     required this.child,
     this.onTap,
-    this.scaleFactor = 0.95,
+    this.scaleFactor = 0.92,
     this.hapticEnabled = true,
-    this.duration = const Duration(milliseconds: 100),
+    this.duration = const Duration(milliseconds: 350), // hero duration
   });
 
   @override
@@ -297,7 +299,7 @@ class _BouncingButtonState extends State<BouncingButton> {
     return GestureDetector(
       onTapDown: (_) {
         setState(() => _isPressed = true);
-        if (widget.hapticEnabled) HapticEngine.light();
+        if (widget.hapticEnabled) HapticEngine.lightTap();
       },
       onTapUp: (_) => setState(() => _isPressed = false),
       onTapCancel: () => setState(() => _isPressed = false),
@@ -305,13 +307,17 @@ class _BouncingButtonState extends State<BouncingButton> {
       child: AnimatedScale(
         scale: _isPressed ? widget.scaleFactor : 1.0,
         duration: widget.duration,
-        curve: Curves.easeOutCubic,
-        child: ColorFiltered(
-          colorFilter: ColorFilter.mode(
-            Colors.black.withValues(alpha: _isPressed ? 0.05 : 0),
-            BlendMode.srcATop,
+        curve: AppCurves.spring,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
+          alignment: Alignment.center,
+          child: ColorFiltered(
+            colorFilter: ColorFilter.mode(
+              Colors.black.withValues(alpha: _isPressed ? 0.05 : 0),
+              BlendMode.srcATop,
+            ),
+            child: widget.child,
           ),
-          child: widget.child,
         ),
       ),
     );
@@ -348,7 +354,7 @@ class SquircleCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final r = radius ?? borderRadius ?? AppRadius.squircle;
+    final r = radius ?? borderRadius ?? AppRadius.xl;
     final bw = borderWidth ?? 0.5;
 
     return Container(
@@ -539,58 +545,15 @@ class SyncStatusBanner extends StatelessWidget {
 // SKELETON SHIMMER LOADER
 // ══════════════════════════════════════════════
 
-class SkeletonBox extends StatefulWidget {
+class SkeletonBox extends StatelessWidget {
   final double width;
   final double height;
   final double radius;
-  const SkeletonBox(
-      {super.key, required this.width, required this.height, this.radius = 16});
-
-  @override
-  State<SkeletonBox> createState() => _SkeletonBoxState();
-}
-
-class _SkeletonBoxState extends State<SkeletonBox>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _ctrl;
-  late Animation<double> _anim;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1200))
-      ..repeat(reverse: true);
-    _anim = Tween(begin: 0.0, end: 1.0).animate(_ctrl);
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
+  const SkeletonBox({super.key, required this.width, required this.height, this.radius = 20});
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-        animation: _anim,
-        builder: (_, __) => Container(
-              width: widget.width,
-              height: widget.height,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(widget.radius),
-                gradient: LinearGradient(
-                  colors: [
-                    context.L.card.withValues(alpha: 0.5),
-                    context.L.card,
-                    context.L.card.withValues(alpha: 0.5),
-                  ],
-                  stops: [0, _anim.value, 1],
-                  begin: Alignment.centerLeft,
-                  end: Alignment.centerRight,
-                ),
-              ),
-            ));
+    return AppShimmer(width: width, height: height, radius: radius);
   }
 }
 
