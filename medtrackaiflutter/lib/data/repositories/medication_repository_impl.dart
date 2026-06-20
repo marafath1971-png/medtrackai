@@ -8,8 +8,8 @@ import '../../services/auth_service.dart';
 import '../../services/storage_service.dart';
 import '../../core/utils/repository_ext.dart';
 import '../../core/utils/result.dart';
-import '../../core/error/failures.dart';
 import '../../core/utils/logger.dart';
+import '../../services/gemini_service.dart';
 
 // ══════════════════════════════════════════════
 // MEDICATION REPOSITORY — Offline-First
@@ -280,23 +280,7 @@ class MedicationRepositoryImpl implements IMedicationRepository {
 
   @override
   Future<Result<AISafetyProfile>> analyzeMedicineSafety(Medicine m) async {
-    // Structural Placeholder for 1.0 Release
-    // Logic: In a real scenario, this would call GeminiService or a Cloud Function.
-    // For the initial hardening, we return a successful structural response to ensure the UI works.
-    try {
-      const profile = AISafetyProfile(
-        warnings: [
-          "Take exactly as prescribed.",
-          "Consult your doctor for side effects."
-        ],
-        interactions: ["Keep track of all other medications."],
-        foodRules: ["Take with a full glass of water."],
-        ahaMoments: ["MedAI helps you stay on track!"],
-      );
-      return const Success(profile);
-    } catch (e) {
-      return Error(ServerFailure(e.toString()));
-    }
+    return await GeminiService.analyzeMedicineSafety(m);
   }
 
   @override

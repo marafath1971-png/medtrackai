@@ -2,11 +2,13 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
-import '../../services/purchases_service.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_shimmer.dart';
-
-
+import '../../services/growth_tracker.dart';
+import 'package:provider/provider.dart';
+import '../../providers/app_state.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
+import '../../services/purchases_service.dart';
 // ══════════════════════════════════════════════════════════════
 // PREMIUM PAYWALL OVERLAY
 // Apple Guideline 3.1.1 & Google Play Billing Policy Compliant
@@ -47,38 +49,45 @@ class PremiumPaywallOverlay extends StatefulWidget {
 }
 
 class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
-  int _selectedPlan = 1; // Default: monthly
+  int _selectedPlan = 0;
   bool _isLoading = false;
+  bool _isLoadingPackages = true;
+  List<Package> _packages = [];
   String? _errorMsg;
+  bool _purchaseSuccess = false;
 
-  // Plan definitions
-  static const _plans = [
-    _PlanOption(
-      id: '\$rc_weekly',
-      label: 'Weekly',
-      price: '\$1.99',
-      period: '/ week',
-      badge: null,
-      annualEquiv: '\$103/yr',
-    ),
-    _PlanOption(
-      id: '\$rc_monthly',
-      label: 'Monthly',
-      price: '\$6.99',
-      period: '/ month',
-      badge: 'POPULAR',
-      annualEquiv: '\$84/yr',
-    ),
-    _PlanOption(
-      id: '\$rc_lifetime',
-      label: 'Lifetime',
-      price: '\$49.99',
-      period: 'one-time',
-      badge: 'BEST VALUE',
-      annualEquiv: null,
-    ),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    GrowthTracker.trackPaywall('view');
+    _loadPackages();
+  }
 
+  Future<void> _loadPackages() async {
+    final packages = await PurchasesService.getAvailablePackages();
+    if (mounted) {
+      setState(() {
+        _packages = packages;
+        _isLoadingPackages = false;
+        
+        // Default to monthly or annual if available
+        final initial = _packages.indexWhere((p) => 
+            p.packageType == PackageType.monthly || 
+            p.packageType == PackageType.annual);
+        _selectedPlan = initial != -1 ? initial : 0;
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    if (!_purchaseSuccess) {
+      GrowthTracker.trackPaywall('close');
+    }
+    super.dispose();
+  }
+
+  // Features
   static const _features = [
     _Feature(icon: '🔬', label: 'Unlimited AI Scans', sub: 'No daily limit on pill recognition'),
     _Feature(icon: '📊', label: 'Doctor Reports (PDF)', sub: 'Export clinical summaries anytime'),
@@ -91,19 +100,28 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   Future<void> _handlePurchase() async {
     if (_isLoading) return;
     HapticEngine.medium();
+    final state = Provider.of<AppState>(context, listen: false);
+
+    await GrowthTracker.trackPaywall('attempt');
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
       _errorMsg = null;
     });
 
     try {
-      final packageId = _plans[_selectedPlan].id;
-      final success = await PurchasesService.purchasePackage(packageId);
+      if (_packages.isEmpty) return;
+      final packageId = _packages[_selectedPlan].identifier;
+      final success = await state.purchasePremium(packageId);
       if (!mounted) return;
 
       if (success) {
         HapticEngine.success();
+        _purchaseSuccess = true;
+        await GrowthTracker.trackPaywall('success');
         widget.onSuccess?.call();
+        if (!mounted) return;
         Navigator.of(context).pop();
       } else {
         setState(() {
@@ -123,7 +141,8 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   Future<void> _handleRestore() async {
     HapticEngine.light();
     setState(() => _isLoading = true);
-    await PurchasesService.restorePurchases();
+    final state = Provider.of<AppState>(context, listen: false);
+    await state.restorePurchases();
     if (!mounted) return;
     setState(() => _isLoading = false);
   }
@@ -144,10 +163,9 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
           decoration: BoxDecoration(
             color: Colors.black.withValues(alpha: 0.88),
             borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-            border: Border(
-              top: BorderSide(color: Colors.white.withValues(alpha: 0.1), width: 0.5),
-              left: BorderSide(color: Colors.white.withValues(alpha: 0.05), width: 0.5),
-              right: BorderSide(color: Colors.white.withValues(alpha: 0.05), width: 0.5),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.08),
+              width: 0.5,
             ),
           ),
           child: SingleChildScrollView(
@@ -270,6 +288,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   Widget _buildTriggerBanner() {
     final messages = {
       'scan_limit': '🔬 You\'ve used your 3 free AI scans today.\nUpgrade for unlimited pill recognition.',
+      'voice_limit': '🎙️ You\'ve used your 3 free AI voice logs today.\nUpgrade for unlimited voice logging.',
       'report_export': '📊 Doctor reports are a Pro feature.\nUnlock PDF exports for your physician.',
       'unlimited_meds': '💊 Free plan is limited to 3 active meds.\nPro gives you unlimited tracking.',
       'streak_freeze': '🔥 Save your streak with a Streak Freeze.\nAvailable on Pro plans.',
@@ -314,11 +333,51 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   }
 
   Widget _buildPlanSelector(AppThemeColors L) {
+    if (_isLoadingPackages) {
+      return const Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 20),
+          child: AppShimmer(width: double.infinity, height: 100, radius: 16),
+        ),
+      );
+    }
+
+    if (_packages.isEmpty) {
+      return Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.04),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Text(
+          'Subscription plans are currently unavailable.',
+          style: AppTypography.labelSmall.copyWith(color: Colors.white.withValues(alpha: 0.5)),
+          textAlign: TextAlign.center,
+        ),
+      );
+    }
+
     return Row(
-      children: _plans.asMap().entries.map((e) {
+      children: _packages.asMap().entries.map((e) {
         final i = e.key;
-        final plan = e.value;
+        final package = e.value;
         final isSelected = i == _selectedPlan;
+        
+        final isPopular = package.packageType == PackageType.monthly;
+        final isBestValue = package.packageType == PackageType.annual || package.packageType == PackageType.lifetime;
+        final badge = isBestValue ? 'BEST VALUE' : (isPopular ? 'POPULAR' : null);
+
+        // Derive period text
+        String periodText = '';
+        if (package.packageType == PackageType.weekly) {
+          periodText = '/ week';
+        } else if (package.packageType == PackageType.monthly) {
+          periodText = '/ month';
+        } else if (package.packageType == PackageType.annual) {
+          periodText = '/ year';
+        } else {
+          periodText = 'one-time';
+        }
 
         return Expanded(
           child: GestureDetector(
@@ -330,7 +389,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
               duration: 250.ms,
               curve: Curves.easeOutCubic,
               margin: EdgeInsets.only(left: i == 0 ? 0 : 8),
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 14),
               decoration: BoxDecoration(
                 color: isSelected
                     ? const Color(0xFFCDFF00).withValues(alpha: 0.12)
@@ -345,10 +404,10 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
               ),
               child: Column(
                 children: [
-                  if (plan.badge != null)
+                  if (badge != null)
                     Container(
                       margin: const EdgeInsets.only(bottom: 6),
-                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                      padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? const Color(0xFFCDFF00)
@@ -356,7 +415,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                         borderRadius: BorderRadius.circular(4),
                       ),
                       child: Text(
-                        plan.badge!,
+                        badge,
                         style: AppTypography.labelSmall.copyWith(
                           color: isSelected ? Colors.black : Colors.white,
                           fontSize: 8,
@@ -366,7 +425,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                       ),
                     ),
                   Text(
-                    plan.label,
+                    package.storeProduct.title.split(' ').first,
                     style: AppTypography.labelSmall.copyWith(
                       color: isSelected
                           ? Colors.white
@@ -374,36 +433,31 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                       fontWeight: FontWeight.w700,
                       fontSize: 11,
                     ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  Text(
-                    plan.price,
-                    style: AppTypography.titleMedium.copyWith(
-                      color: isSelected
-                          ? const Color(0xFFCDFF00)
-                          : Colors.white.withValues(alpha: 0.6),
-                      fontWeight: FontWeight.w900,
-                      fontSize: 18,
-                      letterSpacing: -0.5,
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      package.storeProduct.priceString,
+                      style: AppTypography.titleMedium.copyWith(
+                        color: isSelected
+                            ? const Color(0xFFCDFF00)
+                            : Colors.white.withValues(alpha: 0.6),
+                        fontWeight: FontWeight.w900,
+                        fontSize: 18,
+                        letterSpacing: -0.5,
+                      ),
                     ),
                   ),
                   Text(
-                    plan.period,
+                    periodText,
                     style: AppTypography.labelSmall.copyWith(
                       color: Colors.white.withValues(alpha: 0.35),
                       fontSize: 10,
                     ),
                   ),
-                  if (plan.annualEquiv != null) ...[
-                    const SizedBox(height: 2),
-                    Text(
-                      plan.annualEquiv!,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: Colors.white.withValues(alpha: 0.25),
-                        fontSize: 9,
-                      ),
-                    ),
-                  ],
                 ],
               ),
             ),
@@ -414,16 +468,23 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   }
 
   Widget _buildCtaButton(AppThemeColors L) {
-    final plan = _plans[_selectedPlan];
+    if (_isLoadingPackages) {
+      return const AppShimmer(width: double.infinity, height: 60, radius: 18);
+    }
+    
+    final hasPackages = _packages.isNotEmpty;
+    final buttonText = hasPackages 
+        ? 'Start ${_packages[_selectedPlan].storeProduct.title.split(' ').first} · ${_packages[_selectedPlan].storeProduct.priceString}'
+        : 'Unavailable';
 
     return GestureDetector(
-      onTap: _handlePurchase,
+      onTap: hasPackages ? _handlePurchase : null,
       child: AnimatedContainer(
         duration: 200.ms,
         width: double.infinity,
         height: 60,
         decoration: BoxDecoration(
-          gradient: _isLoading
+          gradient: _isLoading || !hasPackages
               ? LinearGradient(
                   colors: [
                     Colors.white.withValues(alpha: 0.08),
@@ -436,7 +497,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                   end: Alignment.centerRight,
                 ),
           borderRadius: BorderRadius.circular(18),
-          boxShadow: _isLoading
+          boxShadow: _isLoading || !hasPackages
               ? null
               : [
                   BoxShadow(
@@ -458,9 +519,9 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                   ),
                 )
               : Text(
-                  'Start ${plan.label} · ${plan.price}',
+                  buttonText,
                   style: AppTypography.labelLarge.copyWith(
-                    color: Colors.black,
+                    color: !hasPackages ? Colors.white.withValues(alpha: 0.5) : Colors.black,
                     fontWeight: FontWeight.w900,
                     fontSize: 16,
                     letterSpacing: -0.3,
@@ -524,23 +585,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
 
 // ── Supporting models ─────────────────────────────────────────
 
-class _PlanOption {
-  final String id;
-  final String label;
-  final String price;
-  final String period;
-  final String? badge;
-  final String? annualEquiv;
-
-  const _PlanOption({
-    required this.id,
-    required this.label,
-    required this.price,
-    required this.period,
-    this.badge,
-    this.annualEquiv,
-  });
-}
+// ── Supporting models ─────────────────────────────────────────
 
 class _Feature {
   final String icon;

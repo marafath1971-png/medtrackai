@@ -114,12 +114,12 @@ class AddCgStep1 extends StatelessWidget {
                                         decoration: BoxDecoration(
                                           color: avatar == a
                                               ? L.text
-                                              : Colors.white,
+                                              : L.card,
                                           borderRadius:
                                               BorderRadius.circular(24),
-                                          boxShadow: avatar == a
+                                          border: avatar == a
                                               ? null
-                                              : AppShadows.neumorphic,
+                                              : Border.all(color: L.border.withValues(alpha: 0.1)),
                                         ),
                                         child: Center(
                                             child: Text(a,
@@ -146,12 +146,11 @@ class AddCgStep1 extends StatelessWidget {
                         margin: const EdgeInsets.only(bottom: 14),
                         padding: const EdgeInsets.symmetric(horizontal: 14),
                         decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: L.card,
                             borderRadius: BorderRadius.circular(28),
-                            boxShadow: AppShadows.neumorphic,
-                            border: nameCtrl.text.isNotEmpty
-                                ? Border.all(color: L.text, width: 1.5)
-                                : null),
+                            border: Border.all(
+                                color: nameCtrl.text.isNotEmpty ? L.text : L.border.withValues(alpha: 0.1),
+                                width: 1.5)),
                         child: TextField(
                             controller: nameCtrl,
                             style: AppTypography.bodySmall
@@ -194,15 +193,11 @@ class AddCgStep1 extends StatelessWidget {
                                         decoration: BoxDecoration(
                                             color: relation == r
                                                 ? L.text
-                                                : Colors.white,
+                                                : L.card,
                                             borderRadius:
                                                 BorderRadius.circular(99),
-                                            boxShadow: relation == r
-                                                ? null
-                                                : AppShadows.neumorphic,
-                                            border: relation == r
-                                                ? Border.all(color: L.text)
-                                                : null),
+                                            border: Border.all(
+                                                color: relation == r ? L.text : L.border.withValues(alpha: 0.1))),
                                         child: Text(r,
                                             style: AppTypography.labelLarge
                                                 .copyWith(
@@ -227,12 +222,11 @@ class AddCgStep1 extends StatelessWidget {
                         margin: const EdgeInsets.only(bottom: 16),
                         padding: const EdgeInsets.symmetric(horizontal: 14),
                         decoration: BoxDecoration(
-                            color: Colors.white,
+                            color: L.card,
                             borderRadius: BorderRadius.circular(28),
-                            boxShadow: AppShadows.neumorphic,
-                            border: contactCtrl.text.isNotEmpty
-                                ? Border.all(color: L.text, width: 1.5)
-                                : null),
+                            border: Border.all(
+                                color: contactCtrl.text.isNotEmpty ? L.text : L.border.withValues(alpha: 0.1),
+                                width: 1.5)),
                         child: TextField(
                             controller: contactCtrl,
                             style: AppTypography.bodySmall
@@ -295,9 +289,9 @@ class AddCgStep1 extends StatelessWidget {
                                     ? L.fill.withValues(alpha: 0.1)
                                     : L.text,
                                 borderRadius: BorderRadius.circular(32),
-                                boxShadow: nameCtrl.text.trim().isEmpty
+                                border: nameCtrl.text.trim().isEmpty
                                     ? null
-                                    : AppShadows.neumorphic,
+                                    : Border.all(color: L.border.withValues(alpha: 0.1)),
                               ),
                               child: Text('GENERATE QR CODE 🪄',
                                   style: AppTypography.labelLarge.copyWith(
@@ -331,9 +325,9 @@ class DelayBtn extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: current == delay ? L.text : Colors.white,
+              color: current == delay ? L.text : L.card,
               borderRadius: BorderRadius.circular(24),
-              boxShadow: current == delay ? null : AppShadows.neumorphic,
+              border: current == delay ? null : Border.all(color: L.border.withValues(alpha: 0.1)),
             ),
             child: Text(label,
                 style: AppTypography.labelLarge.copyWith(
@@ -440,9 +434,9 @@ class _AddCgStep2State extends State<AddCgStep2> {
                             horizontal: 18, vertical: 16),
                         margin: const EdgeInsets.only(bottom: 20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: L.card,
                           borderRadius: BorderRadius.circular(24),
-                          boxShadow: AppShadows.neumorphic,
+                          border: Border.all(color: L.border.withValues(alpha: 0.1)),
                         ),
                         child: Row(children: [
                           Container(
@@ -480,10 +474,10 @@ class _AddCgStep2State extends State<AddCgStep2> {
                           child: Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: L.card,
                           borderRadius: BorderRadius.circular(28),
+                          border: Border.all(color: L.border.withValues(alpha: 0.1)),
                           boxShadow: [
-                            ...AppShadows.neumorphic,
                             BoxShadow(
                                 color: L.green.withValues(alpha: 0.15),
                                 blurRadius: 30,
@@ -497,10 +491,10 @@ class _AddCgStep2State extends State<AddCgStep2> {
                           size: 210,
                           eyeStyle: const QrEyeStyle(
                               eyeShape: QrEyeShape.circle,
-                              color: Color(0xFF111111)),
+                              color: Color(0xFF1C1C1E)),
                           dataModuleStyle: const QrDataModuleStyle(
                               dataModuleShape: QrDataModuleShape.circle,
-                              color: Color(0xFF111111)),
+                              color: Color(0xFF1C1C1E)),
                         ),
                       ).animate(onPlay: (c) => c.repeat()).shimmer(
                               duration: 2.seconds,
@@ -519,9 +513,9 @@ class _AddCgStep2State extends State<AddCgStep2> {
                         padding: const EdgeInsets.symmetric(
                             horizontal: 24, vertical: 12),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: L.card,
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: AppShadows.neumorphic,
+                          border: Border.all(color: L.border.withValues(alpha: 0.1)),
                         ),
                         child: Text(cg.inviteCode ?? '------',
                             style: AppTypography.displayLarge.copyWith(
@@ -544,9 +538,9 @@ class _AddCgStep2State extends State<AddCgStep2> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 16, vertical: 10),
                             decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: L.card,
                               borderRadius: BorderRadius.circular(24),
-                              boxShadow: AppShadows.neumorphic,
+                              border: Border.all(color: L.border.withValues(alpha: 0.1)),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
@@ -568,14 +562,14 @@ class _AddCgStep2State extends State<AddCgStep2> {
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 20),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: L.card,
                           borderRadius: BorderRadius.circular(24),
-                          boxShadow: AppShadows.neumorphic,
+                          border: Border.all(color: L.border.withValues(alpha: 0.1)),
                         ),
                         child: Column(
                           children: [
                             if (_scanState == 'idle') ...[
-                              SizedBox(
+                              const SizedBox(
                                   width: 24,
                                   height: 24,
                                   child: AppShimmer(
@@ -670,9 +664,9 @@ class AddCgStep3 extends StatelessWidget {
                         padding: const EdgeInsets.all(16),
                         margin: const EdgeInsets.only(bottom: 24),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: L.card,
                           borderRadius: BorderRadius.circular(24),
-                          boxShadow: AppShadows.neumorphic,
+                          border: Border.all(color: L.border.withValues(alpha: 0.1)),
                         ),
                         child: Row(children: [
                           Container(
@@ -723,9 +717,9 @@ class AddCgStep3 extends StatelessWidget {
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: L.card,
                           borderRadius: BorderRadius.circular(24),
-                          boxShadow: AppShadows.neumorphic,
+                          border: Border.all(color: L.border.withValues(alpha: 0.1)),
                         ),
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -761,7 +755,6 @@ class AddCgStep3 extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: L.text,
                                 borderRadius: BorderRadius.circular(24),
-                                boxShadow: AppShadows.neumorphic,
                               ),
                               child: Text('Done',
                                   style: AppTypography.labelLarge.copyWith(

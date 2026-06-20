@@ -12,6 +12,7 @@ import '../../theme/app_theme.dart';
 import '../../services/notification_service.dart';
 import '../../services/auth_service.dart';
 import '../../core/utils/date_formatter.dart';
+import '../../widgets/mascot_widget.dart';
 
 // ══════════════════════════════════════════════════════
 // MED AI — 2026 ONBOARDING
@@ -127,6 +128,7 @@ class _OnboardingScreenState extends State<OnboardingScreen>
         const _OBStep(id: 'plan', type: 'plan'),
         const _OBStep(id: 'social_proof', type: 'social_proof'),
         const _OBStep(id: 'notif', type: 'notif'),
+        const _OBStep(id: 'commit', type: 'commit'),
         const _OBStep(id: 'paywall', type: 'paywall'),
       ];
 
@@ -214,23 +216,50 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     final isPaywall = step.type == 'paywall';
     final isSplash = step.type == 'splash';
     final isLoading = step.type == 'loading_analysis';
-    final progress = (_step + 1) / _steps.length;
+    
+    final visibleSteps = _steps.where((s) => s.type != 'splash' && s.type != 'paywall' && s.type != 'loading_analysis').toList();
+    final currentVisibleIndex = visibleSteps.indexOf(step);
+    final progress = currentVisibleIndex >= 0 ? (currentVisibleIndex + 1) / visibleSteps.length : 0.0;
+    
     final L = context.L;
 
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: context.isDark
-          ? SystemUiOverlayStyle.light
-          : SystemUiOverlayStyle.dark,
-      child: Scaffold(
-        backgroundColor: L.bg,
-        resizeToAvoidBottomInset: false,
-        body: SafeArea(
-          child: Column(children: [
+    final monoTheme = Theme.of(context).copyWith(
+      scaffoldBackgroundColor: const Color(0xFFFFFFFF),
+      colorScheme:
+          const ColorScheme.light(primary: Color(0xFF1C1C1E), secondary: Color(0xFFE8E8E8)),
+      extensions: [
+        AppThemeColors.fromColorScheme(
+          const ColorScheme.light(primary: Color(0xFF1C1C1E), secondary: Color(0xFFE8E8E8)),
+          Brightness.light,
+        ).copyWith(
+          bg: const Color(0xFFFFFFFF),
+          text: const Color(0xFF1C1C1E),
+          sub: const Color(0xFF666666),
+          card: const Color(0xFFF9F9F9),
+          border: const Color(0xFFE0E0E0),
+          glassBorder: const Color(0xFF1C1C1E).withValues(alpha: 0.1),
+          fill: const Color(0xFFF0F0F0),
+        )
+      ],
+    );
+
+    return Theme(
+      data: monoTheme,
+      child: Builder(
+        builder: (context) {
+          final L = context.L; // Get the overridden theme
+          return AnnotatedRegion<SystemUiOverlayStyle>(
+            value: SystemUiOverlayStyle.dark, // Always dark text for light olive theme
+            child: Scaffold(
+              backgroundColor: L.bg,
+              resizeToAvoidBottomInset: false,
+              body: SafeArea(
+                child: Column(children: [
             // ── Top Bar (hidden on splash, paywall, loading)
             if (!isSplash && !isPaywall && !isLoading)
               _TopBar(
-                step: _step,
-                total: _steps.length,
+                step: currentVisibleIndex,
+                total: visibleSteps.length,
                 progress: progress,
                 onBack: _step > 0 ? _back : null,
               ),
@@ -260,6 +289,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
           ]),
         ),
       ),
+    );
+    },
+    ),
     );
   }
 
@@ -305,7 +337,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
             form: _form,
             onChanged: (k, v) => setState(() => _form[k] = v));
       case 'plan':
-        return _PlanReadyStep(form: _form);
+        return _PlanReadyStep(form: _form, onNext: _next);
+      case 'commit':
+        return _CommitStep(onNext: _next);
       case 'paywall':
         return _PaywallStep(
           form: _form,
@@ -431,7 +465,7 @@ class _TopBar extends StatelessWidget {
           const SizedBox(width: 12),
           Text(
             '${step + 1}/$total',
-            style: AppTypography.labelSmall.copyWith(
+            style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', 
               color: L.sub,
               fontSize: 11,
               fontWeight: FontWeight.w700,
@@ -490,7 +524,7 @@ class _BottomCTA extends StatelessWidget {
               final textWidget = Text(
                 _label,
                 textAlign: TextAlign.center,
-                style: AppTypography.labelLarge.copyWith(
+                style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: canGo ? L.bg : L.sub.withValues(alpha: 0.4),
@@ -499,7 +533,7 @@ class _BottomCTA extends StatelessWidget {
               );
 
               if (canGo) {
-                return textWidget.animate(onPlay: (c) => c.repeat(reverse: false))
+                return textWidget.animate(onPlay: (c) => c.repeat(reverse: true))
                     .shimmer(duration: 2500.ms, delay: 1000.ms, color: Colors.white54);
               }
               return textWidget;
@@ -533,11 +567,11 @@ class _StepHeader extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Text(emoji,
-                style: AppTypography.displayLarge.copyWith(
+                style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                     fontSize: 44, height: 1.0)),
           ),
         Text(title,
-            style: AppTypography.displayLarge.copyWith(
+            style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                 fontSize: 30,
                 color: L.text,
                 letterSpacing: -0.8,
@@ -546,7 +580,7 @@ class _StepHeader extends StatelessWidget {
         if (subtitle.isNotEmpty) ...[
           const SizedBox(height: 10),
           Text(subtitle,
-              style: AppTypography.bodyMedium.copyWith(
+              style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
                   fontSize: 15,
                   color: L.sub,
                   height: 1.5,
@@ -615,7 +649,7 @@ class _SplashStepState extends State<_SplashStep>
                   painter: _OrbPainter(
                     progress: widget.pulse.value,
                     color: isDark
-                        ? const Color(0xFF1A1A1A)
+                        ? const Color(0xFF1C1C1E)
                         : const Color(0xFFE8E8E8),
                   ),
                 ),
@@ -638,28 +672,12 @@ class _SplashStepState extends State<_SplashStep>
                   ),
                   child: Column(
                     children: [
-                      Container(
-                        width: 96,
-                        height: 96,
-                        decoration: BoxDecoration(
-                          color: L.bg,
-                          borderRadius: BorderRadius.circular(26),
-                          border: Border.all(
-                              color: L.sub.withValues(alpha: 0.12), width: 1),
-                          boxShadow: AppShadows.soft,
-                        ),
-                        child: Center(
-                          child: Image.asset('assets/images/app_logo.png',
-                              width: 60, height: 60,
-                              errorBuilder: (c, e, s) =>
-                                  const Text('💊', style: TextStyle(fontSize: 40))),
-                        ),
-                      ),
+                      const MascotWidget(size: 140, mood: 'energetic'),
                       const SizedBox(height: 20),
                       RichText(
                         textAlign: TextAlign.center,
                         text: TextSpan(
-                          style: AppTypography.displayLarge.copyWith(
+                          style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                               fontSize: 38,
                               letterSpacing: -1.2,
                               height: 1.0,
@@ -680,7 +698,7 @@ class _SplashStepState extends State<_SplashStep>
                       Text(
                         'Your intelligent medicine companion',
                         textAlign: TextAlign.center,
-                        style: AppTypography.bodyMedium.copyWith(
+                        style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
                             fontSize: 15,
                             color: L.sub,
                             fontWeight: FontWeight.w500),
@@ -774,7 +792,7 @@ class _SplashStepState extends State<_SplashStep>
                   child: Text(
                     'Get Started Free →',
                     textAlign: TextAlign.center,
-                    style: AppTypography.labelLarge.copyWith(
+                    style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                       fontSize: 16,
                       fontWeight: FontWeight.w800,
                       color: L.bg,
@@ -793,7 +811,7 @@ class _SplashStepState extends State<_SplashStep>
                 Text(
                   'Free to start · No credit card required',
                   textAlign: TextAlign.center,
-                  style: AppTypography.bodySmall.copyWith(
+                  style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
                       fontSize: 11, color: L.sub.withValues(alpha: 0.6)),
                 ).animate(delay: 900.ms).fadeIn(),
                 const SizedBox(height: 32),
@@ -907,7 +925,7 @@ class _TextStepState extends State<_TextStep> {
               controller: _ctrl,
               autofocus: true,
               textCapitalization: TextCapitalization.words,
-              style: AppTypography.displayLarge.copyWith(
+              style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                   fontSize: 22,
                   fontWeight: FontWeight.w700,
                   color: L.text,
@@ -918,7 +936,7 @@ class _TextStepState extends State<_TextStep> {
               },
               decoration: InputDecoration(
                 hintText: widget.step.placeholder,
-                hintStyle: AppTypography.displayLarge.copyWith(
+                hintStyle: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                     fontSize: 22,
                     fontWeight: FontWeight.w300,
                     color: L.sub.withValues(alpha: 0.35),
@@ -1060,7 +1078,7 @@ class _OptionCardState extends State<_OptionCard> {
                     if (widget.opt['e'] != null) const SizedBox(height: 10),
                     Text(widget.opt['v']!,
                         textAlign: TextAlign.center,
-                        style: AppTypography.labelLarge.copyWith(
+                        style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
                             color: widget.isSelected ? L.bg : L.text)),
@@ -1073,7 +1091,7 @@ class _OptionCardState extends State<_OptionCard> {
                   if (widget.opt['e'] != null) const SizedBox(width: 14),
                   Expanded(
                       child: Text(widget.opt['v']!,
-                          style: AppTypography.bodyMedium.copyWith(
+                          style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
                               fontSize: 15,
                               fontWeight: FontWeight.w600,
                               color:
@@ -1208,7 +1226,7 @@ class _MultiOptionRowState extends State<_MultiOptionRow> {
             if (widget.opt['e'] != null) const SizedBox(width: 10),
             Expanded(
               child: Text(widget.opt['v']!,
-                  style: AppTypography.bodyMedium.copyWith(
+                  style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
                       color: widget.isSelected ? L.bg : L.text)),
@@ -1282,7 +1300,7 @@ class _TimeStep extends StatelessWidget {
                     style: const TextStyle(fontSize: 18)),
                 const SizedBox(height: 4),
                 Text(qt['label'] as String,
-                    style: AppTypography.labelSmall.copyWith(
+                    style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', 
                         fontSize: 10,
                         fontWeight: FontWeight.w700,
                         color: isActive
@@ -1317,7 +1335,7 @@ class _TimeStep extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.only(bottom: 4),
                 child: Text(':',
-                    style: AppTypography.displayLarge.copyWith(
+                    style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                         fontSize: 36,
                         color: L.sub.withValues(alpha: 0.4))),
               ),
@@ -1336,7 +1354,7 @@ class _TimeStep extends StatelessWidget {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Text(h >= 12 ? 'PM' : 'AM',
-                    style: AppTypography.labelLarge.copyWith(
+                    style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                         fontSize: 14,
                         fontWeight: FontWeight.w800,
                         color: L.text)),
@@ -1375,7 +1393,7 @@ class _TimeCounter extends StatelessWidget {
         ),
       ),
       Text(value.toString().padLeft(2, '0'),
-          style: AppTypography.displayLarge.copyWith(
+          style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
               fontSize: 44,
               color: L.text,
               fontWeight: FontWeight.w800,
@@ -1518,7 +1536,7 @@ class _LoadingAnalysisStepState extends State<_LoadingAnalysisStep>
               children: [
                 Text(stage.$2,
                     textAlign: TextAlign.center,
-                    style: AppTypography.headlineMedium.copyWith(
+                    style: AppTypography.headlineMedium.copyWith(fontFamily: 'Courier', 
                         fontSize: 20,
                         color: L.text,
                         letterSpacing: -0.5,
@@ -1526,7 +1544,7 @@ class _LoadingAnalysisStepState extends State<_LoadingAnalysisStep>
                 const SizedBox(height: 8),
                 if (_idx < _stages.length - 1)
                   Text(_subStages[_subIdx],
-                      style: AppTypography.bodySmall.copyWith(
+                      style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
                           fontSize: 12,
                           color: L.sub.withValues(alpha: 0.6),
                           letterSpacing: 0.2,
@@ -1686,7 +1704,7 @@ class _DataGraphStepState extends State<_DataGraphStep>
                         borderRadius: BorderRadius.circular(99),
                       ),
                       child: Text('Without Med AI',
-                          style: AppTypography.labelLarge.copyWith(
+                          style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: !_showAfter
@@ -1706,7 +1724,7 @@ class _DataGraphStepState extends State<_DataGraphStep>
                         borderRadius: BorderRadius.circular(99),
                       ),
                       child: Text('With Med AI ✨',
-                          style: AppTypography.labelLarge.copyWith(
+                          style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                               fontSize: 12,
                               fontWeight: FontWeight.w700,
                               color: _showAfter ? L.bg : L.sub)),
@@ -1722,7 +1740,7 @@ class _DataGraphStepState extends State<_DataGraphStep>
                   child: RichText(
                     key: ValueKey(_showAfter),
                     text: TextSpan(
-                      style: AppTypography.displayLarge.copyWith(
+                      style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                           fontSize: 56,
                           fontWeight: FontWeight.w900,
                           letterSpacing: -2,
@@ -1749,7 +1767,7 @@ class _DataGraphStepState extends State<_DataGraphStep>
                         ? 'Projected adherence with Med AI'
                         : 'Average adherence without a tracker',
                     key: ValueKey(_showAfter),
-                    style: AppTypography.bodyMedium.copyWith(
+                    style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
                         fontSize: 13, color: L.sub),
                   ),
                 ),
@@ -1809,7 +1827,7 @@ class _DataGraphStepState extends State<_DataGraphStep>
                     children: List.generate(
                       6,
                       (i) => Text(months[i * 2],
-                          style: AppTypography.labelSmall.copyWith(
+                          style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', 
                               fontSize: 10, color: L.sub)),
                     ),
                   ),
@@ -1842,7 +1860,7 @@ class _DataGraphStepState extends State<_DataGraphStep>
                       const Spacer(),
                       Text(
                           '${(_data[_hoveredIdx!] * 100).toStringAsFixed(0)}%',
-                          style: AppTypography.labelLarge.copyWith(
+                          style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                               fontSize: 16,
                               fontWeight: FontWeight.w800,
                               color: accentColor)),
@@ -1891,7 +1909,7 @@ class _DataGraphStepState extends State<_DataGraphStep>
                       _showAfter
                           ? '💡 People using Med AI reach 98% adherence within 30 days. Late doses dropped by 94% on average.'
                           : '⚠️ Without a tracker, most people only take 52% of medications correctly. This significantly impacts health outcomes.',
-                      style: AppTypography.bodyMedium.copyWith(
+                      style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
                           fontSize: 14,
                           color: L.text,
                           height: 1.5),
@@ -1921,7 +1939,7 @@ class _DataGraphStepState extends State<_DataGraphStep>
                     ? "I want this for myself →"
                     : "See what Med AI does →",
                 textAlign: TextAlign.center,
-                style: AppTypography.labelLarge.copyWith(
+                style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                   fontSize: 15,
                   fontWeight: FontWeight.w800,
                   color: L.bg,
@@ -1962,7 +1980,7 @@ class _StatCard extends StatelessWidget {
                 .copyWith(fontSize: 10, color: L.sub, letterSpacing: 0.5)),
         const SizedBox(height: 4),
         Text(value,
-            style: AppTypography.displayLarge.copyWith(
+            style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                 fontSize: 28,
                 fontWeight: FontWeight.w900,
                 color: color,
@@ -2132,7 +2150,7 @@ class _NotifStep extends StatelessWidget {
         const SizedBox(height: 36),
         Text('Never miss\na dose again',
             textAlign: TextAlign.center,
-            style: AppTypography.displayLarge.copyWith(
+            style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                 fontSize: 34,
                 color: L.text,
                 letterSpacing: -1.2,
@@ -2141,7 +2159,7 @@ class _NotifStep extends StatelessWidget {
         Text(
             'Smart reminders adapt to your schedule — morning, evening, or whenever you need.',
             textAlign: TextAlign.center,
-            style: AppTypography.bodyMedium.copyWith(
+            style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
                 fontSize: 15, color: L.sub, height: 1.6)),
         const SizedBox(height: 40),
 
@@ -2171,12 +2189,12 @@ class _NotifStep extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text('Med AI Reminder',
-                    style: AppTypography.labelLarge.copyWith(
+                    style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                         fontSize: 14,
                         fontWeight: FontWeight.w700,
                         color: L.text)),
                 Text('Time to take your Aspirin 100mg',
-                    style: AppTypography.bodySmall.copyWith(
+                    style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
                         fontSize: 12, color: L.sub)),
               ],
             )),
@@ -2188,7 +2206,7 @@ class _NotifStep extends StatelessWidget {
                 borderRadius: BorderRadius.circular(99),
               ),
               child: Text('Mark Done',
-                  style: AppTypography.labelSmall.copyWith(
+                  style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', 
                       fontSize: 10, color: L.bg)),
             )
           ]),
@@ -2201,83 +2219,103 @@ class _NotifStep extends StatelessWidget {
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 // PLAN READY STEP
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-class _PlanReadyStep extends StatelessWidget {
+class _PlanReadyStep extends StatefulWidget {
   final Map<String, dynamic> form;
-  const _PlanReadyStep({required this.form});
+  final VoidCallback onNext;
+  const _PlanReadyStep({required this.form, required this.onNext});
+
+  @override
+  State<_PlanReadyStep> createState() => _PlanReadyStepState();
+}
+
+class _PlanReadyStepState extends State<_PlanReadyStep> {
+  int pct = 0;
+  
+  final List<String> loaderTexts = [
+    "Analyzing your responses...",
+    "Building your health profile...",
+    "Optimising your daily routine...",
+    "Activating safeguards..."
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _startLoader();
+  }
+
+  void _startLoader() {
+    int current = 0;
+    Timer.periodic(const Duration(milliseconds: 40), (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
+      if (current >= 100) {
+        timer.cancel();
+        setState(() => pct = 100);
+      } else {
+        setState(() => pct = current++);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    final name = form['name']?.toString() ?? '';
-    final goal = form['goal']?.toString() ?? '';
-    final wt = form['wakeTime'] as Map<String, int>? ?? {'h': 7, 'm': 0};
-    final st = form['sleepTime'] as Map<String, int>? ?? {'h': 22, 'm': 0};
+    
+    if (pct < 100) {
+      String text = loaderTexts[(pct / 25).floor().clamp(0, 3)];
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 120, height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(color: L.glassBorder, width: 8),
+              ),
+              child: Center(
+                child: Text('$pct%', style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', color: L.text, fontSize: 32)),
+              ),
+            ),
+            const SizedBox(height: 32),
+            Text(text, style: AppTypography.titleMedium.copyWith(fontFamily: 'Courier', color: L.sub, fontSize: 18), textAlign: TextAlign.center,)
+          ],
+        ),
+      );
+    }
+
+    final name = widget.form['name']?.toString() ?? '';
+    final goal = widget.form['goal']?.toString() ?? '';
+    final wt = widget.form['wakeTime'] as Map<String, int>? ?? {'h': 7, 'm': 0};
+    final st = widget.form['sleepTime'] as Map<String, int>? ?? {'h': 22, 'm': 0};
 
     final items = [
       if (goal.isNotEmpty) ('🎯', 'Goal', goal),
-      ('⏰', 'Wake reminder',
-          '${wt['h'].toString().padLeft(2, '0')}:${wt['m'].toString().padLeft(2, '0')}'),
-      ('🌙', 'Sleep mode',
-          '${st['h'].toString().padLeft(2, '0')}:${st['m'].toString().padLeft(2, '0')}'),
+      ('⏰', 'Wake reminder', '${wt['h'].toString().padLeft(2, '0')}:${wt['m'].toString().padLeft(2, '0')}'),
+      ('🌙', 'Sleep mode', '${st['h'].toString().padLeft(2, '0')}:${st['m'].toString().padLeft(2, '0')}'),
       ('🧠', 'AI mode', 'Fully personalised'),
       ('🛡️', 'Streak tracking', 'Activated'),
     ];
 
     return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(
-          parent: AlwaysScrollableScrollPhysics()),
+      physics: const BouncingScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
       child: Column(children: [
-        Stack(alignment: Alignment.center, children: [
-          // Bursting icons
-          ...['✨', '💊', '🎯', '🚀', '🔥'].asMap().entries.map((e) {
-            final i = e.key;
-            final icon = e.value;
-            final double angle = (i * (360 / 5)) * (math.pi / 180);
-            return Text(icon, style: const TextStyle(fontSize: 24))
-                .animate(delay: 400.ms)
-                .scale(begin: const Offset(0, 0), end: const Offset(1, 1), duration: 400.ms)
-                .move(
-                    begin: Offset.zero,
-                    end: Offset(math.cos(angle) * 80, math.sin(angle) * 80),
-                    duration: 600.ms,
-                    curve: Curves.easeOutCubic)
-                .fadeOut(delay: 200.ms, duration: 400.ms);
-          }),
-          Container(
-            width: 84,
-            height: 84,
-            decoration: BoxDecoration(
-              color: L.fill,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: context.isDark ? Colors.white10 : Colors.black12,
-                  blurRadius: 20,
-                  offset: const Offset(0, 10),
-                )
-              ],
-            ),
-            child: const Center(child: Text('📊', style: TextStyle(fontSize: 40))),
-          ).animate().scale(duration: 600.ms, curve: Curves.elasticOut),
-        ]),
-        const SizedBox(height: 20),
         Text(
           'Your plan is ready${name.isNotEmpty ? ", $name" : ""}!',
           textAlign: TextAlign.center,
-          style: AppTypography.displayLarge.copyWith(
-              fontSize: 30,
-              color: L.text,
-              letterSpacing: -1.0,
-              height: 1.15),
-        ),
+          style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', fontSize: 30, color: L.text, letterSpacing: -1.0, height: 1.15),
+        ).animate().fadeIn().slideY(begin: 0.1, end: 0),
         const SizedBox(height: 8),
         Text(
           'Based on your answers, we\'ve built the perfect AI track for you.',
           textAlign: TextAlign.center,
-          style: AppTypography.bodyMedium
-              .copyWith(fontSize: 14, color: L.sub, height: 1.5),
-        ),
+          style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', fontSize: 14, color: L.sub, height: 1.5),
+        ).animate(delay: 100.ms).fadeIn(),
         const SizedBox(height: 24),
 
         ...items.asMap().entries.map((e) {
@@ -2285,8 +2323,7 @@ class _PlanReadyStep extends StatelessWidget {
           final item = e.value;
           return Container(
             margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.symmetric(
-                horizontal: 18, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
             decoration: BoxDecoration(
               color: L.card,
               borderRadius: BorderRadius.circular(16),
@@ -2295,85 +2332,135 @@ class _PlanReadyStep extends StatelessWidget {
             child: Row(children: [
               Text(item.$1, style: const TextStyle(fontSize: 20)),
               const SizedBox(width: 14),
-              Expanded(
-                  child: Text(item.$2,
-                      style: AppTypography.bodySmall.copyWith(
-                          fontSize: 13, color: L.sub))),
-              Text(item.$3,
-                  style: AppTypography.labelLarge.copyWith(
-                      fontSize: 13,
-                      fontWeight: FontWeight.w700,
-                      color: L.text)),
+              Expanded(child: Text(item.$2, style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', fontSize: 13, color: L.sub))),
+              Text(item.$3, style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', fontSize: 13, fontWeight: FontWeight.w700, color: L.text)),
             ]),
-          )
-              .animate(delay: (100 * i).ms)
-              .fadeIn(duration: 300.ms)
-              .slideX(begin: 0.06, end: 0);
+          ).animate(delay: (200 + 100 * i).ms).fadeIn().slideX(begin: 0.05, end: 0);
         }),
-
-        const SizedBox(height: 20),
-
-        // 94% stat
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: L.card,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: L.glassBorder),
-          ),
-          child: Column(children: [
-            Text('94%',
-                style: AppTypography.displayLarge.copyWith(
-                    fontSize: 52,
-                    fontWeight: FontWeight.w900,
-                    color: L.text,
-                    letterSpacing: -2)),
-            const SizedBox(height: 6),
-            Text('of similar users improved adherence in 2 weeks',
-                textAlign: TextAlign.center,
-                style: AppTypography.bodySmall
-                    .copyWith(fontSize: 13, color: L.sub, height: 1.5)),
-            const SizedBox(height: 20),
-            // Bar chart
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [22.0, 34.0, 50.0, 72.0, 100.0]
-                  .asMap()
-                  .entries
-                  .map((e) {
-                final isLast = e.key == 4;
-                return Flexible(
-                  child: Container(
-                    width: 24,
-                    height: e.value,
-                    margin: const EdgeInsets.only(right: 6),
-                    decoration: BoxDecoration(
-                      color: isLast ? L.text : L.sub.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                  )
-                      .animate()
-                      .scaleY(
-                          begin: 0,
-                          end: 1,
-                          alignment: Alignment.bottomCenter,
-                          duration: 600.ms,
-                          delay: (e.key * 80).ms,
-                          curve: Curves.easeOutBack),
-                );
-              }).toList(),
+        const SizedBox(height: 32),
+        // Built-in Continue button for PlanReady (bypassing BottomCTA)
+        GestureDetector(
+          onTap: widget.onNext,
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            decoration: BoxDecoration(
+              color: L.text,
+              borderRadius: BorderRadius.circular(32),
             ),
-          ]),
-        ).animate(delay: 600.ms).fadeIn(duration: 400.ms),
+            child: Text('Continue', textAlign: TextAlign.center, style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', color: L.bg, fontSize: 16)),
+          ),
+        ).animate(delay: 800.ms).fadeIn(),
       ]),
     );
   }
 }
 
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// SOCIAL PROOF STEP
+// COMMIT STEP (Hold to Commit)
 // ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+class _CommitStep extends StatefulWidget {
+  final VoidCallback onNext;
+  const _CommitStep({required this.onNext});
+
+  @override
+  State<_CommitStep> createState() => _CommitStepState();
+}
+
+class _CommitStepState extends State<_CommitStep> {
+  int held = 0;
+  bool isHolding = false;
+  Timer? _timer;
+
+  void _startHold(TapDownDetails _) {
+    setState(() => isHolding = true);
+    _timer = Timer.periodic(const Duration(milliseconds: 50), (t) {
+      if (!isHolding) {
+        t.cancel();
+        return;
+      }
+      setState(() {
+        held += 4;
+        if (held >= 100) {
+          held = 100;
+          t.cancel();
+          HapticEngine.success();
+          Future.delayed(const Duration(milliseconds: 500), widget.onNext);
+        }
+      });
+    });
+  }
+
+  void _endHold(dynamic _) {
+    setState(() {
+      isHolding = false;
+      if (held < 100) held = 0;
+    });
+    _timer?.cancel();
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 40),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text("Commit to Your Health", textAlign: TextAlign.center, style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', fontSize: 28, color: L.text, fontWeight: FontWeight.w800)),
+          const SizedBox(height: 16),
+          Text("Hold the button below to confirm you're ready to start building better habits.", textAlign: TextAlign.center, style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', fontSize: 16, color: L.sub)),
+          const SizedBox(height: 60),
+          
+          GestureDetector(
+            onTapDown: _startHold,
+            onTapUp: _endHold,
+            onTapCancel: () => _endHold(null),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 200),
+              width: 160, height: 160,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: held == 100 ? const Color(0xFF1C1C1E) : L.card,
+                border: Border.all(color: held == 100 ? const Color(0xFF1C1C1E) : L.glassBorder, width: 4),
+                boxShadow: held > 0 ? AppShadows.glow(const Color(0xFF1C1C1E), intensity: 0.3) : AppShadows.soft,
+              ),
+              transform: Matrix4.diagonal3Values(isHolding && held < 100 ? 0.95 : 1.0, isHolding && held < 100 ? 0.95 : 1.0, 1.0),
+              transformAlignment: Alignment.center,
+              child: Stack(
+                alignment: Alignment.center,
+                clipBehavior: Clip.antiAlias,
+                children: [
+                  Positioned(
+                    bottom: 0, left: 0, right: 0,
+                    child: AnimatedContainer(
+                      duration: const Duration(milliseconds: 100),
+                      height: 160 * (held / 100),
+                      color: const Color(0xFF1C1C1E).withValues(alpha: 0.2),
+                    ),
+                  ),
+                  MascotWidget(size: 80, mood: held == 100 ? 'energetic' : (isHolding ? 'energetic' : 'content')),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+          Text(
+            held == 100 ? "Committed!" : isHolding ? "Keep holding..." : "Press and hold",
+            style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', color: held > 0 ? const Color(0xFF1C1C1E) : L.sub, fontSize: 15),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 class _SocialProofStep extends StatelessWidget {
   final Map<String, dynamic> form;
   const _SocialProofStep({required this.form});
@@ -2421,7 +2508,7 @@ class _SocialProofStep extends StatelessWidget {
             name.isNotEmpty
                 ? '$name, you\'re in great\ncompany'
                 : 'You\'re joining\n2.4M+ people',
-            style: AppTypography.displayLarge.copyWith(
+            style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                 fontSize: 30,
                 color: L.text,
                 letterSpacing: -0.8,
@@ -2448,7 +2535,7 @@ class _SocialProofStep extends StatelessWidget {
                 ),
                 child: Column(children: [
                   Text(s.$1,
-                      style: AppTypography.displayLarge.copyWith(
+                      style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                           fontSize: 22,
                           fontWeight: FontWeight.w900,
                           color: L.text,
@@ -2497,7 +2584,7 @@ class _SocialProofStep extends StatelessWidget {
                     ]),
                     const SizedBox(height: 12),
                     Text(t.$3,
-                        style: AppTypography.bodyMedium.copyWith(
+                        style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
                             fontSize: 14,
                             color: L.text.withValues(alpha: 0.85),
                             fontStyle: FontStyle.italic,
@@ -2615,7 +2702,7 @@ class _PaywallMain extends StatelessWidget {
             borderRadius: BorderRadius.circular(99),
           ),
           child: Text('MEDAI PRO',
-              style: AppTypography.labelSmall.copyWith(
+              style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', 
                   fontSize: 10,
                   color: L.green,
                   letterSpacing: 1.5,
@@ -2623,14 +2710,14 @@ class _PaywallMain extends StatelessWidget {
         ),
         const SizedBox(height: 10),
         Text("The most advanced\nmedication AI",
-            style: AppTypography.displayLarge.copyWith(
+            style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                 fontSize: 32,
                 color: L.text,
                 letterSpacing: -1.0,
                 height: 1.1)),
         const SizedBox(height: 6),
         Text('Start with 3 free AI scans. No card needed.',
-            style: AppTypography.bodyMedium.copyWith(
+            style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
                 fontSize: 14, color: L.sub)),
 
         const SizedBox(height: 24),
@@ -2660,7 +2747,7 @@ class _PaywallMain extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                     child: Text(f.$2,
-                        style: AppTypography.labelLarge.copyWith(
+                        style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                             fontSize: 11,
                             fontWeight: FontWeight.w700,
                             color: L.text),
@@ -2712,28 +2799,28 @@ class _PaywallMain extends StatelessWidget {
                             borderRadius: BorderRadius.circular(99),
                           ),
                           child: Text(p['save']!,
-                              style: AppTypography.labelSmall.copyWith(
+                              style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', 
                                   fontSize: 9,
                                   color: isSel ? L.text : L.green,
                                   fontWeight: FontWeight.w900)),
                         ),
                       if (p['save'] != null) const SizedBox(height: 4),
                       Text(p['price'] as String,
-                          style: AppTypography.displayLarge.copyWith(
+                          style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                               fontSize: 24,
                               fontWeight: FontWeight.w900,
                               color:
                                   isSel ? L.bg : L.text,
                               letterSpacing: -0.5)),
                       Text(p['per'] as String,
-                          style: AppTypography.bodySmall.copyWith(
+                          style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
                               fontSize: 11,
                               color: isSel
                                   ? L.bg.withValues(alpha: 0.6)
                                   : L.sub)),
                       const SizedBox(height: 4),
                       Text(p['total'] as String,
-                          style: AppTypography.bodySmall.copyWith(
+                          style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
                               fontSize: 10,
                               color: isSel
                                   ? L.bg.withValues(alpha: 0.6)
@@ -2759,7 +2846,7 @@ class _PaywallMain extends StatelessWidget {
             ),
             child: Text('Start Free — 3 AI Scans',
                 textAlign: TextAlign.center,
-                style: AppTypography.labelLarge.copyWith(
+                style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                     fontSize: 16,
                     fontWeight: FontWeight.w800,
                     color: L.bg,
@@ -2782,7 +2869,7 @@ class _PaywallMain extends StatelessWidget {
               onTap: () => context.read<AppState>().openTermsOfService(),
               child: Text(
                 'Terms of Service',
-                style: AppTypography.bodySmall.copyWith(
+                style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
                   fontSize: 11,
                   color: L.sub.withValues(alpha: 0.6),
                   decoration: TextDecoration.underline,
@@ -2797,7 +2884,7 @@ class _PaywallMain extends StatelessWidget {
               onTap: () => context.read<AppState>().openPrivacyPolicy(),
               child: Text(
                 'Privacy Policy',
-                style: AppTypography.bodySmall.copyWith(
+                style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
                   fontSize: 11,
                   color: L.sub.withValues(alpha: 0.6),
                   decoration: TextDecoration.underline,
@@ -2825,7 +2912,7 @@ class _PaywallMain extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
               child: Text('Continue with free plan',
-                  style: AppTypography.bodySmall.copyWith(
+                  style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
                       fontSize: 12,
                       color: L.sub.withValues(alpha: 0.45),
                       decoration: TextDecoration.underline)),
@@ -2886,7 +2973,7 @@ class _AuthButtons extends StatelessWidget {
               Icon(icon, size: 20, color: Colors.black),
             const SizedBox(width: 10),
             Text(label,
-                style: AppTypography.labelLarge.copyWith(
+                style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                     color: Colors.black,
                     fontSize: 14,
                     fontWeight: FontWeight.w700)),
@@ -2926,7 +3013,7 @@ class _PaywallTimeline extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text("Here's exactly\nwhat happens",
-                style: AppTypography.displayLarge.copyWith(
+                style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
                     fontSize: 32,
                     color: L.text,
                     letterSpacing: -1.0,
@@ -2976,13 +3063,13 @@ class _PaywallTimeline extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(s.$2,
-                              style: AppTypography.labelLarge.copyWith(
+                              style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                                   fontSize: 12,
                                   color: L.sub,
                                   letterSpacing: 0.5)),
                           const SizedBox(height: 4),
                           Text(s.$3,
-                              style: AppTypography.bodyMedium.copyWith(
+                              style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
                                   fontSize: 15,
                                   fontWeight: FontWeight.w600,
                                   color: L.text)),
@@ -3010,7 +3097,7 @@ class _PaywallTimeline extends StatelessWidget {
                   const SizedBox(height: 4),
                   Text(b.$2,
                       textAlign: TextAlign.center,
-                      style: AppTypography.bodySmall.copyWith(
+                      style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
                           fontSize: 10, color: L.sub)),
                 ]);
               }).toList(),
@@ -3035,7 +3122,7 @@ class _PaywallTimeline extends StatelessWidget {
                 ),
                 child: Text('Start with 3 Free Scans 🚀',
                     textAlign: TextAlign.center,
-                    style: AppTypography.labelLarge.copyWith(
+                    style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                         fontSize: 16,
                         fontWeight: FontWeight.w800,
                         color: L.bg,
@@ -3117,7 +3204,7 @@ class _ConsentStepState extends State<_ConsentStep> {
                     Expanded(
                       child: Text(
                         'MEDICAL DISCLAIMER',
-                        style: AppTypography.labelLarge.copyWith(
+                        style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
                           fontSize: 12,
                           color: L.secondary,
                           fontWeight: FontWeight.w900,
@@ -3130,7 +3217,7 @@ class _ConsentStepState extends State<_ConsentStep> {
                 const SizedBox(height: 16),
                 Text(
                   'Med AI uses advanced AI to help you identify, track, and manage your medications. AI insights are for informational purposes only and may contain errors. This app is not a clinical medical tool and does not provide diagnoses or treatment decisions. Always consult your doctor, pharmacist, or a qualified medical professional for health choices.',
-                  style: AppTypography.bodySmall.copyWith(
+                  style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
                     color: L.text.withValues(alpha: 0.85),
                     fontSize: 13,
                     height: 1.5,
@@ -3145,7 +3232,7 @@ class _ConsentStepState extends State<_ConsentStep> {
           _ConsentRow(
             labelWidget: RichText(
               text: TextSpan(
-                style: AppTypography.bodyMedium.copyWith(
+                style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
                   color: L.text,
@@ -3194,7 +3281,7 @@ class _ConsentStepState extends State<_ConsentStep> {
           _ConsentRow(
             labelWidget: Text(
               'I understand and accept the medical disclaimer.',
-              style: AppTypography.bodyMedium.copyWith(
+              style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
                 color: L.text,

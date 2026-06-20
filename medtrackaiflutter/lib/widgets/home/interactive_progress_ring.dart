@@ -30,9 +30,9 @@ class InteractiveProgressRing extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(24),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: L.card,
           borderRadius: AppRadius.roundSquircle,
-          boxShadow: AppShadows.neumorphic,
+          border: Border.all(color: L.border.withValues(alpha: 0.1)),
         ),
         child: Row(
           children: [

@@ -1,9 +1,13 @@
 import 'dart:async';
+import 'dart:typed_data';
+import 'dart:ui';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '../models/models.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
+import 'dart:math';
+import '../core/config/notification_copy.dart';
 
 // ══════════════════════════════════════════════
 // LOCAL NOTIFICATION SERVICE
@@ -14,6 +18,16 @@ class NotificationService {
       FlutterLocalNotificationsPlugin();
   static final StreamController<String> actionStream =
       StreamController<String>.broadcast();
+
+  // Premium Haptic Feedback Profile for dynamic triggers
+  static final Int64List _premiumHeartbeatVibration = Int64List.fromList([
+    0,   // No delay
+    40,  // Short pulse
+    100, // Short pause
+    60,  // Stronger pulse
+    200, // Pause
+    40,  // Echo pulse
+  ]);
 
   static Future<void> init() async {
     await refreshTimeZone();
@@ -38,6 +52,7 @@ class NotificationService {
     final initSettings = InitializationSettings(
       android: initSettingsAndroid,
       iOS: initSettingsIOS,
+      macOS: initSettingsIOS,
     );
     await _plugin.initialize(
       settings: initSettings,
@@ -90,6 +105,8 @@ class NotificationService {
     required bool isTakenToday,
     bool isShabbatMode = false,
     String? profileName,
+    bool showMedicationNames = true,
+    required int currentStreak,
   }) async {
     bool useSound = enableSound;
     bool useVibration = enableVibration;
@@ -172,10 +189,12 @@ class NotificationService {
       final payload = '${med.id}|${sched.h}|${sched.m}|${sched.label}';
       
       final prefix = profileName != null ? '$profileName: ' : '';
-      final title = '💊 ${prefix}Time to take ${med.name}';
+      final title = showMedicationNames 
+          ? '💊 ${prefix}Time to take ${med.name}' 
+          : '💊 ${prefix}Time for your ${sched.label} dose';
 
-      String body = '${med.dose} · ${sched.label}';
-      if (sched.ritual != Ritual.none) {
+      String body = showMedicationNames ? '${med.dose} · ${sched.label}' : 'Tap to record or snooze';
+      if (sched.ritual != Ritual.none && showMedicationNames) {
         body = '${med.dose} · ${_getRitualMessage(sched.ritual)}';
       }
 
@@ -188,6 +207,24 @@ class NotificationService {
         payload: payload,
         androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
         matchDateTimeComponents: DateTimeComponents.dayOfWeekAndTime,
+      );
+
+      // Add dynamic streak nudge 1 hour later
+      if (currentStreak > 0) {
+        await scheduleStreakNudge(
+          streak: currentStreak,
+          id: (notifId + 500000).remainder(0x7FFFFFFF),
+          targetDate: scheduledDate.add(const Duration(hours: 1)),
+        );
+      }
+
+      // Schedule Caregiver Escalation 2 hours later
+      await scheduleCaregiverEscalation(
+        med: med,
+        sched: sched,
+        doseDate: scheduledDate,
+        baseNotifId: notifId,
+        profileName: profileName,
       );
     } catch (e) {
       await _plugin.show(
@@ -229,7 +266,7 @@ class NotificationService {
   static Future<void> cancelAll() => _plugin.cancelAll();
   static Future<void> cancel(int id) => _plugin.cancel(id: id);
 
-  static Future<void> scheduleAll(List<Medicine> meds, {String? profileName}) async {
+  static Future<void> scheduleAll(List<Medicine> meds, {String? profileName, bool showMedicationNames = true, required int currentStreak}) async {
     for (var med in meds) {
       for (int i = 0; i < med.schedule.length; i++) {
         final sched = med.schedule[i];
@@ -248,6 +285,8 @@ class NotificationService {
             enableVibration: true,
             isTakenToday: false,
             profileName: profileName,
+            showMedicationNames: showMedicationNames,
+            currentStreak: currentStreak,
           );
         }
       }
@@ -272,10 +311,120 @@ class NotificationService {
         NotificationDetails(android: androidDetails, iOS: iosDetails);
     await _plugin.show(
       id: (med.id + 100000).remainder(0x7FFFFFFF),
-      title: title ?? '💊 Refill Required',
-      body:
-          body ?? 'Your supply of ${med.name} is low (${med.count} remaining).',
+      title: title ?? NotificationCopy.refillTitle,
+      body: body ?? NotificationCopy.refillBody.replaceAll('{medName}', med.name).replaceAll('{count}', med.count.toString()),
       notificationDetails: details,
+    );
+  }
+
+  static Future<void> showFamilyAlert({String? profileName}) async {
+    const androidDetails = AndroidNotificationDetails(
+      'family_alerts',
+      'Family Alerts',
+      channelDescription: 'Alerts for family members doses',
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+    const iosDetails = DarwinNotificationDetails(presentAlert: true, presentSound: true);
+    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    
+    final prefix = profileName != null ? '$profileName: ' : '';
+    await _plugin.show(
+      id: 999000,
+      title: '$prefix${NotificationCopy.familyAlertTitle}',
+      body: NotificationCopy.familyAlertBody,
+      notificationDetails: details,
+    );
+  }
+
+  static Future<void> scheduleStreakNudge({required int streak, required int id, required DateTime targetDate}) async {
+    final random = Random();
+    final copy = NotificationCopy.streakNudges[random.nextInt(NotificationCopy.streakNudges.length)]
+        .replaceAll('{streak}', streak.toString());
+    
+    const androidDetails = AndroidNotificationDetails(
+      'streak_nudges',
+      'Streak Nudges',
+      importance: Importance.defaultImportance,
+      priority: Priority.defaultPriority,
+    );
+    const iosDetails = DarwinNotificationDetails(presentAlert: true, presentSound: true);
+    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    
+    await _plugin.zonedSchedule(
+      id: id,
+      title: 'Keep it up! 🏆',
+      body: copy,
+      scheduledDate: tz.TZDateTime.from(targetDate, tz.local),
+      notificationDetails: details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    );
+  }
+
+  static Future<void> scheduleReEngagement({required DateTime targetDate}) async {
+    const androidDetails = AndroidNotificationDetails(
+      're_engagement',
+      'Re-engagement',
+      importance: Importance.low,
+      priority: Priority.low,
+    );
+    const iosDetails = DarwinNotificationDetails(presentAlert: true, presentSound: false);
+    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    
+    await _plugin.zonedSchedule(
+      id: 888002,
+      title: NotificationCopy.reEngagementTitle,
+      body: NotificationCopy.reEngagementBody,
+      scheduledDate: tz.TZDateTime.from(targetDate, tz.local),
+      notificationDetails: details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    );
+  }
+
+  static Future<void> scheduleCaregiverEscalation({
+    required Medicine med,
+    required ScheduleEntry sched,
+    required DateTime doseDate,
+    required int baseNotifId,
+    String? profileName,
+  }) async {
+    final escalationDate = doseDate.add(const Duration(hours: 2));
+    
+    // Only schedule if the escalation time is still in the future
+    if (escalationDate.isBefore(DateTime.now())) return;
+
+    final androidDetails = AndroidNotificationDetails(
+      'caregiver_escalation',
+      'Caregiver Escalations',
+      channelDescription: 'High-priority alerts for missed critical doses',
+      importance: Importance.max,
+      priority: Priority.max,
+      fullScreenIntent: true,
+      color: const Color(0xFFFF3B30),
+      enableLights: true,
+      ledColor: const Color(0xFFFF3B30),
+      ledOnMs: 1000,
+      ledOffMs: 500,
+      vibrationPattern: Int64List.fromList([0, 1000, 500, 1000]),
+    );
+
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentSound: true,
+      presentBadge: true,
+      interruptionLevel: InterruptionLevel.critical,
+    );
+
+    final details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    
+    final prefix = profileName != null ? '$profileName: ' : '';
+    await _plugin.zonedSchedule(
+      id: (baseNotifId + 1000000).remainder(0x7FFFFFFF),
+      title: '🚨 CAREGIVER ESCALATION 🚨',
+      body: '$prefix You missed your critical dose of ${med.name}. An alert has been escalated to your caregiver network.',
+      scheduledDate: tz.TZDateTime.from(escalationDate, tz.local),
+      notificationDetails: details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }
 
@@ -347,6 +496,81 @@ class NotificationService {
       scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
       notificationDetails: details,
       payload: payload,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    );
+  }
+
+  static Future<void> scheduleMealFollowUp({
+    required List<Medicine> meds,
+    required Ritual mealRitual,
+    required String profileName,
+  }) async {
+    final now = DateTime.now();
+    final dayIdx = now.weekday % 7;
+    
+    final applicableMeds = meds.where((m) => m.schedule.any((s) => s.enabled && s.days.contains(dayIdx) && s.ritual == mealRitual)).toList();
+    
+    if (applicableMeds.isEmpty) return;
+    
+    final androidDetails = AndroidNotificationDetails(
+      'dynamic_triggers',
+      'Dynamic Triggers',
+      channelDescription: 'Personalized triggers based on your logging activity',
+      importance: Importance.max,
+      priority: Priority.max,
+      vibrationPattern: _premiumHeartbeatVibration,
+      enableVibration: true,
+      playSound: true,
+    );
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentSound: true,
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    );
+    final details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    
+    // Schedule 30 mins after logging the meal
+    final scheduledDate = now.add(const Duration(minutes: 30)); 
+    
+    final prefix = profileName.isNotEmpty ? '$profileName: ' : '';
+    await _plugin.zonedSchedule(
+      id: 777001,
+      title: '🍽️ $prefix${mealRitual.displayName} Follow-up',
+      body: 'You recently logged a meal. Time to take your post-meal medications!',
+      scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
+      notificationDetails: details,
+      androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
+    );
+  }
+
+  static Future<void> scheduleIntakeCheckIn({
+    required Medicine med,
+  }) async {
+    final androidDetails = AndroidNotificationDetails(
+      'dynamic_triggers',
+      'Dynamic Triggers',
+      importance: Importance.max,
+      priority: Priority.max,
+      vibrationPattern: _premiumHeartbeatVibration,
+      enableVibration: true,
+      playSound: true,
+    );
+    const iosDetails = DarwinNotificationDetails(
+      presentAlert: true,
+      presentSound: true,
+      interruptionLevel: InterruptionLevel.timeSensitive,
+    );
+    final details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    
+    // Schedule 2 hours after intake
+    final scheduledDate = DateTime.now().add(const Duration(hours: 2)); 
+    
+    await _plugin.zonedSchedule(
+      id: 777002,
+      title: 'How are you feeling? ✨',
+      body: 'You took ${med.name} a couple hours ago. Log any side effects if needed.',
+      scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
+      notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
     );
   }

@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
-import '../../../../core/utils/haptic_engine.dart';
+import '../../../core/utils/haptic_engine.dart';
+import '../../stats/analytics_dashboard_screen.dart';
 
 class HomeStatsGrid extends StatelessWidget {
   final AppState state;
@@ -59,6 +60,9 @@ class HomeStatsGrid extends StatelessWidget {
                   sparklineData: _buildWeeklyData(state),
                   sparklineColor: L.primary,
                   L: L,
+                  onTap: () {
+                    Navigator.push(context, MaterialPageRoute(builder: (_) => const AnalyticsDashboardScreen()));
+                  },
                 ).animate().fadeIn(duration: 600.ms).scale(
                     begin: const Offset(0.98, 0.98), curve: Curves.easeOutBack),
               ),
@@ -88,6 +92,9 @@ class HomeStatsGrid extends StatelessWidget {
                         value: '$adherence%',
                         valueColor: L.success,
                         L: L,
+                        onTap: () {
+                          Navigator.push(context, MaterialPageRoute(builder: (_) => const AnalyticsDashboardScreen()));
+                        },
                       )
                           .animate(delay: 200.ms)
                           .fadeIn(duration: 600.ms)
@@ -212,11 +219,15 @@ class _BentoMetricCard extends StatelessWidget {
     required this.sparklineData,
     required this.sparklineColor,
     required this.L,
+    this.onTap,
   });
+
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return _PressableCard(
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.p16),
         decoration: BoxDecoration(
@@ -248,8 +259,7 @@ class _BentoMetricCard extends StatelessWidget {
                     label.toUpperCase(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.labelSmall.copyWith(
-                      color: L.sub.withValues(alpha: 0.6),
+                    style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.6),
                       fontWeight: FontWeight.w900,
                       letterSpacing: 0.5,
                       fontSize: 10,
@@ -265,8 +275,7 @@ class _BentoMetricCard extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: AppTypography.displaySmall.copyWith(
-                    color: L.text,
+                  style: AppTypography.displaySmall.copyWith(fontFamily: 'Courier', color: L.text,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -1.0,
                     height: 1.0,
@@ -276,8 +285,7 @@ class _BentoMetricCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     unit,
-                    style: AppTypography.labelSmall.copyWith(
-                      color: L.sub.withValues(alpha: 0.8),
+                    style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.8),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -289,8 +297,7 @@ class _BentoMetricCard extends StatelessWidget {
               sublabel,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTypography.labelSmall.copyWith(
-                color: L.sub.withValues(alpha: 0.5),
+              style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.5),
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),
@@ -329,11 +336,15 @@ class _BentoSmallCard extends StatelessWidget {
     required this.value,
     required this.valueColor,
     required this.L,
+    this.onTap,
   });
+
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     return _PressableCard(
+      onTap: onTap,
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.p12),
         decoration: BoxDecoration(
@@ -360,16 +371,14 @@ class _BentoSmallCard extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: AppTypography.titleLarge.copyWith(
-                    color: valueColor,
+                  style: AppTypography.titleLarge.copyWith(fontFamily: 'Courier', color: valueColor,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -0.5,
                   ),
                 ),
                 Text(
                   label.toUpperCase(),
-                  style: AppTypography.labelSmall.copyWith(
-                    color: L.sub.withValues(alpha: 0.6),
+                  style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w900,
                     fontSize: 10, // Standardized for micro-labels
                     letterSpacing: 0.5,
@@ -449,16 +458,14 @@ class _NextDoseCard extends StatelessWidget {
                 children: [
                   Text(
                     'NEXT DOSE',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: L.onPrimary.withValues(alpha: 0.65),
+                    style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.onPrimary.withValues(alpha: 0.65),
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.0,
                     ),
                   ),
                   Text(
                     dose.med.name,
-                    style: AppTypography.headlineSmall.copyWith(
-                      color: L.onPrimary,
+                    style: AppTypography.headlineSmall.copyWith(fontFamily: 'Courier', color: L.onPrimary,
                       fontWeight: FontWeight.w900,
                     ),
                     maxLines: 1,
@@ -476,9 +483,9 @@ class _NextDoseCard extends StatelessWidget {
               ),
               child: Text(
                 timeLabel.toUpperCase(),
-                style: AppTypography.labelMedium.copyWith(
-                  color: L.primary,
+                style: AppTypography.labelMedium.copyWith(fontFamily: 'Courier', color: L.primary,
                   fontWeight: FontWeight.w900,
+                  letterSpacing: 1.0,
                 ),
               ),
             ),
@@ -559,7 +566,8 @@ class _SparklinePainter extends CustomPainter {
 // ─────────────────────────────────────────────────────────────
 class _PressableCard extends StatefulWidget {
   final Widget child;
-  const _PressableCard({required this.child});
+  final VoidCallback? onTap;
+  const _PressableCard({required this.child, this.onTap});
 
   @override
   State<_PressableCard> createState() => _PressableCardState();
@@ -576,6 +584,7 @@ class _PressableCardState extends State<_PressableCard> {
       onTapCancel: () => setState(() => _pressed = false),
       onTap: () {
         HapticEngine.selection();
+        if (widget.onTap != null) widget.onTap!();
       },
       child: AnimatedScale(
         scale: _pressed ? 0.97 : 1.0,

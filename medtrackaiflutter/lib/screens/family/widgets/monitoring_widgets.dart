@@ -85,15 +85,12 @@ class PatientCard extends StatelessWidget {
 
             return BouncingButton(
               onTap: onTap,
-              child: Container(
-                padding: const EdgeInsets.all(AppSpacing.p16),
-                margin: const EdgeInsets.only(bottom: AppSpacing.p12),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: AppShadows.neumorphic,
-                ),
-                child: Column(
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: AppSpacing.p12),
+                child: SquircleCard(
+                  padding: const EdgeInsets.all(AppSpacing.p16),
+                  radius: 12,
+                  child: Column(
                   children: [
                     Row(
                       children: [
@@ -219,8 +216,9 @@ class PatientCard extends StatelessWidget {
                   ],
                 ),
               ),
-            );
-          },
+            ),
+          );
+        },
         );
       },
     );
@@ -484,13 +482,9 @@ class InsightsContent extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Health Score Hero (Simplified for monitoring)
-                  Container(
+                  SquircleCard(
                     padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(28),
-                      boxShadow: AppShadows.neumorphic,
-                    ),
+                    radius: 28,
                     child: Column(
                       children: [
                         Row(
@@ -573,13 +567,9 @@ class InsightsContent extends StatelessWidget {
 
                   const SizedBox(height: 24),
 
-                  Container(
+                  SquircleCard(
                     padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(24),
-                      boxShadow: AppShadows.neumorphic,
-                    ),
+                    radius: 24,
                     child: WeeklyAdherenceChart(
                         meds: meds, history: history, L: L),
                   ),

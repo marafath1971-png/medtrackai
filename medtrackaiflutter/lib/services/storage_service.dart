@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 import '../core/utils/logger.dart';
 
 class StorageService {
@@ -19,7 +20,25 @@ class StorageService {
       final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final permanentFile = File(p.join(medicineDir.path, fileName));
       
-      await imageFile.copy(permanentFile.path);
+      // Compress the image aggressively for low-end hardware compatibility
+      final tempPath = p.join(medicineDir.path, 'temp_$fileName');
+      final compressedXFile = await FlutterImageCompress.compressAndGetFile(
+        imageFile.absolute.path,
+        tempPath,
+        quality: 60,
+        minWidth: 800,
+        minHeight: 800,
+      );
+
+      if (compressedXFile != null) {
+        final compressedFile = File(compressedXFile.path);
+        await compressedFile.copy(permanentFile.path);
+        await compressedFile.delete(); // Clean up temp
+      } else {
+        // Fallback to original if compression fails
+        await imageFile.copy(permanentFile.path);
+      }
+
       appLogger.i('[StorageService] Local image saved permanently: ${permanentFile.path}');
       return permanentFile.path;
     } catch (e) {
@@ -38,9 +57,22 @@ class StorageService {
           .child('medicines')
           .child(fileName);
 
+      // Compress the image aggressively before upload
+      final tempDir = await getTemporaryDirectory();
+      final tempPath = p.join(tempDir.path, 'upload_temp_$fileName');
+      final compressedXFile = await FlutterImageCompress.compressAndGetFile(
+        imageFile.absolute.path,
+        tempPath,
+        quality: 60,
+        minWidth: 800,
+        minHeight: 800,
+      );
+      
+      final fileToUpload = compressedXFile != null ? File(compressedXFile.path) : imageFile;
+
       // 1. Wait for upload to COMPLETE before proceding, with a 15-second timeout
       final task = ref.putFile(
-        imageFile,
+        fileToUpload,
         SettableMetadata(contentType: 'image/jpeg'),
       );
 
@@ -62,6 +94,12 @@ class StorageService {
         final downloadUrl = await ref.getDownloadURL();
         appLogger
             .i('[StorageService] Image uploaded successfully: $downloadUrl');
+        
+        // Clean up temporary compressed file
+        if (fileToUpload.path != imageFile.path && await fileToUpload.exists()) {
+          await fileToUpload.delete();
+        }
+        
         return downloadUrl;
       }
       return null;

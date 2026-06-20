@@ -9,6 +9,8 @@ import 'settings_shared.dart';
 import '../../../settings/global_settings_screen.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/haptic_engine.dart';
+import '../../../admin/growth_dashboard_screen.dart';
+import '../../../social/med_wrapped_screen.dart';
 
 class ProfileTab extends StatefulWidget {
   final AppState state;
@@ -70,13 +72,13 @@ class _ProfileTabState extends State<ProfileTab> {
                 .copyWith(color: widget.L.text, fontWeight: FontWeight.w900)),
         content: Text(
           'This action is permanent and will delete all your medication history and account data from our servers.',
-          style: AppTypography.bodyMedium.copyWith(color: widget.L.sub),
+          style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', color: widget.L.sub),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text('CANCEL',
-                style: AppTypography.labelLarge.copyWith(color: widget.L.sub)),
+                style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', color: widget.L.sub)),
           ),
           TextButton(
             onPressed: () {
@@ -84,8 +86,7 @@ class _ProfileTabState extends State<ProfileTab> {
               widget.state.deleteAccount();
             },
             child: Text('DELETE',
-                style: AppTypography.labelLarge.copyWith(
-                    color: Colors.redAccent, fontWeight: FontWeight.w900)),
+                style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', color: Colors.redAccent, fontWeight: FontWeight.w900)),
           ),
         ],
       ),
@@ -109,10 +110,8 @@ class _ProfileTabState extends State<ProfileTab> {
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: L.card,
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                  color: L.border.withValues(alpha: 0.07), width: 0.5),
-              boxShadow: AppShadows.neumorphic,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: L.border, width: 0.8),
             ),
             child: Row(children: [
               Container(
@@ -156,8 +155,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       children: [
                         Flexible(
                           child: Text(p?.name ?? 'Your Name',
-                              style: AppTypography.titleLarge.copyWith(
-                                  fontWeight: FontWeight.w900,
+                              style: AppTypography.titleLarge.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
                                   color: L.text,
                                   fontSize: 22,
                                   letterSpacing: -0.5)),
@@ -172,8 +170,7 @@ class _ProfileTabState extends State<ProfileTab> {
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text('PRO',
-                                style: AppTypography.labelSmall.copyWith(
-                                    fontWeight: FontWeight.w900,
+                                style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
                                     fontSize: 10,
                                     color: Colors.black,
                                     letterSpacing: 0.5)),
@@ -184,8 +181,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     const SizedBox(height: 6),
                     Text(
                         '${p?.age != null && p!.age.isNotEmpty ? "Age ${p.age}" : "Age not set"}${p?.gender != null && p!.gender.isNotEmpty ? " · ${p.gender}" : ""}',
-                        style: AppTypography.bodySmall.copyWith(
-                            color: L.sub.withValues(alpha: 0.6),
+                        style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.6),
                             fontWeight: FontWeight.w700)),
                   ])),
               if (!_editing)
@@ -204,8 +200,7 @@ class _ProfileTabState extends State<ProfileTab> {
                         border:
                             Border.all(color: L.border.withValues(alpha: 0.1))),
                     child: Text(s.edit.toUpperCase(),
-                        style: AppTypography.labelLarge.copyWith(
-                            fontWeight: FontWeight.w900,
+                        style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
                             fontSize: 10,
                             letterSpacing: 1.0,
                             color: L.text)),
@@ -309,8 +304,7 @@ class _ProfileTabState extends State<ProfileTab> {
                         color: L.fill, borderRadius: BorderRadius.circular(24)),
                     child: Center(
                         child: Text(s.cancel,
-                            style: AppTypography.titleMedium.copyWith(
-                                fontWeight: FontWeight.w700, color: L.text)))),
+                            style: AppTypography.titleMedium.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w700, color: L.text)))),
               )),
               const SizedBox(width: 8),
               Expanded(
@@ -350,8 +344,7 @@ class _ProfileTabState extends State<ProfileTab> {
                             ]),
                         child: Center(
                             child: Text('SAVE CHANGES',
-                                style: AppTypography.titleMedium.copyWith(
-                                    fontWeight: FontWeight.w900,
+                                style: AppTypography.titleMedium.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
                                     fontSize: 14,
                                     letterSpacing: 0.5,
                                     color: L.bg)))),
@@ -401,17 +394,15 @@ class _ProfileTabState extends State<ProfileTab> {
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
                     color: L.card,
-                    borderRadius: BorderRadius.circular(28),
-                    border: Border.all(
-                        color: L.border.withValues(alpha: 0.07), width: 0.5),
-                    boxShadow: AppShadows.neumorphic,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: L.border, width: 0.8),
                   ),
                   child: Row(children: [
                     Container(
                       width: 50,
                       height: 50,
                       decoration: BoxDecoration(
-                        color: L.primary.withValues(alpha: 0.1),
+                        color: AppColors.accent.withValues(alpha: 0.10),
                         shape: BoxShape.circle,
                       ),
                       child: Center(
@@ -430,20 +421,19 @@ class _ProfileTabState extends State<ProfileTab> {
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                          Text('Upgrade to MedAI Pro',
-                              style: AppTypography.titleLarge.copyWith(
-                                  color: L.text,
+                          Text('Upgrade to MedAI Pro ✨',
+                              style: AppTypography.titleLarge.copyWith(fontFamily: 'Courier', color: L.text,
                                   fontSize: 18,
+                                  letterSpacing: -0.5,
                                   fontWeight: FontWeight.w900)),
                           const SizedBox(height: 4),
-                          Text('Unlock AI insights, Family Sharing & more',
-                              style: AppTypography.labelSmall.copyWith(
-                                  color: L.sub,
+                          Text('Unlock AI insights, Family Sharing & more 🚀',
+                              style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 0.1)),
                         ])),
                     Icon(Icons.chevron_right_rounded,
-                        color: L.primary, size: 28),
+                        color: AppColors.accent, size: 28),
                   ]),
                 ),
               ).animate(onPlay: (c) => c.repeat()).shimmer(
@@ -483,6 +473,21 @@ class _ProfileTabState extends State<ProfileTab> {
                   sub: 'Generate a summary for your doctor',
                   onClick: () => widget.state.exportDataPDF(),
                   first: true,
+                  border: true,
+                ),
+                SettingsModalRow(
+                  icon: '🎬',
+                  label: 'Med Wrapped 2026',
+                  sub: 'View your yearly consistency slideshow',
+                  onClick: () {
+                    HapticEngine.selection();
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const MedWrappedScreen(),
+                      ),
+                    );
+                  },
                   border: true,
                 ),
                 SettingsModalRow(
@@ -588,14 +593,37 @@ class _ProfileTabState extends State<ProfileTab> {
                 ),
               ]),
             ),
+            SettingsSection(
+              title: 'Developer Options',
+              child: Column(
+                children: [
+                  SettingsModalRow(
+                    icon: '🚀',
+                    label: 'Growth & Analytics Dashboard',
+                    sub: 'Funnel analytics and mock simulator',
+                    onClick: () {
+                      HapticEngine.selection();
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const GrowthDashboardScreen(),
+                        ),
+                      );
+                    },
+                    first: true,
+                    last: true,
+                    border: false,
+                  ),
+                ],
+              ),
+            ),
             const SizedBox(height: 12),
             Center(
               child: Column(
                 children: [
                   Text(
                     'MedAI 1.0.0+1',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: L.sub.withValues(alpha: 0.4),
+                    style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.4),
                       fontWeight: FontWeight.w900,
                       fontSize: 10,
                       letterSpacing: 1.0,
@@ -604,8 +632,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   const SizedBox(height: 4),
                   Text(
                     'MADE WITH ❤️ BY MEDAI TEAM',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: L.sub.withValues(alpha: 0.2),
+                    style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.2),
                       fontWeight: FontWeight.w900,
                       fontSize: 8,
                       letterSpacing: 2.0,

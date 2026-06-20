@@ -10,20 +10,8 @@ class PurchasesService {
   static String get _googleApiKey =>
       dotenv.env['RC_GOOGLE_KEY'] ?? 're_your_real_google_key_here';
 
-  /// If RC_IS_MOCK is set to true in .env, or if keys are missing, we bypass real payments
-  static bool get _isMock {
-    final mockFlag = dotenv.env['RC_IS_MOCK']?.toLowerCase() == 'true';
-    final missingKeys = _appleApiKey.startsWith('re_your_real_') || _googleApiKey.startsWith('re_your_real_');
-    return mockFlag || missingKeys;
-  }
 
   static Future<void> init() async {
-    if (_isMock) {
-      appLogger.i(
-          '💰 RevenueCat: Running in MOCK mode (RC_IS_MOCK=true or generic keys detected)');
-      return;
-    }
-
     await Purchases.setLogLevel(LogLevel.info);
 
     PurchasesConfiguration? configuration;
@@ -39,7 +27,6 @@ class PurchasesService {
   }
 
   static Future<bool> isPremium() async {
-    if (_isMock) return false; // Default to false in mock
     try {
       final customerInfo = await Purchases.getCustomerInfo();
       return customerInfo.entitlements.all['premium']?.isActive ?? false;
@@ -48,22 +35,24 @@ class PurchasesService {
       return false;
     }
   }
+  static Future<List<Package>> getAvailablePackages() async {
+    try {
+      final offerings = await Purchases.getOfferings();
+      return offerings.current?.availablePackages ?? [];
+    } catch (e) {
+      appLogger.e('💰 RevenueCat Error fetching offerings', error: e);
+      return [];
+    }
+  }
 
   static Future<bool> purchasePackage(String packageId) async {
-    if (_isMock) {
-      // Simulate purchase delay
-      await Future.delayed(const Duration(seconds: 2));
-      appLogger.i('💰 RevenueCat Mock: Purchased $packageId');
-      return true;
-    }
-
     try {
       final offerings = await Purchases.getOfferings();
       final package = offerings.current?.getPackage(packageId);
 
       if (package != null) {
-        final customerInfo = await Purchases.purchasePackage(package);
-        return customerInfo.entitlements.all['premium']?.isActive ?? false;
+        final result = await Purchases.purchase(PurchaseParams.package(package));
+        return result.customerInfo.entitlements.all['premium']?.isActive ?? false;
       }
       return false;
     } on PlatformException catch (e) {
@@ -76,10 +65,6 @@ class PurchasesService {
   }
 
   static Future<bool> restorePurchases() async {
-    if (_isMock) {
-      appLogger.i('💰 RevenueCat Mock: restorePurchases called');
-      return false; // In mock, assume no active subscriptions by default
-    }
     try {
       final customerInfo = await Purchases.restorePurchases();
       return customerInfo.entitlements.all['premium']?.isActive ?? false;

@@ -6,8 +6,9 @@ import '../../core/utils/haptic_engine.dart';
 import '../common/refined_sheet_wrapper.dart';
 import '../../services/report_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../shared/shared_widgets.dart';
 
-class ClinicalReportModal extends StatelessWidget {
+class ClinicalReportModal extends StatefulWidget {
   final AppState state;
   final double adherence;
   final int streak;
@@ -34,6 +35,13 @@ class ClinicalReportModal extends StatelessWidget {
   }
 
   @override
+  State<ClinicalReportModal> createState() => _ClinicalReportModalState();
+}
+
+class _ClinicalReportModalState extends State<ClinicalReportModal> {
+  bool _isGenerating = false;
+
+  @override
   Widget build(BuildContext context) {
     final L = context.L;
     final s = AppLocalizations.of(context)!;
@@ -43,17 +51,25 @@ class ClinicalReportModal extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
       child: Column(
         children: [
-          // Header Illustration/Icon
+          // Header Holographic Illustration/Icon
           Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              color: L.text.withValues(alpha: 0.03),
+              color: AppColors.accent.withValues(alpha: 0.08),
               shape: BoxShape.circle,
+              border: Border.all(color: AppColors.accent.withValues(alpha: 0.2), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.accent.withValues(alpha: 0.15),
+                  blurRadius: 30,
+                  spreadRadius: -10,
+                ),
+              ],
             ),
-            child: Icon(Icons.verified_user_rounded, color: L.text, size: 48),
+            child: const Icon(Icons.auto_awesome_rounded, color: AppColors.accent, size: 48),
           )
               .animate(onPlay: (c) => c.repeat(reverse: true))
-              .shimmer(duration: 2.seconds, color: L.text.withValues(alpha: 0.1))
+              .shimmer(duration: 2.seconds, color: AppColors.accent.withValues(alpha: 0.5))
               .scaleXY(
                   begin: 0.95,
                   end: 1.05,
@@ -78,10 +94,10 @@ class ClinicalReportModal extends StatelessWidget {
           // Stats Bento Grid
           Row(
             children: [
-              _buildStatCard(L, 'ADHERENCE', '${(adherence * 100).round()}%',
+              _buildStatCard(L, 'ADHERENCE', '${(widget.adherence * 100).round()}%',
                   Icons.analytics_rounded),
               const SizedBox(width: 16),
-              _buildStatCard(L, 'STREAK', '$streak DAYS',
+              _buildStatCard(L, 'STREAK', '${widget.streak} DAYS',
                   Icons.local_fire_department_rounded),
             ],
           ),
@@ -90,7 +106,7 @@ class ClinicalReportModal extends StatelessWidget {
 
           // Info List
           _buildInfoRow(L, Icons.medication_rounded,
-              '${state.meds.length} active medications tracked'),
+              '${widget.state.meds.length} active medications tracked'),
           _buildInfoRow(
               L, Icons.favorite_rounded, 'Biometric trends (Heart Rate, Steps)'),
           _buildInfoRow(L, Icons.assignment_turned_in_rounded,
@@ -99,54 +115,80 @@ class ClinicalReportModal extends StatelessWidget {
           const SizedBox(height: 48),
 
           // Generate Button
-          GestureDetector(
-            onTap: () {
-              HapticEngine.success();
-              Navigator.pop(context);
-              ReportService.generateAndShareReport(
-                s: s,
-                userName: state.profile?.name ?? s.greetingHero,
-                adherence: adherence,
-                meds: state.meds,
-                symptoms: state.symptoms,
-                history: state.history,
-                avgHeartRate: state.healthHeartRate,
-                avgSteps: state.healthSteps,
-                currentStreak: streak,
-                trendData: state.getTrendData(),
-              );
+          BouncingButton(
+            scaleFactor: 0.95,
+            onTap: () async {
+              if (_isGenerating) return;
+              HapticEngine.selection();
+              setState(() => _isGenerating = true);
+              
+              try {
+                // Simulate generation delay for UX
+                await Future.delayed(const Duration(milliseconds: 1200));
+                ReportService.generateAndShareReport(
+                  s: s,
+                  userName: widget.state.profile?.name ?? s.greetingHero,
+                  adherence: widget.adherence,
+                  meds: widget.state.meds,
+                  symptoms: widget.state.symptoms,
+                  history: widget.state.history,
+                  avgHeartRate: widget.state.healthHeartRate,
+                  avgSteps: widget.state.healthSteps,
+                  currentStreak: widget.streak,
+                  trendData: widget.state.getTrendData(),
+                );
+              } catch (e) {
+                if (context.mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    content: Text('Failed to generate report: $e'),
+                    backgroundColor: AppColors.red,
+                    behavior: SnackBarBehavior.floating,
+                  ));
+                }
+              } finally {
+                if (context.mounted) {
+                  setState(() => _isGenerating = false);
+                  Navigator.pop(context);
+                }
+              }
             },
             child: Container(
               width: double.infinity,
               height: 64,
               decoration: BoxDecoration(
-                color: L.text,
+                gradient: AppGradients.accentOrange,
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: L.text.withValues(alpha: 0.2),
+                    color: AppColors.accent.withValues(alpha: 0.3),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
                 ],
               ),
               child: Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.picture_as_pdf_rounded,
-                        color: Colors.white, size: 20),
-                    const SizedBox(width: 12),
-                    Text(
-                      'GENERATE PDF REPORT',
-                      style: AppTypography.labelLarge.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.0,
-                      ),
+                child: _isGenerating 
+                  ? const SizedBox(
+                      height: 24,
+                      width: 24,
+                      child: CircularProgressIndicator(color: Colors.black, strokeWidth: 3),
+                    )
+                  : Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.picture_as_pdf_rounded,
+                            color: Colors.black, size: 20),
+                        const SizedBox(width: 12),
+                        Text(
+                          'GENERATE PDF REPORT',
+                          style: AppTypography.labelLarge.copyWith(
+                            color: Colors.black,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 1.0,
+                          ),
+                        ),
+                      ],
                     ),
-                  ],
-                ),
               ),
             ),
           ).animate().shimmer(
@@ -167,7 +209,6 @@ class ClinicalReportModal extends StatelessWidget {
           color: L.card,
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: L.border.withValues(alpha: 0.05)),
-          boxShadow: AppShadows.neumorphic,
         ),
         child: Column(
           children: [

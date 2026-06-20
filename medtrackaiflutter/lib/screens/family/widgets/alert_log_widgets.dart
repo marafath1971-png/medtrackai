@@ -21,11 +21,10 @@ class AlertLogCard extends StatelessWidget {
           margin: const EdgeInsets.only(bottom: 12),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: L.card,
             borderRadius: BorderRadius.circular(20),
-            boxShadow: AppShadows.neumorphic,
             border: alert.seen
-                ? null
+                ? Border.all(color: L.border.withValues(alpha: 0.1))
                 : Border.all(color: L.error.withValues(alpha: 0.3), width: 1.5),
           ),
           child: Row(children: [
@@ -139,10 +138,9 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
                             padding: const EdgeInsets.symmetric(vertical: 14),
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: _step <= 1 ? L.fill : Colors.white,
+                              color: _step <= 1 ? L.fill : L.card,
                               borderRadius: BorderRadius.circular(16),
-                              boxShadow:
-                                  _step <= 1 ? null : AppShadows.neumorphic,
+                              border: _step <= 1 ? null : Border.all(color: L.border.withValues(alpha: 0.1)),
                             ),
                             child: Text('Previous',
                                 style: AppTypography.labelLarge.copyWith(
@@ -340,10 +338,9 @@ class AlertDetailView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: L.card,
                 borderRadius: BorderRadius.circular(28),
                 boxShadow: [
-                  ...AppShadows.neumorphic,
                   BoxShadow(
                       color: L.error.withValues(alpha: 0.05),
                       blurRadius: 40,

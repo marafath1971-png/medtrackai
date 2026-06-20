@@ -72,6 +72,10 @@
 	<string>MedAI accesses your photo library to analyze photos of your prescriptions and medical documents for digital tracking and safe record keeping.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>MedAI uses your camera to scan medicine packaging, barcodes, and prescription labels. This allows our AI to automatically retrieve safety warnings and set up your dosage schedule accurately.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>MedAI uses the microphone so you can ask questions or log your medications using voice commands.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>MedAI uses speech recognition to understand your spoken queries about products and health data.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>MedAI uses FaceID to provide a secure biometric lock, ensuring your private medical history and medication adherence data remains accessible only to you.</string>
 	<key>NSHealthShareUsageDescription</key>

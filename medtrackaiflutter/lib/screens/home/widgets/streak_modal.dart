@@ -6,11 +6,13 @@ import '../../../services/share_service.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../providers/app_state.dart';
 
+import 'package:confetti/confetti.dart';
+
 // ══════════════════════════════════════════════
-// CONSISTENCY HUB (Cal AI Industrial Refined)
+// CONSISTENCY HUB (Duolingo-style Viral Celebratory)
 // ══════════════════════════════════════════════
 
-class StreakModal extends StatelessWidget {
+class StreakModal extends StatefulWidget {
   final int streak;
   final Map<String, List<DoseEntry>> history;
   final StreakData streakData;
@@ -24,6 +26,9 @@ class StreakModal extends StatelessWidget {
       required this.streakData,
       required this.onClose,
       required this.onFreeze});
+
+  @override
+  State<StreakModal> createState() => _StreakModalState();
 
   static void show(BuildContext context, AppState state) {
     showGeneralDialog(
@@ -53,6 +58,33 @@ class StreakModal extends StatelessWidget {
       },
     );
   }
+}
+
+class _StreakModalState extends State<StreakModal> {
+  late final ConfettiController _confettiController;
+
+  @override
+  void initState() {
+    super.initState();
+    _confettiController = ConfettiController(duration: const Duration(seconds: 3));
+    // Trigger confetti automatically when modal opens
+    _confettiController.play();
+  }
+
+  @override
+  void dispose() {
+    _confettiController.dispose();
+    super.dispose();
+  }
+
+  String _getStreakTitle(int streak) {
+    if (streak >= 365) return 'UNBREAKABLE';
+    if (streak >= 100) return '100-DAY LEGEND';
+    if (streak >= 30) return 'IRON WILL';
+    if (streak >= 7) return 'CONSISTENCY KING';
+    if (streak >= 3) return 'RISING STAR';
+    return 'NOVICE';
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -60,9 +92,9 @@ class StreakModal extends StatelessWidget {
     final size = MediaQuery.of(context).size;
 
     // Compute stats
-    final allKeys = history.keys.toList()..sort();
+    final allKeys = widget.history.keys.toList()..sort();
     final totalDaysTracked = allKeys.length;
-    final allEntries = history.values.expand((e) => e).toList();
+    final allEntries = widget.history.values.expand((e) => e).toList();
     final totalTaken = allEntries.where((e) => e.taken).length;
     final totalDoses = allEntries.length;
     final overallAdh = totalDoses > 0 ? (totalTaken * 100 ~/ totalDoses) : 0;
@@ -71,7 +103,7 @@ class StreakModal extends StatelessWidget {
     int best = 0, cur = 0;
     String? prev;
     for (final k in allKeys) {
-      final ds = history[k] ?? [];
+      final ds = widget.history[k] ?? [];
       final rate = ds.isEmpty ? 0.0 : ds.where((x) => x.taken).length / ds.length;
       if (rate >= 0.8) {
         if (prev != null) {
@@ -97,13 +129,15 @@ class StreakModal extends StatelessWidget {
       {'d': 365, 'e': '🪐', 'l': '1 Year', 'desc': 'Legendary consistency.'},
     ];
 
-    return GestureDetector(
-      onTap: onClose,
-      child: Container(
-        color: Colors.black.withValues(alpha: 0.7),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: Align(
+    return Stack(
+      children: [
+        GestureDetector(
+          onTap: widget.onClose,
+          child: Container(
+            color: Colors.black.withValues(alpha: 0.7),
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+              child: Align(
             alignment: Alignment.bottomCenter,
             child: GestureDetector(
               onTap: () {},
@@ -146,23 +180,23 @@ class StreakModal extends StatelessWidget {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                _buildHeroMetric(L, streak, best, overallAdh),
+                                _buildHeroMetric(L, widget.streak, best, overallAdh),
                                 const SizedBox(height: 24),
                                 _buildStatsGrid(L, totalDaysTracked, totalTaken, totalDoses),
                                 const SizedBox(height: 32),
                                 _buildSectionTitle(L, '30-DAY STABILITY MATRIX'),
                                 const SizedBox(height: 16),
-                                _Heatmap(history: history, L: L),
+                                _Heatmap(history: widget.history, L: L),
                                 const SizedBox(height: 40),
                                 _buildSectionTitle(L, 'ASCENSION PROGRESSION'),
                                 const SizedBox(height: 20),
-                                _AscensionTrack(milestones: milestones, currentStreak: streak),
+                                _AscensionTrack(milestones: milestones, currentStreak: widget.streak),
                               ],
                             ),
                           ),
                         ),
                       ),
-                      _buildFooterActions(L, streak),
+                      _buildFooterActions(L, widget.streak),
                     ],
                   ),
                 ),
@@ -171,6 +205,26 @@ class StreakModal extends StatelessWidget {
           ),
         ),
       ),
+    ),
+        
+        // Confetti Layer
+        Align(
+          alignment: Alignment.topCenter,
+          child: ConfettiWidget(
+            confettiController: _confettiController,
+            blastDirectionality: BlastDirectionality.explosive,
+            maxBlastForce: 20,
+            minBlastForce: 8,
+            emissionFrequency: 0.05,
+            numberOfParticles: 50,
+            gravity: 0.1,
+            colors: const [
+              Colors.white,
+              Colors.grey,
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -188,24 +242,24 @@ class StreakModal extends StatelessWidget {
                 style: AppTypography.labelSmall.copyWith(
                   fontWeight: FontWeight.w900,
                   letterSpacing: 2.0,
-                  color: L.sub,
+                  color: L.secondary,
                   fontSize: 10,
                 ),
               ),
               const SizedBox(height: 4),
               Text(
-                'Health Performance',
+                _getStreakTitle(widget.streak),
                 style: AppTypography.headlineSmall.copyWith(
                   fontWeight: FontWeight.w900,
                   color: L.text,
                   fontSize: 24,
                   letterSpacing: -0.5,
                 ),
-              ),
+              ).animate().shimmer(duration: 2.seconds, color: L.secondary),
             ],
           ),
           IconButton(
-            onPressed: onClose,
+            onPressed: widget.onClose,
             icon: Icon(Icons.close_rounded, color: L.text, size: 24),
             style: IconButton.styleFrom(
               backgroundColor: L.fill.withValues(alpha: 0.5),
@@ -221,15 +275,10 @@ class StreakModal extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(32),
       decoration: BoxDecoration(
-        color: L.text, // Monolith style
+        color: L.card,
         borderRadius: BorderRadius.circular(28),
-        boxShadow: [
-          BoxShadow(
-            color: L.text.withValues(alpha: 0.2),
-            blurRadius: 30,
-            offset: const Offset(0, 15),
-          ),
-        ],
+        border: Border.all(color: L.border, width: 1),
+        boxShadow: L.shadowSoft,
       ),
       child: Row(
         children: [
@@ -241,7 +290,7 @@ class StreakModal extends StatelessWidget {
                   'CURRENT CHAIN',
                   style: AppTypography.labelSmall.copyWith(
                     fontWeight: FontWeight.w900,
-                    color: L.bg.withValues(alpha: 0.5),
+                    color: L.secondary,
                     letterSpacing: 1.5,
                     fontSize: 10,
                   ),
@@ -254,19 +303,20 @@ class StreakModal extends StatelessWidget {
                     Text(
                       '$streak',
                       style: AppTypography.displayLarge.copyWith(
+                        fontFamily: 'Courier',
                         fontWeight: FontWeight.w900,
-                        color: L.bg,
-                        fontSize: 64,
-                        letterSpacing: -4,
+                        color: L.text,
+                        fontSize: 80,
+                        letterSpacing: -5,
                         height: 1.0,
                       ),
-                    ),
+                    ).animate(onPlay: (controller) => controller.repeat(reverse: true)).scaleXY(begin: 1.0, end: 1.05, duration: 800.ms),
                     const SizedBox(width: 8),
                     Text(
                       'DAYS',
                       style: AppTypography.labelLarge.copyWith(
                         fontWeight: FontWeight.w900,
-                        color: L.bg,
+                        color: L.text,
                         fontSize: 18,
                         letterSpacing: -1,
                       ),
@@ -347,19 +397,20 @@ class StreakModal extends StatelessWidget {
               child: Container(
                 height: 56,
                 decoration: BoxDecoration(
-                  color: L.text,
+                  color: L.primary,
                   borderRadius: BorderRadius.circular(16),
+                  boxShadow: L.shadowSoft,
                 ),
                 child: Center(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.share_rounded, color: L.bg, size: 18),
+                      Icon(Icons.share_rounded, color: Colors.white, size: 18),
                       const SizedBox(width: 10),
                       Text(
                         'SHARE PERFORMANCE',
                         style: AppTypography.labelLarge.copyWith(
-                          color: L.bg,
+                          color: Colors.white,
                           fontWeight: FontWeight.w900,
                           fontSize: 13,
                           letterSpacing: 0.5,
@@ -390,17 +441,18 @@ class _MiniHeroStat extends StatelessWidget {
         Text(
           val,
           style: AppTypography.titleLarge.copyWith(
+            fontFamily: 'Courier',
             fontWeight: FontWeight.w900,
-            color: L.bg,
-            fontSize: 20,
-            letterSpacing: -0.5,
+            color: L.text,
+            fontSize: 22,
+            letterSpacing: -1.0,
           ),
         ),
         Text(
           label,
           style: AppTypography.labelSmall.copyWith(
             fontWeight: FontWeight.w900,
-            color: L.bg.withValues(alpha: 0.4),
+            color: L.sub,
             fontSize: 9,
             letterSpacing: 1.0,
           ),
@@ -433,10 +485,11 @@ class _StatBox extends StatelessWidget {
           Text(
             val,
             style: AppTypography.titleLarge.copyWith(
+              fontFamily: 'Courier',
               fontWeight: FontWeight.w900,
               color: L.text,
-              fontSize: 22,
-              letterSpacing: -0.5,
+              fontSize: 26,
+              letterSpacing: -1.5,
             ),
           ),
           const SizedBox(height: 2),
@@ -527,7 +580,6 @@ class _AscensionTrack extends StatelessWidget {
         final m = milestones[index];
         final target = m['d'] as int;
         final achieved = currentStreak >= target;
-        final next = index < milestones.length - 1 ? milestones[index + 1]['d'] as int : target;
         final isNext = currentStreak < target && (index == 0 || currentStreak >= (milestones[index - 1]['d'] as int));
 
         return IntrinsicHeight(

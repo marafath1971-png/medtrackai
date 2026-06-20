@@ -116,9 +116,9 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: L.card,
               borderRadius: BorderRadius.circular(20),
-              boxShadow: AppShadows.neumorphic,
+              border: Border.all(color: L.border.withValues(alpha: 0.1)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -178,9 +178,9 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: L.card,
               borderRadius: AppRadius.roundSquircle,
-              boxShadow: AppShadows.neumorphic,
+              border: Border.all(color: L.border.withValues(alpha: 0.1)),
             ),
             child: Row(
               children: [
@@ -216,8 +216,10 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                         Text(
                           '${(completion * 100).round()}%',
                           style: AppTypography.labelLarge.copyWith(
+                            fontFamily: 'Courier',
                             fontWeight: FontWeight.w900,
-                            fontSize: 14,
+                            fontSize: 16,
+                            letterSpacing: -1.0,
                             color: L.text,
                           ),
                         ),
@@ -244,10 +246,11 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                       Text(
                         '$takenCount of ${doses.length} doses recorded',
                         style: AppTypography.titleLarge.copyWith(
+                          fontFamily: 'Courier',
                           color: L.text,
-                          fontSize: 17,
+                          fontSize: 18,
                           fontWeight: FontWeight.w900,
-                          letterSpacing: -0.5,
+                          letterSpacing: -1.0,
                         ),
                       ),
                     ],
@@ -419,12 +422,19 @@ class _DoseLogRow extends StatelessWidget {
         : L.sub.withValues(alpha: 0.4);
 
     return Container(
-      margin: const EdgeInsets.only(bottom: 10),
+      margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: L.card,
         borderRadius: BorderRadius.circular(24),
-        boxShadow: AppShadows.neumorphic,
+        border: Border.all(color: taken ? accentColor.withValues(alpha: 0.3) : L.border.withValues(alpha: 0.1), width: taken ? 1.5 : 1),
+        boxShadow: taken ? [
+          BoxShadow(
+            color: accentColor.withValues(alpha: 0.1),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          )
+        ] : null,
       ),
       child: Row(
         children: [
@@ -522,8 +532,10 @@ class _DoseLogRow extends StatelessWidget {
             child: Text(
               fmtTime(dose.sched.h, dose.sched.m, context),
               style: AppTypography.labelLarge.copyWith(
+                fontFamily: 'Courier',
                 fontWeight: FontWeight.w900,
-                fontSize: 12,
+                fontSize: 13,
+                letterSpacing: 0.5,
                 color: L.text,
               ),
             ),
@@ -548,9 +560,9 @@ class _SymptomLogRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: L.card,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: AppShadows.neumorphic,
+        border: Border.all(color: L.border.withValues(alpha: 0.1)),
       ),
       child: Row(
         children: [

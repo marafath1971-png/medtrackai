@@ -8,6 +8,8 @@ import '../../core/utils/date_formatter.dart';
 import '../../services/auth_service.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
+import 'profile_pin_screen.dart';
+import 'edit_family_member_screen.dart';
 
 // Modular Widgets
 import 'widgets/caregiver_widgets.dart';
@@ -303,10 +305,11 @@ class HubView extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'Protectors Hub',
+                        'Protectors Hub 🛡️',
                         style: AppTypography.headlineLarge.copyWith(
+                          fontFamily: 'Courier',
                           color: L.text,
-                          fontSize: 28,
+                          fontSize: 32,
                           fontWeight: FontWeight.w900,
                           letterSpacing: -1.0,
                         ),
@@ -349,20 +352,20 @@ class HubView extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: L.fill.withValues(alpha: 0.05),
-                              borderRadius: BorderRadius.circular(12),
+                              color: L.fill.withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(24),
                             ),
                             child: Row(
                               children: [
                                 _CompactPivotPill(
-                                  label: 'Family',
+                                  label: 'Family 🫂',
                                   active: pivot == 1,
                                   onTap: () => onPivotChanged(1),
                                   L: L,
                                 ),
                                 const SizedBox(width: 4),
                                 _CompactPivotPill(
-                                  label: 'Care',
+                                  label: 'Care 🏥',
                                   active: pivot == 0,
                                   onTap: () => onPivotChanged(0),
                                   L: L,
@@ -412,10 +415,11 @@ class HubView extends StatelessWidget {
                                         'URGENT MONITORING',
                                         style:
                                             AppTypography.labelSmall.copyWith(
+                                          fontFamily: 'Courier',
                                           color: Colors.white
                                               .withValues(alpha: 0.8),
                                           fontWeight: FontWeight.w900,
-                                          letterSpacing: 1.5,
+                                          letterSpacing: 2.0,
                                         ),
                                       ),
                                       Text(
@@ -482,12 +486,13 @@ class HubView extends StatelessWidget {
                       ] else ...[
                         // ACCOUNT SECURITY / MY CAREGIVERS
                         if (state.profile?.familyMembers.isNotEmpty ?? false) ...[
-                          Text('Managing',
+                          Text('Managing ✨',
                               style: AppTypography.titleLarge.copyWith(
+                                fontFamily: 'Courier',
                                 color: L.text,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                                letterSpacing: -0.3,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 18,
+                                letterSpacing: 0.5,
                               )),
                           const SizedBox(height: 12),
                           SizedBox(
@@ -498,26 +503,108 @@ class HubView extends StatelessWidget {
                               itemBuilder: (context, index) {
                                 final member = state.profile!.familyMembers[index];
                                 return GestureDetector(
-                                  onTap: () {
+                                  onTap: () async {
                                     HapticEngine.selection();
-                                    state.switchProfile(member);
-                                    state.showToast('Switched to ${member.name}');
+                                    if (member.pin != null && member.pin!.isNotEmpty) {
+                                      final success = await Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (_) => ProfilePinScreen(profile: member),
+                                        ),
+                                      );
+                                      if (success == true) {
+                                        state.switchProfile(member);
+                                        state.showToast('Switched to ${member.name}');
+                                      }
+                                    } else {
+                                      state.switchProfile(member);
+                                      state.showToast('Switched to ${member.name}');
+                                    }
                                   },
                                   onLongPress: () {
-                                    HapticEngine.alertWarning();
+                                    HapticEngine.selection();
                                     showDialog(
                                       context: context,
-                                      builder: (ctx) => AlertDialog(
-                                        title: const Text('Remove Profile?'),
-                                        content: Text('This will stop all reminders for ${member.name}. History for this member will be preserved in the cloud.'),
-                                        actions: [
-                                          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-                                          TextButton(
+                                      builder: (ctx) => SimpleDialog(
+                                        title: Text('Manage ${member.name}', style: TextStyle(color: L.text, fontWeight: FontWeight.bold)),
+                                        backgroundColor: L.card,
+                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: BorderSide(color: L.border.withValues(alpha: 0.1))),
+                                        children: [
+                                          SimpleDialogOption(
                                             onPressed: () {
-                                              state.removeFamilyMember(member.id);
                                               Navigator.pop(ctx);
+                                              state.switchProfile(member);
                                             },
-                                            child: const Text('Remove', style: TextStyle(color: Colors.red)),
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.swap_horiz_rounded, color: L.primary),
+                                                const SizedBox(width: 12),
+                                                Text('Switch to Profile', style: TextStyle(color: L.text)),
+                                              ],
+                                            ),
+                                          ),
+                                          SimpleDialogOption(
+                                            onPressed: () {
+                                              Navigator.pop(ctx);
+                                              Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (_) => EditFamilyMemberScreen(member: member),
+                                                ),
+                                              );
+                                            },
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.edit_rounded, color: L.primary),
+                                                const SizedBox(width: 12),
+                                                Text('Edit Profile', style: TextStyle(color: L.text)),
+                                              ],
+                                            ),
+                                          ),
+                                          SimpleDialogOption(
+                                            onPressed: () async {
+                                              Navigator.pop(ctx);
+                                              state.showToast('Generating PDF...');
+                                              await state.exportProfileDataPDF(member);
+                                            },
+                                            child: Row(
+                                              children: [
+                                                Icon(Icons.picture_as_pdf_rounded, color: L.primary),
+                                                const SizedBox(width: 12),
+                                                Text('Generate Adherence PDF', style: TextStyle(color: L.text)),
+                                              ],
+                                            ),
+                                          ),
+                                          SimpleDialogOption(
+                                            onPressed: () {
+                                              Navigator.pop(ctx);
+                                              showDialog(
+                                                context: context,
+                                                builder: (removeCtx) => AlertDialog(
+                                                  backgroundColor: L.card,
+                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: BorderSide(color: L.border.withValues(alpha: 0.1))),
+                                                  title: Text('Remove Profile?', style: AppTypography.titleLarge.copyWith(color: L.text, fontWeight: FontWeight.w900)),
+                                                  content: Text('This will stop all reminders for ${member.name}. History for this member will be preserved in the cloud.', style: AppTypography.bodyMedium.copyWith(color: L.sub)),
+                                                  actions: [
+                                                    TextButton(onPressed: () => Navigator.pop(removeCtx), child: Text('CANCEL', style: AppTypography.labelLarge.copyWith(color: L.sub))),
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        state.removeFamilyMember(member.id);
+                                                        Navigator.pop(removeCtx);
+                                                      },
+                                                      child: Text('REMOVE', style: AppTypography.labelLarge.copyWith(color: Colors.redAccent, fontWeight: FontWeight.w900)),
+                                                    ),
+                                                  ],
+                                                ),
+                                              );
+                                            },
+                                            child: const Row(
+                                              children: [
+                                                Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
+                                                SizedBox(width: 12),
+                                                Text('Remove Profile', style: TextStyle(color: Colors.redAccent)),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),
@@ -611,12 +698,13 @@ class HubView extends StatelessWidget {
 
                       // ALERT LOG
                       if (state.missedAlerts.isNotEmpty) ...[
-                        Text('Recent Activity',
+                        Text('Recent Activity ⚡',
                             style: AppTypography.titleLarge.copyWith(
+                              fontFamily: 'Courier',
                               color: L.primary,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w900,
                               fontSize: 18,
-                              letterSpacing: -0.3,
+                              letterSpacing: 0.5,
                             )),
                         const SizedBox(height: 14),
                         ListView.builder(
@@ -671,7 +759,7 @@ class HubView extends StatelessWidget {
                 shape: RoundedRectangleBorder(borderRadius: AppRadius.roundM),
                 icon: const Text('➕',
                     style: TextStyle(color: Colors.white, fontSize: 14)),
-                label: const Text('Add Guardian',
+                label: const Text('Add Guardian ➕',
                     style: TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.w900,
@@ -731,12 +819,24 @@ class _CompactPivotPill extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
           color: active ? L.text : Colors.transparent,
-          borderRadius: AppRadius.roundXS,
+          borderRadius: BorderRadius.circular(20),
+          border: active
+              ? Border.all(color: L.border.withValues(alpha: 0.08), width: 0.5)
+              : null,
+          boxShadow: active
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    blurRadius: 4,
+                    offset: const Offset(0, 2),
+                  )
+                ]
+              : null,
         ),
         child: Text(
           label,
           style: AppTypography.labelSmall.copyWith(
-            color: active ? L.bg : L.sub.withValues(alpha: 0.6),
+            color: active ? L.bg : L.text.withValues(alpha: 0.6),
             fontSize: 12,
             fontWeight: FontWeight.w900,
             letterSpacing: 0.5,
@@ -789,10 +889,11 @@ class _FamilyHeader extends StatelessWidget {
                     Text(
                       'FAMILY',
                       style: AppTypography.labelSmall.copyWith(
+                        fontFamily: 'Courier',
                         color: L.sub.withValues(alpha: 0.4),
-                        letterSpacing: 2.0,
+                        letterSpacing: 3.0,
                         fontWeight: FontWeight.w900,
-                        fontSize: 10,
+                        fontSize: 12,
                       ),
                     ),
                     Row(
@@ -838,12 +939,12 @@ class _FamilyHeader extends StatelessWidget {
                   width: 44,
                   height: 44,
                   decoration: BoxDecoration(
-                    color: L.fill,
-                    borderRadius: AppRadius.roundS,
+                    color: L.fill.withValues(alpha: 0.4),
+                    borderRadius: BorderRadius.circular(14),
+                    border: Border.all(color: L.border.withValues(alpha: 0.1), width: 1),
                   ),
                   child: const Center(
-                      child: Center(
-                          child: Text('📲', style: TextStyle(fontSize: 20)))),
+                      child: Text('📲', style: TextStyle(fontSize: 20))),
                 ),
               ),
               const SizedBox(width: 10),
@@ -854,17 +955,10 @@ class _FamilyHeader extends StatelessWidget {
                   height: 44,
                   decoration: BoxDecoration(
                     color: L.text,
-                    borderRadius: AppRadius.roundS,
-                    boxShadow: [
-                      BoxShadow(
-                          color: L.text.withValues(alpha: 0.15),
-                          blurRadius: 16,
-                          offset: const Offset(0, 4))
-                    ],
+                    borderRadius: BorderRadius.circular(14),
                   ),
                   child: const Center(
-                      child: Center(
-                          child: Text('➕', style: TextStyle(fontSize: 20)))),
+                      child: Text('➕', style: TextStyle(fontSize: 20))),
                 ),
               ),
             ],
@@ -918,19 +1012,21 @@ class _CircleStatBento extends StatelessWidget {
                 const SizedBox(width: 10),
                 Text(label,
                     style: AppTypography.labelSmall.copyWith(
+                        fontFamily: 'Courier',
                         color: L.sub.withValues(alpha: 0.4),
                         fontWeight: FontWeight.w900,
-                        fontSize: 10,
-                        letterSpacing: 1.0)),
+                        fontSize: 11,
+                        letterSpacing: 1.5)),
               ],
             ),
             const SizedBox(height: 16),
             Text(value,
                 style: AppTypography.displaySmall.copyWith(
+                  fontFamily: 'Courier',
                   color: L.text,
                   fontWeight: FontWeight.w900,
-                  fontSize: 22,
-                  letterSpacing: -0.5,
+                  fontSize: 26,
+                  letterSpacing: -1.0,
                   height: 1.0,
                 )),
           ],

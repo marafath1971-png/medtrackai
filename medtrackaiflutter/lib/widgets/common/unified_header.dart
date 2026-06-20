@@ -59,7 +59,7 @@ class UnifiedHeader extends StatelessWidget implements PreferredSizeWidget {
           duration: 250.ms,
           padding: EdgeInsets.fromLTRB(20, topPad + 12, 20, 16),
           decoration: BoxDecoration(
-            color: (backgroundColor ?? L.meshBg)
+            color: (backgroundColor ?? L.bg)
                 .withValues(alpha: isScrolled || blurred ? 0.8 : 0.0),
             border: Border(
               bottom: BorderSide(
@@ -204,15 +204,16 @@ class HeaderActionBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final L = context.L;
     return BouncingButton(
       onTap: onTap,
       child: Container(
         width: 38,
         height: 38,
         decoration: BoxDecoration(
-          color: backgroundColor ?? Colors.white,
+          color: backgroundColor ?? L.card,
           borderRadius: BorderRadius.circular(14),
-          boxShadow: AppShadows.neumorphic,
+          border: Border.all(color: L.border.withValues(alpha: 0.3), width: 0.5),
         ),
         child: Center(child: child),
       ),
@@ -243,14 +244,14 @@ class SliverUnifiedHeader extends StatelessWidget {
       expandedHeight: expandedHeight,
       pinned: true,
       stretch: true,
-      backgroundColor: L.meshBg,
+      backgroundColor: L.bg,
       elevation: 0,
       scrolledUnderElevation: 0,
       leading: onBack != null
           ? Center(
               child: HeaderActionBtn(
                 onTap: onBack!,
-                backgroundColor: L.meshBg.withValues(alpha: 0.6),
+                backgroundColor: L.bg.withValues(alpha: 0.6),
                 child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
               ),
             )

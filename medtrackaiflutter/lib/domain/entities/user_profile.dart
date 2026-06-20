@@ -35,11 +35,13 @@ class UserProfile {
   final String appIcon;
   final String reminderSound;
   final int scansUsed;
+  final int voiceLogsUsed;
   final bool isPremium;
   final String? photoUrl;
   final String country;
   final DateTime createdAt;
   final int dosesMarked;
+  final int streakFreezes;
   final DateTime? lastReviewPromptedAt;
   // ── Global Market Settings ──────────────────────────
   final bool shabbatMode; // IL: gentle mode Friday sunset–Saturday night
@@ -88,11 +90,13 @@ class UserProfile {
     this.appIcon = 'classic',
     this.reminderSound = 'default',
     this.scansUsed = 0,
+    this.voiceLogsUsed = 0,
     this.isPremium = false,
     this.photoUrl,
     this.country = '',
     DateTime? createdAt,
     this.dosesMarked = 0,
+    this.streakFreezes = 3,
     this.lastReviewPromptedAt,
     this.shabbatMode = false,
     this.preferredLanguage = 'en',
@@ -141,11 +145,13 @@ class UserProfile {
         'appIcon': appIcon,
         'reminderSound': reminderSound,
         'scansUsed': scansUsed,
+        'voiceLogsUsed': voiceLogsUsed,
         'isPremium': isPremium,
         'photoUrl': photoUrl,
         'country': country,
         'createdAt': createdAt.toIso8601String(),
         'dosesMarked': dosesMarked,
+        'streakFreezes': streakFreezes,
         'lastReviewPromptedAt': lastReviewPromptedAt?.toIso8601String(),
         'shabbatMode': shabbatMode,
         'preferredLanguage': preferredLanguage,
@@ -195,6 +201,7 @@ class UserProfile {
         appIcon: j['appIcon'] ?? 'classic',
         reminderSound: j['reminderSound'] ?? 'default',
         scansUsed: j['scansUsed'] ?? 0,
+        voiceLogsUsed: j['voiceLogsUsed'] ?? 0,
         isPremium: j['isPremium'] ?? false,
         photoUrl: j['photoUrl'],
         country: j['country'] ?? '',
@@ -202,6 +209,7 @@ class UserProfile {
             ? DateTime.parse(j['createdAt'])
             : DateTime.now(),
         dosesMarked: j['dosesMarked'] ?? 0,
+        streakFreezes: j['streakFreezes'] ?? 3,
         lastReviewPromptedAt: j['lastReviewPromptedAt'] != null
             ? DateTime.parse(j['lastReviewPromptedAt'])
             : null,
@@ -255,11 +263,13 @@ class UserProfile {
     String? appIcon,
     String? reminderSound,
     int? scansUsed,
+    int? voiceLogsUsed,
     bool? isPremium,
     String? photoUrl,
     String? country,
     DateTime? createdAt,
     int? dosesMarked,
+    int? streakFreezes,
     DateTime? lastReviewPromptedAt,
     bool? shabbatMode,
     String? preferredLanguage,
@@ -307,11 +317,13 @@ class UserProfile {
         appIcon: appIcon ?? this.appIcon,
         reminderSound: reminderSound ?? this.reminderSound,
         scansUsed: scansUsed ?? this.scansUsed,
+        voiceLogsUsed: voiceLogsUsed ?? this.voiceLogsUsed,
         isPremium: isPremium ?? this.isPremium,
         photoUrl: photoUrl ?? this.photoUrl,
         country: country ?? this.country,
         createdAt: createdAt ?? this.createdAt,
         dosesMarked: dosesMarked ?? this.dosesMarked,
+        streakFreezes: streakFreezes ?? this.streakFreezes,
         lastReviewPromptedAt: lastReviewPromptedAt ?? this.lastReviewPromptedAt,
         shabbatMode: shabbatMode ?? this.shabbatMode,
         preferredLanguage: preferredLanguage ?? this.preferredLanguage,

@@ -53,10 +53,15 @@ class _AskAiSheetState extends State<AskAiSheet> {
       icon: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: L.text.withValues(alpha: 0.05),
+          gradient: LinearGradient(
+            colors: [L.secondary.withValues(alpha: 0.2), L.primary.withValues(alpha: 0.1)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
           shape: BoxShape.circle,
+          border: Border.all(color: L.secondary.withValues(alpha: 0.3)),
         ),
-        child: Icon(Icons.auto_awesome_rounded, color: L.text, size: 20),
+        child: Icon(Icons.auto_awesome_rounded, color: L.secondary, size: 20),
       ),
       scrollable: false, // We use ListView internally for messaging
       child: Column(
@@ -109,10 +114,16 @@ class _AskAiSheetState extends State<AskAiSheet> {
                               ),
                               border: isAi
                                   ? Border.all(
-                                      color: L.border.withValues(alpha: 0.1))
+                                      color: L.secondary.withValues(alpha: 0.2))
                                   : null,
                               boxShadow: isAi
-                                  ? null
+                                  ? [
+                                      BoxShadow(
+                                        color: L.secondary.withValues(alpha: 0.05),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 4),
+                                      )
+                                    ]
                                   : [
                                       BoxShadow(
                                         color: L.text.withValues(alpha: 0.2),
@@ -124,10 +135,11 @@ class _AskAiSheetState extends State<AskAiSheet> {
                             child: Text(
                               msg['content']!,
                               style: AppTypography.bodyMedium.copyWith(
+                                fontFamily: isAi ? 'Courier' : null,
                                 color: isAi ? L.text : L.bg,
                                 fontSize: 14,
                                 fontWeight:
-                                    isAi ? FontWeight.w500 : FontWeight.w700,
+                                    isAi ? FontWeight.w900 : FontWeight.w700,
                               ),
                             ),
                           ),
@@ -143,11 +155,13 @@ class _AskAiSheetState extends State<AskAiSheet> {
                 children: [
                   const AppLoadingIndicator(size: 14),
                   const SizedBox(width: 8),
-                  Text('Coach is thinking...',
+                  Text('COACH IS THINKING...',
                       style: AppTypography.labelLarge.copyWith(
-                          color: L.sub,
+                          fontFamily: 'Courier',
+                          color: L.secondary,
                           fontSize: 12,
-                          fontWeight: FontWeight.w600)),
+                          letterSpacing: 2.0,
+                          fontWeight: FontWeight.w900)),
                 ],
               ),
             ),
@@ -158,8 +172,14 @@ class _AskAiSheetState extends State<AskAiSheet> {
             decoration: BoxDecoration(
               color: L.card,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: L.border.withValues(alpha: 0.1)),
-              boxShadow: L.shadowSoft,
+              border: Border.all(color: L.secondary.withValues(alpha: 0.3), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: L.secondary.withValues(alpha: 0.05),
+                  blurRadius: 20,
+                  offset: const Offset(0, 4),
+                )
+              ],
             ),
             child: Row(
               children: [

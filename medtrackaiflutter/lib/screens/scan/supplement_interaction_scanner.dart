@@ -1,13 +1,22 @@
+import 'dart:io';
 import 'dart:ui';
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
+import 'package:path_provider/path_provider.dart' as path_provider;
+import 'package:path/path.dart' as p;
+
 import '../../theme/app_theme.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
+import '../../services/gemini_service.dart';
+import '../../domain/entities/scan_result.dart';
 
 // ══════════════════════════════════════════════
 // HOOK E: SUPPLEMENT INTERACTION SCANNER (Viral)
-// Scan 2+ bottles to see if they create a "God Stack" or a dangerous interaction
+// Gen Z Premium UI / Glassmorphic OLED 
 // ══════════════════════════════════════════════
 
 class SupplementInteractionScanner extends StatefulWidget {
@@ -17,102 +26,224 @@ class SupplementInteractionScanner extends StatefulWidget {
   State<SupplementInteractionScanner> createState() => _SupplementInteractionScannerState();
 }
 
-class _SupplementInteractionScannerState extends State<SupplementInteractionScanner> {
-  int _scannedItems = 0;
+class _SupplementInteractionScannerState extends State<SupplementInteractionScanner> with SingleTickerProviderStateMixin {
+  CameraController? _controller;
+  List<CameraDescription>? _cameras;
+  bool _isCameraInitialized = false;
+  bool _cameraError = false;
+
   bool _isScanning = false;
   bool _showAnalysis = false;
+  
+  ScanResult? _scanResult;
+  String _errorMessage = '';
 
-  final List<String> _scannedNames = [];
+  late AnimationController _pulseController;
 
-  void _simulateScan() async {
-    if (_isScanning) return;
-    HapticEngine.selection();
-    setState(() => _isScanning = true);
+  @override
+  void initState() {
+    super.initState();
+    _pulseController = AnimationController(
+      vsync: this, 
+      duration: const Duration(milliseconds: 1500)
+    )..repeat(reverse: true);
+    _initCamera();
+  }
 
-    // Fake scanning delay
-    await Future.delayed(const Duration(milliseconds: 1500));
+  Future<void> _initCamera() async {
+    try {
+      _cameras = await availableCameras();
+      if (_cameras != null && _cameras!.isNotEmpty) {
+        _controller = CameraController(
+          _cameras![0],
+          ResolutionPreset.high,
+          enableAudio: false,
+          imageFormatGroup: ImageFormatGroup.jpeg,
+        );
 
-    HapticEngine.medium();
-    setState(() {
-      _scannedItems++;
-      if (_scannedItems == 1) _scannedNames.add('Ashwagandha KSM-66');
-      if (_scannedItems == 2) _scannedNames.add('L-Theanine 200mg');
-      _isScanning = false;
-    });
-
-    if (_scannedItems == 2) {
-      // Analyze interaction
-      await Future.delayed(const Duration(milliseconds: 800));
-      setState(() => _showAnalysis = true);
+        await _controller!.initialize();
+        if (mounted) {
+          setState(() {
+            _isCameraInitialized = true;
+            _cameraError = false;
+          });
+        }
+      } else {
+        if (mounted) setState(() => _cameraError = true);
+      }
+    } catch (e) {
+      debugPrint('Camera initialization error: $e');
+      if (mounted) setState(() => _cameraError = true);
     }
   }
 
   @override
+  void dispose() {
+    _pulseController.dispose();
+    _controller?.dispose();
+    super.dispose();
+  }
+
+  Future<File?> _compressImage(File file) async {
+    final tempDir = await path_provider.getTemporaryDirectory();
+    final targetPath = p.join(
+        tempDir.path, "${DateTime.now().millisecondsSinceEpoch}_stack_comp.jpg");
+
+    final result = await FlutterImageCompress.compressAndGetFile(
+      file.absolute.path,
+      targetPath,
+      quality: 50,
+      minWidth: 800,
+      minHeight: 800,
+    );
+
+    return result != null ? File(result.path) : null;
+  }
+
+  Future<void> _captureAndScan() async {
+    if (_isScanning) return;
+    if (_controller == null || !_controller!.value.isInitialized) return;
+
+    HapticEngine.selection();
+    setState(() {
+      _isScanning = true;
+      _errorMessage = '';
+    });
+
+    try {
+      final XFile image = await _controller!.takePicture();
+      final file = File(image.path);
+      final compressedFile = await _compressImage(file) ?? file;
+
+      final result = await GeminiService.scanMedicine(
+        compressedFile,
+        hint: 'Multiple supplements. Identify the stack and describe their synergy or interactions.',
+      );
+
+      result.fold(
+        (success) {
+          HapticEngine.successScan();
+          setState(() {
+            _scanResult = success;
+            _showAnalysis = true;
+            _isScanning = false;
+          });
+        },
+        (failure) {
+          HapticEngine.selection();
+          setState(() {
+            _errorMessage = 'Could not analyze stack. Try again.';
+            _isScanning = false;
+          });
+        },
+      );
+    } catch (e) {
+      HapticEngine.selection();
+      setState(() {
+        _errorMessage = 'Camera error. Try again.';
+        _isScanning = false;
+      });
+    }
+  }
+
+  Widget _buildCameraFeed() {
+    final L = context.L;
+    if (_cameraError) {
+      return Container(
+        color: L.bg,
+        child: Center(
+          child: Text(
+            'CAMERA UNAVAILABLE ⚠️',
+            style: AppTypography.labelSmall.copyWith(
+              color: L.error,
+              letterSpacing: 2,
+            ),
+          ),
+        ),
+      );
+    }
+
+    if (!_isCameraInitialized || _controller == null) {
+      return Container(
+        color: L.bg,
+        child: Center(
+          child: CircularProgressIndicator(color: AppColors.accent),
+        ),
+      );
+    }
+
+    return SizedBox.expand(
+      child: FittedBox(
+        fit: BoxFit.cover,
+        child: SizedBox(
+          width: _controller!.value.previewSize!.height,
+          child: CameraPreview(_controller!),
+        ),
+      ),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final L = context.L;
+    
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: L.bg,
       body: Stack(
         children: [
-          // Simulated Camera Viewfinder
+          // 1. Live Camera Feed
           Positioned.fill(
-            child: Container(
-              color: const Color(0xFF0A0A0A), // Very dark grey
-              child: Center(
-                child: Text(
-                  'CAMERA FEED ACTIVE',
-                  style: AppTypography.labelSmall.copyWith(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    letterSpacing: 4,
+            child: _buildCameraFeed(),
+          ),
+
+          // 2. Futuristic Scanning Reticle
+          if (!_showAnalysis)
+            Positioned.fill(
+              child: SafeArea(
+                child: Center(
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 40.0),
+                    child: AnimatedBuilder(
+                      animation: _pulseController,
+                      builder: (context, child) {
+                        final pulseAlpha = _isScanning ? 0.6 + (_pulseController.value * 0.4) : 0.4;
+                        return CustomPaint(
+                          size: const Size(double.infinity, 250),
+                          painter: _ScannerCornersPainter(
+                            color: _isScanning ? AppColors.accent.withValues(alpha: pulseAlpha) : context.L.text.withValues(alpha: pulseAlpha),
+                            strokeWidth: _isScanning ? 4.0 : 2.5,
+                            cornerLen: 40,
+                          ),
+                          child: _isScanning
+                              ? Stack(
+                                  children: [
+                                    Positioned.fill(
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          gradient: LinearGradient(
+                                            begin: Alignment.topCenter,
+                                            end: Alignment.bottomCenter,
+                                            colors: [
+                                              AppColors.accent.withValues(alpha: 0.0),
+                                              AppColors.accent.withValues(alpha: 0.3),
+                                              AppColors.accent.withValues(alpha: 0.0),
+                                            ],
+                                          ),
+                                        ),
+                                      ).animate(onPlay: (c) => c.repeat()).slideY(begin: -1, end: 1, duration: 1000.ms, curve: Curves.easeInOutSine),
+                                    ),
+                                  ],
+                                )
+                              : const SizedBox(height: 250),
+                        );
+                      },
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
 
-          // Scanning Reticle
-          if (!_showAnalysis)
-            Center(
-              child: Container(
-                width: 250,
-                height: 250,
-                decoration: BoxDecoration(
-                  border: Border.all(
-                    color: _isScanning 
-                        ? AppColors.limeAccent 
-                        : Colors.white.withValues(alpha: 0.3),
-                    width: _isScanning ? 3 : 1,
-                  ),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: _isScanning
-                    ? Stack(
-                        children: [
-                          Positioned(
-                            top: 0,
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            child: Container(
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
-                                  colors: [
-                                    AppColors.limeAccent.withValues(alpha: 0.0),
-                                    AppColors.limeAccent.withValues(alpha: 0.2),
-                                    AppColors.limeAccent.withValues(alpha: 0.0),
-                                  ],
-                                ),
-                              ),
-                            ).animate(onPlay: (c) => c.repeat()).slideY(begin: -1, end: 1, duration: 1200.ms),
-                          ),
-                        ],
-                      )
-                    : null,
-              ).animate(target: _isScanning ? 1 : 0).scaleXY(end: 1.05),
-            ),
-
-          // Header
+          // 3. Header
           Positioned(
             top: MediaQuery.of(context).padding.top + 16,
             left: 20,
@@ -124,30 +255,33 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.5),
+                      color: L.card.withValues(alpha: 0.6),
                       shape: BoxShape.circle,
+                      border: Border.all(color: L.border.withValues(alpha: 0.2)),
                     ),
-                    child: const Icon(Icons.close_rounded, color: Colors.white, size: 24),
+                    child: Icon(Icons.close_rounded, color: L.text, size: 20),
                   ),
                 ),
                 const Spacer(),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
-                    color: Colors.black.withValues(alpha: 0.5),
+                    color: L.card.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                    border: Border.all(color: L.border.withValues(alpha: 0.2)),
+                    boxShadow: AppShadows.glass,
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.science_rounded, color: AppColors.limeAccent, size: 16),
+                      const Icon(Icons.bolt_rounded, color: AppColors.accent, size: 16),
                       const SizedBox(width: 8),
                       Text(
                         'SYNERGY SCANNER',
                         style: AppTypography.labelSmall.copyWith(
-                          color: Colors.white,
+                          fontFamily: 'Courier',
+                          color: L.text,
                           fontWeight: FontWeight.w900,
-                          letterSpacing: 1.0,
+                          letterSpacing: 2.0,
                         ),
                       ),
                     ],
@@ -157,7 +291,7 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
             ),
           ),
 
-          // Bottom Bar
+          // 4. Bottom Controls
           if (!_showAnalysis)
             Positioned(
               bottom: 40,
@@ -165,56 +299,67 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
               right: 20,
               child: Column(
                 children: [
-                  if (_scannedItems > 0)
+                  if (_errorMessage.isNotEmpty)
                     Container(
                       margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.7),
+                        color: L.error.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: AppColors.limeAccent.withValues(alpha: 0.3)),
+                        border: Border.all(color: L.error.withValues(alpha: 0.3)),
                       ),
-                      child: Row(
-                        children: [
-                          const Icon(Icons.check_circle_rounded, color: AppColors.limeAccent),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: Text(
-                              '${_scannedNames.join(' + ')} added to stack',
-                              style: AppTypography.bodyMedium.copyWith(color: Colors.white),
-                            ),
-                          ),
-                        ],
+                      child: Text(
+                        _errorMessage,
+                        style: AppTypography.labelMedium.copyWith(
+                          color: L.error,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ).animate().fadeIn().slideY(begin: 0.5, end: 0),
+                    ).animate().fadeIn().slideY(begin: 0.2, end: 0),
                   
-                  Text(
-                    _scannedItems == 0 
-                        ? 'Scan your first supplement'
-                        : 'Scan another to check synergy',
-                    style: AppTypography.titleMedium.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: context.L.bg.withValues(alpha: 0.4),
+                      borderRadius: BorderRadius.circular(20),
                     ),
-                  ),
+                    child: Text(
+                      _isScanning ? 'ANALYZING STACK 🧬...' : 'ALIGN BOTTLES IN FRAME 🎯',
+                      style: AppTypography.labelMedium.copyWith(
+                        fontFamily: 'Courier',
+                        color: context.L.text,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.5,
+                      ),
+                    ),
+                  ).animate().fadeIn(),
+                  
                   const SizedBox(height: 24),
-                  GestureDetector(
-                    onTap: _simulateScan,
+                  
+                  BouncingButton(
+                    onTap: _captureAndScan,
+                    scaleFactor: 0.92,
                     child: Container(
                       width: 80,
                       height: 80,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 4),
-                        color: _isScanning ? Colors.white.withValues(alpha: 0.5) : Colors.transparent,
+                        border: Border.all(
+                          color: _isScanning ? AppColors.accent : context.L.text, 
+                          width: 4
+                        ),
+                        boxShadow: _isScanning ? AppShadows.glow(AppColors.accent, intensity: 0.5) : [],
+                        color: _isScanning ? AppColors.accent.withValues(alpha: 0.2) : Colors.transparent,
                       ),
                       child: Center(
-                        child: Container(
-                          width: 64,
-                          height: 64,
+                        child: AnimatedContainer(
+                          duration: 300.ms,
+                          width: _isScanning ? 32 : 64,
+                          height: _isScanning ? 32 : 64,
                           decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            color: _isScanning ? AppColors.limeAccent : Colors.white,
+                            shape: _isScanning ? BoxShape.rectangle : BoxShape.circle,
+                            borderRadius: _isScanning ? BorderRadius.circular(8) : BorderRadius.circular(32),
+                            color: _isScanning ? AppColors.accent : context.L.text,
                           ),
                         ),
                       ),
@@ -224,97 +369,131 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
               ),
             ),
 
-          // Analysis Overlay
-          if (_showAnalysis)
+          // 5. Gen Z Premium AI Analysis Overlay
+          if (_showAnalysis && _scanResult != null)
             Positioned.fill(
               child: ClipRRect(
                 child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
                   child: Container(
-                    color: Colors.black.withValues(alpha: 0.8),
-                    padding: const EdgeInsets.all(24),
+                    color: L.bg.withValues(alpha: 0.85),
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
+                        // Floating Header Icon
                         Container(
-                          width: 80,
-                          height: 80,
+                          width: 88,
+                          height: 88,
                           decoration: BoxDecoration(
-                            gradient: AppGradients.cyanFlash,
+                            color: L.card,
                             shape: BoxShape.circle,
-                            boxShadow: AppShadows.glow(const Color(0xFF00E5FF), intensity: 0.5),
+                            border: Border.all(color: AppColors.accent.withValues(alpha: 0.5), width: 2),
+                            boxShadow: AppShadows.glow(AppColors.accent, intensity: 0.6),
                           ),
                           child: const Center(
-                            child: Icon(Icons.bolt_rounded, color: Colors.white, size: 40),
+                            child: Text('⚡️', style: TextStyle(fontSize: 40)),
                           ),
-                        ).animate().scale(curve: Curves.elasticOut, duration: 800.ms),
+                        ).animate().scale(curve: Curves.elasticOut, duration: 900.ms),
+                        
+                        const SizedBox(height: 24),
+                        
+                        // Title
+                        Text(
+                          'SYNERGY REPORT',
+                          style: AppTypography.headlineMedium.copyWith(
+                            fontFamily: 'Courier',
+                            color: L.text,
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 2.5,
+                          ),
+                        ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
                         
                         const SizedBox(height: 32),
                         
-                        Text(
-                          'GOD STACK DETECTED',
-                          style: AppTypography.headlineSmall.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 2,
-                          ),
-                        ).animate().fadeIn(delay: 300.ms),
-                        
-                        const SizedBox(height: 16),
-                        
+                        // Glassmorphic Result Card
                         Container(
-                          padding: const EdgeInsets.all(20),
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+                            color: L.card,
+                            borderRadius: BorderRadius.circular(28),
+                            border: Border.all(color: L.border.withValues(alpha: 0.5)),
+                            boxShadow: AppShadows.glass,
                           ),
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                '${_scannedNames[0]} + ${_scannedNames[1]}',
-                                style: AppTypography.titleMedium.copyWith(color: Colors.white),
+                                _scanResult!.name.isNotEmpty ? _scanResult!.name.toUpperCase() : 'UNKNOWN STACK 🧪',
+                                textAlign: TextAlign.center,
+                                style: AppTypography.titleLarge.copyWith(
+                                  color: AppColors.accent,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: -0.5,
+                                ),
                               ),
                               const SizedBox(height: 16),
+                              Container(height: 1, color: L.border.withValues(alpha: 0.2)),
+                              const SizedBox(height: 16),
                               Text(
-                                'Ashwagandha lowers cortisol while L-Theanine promotes alpha brain waves. Together, they create a state of relaxed, laser-focused flow without the jitters.',
+                                _scanResult!.interactions.isNotEmpty 
+                                  ? _scanResult!.interactions 
+                                  : 'No specific synergy or interactions found for this combination. 🤷‍♂️',
                                 textAlign: TextAlign.center,
-                                style: AppTypography.bodyMedium.copyWith(
-                                  color: Colors.white.withValues(alpha: 0.7),
-                                  height: 1.5,
+                                style: AppTypography.bodyLarge.copyWith(
+                                  color: L.sub,
+                                  fontWeight: FontWeight.w500,
+                                  height: 1.6,
                                 ),
                               ),
                             ],
                           ),
-                        ).animate().fadeIn(delay: 500.ms).slideY(begin: 0.1, end: 0),
+                        ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1, end: 0),
                         
-                        const SizedBox(height: 40),
+                        const SizedBox(height: 48),
                         
+                        // Action Button
                         BouncingButton(
                           onTap: () {
                             HapticEngine.selection();
-                            Navigator.pop(context); // Would normally add to database here
+                            setState(() {
+                              _showAnalysis = false;
+                              _scanResult = null;
+                            });
                           },
                           child: Container(
                             width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 18),
+                            padding: const EdgeInsets.symmetric(vertical: 20),
                             decoration: BoxDecoration(
-                              gradient: AppGradients.neonLime,
-                              borderRadius: BorderRadius.circular(16),
-                              boxShadow: AppShadows.glow(AppColors.limeAccent, intensity: 0.2),
+                              color: L.text,
+                              borderRadius: BorderRadius.circular(100),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: L.text.withValues(alpha: 0.2),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 8),
+                                )
+                              ]
                             ),
-                            child: Center(
-                              child: Text(
-                                'SAVE TO MY STACKS',
-                                style: AppTypography.labelLarge.copyWith(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.0,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const Text('📸', style: TextStyle(fontSize: 18)),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'SCAN ANOTHER',
+                                  style: AppTypography.labelLarge.copyWith(
+                                    fontFamily: 'Courier',
+                                    color: L.bg,
+                                    fontWeight: FontWeight.w900,
+                                    letterSpacing: 1.5,
+                                  ),
                                 ),
-                              ),
+                              ],
                             ),
                           ),
-                        ).animate().fadeIn(delay: 700.ms),
+                        ).animate().fadeIn(delay: 600.ms).scale(curve: Curves.easeOutBack),
                       ],
                     ),
                   ),
@@ -325,4 +504,54 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
       ),
     );
   }
+}
+
+// ══════════════════════════════════════════════
+// VIEWFINDER CORNERS PAINTER
+// ══════════════════════════════════════════════
+class _ScannerCornersPainter extends CustomPainter {
+  final Color color;
+  final double strokeWidth;
+  final double cornerLen;
+
+  const _ScannerCornersPainter({
+    required this.color,
+    required this.strokeWidth,
+    this.cornerLen = 28,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = strokeWidth
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round;
+
+    const r = 24.0;
+    final L = cornerLen;
+    final w = size.width;
+    final h = size.height;
+
+    // Top-Left
+    canvas.drawLine(const Offset(r, 0), Offset(r + L, 0), paint);
+    canvas.drawLine(const Offset(0, r), Offset(0, r + L), paint);
+    canvas.drawArc(const Rect.fromLTWH(0, 0, r * 2, r * 2), math.pi, math.pi / 2, false, paint);
+    // Top-Right
+    canvas.drawLine(Offset(w - r - L, 0), Offset(w - r, 0), paint);
+    canvas.drawLine(Offset(w, r), Offset(w, r + L), paint);
+    canvas.drawArc(Rect.fromLTWH(w - r * 2, 0, r * 2, r * 2), 3 * math.pi / 2, math.pi / 2, false, paint);
+    // Bottom-Left
+    canvas.drawLine(Offset(r, h), Offset(r + L, h), paint);
+    canvas.drawLine(Offset(0, h - r - L), Offset(0, h - r), paint);
+    canvas.drawArc(Rect.fromLTWH(0, h - r * 2, r * 2, r * 2), math.pi / 2, math.pi / 2, false, paint);
+    // Bottom-Right
+    canvas.drawLine(Offset(w - r - L, h), Offset(w - r, h), paint);
+    canvas.drawLine(Offset(w, h - r - L), Offset(w, h - r), paint);
+    canvas.drawArc(Rect.fromLTWH(w - r * 2, h - r * 2, r * 2, r * 2), 0, math.pi / 2, false, paint);
+  }
+
+  @override
+  bool shouldRepaint(_ScannerCornersPainter old) =>
+      old.color != color || old.strokeWidth != strokeWidth;
 }

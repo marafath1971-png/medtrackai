@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/entities.dart';
 import '../../../theme/app_theme.dart';
+import '../../../widgets/shared/shared_widgets.dart';
 
 class CourseCompletionDialog extends StatelessWidget {
   final Medicine med;
@@ -95,22 +96,37 @@ class CourseCompletionDialog extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
+                    child: BouncingButton(
+                      onTap: () {
                         Navigator.pop(context);
                         onArchive();
                       },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF111111),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(24)),
-                        elevation: 0,
+                      child: Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.symmetric(vertical: 20),
+                        decoration: BoxDecoration(
+                          color: L.text,
+                          borderRadius: BorderRadius.circular(24),
+                          boxShadow: [
+                            BoxShadow(
+                              color: L.text.withValues(alpha: 0.3),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                            )
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            'ARCHIVE & FINISH',
+                            style: AppTypography.labelLarge.copyWith(
+                              fontFamily: 'Courier',
+                              fontWeight: FontWeight.w900,
+                              color: L.bg,
+                              letterSpacing: 2.0,
+                            ),
+                          ),
+                        ),
                       ),
-                      child: Text('Archive & Finish',
-                          style: AppTypography.labelLarge
-                              .copyWith(fontWeight: FontWeight.w700)),
                     ),
                   ),
                 ],

@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
+import 'dart:io';
+import 'package:image_picker/image_picker.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:path/path.dart' as p;
 import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../core/utils/haptic_engine.dart';
@@ -17,12 +21,28 @@ class AddFamilyMemberScreen extends StatefulWidget {
 class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
   final _nameController = TextEditingController();
   final _notesController = TextEditingController();
+  final _pinController = TextEditingController();
+  String? _photoPath;
   String _selectedRole = 'Child';
   IconData _selectedIcon = Icons.child_care_rounded;
   String _gender = 'Male';
   DateTime? _dob;
   bool _isCritical = false;
   bool _isSaving = false;
+
+  Future<void> _pickImage() async {
+    HapticEngine.selection();
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}${p.extension(picked.path)}';
+      final savedFile = await File(picked.path).copy(p.join(appDir.path, fileName));
+      setState(() {
+        _photoPath = savedFile.path;
+      });
+    }
+  }
 
   final List<Map<String, dynamic>> _roles = [
     {'label': 'Child', 'icon': Icons.child_care_rounded},
@@ -39,6 +59,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
   void dispose() {
     _nameController.dispose();
     _notesController.dispose();
+    _pinController.dispose();
     super.dispose();
   }
 
@@ -79,24 +100,42 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
       return;
     }
 
+    final pinVal = _pinController.text.trim();
+    if (pinVal.isNotEmpty && pinVal.length < 4) {
+      context.read<AppState>().showToast('PIN must be 4 digits', type: 'error');
+      return;
+    }
+
     setState(() => _isSaving = true);
     HapticEngine.selection();
 
-    final newMember = ManagedProfile(
-      id: const Uuid().v4(),
-      name: name,
-      relation: _selectedRole,
-      avatar: _selectedIcon.codePoint.toString(),
-      dateOfBirth: _dob,
-      gender: _gender,
-      notes: _notesController.text.trim(),
-      isCritical: _isCritical,
-    );
+    try {
+      final newMember = ManagedProfile(
+        id: const Uuid().v4(),
+        name: name,
+        relation: _selectedRole,
+        avatar: _selectedIcon.codePoint.toString(),
+        dateOfBirth: _dob,
+        gender: _gender,
+        notes: _notesController.text.trim(),
+        isCritical: _isCritical,
+        pin: pinVal.isEmpty ? null : pinVal,
+        photoPath: _photoPath,
+      );
 
-    await context.read<AppState>().addFamilyMember(newMember);
-    
-    if (mounted) {
-      Navigator.of(context).pop();
+      await context.read<AppState>().addFamilyMember(newMember);
+      
+      if (mounted) {
+        Navigator.of(context).pop();
+      }
+    } catch (e) {
+      if (mounted) {
+        context.read<AppState>().showToast('Failed to save. Try again.', type: 'error');
+      }
+    } finally {
+      if (mounted) {
+        setState(() => _isSaving = false);
+      }
     }
   }
 
@@ -131,27 +170,45 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
             Center(
               child: Column(
                 children: [
-                  Container(
-                    width: 90,
-                    height: 90,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: L.card,
-                      boxShadow: L.shadowSoft,
-                      border: Border.all(color: L.border.withValues(alpha: 0.1)),
-                    ),
-                    child: Center(
-                      child: Icon(
-                        _selectedIcon,
-                        size: 42,
-                        color: L.text,
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      width: 90,
+                      height: 90,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: L.card,
+                        boxShadow: L.shadowSoft,
+                        border: Border.all(color: L.border.withValues(alpha: 0.1)),
+                      ),
+                      child: Center(
+                        child: _photoPath != null
+                            ? ClipOval(
+                                child: Image.file(
+                                  File(_photoPath!),
+                                  width: 90,
+                                  height: 90,
+                                  fit: BoxFit.cover,
+                                ),
+                              )
+                            : Icon(
+                                _selectedIcon,
+                                size: 42,
+                                color: L.text,
+                              ),
                       ),
                     ),
                   ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Tap to add photo',
+                    style: TextStyle(color: L.sub.withValues(alpha: 0.4), fontSize: 11),
+                  ),
                   const SizedBox(height: 12),
                   Text(
                     _selectedRole.toUpperCase(),
                     style: AppTypography.labelSmall.copyWith(
+                      fontFamily: 'Courier',
                       color: L.sub.withValues(alpha: 0.6),
                       fontWeight: FontWeight.w900,
                       letterSpacing: 2,
@@ -235,6 +292,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                           Text(
                             role['label']!,
                             style: AppTypography.labelSmall.copyWith(
+                              fontFamily: 'Courier',
                               color: isSelected ? L.bg : L.text,
                               fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
                             ),
@@ -255,6 +313,19 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
               controller: _notesController,
               hint: 'e.g. Penicillin allergy, diabetic...',
               maxLines: 3,
+              L: L,
+            ),
+            const SizedBox(height: 24),
+
+            // PIN Code
+            _buildSectionHeader('PIN CODE (OPTIONAL)', L),
+            const SizedBox(height: 12),
+            _buildInputField(
+              controller: _pinController,
+              hint: '4-digit PIN (e.g. 1234)',
+              maxLines: 1,
+              keyboardType: TextInputType.number,
+              maxLength: 4,
               L: L,
             ),
             const SizedBox(height: 24),
@@ -320,9 +391,10 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                     : Text(
                         'Confirm Member',
                         style: AppTypography.labelLarge.copyWith(
+                          fontFamily: 'Courier',
                           fontWeight: FontWeight.w900,
                           color: L.bg,
-                          letterSpacing: 1.2,
+                          letterSpacing: 1.5,
                         ),
                       ),
               ),
@@ -338,9 +410,10 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
     return Text(
       title,
       style: AppTypography.labelSmall.copyWith(
+        fontFamily: 'Courier',
         color: L.sub.withValues(alpha: 0.6),
         fontWeight: FontWeight.w900,
-        letterSpacing: 2,
+        letterSpacing: 2.0,
       ),
     );
   }
@@ -349,6 +422,8 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
     required TextEditingController controller,
     required String hint,
     int maxLines = 1,
+    TextInputType? keyboardType,
+    int? maxLength,
     required dynamic L,
   }) {
     return Container(
@@ -360,11 +435,15 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
       child: TextField(
         controller: controller,
         maxLines: maxLines,
+        keyboardType: keyboardType,
+        maxLength: maxLength,
+        buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null,
         decoration: InputDecoration(
           hintText: hint,
           hintStyle: TextStyle(color: L.sub.withValues(alpha: 0.3)),
           border: InputBorder.none,
           contentPadding: const EdgeInsets.all(20),
+          counterText: '',
         ),
         style: AppTypography.labelMedium.copyWith(color: L.text, fontWeight: FontWeight.w600),
       ),
@@ -424,6 +503,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
           child: Text(
             _gender.toUpperCase(),
             style: AppTypography.labelSmall.copyWith(
+              fontFamily: 'Courier',
               color: L.text,
               fontWeight: FontWeight.w900,
               letterSpacing: 1.5,

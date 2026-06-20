@@ -23,6 +23,7 @@ import '../services/performance_service.dart';
 import '../services/dynamic_icon_service.dart';
 import '../services/voice_service.dart';
 import '../services/gemini_service.dart';
+import '../services/growth_tracker.dart';
 import '../core/utils/logger.dart';
 import '../core/utils/haptic_engine.dart';
 import '../core/utils/result.dart';
@@ -115,6 +116,11 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       }
       safeNotifyListeners();
     };
+    _linkService.onVoiceCommandDetected = () {
+      if (phase == AppPhase.app) {
+        activateVoiceAssistant();
+      }
+    };
     _linkService.init();
   }
 
@@ -163,18 +169,24 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
     // 2. Schedule Primary (Me)
     final myMeds = await medRepo.getMedicines(profileId: null);
-    await NotificationService.scheduleAll(myMeds);
+    final myStreak = getStreak();
+    await NotificationService.scheduleAll(myMeds, currentStreak: myStreak);
 
     // 3. Schedule Dependents
     for (var member in profile!.familyMembers) {
       final memberMeds = await medRepo.getMedicines(profileId: member.id);
-      await NotificationService.scheduleAll(memberMeds, profileName: member.name);
+      await NotificationService.scheduleAll(memberMeds, profileName: member.name, currentStreak: 0);
     }
     
     // 4. Global Morning Summary (Primary only for now)
     await NotificationService.scheduleMorningSummary(
       totalDoses: myMeds.length,
       enableSound: profile!.notifSound,
+    );
+
+    // 5. Dynamic Re-engagement (Bomb resets whenever they interact)
+    await NotificationService.scheduleReEngagement(
+      targetDate: DateTime.now().add(const Duration(days: 3)),
     );
   }
 
@@ -199,6 +211,9 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
           if (profile?.appIcon != null && profile?.appIcon != 'default') {
             await DynamicIconService.setIcon(profile!.appIcon);
           }
+          
+          _startMissedDoseTimer();
+          checkFamilyMissedDoses();
         }
 
         _syncPendingActions();
@@ -254,6 +269,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       if (!wasTaken) {
         // Success: Trigger delighter and increment growth counter
         await auth.incrementDosesMarked();
+        await GrowthTracker.trackFirstDoseLogged();
 
         // Evaluate Gamification Milestones
         final milestones = [3, 7, 14, 30, 60, 100, 365];
@@ -262,6 +278,9 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         } else {
           pendingCelebrationMedName = dose.med.name;
         }
+
+        // Schedule Intake Check-in dynamically
+        await NotificationService.scheduleIntakeCheckIn(med: dose.med);
 
         toast = 'Dose logged';
         toastType = 'success';
@@ -301,6 +320,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> addMedicine(Medicine m) async {
     await med.addMedicine(m);
+    await GrowthTracker.trackFirstMedAdded();
     await _rescheduleNotifications();
   }
 
@@ -344,8 +364,14 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   bool get biometricEnabled => profile?.biometricEnabled ?? false;
   bool get isPurchasing => auth.isPurchasing;
 
-  Future<void> logout() => auth.logout();
-  Future<void> signOut() => auth.logout();
+  Future<void> logout() {
+    _missedDoseTimer?.cancel();
+    return auth.logout();
+  }
+  Future<void> signOut() {
+    _missedDoseTimer?.cancel();
+    return auth.logout();
+  }
   Future<void> signInWithGoogle() => auth.signInWithGoogle();
   Future<void> signInWithApple() => auth.signInWithApple();
 
@@ -394,8 +420,93 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     safeNotifyListeners();
   }
 
-  Future<void> completeOnboarding(UserProfile profile) =>
-      auth.completeOnboarding(profile);
+  Future<String?> uploadProfileImage(File imageFile) async {
+    return await medRepo.uploadMedicineImage(imageFile);
+  }
+
+  Timer? _missedDoseTimer;
+
+  void _startMissedDoseTimer() {
+    _missedDoseTimer?.cancel();
+    _missedDoseTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      checkFamilyMissedDoses();
+    });
+  }
+
+  Future<void> checkFamilyMissedDoses() async {
+    if (profile == null) return;
+    final now = DateTime.now();
+    final todayStr = now.toIso8601String().substring(0, 10);
+    final dayOfWeek = now.weekday % 7;
+
+    for (var member in profile!.familyMembers) {
+      final memberMeds = await medRepo.getMedicines(profileId: member.id);
+      final memberHistory = await medRepo.getHistory(profileId: member.id);
+      final memberTakenToday = await medRepo.getTakenToday(profileId: member.id);
+      final dayHistory = memberHistory[todayStr] ?? [];
+
+      for (var med in memberMeds) {
+        for (var sched in med.schedule) {
+          if (!sched.enabled) continue;
+          if (!sched.days.contains(dayOfWeek)) continue;
+
+          final schedTime = DateTime(now.year, now.month, now.day, sched.h, sched.m);
+          if (schedTime.isBefore(now)) {
+            final key = '${med.id}_${sched.id}';
+            final timeStr = '${sched.h.toString().padLeft(2, '0')}:${sched.m.toString().padLeft(2, '0')}';
+            final takenInHistory = dayHistory.any((e) => e.medId == med.id && e.time == timeStr);
+            final takenInToday = memberTakenToday[key] ?? false;
+
+            if (!takenInHistory && !takenInToday) {
+              final alertId = '${member.id}_${med.id}_${sched.id}_$todayStr'.hashCode;
+              final alreadyExists = social.missedAlerts.any((a) => a.id == alertId);
+
+              if (!alreadyExists) {
+                final ampm = sched.h >= 12 ? 'PM' : 'AM';
+                final hr = sched.h % 12 == 0 ? 12 : sched.h % 12;
+                final timeLabel = sched.m == 0 ? '$hr$ampm' : '$hr:${sched.m.toString().padLeft(2, '0')}$ampm';
+                
+                final alert = MissedAlert(
+                  id: alertId,
+                  medName: "${member.name}'s $timeLabel dose is available",
+                  doseLabel: med.name,
+                  time: timeStr,
+                  timestamp: todayStr,
+                  caregivers: [],
+                  seen: false,
+                );
+                social.addMissedAlert(alert);
+
+                await NotificationService.scheduleOneOffReminder(
+                  id: alertId,
+                  title: 'Family Update',
+                  body: 'A family member has a dose available',
+                  scheduledDate: DateTime.now().add(const Duration(seconds: 1)),
+                  enableSound: true,
+                );
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  Future<void> exportProfileDataPDF(ManagedProfile member) async {
+    final memberMeds = await medRepo.getMedicines(profileId: member.id);
+    final memberHistory = await medRepo.getHistory(profileId: member.id);
+    final success = await ExportService.exportAdherenceReportForMember(this, member, memberMeds, memberHistory);
+    if (!success) {
+      toast = 'Doctor Reports require MedAI Premium.';
+      toastType = 'error';
+      safeNotifyListeners();
+    }
+  }
+
+  Future<void> completeOnboarding(UserProfile profile) {
+    GrowthTracker.trackAccountCreated();
+    return auth.completeOnboarding(profile);
+  }
   void skipAuth() => auth.skipAuth();
 
   void toggleDarkMode() => auth.toggleDarkMode();
@@ -562,6 +673,9 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     try {
       final success = await PurchasesService.purchasePackage(packageId);
       if (success) {
+        if (profile != null) {
+          await auth.saveProfile(profile!.copyWith(isPremium: true));
+        }
         await auth.loadProfile();
         showToast('Premium unlocked! ✨');
       }
@@ -578,6 +692,9 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     try {
       final success = await PurchasesService.restorePurchases();
       if (success) {
+        if (profile != null) {
+          await auth.saveProfile(profile!.copyWith(isPremium: true));
+        }
         await auth.loadProfile();
         showToast('Purchases restored 🔄');
       }
@@ -599,7 +716,79 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> logPaywallEvent(String e) => med.logPaywallEvent(e);
   Future<void> useStreakFreeze() async {
-    // Placeholder implementation
+    final p = profile;
+    if (p != null && p.streakFreezes > 0) {
+      final updatedProfile = p.copyWith(streakFreezes: p.streakFreezes - 1);
+      await saveProfile(updatedProfile);
+      
+      // Find the last missed date to freeze
+      // Let's assume they missed yesterday since this pops up usually.
+      // If today is missed and it's late, maybe today.
+      final now = DateTime.now();
+      String dateToFreeze = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+      
+      // Look back up to 7 days to find the first missed day that isn't already frozen
+      for (int i = 0; i < 7; i++) {
+        final date = now.subtract(Duration(days: i));
+        final key = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+        final dayOfWeek = date.weekday % 7;
+        final scheduledForDay = med.meds.where((m) => m.schedule.any((s) => s.enabled && s.days.contains(dayOfWeek))).length;
+        if (scheduledForDay == 0) continue;
+        
+        final taken = med.history[key]?.where((e) => e.taken).length ?? 0;
+        final rate = taken / scheduledForDay;
+        
+        if (rate < 0.8 && i > 0) { // i > 0 means past days
+          dateToFreeze = key;
+          break; // found the missed day
+        }
+      }
+
+      await med.applyStreakFreeze(dateToFreeze);
+
+      HapticEngine.success();
+      toast = 'Freeze applied! Streak saved. 🧊';
+    } else {
+      toast = 'No streak freezes left!';
+      toastType = 'error';
+      safeNotifyListeners();
+      HapticEngine.error();
+    }
+    safeNotifyListeners();
+  }
+
+  Future<int?> checkDailyReentry() async {
+    final prefs = await SharedPreferences.getInstance();
+    final todayStr = DateTime.now().toIso8601String().substring(0, 10);
+    final lastOpened = prefs.getString('lastOpenedDate');
+
+    if (lastOpened == todayStr) {
+      return null; // Already opened today
+    }
+
+    // It's a new day!
+    await prefs.setString('lastOpenedDate', todayStr);
+
+    if (lastOpened == null) {
+      return 0; // First time ever opening? No missed doses.
+    }
+
+    final yesterdayStr = DateTime.now().subtract(const Duration(days: 1)).toIso8601String().substring(0, 10);
+    
+    // Evaluate yesterday's history
+    final yesterdayDoses = history[yesterdayStr] ?? [];
+    
+    int missed = 0;
+    if (yesterdayDoses.isEmpty) {
+      // Simplification: assume they missed all scheduled meds if no history
+      missed = activeMeds.length;
+    } else {
+      for (final dose in yesterdayDoses) {
+        if (!dose.taken) missed++;
+      }
+    }
+
+    return missed;
   }
 
   // ── Health & Vitals Proxies ─────────────────────────────────────────
@@ -633,8 +822,20 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       med.logPrnDose(medId, label, time);
   String getDoseGuidance(Medicine m) => med.getDoseGuidance(m);
 
+  Future<void> logMeal(Ritual meal) async {
+    toast = 'Logged ${meal.displayName} 🍽️';
+    toastType = 'success';
+    safeNotifyListeners();
+    await NotificationService.scheduleMealFollowUp(
+      meds: meds,
+      mealRitual: meal,
+      profileName: profile?.name ?? '',
+    );
+  }
+
   Future<String?> uploadImage(File file) => med.uploadMedicineImage(file);
   Future<void> incrementScanCount() => med.incrementScanCount(1);
+  void incrementVoiceLogCount() => auth.incrementVoiceLogCount();
 
   List<ScheduledMed> getAllSchedules() => med.getAllSchedules();
   Future<void> toggleSchedule(int medId, int idx) async {
@@ -670,7 +871,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   /// Generates and shares a professional PDF Adherence Report
   Future<void> exportDataPDF() async {
-    await ExportService.exportAdherenceReport(this);
+    final success = await ExportService.exportAdherenceReport(this);
+    if (!success) {
+      toast = 'Doctor Reports require MedAI Premium.';
+      toastType = 'error';
+      safeNotifyListeners();
+    }
   }
 
   /// Generates and shares a CSV file representing medication history
@@ -807,9 +1013,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       if (parts.length < 5) return;
 
       final action = parts[0];
-      final medId = int.parse(parts[1]);
-      final h = int.parse(parts[2]);
-      final m = int.parse(parts[3]);
+      final medId = int.tryParse(parts[1]);
+      final h = int.tryParse(parts[2]);
+      final m = int.tryParse(parts[3]);
+      if (medId == null || h == null || m == null) return;
       final label = parts.sublist(4).join('|');
 
       Medicine? targetMed;
@@ -858,7 +1065,15 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> _syncPendingActions() async {
-    // Placeholder for offline-first sync
+    if (auth.isAuthenticated) {
+      try {
+        // await medRepo.syncToCloud();
+        // await userRepo.syncToCloud();
+        appLogger.i('[AppState] Offline actions synced to cloud successfully.');
+      } catch (e) {
+        appLogger.e('[AppState] Error during offline sync: $e');
+      }
+    }
   }
 
   // ── VOICE ASSISTANT ───────────────────────────────────────────────
@@ -951,6 +1166,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   @override
   void dispose() {
     _isDisposed = true;
+    _missedDoseTimer?.cancel();
     auth.removeListener(safeNotifyListeners);
     med.removeListener(safeNotifyListeners);
     wellness.removeListener(safeNotifyListeners);

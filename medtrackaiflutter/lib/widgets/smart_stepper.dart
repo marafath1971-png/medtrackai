@@ -128,11 +128,7 @@ class _SmartStepperState extends State<SmartStepper>
           _StepperButton(
             icon: Icons.add_rounded,
             onTap: () => _update(1),
-            color: widget.isSmall
-                ? const Color(0xFF111111)
-                : (L.bg == const Color(0xFF111111)
-                    ? const Color(0xFFE5E7EB)
-                    : const Color(0xFF0F172A)),
+            color: widget.isSmall ? L.text : L.text,
             isLeft: false,
             isSmall: widget.isSmall,
           ),
@@ -196,9 +192,7 @@ class _StepperButtonState extends State<_StepperButton> {
           widget.icon,
           size: widget.isSmall ? 14 : 20,
           color: widget.isSmall
-              ? (widget.color == const Color(0xFF111111)
-                  ? Colors.white
-                  : context.L.text)
+              ? (widget.color == context.L.text ? context.L.bg : context.L.text)
               : widget.color.withValues(alpha: _isPressed ? 0.6 : 0.8),
         ),
       ),

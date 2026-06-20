@@ -11,7 +11,7 @@ import '../core/utils/logger.dart';
 
 class AuthService {
   static final _auth = FirebaseAuth.instance;
-  static final _google = GoogleSignIn();
+  static final _google = GoogleSignIn.instance;
 
   // Stream of auth state changes
   static Stream<User?> get authStateChanges => _auth.authStateChanges();
@@ -48,11 +48,10 @@ class AuthService {
   // ── Google Sign-In ─────────────────────────────────────────────────
   static Future<UserCredential?> signInWithGoogle() async {
     try {
-      final googleUser = await _google.signIn();
-      if (googleUser == null) return null;
-      final googleAuth = await googleUser.authentication;
+      await _google.initialize();
+      final googleUser = await _google.authenticate();
+      final googleAuth = googleUser.authentication;
       final credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
         idToken: googleAuth.idToken,
       );
       return await _auth.signInWithCredential(credential);

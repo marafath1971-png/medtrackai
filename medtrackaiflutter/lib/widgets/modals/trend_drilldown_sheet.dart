@@ -36,9 +36,9 @@ class TrendDrilldownSheet extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: Colors.white,
+                  color: L.card,
                   borderRadius: BorderRadius.circular(20),
-                  boxShadow: AppShadows.neumorphic,
+                  border: Border.all(color: L.border.withValues(alpha: 0.1)),
                 ),
                 child: Text('${(avgAdherence * 100).round()}% AVG',
                     style: AppTypography.labelMedium.copyWith(
@@ -125,9 +125,9 @@ class TrendDrilldownSheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: L.card,
               borderRadius: BorderRadius.circular(28),
-              boxShadow: AppShadows.neumorphic,
+              border: Border.all(color: L.border.withValues(alpha: 0.1)),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -174,9 +174,9 @@ class TrendDrilldownSheet extends StatelessWidget {
               width: double.infinity,
               height: 54,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: L.card,
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: AppShadows.neumorphic,
+                border: Border.all(color: L.border.withValues(alpha: 0.1)),
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

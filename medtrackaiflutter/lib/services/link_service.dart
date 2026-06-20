@@ -17,6 +17,9 @@ class LinkService {
   /// Callback for when a referral code is detected.
   Function(String)? onReferralDetected;
 
+  /// Callback for when a voice command is triggered via deep link.
+  Function()? onVoiceCommandDetected;
+
   /// Initialize deep link listening.
   Future<void> init() async {
     // 1. Check for initial link (app opened via link from cold start)
@@ -42,7 +45,10 @@ class LinkService {
     if (uri.pathSegments.isNotEmpty) {
       final first = uri.pathSegments.first;
 
-      if (first == 'j' || first == 'join') {
+      if (first == 'voice' || first == 'voice_log') {
+        appLogger.i('[LinkService] Voice command detected from deep link');
+        onVoiceCommandDetected?.call();
+      } else if (first == 'j' || first == 'join') {
         String? code;
         if (uri.queryParameters.containsKey('code')) {
           code = uri.queryParameters['code'];

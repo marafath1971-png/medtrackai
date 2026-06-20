@@ -23,16 +23,9 @@ class BodyImpactCard extends StatelessWidget {
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: L.meshBg,
+        color: L.card,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: L.border.withValues(alpha: 0.1), width: 0.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
+        border: Border.all(color: L.border, width: 0.8),
       ),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -55,7 +48,7 @@ class BodyImpactCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: L.primary.withValues(alpha: 0.1),
+                    color: AppColors.accent.withValues(alpha: 0.12),
                     borderRadius: BorderRadius.circular(8),
                   ),
                   child: const Text('🧬', style: TextStyle(fontSize: 18)),
@@ -64,8 +57,7 @@ class BodyImpactCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     'BODY IMPACT',
-                    style: AppTypography.titleMedium.copyWith(
-                      color: L.text,
+                    style: AppTypography.titleMedium.copyWith(fontFamily: 'Courier', color: L.text,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.0,
                     ),
@@ -83,8 +75,7 @@ class BodyImpactCard extends StatelessWidget {
                 // 1. Mechanism of Action
                 Text(
                   'HOW IT WORKS',
-                  style: AppTypography.labelSmall.copyWith(
-                    color: L.sub.withValues(alpha: 0.5),
+                  style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.5),
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1.0,
                   ),
@@ -94,8 +85,7 @@ class BodyImpactCard extends StatelessWidget {
                   impact.mechanismOfAction.isNotEmpty
                       ? impact.mechanismOfAction
                       : 'AI is analyzing cellular impact mechanisms...',
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: L.text.withValues(alpha: 0.9),
+                  style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', color: L.text.withValues(alpha: 0.9),
                     height: 1.5,
                   ),
                 ),
@@ -125,10 +115,10 @@ class BodyImpactCard extends StatelessWidget {
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       decoration: BoxDecoration(
-                        color: L.secondary.withValues(alpha: 0.1),
+                        color: AppColors.accent.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                            color: L.secondary.withValues(alpha: 0.3)),
+                            color: AppColors.accent.withValues(alpha: 0.25)),
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -137,8 +127,7 @@ class BodyImpactCard extends StatelessWidget {
                           const SizedBox(width: 8),
                           Text(
                             'Ask AI Coach about this',
-                            style: AppTypography.labelLarge.copyWith(
-                              color: L.secondary,
+                            style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', color: AppColors.accent,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -182,8 +171,7 @@ class BodyImpactCard extends StatelessWidget {
                     const SizedBox(width: 8),
                     Text(
                       'DID YOU KNOW?',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: L.text,
+                      style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.text,
                         fontWeight: FontWeight.w900,
                         fontSize: 10,
                       ),
@@ -194,8 +182,7 @@ class BodyImpactCard extends StatelessWidget {
                 Expanded(
                   child: Text(
                     facts[index],
-                    style: AppTypography.bodySmall.copyWith(
-                      color: L.sub,
+                    style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', color: L.sub,
                       height: 1.3,
                       fontSize: 12,
                     ),

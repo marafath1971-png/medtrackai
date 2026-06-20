@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import '../../domain/entities/entities.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../../services/auth_service.dart';
-import '../../services/circle_service.dart';
 import '../../services/gemini_service.dart';
 import '../../core/utils/logger.dart';
 import '../../core/utils/haptic_engine.dart';
@@ -74,12 +73,8 @@ class SocialController extends ChangeNotifier {
     final uid = AuthService.uid;
     if (uid == null) return '';
     try {
-      final code = await CircleService.generateInviteCode(
-        patientName: patientName ?? 'Member',
-        patientAvatar: patientAvatar ?? '👤',
-        relation: cg.relation,
-        alertDelay: cg.alertDelay,
-      );
+      // Circle sharing removed — return empty code stub
+      const code = '';
 
       if (code.isNotEmpty) {
         _caregivers = _caregivers
@@ -97,11 +92,8 @@ class SocialController extends ChangeNotifier {
 
   Future<void> joinCaregiver(String code) async {
     try {
-      final result = await CircleService.verifyAndJoin(code.toUpperCase());
-      if (result['success'] == true) {
-        _listenToCaregivers();
-        _listenToMonitoring();
-      }
+      // Circle join removed — stub always fails gracefully
+      appLogger.w('[SocialController] joinCaregiver: circle feature removed');
     } catch (e) {
       appLogger.e('[SocialController] joinCaregiver failed', error: e);
       rethrow;

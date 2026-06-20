@@ -8,6 +8,7 @@ import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/modals/daily_log_sheet.dart';
 import '../../../widgets/common/app_loading_indicator.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../../widgets/shared/shared_widgets.dart';
 
 class QuickLogSymptom extends StatelessWidget {
   const QuickLogSymptom({super.key});
@@ -496,34 +497,43 @@ class _SeverityBottomSheetState extends State<_SeverityBottomSheet> {
               ).animate().fadeIn().scale(begin: const Offset(0.95, 0.95));
             }
 
-            return SizedBox(
-              width: double.infinity,
-              height: 64,
-              child: ElevatedButton(
-                onPressed: () {
-                  final symptom = Symptom(
-                    id: DateTime.now().millisecondsSinceEpoch.toString(),
-                    name: widget.name,
-                    severity: _severity.round(),
-                    timestamp: DateTime.now(),
-                  );
-                  context.read<AppState>().logSymptom(symptom);
-                  HapticEngine.success();
-                  Navigator.pop(context);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: widget.L.text,
-                  foregroundColor: widget.L.bg,
-                  elevation: 0,
-                  shape: ContinuousRectangleBorder(
-                    borderRadius: BorderRadius.circular(32),
+            return BouncingButton(
+              onTap: () {
+                final symptom = Symptom(
+                  id: DateTime.now().millisecondsSinceEpoch.toString(),
+                  name: widget.name,
+                  severity: _severity.round(),
+                  timestamp: DateTime.now(),
+                );
+                context.read<AppState>().logSymptom(symptom);
+                HapticEngine.success();
+                Navigator.pop(context);
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 20),
+                decoration: BoxDecoration(
+                  color: widget.L.text,
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: widget.L.text.withValues(alpha: 0.3),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    )
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    'LOG ENTRY',
+                    style: AppTypography.labelLarge.copyWith(
+                      fontFamily: 'Courier',
+                      fontWeight: FontWeight.w900,
+                      color: widget.L.bg,
+                      letterSpacing: 2.0,
+                    ),
                   ),
                 ),
-                child: Text('LOG ENTRY',
-                    style: AppTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.5,
-                        fontSize: 14)),
               ),
             );
           }),

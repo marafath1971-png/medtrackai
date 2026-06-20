@@ -61,20 +61,20 @@ class ReportService {
   static pw.Widget _buildVitalsSummary(
       AppLocalizations s, double? hr, double? steps, int? streak) {
     return pw.Container(
-      padding: const pw.EdgeInsets.all(20),
+      padding: const pw.EdgeInsets.all(24),
       decoration: pw.BoxDecoration(
-        color: PdfColors.grey50,
-        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(12)),
-        border: pw.Border.all(color: PdfColors.grey200, width: 0.5),
+        color: PdfColor.fromHex('#FAFAFA'),
+        borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
+        border: pw.Border.all(color: PdfColors.black, width: 2),
       ),
       child: pw.Row(
         mainAxisAlignment: pw.MainAxisAlignment.spaceAround,
         children: [
           _buildStatItem('AVG HEART RATE', '${hr?.toInt() ?? "--"} BPM',
-              PdfColors.red400),
+              PdfColor.fromHex('#FF2C55')), // TikTok Pink/Red
           _buildStatItem(
-              'DAILY STEPS', '${steps?.toInt() ?? "--"}', PdfColors.blue400),
-          _buildStatItem('STREAK', '${streak ?? 0} DAYS', PdfColors.orange400),
+              'DAILY STEPS', '${steps?.toInt() ?? "--"}', PdfColor.fromHex('#25F4EE')), // TikTok Cyan
+          _buildStatItem('STREAK', '${streak ?? 0} DAYS', PdfColor.fromHex('#000000')), // Pure Black
         ],
       ),
     );
@@ -111,11 +111,14 @@ class ReportService {
           children: List.generate(30, (index) {
             final data = index < trendData.length ? trendData[index] : null;
             final ad = (data?['adherence'] as double?) ?? 0.0;
-            PdfColor color = PdfColors.grey200;
+            PdfColor color = PdfColor.fromHex('#E5E5EA');
+            PdfColor textColor = PdfColors.grey600;
             if (ad >= 0.95) {
-              color = PdfColors.green300;
+              color = PdfColors.black;
+              textColor = PdfColor.fromHex('#CDFF00'); // Neon Lime text
             } else if (ad > 0) {
-              color = PdfColors.yellow300;
+              color = PdfColor.fromHex('#D1D1D6');
+              textColor = PdfColors.black;
             }
 
             return pw.Container(
@@ -127,7 +130,7 @@ class ReportService {
               ),
               child: pw.Center(
                 child: pw.Text('${index + 1}',
-                    style: const pw.TextStyle(fontSize: 8, color: PdfColors.white)),
+                    style: pw.TextStyle(fontSize: 8, color: textColor, fontWeight: pw.FontWeight.bold)),
               ),
             );
           }),
@@ -189,8 +192,8 @@ class ReportService {
                     '${m.count} / ${m.totalCount}',
                   ])
               .toList(),
-          headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-          headerDecoration: const pw.BoxDecoration(color: PdfColors.grey300),
+          headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+          headerDecoration: const pw.BoxDecoration(color: PdfColors.black),
           cellHeight: 30,
           cellAlignments: {
             0: pw.Alignment.centerLeft,
@@ -233,8 +236,8 @@ class ReportService {
                     sy.notes ?? '-',
                   ])
               .toList(),
-          headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold),
-          headerDecoration: const pw.BoxDecoration(color: PdfColors.grey300),
+          headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+          headerDecoration: const pw.BoxDecoration(color: PdfColors.black),
           cellHeight: 25,
         ),
       ],

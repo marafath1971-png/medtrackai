@@ -1,0 +1,22 @@
+{
+  "streak_nudges": [
+    "Your {streak}-day streak is waiting 🔥",
+    "Keep the momentum going! Day {streak} awaits 💪",
+    "Don't break your {streak}-day streak! 🌟",
+    "You're crushing it! Secure day {streak} now ✨",
+    "Consistency is key. Log your dose to hit {streak} days 🎯",
+    "Your health streak is at {streak} days. Keep it up! 🚀"
+  ],
+  "refill_reminders": {
+    "title": "Refill Reminder",
+    "body": "Your supply of {medName} is running low ({count} remaining)."
+  },
+  "re_engagement": {
+    "title": "We're here when you're ready",
+    "body": "Your meds are here whenever you're ready to get back on track."
+  },
+  "family_alert": {
+    "title": "Dose Available",
+    "body": "A family member has a dose available."
+  }
+}

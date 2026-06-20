@@ -98,9 +98,8 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                             width: 280,
                             height: 280,
                             decoration: BoxDecoration(
-                                color: Colors.white,
+                                color: L.card,
                                 borderRadius: BorderRadius.circular(32),
-                                boxShadow: AppShadows.neumorphic,
                                 border: Border.all(color: L.green, width: 2.5)),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(30),
@@ -136,12 +135,11 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           decoration: BoxDecoration(
-                              color: Colors.white,
+                              color: L.card,
                               borderRadius: BorderRadius.circular(24),
-                              boxShadow: AppShadows.neumorphic,
                               border: _error != null
                                   ? Border.all(color: L.red, width: 1.5)
-                                  : null),
+                                  : Border.all(color: L.border.withValues(alpha: 0.1))),
                           child: TextField(
                             controller: _codeCtrl,
                             style: AppTypography.displayLarge.copyWith(
@@ -179,9 +177,6 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                                 decoration: BoxDecoration(
                                   color: _isChecking ? L.greenLight : L.green,
                                   borderRadius: BorderRadius.circular(24),
-                                  boxShadow: _isChecking
-                                      ? null
-                                      : AppShadows.neumorphic,
                                 ),
                                 child: _isChecking
                                     ? const AppLoadingIndicator(size: 20)

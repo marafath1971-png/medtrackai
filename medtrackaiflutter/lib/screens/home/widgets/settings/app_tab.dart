@@ -159,8 +159,7 @@ class _AppTabState extends State<AppTab> {
               ),
               child: Column(children: [
                 Text('Enjoying MedAI?',
-                    style: AppTypography.titleLarge.copyWith(
-                        fontWeight: FontWeight.w900,
+                    style: AppTypography.titleLarge.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
                         color: L.text,
                         fontSize: 18)),
                 const SizedBox(height: 6),
@@ -201,8 +200,7 @@ class _AppTabState extends State<AppTab> {
                         color: L.text, borderRadius: BorderRadius.circular(16)),
                     child: Center(
                       child: Text('SHARE WITH FRIENDS',
-                          style: AppTypography.labelLarge.copyWith(
-                              fontWeight: FontWeight.w900,
+                          style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
                               fontSize: 11,
                               letterSpacing: 1.0,
                               color: L.bg)),

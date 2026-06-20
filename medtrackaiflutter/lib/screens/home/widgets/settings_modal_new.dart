@@ -80,6 +80,7 @@ class _SettingsModalState extends State<SettingsModal> {
                             const SizedBox(height: 4),
                             Text("Command Center",
                                 style: AppTypography.displaySmall.copyWith(
+                                    fontFamily: 'Courier',
                                     fontWeight: FontWeight.w900,
                                     color: L.text,
                                     fontSize: 24,

@@ -138,8 +138,7 @@ class _AlarmsTabState extends State<AlarmsTab> {
                         children: [
                           Text(
                             'Reminders',
-                            style: AppTypography.labelMedium.copyWith(
-                              color: L.sub.withValues(alpha: 0.6),
+                            style: AppTypography.labelMedium.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.6),
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0,
                               fontSize: 13,
@@ -241,8 +240,7 @@ class _AlarmsTabState extends State<AlarmsTab> {
                         children: [
                           Text(
                             'Paused',
-                            style: AppTypography.labelMedium.copyWith(
-                              color: L.sub.withValues(alpha: 0.45),
+                            style: AppTypography.labelMedium.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.45),
                               fontWeight: FontWeight.w600,
                               letterSpacing: 0,
                               fontSize: 13,
@@ -415,8 +413,7 @@ class _AlarmsHeader extends StatelessWidget {
                   children: [
                     Text(
                       'LOGISTICS',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: L.sub.withValues(alpha: 0.5),
+                      style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.5),
                         letterSpacing: 2.0,
                         fontWeight: FontWeight.w900,
                         fontSize: 9,
@@ -424,8 +421,7 @@ class _AlarmsHeader extends StatelessWidget {
                     ),
                     Text(
                       'Reminders',
-                      style: AppTypography.headlineMedium.copyWith(
-                        color: L.text,
+                      style: AppTypography.headlineMedium.copyWith(fontFamily: 'Courier', color: L.text,
                         fontWeight: FontWeight.w900,
                         fontSize: 28,
                         height: 1.1,
@@ -481,8 +477,7 @@ class _CountPill extends StatelessWidget {
       ),
       child: Text(
         '$count',
-        style: AppTypography.labelSmall.copyWith(
-          color: L.bg,
+        style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.bg,
           fontWeight: FontWeight.w900,
           fontSize: 11,
         ),
@@ -533,21 +528,11 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
     final s = widget.sch.sched as ScheduleEntry;
     final L = widget.L;
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: L.border.withValues(alpha: 0.08), width: 0.5),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 32,
-            offset: const Offset(0, 16),
-            spreadRadius: -8,
-          ),
-        ],
-      ),
+    return SquircleCard(
+      color: L.card,
+      radius: 28,
+      showBorder: true,
+      borderWidth: 0.5,
       child: Padding(
         padding: const EdgeInsets.all(28),
         child: Column(
@@ -578,8 +563,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                       const SizedBox(width: 8),
                       Text(
                         'UPCOMING DOSE',
-                        style: AppTypography.labelSmall.copyWith(
-                          color: L.text,
+                        style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.text,
                           fontWeight: FontWeight.w900,
                           fontSize: 10,
                           letterSpacing: 1.5,
@@ -590,8 +574,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                 ),
                 Text(
                   fmtTime(s.h, s.m, context).toUpperCase(),
-                  style: AppTypography.labelSmall.copyWith(
-                    color: L.text.withValues(alpha: 0.6),
+                  style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.text.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w900,
                     letterSpacing: 1.0,
                   ),
@@ -624,8 +607,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                     const SizedBox(height: 12),
                     Text(
                       'LOGGED SUCCESSFULLY',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: L.success,
+                      style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.success,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 2.0,
                       ),
@@ -643,8 +625,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                       children: [
                         Text(
                           med.name,
-                          style: AppTypography.headlineMedium.copyWith(
-                            color: L.text,
+                          style: AppTypography.headlineMedium.copyWith(fontFamily: 'Courier', color: L.text,
                             fontWeight: FontWeight.w900,
                             fontSize: 32,
                             letterSpacing: -1.0,
@@ -654,8 +635,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                         const SizedBox(height: 4),
                         Text(
                           '${med.dose} · ${s.label.toUpperCase()}',
-                          style: AppTypography.labelSmall.copyWith(
-                            color: L.sub.withValues(alpha: 0.5),
+                          style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.5),
                             fontWeight: FontWeight.w900,
                             letterSpacing: 1.0,
                           ),
@@ -663,11 +643,10 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                         const SizedBox(height: 20),
                         Text(
                           _diffStr.toUpperCase(),
-                          style: AppTypography.displaySmall.copyWith(
-                            color: L.text,
-                            fontSize: 14,
+                          style: AppTypography.displaySmall.copyWith(fontFamily: 'Courier', color: L.text,
+                            fontSize: 16,
                             fontWeight: FontWeight.w900,
-                            letterSpacing: 1.5,
+                            letterSpacing: 1.0,
                           ),
                         ),
                       ],
@@ -785,10 +764,8 @@ class _AlarmCard extends StatelessWidget {
                   children: [
                     Text(
                       fmtTime(s.h, s.m, context).split(' ')[0],
-                      style: AppTypography.displayLarge.copyWith(
-                        fontSize: 28,
+                      style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', fontSize: 28,
                         fontWeight: FontWeight.w900,
-                        fontFamily: 'Courier',
                         color: isEnabled ? L.bg : L.sub.withValues(alpha: 0.5),
                         height: 1.0,
                         letterSpacing: -1.5,
@@ -796,8 +773,7 @@ class _AlarmCard extends StatelessWidget {
                     ),
                     Text(
                       fmtTime(s.h, s.m, context).split(' ').last.toUpperCase(),
-                      style: AppTypography.labelSmall.copyWith(
-                        fontSize: 10,
+                      style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', fontSize: 10,
                         fontWeight: FontWeight.w900,
                         color: isEnabled
                             ? L.bg.withValues(alpha: 0.6)
@@ -818,8 +794,7 @@ class _AlarmCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             med.name,
-                            style: AppTypography.titleMedium.copyWith(
-                              fontSize: 17,
+                            style: AppTypography.titleMedium.copyWith(fontFamily: 'Courier', fontSize: 17,
                               fontWeight: FontWeight.w900,
                               color: isEnabled
                                   ? L.text
@@ -848,8 +823,7 @@ class _AlarmCard extends StatelessWidget {
                     const SizedBox(height: 2),
                     Text(
                       '${med.dose} · ${s.label.toUpperCase()}',
-                      style: AppTypography.labelSmall.copyWith(
-                        fontSize: 10,
+                      style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', fontSize: 10,
                         fontWeight: FontWeight.w900,
                         color: L.sub.withValues(alpha: 0.4),
                         letterSpacing: 0.5,
@@ -919,8 +893,7 @@ class _SwipeToConfirmState extends State<_SwipeToConfirm> {
                       _confirmed ? 0 : (1.0 - progress * 1.6).clamp(0, 1.0),
                   child: Text(
                     'Slide to record dose →',
-                    style: AppTypography.labelMedium.copyWith(
-                      color: widget.L.text.withValues(alpha: 0.65),
+                    style: AppTypography.labelMedium.copyWith(fontFamily: 'Courier', color: widget.L.text.withValues(alpha: 0.65),
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
                     ),
@@ -931,8 +904,7 @@ class _SwipeToConfirmState extends State<_SwipeToConfirm> {
                 Center(
                   child: Text(
                     '✓ Dose Recorded',
-                    style: AppTypography.labelMedium.copyWith(
-                      color: widget.L.text,
+                    style: AppTypography.labelMedium.copyWith(fontFamily: 'Courier', color: widget.L.text,
                       fontWeight: FontWeight.w900,
                       fontSize: 13,
                       letterSpacing: 0.5,
@@ -1034,8 +1006,7 @@ class _EmptyAlarmsState extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             'No reminders yet',
-            style: AppTypography.titleMedium.copyWith(
-              color: L.text,
+            style: AppTypography.titleMedium.copyWith(fontFamily: 'Courier', color: L.text,
               fontWeight: FontWeight.w900,
               fontSize: 20,
               letterSpacing: -0.5,
@@ -1047,8 +1018,7 @@ class _EmptyAlarmsState extends StatelessWidget {
                 ? 'Set reminders to never miss a dose again. Tap + to get started.'
                 : 'Add your medications first, then come back to set reminders.',
             textAlign: TextAlign.center,
-            style: AppTypography.bodySmall.copyWith(
-              color: L.sub.withValues(alpha: 0.7),
+            style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.7),
               height: 1.6,
               fontSize: 14,
             ),
@@ -1066,8 +1036,7 @@ class _EmptyAlarmsState extends StatelessWidget {
                 ),
                 child: Text(
                   'Set first reminder',
-                  style: AppTypography.labelLarge.copyWith(
-                    color: L.bg,
+                  style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', color: L.bg,
                     fontWeight: FontWeight.w900,
                   ),
                 ),
@@ -1097,8 +1066,7 @@ class _QuickAddSection extends StatelessWidget {
       children: [
         Row(children: [
           Text('YOUR MEDICINES',
-              style: AppTypography.labelSmall.copyWith(
-                  color: L.sub.withValues(alpha: 0.5),
+              style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.5),
                   fontWeight: FontWeight.w900,
                   letterSpacing: 2.0,
                   fontSize: 10)),
@@ -1150,13 +1118,11 @@ class _MedAlarmTile extends StatelessWidget {
           ),
         ),
         title: Text(med.name,
-            style: AppTypography.titleMedium.copyWith(
-                fontSize: 16,
+            style: AppTypography.titleMedium.copyWith(fontFamily: 'Courier', fontSize: 16,
                 fontWeight: FontWeight.w900,
                 letterSpacing: -0.5)),
         subtitle: Text('Needs schedule'.toUpperCase(),
-            style: AppTypography.labelSmall.copyWith(
-                color: L.sub.withValues(alpha: 0.4),
+            style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.4),
                 fontSize: 9,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 1.0)),
@@ -1184,8 +1150,7 @@ class _StatusChip extends StatelessWidget {
       ),
       child: Text(
         label.toUpperCase(),
-        style: AppTypography.labelSmall.copyWith(
-          color: color,
+        style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: color,
           fontSize: 8.5,
           fontWeight: FontWeight.w900,
           letterSpacing: 0.8,
@@ -1229,8 +1194,7 @@ class _MedPickerSheet extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(children: [
               Text('SET REMINDER FOR',
-                  style: AppTypography.labelSmall.copyWith(
-                    color: L.sub.withValues(alpha: 0.5),
+                  style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.5),
                     fontWeight: FontWeight.w900,
                     letterSpacing: 2.0,
                     fontSize: 10,
@@ -1274,11 +1238,9 @@ class _MedPickerSheet extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(med.name,
-                              style: AppTypography.labelLarge.copyWith(
-                                  color: L.text, fontWeight: FontWeight.w900)),
+                              style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', color: L.text, fontWeight: FontWeight.w900)),
                           Text(med.dose.toUpperCase(),
-                              style: AppTypography.labelSmall.copyWith(
-                                  color: L.sub.withValues(alpha: 0.5),
+                              style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.5),
                                   fontSize: 11,
                                   letterSpacing: 0.5)),
                         ],
@@ -1373,11 +1335,9 @@ class _AddAlarmSheetState extends State<_AddAlarmSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                     Text(widget.med.name,
-                        style: AppTypography.labelLarge.copyWith(
-                            color: L.text, fontWeight: FontWeight.w900)),
+                        style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', color: L.text, fontWeight: FontWeight.w900)),
                     Text(widget.med.dose.toUpperCase(),
-                        style: AppTypography.labelSmall.copyWith(
-                            color: L.sub.withValues(alpha: 0.5), fontSize: 11)),
+                        style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.5), fontSize: 11)),
                   ])),
             ]),
           ),
@@ -1394,8 +1354,7 @@ class _AddAlarmSheetState extends State<_AddAlarmSheet> {
 
           // ── Quick label chips ──
           Text('LABEL',
-              style: AppTypography.labelSmall.copyWith(
-                  color: L.sub.withValues(alpha: 0.5),
+              style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.5),
                   fontWeight: FontWeight.w900,
                   letterSpacing: 1.5,
                   fontSize: 10)),
@@ -1424,8 +1383,7 @@ class _AddAlarmSheetState extends State<_AddAlarmSheet> {
                   ),
                   child: Text(
                     label,
-                    style: AppTypography.labelSmall.copyWith(
-                      color: selected ? L.bg : L.sub,
+                    style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: selected ? L.bg : L.sub,
                       fontWeight: FontWeight.w700,
                       fontSize: 13,
                     ),
@@ -1482,8 +1440,7 @@ class _AddAlarmSheetState extends State<_AddAlarmSheet> {
                   widget.scheduleIndex != null
                       ? 'SAVE CHANGES'
                       : 'ADD REMINDER',
-                  style: AppTypography.titleMedium.copyWith(
-                    color: L.bg,
+                  style: AppTypography.titleMedium.copyWith(fontFamily: 'Courier', color: L.bg,
                     fontWeight: FontWeight.w900,
                     letterSpacing: 0.8,
                   ),

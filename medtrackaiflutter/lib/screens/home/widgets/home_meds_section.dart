@@ -32,10 +32,10 @@ class HomeMedsEmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PremiumEmptyState(
-      title: 'PRECISION_LOG_EMPTY',
-      subtitle: 'Scan clinical labels or manually enter medications to begin precision tracking.',
+      title: 'No medications',
+      subtitle: 'Add your first medicine to start tracking your daily precision log.',
       icon: Icons.medication_rounded,
-      actionLabel: 'SCAN_NEW_MEDICINE',
+      actionLabel: 'Add medicine',
       onAction: onAdd,
     );
   }

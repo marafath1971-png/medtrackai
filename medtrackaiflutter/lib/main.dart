@@ -43,9 +43,9 @@ void main() async {
 
     // Initialize App Check for production security
     await FirebaseAppCheck.instance.activate(
-      androidProvider:
-          kDebugMode ? AndroidProvider.debug : AndroidProvider.playIntegrity,
-      appleProvider: kDebugMode ? AppleProvider.debug : AppleProvider.appAttest,
+      providerAndroid:
+          kDebugMode ? AndroidDebugProvider() : AndroidPlayIntegrityProvider(),
+      providerApple: kDebugMode ? AppleDebugProvider() : AppleAppAttestProvider(),
     );
   } catch (e) {
     debugPrint('Firebase/AppCheck initialization failure: $e');
@@ -128,7 +128,9 @@ class MedAIApp extends StatelessWidget {
     final accentHex = context
         .select<AppState, String?>((state) => state.profile?.accentColor);
 
+    final isDark = context.select<AppState, bool>((state) => state.darkMode);
     final lightTheme = AppTheme.light(accentHex: accentHex);
+    final darkTheme = AppTheme.dark(isAmoled: true, accentHex: accentHex);
     final language =
         context.select<AppState, String>((state) => state.language);
 
@@ -136,7 +138,8 @@ class MedAIApp extends StatelessWidget {
       title: 'MedAI',
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
-      themeMode: ThemeMode.light,
+      darkTheme: darkTheme,
+      themeMode: isDark ? ThemeMode.dark : ThemeMode.light,
       locale: Locale(language),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
@@ -208,23 +211,47 @@ class _RootRouterState extends State<_RootRouter> {
           }
         }
 
+        Widget currentScreen;
         switch (phase) {
           case AppPhase.loading:
-            return const _SplashLoading();
+            currentScreen = const _SplashLoading(key: ValueKey('loading'));
+            break;
           case AppPhase.onboarding:
-            return const OnboardingScreen();
+            currentScreen = const OnboardingScreen(key: ValueKey('onboarding'));
+            break;
           case AppPhase.auth:
-            return const AuthScreen();
+            currentScreen = const AuthScreen(key: ValueKey('auth'));
+            break;
           case AppPhase.app:
-            return const AppShell();
+            currentScreen = const AppShell(key: ValueKey('app'));
+            break;
         }
+
+        return AnimatedSwitcher(
+          duration: const Duration(milliseconds: 600),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+          transitionBuilder: (Widget child, Animation<double> animation) {
+            return FadeTransition(
+              opacity: animation,
+              child: SlideTransition(
+                position: Tween<Offset>(
+                  begin: const Offset(0.0, 0.05),
+                  end: Offset.zero,
+                ).animate(animation),
+                child: child,
+              ),
+            );
+          },
+          child: currentScreen,
+        );
       },
     );
   }
 }
 
 class _SplashLoading extends StatelessWidget {
-  const _SplashLoading();
+  const _SplashLoading({super.key});
 
   @override
   Widget build(BuildContext context) {

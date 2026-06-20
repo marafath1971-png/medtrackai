@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../../services/smart_alert_service.dart';
 import '../../providers/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../../l10n/app_localizations.dart';
@@ -8,7 +9,6 @@ import '../../widgets/shared/shared_widgets.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../models/constants.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 // ══════════════════════════════════════════════════════════════════════
 // GLOBAL SETTINGS SCREEN (Cal AI Industrial Authority Refined)
 // ══════════════════════════════════════════════════════════════════════
@@ -242,8 +242,11 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                         await launchUrl(url, mode: LaunchMode.externalApplication);
                       } else {
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Could not open Privacy Policy.')),
+                          SmartAlertService.show(
+                            context,
+                            title: 'Error',
+                            message: 'Could not open Privacy Policy.',
+                            type: AlertType.error,
                           );
                         }
                       }
@@ -260,8 +263,11 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                         await launchUrl(url, mode: LaunchMode.externalApplication);
                       } else {
                         if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text('Could not open Terms of Service.')),
+                          SmartAlertService.show(
+                            context,
+                            title: 'Error',
+                            message: 'Could not open Terms of Service.',
+                            type: AlertType.error,
                           );
                         }
                       }

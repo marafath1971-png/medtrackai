@@ -50,8 +50,8 @@ class AppRadius {
   static const double s = 8;
   static const double m = 12;
   static const double l = 16;
-  static const double xl = 20; // Enforcing 20pt card radius
-  static const double squircle = 24;
+  static const double xl = 16; // Changed from 20 to 16 for premium sharpness
+  static const double squircle = 20; // Reduced from 24
   static const double max = 999;
 
   static BorderRadius get roundXS => BorderRadius.circular(xs);
@@ -67,344 +67,228 @@ class AppCurves {
   // Spring transition: damping 0.8, response 0.4 approximation
   static const Curve spring = ElasticOutCurve(0.8);
   static const Curve smooth = Curves.fastOutSlowIn;
+  // 2026 Liquid physics
+  static const Curve liquid = ElasticOutCurve(0.6); // more bouncy/fluid
+  static const Curve bouncy = ElasticOutCurve(0.4);
 }
 
 class AppTypography {
-  // ── Display: Inter (Clinical Legibility) ──
   static TextStyle get displayXL => GoogleFonts.inter(
         fontSize: 72,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         letterSpacing: -2.0,
         height: 1.0,
       );
   static TextStyle get displayLarge => GoogleFonts.inter(
         fontSize: 64,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
         letterSpacing: -1.5,
         height: 1.0,
       );
   static TextStyle get displayMedium => GoogleFonts.inter(
-        fontSize: 44,
-        fontWeight: FontWeight.w800,
+        fontSize: 48,
+        fontWeight: FontWeight.w700,
         letterSpacing: -1.0,
         height: 1.1,
       );
   static TextStyle get displaySmall => GoogleFonts.inter(
-        fontSize: 34,
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.5,
+        fontSize: 36,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.8,
         height: 1.2,
       );
 
-  // ── Headings & Body: Inter (Clinical Legibility) ──
+  // ── Headings & Body: Inter (Minimal & Premium) ──
   static TextStyle get headlineLarge => GoogleFonts.inter(
-        fontSize: 26,
-        fontWeight: FontWeight.w800,
-        letterSpacing: -1.2,
+        fontSize: 28,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.5,
       );
   static TextStyle get headlineMedium => GoogleFonts.inter(
-        fontSize: 22,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.8,
+        fontSize: 24,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.5,
       );
   static TextStyle get headlineSmall => GoogleFonts.inter(
-        fontSize: 18,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.5,
+        fontSize: 20,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.4,
       );
   static TextStyle get titleLarge => GoogleFonts.inter(
         fontSize: 18,
-        fontWeight: FontWeight.w800,
-        letterSpacing: -0.4,
+        fontWeight: FontWeight.w600,
+        letterSpacing: -0.3,
       );
   static TextStyle get titleMedium => GoogleFonts.inter(
         fontSize: 16,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -0.6,
+        fontWeight: FontWeight.w500,
+        letterSpacing: -0.2,
       );
   static TextStyle get bodyLarge => GoogleFonts.inter(
         fontSize: 17,
         fontWeight: FontWeight.w400,
-        letterSpacing: -0.5,
+        letterSpacing: -0.1,
       );
   static TextStyle get bodyMedium => GoogleFonts.inter(
         fontSize: 15,
         fontWeight: FontWeight.w400,
         height: 1.5,
-        letterSpacing: -0.3,
+        letterSpacing: 0.0,
       );
   static TextStyle get labelLarge => GoogleFonts.inter(
         fontSize: 14,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w500,
         letterSpacing: 0.1,
       );
   static TextStyle get labelMedium => GoogleFonts.inter(
         fontSize: 12,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 1.5,
+        fontWeight: FontWeight.w500,
+        letterSpacing: 0.2,
       );
   static TextStyle get labelSmall => GoogleFonts.inter(
-        fontSize: 10,
-        fontWeight: FontWeight.w900,
-        letterSpacing: 2.0,
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.5,
       );
   static TextStyle get bodySmall => GoogleFonts.inter(
         fontSize: 12,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w400,
         height: 1.4,
         letterSpacing: 0.2,
       );
 
   // ── Specialty Fonts ──
   static TextStyle get monoNumber => GoogleFonts.inter(
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w500,
         letterSpacing: -0.5,
       );
       
   static TextStyle get sectionLabel => GoogleFonts.inter(
         fontSize: 11,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 1.8,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 1.0,
       );
 }
 
 class AppShadows {
-  /// Hyper-soft, multi-layered depth for futuristic 'iOS 26' glass cards
   static List<BoxShadow> get soft => [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.03),
-          blurRadius: 40,
-          offset: const Offset(0, 20),
-          spreadRadius: -4,
+          color: Colors.black.withValues(alpha: 0.08),
+          blurRadius: 24,
+          offset: const Offset(0, 8),
         ),
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.01),
+          color: Colors.black.withValues(alpha: 0.04),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
+        ),
+      ];
+
+  static List<BoxShadow> get glass => [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.15),
+          blurRadius: 30,
+          spreadRadius: -5,
+          offset: const Offset(0, 10),
+        ),
+      ];
+
+  static List<BoxShadow> get subtle => [
+        BoxShadow(
+          color: Colors.black.withValues(alpha: 0.05),
           blurRadius: 10,
           offset: const Offset(0, 4),
         ),
       ];
 
-  /// Atmospheric 'Glass' shadow with higher spread and lower opacity
-  static List<BoxShadow> get glass => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.06),
-          blurRadius: 32,
-          offset: const Offset(0, 16),
-          spreadRadius: -8,
-        ),
-        BoxShadow(
-          color: Colors.white.withValues(alpha: 0.4),
-          blurRadius: 1,
-          offset: const Offset(0, -1),
-          spreadRadius: 0,
-        ),
-      ];
-
-  /// Subtle inner-glow shadow for high-fidelity dark mode
-  static List<BoxShadow> get subtle => [
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.2),
-          blurRadius: 30,
-          offset: const Offset(0, 15),
-          spreadRadius: -5,
-        ),
-        BoxShadow(
-          color: Colors.white.withValues(alpha: 0.04),
-          blurRadius: 1,
-          offset: const Offset(0, 0.5),
-          spreadRadius: 0.5,
-        ),
-      ];
-
-  /// Deep floating elevation for modals and popups
   static List<BoxShadow> get card => [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.12),
-          blurRadius: 80,
-          offset: const Offset(0, 40),
-          spreadRadius: -20,
-        ),
-        BoxShadow(
-          color: Colors.black.withValues(alpha: 0.04),
+          color: Colors.black.withValues(alpha: 0.06),
           blurRadius: 20,
-          offset: const Offset(0, 8),
+          offset: const Offset(0, 6),
         ),
       ];
 
-  /// Atmospheric colored glow for primary actions
-  static List<BoxShadow> glow(Color color, {double intensity = 0.25}) => [
-        BoxShadow(
-          color: color.withValues(alpha: intensity),
-          blurRadius: 32,
-          offset: const Offset(0, 16),
-          spreadRadius: -4,
-        ),
-        BoxShadow(
-          color: color.withValues(alpha: intensity * 0.4),
-          blurRadius: 12,
-          offset: const Offset(0, 4),
-        ),
-      ];
-
-  /// Nav bar shadow — floating pill effect with occlusion
   static List<BoxShadow> get navBar => [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.18),
-          blurRadius: 40,
-          offset: const Offset(0, 20),
-          spreadRadius: -4,
+          color: Colors.black.withValues(alpha: 0.12),
+          blurRadius: 32,
+          offset: const Offset(0, -4),
         ),
+      ];
+
+  static List<BoxShadow> get neumorphic => [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.1),
+          color: Colors.black.withValues(alpha: 0.04),
           blurRadius: 16,
           offset: const Offset(0, 4),
         ),
       ];
 
-  /// Neumorphic Light Mode shadow from reference
-  static List<BoxShadow> get neumorphic => [
+  /// Atmospheric colored glow for primary actions
+  static List<BoxShadow> glow(Color color, {double intensity = 0.4}) => [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.05),
-          blurRadius: 40,
-          offset: const Offset(0, 15),
-          spreadRadius: -10,
+          color: color.withValues(alpha: intensity * 0.4),
+          blurRadius: 24,
+          spreadRadius: 2,
+          offset: const Offset(0, 8),
         ),
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.02),
-          blurRadius: 10,
-          offset: const Offset(0, 4),
-          spreadRadius: 0,
+          color: color.withValues(alpha: intensity * 0.15),
+          blurRadius: 8,
+          offset: const Offset(0, 2),
         ),
       ];
 }
 
 class AppGradients {
-  /// Primary brand gradient — Industrial Black to Dark Grey
-  static LinearGradient get main => const LinearGradient(
-        colors: [Color(0xFF000000), Color(0xFF262626)],
+  static LinearGradient _flat(Color color) => LinearGradient(
+        colors: [color, color],
         begin: Alignment.topLeft,
         end: Alignment.bottomRight,
       );
 
-  static LinearGradient glass([Color? color]) => LinearGradient(
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-        colors: [
-          (color ?? Colors.white).withValues(alpha: 0.1),
-          (color ?? Colors.white).withValues(alpha: 0.02),
-        ],
-      );
+  // ── Cal AI Hero Gradient — orange accent ──
+  static const LinearGradient accentOrange = LinearGradient(
+    colors: [Color(0xFFFF6B35), Color(0xFFFF8A60)],
+    begin: Alignment.topLeft,
+    end: Alignment.bottomRight,
+  );
 
-  /// Subtle neutral tint for card backgrounds in light mode
-  static LinearGradient get lightCard => const LinearGradient(
-        colors: [Color(0xFFFFFFFF), Color(0xFFFAFAFA)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+  // ── Progress Ring gradient (orange → green for completion feel) ──
+  static const LinearGradient ringProgress = LinearGradient(
+    colors: [Color(0xFFFF6B35), Color(0xFFFF9A5C)],
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+  );
 
-  /// Midnight dark surface
-  static LinearGradient get darkSurface => const LinearGradient(
-        colors: [Color(0xFF171717), Color(0xFF000000)],
-        begin: Alignment.topCenter,
-        end: Alignment.bottomCenter,
-      );
+  static LinearGradient get main => _flat(const Color(0xFF1C1C1E));
+  static LinearGradient glass([Color? color]) => _flat(Colors.transparent);
+  static LinearGradient get lightCard => _flat(const Color(0xFFFFFFFF));
+  static LinearGradient get darkSurface => _flat(const Color(0xFF1C1C1E));
 
-  /// Emerald green — 2026 bright biohacking green
-  static LinearGradient get healthGreen => const LinearGradient(
-        colors: [Color(0xFF10B981), Color(0xFF059669)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+  // Semantic — kept as solids
+  static LinearGradient get healthGreen  => _flat(const Color(0xFF00C853));
+  static LinearGradient get warningAmber => _flat(const Color(0xFFFF9F0A));
+  static LinearGradient get dangerRed    => _flat(const Color(0xFFFF3B30));
+  static LinearGradient get darkCard     => _flat(const Color(0xFF2C2C2E));
+  static LinearGradient get actionRed    => _flat(const Color(0xFFFF3B30));
 
-  /// Warm amber — Neutrally adjusted for high contrast
-  static LinearGradient get warningAmber => const LinearGradient(
-        colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+  // All formerly-distinct accents now point to the single orange
+  static LinearGradient get cyanFlash    => accentOrange;
+  static LinearGradient get purpleDusk   => _flat(const Color(0xFFBF5AF2));
+  static LinearGradient get goldLegend   => _flat(const Color(0xFFFF9F0A));
+  static LinearGradient get sunrise      => accentOrange;
+  static LinearGradient get midnightBlue => _flat(const Color(0xFF0A84FF));
+  static LinearGradient get oliveOnboarding => _flat(const Color(0xFF00C853));
+  static LinearGradient get oliveBg      => _flat(const Color(0xFFF7F7F7));
 
-  /// Red gradient — for danger / missed dose
-  static LinearGradient get dangerRed => const LinearGradient(
-        colors: [Color(0xFFEF4444), Color(0xFFDC2626)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
+  static LinearGradient glow(Color color) => _flat(color);
 
-  /// Dark card gradient — premium night surface
-  static LinearGradient get darkCard => const LinearGradient(
-        colors: [Color(0xFF111111), Color(0xFF000000)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
-
-  /// Action Red FAB — matching the user's reference image
-  static LinearGradient get actionRed => const LinearGradient(
-        colors: [Color(0xFFFF5E5E), Color(0xFFE5004F)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
-
-  // ── 2026 Biohacking Premium Gradients ────────────────────
-
-  /// Neon Lime — primary brand viral gradient
-  static LinearGradient get neonLime => const LinearGradient(
-        colors: [Color(0xFFCDFF00), Color(0xFF76FF03)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
-
-  /// Cyan Flash — performance/biohacking state
-  static LinearGradient get cyanFlash => const LinearGradient(
-        colors: [Color(0xFF00E5FF), Color(0xFF00B0FF)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
-
-  /// Purple Dusk — premium milestone
-  static LinearGradient get purpleDusk => const LinearGradient(
-        colors: [Color(0xFF7C3AED), Color(0xFFDB2777)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
-
-  /// Gold Legend — 1-year streak
-  static LinearGradient get goldLegend => const LinearGradient(
-        colors: [Color(0xFFFFD700), Color(0xFFFFA500)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
-
-  /// Sunrise — morning doses, warm energy
-  static LinearGradient get sunrise => const LinearGradient(
-        colors: [Color(0xFFFBBF24), Color(0xFFF97316)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
-
-  /// Midnight Blue — night/sleep doses
-  static LinearGradient get midnightBlue => const LinearGradient(
-        colors: [Color(0xFF4338CA), Color(0xFF1E1B4B)],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
-
-  /// Creates a customized glow gradient for any accent color
-  static LinearGradient glow(Color color) => LinearGradient(
-        colors: [
-          color,
-          color.withValues(alpha: 0.5),
-        ],
-        begin: Alignment.topLeft,
-        end: Alignment.bottomRight,
-      );
-
-  /// Radial ambient glow for card backgrounds
-  static RadialGradient radialGlow(Color color, {double intensity = 0.15}) =>
-      RadialGradient(
-        colors: [
-          color.withValues(alpha: intensity),
-          Colors.transparent,
-        ],
+  static RadialGradient radialGlow(Color color, {double intensity = 0.0}) =>
+      const RadialGradient(
+        colors: [Colors.transparent, Colors.transparent],
         radius: 0.8,
       );
 }
+

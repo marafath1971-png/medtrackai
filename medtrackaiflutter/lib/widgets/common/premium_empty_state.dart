@@ -31,18 +31,25 @@ class PremiumEmptyState extends StatelessWidget {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          // Icon/Emoji Container with Premium Glassmorphism & Gradient
+          // Holographic/Glassmorphic Icon Container
           Container(
             width: 110,
             height: 110,
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: L.card, // Glassmorphic card background
               shape: BoxShape.circle,
-              boxShadow: AppShadows.neumorphic,
+              border: Border.all(color: L.border.withValues(alpha: 0.1), width: 1.5),
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.accent.withValues(alpha: 0.15),
+                  blurRadius: 40,
+                  spreadRadius: -10,
+                ),
+              ],
             ),
             child: Center(
               child: icon != null
-                  ? Icon(icon, size: 44, color: L.text.withValues(alpha: 0.8))
+                  ? Icon(icon, size: 44, color: AppColors.accent)
                   : Text(emoji,
                       style: AppTypography.displayLarge.copyWith(fontSize: 44)),
             ),
@@ -50,13 +57,15 @@ class PremiumEmptyState extends StatelessWidget {
               .animate(onPlay: (c) => c.repeat(reverse: true))
               .moveY(
                   begin: 0,
-                  end: -12,
+                  end: -8,
                   duration: 2500.ms,
                   curve: Curves.easeInOutSine)
               .scale(
                   begin: const Offset(1, 1),
-                  end: const Offset(1.08, 1.08),
-                  duration: 2500.ms),
+                  end: const Offset(1.05, 1.05),
+                  duration: 2500.ms)
+              .shimmer(
+                  duration: 3.seconds, color: Colors.white.withValues(alpha: 0.2)),
 
           const SizedBox(height: 32),
 
@@ -96,11 +105,11 @@ class PremiumEmptyState extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 32, vertical: 18),
                 decoration: BoxDecoration(
-                  color: Colors.black,
+                  gradient: AppGradients.accentOrange,
                   borderRadius: BorderRadius.circular(28),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
+                      color: AppColors.accent.withValues(alpha: 0.3),
                       blurRadius: 20,
                       offset: const Offset(0, 10),
                     ),
@@ -112,14 +121,14 @@ class PremiumEmptyState extends StatelessWidget {
                     Text(
                       actionLabel!,
                       style: AppTypography.labelLarge.copyWith(
-                        color: L.bg,
+                        color: Colors.black, // Dark text on bright neon button
                         fontSize: 15,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w900,
                         letterSpacing: 0.5,
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Icon(Icons.arrow_forward_rounded, color: L.bg, size: 18),
+                    const Icon(Icons.arrow_forward_rounded, color: Colors.black, size: 18),
                   ],
                 ),
               ),

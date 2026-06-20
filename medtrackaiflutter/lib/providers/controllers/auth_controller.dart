@@ -91,6 +91,15 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
+  void incrementVoiceLogCount() {
+    if (_profile == null) return;
+    _profile = _profile!.copyWith(
+      voiceLogsUsed: (_profile!.voiceLogsUsed) + 1,
+    );
+    userRepo.saveProfile(_profile!);
+    notifyListeners();
+  }
+
   Future<void> logout() async {
     await AuthService.signOut();
     _profile = null;

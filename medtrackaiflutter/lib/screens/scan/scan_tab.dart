@@ -17,6 +17,8 @@ import '../../services/review_service.dart';
 import '../../widgets/common/modern_time_picker.dart';
 import '../paywall/premium_paywall_overlay.dart';
 import 'supplement_interaction_scanner.dart';
+import 'pill_identifier_screen.dart';
+import '../../services/growth_tracker.dart';
 
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:path/path.dart' as p;
@@ -63,10 +65,10 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
   late AnimationController _pulseController;
 
   final List<String> _scanSteps = [
-    'Identifying medicine...',
-    'Extracting dose info...',
-    'Checking interactions...',
-    'Finalising results...',
+    'Identifying medicine 🔍...',
+    'Extracting dose info 💊...',
+    'Checking interactions ⚡...',
+    'Finalizing results ✨...',
   ];
 
   final List<Map<String, dynamic>> _categories = [
@@ -302,6 +304,7 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
         });
 
         await state.incrementScanCount();
+        await GrowthTracker.trackAiScan(success: true);
 
         _showResultModal(success.copyWith(
             imageUrl: cloudUrl ?? file.path,
@@ -309,10 +312,11 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
             description: success.name.isNotEmpty ? success.name : null,
             form: success.form));
       },
-      (failure) {
+      (failure) async {
         // NEVER show an error to the user face. Instead, transition to "Smart Manual Entry".
         HapticEngine.selection();
         setState(() => _isScanning = false);
+        await GrowthTracker.trackAiScan(success: false);
 
         _showResultModal(ScanResult(
           identified: false,
@@ -420,10 +424,11 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
             ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
             const SizedBox(height: 24),
             Text(
-              'Camera Unavailable',
+              'CAMERA UNAVAILABLE 📷',
               style: AppTypography.titleLarge.copyWith(
-                color: Colors.white,
+                color: context.L.text,
                 fontWeight: FontWeight.w900,
+                letterSpacing: -1.2,
               ),
             ),
             const SizedBox(height: 8),
@@ -431,7 +436,7 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
               'We couldn\'t access your camera. You can still add your medicine manually.',
               textAlign: TextAlign.center,
               style: AppTypography.bodyMedium.copyWith(
-                color: Colors.white.withValues(alpha: 0.7),
+                color: context.L.text.withValues(alpha: 0.7),
               ),
             ),
             const SizedBox(height: 32),
@@ -446,9 +451,9 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
                 ),
                 child: Center(
                   child: Text(
-                    'CHOOSE FROM GALLERY',
+                    'CHOOSE FROM GALLERY 🖼️',
                     style: AppTypography.labelLarge.copyWith(
-                      color: Colors.black,
+                      color: context.L.bg,
                       fontWeight: FontWeight.w900,
                       letterSpacing: 1.0,
                     ),
@@ -469,7 +474,7 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
                 ),
                 child: Center(
                   child: Text(
-                    'ADD MANUALLY',
+                    'ADD MANUALLY 📝',
                     style: AppTypography.labelLarge.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w900,
@@ -483,10 +488,10 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
             TextButton(
               onPressed: _initCamera,
               child: Text(
-                'RETRY CAMERA',
+                'RETRY CAMERA 🔄',
                 style: AppTypography.labelMedium.copyWith(
                   color: Colors.white,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w900,
                   letterSpacing: 1.0,
                 ),
               ),
@@ -505,7 +510,7 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
     final size = MediaQuery.of(context).size;
 
     return Scaffold(
-      backgroundColor: AppColors.black,
+      backgroundColor: context.L.bg,
       body: Stack(
         children: [
           // 1. Full-screen Camera Preview
@@ -583,39 +588,91 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    BouncingButton(
-                      onTap: () {
-                        HapticEngine.selection();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const SupplementInteractionScanner(),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                        decoration: BoxDecoration(
-                          gradient: AppGradients.cyanFlash,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: AppShadows.glow(const Color(0xFF00E5FF), intensity: 0.3),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.bolt_rounded, color: Colors.white, size: 16),
-                            const SizedBox(width: 6),
-                            Text(
-                              'SYNERGY SCANNER',
-                              style: AppTypography.labelSmall.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1.0,
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        BouncingButton(
+                          onTap: () {
+                            HapticEngine.selection();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const SupplementInteractionScanner(),
+                              ),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: context.L.glass,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: context.L.glassBorder, width: 0.8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.bolt_rounded, color: AppColors.accent, size: 16),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'SYNERGY',
+                                      style: AppTypography.labelSmall.copyWith(
+                                        color: context.L.text,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: 1.0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
+                        const SizedBox(width: 12),
+                        BouncingButton(
+                          onTap: () {
+                            HapticEngine.selection();
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const PillIdentifierScanner(),
+                              ),
+                            );
+                          },
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(20),
+                            child: BackdropFilter(
+                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                                decoration: BoxDecoration(
+                                  color: context.L.glass,
+                                  borderRadius: BorderRadius.circular(20),
+                                  border: Border.all(color: context.L.glassBorder, width: 0.8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    const Icon(Icons.search_rounded, color: AppColors.accent, size: 16),
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      'IDENTIFY PILL',
+                                      style: AppTypography.labelSmall.copyWith(
+                                        color: context.L.text,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: 1.0,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(height: 16),
                     _buildCategoryPill(),
@@ -676,10 +733,10 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
                     ),
                     const SizedBox(height: 12),
                     Text(
-                      'PRECISION SCANNING • VER 2.6',
+                      'AI SCANNING 🧬 • VER 2.6 ✨',
                       style: AppTypography.labelSmall.copyWith(
                         color: L.sub.withValues(alpha: 0.3),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w900,
                         letterSpacing: 1.5,
                       ),
                     ).animate(onPlay: (c) => c.repeat(reverse: true))
@@ -699,18 +756,18 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
                 Container(
                     width: 4,
                     height: 4,
-                    decoration: const BoxDecoration(
-                        color: Colors.white, shape: BoxShape.circle)),
+                    decoration: BoxDecoration(
+                        color: L.text, shape: BoxShape.circle)),
                 const SizedBox(width: 12),
                 Text(
-                  'PRO_LINK_ENCRYPTED',
+                  'PRO_LINK_SECURE 🔒',
                   style: AppTypography.labelSmall.copyWith(
                     color: L.sub.withValues(alpha: 0.3),
                     fontWeight: FontWeight.w900,
                     letterSpacing: 2.0,
                   ),
                 ).animate(onPlay: (c) => c.repeat(reverse: false))
-                 .shimmer(duration: 3.seconds, delay: 500.ms, color: Colors.white54),
+                 .shimmer(duration: 3.seconds, delay: 500.ms, color: L.text.withValues(alpha: 0.5)),
               ],
             ),
           ),
@@ -778,14 +835,8 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
           right: 0,
           child: Container(
             height: 2,
-            decoration: BoxDecoration(
-              color: context.L.text,
-              boxShadow: [
-                BoxShadow(
-                    color: context.L.text.withValues(alpha: 0.4),
-                    blurRadius: 15,
-                    spreadRadius: 2)
-              ],
+            decoration: const BoxDecoration(
+              color: AppColors.accent,
             ),
           ),
         );
@@ -864,7 +915,6 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
   }
 
   Widget _buildProTabletAnimation() {
-    final color = context.isDark ? context.L.secondary : Colors.white;
     return Stack(
       children: [
         Positioned(
@@ -876,11 +926,8 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
             child: Container(
               height: 2.5,
               width: MediaQuery.of(context).size.width * 0.7,
-              decoration: BoxDecoration(
-                color: color,
-                boxShadow: [
-                  BoxShadow(color: color, blurRadius: 15, spreadRadius: 3)
-                ],
+              decoration: const BoxDecoration(
+                color: AppColors.accent,
               ),
             ),
           ),
@@ -996,11 +1043,11 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
     Widget pill = Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
       decoration: BoxDecoration(
-        color: Colors.black.withValues(alpha: 0.65),
+        color: context.L.bg.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
+            color: context.L.bg.withValues(alpha: 0.1),
             blurRadius: 20,
             offset: const Offset(0, 10),
           )
@@ -1010,14 +1057,14 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
         mainAxisSize: MainAxisSize.min,
         children: [
           isPremium
-              ? const Icon(Icons.verified_rounded,
-                  color: Colors.white, size: 14)
+              ? Icon(Icons.verified_rounded,
+                  color: context.L.text, size: 14)
               : const Text("✨", style: TextStyle(fontSize: 12)),
           const SizedBox(width: 10),
           Text(
             isPremium ? "PREMIUM UNLIMITED" : (used == 2 ? "1 FREE SCAN LEFT" : "$used / 3 SCANS"),
             style: AppTypography.labelSmall.copyWith(
-              color: Colors.white,
+              color: context.L.text,
               fontWeight: FontWeight.w900,
               letterSpacing: 1.2,
               fontSize: 11,
@@ -1038,19 +1085,17 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
 
   Widget _buildCategoryPill() {
     return Center(
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-        decoration: BoxDecoration(
-          color: Colors.black.withValues(alpha: 0.65),
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 25,
-              offset: const Offset(0, 12),
-            )
-          ],
-        ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+            decoration: BoxDecoration(
+              color: context.L.glass,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: context.L.glassBorder, width: 0.8),
+            ),
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(),
           scrollDirection: Axis.horizontal,
@@ -1067,7 +1112,7 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
                   padding:
                       const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
-                    color: isSelected ? Colors.white : Colors.transparent,
+                    color: isSelected ? context.L.text : Colors.transparent,
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Row(
@@ -1076,16 +1121,16 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
                         cat['icon'] as IconData,
                         size: 18,
                         color: isSelected
-                            ? Colors.black
-                            : Colors.white.withValues(alpha: 0.5),
+                            ? context.L.bg
+                            : context.L.text.withValues(alpha: 0.5),
                       ),
                       const SizedBox(width: 8),
                       Text(
                         cat['name'].toUpperCase(),
                         style: AppTypography.labelMedium.copyWith(
                           color: isSelected
-                              ? Colors.black
-                              : Colors.white.withValues(alpha: 0.5),
+                              ? context.L.bg
+                              : context.L.text.withValues(alpha: 0.5),
                           fontWeight:
                               isSelected ? FontWeight.w900 : FontWeight.w700,
                           fontSize: 11,
@@ -1099,6 +1144,8 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
             }).toList(),
           ),
         ),
+      ),
+      ),
       ),
     );
   }
@@ -1373,7 +1420,8 @@ class _ResultModalState extends State<_ResultModal> {
                         style: AppTypography.titleMedium.copyWith(
                             fontWeight: FontWeight.w900,
                             color: context.L.bg,
-                            fontSize: 16)),
+                            fontSize: 16,
+                            letterSpacing: -0.5)),
                   ],
                 ),
               ),
@@ -1391,7 +1439,7 @@ class _ResultModalState extends State<_ResultModal> {
                   style: AppTypography.labelLarge.copyWith(
                       color: context.L.sub.withValues(alpha: 0.6),
                       fontWeight: FontWeight.w800,
-                      letterSpacing: 0.5),
+                      letterSpacing: -0.5),
                 ),
               ),
             ),
@@ -2170,7 +2218,7 @@ class _ResultModalState extends State<_ResultModal> {
                           Expanded(
                             child: _buildEditableField(
                               controller: _nameController,
-                              fontSize: 24,
+                              fontSize: 26,
                               fontWeight: FontWeight.w900,
                               hint: "Medicine Name",
                               L: L,
@@ -3253,7 +3301,7 @@ class _ExpandableInputCardState extends State<_ExpandableInputCard> {
                         ),
                       ],
                     ),
-                  ).animate(onPlay: (c) => c.repeat(reverse: true)).shimmer(duration: 1.seconds, color: Colors.white54),
+                  ).animate(onPlay: (c) => c.repeat(reverse: true)).shimmer(duration: 1.seconds, color: widget.L.text.withValues(alpha: 0.5)),
               ],
             ),
             const SizedBox(height: 20),

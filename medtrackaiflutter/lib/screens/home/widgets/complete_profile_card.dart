@@ -5,6 +5,7 @@ import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../models/constants.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../widgets/shared/shared_widgets.dart';
 
 class CompleteProfileCard extends StatelessWidget {
   const CompleteProfileCard({super.key});
@@ -172,21 +173,39 @@ class CompleteProfileCard extends StatelessWidget {
             const SizedBox(height: 24),
             SizedBox(
               width: double.infinity,
-              child: ElevatedButton(
-                onPressed: () {
+              child: BouncingButton(
+                onTap: () {
                   state.saveProfile(
                       state.profile!.copyWith(age: controller.text));
                   Navigator.pop(c);
                   HapticEngine.success();
                 },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: L.secondary,
-                  foregroundColor: AppColors.black,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16)),
+                child: Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.symmetric(vertical: 18),
+                  decoration: BoxDecoration(
+                    color: L.secondary,
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: L.secondary.withValues(alpha: 0.3),
+                        blurRadius: 16,
+                        offset: const Offset(0, 8),
+                      )
+                    ],
+                  ),
+                  child: Center(
+                    child: Text(
+                      'SAVE',
+                      style: AppTypography.labelLarge.copyWith(
+                        fontFamily: 'Courier',
+                        fontWeight: FontWeight.w900,
+                        color: Colors.black,
+                        letterSpacing: 2.0,
+                      ),
+                    ),
+                  ),
                 ),
-                child: const Text('Save'),
               ),
             ),
             const SizedBox(height: 32),
@@ -279,20 +298,38 @@ class CompleteProfileCard extends StatelessWidget {
                 const SizedBox(height: 24),
                 SizedBox(
                   width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
+                  child: BouncingButton(
+                    onTap: () {
                       state.updateProfileFromMap({field: selected});
                       Navigator.pop(c);
                       HapticEngine.success();
                     },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: L.secondary,
-                      foregroundColor: AppColors.black,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16)),
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 18),
+                      decoration: BoxDecoration(
+                        color: L.secondary,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: L.secondary.withValues(alpha: 0.3),
+                            blurRadius: 16,
+                            offset: const Offset(0, 8),
+                          )
+                        ],
+                      ),
+                      child: Center(
+                        child: Text(
+                          'SAVE SELECTION',
+                          style: AppTypography.labelLarge.copyWith(
+                            fontFamily: 'Courier',
+                            fontWeight: FontWeight.w900,
+                            color: Colors.black,
+                            letterSpacing: 2.0,
+                          ),
+                        ),
+                      ),
                     ),
-                    child: const Text('Save Selection'),
                   ),
                 ),
                 const SizedBox(height: 16),

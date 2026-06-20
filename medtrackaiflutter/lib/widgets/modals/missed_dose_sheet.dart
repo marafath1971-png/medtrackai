@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/app_state.dart';
@@ -6,6 +7,7 @@ import '../../theme/app_theme.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_loading_indicator.dart';
 import '../../services/gemini_service.dart';
+import '../../widgets/shared/shared_widgets.dart';
 
 // ══════════════════════════════════════════════
 // MISSED DOSE PROTOCOL SHEET
@@ -110,16 +112,23 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
     final schedTime =
         '${widget.dose.sched.h}:${widget.dose.sched.m.toString().padLeft(2, '0')}';
 
-    return Container(
-      padding: EdgeInsets.fromLTRB(
-          24, 16, 24, MediaQuery.of(context).padding.bottom + 24),
-      decoration: BoxDecoration(
-        color: L.bg,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+        child: Container(
+          padding: EdgeInsets.fromLTRB(
+              24, 16, 24, MediaQuery.of(context).padding.bottom + 24),
+          decoration: BoxDecoration(
+            color: L.meshBg.withValues(alpha: 0.85),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            border: Border(
+              top: BorderSide(color: L.border.withValues(alpha: 0.1), width: 1.0),
+            ),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Handle
           Center(
@@ -138,17 +147,29 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
           Row(
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 64,
+                height: 64,
                 decoration: BoxDecoration(
-                  color: statusColor.withValues(alpha: 0.1),
+                  color: statusColor.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: statusColor.withValues(alpha: 0.2),
+                      blurRadius: 20,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: Center(
-                    child: Text(statusEmoji,
-                        style:
-                            AppTypography.displaySmall.copyWith(fontSize: 22))),
-              ),
+                  child: Text(statusEmoji,
+                      style: AppTypography.displaySmall.copyWith(fontSize: 28)),
+                ),
+              ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+                    begin: const Offset(1.0, 1.0),
+                    end: const Offset(1.1, 1.1),
+                    duration: 1500.ms,
+                    curve: Curves.easeInOut,
+                  ),
               const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -172,13 +193,15 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
                         ),
                         const SizedBox(width: 8),
                         Text('was $schedTime',
-                            style: AppTypography.bodySmall.copyWith(
-                                fontSize: 12,
+                            style: AppTypography.labelMedium.copyWith(
+                                fontFamily: 'Courier',
+                                fontSize: 13,
                                 color: L.sub,
-                                fontWeight: FontWeight.w500)),
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 0.5)),
                       ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(med.name,
                         style: AppTypography.titleLarge.copyWith(
                             color: L.text,
@@ -199,47 +222,64 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
 
           // AI Advice card
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: L.card,
-              borderRadius: AppRadius.roundM,
-              border: Border.all(color: L.border, width: 1),
+              gradient: LinearGradient(
+                colors: [
+                  L.secondary.withValues(alpha: 0.1),
+                  L.secondary.withValues(alpha: 0.02),
+                ],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: L.secondary.withValues(alpha: 0.3), width: 1),
+              boxShadow: [
+                BoxShadow(
+                  color: L.secondary.withValues(alpha: 0.05),
+                  blurRadius: 20,
+                )
+              ],
             ),
             child: _loading
                 ? Row(
                     children: [
                       const AppLoadingIndicator(size: 16),
                       const SizedBox(width: 12),
-                      Text('AI Advisor thinking...',
-                          style: AppTypography.bodySmall
-                              .copyWith(color: L.sub, fontSize: 13)),
+                      Text('PHARMACIST AI THINKING...',
+                          style: AppTypography.labelSmall.copyWith(
+                              color: L.secondary,
+                              fontSize: 10,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 2.0)),
                     ],
-                  )
+                  ).animate(onPlay: (c) => c.repeat(reverse: true)).fade(duration: 800.ms)
                 : Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
                           Icon(Icons.auto_awesome_rounded,
-                              size: 14, color: L.secondary),
-                          const SizedBox(width: 6),
-                          Text('AI PHARMACIST ADVICE',
-                              style: AppTypography.labelMedium.copyWith(
+                              size: 16, color: L.secondary),
+                          const SizedBox(width: 8),
+                          Text('AI ADVICE',
+                              style: AppTypography.labelSmall.copyWith(
                                   fontSize: 10,
                                   color: L.secondary,
-                                  letterSpacing: 0.5)),
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 2.0)),
                         ],
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 12),
                       Text(_aiAdvice ?? '',
-                          style: AppTypography.bodyMedium.copyWith(
+                          style: AppTypography.bodyLarge.copyWith(
                               color: L.text,
-                              fontSize: 14,
+                              fontSize: 15,
                               height: 1.5,
                               fontWeight: FontWeight.w600)),
                     ],
                   ),
-          ).animate().fadeIn(),
+          ).animate().fadeIn().slideY(begin: 0.05),
 
           const SizedBox(height: 12),
 
@@ -259,40 +299,59 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
           Row(
             children: [
               Expanded(
-                child: OutlinedButton.icon(
-                  onPressed: () {
+                child: BouncingButton(
+                  onTap: () {
                     final state = context.read<AppState>();
                     state.skipDose(widget.dose);
                     HapticEngine.selection();
                     Navigator.pop(context);
                   },
-                  icon: const Icon(Icons.skip_next_rounded, size: 18),
-                  label: const Text('Skip Dose'),
-                  style: OutlinedButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape:
-                        RoundedRectangleBorder(borderRadius: AppRadius.roundM),
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: L.fill,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Center(
+                      child: Text('SKIP DOSE',
+                          style: AppTypography.labelSmall.copyWith(
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.0,
+                              color: L.text)),
+                    ),
                   ),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 flex: 2,
-                child: ElevatedButton.icon(
-                  onPressed: () {
+                child: BouncingButton(
+                  onTap: () {
                     final state = context.read<AppState>();
                     state.toggleDose(widget.dose);
                     HapticEngine.heavyImpact();
                     Navigator.pop(context);
                   },
-                  icon: const Icon(Icons.check_circle_rounded, size: 18),
-                  label: const Text('Take Now'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: L.text,
-                    foregroundColor: L.bg,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape:
-                        RoundedRectangleBorder(borderRadius: AppRadius.roundM),
+                  child: Container(
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: L.text,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: L.text.withValues(alpha: 0.3),
+                          blurRadius: 20,
+                          offset: const Offset(0, 6),
+                        )
+                      ],
+                    ),
+                    child: Center(
+                      child: Text('TAKE NOW',
+                          style: AppTypography.labelSmall.copyWith(
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: 1.5,
+                              color: L.bg)),
+                    ),
                   ),
                 ),
               ),
@@ -300,8 +359,8 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
           ),
         ],
       ),
-    )
+    ))
         .animate()
-        .slideY(begin: 0.15, end: 0, duration: 350.ms, curve: Curves.easeOut);
+        .slideY(begin: 0.15, end: 0, duration: 400.ms, curve: Curves.easeOutCubic);
   }
 }

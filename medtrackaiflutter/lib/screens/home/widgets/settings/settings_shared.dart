@@ -114,9 +114,10 @@ class SettingsModalRow extends StatelessWidget {
                   children: [
                 Text(label,
                     style: AppTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.w700,
+                        fontWeight: FontWeight.w900,
                         color: L.text,
-                        fontSize: 15),
+                        fontSize: 15,
+                        letterSpacing: -0.3),
                     overflow: TextOverflow.ellipsis,
                     maxLines: 1),
                 if (sub != null)
@@ -178,7 +179,7 @@ class SettingsEditField extends StatelessWidget {
           controller: ctrl,
           keyboardType: keyboard,
           style: AppTypography.bodyLarge.copyWith(
-              fontWeight: FontWeight.w700, color: L.text, fontSize: 16),
+              fontWeight: FontWeight.w900, color: L.text, fontSize: 16, letterSpacing: -0.3),
           decoration: InputDecoration(
               hintText: placeholder,
               hintStyle: AppTypography.bodyLarge
@@ -238,7 +239,7 @@ class SettingsSelectRow extends StatelessWidget {
           Expanded(
             child: Text(label,
                 style: AppTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w700, color: L.text, fontSize: 15),
+                    fontWeight: FontWeight.w900, color: L.text, fontSize: 15, letterSpacing: -0.3),
                 overflow: TextOverflow.ellipsis),
           ),
           if (isSel) const Text('✅', style: TextStyle(fontSize: 16)),

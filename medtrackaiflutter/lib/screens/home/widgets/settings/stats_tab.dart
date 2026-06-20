@@ -129,6 +129,7 @@ class StatsTab extends StatelessWidget {
             Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Text('$overallAdh%',
                   style: AppTypography.displayLarge.copyWith(
+                      fontFamily: 'Courier',
                       fontSize: 64,
                       fontWeight: FontWeight.w900,
                       color: L.text,
@@ -320,7 +321,7 @@ class StatsTab extends StatelessWidget {
                         height: (rate * 60).clamp(8, 60),
                         decoration: BoxDecoration(
                             color: rate >= 0.8
-                                ? const Color(0xFF111111)
+                                ? const Color(0xFF1C1C1E)
                                 : (rate > 0 ? const Color(0xFFFF9500) : L.fill),
                             borderRadius: BorderRadius.circular(6)),
                       ),

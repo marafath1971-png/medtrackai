@@ -31,9 +31,8 @@ class InteractionWarningBanner extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: L.card,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: AppShadows.neumorphic,
           border: Border.all(color: L.amber.withValues(alpha: 0.1), width: 1.5),
         ),
         child: Row(

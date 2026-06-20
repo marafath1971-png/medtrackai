@@ -2,12 +2,13 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../widgets/common/premium_empty_state.dart';
 import '../../providers/app_state.dart';
 import '../../widgets/shared/shared_widgets.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/modals/trend_drilldown_sheet.dart';
 import '../../core/utils/haptic_engine.dart';
-import '../../widgets/common/ambient_mesh_bg.dart';
+
 import '../../services/report_service.dart';
 import '../../widgets/common/paywall_sheet.dart';
 import '../../l10n/app_localizations.dart';
@@ -19,9 +20,12 @@ import '../home/widgets/voice_assistant_overlay.dart';
 import '../../services/voice_service.dart';
 import '../../widgets/modals/clinical_report_modal.dart';
 import '../../widgets/biohacking/pharma_timeline_widget.dart';
+import '../../widgets/biohacking/interactive_body_map.dart';
+import '../../widgets/common/mesh_gradient.dart';
 
 class DashboardTab extends StatefulWidget {
-  const DashboardTab({super.key});
+  final VoidCallback onScan;
+  const DashboardTab({super.key, required this.onScan});
 
   @override
   State<DashboardTab> createState() => _DashboardTabState();
@@ -30,6 +34,7 @@ class DashboardTab extends StatefulWidget {
 class _DashboardTabState extends State<DashboardTab> {
   bool _isScrolled = false;
   bool _showVoiceAssistant = false;
+  int _selectedTimelineMedIndex = 0;
   final ScrollController _scrollController = ScrollController();
 
   @override
@@ -82,12 +87,51 @@ class _DashboardTabState extends State<DashboardTab> {
     final meds = context.select<AppState, List<Medicine>>((s) => s.meds);
     final healthInsights =
         context.select<AppState, List<HealthInsight>>((s) => s.healthInsights);
+        
+    final activeTimelineMed = meds.isNotEmpty && _selectedTimelineMedIndex < meds.length 
+        ? meds[_selectedTimelineMedIndex] 
+        : (meds.isNotEmpty ? meds.first : null);
 
     return Scaffold(
-      backgroundColor: L.meshBg,
+      backgroundColor: L.bg,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(bottom: 90), // Above the bottom island
+        child: FloatingActionButton.extended(
+          onPressed: () {
+            HapticEngine.selection();
+            widget.onScan();
+          },
+          backgroundColor: AppColors.accent,
+          elevation: 0,
+          icon: const Icon(Icons.document_scanner_rounded, color: Colors.white),
+          label: const Text(
+            'Scan Medicine',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
+      ).animate().fadeIn(delay: 200.ms, duration: 400.ms).slideY(begin: 0.2, end: 0),
       body: Stack(children: [
-        // ── Ambient Glassmorphism Background ──
-        const Positioned.fill(child: AmbientMeshBackground()),
+        // ── Ambient Background (2026 Viral Aura) ──
+        Positioned.fill(
+          child: Container(color: L.bg),
+        ),
+        Positioned.fill(
+          child: Opacity(
+            opacity: 0.15,
+            child: MeshGradient(
+              colors: [
+                L.accent.withValues(alpha: 0.6),
+                L.purple.withValues(alpha: 0.6),
+                L.bg,
+                Colors.blue.withValues(alpha: 0.6),
+              ],
+            ),
+          ),
+        ),
         
         // ── Main Content ──
         RefreshIndicator(
@@ -98,8 +142,8 @@ class _DashboardTabState extends State<DashboardTab> {
             await state.fetchHealthInsights();
           },
           displacement: 100,
-          color: L.text,
-          backgroundColor: L.meshBg,
+          color: AppColors.accent,
+          backgroundColor: L.bg,
           child: Scrollbar(
             controller: _scrollController,
             child: SingleChildScrollView(
@@ -123,7 +167,7 @@ class _DashboardTabState extends State<DashboardTab> {
                           adherence * 100,
                           '%',
                           '📈',
-                          L.secondary,
+                          L.green,
                           onTap: () {
                             if (!mounted) return;
                             _showTrendDrilldown(context, state, L);
@@ -136,7 +180,7 @@ class _DashboardTabState extends State<DashboardTab> {
                           streak.toDouble(),
                           'D',
                           '⚡',
-                          L.warning,
+                          AppColors.accent,
                           onTap: () {
                             if (!mounted) return;
                             StreakModal.show(context, state);
@@ -155,32 +199,61 @@ class _DashboardTabState extends State<DashboardTab> {
                   const SizedBox(height: 32),
 
                   // --- PHARMACOKINETICS VISUALIZER (Hook D) ---
-                  if (meds.isNotEmpty) ...[
+                  if (activeTimelineMed != null) ...[
                     Padding(
                       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenPadding),
                       child: PharmaTimelineWidget(
-                        medName: meds.first.name,
-                        onsetMinutes: 30, // Mock data for demo
-                        peakHours: 2.5,
-                        durationHours: 6.0,
-                        targetOrgans: const ['Brain', 'Nervous System'],
+                        medName: activeTimelineMed.name,
+                        onsetMinutes: activeTimelineMed.aiSafetyProfile?.onsetMinutes != null && activeTimelineMed.aiSafetyProfile!.onsetMinutes > 0 
+                            ? activeTimelineMed.aiSafetyProfile!.onsetMinutes.toDouble() 
+                            : 30.0, // Fallback if no AI data
+                        peakHours: activeTimelineMed.aiSafetyProfile?.peakHours != null && activeTimelineMed.aiSafetyProfile!.peakHours > 0 
+                            ? activeTimelineMed.aiSafetyProfile!.peakHours 
+                            : 2.5,
+                        durationHours: activeTimelineMed.aiSafetyProfile?.durationHours != null && activeTimelineMed.aiSafetyProfile!.durationHours > 0 
+                            ? activeTimelineMed.aiSafetyProfile!.durationHours 
+                            : 6.0,
+                        targetOrgans: activeTimelineMed.aiSafetyProfile?.bodySystems.isNotEmpty == true 
+                            ? activeTimelineMed.aiSafetyProfile!.bodySystems 
+                            : const ['Brain', 'Nervous System'],
                       ),
                     ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.1, end: 0),
+                    const SizedBox(height: 32),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenPadding),
+                      child: InteractiveBodyMap(
+                        activeSystems: activeTimelineMed.aiSafetyProfile?.bodySystems ?? [],
+                        medName: activeTimelineMed.name,
+                      ),
+                    ).animate().fadeIn(delay: 200.ms, duration: 800.ms).slideY(begin: 0.1, end: 0),
                     const SizedBox(height: 32),
                   ],
 
                   // --- TIMELINE PILL SELECTOR ---
-                  Padding(
-                    padding: const EdgeInsets.only(left: 20, bottom: 24),
-                    child: TimelinePillSelector(
-                      selectedIndex: 0,
-                      onSelect: (idx) {},
-                      L: L,
-                    ),
-                  )
-                      .animate(delay: 100.ms)
-                      .fadeIn(duration: 600.ms)
-                      .slideX(begin: 0.1, end: 0),
+                  if (meds.isNotEmpty)
+                    Padding(
+                      padding: const EdgeInsets.only(left: 20, bottom: 24),
+                      child: TimelinePillSelector(
+                        selectedIndex: _selectedTimelineMedIndex,
+                        onSelect: (idx) {
+                          HapticEngine.selection();
+                          setState(() => _selectedTimelineMedIndex = idx);
+                        },
+                        L: L,
+                      ),
+                    )
+                        .animate(delay: 100.ms)
+                        .fadeIn(duration: 600.ms)
+                        .slideX(begin: 0.1, end: 0)
+                  else
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+                      child: PremiumEmptyState(
+                        title: 'No analytics',
+                        subtitle: 'Add medicines to generate AI safety profiles and body maps.',
+                        icon: Icons.biotech_rounded,
+                      ),
+                    ).animate().fadeIn(duration: 800.ms),
 
                   // --- 30-DAY ADHERENCE TREND ---
                   Padding(
@@ -244,14 +317,7 @@ class _DashboardTabState extends State<DashboardTab> {
                       height: 60,
                       decoration: BoxDecoration(
                         color: L.text,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: L.text.withValues(alpha: 0.2),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
+                        borderRadius: BorderRadius.circular(20),
                       ),
                       child: BouncingButton(
                         onTap: () {
@@ -307,7 +373,7 @@ class _DashboardTabState extends State<DashboardTab> {
                       child: Text('EXPORT DATA AS CSV',
                           style: AppTypography.labelSmall.copyWith(
                               color: L.sub,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w700,
                               letterSpacing: 1.0)),
                     ),
                   )
@@ -327,9 +393,8 @@ class _DashboardTabState extends State<DashboardTab> {
                         color: L.card,
                         borderRadius: BorderRadius.circular(24),
                         border: Border.all(
-                            color: L.border.withValues(alpha: 0.07),
-                            width: 0.5),
-                        boxShadow: AppShadows.neumorphic,
+                            color: L.border,
+                            width: 0.8),
                       ),
                       child: Row(
                         children: [
@@ -531,61 +596,98 @@ void _showTrendDrilldown(
     return Expanded(
       child: BouncingButton(
         onTap: onTap,
-        scaleFactor: 0.95,
+        scaleFactor: 0.92,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
           decoration: BoxDecoration(
-            color: L.card,
-            borderRadius: BorderRadius.circular(28),
-            border:
-                Border.all(color: L.border.withValues(alpha: 0.08), width: 0.5),
+            borderRadius: BorderRadius.circular(32),
+            gradient: LinearGradient(
+              colors: [
+                color.withValues(alpha: 0.1),
+                L.card.withValues(alpha: 0.8),
+              ],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.03),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
+                color: color.withValues(alpha: 0.15),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 28))
-                  .animate(onPlay: (c) => c.repeat(reverse: true))
-                  .scale(
-                    begin: const Offset(1.0, 1.0),
-                    end: const Offset(1.18, 1.18),
-                    duration: 1800.ms,
-                    curve: Curves.easeInOut,
-                  ),
-              const SizedBox(height: 10),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: color.withValues(alpha: 0.4),
+                      blurRadius: 24,
+                      spreadRadius: 4,
+                    ),
+                  ],
+                ),
+                child: Text(emoji, style: const TextStyle(fontSize: 32)),
+              ),
+              const SizedBox(height: 20),
               Text(label,
                   style: AppTypography.labelMedium.copyWith(
-                      color: L.sub,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: 1.0)),
+                      color: L.text.withValues(alpha: 0.8),
+                      fontWeight: FontWeight.w900,
+                      letterSpacing: 3.0)),
               const SizedBox(height: 12),
               TweenAnimationBuilder<double>(
-                tween: Tween<double>(begin: 0, end: numValue),
-                duration: 1200.ms,
-                curve: Curves.easeOutExpo,
+                tween: Tween<double>(begin: 0.0, end: numValue),
+                duration: 2000.ms,
+                curve: Curves.elasticOut,
                 builder: (context, value, child) {
                   return FittedBox(
                     fit: BoxFit.scaleDown,
                     child: Text('${value.round()}$suffix',
                         style: AppTypography.displayLarge.copyWith(
-                            fontSize: 42,
+                            fontSize: 54,
                             color: L.text,
+                            fontFamily: 'Courier',
                             fontWeight: FontWeight.w900,
-                            letterSpacing: -2.0)),
+                            height: 1.0,
+                            letterSpacing: -3.0,
+                            shadows: [
+                              Shadow(
+                                color: color.withValues(alpha: 0.5),
+                                blurRadius: 16,
+                                offset: const Offset(0, 4),
+                              )
+                            ])),
                   );
                 },
               ),
-              const SizedBox(height: 8),
-              Text('Goal 100%',
-                  style: AppTypography.labelSmall
-                      .copyWith(color: L.sub, fontSize: 10)),
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: color.withValues(alpha: 0.3)),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(Icons.auto_awesome_rounded, color: color, size: 14),
+                    const SizedBox(width: 4),
+                    Text('GOAL 100%',
+                        style: AppTypography.labelSmall
+                            .copyWith(color: color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
@@ -604,26 +706,12 @@ void _showTrendDrilldown(
                 letterSpacing: 1.2,
                 fontWeight: FontWeight.w900)),
         const SizedBox(height: 16),
-        Container(
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: L.card,
-            borderRadius: BorderRadius.circular(24),
-            border:
-                Border.all(color: L.border.withValues(alpha: 0.08), width: 0.5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.02),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: const Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+        SquircleCard(
+          padding: const EdgeInsets.all(20),
+          color: L.card,
+          child: const Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
                 Row(
                   children: [
                     ShimmerLoader(
@@ -649,10 +737,7 @@ void _showTrendDrilldown(
                 ShimmerLoader(width: 200, height: 12),
               ],
             ),
-          ),
-        )
-            .animate(onPlay: (c) => c.repeat())
-            .shimmer(duration: 2000.ms, color: L.text.withValues(alpha: 0.05)),
+        ),
       ],
     );
   }
@@ -676,27 +761,16 @@ void _showTrendDrilldown(
             final ok = await state.connectHealth();
             if (ok) state.syncHealthData();
           },
-          child: Container(
+          child: SquircleCard(
             padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: L.card,
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                  color: L.border.withValues(alpha: 0.08), width: 0.5),
-              boxShadow: [
-                BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.02),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4)),
-              ],
-            ),
+            color: L.card,
             child: Row(
               children: [
                 Container(
                   width: 48,
                   height: 48,
                   decoration: BoxDecoration(
-                      color: L.secondary.withValues(alpha: 0.1),
+                      color: L.bg,
                       shape: BoxShape.circle),
                   child: const Center(
                       child: Text('🩺', style: TextStyle(fontSize: 22))),
@@ -795,16 +869,16 @@ void _showTrendDrilldown(
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
       decoration: BoxDecoration(
-        color: L.card,
+        color: L.card.withValues(alpha: 0.6),
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: L.border.withValues(alpha: 0.08), width: 0.5),
+        border: Border.all(color: (c ?? L.border).withValues(alpha: 0.3), width: 1.0),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.015),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
+            color: (c ?? Colors.black).withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
+          )
+        ]
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -812,30 +886,45 @@ void _showTrendDrilldown(
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 18)),
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: (c ?? L.text).withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Text(emoji, style: const TextStyle(fontSize: 20)),
+              ),
               if (syncing)
-                SizedBox(
-                  width: 10,
-                  height: 10,
+                const SizedBox(
+                  width: 12,
+                  height: 12,
                   child: AppShimmer(
-                    width: 10,
-                    height: 10,
+                    width: 12,
+                    height: 12,
                     shape: BoxShape.circle,
                   ),
                 ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 20),
           Text(value,
               style: AppTypography.displayLarge.copyWith(
-                  fontSize: 28,
+                  fontSize: 34,
                   fontWeight: FontWeight.w900,
-                  color: L.text,
-                  letterSpacing: -1.0)),
-          const SizedBox(height: 4),
+                  fontFamily: 'Courier',
+                  color: c ?? L.text,
+                  letterSpacing: -1.5,
+                  shadows: [
+                    Shadow(
+                      color: (c ?? L.text).withValues(alpha: 0.4),
+                      blurRadius: 12,
+                    )
+                  ]
+              )),
+          const SizedBox(height: 6),
           Text(label,
               style: AppTypography.labelSmall.copyWith(
-                  color: L.sub, fontWeight: FontWeight.w900, fontSize: 10)),
+                  color: L.sub, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 2.0)),
         ],
       ),
     );

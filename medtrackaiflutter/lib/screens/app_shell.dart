@@ -8,11 +8,12 @@ import '../widgets/shared/shared_widgets.dart';
 import '../core/utils/haptic_engine.dart';
 import 'home/home_tab.dart';
 import 'home/widgets/streak_modal.dart';
-import 'scan/scan_tab.dart';
+import 'scan/scanner_hub_screen.dart';
 import 'dashboard/dashboard_tab.dart';
 import 'alarms/alarms_tab.dart';
+import 'family/family_tab.dart';
 import 'security/lock_screen.dart';
-import 'social/stack_circles_screen.dart';
+
 import '../services/analytics_service.dart';
 import '../widgets/modals/dose_celebration_modal.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -48,18 +49,21 @@ class _AppShellState extends State<AppShell>
     context.read<AppState>().addListener(_handleCelebration);
   }
 
-  void _checkReentry() {
+  int _missedDoses = 0;
+
+  void _checkReentry() async {
     final state = context.read<AppState>();
-    // Check if user has been away for > 3 days
-    final lastSync = state.lastSyncedAt;
-    if (lastSync != null) {
-      if (DateTime.now().difference(lastSync).inDays >= 3) {
-        setState(() => _showReentry = true);
-      }
+    final missed = await state.checkDailyReentry();
+    if (missed != null && mounted) {
+      setState(() {
+        _missedDoses = missed;
+        _showReentry = true;
+      });
     }
   }
 
   void _handleCelebration() async {
+    if (!mounted) return;
     final state = context.read<AppState>();
 
     // First Priority: Streak Milestones
@@ -68,13 +72,15 @@ class _AppShellState extends State<AppShell>
       state.clearMilestone();
       HapticEngine.heavyImpact();
       await Future.delayed(const Duration(milliseconds: 300));
-      if (mounted) StreakModal.show(context, state);
+      if (!mounted) return;
+      StreakModal.show(context, state);
       return;
     }
 
     final medName = state.pendingCelebrationMedName;
     if (medName != null) {
       state.clearCelebration();
+      if (!mounted) return;
       DoseCelebrationModal.show(context, medName);
     }
   }
@@ -122,7 +128,7 @@ class _AppShellState extends State<AppShell>
       child: isLocked
           ? const LockScreen()
           : Scaffold(
-              backgroundColor: L.meshBg,
+              backgroundColor: L.bg,
               resizeToAvoidBottomInset: true,
               body: Stack(
                 clipBehavior: Clip.none,
@@ -162,19 +168,9 @@ class _AppShellState extends State<AppShell>
                   // ── Scan Overlay — High Detail ──
                   if (_showScan)
                     Positioned.fill(
-                      child: ScanTab(
+                      child: ScannerHubScreen(
                         key: const ValueKey('scan_tab'),
-                        onSave: (med) {
-                          final s = context.read<AppState>();
-                          s.addMedicine(med);
-                          setState(() {
-                            _showScan = false;
-                            _tab = 0;
-                          });
-                          s.showToast('${med.name} added!');
-                        },
                         onClose: () => setState(() => _showScan = false),
-                        onManualAdd: () => setState(() => _showScan = false),
                       )
                           .animate()
                           .fadeIn(duration: 350.ms, curve: Curves.easeOut)
@@ -234,9 +230,20 @@ class _AppShellState extends State<AppShell>
                   if (_showReentry)
                     Positioned.fill(
                       child: ReentryScreen(
-                        missedDoses: 4, // Calculate from actual state in prod
+                        missedDoses: _missedDoses, 
                         userName: context.select<AppState, String>((s) => s.activeProfile?.name ?? s.profile?.name ?? 'there'),
-                        onDismiss: () => setState(() => _showReentry = false),
+                        onDismiss: ({required bool streakSaved}) {
+                          setState(() => _showReentry = false);
+                          if (streakSaved) {
+                            final st = context.read<AppState>();
+                            Future.delayed(const Duration(milliseconds: 300), () {
+                              if (mounted) {
+                                // ignore: use_build_context_synchronously
+                                StreakModal.show(context, st);
+                              }
+                            });
+                          }
+                        },
                       ).animate().fadeIn(duration: 400.ms),
                     ),
                 ],
@@ -253,58 +260,55 @@ class _AppShellState extends State<AppShell>
           onSwitchTab: (i) => setState(() => _tab = i),
         );
       case 1:
-        return const DashboardTab();
+        return DashboardTab(
+          onScan: _openScan,
+        );
       case 2:
         return const AlarmsTab();
       case 3:
-        return const StackCirclesScreen();
+        return const FamilyTab();
       default:
         return const SizedBox.shrink();
     }
   }
 
   Widget _buildBottomIsland(AppThemeColors L, int unseenAlerts) {
-    final isDark = context.select<AppState, bool>((s) => s.darkMode);
-    const labels = ['Home', 'Analytics', 'Alarms', 'Circles'];
+    const labels = ['Home', 'Analytics', 'Alarms', 'Circle'];
     const activeIcons = [
       Icons.home_rounded,
       Icons.bar_chart_rounded,
       Icons.alarm_on_rounded,
-      Icons.group_rounded,
+      Icons.people_alt_rounded,
     ];
     const inactiveIcons = [
       Icons.home_outlined,
       Icons.bar_chart_outlined,
       Icons.alarm_outlined,
-      Icons.group_outlined,
+      Icons.people_alt_outlined,
     ];
-    final badges = [0, 0, unseenAlerts, 0];
+    final badges = [0, 0, 0, unseenAlerts];
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(28),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
+        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
         child: Container(
           height: 72,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            color: (isDark ? Colors.black : Colors.white).withValues(alpha: 0.72),
+            // Cal AI: nearly invisible glass — no color tint
+            color: L.glass,
             borderRadius: BorderRadius.circular(28),
             border: Border.all(
-              color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.08),
+              color: L.glassBorder, // Pure white hairline
               width: 0.8,
             ),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withValues(alpha: 0.12),
+                color: Colors.black.withValues(alpha: 0.25),
                 blurRadius: 32,
                 offset: const Offset(0, 16),
-                spreadRadius: -8,
-              ),
-              BoxShadow(
-                color: (isDark ? Colors.white : Colors.black).withValues(alpha: 0.02),
-                blurRadius: 1,
-                offset: const Offset(0, -1),
+                spreadRadius: -4,
               ),
             ],
           ),
@@ -361,10 +365,10 @@ class _AppShellState extends State<AppShell>
         },
         behavior: HitTestBehavior.opaque,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOutCubic,
-          transform: Matrix4.translationValues(0.0, selected ? -2.0 : 0.0, 0.0)
-            ..multiply(Matrix4.diagonal3Values(selected ? 1.05 : 1.0, selected ? 1.05 : 1.0, 1.0)),
+          duration: const Duration(milliseconds: 400),
+          curve: AppCurves.liquid,
+          transform: Matrix4.translationValues(0.0, selected ? -4.0 : 0.0, 0.0)
+            ..multiply(Matrix4.diagonal3Values(selected ? 1.15 : 1.0, selected ? 1.15 : 1.0, 1.0)),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -442,35 +446,28 @@ class _MedScanFAB extends StatelessWidget {
       onTapUp: (_) => onPressUp(),
       onTapCancel: onPressUp,
       child: AnimatedScale(
-        scale: pressed ? 0.9 : 1.0,
-        duration: 150.ms,
-        curve: Curves.easeOutCubic,
+        scale: pressed ? 0.88 : 1.0,
+        duration: 200.ms,
+        curve: Curves.easeOut,
         child: Container(
-          width: 56,
-          height: 56,
+          width: 54,
+          height: 54,
           decoration: BoxDecoration(
-            gradient: AppGradients.actionRed,
+            // Cal AI orange FAB — the hero CTA
+            gradient: AppGradients.accentOrange,
             shape: BoxShape.circle,
-            border: Border.all(color: AppColors.limeAccent.withValues(alpha: 0.6), width: 1.5),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFFFF5E5E).withValues(alpha: 0.35),
+                color: AppColors.accent.withValues(alpha: 0.35),
                 blurRadius: 16,
                 offset: const Offset(0, 6),
-              ),
-              BoxShadow(
-                color: AppColors.limeAccent.withValues(alpha: 0.4),
-                blurRadius: pressed ? 8 : 24,
-                spreadRadius: pressed ? 0 : 4,
               ),
             ],
           ),
           child: const Center(
-            child: Icon(Icons.add_rounded, color: Colors.white, size: 28),
+            child: Icon(Icons.camera_alt_rounded, color: Colors.white, size: 24),
           ),
-        ).animate(onPlay: (controller) => controller.repeat(reverse: true))
-         .shimmer(duration: 2500.ms, color: Colors.white24)
-         .scaleXY(end: 1.05, duration: 1500.ms, curve: Curves.easeInOutSine),
+        ),
       ),
     );
   }
@@ -548,13 +545,12 @@ class LowStockBanner extends StatelessWidget {
           GestureDetector(
             onTap: onDismiss,
             behavior: HitTestBehavior.opaque,
-            child: const Padding(
-              padding: EdgeInsets.all(6),
-              child: Text('✕',
-                  style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w900,
-                      color: Colors.grey)),
+            child: Container(
+              width: 36,
+              height: 36,
+              alignment: Alignment.center,
+              child: Icon(Icons.close_rounded,
+                  size: 18, color: Colors.grey.withValues(alpha: 0.7)),
             ),
           ),
         ],

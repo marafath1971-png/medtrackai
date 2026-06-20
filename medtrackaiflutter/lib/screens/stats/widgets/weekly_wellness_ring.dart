@@ -1,6 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../../theme/app_theme.dart';
 
 class WeeklyWellnessRing extends StatelessWidget {
   final double adherence;
@@ -14,13 +15,16 @@ class WeeklyWellnessRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final L = context.L;
+    final ringColor = _getColor(adherence, L);
+
     return SizedBox(
       width: 200,
       height: 200,
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Background Glow
+          // Background Glow with Pulse
           Container(
             width: 140,
             height: 140,
@@ -28,13 +32,16 @@ class WeeklyWellnessRing extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: _getColor(adherence).withValues(alpha: 0.2),
-                  blurRadius: 40,
-                  spreadRadius: 10,
+                  color: ringColor.withValues(alpha: 0.3),
+                  blurRadius: 48,
+                  spreadRadius: 8,
                 )
               ],
             ),
-          ),
+          )
+          .animate(onPlay: (controller) => controller.repeat(reverse: true))
+          .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 2.seconds, curve: Curves.easeInOutSine)
+          .fade(begin: 0.8, end: 1.0, duration: 2.seconds),
 
           // Main Ring Painter
           CustomPaint(
@@ -42,43 +49,45 @@ class WeeklyWellnessRing extends StatelessWidget {
             painter: _WellnessRingPainter(
               adherence: adherence,
               dailyRates: dailyRates,
-              color: _getColor(adherence),
+              color: ringColor,
+              trackColor: L.border.withValues(alpha: 0.15),
             ),
           ).animate().rotate(duration: 800.ms, curve: Curves.easeOutCubic),
 
-          // Center Text
+          // Center Text — theme-aware
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
                 '${(adherence * 100).round()}%',
-                style: const TextStyle(
-                  fontSize: 36,
+                style: AppTypography.displayMedium.copyWith(
                   fontWeight: FontWeight.w900,
-                  color: Colors.black,
-                  letterSpacing: -1,
+                  color: L.text,
+                  letterSpacing: -2,
                 ),
               ),
-              const Text(
+              const SizedBox(height: 4),
+              Text(
                 'ADHERENCE',
-                style: TextStyle(
-                  fontSize: 10,
+                style: AppTypography.labelSmall.copyWith(
                   fontWeight: FontWeight.w800,
-                  color: Colors.black26,
-                  letterSpacing: 1,
+                  color: L.sub,
+                  letterSpacing: 2.0,
                 ),
               ),
             ],
-          ).animate().scale(delay: 400.ms, duration: 400.ms),
+          ).animate().scale(delay: 400.ms, duration: 600.ms, curve: Curves.easeOutBack),
         ],
       ),
     );
   }
 
-  Color _getColor(double rate) {
-    if (rate >= 0.8) return const Color(0xFFD4F544);
-    if (rate >= 0.5) return Colors.orange;
-    return Colors.redAccent;
+  /// Returns semantic adherence color from the design system:
+  /// ≥80% → accent lime-green (#D4F544), ≥50% → orange accent, <50% → error red
+  Color _getColor(double rate, AppThemeColors L) {
+    if (rate >= 0.8) return const Color(0xFFD4F544); // high adherence — lime
+    if (rate >= 0.5) return AppColors.accent;         // medium — orange brand accent
+    return L.error;                                   // low — theme error red
   }
 }
 
@@ -86,21 +95,23 @@ class _WellnessRingPainter extends CustomPainter {
   final double adherence;
   final List<double> dailyRates;
   final Color color;
+  final Color trackColor;
 
   _WellnessRingPainter({
     required this.adherence,
     required this.dailyRates,
     required this.color,
+    required this.trackColor,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = size.width / 2 - 10;
-    
-    // 1. Draw Background Track
+
+    // 1. Draw Background Track — theme-aware
     final trackPaint = Paint()
-      ..color = Colors.black.withValues(alpha: 0.05)
+      ..color = trackColor
       ..strokeWidth = 12
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
@@ -109,7 +120,7 @@ class _WellnessRingPainter extends CustomPainter {
     // 2. Draw Daily Segments
     const segmentAngle = (2 * pi) / 7;
     const gap = 0.1;
-    
+
     for (int i = 0; i < 7; i++) {
       final rate = i < dailyRates.length ? dailyRates[i] : 0.0;
       final startAngle = -pi / 2 + (i * segmentAngle) + (gap / 2);
@@ -121,7 +132,7 @@ class _WellnessRingPainter extends CustomPainter {
           ..strokeWidth = 12
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round;
-        
+
         canvas.drawArc(
           Rect.fromCircle(center: center, radius: radius),
           startAngle,
@@ -132,13 +143,13 @@ class _WellnessRingPainter extends CustomPainter {
       }
     }
 
-    // 3. Draw Overall Progress Ring (Thin)
+    // 3. Draw Overall Progress Ring (Thin outer ring)
     final progressPaint = Paint()
       ..color = color
       ..strokeWidth = 4
       ..style = PaintingStyle.stroke
       ..strokeCap = StrokeCap.round;
-    
+
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius + 10),
       -pi / 2,
@@ -149,5 +160,8 @@ class _WellnessRingPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _WellnessRingPainter oldDelegate) =>
+      oldDelegate.adherence != adherence ||
+      oldDelegate.color != color ||
+      oldDelegate.trackColor != trackColor;
 }

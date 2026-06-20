@@ -151,7 +151,7 @@ class _PremiumPaywallState extends State<PremiumPaywall> {
               decoration: BoxDecoration(
                 color: L.text,
                 borderRadius: BorderRadius.circular(24),
-                boxShadow: AppShadows.neumorphic,
+                border: Border.all(color: L.border.withValues(alpha: 0.1)),
               ),
               child: Center(
                 child: _isProcessing
@@ -194,9 +194,9 @@ class _PremiumPaywallState extends State<PremiumPaywall> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: L.card,
               borderRadius: BorderRadius.circular(12),
-              boxShadow: AppShadows.neumorphic,
+              border: Border.all(color: L.border.withValues(alpha: 0.1)),
             ),
             child: Icon(icon, size: 18, color: L.text),
           ),
@@ -222,6 +222,7 @@ class _PremiumPaywallState extends State<PremiumPaywall> {
     Color text, {
     IconData? icon,
   }) {
+    final L = context.L;
     return GestureDetector(
       onTap: () async {
         HapticEngine.selection();
@@ -236,9 +237,9 @@ class _PremiumPaywallState extends State<PremiumPaywall> {
         width: double.infinity,
         height: 56,
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: L.card,
           borderRadius: BorderRadius.circular(20),
-          boxShadow: AppShadows.neumorphic,
+          border: Border.all(color: L.border.withValues(alpha: 0.1)),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 24),
         child: Row(

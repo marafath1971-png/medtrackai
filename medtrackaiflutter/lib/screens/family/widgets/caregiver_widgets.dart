@@ -30,13 +30,8 @@ class _CaregiverCardState extends State<CaregiverCard> {
 
     return BouncingButton(
       onTap: widget.onDashboard,
-      child: Container(
+      child: SquircleCard(
         padding: const EdgeInsets.all(AppSpacing.p20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: AppRadius.roundL,
-          boxShadow: AppShadows.neumorphic,
-        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -236,13 +231,8 @@ class FamStatJSX extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return Container(
+    return SquircleCard(
       padding: const EdgeInsets.all(AppSpacing.p16),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: AppRadius.roundM,
-        boxShadow: AppShadows.neumorphic,
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

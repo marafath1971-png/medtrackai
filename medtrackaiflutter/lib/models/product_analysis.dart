@@ -1,0 +1,114 @@
+class ProductAnalysis {
+  final String id;
+  final String name;
+  final String category; // Medicine, Supplement, Vitamin, etc.
+  final String description; // What is this?
+  final String whyTakeIt;
+  final String howItWorks;
+  final List<String> benefits;
+  final List<String> sideEffects;
+  final List<String> foodInteractions;
+  final List<String> medicineInteractions;
+  final String timing; // e.g. "Take with food, morning"
+  final String halalStatus; // Halal, Haram, Doubtful
+  final String scientificEvidence; // e.g. "Strong evidence for sleep"
+  final List<ExpertPerspective> expertPerspectives;
+
+  ProductAnalysis({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.description,
+    required this.whyTakeIt,
+    required this.howItWorks,
+    required this.benefits,
+    required this.sideEffects,
+    required this.foodInteractions,
+    required this.medicineInteractions,
+    required this.timing,
+    required this.halalStatus,
+    required this.scientificEvidence,
+    required this.expertPerspectives,
+  });
+
+  factory ProductAnalysis.fromJson(Map<String, dynamic> json) {
+    return ProductAnalysis(
+      id: json['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      name: json['name'] ?? 'Unknown',
+      category: json['category'] ?? 'Supplement',
+      description: json['description'] ?? '',
+      whyTakeIt: json['whyTakeIt'] ?? '',
+      howItWorks: json['howItWorks'] ?? '',
+      benefits: List<String>.from(json['benefits'] ?? []),
+      sideEffects: List<String>.from(json['sideEffects'] ?? []),
+      foodInteractions: List<String>.from(json['foodInteractions'] ?? []),
+      medicineInteractions: List<String>.from(json['medicineInteractions'] ?? []),
+      timing: json['timing'] ?? '',
+      halalStatus: json['halalStatus'] ?? 'Unknown',
+      scientificEvidence: json['scientificEvidence'] ?? '',
+      expertPerspectives: (json['expertPerspectives'] as List<dynamic>?)
+              ?.map((e) => ExpertPerspective.fromJson(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+    );
+  }
+
+  // Mock Data
+  static ProductAnalysis get mockMagnesium => ProductAnalysis(
+        id: '1',
+        name: 'Magnesium Glycinate',
+        category: 'Supplement',
+        description: 'A highly bioavailable form of magnesium bound to the amino acid glycine.',
+        whyTakeIt: 'People take it to improve sleep quality, reduce anxiety, and support muscle recovery.',
+        howItWorks: 'Glycine acts as a calming neurotransmitter in the brain, while magnesium relaxes muscles and regulates the nervous system.',
+        benefits: ['Better Sleep', 'Muscle Relaxation', 'Anxiety Relief', 'Bone Health'],
+        sideEffects: ['Mild stomach upset (rare)', 'Drowsiness if taken during the day'],
+        foodInteractions: ['Avoid taking with high-calcium meals (reduces absorption).'],
+        medicineInteractions: ['Antibiotics (take 2 hours apart)', 'Bisphosphonates'],
+        timing: 'Best taken 30-60 minutes before bed.',
+        halalStatus: 'Halal Certified',
+        scientificEvidence: 'Strong clinical backing for sleep improvement and anxiety reduction.',
+        expertPerspectives: [
+          ExpertPerspective(
+            role: 'Doctor',
+            explanation: "Clinically, we recommend Magnesium Glycinate over Oxide because it doesn't cause laxative effects and crosses the blood-brain barrier effectively for neurological benefits.",
+            icon: '👩‍⚕️',
+          ),
+          ExpertPerspective(
+            role: 'Pharmacist',
+            explanation: 'Make sure to separate this from your morning multivitamins containing calcium or iron, as they compete for absorption in your gut.',
+            icon: '💊',
+          ),
+          ExpertPerspective(
+            role: 'Scientist',
+            explanation: 'The chelation to glycine ensures transport through dipeptide channels rather than standard mineral channels, drastically improving bioavailability.',
+            icon: '🔬',
+          ),
+          ExpertPerspective(
+            role: 'Fitness Coach',
+            explanation: 'I tell my athletes to take this post-workout or before bed. It dramatically lowers cortisol and prevents muscle cramps after heavy lifts.',
+            icon: '🏋️‍♂️',
+          ),
+        ],
+      );
+}
+
+class ExpertPerspective {
+  final String role;
+  final String explanation;
+  final String icon;
+
+  ExpertPerspective({
+    required this.role,
+    required this.explanation,
+    required this.icon,
+  });
+
+  factory ExpertPerspective.fromJson(Map<String, dynamic> json) {
+    return ExpertPerspective(
+      role: json['role'] ?? '',
+      explanation: json['explanation'] ?? '',
+      icon: json['icon'] ?? '👤',
+    );
+  }
+}

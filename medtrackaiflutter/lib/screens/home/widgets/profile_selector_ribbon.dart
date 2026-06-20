@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'dart:io';
+import 'dart:ui';
 import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../widgets/shared/shared_widgets.dart';
 import '../../family/add_family_member_screen.dart';
 
 class ProfileSelectorRibbon extends StatelessWidget {
@@ -16,69 +19,180 @@ class ProfileSelectorRibbon extends StatelessWidget {
     final activeProfile = state.activeProfile;
     final L = context.L;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          child: Text(
-            'Family Hub',
-            style: AppTypography.labelMedium.copyWith(
-              fontWeight: FontWeight.w800,
-              fontSize: 14,
-              color: L.sub.withValues(alpha: 0.6),
-              letterSpacing: 0.5,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: GlassCard(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+        borderRadius: BorderRadius.circular(24),
+        child: SizedBox(
+          height: 42,
+          child: Row(
+            children: [
+              // Subtle dynamic indicator or title icon
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 8),
+                child: Text(
+                  '🫂',
+                  style: TextStyle(fontSize: 16),
+                ),
+              ),
+              VerticalDivider(
+                color: L.border.withValues(alpha: 0.15),
+                thickness: 1,
+                width: 12,
+              ),
+              const SizedBox(width: 4),
+              Expanded(
+                child: ListView.builder(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  itemCount: familyMembers.length + 2, // Primary + Members + Add
+                  itemBuilder: (context, index) {
+                    // 1. Primary Profile ("Me")
+                    if (index == 0) {
+                      final isSelected = activeProfile == null;
+                      return _ProfileAvatar(
+                        name: 'Me',
+                        isSelected: isSelected,
+                        onTap: () => state.switchProfile(null),
+                        color: const Color(0xFF6366F1), // Industrial Indigo
+                      );
+                    }
+
+                    // 2. Family Members
+                    if (index <= familyMembers.length) {
+                      final member = familyMembers[index - 1];
+                      final isSelected = activeProfile?.id == member.id;
+                      return _ProfileAvatar(
+                        name: member.name,
+                        avatar: member.avatar,
+                        photoPath: member.photoPath,
+                        isCritical: member.isCritical,
+                        isSelected: isSelected,
+                        onTap: () {
+                          if (member.pin != null && member.pin!.isNotEmpty) {
+                            _showPinGateDialog(context, member, state);
+                          } else {
+                            state.switchProfile(member);
+                          }
+                        },
+                        color: _getProfileColor(index),
+                      );
+                    }
+
+                    // 3. Add Button
+                    return _AddProfileButton(
+                      onTap: () {
+                        HapticEngine.selection();
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (context) => const AddFamilyMemberScreen(),
+                            fullscreenDialog: true,
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _showPinGateDialog(BuildContext context, ManagedProfile member, AppState state) {
+    final L = context.L;
+    final pinController = TextEditingController();
+    showDialog(
+      context: context,
+      barrierDismissible: true,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: L.bg.withValues(alpha: 0.85),
+                borderRadius: BorderRadius.circular(28),
+                border: Border.all(color: L.border.withValues(alpha: 0.15)),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.3),
+                    blurRadius: 32,
+                    offset: const Offset(0, 16),
+                  )
+                ],
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'Security Gate 🚨',
+                    style: AppTypography.labelLarge.copyWith(
+                      color: L.text,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Enter PIN for ${member.name}',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: L.sub.withValues(alpha: 0.6),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  TextField(
+                    controller: pinController,
+                    keyboardType: TextInputType.number,
+                    obscureText: true,
+                    maxLength: 4,
+                    textAlign: TextAlign.center,
+                    autofocus: true,
+                    style: TextStyle(
+                      color: L.text,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 8,
+                    ),
+                    decoration: InputDecoration(
+                      counterText: '',
+                      hintText: '••••',
+                      hintStyle: TextStyle(
+                        color: L.sub.withValues(alpha: 0.2),
+                        letterSpacing: 8,
+                      ),
+                      enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: L.border.withValues(alpha: 0.2)),
+                      ),
+                      focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: L.text),
+                      ),
+                    ),
+                    onChanged: (val) {
+                      if (val.length == 4) {
+                        if (val == member.pin) {
+                          HapticEngine.selection();
+                          Navigator.of(context).pop();
+                          state.switchProfile(member);
+                        } else {
+                          HapticEngine.error();
+                          pinController.clear();
+                          state.showToast('Incorrect PIN', type: 'error');
+                        }
+                      }
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           ),
-        ),
-        SizedBox(
-          height: 80,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 12),
-            itemCount: familyMembers.length + 2, // Primary + Members + Add
-            itemBuilder: (context, index) {
-              // 1. Primary Profile
-              if (index == 0) {
-                final isSelected = activeProfile == null;
-                return _ProfileAvatar(
-                  name: 'Me',
-                  isSelected: isSelected,
-                  onTap: () => state.switchProfile(null),
-                  color: const Color(0xFF6366F1), // Industrial Indigo
-                );
-              }
-
-              // 2. Family Members
-              if (index <= familyMembers.length) {
-                final member = familyMembers[index - 1];
-                final isSelected = activeProfile?.id == member.id;
-                return _ProfileAvatar(
-                  name: member.name,
-                  avatar: member.avatar,
-                  isCritical: member.isCritical,
-                  isSelected: isSelected,
-                  onTap: () => state.switchProfile(member),
-                  color: _getProfileColor(index),
-                );
-              }
-
-              // 3. Add Button
-              return _AddProfileButton(
-                onTap: () {
-                  HapticEngine.selection();
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => const AddFamilyMemberScreen(),
-                      fullscreenDialog: true,
-                    ),
-                  );
-                },
-              );
-            },
-          ),
-        ),
-      ],
+        );
+      },
     );
   }
 
@@ -97,6 +211,7 @@ class ProfileSelectorRibbon extends StatelessWidget {
 class _ProfileAvatar extends StatelessWidget {
   final String name;
   final String? avatar;
+  final String? photoPath;
   final bool isCritical;
   final bool isSelected;
   final VoidCallback onTap;
@@ -105,6 +220,7 @@ class _ProfileAvatar extends StatelessWidget {
   const _ProfileAvatar({
     required this.name,
     this.avatar,
+    this.photoPath,
     this.isCritical = false,
     required this.isSelected,
     required this.onTap,
@@ -120,57 +236,83 @@ class _ProfileAvatar extends StatelessWidget {
         onTap();
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        margin: const EdgeInsets.symmetric(horizontal: 6),
-        width: 64,
-        child: Column(
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOutQuart,
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          gradient: isSelected
+              ? LinearGradient(
+                  colors: [color, color.withValues(alpha: 0.85)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: isSelected ? null : L.fill.withValues(alpha: 0.3),
+          border: Border.all(
+            color: isSelected
+                ? color.withValues(alpha: 0.3)
+                : (isCritical ? Colors.red.withValues(alpha: 0.4) : L.border.withValues(alpha: 0.1)),
+            width: isSelected ? 1.5 : 1,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: color.withValues(alpha: 0.25),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  )
+                ]
+              : null,
+        ),
+        child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Stack(
               clipBehavior: Clip.none,
               children: [
                 Container(
-                  width: 54,
-                  height: 54,
+                  width: 24,
+                  height: 24,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isSelected ? color : L.card,
+                    color: isSelected ? Colors.white.withValues(alpha: 0.2) : L.card,
                     border: Border.all(
-                      color: isSelected 
-                          ? color.withValues(alpha: 0.3) 
-                          : (isCritical ? Colors.red.withValues(alpha: 0.5) : L.border.withValues(alpha: 1.0)),
-                      width: isSelected ? 3 : (isCritical ? 1.5 : 1),
+                      color: isSelected ? Colors.white.withValues(alpha: 0.3) : L.border.withValues(alpha: 0.1),
+                      width: 0.5,
                     ),
-                    boxShadow: isSelected ? [
-                      BoxShadow(
-                        color: color.withValues(alpha: 0.2),
-                        blurRadius: 12,
-                        spreadRadius: 2,
-                      )
-                    ] : L.shadowSoft,
                   ),
                   child: Center(
-                    child: avatar != null && avatar!.isNotEmpty
-                        ? (int.tryParse(avatar!) != null
-                            ? Icon(
-                                IconData(int.parse(avatar!),
-                                    fontFamily: 'MaterialIcons'),
-                                size: 28,
-                                color: isSelected ? Colors.white : L.text,
-                              )
-                            : Text(
-                                avatar!,
-                                style: const TextStyle(fontSize: 24),
-                              ))
-                        : Text(
-                            name.isNotEmpty ? name[0].toUpperCase() : '?',
-                            style: TextStyle(
-                              color: isSelected ? Colors.white : L.text,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 20,
+                    child: photoPath != null && photoPath!.isNotEmpty && File(photoPath!).existsSync()
+                        ? ClipOval(
+                            child: Image.file(
+                              File(photoPath!),
+                              width: 24,
+                              height: 24,
+                              fit: BoxFit.cover,
                             ),
-                          ),
+                          )
+                        : (avatar != null && avatar!.isNotEmpty
+                            ? (int.tryParse(avatar!) != null
+                                ? Icon(
+                                    IconData(int.parse(avatar!),
+                                        fontFamily: 'MaterialIcons'),
+                                    size: 14,
+                                    color: isSelected ? Colors.white : L.text,
+                                  )
+                                : Text(
+                                    avatar!,
+                                    style: const TextStyle(fontSize: 14),
+                                  ))
+                            : Text(
+                                name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                style: TextStyle(
+                                  color: isSelected ? Colors.white : L.text,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 11,
+                                ),
+                              )),
                   ),
                 ),
                 if (isCritical)
@@ -178,8 +320,8 @@ class _ProfileAvatar extends StatelessWidget {
                     top: -2,
                     right: -2,
                     child: Container(
-                      width: 10,
-                      height: 10,
+                      width: 6,
+                      height: 6,
                       decoration: const BoxDecoration(
                         color: Colors.red,
                         shape: BoxShape.circle,
@@ -188,15 +330,13 @@ class _ProfileAvatar extends StatelessWidget {
                   ),
               ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(width: 6),
             Text(
               name,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
               style: AppTypography.labelSmall.copyWith(
-                fontSize: 10,
-                color: isSelected ? L.text : L.sub.withValues(alpha: 0.7),
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w500,
+                fontSize: 12,
+                color: isSelected ? Colors.white : L.text.withValues(alpha: 0.8),
+                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
               ),
             ),
           ],
@@ -217,31 +357,35 @@ class _AddProfileButton extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 6),
-        width: 64,
-        child: Column(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(18),
+          color: L.fill.withValues(alpha: 0.15),
+          border: Border.all(
+            color: L.border.withValues(alpha: 0.1),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              width: 50,
-              height: 50,
+              width: 24,
+              height: 24,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: L.fill.withValues(alpha: 0.5),
-                border: Border.all(
-                  color: L.border.withValues(alpha: 1.0),
-                  style: BorderStyle.solid,
-                  width: 1,
-                ),
+                color: L.fill.withValues(alpha: 0.3),
               ),
-              child: Icon(Icons.add_rounded, color: L.sub, size: 24),
+              child: Icon(Icons.add_rounded, color: L.sub, size: 14),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(width: 6),
             Text(
               'Add',
               style: AppTypography.labelSmall.copyWith(
-                fontSize: 10,
-                color: L.sub.withValues(alpha: 0.7),
-                fontWeight: FontWeight.w500,
+                fontSize: 12,
+                color: L.sub.withValues(alpha: 0.8),
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],

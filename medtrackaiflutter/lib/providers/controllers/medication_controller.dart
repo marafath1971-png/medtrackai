@@ -27,6 +27,7 @@ class MedicationController extends ChangeNotifier {
   int _scanCount = 0;
   DateTime? _lastReviewRequest;
   List<double> _inventoryHistory = [];
+  List<String> _frozenDates = [];
   final _liveActivitiesPlugin = LiveActivities();
 
   bool _isMutating = false;
@@ -80,7 +81,20 @@ class MedicationController extends ChangeNotifier {
             List.generate(7, (_) => _calculateCurrentInventoryHealth());
       }
 
+      final frozenRaw = prefs.getStringList('frozen_dates');
+      if (frozenRaw != null) {
+        _frozenDates = frozenRaw;
+      } else {
+        _frozenDates = [];
+      }
+
       invalidateCache();
+      
+      // Sync Apple Watch Smart Stack / Live Activities
+      if (Platform.isIOS) {
+        updateLiveActivityCards();
+      }
+
       notifyListeners();
     } catch (e) {
       appLogger.e('[MedicationController] Data load failed', error: e);
@@ -123,6 +137,9 @@ class MedicationController extends ChangeNotifier {
 
       if (rate >= 0.8) {
         s++;
+      } else if (_frozenDates.contains(k)) {
+        // Day was frozen! Do not break the streak, but we optionally add 1 to streak to reward them for saving it.
+        s++;
       } else if (i == 0) {
         // Today isn't complete, do not break the streak.
       } else {
@@ -133,6 +150,16 @@ class MedicationController extends ChangeNotifier {
     _cachedStreak = s;
     isStreakDirty = false;
     return s;
+  }
+
+  Future<void> applyStreakFreeze(String dateKey) async {
+    if (!_frozenDates.contains(dateKey)) {
+      _frozenDates.add(dateKey);
+      final prefs = await medRepo.getPrefs();
+      await prefs.setStringList('frozen_dates', _frozenDates);
+      invalidateCache();
+      notifyListeners();
+    }
   }
 
   double getAdherenceScore() {
@@ -272,6 +299,8 @@ class MedicationController extends ChangeNotifier {
 
     final dayOfWeek = targetDate.weekday % 7;
     final items = <DoseItem>[];
+    
+    // 1. Add scheduled doses
     for (final med in _meds) {
       for (final s in med.schedule) {
         if (s.enabled && s.days.contains(dayOfWeek)) {
@@ -279,6 +308,68 @@ class MedicationController extends ChangeNotifier {
         }
       }
     }
+
+    // 2. Add logged PRN doses from history for target date
+    final dateKey =
+        "${targetDate.year}-${targetDate.month.toString().padLeft(2, '0')}-${targetDate.day.toString().padLeft(2, '0')}";
+    final dayHistory = _history[dateKey] ?? [];
+    for (var entry in dayHistory) {
+      if (entry.label.startsWith('PRN-')) {
+        final med = _meds.firstWhere((m) => m.id == entry.medId,
+            orElse: () => Medicine.empty());
+        if (med.id != -1) {
+          int h = 12;
+          int m = 0;
+          try {
+            final t = entry.time.toLowerCase();
+            if (t.contains('am') || t.contains('pm')) {
+              final clean = t.replaceAll(RegExp(r'[^0-9:]'), '');
+              final parts = clean.split(':');
+              h = int.tryParse(parts[0]) ?? 12;
+              if (parts.length > 1) {
+                m = int.tryParse(parts[1]) ?? 0;
+              }
+              if (t.contains('pm') && h < 12) {
+                h += 12;
+              } else if (t.contains('am') && h == 12) {
+                h = 0;
+              }
+            } else {
+              final clean = t.replaceAll(RegExp(r'[^0-9:]'), '');
+              final parts = clean.split(':');
+              if (parts.isNotEmpty) {
+                h = int.tryParse(parts[0]) ?? 12;
+              }
+              if (parts.length > 1) {
+                m = int.tryParse(parts[1]) ?? 0;
+              }
+            }
+          } catch (_) {
+            if (entry.takenAt != null) {
+              final dt = DateTime.tryParse(entry.takenAt!);
+              if (dt != null) {
+                h = dt.hour;
+                m = dt.minute;
+              }
+            }
+          }
+
+          items.add(DoseItem(
+            med: med,
+            sched: ScheduleEntry(
+              id: entry.label,
+              h: h,
+              m: m,
+              label: entry.label.replaceFirst('PRN-', ''),
+              days: [dayOfWeek],
+              ritual: Ritual.asNeeded,
+            ),
+            key: '${med.id}-${entry.label}',
+          ));
+        }
+      }
+    }
+
     items.sort(
         (a, b) => (a.sched.h * 60 + a.sched.m) - (b.sched.h * 60 + b.sched.m));
 
@@ -641,8 +732,9 @@ class MedicationController extends ChangeNotifier {
       final timeParts = entry.time.split(':');
       if (timeParts.length < 2) continue;
 
-      final sH = int.parse(timeParts[0]);
-      final sM = int.parse(timeParts[1]);
+      final sH = int.tryParse(timeParts[0]);
+      final sM = int.tryParse(timeParts[1]);
+      if (sH == null || sM == null) continue;
 
       final scheduledTime =
           DateTime(dtTaken.year, dtTaken.month, dtTaken.day, sH, sM);
@@ -669,8 +761,9 @@ class MedicationController extends ChangeNotifier {
           final dtTaken = DateTime.parse(entry.takenAt!);
           final parts = entry.time.split(':');
           if (parts.length < 2) continue;
-          final sH = int.parse(parts[0]);
-          final sM = int.parse(parts[1]);
+          final sH = int.tryParse(parts[0]);
+          final sM = int.tryParse(parts[1]);
+          if (sH == null || sM == null) continue;
           final scheduled =
               DateTime(dtTaken.year, dtTaken.month, dtTaken.day, sH, sM);
           final latency = dtTaken.difference(scheduled).inMinutes;

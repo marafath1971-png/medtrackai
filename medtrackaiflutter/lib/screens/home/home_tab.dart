@@ -1,15 +1,16 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../providers/app_state.dart';
 import '../../theme/app_theme.dart';
+import '../../services/smart_alert_service.dart';
 import '../../widgets/shared/shared_widgets.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../core/utils/color_utils.dart';
 import 'widgets/home_meds_section.dart';
 import 'widgets/med_card.dart';
-
 import 'package:flutter_animate/flutter_animate.dart';
 import 'widgets/home_header.dart';
 import 'widgets/streak_modal.dart';
@@ -19,6 +20,7 @@ import 'widgets/voice_assistant_overlay.dart';
 import '../../widgets/viral/share_milestone_card.dart';
 import '../../widgets/viral/ai_quick_log_sheet.dart';
 import '../medicine/medicine_detail_screen.dart';
+import '../../widgets/common/mesh_gradient.dart';
 
 class HomeTab extends StatefulWidget {
   final VoidCallback onScan;
@@ -29,21 +31,21 @@ class HomeTab extends StatefulWidget {
   State<HomeTab> createState() => _HomeTabState();
 }
 
-class _HomeTabState extends State<HomeTab> {
+class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
   bool _showStreak = false;
   bool _showSettings = false;
   Medicine? _viewingMed;
   bool _startInEditMode = false;
   double _scrollOffset = 0;
   DateTime _selectedDate = DateTime.now();
-  final ScrollController _scrollController = ScrollController();
+  late final ScrollController _scrollController;
   final GlobalKey _medsHeaderKey = GlobalKey();
   final GlobalKey _medsEmptyKey = GlobalKey();
 
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
+    _scrollController = ScrollController()..addListener(_onScroll);
   }
 
   @override
@@ -94,12 +96,27 @@ class _HomeTabState extends State<HomeTab> {
         .toList();
     final hasSevereSymptom = severeSymptoms.isNotEmpty;
 
-    return Stack(
-      children: [
-        // ── CLINICAL BASE ──
-        Container(color: L.meshBg),
-        Positioned.fill(
-          child: RefreshIndicator(
+    return Scaffold(
+      backgroundColor: L.bg,
+      body: Stack(
+        children: [
+          // ── Background Ambient Glow (2026 Viral Aura) ──
+          Positioned.fill(
+            child: Container(color: L.bg),
+          ),
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.15,
+              child: MeshGradient(
+                colors: dosePct >= 1.0 
+                    ? [L.green, L.accent, L.green, L.green] 
+                    : dosePct > 0 
+                        ? [L.accent, Colors.blue, L.accent, L.card] 
+                        : [Colors.blue, L.card, L.bg, L.card],
+              ),
+            ),
+          ),
+          RefreshIndicator(
             onRefresh: () async {
               HapticEngine.selection();
               await context.read<AppState>().loadFromStorage();
@@ -116,13 +133,11 @@ class _HomeTabState extends State<HomeTab> {
                 physics: const BouncingScrollPhysics(
                     parent: AlwaysScrollableScrollPhysics()),
                 slivers: [
-                  // -- TOP SPACER --
                   SliverToBoxAdapter(
                     child: SizedBox(
                         height: MediaQuery.of(context).padding.top + 50),
                   ),
 
-                  // --- FAMILY PROFILE RIBBON ---
                   SliverToBoxAdapter(
                     child: const ProfileSelectorRibbon()
                         .animate()
@@ -133,7 +148,6 @@ class _HomeTabState extends State<HomeTab> {
                             curve: Curves.easeOutCubic),
                   ),
 
-                  // --- EMERGENCY CARD IF SEVERE SYMPTOM LOGGED ---
                   if (hasSevereSymptom)
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(20, 8, 20, 8),
@@ -144,7 +158,6 @@ class _HomeTabState extends State<HomeTab> {
                       ),
                     ),
 
-                  // --- DAY TOGGLE (Today | Yesterday) ---
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 16),
                     sliver: SliverToBoxAdapter(
@@ -155,51 +168,20 @@ class _HomeTabState extends State<HomeTab> {
                     ),
                   ),
 
-                  // --- MAIN PROGRESS BENTO (Large Card) ---
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
+                    padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
                     sliver: SliverToBoxAdapter(
-                      child: _MainProgressCard(
-                        remaining: remaining,
-                        dosePct: dosePct,
-                      ).animate().fadeIn(duration: 800.ms).slideY(
-                          begin: 0.08, end: 0, curve: Curves.easeOutExpo),
-                    ),
-                  ),
-
-                  // --- STAT CARDS ROW ---
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                    sliver: SliverToBoxAdapter(
-                      child: _StatRow(
+                      child: _CalAiRingHero(
                         takenCount: takenCount,
-                        remaining: remaining,
+                        total: doses.length,
+                        dosePct: dosePct,
                         streak: streak,
-                      )
-                          .animate()
-                          .fadeIn(duration: 800.ms, delay: 100.ms)
-                          .slideY(
-                              begin: 0.08, end: 0, curve: Curves.easeOutExpo),
+                        remaining: remaining,
+                      ).animate().fadeIn(duration: 600.ms).slideY(
+                          begin: 0.06, end: 0, curve: Curves.easeOutExpo),
                     ),
                   ),
 
-                  // --- ADHERENCE SCORE CARD ---
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(16, 0, 16, 20),
-                    sliver: SliverToBoxAdapter(
-                      child: _AdherenceScoreCard(
-                        dosePct: dosePct,
-                        doses: doses,
-                        takenCount: takenCount,
-                      )
-                          .animate()
-                          .fadeIn(duration: 800.ms, delay: 200.ms)
-                          .slideY(
-                              begin: 0.08, end: 0, curve: Curves.easeOutExpo),
-                    ),
-                  ),
-
-                  // --- VIRAL STREAK SHARE ---
                   if (streak >= 7)
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -216,7 +198,6 @@ class _HomeTabState extends State<HomeTab> {
                       ),
                     ),
 
-                  // --- DOSE TIMELINE ---
                   if (doses.isNotEmpty)
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
@@ -226,31 +207,19 @@ class _HomeTabState extends State<HomeTab> {
                             final groups = [
                               (
                                 title: 'Morning',
-                                items: doses
-                                    .where(
-                                        (d) => d.sched.h >= 5 && d.sched.h < 11)
-                                    .toList()
+                                items: doses.where((d) => d.sched.h >= 5 && d.sched.h < 11).toList()
                               ),
                               (
                                 title: 'Afternoon',
-                                items: doses
-                                    .where((d) =>
-                                        d.sched.h >= 11 && d.sched.h < 17)
-                                    .toList()
+                                items: doses.where((d) => d.sched.h >= 11 && d.sched.h < 17).toList()
                               ),
                               (
                                 title: 'Evening',
-                                items: doses
-                                    .where((d) =>
-                                        d.sched.h >= 17 && d.sched.h < 21)
-                                    .toList()
+                                items: doses.where((d) => d.sched.h >= 17 && d.sched.h < 21).toList()
                               ),
                               (
                                 title: 'Night',
-                                items: doses
-                                    .where(
-                                        (d) => d.sched.h >= 21 || d.sched.h < 5)
-                                    .toList()
+                                items: doses.where((d) => d.sched.h >= 21 || d.sched.h < 5).toList()
                               ),
                             ].where((g) => g.items.isNotEmpty).toList();
 
@@ -273,15 +242,17 @@ class _HomeTabState extends State<HomeTab> {
                                   _viewingMed = med;
                                   _startInEditMode = true;
                                 }),
+                                onTakeDose: () {
+                                  // HapticEngine.success() or similar can go here
+                                },
                               ),
                             );
                           },
-                          childCount: 4, // Max groups
+                          childCount: 4,
                         ),
                       ),
                     ),
 
-                  // --- NEXT DOSE CAROUSEL (Mini condensed preview) ---
                   if (doses.isNotEmpty)
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
@@ -302,7 +273,6 @@ class _HomeTabState extends State<HomeTab> {
                       ),
                     ),
 
-                  // --- MEDICINE LIST ---
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.screenPadding),
@@ -359,51 +329,45 @@ class _HomeTabState extends State<HomeTab> {
               ),
             ),
           ),
-        ),
-
-        // --- FIXED HEADER ---
-        Positioned(
-          top: 0,
-          left: 0,
-          right: 0,
-          child: HomeHeader(
-            state: context.read<AppState>(),
-            streak: streak,
-            scrollOffset: _scrollOffset,
-            onTap: _scrollToTop,
-            onOpenStreak: () => setState(() => _showStreak = true),
-            onOpenSettings: () => setState(() => _showSettings = true),
-          ),
-        ),
-
-        _buildOverlay(
-            _showStreak,
-            'streak',
-            StreakModal(
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: HomeHeader(
+              state: context.read<AppState>(),
               streak: streak,
-              history: context.select<AppState, Map<String, List<DoseEntry>>>(
-                  (s) => s.history),
-              streakData:
-                  context.select<AppState, StreakData>((s) => s.streakData),
-              onClose: () => setState(() => _showStreak = false),
-              onFreeze: () => context.read<AppState>().useStreakFreeze(),
-            )),
-        _buildOverlay(
-            _showSettings,
-            'settings',
-            SettingsModal(
-              onClose: () => setState(() => _showSettings = false),
-            )),
-
-        const VoiceAssistantOverlay(),
-
-        // --- AI QUICK LOG FLOATING BUTTON ---
-        Positioned(
-          bottom: 110 + MediaQuery.of(context).padding.bottom,
-          left: 20,
-          child: _AiQuickLogFAB(),
-        ),
-      ],
+              scrollOffset: _scrollOffset,
+              onTap: _scrollToTop,
+              onOpenStreak: () => setState(() => _showStreak = true),
+              onOpenSettings: () => setState(() => _showSettings = true),
+            ),
+          ),
+          _buildOverlay(
+              _showStreak,
+              'streak',
+              StreakModal(
+                streak: streak,
+                history: context.select<AppState, Map<String, List<DoseEntry>>>(
+                    (s) => s.history),
+                streakData:
+                    context.select<AppState, StreakData>((s) => s.streakData),
+                onClose: () => setState(() => _showStreak = false),
+                onFreeze: () => context.read<AppState>().useStreakFreeze(),
+              )),
+          _buildOverlay(
+              _showSettings,
+              'settings',
+              SettingsModal(
+                onClose: () => setState(() => _showSettings = false),
+              )),
+          const VoiceAssistantOverlay(),
+          Positioned(
+            bottom: 110 + MediaQuery.of(context).padding.bottom,
+            left: 20,
+            child: const _AiQuickLogFAB(),
+          ),
+        ],
+      ),
     );
   }
 
@@ -465,9 +429,6 @@ class _HomeTabState extends State<HomeTab> {
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// AI QUICK LOG FAB — Floating action chip for conversational logging
-// ─────────────────────────────────────────────────────────────
 class _AiQuickLogFAB extends StatefulWidget {
   const _AiQuickLogFAB();
 
@@ -501,6 +462,7 @@ class _AiQuickLogFABState extends State<_AiQuickLogFAB>
 
   @override
   Widget build(BuildContext context) {
+    final L = context.L;
     return GestureDetector(
       onTapDown: (_) {
         HapticEngine.selection();
@@ -519,520 +481,29 @@ class _AiQuickLogFABState extends State<_AiQuickLogFAB>
             padding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
-              gradient: AppGradients.neonLime,
+              color: L.primary,
               borderRadius: BorderRadius.circular(24),
-              boxShadow: [
-                BoxShadow(
-                  color: AppColors.limeAccent
-                      .withValues(alpha: _glowAnim.value),
-                  blurRadius: 20,
-                  spreadRadius: 2,
-                  offset: const Offset(0, 4),
-                ),
-              ],
+              boxShadow: L.shadowSoft,
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.auto_awesome_rounded,
-                    color: Colors.black, size: 16),
-                const SizedBox(width: 8),
+                const Icon(Icons.add_rounded,
+                    color: Colors.white, size: 20),
+                const SizedBox(width: 6),
                 Text(
-                  'AI Log',
+                  'Log Dose',
                   style: AppTypography.labelLarge.copyWith(
-                    color: Colors.black,
-                    fontSize: 13,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.2,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────
-// FAST TRACKING BENTO — Cal AI 2026 Premium Bento Grid
-// ─────────────────────────────────────────────────────────────
-class _FastTrackingBento extends StatelessWidget {
-  final List<DoseItem> doses;
-  final int takenCount;
-  final int remaining;
-  final double dosePct;
-  final int streak;
-
-  const _FastTrackingBento({
-    required this.doses,
-    required this.takenCount,
-    required this.remaining,
-    required this.dosePct,
-    required this.streak,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final noDoses = doses.isEmpty;
-    final L = context.L;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-      ),
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(
-                child: _StatCard(
-                  value: noDoses ? '0' : '$takenCount',
-                  label: 'Taken',
-                  icon: Icons.check_circle_rounded,
-                  color: const Color(0xFF10B981),
-                  gradient: const [Color(0xFF10B981), Color(0xFF059669)],
-                ),
-              ),
-              const SizedBox(width: 12),
-              Expanded(
-                child: _StatCard(
-                  value: noDoses ? '0' : '$remaining',
-                  label: 'Remaining',
-                  icon: Icons.hourglass_bottom_rounded,
-                  color: const Color(0xFFF59E0B),
-                  gradient: const [Color(0xFFF59E0B), Color(0xFFD97706)],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          _StreakCard(streak: streak),
-        ],
-      ),
-    );
-  }
-}
-
-class _StatCard extends StatelessWidget {
-  final String value;
-  final String label;
-  final IconData icon;
-  final Color color;
-  final List<Color> gradient;
-
-  const _StatCard({
-    required this.value,
-    required this.label,
-    required this.icon,
-    required this.color,
-    required this.gradient,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final L = context.L;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            gradient[0].withValues(alpha: 0.15),
-            gradient[1].withValues(alpha: 0.05),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(20),
-        border:
-            Border.all(color: gradient[0].withValues(alpha: 0.2), width: 0.5),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
-              gradient: LinearGradient(colors: gradient),
-              borderRadius: BorderRadius.circular(14),
-              boxShadow: [
-                BoxShadow(
-                  color: gradient[0].withValues(alpha: 0.3),
-                  blurRadius: 12,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Icon(icon, color: Colors.white, size: 22),
-          ),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  value,
-                  style: AppTypography.titleLarge.copyWith(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 22,
-                    color: L.text,
-                    height: 1,
-                  ),
-                ),
-                Text(
-                  label,
-                  style: AppTypography.labelSmall.copyWith(
-                    fontSize: 11,
+                    color: Colors.white,
+                    fontSize: 14,
                     fontWeight: FontWeight.w700,
-                    color: L.sub.withValues(alpha: 0.5),
+                    letterSpacing: 0,
                   ),
                 ),
               ],
             ),
           ),
-        ],
-      ),
-    );
-  }
-}
-
-class _StreakCard extends StatelessWidget {
-  final int streak;
-  const _StreakCard({required this.streak});
-
-  @override
-  Widget build(BuildContext context) {
-    final L = context.L;
-    final progress = (streak / 30).clamp(0.0, 1.0);
-    final isOnFire = streak >= 7;
-
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: isOnFire
-              ? [
-                  const Color(0xFFEF4444).withValues(alpha: 0.15),
-                  const Color(0xFFF59E0B).withValues(alpha: 0.05)
-                ]
-              : [L.card, L.card.withValues(alpha: 0.5)],
         ),
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: isOnFire
-              ? const Color(0xFFEF4444).withValues(alpha: 0.3)
-              : L.border.withValues(alpha: 0.08),
-          width: 0.5,
-        ),
-      ),
-      child: Row(
-        children: [
-          SizedBox(
-            width: 52,
-            height: 52,
-            child: Stack(
-              alignment: Alignment.center,
-              children: [
-                SizedBox(
-                  width: 52,
-                  height: 52,
-                  child: CircularProgressIndicator(
-                    value: progress,
-                    strokeWidth: 4,
-                    backgroundColor: L.border.withValues(alpha: 0.1),
-                    valueColor: AlwaysStoppedAnimation(
-                      isOnFire
-                          ? const Color(0xFFEF4444)
-                          : const Color(0xFFF59E0B),
-                    ),
-                    strokeCap: StrokeCap.round,
-                  ),
-                ),
-                Icon(
-                  isOnFire
-                      ? Icons.local_fire_department_rounded
-                      : Icons.local_fire_department_rounded,
-                  color: isOnFire
-                      ? const Color(0xFFEF4444)
-                      : const Color(0xFFF59E0B),
-                  size: 24,
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Text(
-                      '$streak day${streak == 1 ? '' : 's'}',
-                      style: AppTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 18,
-                        color: L.text,
-                      ),
-                    ),
-                    if (isOnFire) ...[
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 6, vertical: 2),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [Color(0xFFEF4444), Color(0xFFF59E0B)],
-                          ),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Text(
-                          'ON FIRE',
-                          style: AppTypography.labelSmall.copyWith(
-                            fontSize: 8,
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ],
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  isOnFire
-                      ? 'Amazing consistency! Keep it up!'
-                      : '${30 - streak} days to badge milestone',
-                  style: AppTypography.bodySmall.copyWith(
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    color: L.sub.withValues(alpha: 0.5),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Icon(
-            Icons.chevron_right_rounded,
-            color: L.sub.withValues(alpha: 0.3),
-            size: 24,
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _MiniRingPainter extends CustomPainter {
-  final double pct;
-  final Color color;
-  final Color track;
-  _MiniRingPainter(
-      {required this.pct, required this.color, required this.track});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final cx = size.width / 2;
-    final cy = size.height / 2;
-    final r = (size.width - 7) / 2;
-    final trackPaint = Paint()
-      ..color = track
-      ..strokeWidth = 7
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-    final fgPaint = Paint()
-      ..color = color
-      ..strokeWidth = 7
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-    canvas.drawCircle(Offset(cx, cy), r, trackPaint);
-    if (pct > 0) {
-      canvas.drawArc(
-        Rect.fromCircle(center: Offset(cx, cy), radius: r),
-        -3.14159 / 2,
-        2 * 3.14159 * pct,
-        false,
-        fgPaint,
-      );
-    }
-  }
-
-  @override
-  bool shouldRepaint(_MiniRingPainter old) => old.pct != pct;
-}
-
-// ─────────────────────────────────────────────────────────────
-// ADHERENCE SCORE CARD — Cal AI 2026 Premium Health Score
-// ─────────────────────────────────────────────────────────────
-class _AdherenceScoreCard extends StatelessWidget {
-  final double dosePct;
-  final List<DoseItem> doses;
-  final int takenCount;
-
-  const _AdherenceScoreCard({
-    required this.dosePct,
-    required this.doses,
-    required this.takenCount,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final L = context.L;
-    final score = doses.isEmpty ? 0 : (dosePct * 10).round();
-    final isPerfect = dosePct >= 1.0;
-    final isGood = dosePct >= 0.7;
-
-    final Color accentColor;
-    final List<Color> gradColors;
-    final IconData statusIcon;
-    final String statusLabel;
-    final String message;
-
-    if (doses.isEmpty) {
-      accentColor = L.sub;
-      gradColors = [L.card, L.card];
-      statusIcon = Icons.add_circle_outline;
-      statusLabel = 'Get Started';
-      message = "Add medications to start tracking your health consistency.";
-    } else if (isPerfect) {
-      accentColor = const Color(0xFF10B981);
-      gradColors = [const Color(0xFF10B981), const Color(0xFF059669)];
-      statusIcon = Icons.health_and_safety_rounded;
-      statusLabel = 'Excellent';
-      message =
-          "Perfect adherence! Your consistency is maintaining optimal treatment outcomes.";
-    } else if (isGood) {
-      accentColor = const Color(0xFFF59E0B);
-      gradColors = [const Color(0xFFF59E0B), const Color(0xFFD97706)];
-      statusIcon = Icons.trending_up_rounded;
-      statusLabel = 'Good';
-      message =
-          "Good progress! Keep focusing on timely medication for best results.";
-    } else {
-      accentColor = const Color(0xFFEF4444);
-      gradColors = [const Color(0xFFEF4444), const Color(0xFFDC2626)];
-      statusIcon = Icons.warning_amber_rounded;
-      statusLabel = 'Needs Work';
-      message =
-          "Some doses missed. Focus on consistency for effective treatment.";
-    }
-
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: L.border.withValues(alpha: 0.12), width: 0.8),
-        boxShadow: [
-          BoxShadow(
-            color: gradColors[0].withValues(alpha: 0.05),
-            blurRadius: 30,
-            offset: const Offset(0, 10),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: gradColors[0].withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(
-                      color: gradColors[0].withValues(alpha: 0.2), width: 0.8),
-                ),
-                child: Icon(statusIcon, color: gradColors[0], size: 20),
-              ),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      statusLabel,
-                      style: AppTypography.bodySmall.copyWith(
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13,
-                        color: gradColors[0],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              Container(
-                width: 56,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: L.card,
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                      color: gradColors[0].withValues(alpha: 0.3), width: 1.5),
-                ),
-                child: Center(
-                  child: Text(
-                    '$score',
-                    style: AppTypography.displaySmall.copyWith(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 20,
-                      color: gradColors[0],
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 20),
-          Container(
-            height: 8,
-            width: double.infinity,
-            decoration: BoxDecoration(
-              color: L.border.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(10),
-            ),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: dosePct.clamp(0.01, 1.0),
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: gradColors),
-                  borderRadius: BorderRadius.circular(10),
-                  boxShadow: [
-                    BoxShadow(
-                      color: gradColors[0].withValues(alpha: 0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            children: [
-              Icon(statusIcon, size: 16, color: L.sub.withValues(alpha: 0.5)),
-              const SizedBox(width: 8),
-              Expanded(
-                child: Text(
-                  message,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: L.sub.withValues(alpha: 0.6),
-                    fontWeight: FontWeight.w600,
-                    fontSize: 12,
-                    height: 1.4,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
       ),
     );
   }
@@ -1053,7 +524,7 @@ class _ShareMilestoneCardCTA extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    final gradColors = _getStreakGradient(streak);
+    final gradColors = _getStreakGradient(streak, L);
     return GestureDetector(
       onTap: () {
         HapticEngine.selection();
@@ -1111,7 +582,7 @@ class _ShareMilestoneCardCTA extends StatelessWidget {
                     style: AppTypography.titleMedium.copyWith(
                       color: L.text,
                       fontSize: 14,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 2),
@@ -1133,23 +604,12 @@ class _ShareMilestoneCardCTA extends StatelessWidget {
     );
   }
 
-  List<Color> _getStreakGradient(int streak) {
-    if (streak >= 365) return [const Color(0xFFFFD700), const Color(0xFFFFA500)];
-    if (streak >= 100) return [const Color(0xFFE040FB), const Color(0xFF7C4DFF)];
-    if (streak >= 30) return [const Color(0xFF00E5FF), const Color(0xFF00B0FF)];
-    if (streak >= 14) return [const Color(0xFF69FF47), const Color(0xFF00E676)];
-    if (streak >= 7) return [const Color(0xFFFF6D00), const Color(0xFFFF3D00)];
-    return [const Color(0xFFCDFF00), const Color(0xFF76FF03)];
+  List<Color> _getStreakGradient(int streak, AppThemeColors L) {
+    return [L.text, L.text.withValues(alpha: 0.7)];
   }
 }
 
-
-// ─────────────────────────────────────────────────────────────
-// NEXT DOSE CAROUSEL — Cal AI "Recently uploaded" style card
-// ─────────────────────────────────────────────────────────────
-// NEXT DOSE CAROUSEL — Cal AI "Recently uploaded" style card
-// ─────────────────────────────────────────────────────────────
-class _NextDoseCarousel extends StatelessWidget {
+class _NextDoseCarousel extends StatefulWidget {
   final List<DoseItem> doses;
   final Map<String, bool> takenToday;
   final AppState state;
@@ -1163,105 +623,102 @@ class _NextDoseCarousel extends StatelessWidget {
   });
 
   @override
+  State<_NextDoseCarousel> createState() => _NextDoseCarouselState();
+}
+
+class _NextDoseCarouselState extends State<_NextDoseCarousel> {
+  late final PageController _controller;
+  double _currentPage = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = PageController(viewportFraction: 0.85);
+    _controller.addListener(() => setState(() => _currentPage = _controller.page!));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final L = context.L;
-    final upcoming = doses.where((d) => takenToday[d.key] != true).toList();
-    final toShow =
-        upcoming.isEmpty ? doses.take(3).toList() : upcoming.take(3).toList();
+    final upcoming = widget.doses.where((d) => widget.takenToday[d.key] != true).toList();
+    final toShow = upcoming.isEmpty ? widget.doses.take(3).toList() : upcoming.take(3).toList();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.only(bottom: 12, left: 24),
           child: Text('Coming Up Next',
               style: AppTypography.titleMedium.copyWith(
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w600,
                 fontSize: 16,
                 color: L.text,
               )),
         ),
         SizedBox(
-          height: 100,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
+          height: 140,
+          child: PageView.builder(
+            controller: _controller,
             itemCount: toShow.length,
-            separatorBuilder: (context, index) => const SizedBox(width: 12),
             itemBuilder: (context, index) {
               final d = toShow[index];
-              final isTaken = takenToday[d.key] == true;
-              final timeStr =
-                  '${d.sched.h.toString().padLeft(2, '0')}:${d.sched.m.toString().padLeft(2, '0')}';
+              final isTaken = widget.takenToday[d.key] == true;
+              final timeStr = '${d.sched.h.toString().padLeft(2, '0')}:${d.sched.m.toString().padLeft(2, '0')}';
+              
+              final delta = (index - _currentPage).abs();
+              final scale = (1 - (delta * 0.15)).clamp(0.85, 1.0);
 
-              return BouncingButton(
-                onTap: () => onView(d.med),
-                child: Container(
-                  width: 240,
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
+              return Transform.scale(
+                scale: scale,
+                child: BouncingButton(
+                  onTap: () => widget.onView(d.med),
+                  child: SquircleCard(
+                    padding: const EdgeInsets.all(16),
+                    // margin: const EdgeInsets.symmetric(horizontal: 4),
                     color: L.card,
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(
-                        color: L.text.withValues(alpha: 0.04), width: 1),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: hexToColor(d.med.color).withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(16),
+                    showBorder: true,
+                    borderWidth: 1.0,
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: hexToColor(d.med.color).withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: Icon(Icons.vaccines_rounded, size: 24, color: hexToColor(d.med.color)),
                         ),
-                        child: Icon(
-                          Icons.vaccines_rounded,
-                          size: 24,
-                          color: hexToColor(d.med.color),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(d.med.name,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: AppTypography.titleMedium.copyWith(
-                                  fontWeight: FontWeight.w900,
-                                  color: L.text,
-                                  fontSize: 14,
-                                )),
-                            const SizedBox(height: 4),
-                            Row(
-                              children: [
-                                Text(timeStr,
-                                    style: AppTypography.monoNumber.copyWith(
-                                      color: L.sub.withValues(alpha: 0.4),
-                                      fontSize: 12,
-                                    )),
-                                const SizedBox(width: 6),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 6, vertical: 2),
-                                  decoration: BoxDecoration(
-                                    color: L.text.withValues(alpha: 0.05),
-                                    borderRadius: BorderRadius.circular(4),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(d.med.name, maxLines: 1, overflow: TextOverflow.ellipsis, style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w600, color: L.text, fontSize: 14)),
+                              const SizedBox(height: 4),
+                              Row(
+                                children: [
+                                  Text(timeStr, style: AppTypography.monoNumber.copyWith(color: L.sub.withValues(alpha: 0.4), fontSize: 12)),
+                                  const SizedBox(width: 6),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    decoration: BoxDecoration(color: isTaken ? L.green.withValues(alpha: 0.1) : L.text.withValues(alpha: 0.05), borderRadius: BorderRadius.circular(4)),
+                                    child: Text(isTaken ? 'TAKEN' : 'UNTAKEN', style: AppTypography.labelSmall.copyWith(fontSize: 7, fontWeight: FontWeight.w600, color: L.sub.withValues(alpha: 0.3))),
                                   ),
-                                  child: Text('UNTAKEN',
-                                      style: AppTypography.labelSmall.copyWith(
-                                        fontSize: 7,
-                                        fontWeight: FontWeight.w900,
-                                        color: L.sub.withValues(alpha: 0.3),
-                                      )),
-                                ),
-                              ],
-                            ),
-                          ],
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -1274,7 +731,7 @@ class _NextDoseCarousel extends StatelessWidget {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ANIMATED RING PAINTER — CustomPainter arc (kept for possible reuse)
+// ANIMATED RING
 // ─────────────────────────────────────────────────────────────
 class _AnimatedRing extends StatefulWidget {
   final double percent;
@@ -1306,7 +763,7 @@ class _AnimatedRingState extends State<_AnimatedRing>
   void initState() {
     super.initState();
     _ctrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1200));
+        vsync: this, duration: const Duration(milliseconds: 1400));
     _anim = Tween<double>(begin: 0, end: widget.percent)
         .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutExpo));
     _ctrl.forward();
@@ -1359,7 +816,7 @@ class _RingPainter extends CustomPainter {
   final Color trackColor;
   final double strokeWidth;
 
-  _RingPainter({
+  const _RingPainter({
     required this.percent,
     required this.color,
     required this.trackColor,
@@ -1370,14 +827,14 @@ class _RingPainter extends CustomPainter {
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
     final radius = (size.width - strokeWidth) / 2;
-    const startAngle = -1.5707963267948966; // -π/2 (top)
-    final sweepAngle = 2 * 3.14159265358979323846 * percent;
+    const startAngle = -1.5707963267948966;
+    final sweepAngle = 6.283185307179586 * percent;
 
-    // Track
+    // Background track
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       0,
-      2 * 3.14159265358979323846,
+      6.283185307179586,
       false,
       Paint()
         ..color = trackColor
@@ -1388,22 +845,20 @@ class _RingPainter extends CustomPainter {
 
     if (percent > 0) {
       final rect = Rect.fromCircle(center: center, radius: radius);
-
-      // Outer Glow
+      // Soft outer glow
       canvas.drawArc(
         rect,
         startAngle,
         sweepAngle,
         false,
         Paint()
-          ..color = color.withValues(alpha: 0.35)
-          ..strokeWidth = strokeWidth + 4
+          ..color = color.withValues(alpha: 0.25)
+          ..strokeWidth = strokeWidth + 8
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 5.0),
+          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8.0),
       );
-
-      // Progress arc
+      // Sharp progress arc
       canvas.drawArc(
         rect,
         startAngle,
@@ -1435,6 +890,7 @@ class HomeDoseGroup extends StatefulWidget {
   final DateTime selectedDate;
   final Function(Medicine) onView;
   final Function(Medicine) onEdit;
+  final VoidCallback? onTakeDose;
   final Duration delayOffset;
 
   const HomeDoseGroup({
@@ -1447,6 +903,7 @@ class HomeDoseGroup extends StatefulWidget {
     required this.selectedDate,
     required this.onView,
     required this.onEdit,
+    this.onTakeDose,
     this.delayOffset = Duration.zero,
   });
 
@@ -1491,6 +948,7 @@ class _HomeDoseGroupState extends State<HomeDoseGroup> {
               isNext: isActualNext && !isTaken,
               onTake: () {
                 widget.state.toggleDose(d, date: widget.selectedDate);
+                widget.onTakeDose?.call();
                 _showUndoSnackbar(context, d);
               },
               onSnooze: () => widget.state.snoozeDose(d, 30),
@@ -1506,254 +964,245 @@ class _HomeDoseGroupState extends State<HomeDoseGroup> {
   }
 
   void _showUndoSnackbar(BuildContext context, DoseItem d) {
-    ScaffoldMessenger.of(context).clearSnackBars();
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text('${d.med.name} marked as taken'),
-        showCloseIcon: true,
-        closeIconColor: Colors.white70,
-        action: SnackBarAction(
-          label: 'Undo',
-          onPressed: () =>
-              widget.state.toggleDose(d, date: widget.selectedDate),
-          textColor: context.L.primary,
-        ),
-        duration: const Duration(seconds: 4),
-        behavior: SnackBarBehavior.floating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        margin: const EdgeInsets.fromLTRB(16, 0, 16, 110),
-      ),
+    SmartAlertService.show(
+      context,
+      title: 'Dose Logged',
+      message: '${d.med.name} marked as taken.',
+      type: AlertType.success,
+      icon: Icons.check_circle_rounded,
     );
   }
 }
 
-class _IndustrialGridPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.black
-      ..strokeWidth = 0.5;
-
-    const spacing = 40.0;
-    for (double i = 0; i < size.width; i += spacing) {
-      canvas.drawLine(Offset(i, 0), Offset(i, size.height), paint);
-    }
-    for (double i = 0; i < size.height; i += spacing) {
-      canvas.drawLine(Offset(0, i), Offset(size.width, i), paint);
-    }
-
-    // Draw some dots at intersections
-    final dotPaint = Paint()..color = Colors.black;
-    for (double i = 0; i < size.width; i += spacing * 2) {
-      for (double j = 0; j < size.height; j += spacing * 2) {
-        canvas.drawCircle(Offset(i, j), 1.0, dotPaint);
-      }
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
-}
 
 // ─────────────────────────────────────────────────────────────
 // DAY TOGGLE — Cal AI style segment control
 // ─────────────────────────────────────────────────────────────
 // ─────────────────────────────────────────────────────────────
-// MAIN PROGRESS CARD — Large industrial tracking unit
+// CAL AI RING HERO — The signature home screen element
+// Large centered ring + bold numbers. THIS is the viral element.
 // ─────────────────────────────────────────────────────────────
-class _MainProgressCard extends StatelessWidget {
-  final int remaining;
+// ─────────────────────────────────────────────────────────────
+// CAL AI RING HERO — premium circular progress hero
+// ─────────────────────────────────────────────────────────────
+class _CalAiRingHero extends StatelessWidget {
+  final int takenCount;
+  final int total;
   final double dosePct;
+  final int streak;
+  final int remaining;
 
-  const _MainProgressCard({required this.remaining, required this.dosePct});
+  const _CalAiRingHero({
+    required this.takenCount,
+    required this.total,
+    required this.dosePct,
+    required this.streak,
+    required this.remaining,
+  });
 
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return Container(
-      height: 160,
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.transparent,
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Text(
-                '$remaining',
-                style: AppTypography.displayXL.copyWith(
-                  color: L.text,
-                ),
+    final isAllDone = total > 0 && dosePct >= 1.0;
+    final isEmpty = total == 0;
+    final primaryColor = isAllDone ? L.green : L.accent;
+    final pct = (dosePct * 100).round();
+    final level = (streak / 3).floor() + 1; // Example gamification
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(32),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: L.card.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(
+              color: Colors.white.withValues(alpha: 0.1),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: primaryColor.withValues(alpha: 0.15),
+                blurRadius: 40,
+                spreadRadius: -10,
               ),
-              const SizedBox(height: 4),
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Container(
-                    width: 6,
-                    height: 6,
-                    decoration: BoxDecoration(
-                      color: L.secondary.withValues(alpha: 0.8),
-                      shape: BoxShape.circle,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'LEVEL $level',
+                        style: AppTypography.labelSmall.copyWith(
+                          color: primaryColor,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        isAllDone ? 'MAX AURA ✨' : 'IN PROGRESS 🔥',
+                        style: AppTypography.titleLarge.copyWith(
+                          color: L.text,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 24,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'DOSES REMAINING',
-                    style: AppTypography.labelSmall.copyWith(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.5,
-                      color: L.sub.withValues(alpha: 0.6),
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: L.card,
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: L.border, width: 0.5),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.local_fire_department_rounded, color: L.accent, size: 16),
+                        const SizedBox(width: 6),
+                        Text(
+                          '$streak',
+                          style: AppTypography.titleMedium.copyWith(
+                            color: L.text,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
+              const SizedBox(height: 32),
+              
+              // Liquid XP Bar
+              Row(
+                children: [
+                  Expanded(
+                    child: Stack(
+                      children: [
+                        Container(
+                          height: 18,
+                          decoration: BoxDecoration(
+                            color: L.fill,
+                            borderRadius: BorderRadius.circular(9),
+                          ),
+                        ),
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 1200),
+                          curve: Curves.easeOutExpo,
+                          height: 18,
+                          width: MediaQuery.of(context).size.width * 0.7 * dosePct,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [primaryColor.withValues(alpha: 0.7), primaryColor],
+                            ),
+                            borderRadius: BorderRadius.circular(9),
+                            boxShadow: [
+                              BoxShadow(color: primaryColor.withValues(alpha: 0.5), blurRadius: 12),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Text(
+                    '$pct%',
+                    style: AppTypography.titleMedium.copyWith(
+                      color: L.text,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              
+              // Status Text
+              Text(
+                isEmpty
+                    ? 'Scan a medicine to gain XP'
+                    : isAllDone
+                        ? 'All quests completed! +100 XP'
+                        : '$remaining quests remaining today',
+                style: AppTypography.bodySmall.copyWith(
+                  color: L.sub,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              
+              const SizedBox(height: 24),
+              // Bento Stats
+              Row(
+                children: [
+                  _XPStatBox(title: 'Taken', value: '$takenCount', color: L.sub),
+                  const SizedBox(width: 12),
+                  _XPStatBox(title: 'Total', value: '$total', color: L.sub),
+                  const SizedBox(width: 12),
+                  _XPStatBox(title: 'Next Lvl', value: '${3 - (streak % 3)} days', color: primaryColor),
+                ],
+              ),
             ],
           ),
-          _AnimatedRing(
-            percent: dosePct,
-            color: L.secondary,
-            trackColor: L.border.withValues(alpha: 0.08),
-            size: 100,
-            strokeWidth: 12,
-            child: Icon(
-              Icons.local_fire_department_rounded,
-              color: L.secondary,
-              size: 28,
-            ),
-          ),
-        ],
+        ),
       ),
     );
   }
 }
 
-// ─────────────────────────────────────────────────────────────
-// STAT ROW — Row of 3 mini circular stat cards
-// ─────────────────────────────────────────────────────────────
-class _StatRow extends StatelessWidget {
-  final int takenCount;
-  final int remaining;
-  final int streak;
-
-  const _StatRow({
-    required this.takenCount,
-    required this.remaining,
-    required this.streak,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: _StatItem(
-            value: '$takenCount',
-            label: 'Taken',
-            icon: Icons.check_circle_outline_rounded,
-            accent: const Color(0xFF10B981),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _StatItem(
-            value: '$remaining',
-            label: 'Ready',
-            icon: Icons.access_time_rounded,
-            accent: const Color(0xFFF59E0B),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: _StatItem(
-            value: '$streak',
-            label: 'Streak',
-            icon: Icons.local_fire_department_rounded,
-            accent: const Color(0xFFEF4444),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _StatItem extends StatelessWidget {
+class _XPStatBox extends StatelessWidget {
+  final String title;
   final String value;
-  final String label;
-  final IconData icon;
-  final Color accent;
+  final Color color;
 
-  const _StatItem({
-    required this.value,
-    required this.label,
-    required this.icon,
-    required this.accent,
-  });
+  const _XPStatBox({required this.title, required this.value, required this.color});
 
   @override
   Widget build(BuildContext context) {
-    final L = context.L;
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-      decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(
-          color: accent.withValues(alpha: 0.15),
-          width: 0.8,
+    return Expanded(
+      child: Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: context.L.fill.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(16),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: accent.withValues(alpha: 0.03),
-            blurRadius: 20,
-            offset: const Offset(0, 8),
-          ),
-        ],
-      ),
-      child: Column(
-        children: [
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              value,
-              style: AppTypography.displayLarge.copyWith(
-                fontSize: 22,
-                fontWeight: FontWeight.w900,
-                color: L.text,
-                letterSpacing: -1,
-              ),
-            ),
-          ),
-          FittedBox(
-            fit: BoxFit.scaleDown,
-            child: Text(
-              label.toUpperCase(),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              title.toUpperCase(),
               style: AppTypography.labelSmall.copyWith(
-                fontSize: 9,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
-                color: L.sub.withValues(alpha: 0.4),
+                color: context.L.sub.withValues(alpha: 0.6),
+                fontWeight: FontWeight.w500,
+                fontSize: 10,
               ),
             ),
-          ),
-          const SizedBox(height: 14),
-          _AnimatedRing(
-            percent: 0.75, // Intentional visual baseline
-            color: accent,
-            trackColor: accent.withValues(alpha: 0.1),
-            size: 36,
-            strokeWidth: 4,
-            child: Icon(icon, color: accent, size: 14),
-          ),
-        ],
+            const SizedBox(height: 4),
+            Text(
+              value,
+              style: AppTypography.titleMedium.copyWith(
+                color: color,
+                fontWeight: FontWeight.w600,
+                fontSize: 18,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
 }
+
 
 // ─────────────────────────────────────────────────────────────
 // DAY TOGGLE — Cal AI style switcher
@@ -1824,7 +1273,7 @@ class _DayToggle extends StatelessWidget {
                             color:
                                 isToday ? L.bg : L.text.withValues(alpha: 0.6),
                             fontWeight:
-                                isToday ? FontWeight.w900 : FontWeight.w600,
+                                isToday ? FontWeight.w600 : FontWeight.w600,
                             letterSpacing: 0.5,
                           ),
                           child: const Text('Today'),
@@ -1846,7 +1295,7 @@ class _DayToggle extends StatelessWidget {
                             color:
                                 !isToday ? L.bg : L.text.withValues(alpha: 0.6),
                             fontWeight:
-                                !isToday ? FontWeight.w900 : FontWeight.w600,
+                                !isToday ? FontWeight.w600 : FontWeight.w600,
                             letterSpacing: 0.5,
                           ),
                           child: const Text('Yesterday'),
@@ -1909,7 +1358,7 @@ class _EmergencyWarningCard extends StatelessWidget {
                   style: AppTypography.labelLarge.copyWith(
                     color: Colors.white,
                     fontSize: 13,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w600,
                     letterSpacing: 1.5,
                   ),
                 ),
@@ -1959,7 +1408,7 @@ class _EmergencyWarningCard extends StatelessWidget {
                     style: AppTypography.labelLarge.copyWith(
                       color: L.error,
                       fontSize: 13,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
                     ),
                   ),
@@ -1972,3 +1421,8 @@ class _EmergencyWarningCard extends StatelessWidget {
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────
+// BADGE GALLERY — Horizontal scrolling badges based on streak
+// ─────────────────────────────────────────────────────────────
+

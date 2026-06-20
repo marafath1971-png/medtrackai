@@ -5,9 +5,9 @@ import '../../services/auth_service.dart';
 import '../../providers/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../../widgets/common/app_loading_indicator.dart';
+import '../../services/smart_alert_service.dart';
 import '../../widgets/shared/shared_widgets.dart';
 import 'package:url_launcher/url_launcher.dart';
-
 // ══════════════════════════════════════════════
 // AUTH SCREEN — Sign In / Sign Up
 // ══════════════════════════════════════════════
@@ -100,8 +100,11 @@ class _AuthScreenState extends State<AuthScreen> {
     }
     await AuthService.sendPasswordResetEmail(_emailCtrl.text.trim());
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Password reset email sent ✓')),
+      SmartAlertService.show(
+        context,
+        title: 'Email Sent',
+        message: 'Password reset email sent ✓',
+        type: AlertType.success,
       );
     }
   }
@@ -151,9 +154,9 @@ class _AuthScreenState extends State<AuthScreen> {
                     width: 72,
                     height: 72,
                     decoration: BoxDecoration(
-                      color: Colors.white,
+                      color: L.card,
                       borderRadius: BorderRadius.circular(24),
-                      boxShadow: AppShadows.neumorphic,
+                      border: Border.all(color: L.border.withValues(alpha: 0.1)),
                     ),
                     child: const Center(
                         child: Image(
@@ -404,9 +407,9 @@ class _GoogleBtn extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: L.card,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: AppShadows.neumorphic,
+          border: Border.all(color: L.border.withValues(alpha: 0.1)),
         ),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           loading
@@ -441,9 +444,9 @@ class _AppleBtn extends StatelessWidget {
         width: double.infinity,
         padding: const EdgeInsets.symmetric(vertical: 16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: L.card,
           borderRadius: BorderRadius.circular(24),
-          boxShadow: AppShadows.neumorphic,
+          border: Border.all(color: L.border.withValues(alpha: 0.1)),
         ),
         child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
           loading
@@ -480,9 +483,9 @@ class _AuthField extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: L.card,
         borderRadius: BorderRadius.circular(20),
-        boxShadow: AppShadows.neumorphic,
+        border: Border.all(color: L.border.withValues(alpha: 0.1)),
       ),
       child: TextField(
         controller: controller,

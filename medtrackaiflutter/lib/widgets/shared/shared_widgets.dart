@@ -884,12 +884,12 @@ class _DoseCardState extends State<DoseCard>
     super.dispose();
   }
 
-  void _handleDoubleTap() {
+  void _triggerDopamineBurst() {
     if (widget.taken) return;
     HapticEngine.doseTaken();
     setState(() => _showBurst = true);
     _burstCtrl.forward(from: 0);
-    Future.delayed(const Duration(milliseconds: 180), widget.onTake);
+    Future.delayed(const Duration(milliseconds: 250), widget.onTake);
   }
 
   @override
@@ -907,104 +907,131 @@ class _DoseCardState extends State<DoseCard>
               isDone ? DismissDirection.none : DismissDirection.startToEnd,
           confirmDismiss: (dir) async {
             if (dir == DismissDirection.startToEnd) {
-              HapticEngine.doseTaken();
-              Future.delayed(const Duration(milliseconds: 180), widget.onTake);
+              _triggerDopamineBurst();
             }
             return false;
           },
           background: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 28),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             alignment: Alignment.centerLeft,
             decoration: BoxDecoration(
-              color: L.success.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
+              // Cal AI: orange swipe background
+              color: AppColors.accent.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                  color: L.success.withValues(alpha: 0.2), width: 0.5),
+                color: AppColors.accent.withValues(alpha: 0.4),
+                width: 0.8,
+              ),
             ),
             child: Row(
               children: [
-                const Text('✅', style: TextStyle(fontSize: 16)),
-                const SizedBox(width: 10),
-                Text('Mark taken',
+                Icon(Icons.check_rounded, color: AppColors.accent, size: 22),
+                const SizedBox(width: 12),
+                Text('Mark as taken',
                     style: AppTypography.labelMedium.copyWith(
-                        color: L.success,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 13)),
+                        color: AppColors.accent,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: 0.5,
+                        fontSize: 14)),
               ],
             ),
           ),
           child: GestureDetector(
             onTapDown: (_) {
               setState(() => _pressed = true);
-              HapticEngine.light();
+              HapticEngine.selection();
             },
             onTapUp: (_) => setState(() => _pressed = false),
             onTapCancel: () => setState(() => _pressed = false),
             onTap: widget.onTap,
-            onDoubleTap: _handleDoubleTap,
             child: AnimatedScale(
-              scale: _pressed ? 0.96 : 1.0,
+              scale: _pressed ? 0.97 : 1.0,
               duration: const Duration(milliseconds: 100),
               curve: Curves.easeOutCubic,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                decoration: BoxDecoration(
-                  color: isDone
-                      ? Colors.white.withValues(alpha: 0.03)
-                      : Colors.white.withValues(alpha: 0.06),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.white.withValues(
-                        alpha: isDone ? 0.04 : (widget.isNext ? 0.12 : 0.06)),
-                    width: 0.5,
-                  ),
-                  boxShadow: widget.isNext && !isDone
-                      ? [
-                          BoxShadow(
-                            color: medColor.withValues(alpha: 0.15),
-                            blurRadius: 24,
-                            spreadRadius: -4,
-                            offset: const Offset(0, 8),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Row(
-                  children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(20),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                  child: Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    decoration: BoxDecoration(
+                      color: isDone ? L.card.withValues(alpha: 0.4) : L.card.withValues(alpha: 0.65),
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
                         color: isDone
-                            ? medColor.withValues(alpha: 0.07)
-                            : medColor.withValues(alpha: 0.13),
-                        borderRadius: BorderRadius.circular(14),
+                            ? L.border.withValues(alpha: 0.1)
+                            : (widget.isNext ? L.accent.withValues(alpha: 0.25) : L.border.withValues(alpha: 0.18)),
+                        width: 1.0,
                       ),
-                      child: Center(
-                        child: isDone
-                            ? Icon(Icons.check_circle_rounded,
-                                size: 20, color: medColor)
-                            : MedImage(
-                                imageUrl: widget.med.imageUrl,
-                                borderRadius: 12,
-                                placeholder: Icon(Icons.medication_rounded,
-                                    size: 18,
-                                    color: medColor.withValues(alpha: 0.8)),
+                      boxShadow: isDone
+                          ? null
+                          : [
+                              BoxShadow(
+                                color: (widget.overdue
+                                        ? L.error
+                                        : (widget.isNext ? L.accent : medColor))
+                                    .withValues(alpha: 0.05),
+                                blurRadius: 16,
+                                spreadRadius: -2,
+                                offset: const Offset(0, 4),
                               ),
-                      ),
-                    )
-                        .animate(target: isDone ? 1 : 0)
-                        .scale(
-                            begin: const Offset(1.0, 1.0),
-                            end: const Offset(1.2, 1.2),
-                            duration: 200.ms,
-                            curve: Curves.elasticOut)
-                        .then()
-                        .scale(
-                            begin: const Offset(1.2, 1.2),
-                            end: const Offset(1.0, 1.0),
-                            duration: 200.ms),
+                            ],
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          width: 44,
+                          height: 44,
+                          padding: const EdgeInsets.all(2),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: isDone
+                                  ? medColor.withValues(alpha: 0.15)
+                                  : medColor.withValues(alpha: 0.35),
+                              width: 1.2,
+                            ),
+                            boxShadow: isDone ? null : [
+                              BoxShadow(
+                                color: medColor.withValues(alpha: 0.1),
+                                blurRadius: 6,
+                                spreadRadius: 0.5,
+                              ),
+                            ],
+                          ),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: isDone
+                                  ? medColor.withValues(alpha: 0.05)
+                                  : medColor.withValues(alpha: 0.08),
+                            ),
+                            child: Center(
+                              child: isDone
+                                  ? Icon(Icons.check_circle_rounded,
+                                      size: 16, color: medColor)
+                                  : MedImage(
+                                      imageUrl: widget.med.imageUrl,
+                                      borderRadius: 100,
+                                      placeholder: Icon(Icons.medication_rounded,
+                                          size: 16,
+                                          color: medColor.withValues(alpha: 0.8)),
+                                    ),
+                            ),
+                          ),
+                        )
+                            .animate(target: isDone ? 1 : 0)
+                            .scale(
+                                begin: const Offset(1.0, 1.0),
+                                end: const Offset(1.15, 1.15),
+                                duration: 200.ms,
+                                curve: Curves.elasticOut)
+                            .then()
+                            .scale(
+                                begin: const Offset(1.15, 1.15),
+                                end: const Offset(1.0, 1.0),
+                                duration: 200.ms),
                     const SizedBox(width: 14),
                     Expanded(
                       child: Column(
@@ -1056,11 +1083,13 @@ class _DoseCardState extends State<DoseCard>
                               ],
                               if (widget.isNext && !isDone) ...[
                                 const SizedBox(width: 8),
-                                Text('· double-tap to log',
+                                Text('· swipe →',
                                     style: AppTypography.labelSmall.copyWith(
                                         fontSize: 10,
-                                        fontWeight: FontWeight.w500,
-                                        color: L.primary.withValues(alpha: 0.6))),
+                                        fontWeight: FontWeight.w700,
+                                        color: L.accent.withValues(alpha: 0.7)))
+                                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                                    .fade(begin: 0.4, end: 1.0, duration: 900.ms),
                               ],
                             ],
                           ),
@@ -1072,13 +1101,15 @@ class _DoseCardState extends State<DoseCard>
                   ],
                 ),
               ),
-            ),
-          ),
         ),
+      ),
+    ),
+  ),
+),
         if (_showBurst)
           Positioned.fill(
             child: IgnorePointer(
-              child: _HeartBurstOverlay(controller: _burstCtrl),
+              child: _DopamineBurstOverlay(controller: _burstCtrl, medColor: medColor),
             ),
           ),
       ],
@@ -1087,16 +1118,8 @@ class _DoseCardState extends State<DoseCard>
 
   Widget _buildCta(AppThemeColors L, Color medColor) {
     if (widget.taken) {
-      return Container(
-        width: 34,
-        height: 34,
-        decoration: BoxDecoration(
-          color: L.success.withValues(alpha: 0.08),
-          shape: BoxShape.circle,
-        ),
-        child: Icon(Icons.check_rounded,
-            color: L.success.withValues(alpha: 0.55), size: 16),
-      );
+      // Cal AI: simple green check
+      return const SizedBox.shrink();
     }
     if (widget.overdue) {
       return GestureDetector(
@@ -1108,8 +1131,8 @@ class _DoseCardState extends State<DoseCard>
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
             color: L.error.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: L.error.withValues(alpha: 0.2), width: 1),
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(color: L.error.withValues(alpha: 0.25), width: 0.8),
           ),
           child: Text('LATE',
               style: AppTypography.labelSmall.copyWith(
@@ -1124,23 +1147,19 @@ class _DoseCardState extends State<DoseCard>
       return GestureDetector(
         onTap: () {
           HapticEngine.selection();
-          widget.onTake();
+          _triggerDopamineBurst();
         },
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
           decoration: BoxDecoration(
-            color: L.text,
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: [
-              BoxShadow(
-                  color: L.text.withValues(alpha: 0.18),
-                  blurRadius: 10,
-                  offset: const Offset(0, 4))
-            ],
+            // Cal AI: orange accent for next-dose CTA
+            color: L.accent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(12),
+            border: Border.all(color: L.accent.withValues(alpha: 0.3), width: 0.8),
           ),
-          child: Text('Take',
+          child: Text('Log',
               style: AppTypography.labelMedium.copyWith(
-                  color: L.bg,
+                  color: L.accent,
                   fontWeight: FontWeight.w800,
                   fontSize: 13,
                   letterSpacing: 0)),
@@ -1156,20 +1175,22 @@ class _DoseCardState extends State<DoseCard>
         width: 36,
         height: 36,
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.06),
-          borderRadius: BorderRadius.circular(12),
+          color: L.fill,
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: L.border, width: 0.8),
         ),
         child: Icon(Icons.add_rounded,
-            size: 20, color: L.text.withValues(alpha: 0.5)),
+            size: 18, color: L.text.withValues(alpha: 0.5)),
       ),
     );
   }
 }
 
-// ── Heart Burst Particle System (TikTok-Style) ───────────────
-class _HeartBurstOverlay extends StatelessWidget {
+// ── Dopamine Burst Particle System ───────────────
+class _DopamineBurstOverlay extends StatelessWidget {
   final AnimationController controller;
-  const _HeartBurstOverlay({required this.controller});
+  final Color medColor;
+  const _DopamineBurstOverlay({required this.controller, required this.medColor});
 
   @override
   Widget build(BuildContext context) {
@@ -1179,15 +1200,38 @@ class _HeartBurstOverlay extends StatelessWidget {
         return Stack(
           alignment: Alignment.center,
           children: [
-            // Central giant pill burst
+            // Glowing Shockwave Ring
             Opacity(
               opacity: (1.0 - controller.value).clamp(0.0, 1.0),
               child: Transform.scale(
-                scale: 0.5 + controller.value * 2.0,
-                child: const Text('💊', style: TextStyle(fontSize: 48)),
+                scale: 1.0 + controller.value * 3.0,
+                child: Container(
+                  width: 100,
+                  height: 100,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(color: medColor, width: 4 * (1.0 - controller.value)),
+                    boxShadow: AppShadows.glow(medColor, intensity: 0.5),
+                  ),
+                ),
               ),
             ),
-            // Orbiting particles
+            // Central giant glow burst
+            Opacity(
+              opacity: (1.0 - controller.value).clamp(0.0, 1.0),
+              child: Transform.scale(
+                scale: 0.5 + controller.value * 1.5,
+                child: Container(
+                  width: 60, height: 60,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: medColor,
+                    boxShadow: AppShadows.glow(medColor, intensity: 1.0),
+                  ),
+                ),
+              ),
+            ),
+            // Orbiting liquid drops
             ..._buildParticles(),
           ],
         );
@@ -1196,15 +1240,14 @@ class _HeartBurstOverlay extends StatelessWidget {
   }
 
   List<Widget> _buildParticles() {
-    const emojis = ['❤️', '💊', '✅', '⭐', '💙'];
     const offsets = [
-      Offset(-60, -80),
-      Offset(60, -80),
-      Offset(-90, 10),
-      Offset(90, 10),
-      Offset(0, -110),
-      Offset(-50, 60),
-      Offset(50, 60),
+      Offset(-80, -100),
+      Offset(80, -100),
+      Offset(-120, 20),
+      Offset(120, 20),
+      Offset(0, -140),
+      Offset(-60, 80),
+      Offset(60, 80),
     ];
     return List.generate(
       offsets.length,
@@ -1216,10 +1259,14 @@ class _HeartBurstOverlay extends StatelessWidget {
             child: Opacity(
               opacity: (1.0 - controller.value * 1.4).clamp(0.0, 1.0),
               child: Transform.scale(
-                scale: (0.5 + controller.value * 0.8).clamp(0.0, 2.0),
-                child: Text(
-                  emojis[i % emojis.length],
-                  style: const TextStyle(fontSize: 20),
+                scale: (0.5 + controller.value).clamp(0.0, 1.5),
+                child: Container(
+                  width: 12, height: 12,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: i % 2 == 0 ? medColor : Colors.white,
+                    boxShadow: AppShadows.glow(medColor),
+                  ),
                 ),
               ),
             ),

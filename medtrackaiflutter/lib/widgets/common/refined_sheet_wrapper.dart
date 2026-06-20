@@ -44,16 +44,12 @@ class RefinedSheetWrapper extends StatelessWidget {
       padding: EdgeInsets.only(
           bottom: bottomInset > 0 ? bottomInset : bottomPadding),
       decoration: BoxDecoration(
-        color: L.meshBg,
+        color: L.card,
         borderRadius:
             const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
-        boxShadow: [
-          BoxShadow(
-            color: L.onBg.withValues(alpha: 0.2),
-            blurRadius: 40,
-            offset: const Offset(0, -10),
-          ),
-        ],
+        border: const Border(
+          top: BorderSide(color: Color(0x1A000000), width: 0.8),
+        ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,

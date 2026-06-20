@@ -60,7 +60,7 @@ class _SimulateMissCardState extends State<SimulateMissCard> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
               decoration: BoxDecoration(
-                  color: _simulating ? L.border : const Color(0xFF111111),
+                  color: _simulating ? L.border : const Color(0xFF1C1C1E),
                   borderRadius: BorderRadius.circular(20)),
               child: Text(_simulating ? 'Sending...' : 'Trigger',
                   style: AppTypography.labelSmall.copyWith(

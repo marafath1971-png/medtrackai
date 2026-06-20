@@ -70,9 +70,9 @@ class ShareAchievementCard extends StatelessWidget {
             width: double.infinity,
             padding: const EdgeInsets.all(32),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: L.card,
               borderRadius: BorderRadius.circular(36),
-              boxShadow: AppShadows.neumorphic,
+              border: Border.all(color: L.border.withValues(alpha: 0.1)),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
@@ -104,9 +104,9 @@ class ShareAchievementCard extends StatelessWidget {
                   width: 100,
                   height: 100,
                   decoration: BoxDecoration(
-                    color: Colors.white,
+                    color: L.card,
                     shape: BoxShape.circle,
-                    boxShadow: AppShadows.neumorphic,
+                    border: Border.all(color: L.border.withValues(alpha: 0.1)),
                   ),
                   child: Center(
                     child: Text(emoji,
@@ -204,8 +204,9 @@ class ShareAchievementCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: L.card,
                       borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: L.border.withValues(alpha: 0.1)),
                     ),
                     child: Center(
                       child: Text(
@@ -229,7 +230,7 @@ class ShareAchievementCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: AppColors.accent,
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(

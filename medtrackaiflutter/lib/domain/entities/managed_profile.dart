@@ -12,6 +12,9 @@ class ManagedProfile {
   final String? gender;
   final String? notes;
 
+  final String? pin;
+  final String? photoPath;
+
   const ManagedProfile({
     required this.id,
     required this.name,
@@ -22,6 +25,8 @@ class ManagedProfile {
     this.dateOfBirth,
     this.gender,
     this.notes,
+    this.pin,
+    this.photoPath,
   });
 
   Map<String, dynamic> toJson() => {
@@ -34,6 +39,8 @@ class ManagedProfile {
         'dateOfBirth': dateOfBirth?.toIso8601String(),
         'gender': gender,
         'notes': notes,
+        'pin': pin,
+        'photoPath': photoPath,
       };
 
   factory ManagedProfile.fromJson(Map<String, dynamic> j) => ManagedProfile(
@@ -46,6 +53,8 @@ class ManagedProfile {
         dateOfBirth: j['dateOfBirth'] != null ? DateTime.parse(j['dateOfBirth']) : null,
         gender: j['gender'],
         notes: j['notes'],
+        pin: j['pin'],
+        photoPath: j['photoPath'],
       );
 
   ManagedProfile copyWith({
@@ -58,6 +67,8 @@ class ManagedProfile {
     DateTime? dateOfBirth,
     String? gender,
     String? notes,
+    String? pin,
+    String? photoPath,
   }) =>
       ManagedProfile(
         id: id ?? this.id,
@@ -69,5 +80,7 @@ class ManagedProfile {
         dateOfBirth: dateOfBirth ?? this.dateOfBirth,
         gender: gender ?? this.gender,
         notes: notes ?? this.notes,
+        pin: pin ?? this.pin,
+        photoPath: photoPath ?? this.photoPath,
       );
 }

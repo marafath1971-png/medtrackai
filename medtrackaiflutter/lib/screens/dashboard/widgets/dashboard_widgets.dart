@@ -102,22 +102,38 @@ class LatencyHeatmap extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'TIMING_CONSISTENCY (7D)',
-          style: AppTypography.labelSmall.copyWith(
-            fontSize: 10,
-            color: L.sub,
-            letterSpacing: 1.5,
-            fontWeight: FontWeight.w900,
-          ),
+        Row(
+          children: [
+            const Text('⏱️', style: TextStyle(fontSize: 16)),
+            const SizedBox(width: 8),
+            Text(
+              'TIMING CONSISTENCY',
+              style: AppTypography.labelSmall.copyWith(
+                fontSize: 12,
+                color: L.sub.withValues(alpha: 0.8),
+                letterSpacing: 2.0,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
-        SizedBox(
+        Container(
           height: 180,
-          child: SquircleCard(
-            padding: const EdgeInsets.all(24),
-            borderWidth: 0.5,
-            child: Row(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: L.card.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(color: L.border.withValues(alpha: 0.2)),
+            boxShadow: [
+              BoxShadow(
+                color: L.bg.withValues(alpha: 0.5),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              )
+            ],
+          ),
+          child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: List.generate(7, (i) {
@@ -160,15 +176,16 @@ class LatencyHeatmap extends StatelessWidget {
                                 bottom: bottomPos,
                                 child: Container(
                                   width: 10,
-                                  height: 10,
+                                  height: 12,
                                   decoration: BoxDecoration(
                                     color: color,
                                     shape: BoxShape.circle,
+                                    border: Border.all(color: L.bg, width: 2),
                                     boxShadow: [
                                       BoxShadow(
-                                          color: color.withValues(alpha: 0.3),
-                                          blurRadius: 8,
-                                          spreadRadius: 1),
+                                          color: color.withValues(alpha: 0.5),
+                                          blurRadius: 12,
+                                          spreadRadius: 2),
                                     ],
                                   ),
                                 )
@@ -176,12 +193,32 @@ class LatencyHeatmap extends StatelessWidget {
                                         onPlay: (c) => c.repeat(reverse: true))
                                     .scale(
                                       begin: const Offset(1, 1),
-                                      end: const Offset(1.2, 1.2),
+                                      end: const Offset(1.3, 1.3),
                                       duration: 1500.ms,
+                                      curve: Curves.easeInOutSine,
                                       delay: (i * 100).ms,
                                     ),
                               );
                             }),
+                            // Viral Laser Line Scan
+                            Positioned.fill(
+                              child: Align(
+                                alignment: Alignment.bottomCenter,
+                                child: Container(
+                                  height: 2,
+                                  decoration: BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: L.accent.withValues(alpha: 0.8),
+                                        blurRadius: 8,
+                                        spreadRadius: 2,
+                                      )
+                                    ],
+                                    color: L.accent,
+                                  ),
+                                ),
+                              ),
+                            ),
                           ],
                         ),
                       ),
@@ -197,7 +234,8 @@ class LatencyHeatmap extends StatelessWidget {
                           'SAT'
                         ][date.weekday % 7],
                         style: AppTypography.labelSmall.copyWith(
-                            fontSize: 11,
+                            fontSize: 10,
+                            fontFamily: 'Courier',
                             color: L.sub,
                             fontWeight: FontWeight.w900),
                       ),
@@ -207,9 +245,8 @@ class LatencyHeatmap extends StatelessWidget {
               }),
             ),
           ),
-        ),
-      ],
-    );
+        ],
+      );
   }
 
   Widget _buildEmptyState(AppThemeColors L) {
@@ -227,10 +264,10 @@ class LatencyHeatmap extends StatelessWidget {
           height: 140,
           child: Container(
             decoration: ShapeDecoration(
-              color: Colors.white,
+              color: L.card,
               shape: ContinuousRectangleBorder(
-                  borderRadius: BorderRadius.circular(48)),
-              shadows: AppShadows.neumorphic,
+                  borderRadius: BorderRadius.circular(48),
+                  side: BorderSide(color: L.border.withValues(alpha: 0.1))),
             ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
@@ -273,19 +310,32 @@ class HealthCoachCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                const Text('🧠', style: TextStyle(fontSize: 14)),
+                const Text('🧠', style: TextStyle(fontSize: 20)),
                 const SizedBox(width: 8),
-                Text('AI_MEDICAL_BRIEFING',
+                Text('AI HEALTH COACH',
                     style: AppTypography.labelSmall.copyWith(
-                        fontSize: 10,
+                        fontSize: 12,
                         color: L.purple,
-                        letterSpacing: 1.5,
+                        letterSpacing: 2.0,
                         fontWeight: FontWeight.w900)),
               ],
             ),
             BouncingButton(
                 onTap: onRetry,
-                child: const Text('🪄', style: TextStyle(fontSize: 14))),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: L.purple.withValues(alpha: 0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Row(
+                    children: [
+                      const Text('🪄', style: TextStyle(fontSize: 14)),
+                      const SizedBox(width: 4),
+                      Text('Refresh', style: AppTypography.labelSmall.copyWith(color: L.purple, fontWeight: FontWeight.w800, fontSize: 10)),
+                    ],
+                  ),
+                )),
           ],
         ),
         const SizedBox(height: 16),
@@ -296,9 +346,11 @@ class HealthCoachCard extends StatelessWidget {
               : (cat.contains('adh') ? L.text : L.purple);
 
           return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.only(bottom: 16),
             child: SquircleCard(
               padding: const EdgeInsets.all(24),
+              color: L.card,
+              showBorder: true,
               borderWidth: 0.5,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -397,9 +449,9 @@ class HealthCoachCard extends StatelessWidget {
           padding: const EdgeInsets.all(32),
           width: double.infinity,
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: L.card,
             borderRadius: BorderRadius.circular(24),
-            boxShadow: AppShadows.neumorphic,
+            border: Border.all(color: L.border.withValues(alpha: 0.1)),
           ),
           child: Column(
             children: [
@@ -411,8 +463,7 @@ class HealthCoachCard extends StatelessWidget {
                 ),
                 child:
                     Icon(Icons.auto_awesome_rounded, color: L.purple, size: 28),
-              ).animate(onPlay: (c) => c.repeat(reverse: true)).shimmer(
-                  duration: 2.seconds, color: L.purple.withValues(alpha: 0.2)),
+              ),
               const SizedBox(height: 24),
               Text('Your AI Coach is ready',
                   style: AppTypography.titleLarge.copyWith(
@@ -451,10 +502,20 @@ class AdherenceTrendChart extends StatelessWidget {
   Widget build(BuildContext context) {
     if (trendData.isEmpty) return _buildEmptyState(L);
 
-    return SquircleCard(
+    return Container(
       padding: const EdgeInsets.all(24),
-      borderWidth: 0.5,
-      radius: 28,
+      decoration: BoxDecoration(
+        color: L.card.withValues(alpha: 0.6),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: L.border.withValues(alpha: 0.2)),
+        boxShadow: [
+          BoxShadow(
+            color: L.bg.withValues(alpha: 0.5),
+            blurRadius: 24,
+            offset: const Offset(0, 8),
+          )
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -464,22 +525,29 @@ class AdherenceTrendChart extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      'ADHERENCE TREND',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: L.sub.withValues(alpha: 0.5),
-                        fontSize: 9,
-                        letterSpacing: 1.5,
-                        fontWeight: FontWeight.w900,
-                      ),
+                    Row(
+                      children: [
+                        const Text('📈', style: TextStyle(fontSize: 16)),
+                        const SizedBox(width: 8),
+                        Text(
+                          'ADHERENCE TREND',
+                          style: AppTypography.labelSmall.copyWith(
+                            color: L.sub.withValues(alpha: 0.8),
+                            fontSize: 11,
+                            letterSpacing: 2.0,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 6),
                     Text(
                       '30-Day Progress',
                       style: AppTypography.headlineSmall.copyWith(
                         color: L.text,
                         fontWeight: FontWeight.w900,
-                        letterSpacing: -0.5,
+                        letterSpacing: -1.0,
+                        fontSize: 22,
                       ),
                     ),
                   ],
@@ -546,12 +614,19 @@ class AdherenceTrendChart extends StatelessWidget {
                             top: Radius.circular(6),
                             bottom: Radius.circular(2),
                           ),
+                          boxShadow: !isEmpty && val >= 0.8 ? [
+                            BoxShadow(
+                              color: barColor.withValues(alpha: 0.4),
+                              blurRadius: 8,
+                              offset: const Offset(0, -2),
+                            )
+                          ] : null,
                         ),
                       ).animate(delay: (i * 20).ms).scaleY(
                             begin: 0.0,
                             end: 1.0,
-                            duration: 700.ms,
-                            curve: Curves.easeOutQuart,
+                            duration: 1000.ms,
+                            curve: Curves.elasticOut, // snappy bounce
                             alignment: Alignment.bottomCenter,
                           ),
                     ),
@@ -626,20 +701,36 @@ class InventoryStatusCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'SUPPLY STATUS',
-          style: AppTypography.labelSmall.copyWith(
-            fontSize: 9,
-            color: L.sub.withValues(alpha: 0.5),
-            letterSpacing: 1.5,
-            fontWeight: FontWeight.w900,
-          ),
+        Row(
+          children: [
+            const Text('💊', style: TextStyle(fontSize: 16)),
+            const SizedBox(width: 8),
+            Text(
+              'SUPPLY STATUS',
+              style: AppTypography.labelSmall.copyWith(
+                fontSize: 11,
+                color: L.sub.withValues(alpha: 0.8),
+                letterSpacing: 2.0,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
-        SquircleCard(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-          borderWidth: 0.5,
-          radius: 24,
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+          decoration: BoxDecoration(
+            color: L.card.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(32),
+            border: Border.all(color: L.border.withValues(alpha: 0.2)),
+            boxShadow: [
+              BoxShadow(
+                color: L.bg.withValues(alpha: 0.5),
+                blurRadius: 24,
+                offset: const Offset(0, 8),
+              )
+            ],
+          ),
           child: Column(
             children: trackedMeds.asMap().entries.map((entry) {
               final i = entry.key;
@@ -677,8 +768,9 @@ class InventoryStatusCard extends StatelessWidget {
                         '${med.count}',
                         style: AppTypography.labelSmall.copyWith(
                           color: color,
+                          fontFamily: 'Courier',
                           fontWeight: FontWeight.w900,
-                          fontSize: 11,
+                          fontSize: 14,
                         ),
                         textAlign: TextAlign.right,
                       ).animate(

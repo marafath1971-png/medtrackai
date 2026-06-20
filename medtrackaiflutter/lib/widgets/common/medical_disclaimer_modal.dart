@@ -49,9 +49,9 @@ class MedicalDisclaimerModal extends StatelessWidget {
       child: Container(
         constraints: const BoxConstraints(maxWidth: 400),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: L.card,
           borderRadius: BorderRadius.circular(32),
-          boxShadow: AppShadows.neumorphic,
+          border: Border.all(color: L.border.withValues(alpha: 0.1)),
         ),
         child: SingleChildScrollView(
           physics: const BouncingScrollPhysics(

@@ -5,6 +5,7 @@ import '../../../../providers/app_state.dart';
 import '../../../../services/export_service.dart';
 import '../../../../theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../paywall/premium_paywall_overlay.dart';
 import 'settings_shared.dart';
 
 class DataTab extends StatefulWidget {
@@ -73,8 +74,7 @@ class _DataTabState extends State<DataTab> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text('DATA INFRASTRUCTURE',
-                    style: AppTypography.labelLarge.copyWith(
-                        fontSize: 10,
+                    style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', fontSize: 10,
                         fontWeight: FontWeight.w900,
                         color: L.sub.withValues(alpha: 0.5),
                         letterSpacing: 2.0)),
@@ -109,8 +109,15 @@ class _DataTabState extends State<DataTab> {
                   iconBg: const Color(0xFF6366F1).withValues(alpha: 0.1),
                   label: s.exportPdfReport,
                   sub: s.exportPdfSubtitle,
-                  onClick: () => ExportService.exportAdherenceReport(
-                      context.read<AppState>()),
+                  onClick: () async {
+                    final success = await ExportService.exportAdherenceReport(context.read<AppState>());
+                    if (!success && context.mounted) {
+                      Navigator.of(context).push(MaterialPageRoute(
+                        builder: (_) => const PremiumPaywallOverlay(),
+                        fullscreenDialog: true,
+                      ));
+                    }
+                  },
                   border: true),
               SettingsModalRow(
                   icon: '📥',
@@ -149,7 +156,7 @@ class _DataTabState extends State<DataTab> {
               const SizedBox(height: 6),
               Text(s.deleteConfirmBody,
                   textAlign: TextAlign.center,
-                  style: AppTypography.bodySmall.copyWith(color: L.sub)),
+                  style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', color: L.sub)),
               const SizedBox(height: 16),
               Row(children: [
                 Expanded(
@@ -162,8 +169,7 @@ class _DataTabState extends State<DataTab> {
                                 borderRadius: BorderRadius.circular(24)),
                             child: Center(
                                 child: Text(s.cancel,
-                                    style: AppTypography.labelLarge.copyWith(
-                                        fontWeight: FontWeight.w700,
+                                    style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w700,
                                         color: L.text)))))),
                 const SizedBox(width: 8),
                 Expanded(
@@ -179,8 +185,7 @@ class _DataTabState extends State<DataTab> {
                                 borderRadius: BorderRadius.circular(24)),
                             child: Center(
                                 child: Text(s.deleteButton,
-                                    style: AppTypography.labelLarge.copyWith(
-                                        fontWeight: FontWeight.w800,
+                                    style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w800,
                                         color: Colors.white)))))),
               ]),
             ]),
@@ -242,15 +247,13 @@ class _SummaryBox extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(v,
-                style: AppTypography.displaySmall.copyWith(
-                    fontWeight: FontWeight.w900,
+                style: AppTypography.displaySmall.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
                     color: L.text,
                     fontSize: 24,
                     letterSpacing: -1.0)),
             const SizedBox(height: 2),
             Text(l.toUpperCase(),
-                style: AppTypography.labelSmall.copyWith(
-                    fontWeight: FontWeight.w900,
+                style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
                     color: L.sub.withValues(alpha: 0.4),
                     fontSize: 10,
                     letterSpacing: 0.5)),
