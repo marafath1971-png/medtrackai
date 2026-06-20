@@ -2,8 +2,17 @@
 // CONSTANTS & DESIGN TOKENS
 // ══════════════════════════════════════════════
 
+// ── Legal & Store Compliance ─────────────────
+const String kAppName = 'MedTrackAI';
+const String kAppVersion = '1.0.0';
+const String kPrivacyPolicyUrl = 'https://medtrackai.app/privacy';
+const String kTermsOfServiceUrl = 'https://medtrackai.app/terms';
+const String kSupportEmail = 'support@medtrackai.app';
+const String kSupportUrl = 'mailto:support@medtrackai.app?subject=MedTrackAI%20Support';
+
 const String kModel = 'claude-sonnet-4-20250514';
 const String kAnthropicBaseUrl = 'https://api.anthropic.com/v1/messages';
+
 
 // Promo codes
 const Map<String, Map<String, dynamic>> kPromoCodes = {
@@ -98,6 +107,21 @@ const List<Map<String, String>> kMedCounts = [
   {'v': '2–3', 'e': '2️⃣'},
   {'v': '4–6', 'e': '🔢'},
   {'v': '7+', 'e': '📦'},
+];
+
+// Experience Levels
+const List<Map<String, String>> kExperienceLevels = [
+  {'v': 'Beginner (First time tracking)', 'e': '🌱'},
+  {'v': 'Intermediate (Used alarms/notes)', 'e': '📈'},
+  {'v': 'Pro (Used other tracking apps)', 'e': '🏆'},
+];
+
+// Smart Devices
+const List<Map<String, String>> kSmartDevices = [
+  {'v': 'Apple Watch', 'e': '⌚'},
+  {'v': 'Oura Ring', 'e': '💍'},
+  {'v': 'Fitbit / Garmin', 'e': '🏃‍♂️'},
+  {'v': 'None', 'e': '📱'},
 ];
 
 // Forget patterns

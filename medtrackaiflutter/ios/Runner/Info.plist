@@ -70,6 +70,8 @@
 	</array>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>MedAI accesses your photo library to analyze photos of your prescriptions and medical documents for digital tracking and safe record keeping.</string>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>MedAI saves scanned prescription images to your photo library so you can keep a local backup of your medical records.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>MedAI uses your camera to scan medicine packaging, barcodes, and prescription labels. This allows our AI to automatically retrieve safety warnings and set up your dosage schedule accurately.</string>
 	<key>NSMicrophoneUsageDescription</key>
@@ -82,6 +84,10 @@
 	<string>MedAI integrates with Apple Health to correlate your medication adherence with vital signs like heart rate and blood glucose, providing personalized clinical insights.</string>
 	<key>NSHealthUpdateUsageDescription</key>
 	<string>MedAI uses your health data to track your wellness progress and synchronize vitals alongside your medication adherence records.</string>
+	<key>NSUserTrackingUsageDescription</key>
+	<string>MedAI uses anonymous analytics to improve app performance and personalise your experience. No personal health data is shared with advertisers.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>MedAI may use your location to provide region-specific medication safety information and local emergency service numbers.</string>
 	<key>CFBundleIcons</key>
 	<dict>
 		<key>CFBundleAlternateIcons</key>

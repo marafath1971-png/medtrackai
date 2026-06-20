@@ -175,7 +175,7 @@ class _StreakModalState extends State<StreakModal> {
                           radius: const Radius.circular(10),
                           thickness: 4,
                           child: SingleChildScrollView(
-                            physics: const BouncingScrollPhysics(),
+                            physics: const ClampingScrollPhysics(),
                             padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,

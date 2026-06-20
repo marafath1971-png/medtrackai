@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -75,13 +76,21 @@ class CompleteProfileCard extends StatelessWidget {
     return Container(
       margin: const EdgeInsets.symmetric(
           horizontal: AppSpacing.screenPadding, vertical: AppSpacing.m),
-      decoration: BoxDecoration(
-        color: Colors.white,
+      child: ClipRRect(
         borderRadius: BorderRadius.circular(28),
-        boxShadow: AppShadows.neumorphic,
-      ),
-      clipBehavior: Clip.antiAlias,
-      child: Column(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+          child: Container(
+            decoration: BoxDecoration(
+              color: L.card.withValues(alpha: 0.7),
+              borderRadius: BorderRadius.circular(28),
+              border: Border.all(
+                color: L.glassBorder,
+                width: 0.5,
+              ),
+              boxShadow: L.shadowSoft,
+            ),
+            child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
@@ -134,6 +143,9 @@ class CompleteProfileCard extends StatelessWidget {
           const SizedBox(height: 8),
         ],
       ),
+    ),
+    ),
+    ),
     ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.1, end: 0);
   }
 

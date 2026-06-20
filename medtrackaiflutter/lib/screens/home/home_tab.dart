@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -39,7 +38,6 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
   double _scrollOffset = 0;
   DateTime _selectedDate = DateTime.now();
   late final ScrollController _scrollController;
-  final GlobalKey _medsHeaderKey = GlobalKey();
   final GlobalKey _medsEmptyKey = GlobalKey();
 
   @override
@@ -96,6 +94,26 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
         .toList();
     final hasSevereSymptom = severeSymptoms.isNotEmpty;
 
+    // Pre-calculate time groups for timeline to avoid redundant computations and ensure correct childCount
+    final groups = [
+      (
+        title: 'Morning',
+        items: doses.where((d) => d.sched.h >= 5 && d.sched.h < 11).toList()
+      ),
+      (
+        title: 'Afternoon',
+        items: doses.where((d) => d.sched.h >= 11 && d.sched.h < 17).toList()
+      ),
+      (
+        title: 'Evening',
+        items: doses.where((d) => d.sched.h >= 17 && d.sched.h < 21).toList()
+      ),
+      (
+        title: 'Night',
+        items: doses.where((d) => d.sched.h >= 21 || d.sched.h < 5).toList()
+      ),
+    ].where((g) => g.items.isNotEmpty).toList();
+
     return Scaffold(
       backgroundColor: L.bg,
       body: Stack(
@@ -108,13 +126,15 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
             child: Opacity(
               opacity: 0.15,
               child: MeshGradient(
-                colors: dosePct >= 1.0 
-                    ? [L.green, L.accent, L.green, L.green] 
-                    : dosePct > 0 
-                        ? [L.accent, Colors.blue, L.accent, L.card] 
-                        : [Colors.blue, L.card, L.bg, L.card],
+                colors: [
+                  L.accent.withValues(alpha: 0.6),
+                  L.purple.withValues(alpha: 0.6),
+                  L.bg,
+                  Colors.blue.withValues(alpha: 0.6),
+                ],
               ),
-            ),
+            ).animate(onPlay: (controller) => controller.repeat(reverse: true))
+             .fade(begin: 0.5, end: 1.0, duration: 3000.ms, curve: Curves.easeInOutSine),
           ),
           RefreshIndicator(
             onRefresh: () async {
@@ -198,34 +218,58 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
                       ),
                     ),
 
+                  // ── UPCOMING DOSES CAROUSEL (Moved directly below Hero Progress Card) ──
+                  if (doses.isNotEmpty)
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                      sliver: SliverToBoxAdapter(
+                        child: _NextDoseCarousel(
+                          doses: doses,
+                          takenToday: takenMap,
+                          state: context.read<AppState>(),
+                          onView: (med) => setState(() {
+                            _viewingMed = med;
+                            _startInEditMode = false;
+                          }),
+                        )
+                            .animate()
+                            .fadeIn(duration: 800.ms, delay: 100.ms)
+                            .slideY(
+                                begin: 0.08, end: 0, curve: Curves.easeOutExpo),
+                      ),
+                    ),
+
+                  // ── DAILY SCHEDULE SECTION HEADER ──
+                  if (doses.isNotEmpty)
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
+                      sliver: SliverToBoxAdapter(
+                        child: Row(
+                          children: [
+                            const Text('📅', style: TextStyle(fontSize: 16)),
+                            const SizedBox(width: 8),
+                            Text(
+                              'DAILY SCHEDULE',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: L.sub.withValues(alpha: 0.8),
+                                fontSize: 11,
+                                letterSpacing: 2.0,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                  // ── DAILY SCHEDULE GROUPS LIST ──
                   if (doses.isNotEmpty)
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
                       sliver: SliverList(
                         delegate: SliverChildBuilderDelegate(
                           (context, index) {
-                            final groups = [
-                              (
-                                title: 'Morning',
-                                items: doses.where((d) => d.sched.h >= 5 && d.sched.h < 11).toList()
-                              ),
-                              (
-                                title: 'Afternoon',
-                                items: doses.where((d) => d.sched.h >= 11 && d.sched.h < 17).toList()
-                              ),
-                              (
-                                title: 'Evening',
-                                items: doses.where((d) => d.sched.h >= 17 && d.sched.h < 21).toList()
-                              ),
-                              (
-                                title: 'Night',
-                                items: doses.where((d) => d.sched.h >= 21 || d.sched.h < 5).toList()
-                              ),
-                            ].where((g) => g.items.isNotEmpty).toList();
-
-                            if (index >= groups.length) return null;
                             final group = groups[index];
-
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 24),
                               child: HomeDoseGroup(
@@ -248,43 +292,38 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
                               ),
                             );
                           },
-                          childCount: 4,
+                          childCount: groups.length,
                         ),
                       ),
                     ),
 
-                  if (doses.isNotEmpty)
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                      sliver: SliverToBoxAdapter(
-                        child: _NextDoseCarousel(
-                          doses: doses,
-                          takenToday: takenMap,
-                          state: context.read<AppState>(),
-                          onView: (med) => setState(() {
-                            _viewingMed = med;
-                            _startInEditMode = false;
-                          }),
-                        )
-                            .animate()
-                            .fadeIn(duration: 800.ms, delay: 300.ms)
-                            .slideY(
-                                begin: 0.08, end: 0, curve: Curves.easeOutExpo),
-                      ),
-                    ),
-
+                  // ── MEDICINE CABINET SECTION HEADER ──
                   SliverPadding(
                     padding: const EdgeInsets.symmetric(
                         horizontal: AppSpacing.screenPadding),
                     sliver: SliverToBoxAdapter(
                       child: Padding(
-                          padding: const EdgeInsets.only(bottom: 16),
-                          child: HomeMedsHeader(
-                            key: _medsHeaderKey,
-                            onAdd: widget.onScan,
-                          )),
+                        padding: const EdgeInsets.only(bottom: 12, top: 8),
+                        child: Row(
+                          children: [
+                            const Text('🗄️', style: TextStyle(fontSize: 16)),
+                            const SizedBox(width: 8),
+                            Text(
+                              'MEDICINE CABINET',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: L.sub.withValues(alpha: 0.8),
+                                fontSize: 11,
+                                letterSpacing: 2.0,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
+
+                  // ── MEDICINE CABINET CONTENT ──
                   if (meds.isEmpty)
                     SliverPadding(
                         padding: const EdgeInsets.symmetric(
@@ -547,13 +586,6 @@ class _ShareMilestoneCardCTA extends StatelessWidget {
           ),
           borderRadius: BorderRadius.circular(24),
           border: Border.all(color: gradColors[0].withValues(alpha: 0.3), width: 0.8),
-          boxShadow: [
-            BoxShadow(
-              color: gradColors[0].withValues(alpha: 0.08),
-              blurRadius: 20,
-              offset: const Offset(0, 8),
-            ),
-          ],
         ),
         child: Row(
           children: [
@@ -562,13 +594,6 @@ class _ShareMilestoneCardCTA extends StatelessWidget {
               decoration: BoxDecoration(
                 gradient: LinearGradient(colors: gradColors),
                 shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: gradColors[0].withValues(alpha: 0.35),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
               ),
               child: const Icon(Icons.share_rounded, size: 18, color: Colors.white),
             ),
@@ -731,11 +756,11 @@ class _NextDoseCarouselState extends State<_NextDoseCarousel> {
 }
 
 // ─────────────────────────────────────────────────────────────
-// ANIMATED RING
+// ANIMATED NEON RING
 // ─────────────────────────────────────────────────────────────
 class _AnimatedRing extends StatefulWidget {
   final double percent;
-  final Color color;
+  final List<Color> colors;
   final Color trackColor;
   final double size;
   final double strokeWidth;
@@ -743,7 +768,7 @@ class _AnimatedRing extends StatefulWidget {
 
   const _AnimatedRing({
     required this.percent,
-    required this.color,
+    required this.colors,
     required this.trackColor,
     required this.size,
     required this.strokeWidth,
@@ -763,9 +788,9 @@ class _AnimatedRingState extends State<_AnimatedRing>
   void initState() {
     super.initState();
     _ctrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1400));
+        vsync: this, duration: const Duration(milliseconds: 1800));
     _anim = Tween<double>(begin: 0, end: widget.percent)
-        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutExpo));
+        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
     _ctrl.forward();
   }
 
@@ -774,7 +799,7 @@ class _AnimatedRingState extends State<_AnimatedRing>
     super.didUpdateWidget(old);
     if (old.percent != widget.percent) {
       _anim = Tween<double>(begin: _anim.value, end: widget.percent)
-          .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutExpo));
+          .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
       _ctrl
         ..reset()
         ..forward();
@@ -798,7 +823,7 @@ class _AnimatedRingState extends State<_AnimatedRing>
           child: CustomPaint(
             painter: _RingPainter(
               percent: _anim.value,
-              color: widget.color,
+              colors: widget.colors,
               trackColor: widget.trackColor,
               strokeWidth: widget.strokeWidth,
             ),
@@ -812,13 +837,13 @@ class _AnimatedRingState extends State<_AnimatedRing>
 
 class _RingPainter extends CustomPainter {
   final double percent;
-  final Color color;
+  final List<Color> colors;
   final Color trackColor;
   final double strokeWidth;
 
   const _RingPainter({
     required this.percent,
-    required this.color,
+    required this.colors,
     required this.trackColor,
     required this.strokeWidth,
   });
@@ -830,7 +855,7 @@ class _RingPainter extends CustomPainter {
     const startAngle = -1.5707963267948966;
     final sweepAngle = 6.283185307179586 * percent;
 
-    // Background track
+    // Background track — soft, barely visible
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       0,
@@ -845,27 +870,24 @@ class _RingPainter extends CustomPainter {
 
     if (percent > 0) {
       final rect = Rect.fromCircle(center: center, radius: radius);
-      // Soft outer glow
-      canvas.drawArc(
-        rect,
-        startAngle,
-        sweepAngle,
-        false,
-        Paint()
-          ..color = color.withValues(alpha: 0.25)
-          ..strokeWidth = strokeWidth + 8
-          ..style = PaintingStyle.stroke
-          ..strokeCap = StrokeCap.round
-          ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8.0),
+      final validColors = colors.length >= 2 ? colors : [colors.first, colors.first];
+
+      final gradient = SweepGradient(
+        colors: validColors,
+        startAngle: 0.0,
+        endAngle: sweepAngle,
+        tileMode: TileMode.decal,
+        transform: GradientRotation(startAngle),
       );
-      // Sharp progress arc
+
+      // Clean crisp arc — no shadow/glow
       canvas.drawArc(
         rect,
         startAngle,
         sweepAngle,
         false,
         Paint()
-          ..color = color
+          ..shader = gradient.createShader(rect)
           ..strokeWidth = strokeWidth
           ..style = PaintingStyle.stroke
           ..strokeCap = StrokeCap.round,
@@ -875,7 +897,7 @@ class _RingPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_RingPainter old) =>
-      old.percent != percent || old.color != color;
+      old.percent != percent || old.colors != colors;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -1005,203 +1027,178 @@ class _CalAiRingHero extends StatelessWidget {
     final L = context.L;
     final isAllDone = total > 0 && dosePct >= 1.0;
     final isEmpty = total == 0;
-    final primaryColor = isAllDone ? L.green : L.accent;
-    final pct = (dosePct * 100).round();
-    final level = (streak / 3).floor() + 1; // Example gamification
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(32),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: L.card.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(32),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.1),
-              width: 1,
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: primaryColor.withValues(alpha: 0.15),
-                blurRadius: 40,
-                spreadRadius: -10,
-              ),
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    // Clean two-tone gradient: accent → slightly darker
+    final ringColors = isAllDone
+        ? [L.green, Color.lerp(L.green, Colors.teal, 0.4)!]
+        : [L.accent, Color.lerp(L.accent, L.secondary, 0.5)!];
+
+    final statusText = isEmpty
+        ? 'Add a medicine to get started'
+        : isAllDone
+            ? '🎉 All doses complete'
+            : '$remaining dose${remaining == 1 ? '' : 's'} remaining';
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(32),
+        gradient: LinearGradient(
+          colors: [
+            L.purple.withValues(alpha: 0.1),
+            L.card.withValues(alpha: 0.85),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        border: Border.all(
+          color: L.purple.withValues(alpha: 0.18),
+          width: 1.5,
+        ),
+        boxShadow: AppShadows.subtle,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // ── Header row ──
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Header
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              // Left: title + subtitle
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'LEVEL $level',
-                        style: AppTypography.labelSmall.copyWith(
-                          color: primaryColor,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        isAllDone ? 'MAX AURA ✨' : 'IN PROGRESS 🔥',
-                        style: AppTypography.titleLarge.copyWith(
-                          color: L.text,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 24,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: L.card,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: L.border, width: 0.5),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.local_fire_department_rounded, color: L.accent, size: 16),
-                        const SizedBox(width: 6),
-                        Text(
-                          '$streak',
-                          style: AppTypography.titleMedium.copyWith(
-                            color: L.text,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              
-              // Liquid XP Bar
-              Row(
-                children: [
-                  Expanded(
-                    child: Stack(
-                      children: [
-                        Container(
-                          height: 18,
-                          decoration: BoxDecoration(
-                            color: L.fill,
-                            borderRadius: BorderRadius.circular(9),
-                          ),
-                        ),
-                        AnimatedContainer(
-                          duration: const Duration(milliseconds: 1200),
-                          curve: Curves.easeOutExpo,
-                          height: 18,
-                          width: MediaQuery.of(context).size.width * 0.7 * dosePct,
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [primaryColor.withValues(alpha: 0.7), primaryColor],
-                            ),
-                            borderRadius: BorderRadius.circular(9),
-                            boxShadow: [
-                              BoxShadow(color: primaryColor.withValues(alpha: 0.5), blurRadius: 12),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(width: 16),
                   Text(
-                    '$pct%',
-                    style: AppTypography.titleMedium.copyWith(
+                    isAllDone ? 'All Done!' : 'Today',
+                    style: AppTypography.headlineSmall.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 20,
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    isAllDone
+                        ? 'Perfect day ✨'
+                        : '$takenCount of $total doses taken',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: L.sub.withValues(alpha: 0.65),
+                      fontWeight: FontWeight.w500,
+                      fontSize: 13,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
-              
-              // Status Text
-              Text(
-                isEmpty
-                    ? 'Scan a medicine to gain XP'
-                    : isAllDone
-                        ? 'All quests completed! +100 XP'
-                        : '$remaining quests remaining today',
-                style: AppTypography.bodySmall.copyWith(
-                  color: L.sub,
-                  fontWeight: FontWeight.w600,
+              // Right: 🔥 Streak badge
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFFF3E0),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: const Color(0xFFFFCC80).withValues(alpha: 0.6),
+                    width: 0.8,
+                  ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('🔥', style: TextStyle(fontSize: 16))
+                        .animate(onPlay: (c) => c.repeat(reverse: true))
+                        .scaleXY(begin: 0.92, end: 1.08, duration: 900.ms, curve: Curves.easeInOutSine),
+                    const SizedBox(width: 5),
+                    Text(
+                      '$streak',
+                      style: AppTypography.titleMedium.copyWith(
+                        color: const Color(0xFFE65100),
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(width: 3),
+                    Text(
+                      'day${streak == 1 ? '' : 's'}',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: const Color(0xFFE65100).withValues(alpha: 0.7),
+                        fontWeight: FontWeight.w500,
+                        fontSize: 11,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              
-              const SizedBox(height: 24),
-              // Bento Stats
-              Row(
-                children: [
-                  _XPStatBox(title: 'Taken', value: '$takenCount', color: L.sub),
-                  const SizedBox(width: 12),
-                  _XPStatBox(title: 'Total', value: '$total', color: L.sub),
-                  const SizedBox(width: 12),
-                  _XPStatBox(title: 'Next Lvl', value: '${3 - (streak % 3)} days', color: primaryColor),
-                ],
-              ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
 
-class _XPStatBox extends StatelessWidget {
-  final String title;
-  final String value;
-  final Color color;
+          const SizedBox(height: 32),
 
-  const _XPStatBox({required this.title, required this.value, required this.color});
-
-  @override
-  Widget build(BuildContext context) {
-    return Expanded(
-      child: Container(
-        padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: context.L.fill.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(16),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title.toUpperCase(),
-              style: AppTypography.labelSmall.copyWith(
-                color: context.L.sub.withValues(alpha: 0.6),
-                fontWeight: FontWeight.w500,
-                fontSize: 10,
-              ),
+          // ── Ring ──
+          _AnimatedRing(
+            percent: dosePct,
+            colors: ringColors,
+            trackColor: L.fill.withValues(alpha: 0.7),
+            size: 220,
+            strokeWidth: 20,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TweenAnimationBuilder<double>(
+                  tween: Tween<double>(begin: 0, end: dosePct * 100),
+                  duration: const Duration(milliseconds: 1600),
+                  curve: Curves.easeOutCubic,
+                  builder: (context, value, _) {
+                    return Text(
+                      '${value.round()}%',
+                      style: AppTypography.displayXL.copyWith(
+                        color: L.text,
+                        height: 1.0,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 52,
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  isEmpty ? 'No meds' : '$takenCount / $total',
+                  style: AppTypography.labelMedium.copyWith(
+                    color: L.sub.withValues(alpha: 0.55),
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.5,
+                    fontSize: 13,
+                  ),
+                ),
+              ],
             ),
-            const SizedBox(height: 4),
-            Text(
-              value,
-              style: AppTypography.titleMedium.copyWith(
-                color: color,
+          ),
+
+          const SizedBox(height: 28),
+
+          // ── Status pill ──
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: isAllDone
+                  ? L.green.withValues(alpha: 0.10)
+                  : L.fill.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Text(
+              statusText,
+              style: AppTypography.bodySmall.copyWith(
+                color: isAllDone ? L.green : L.sub.withValues(alpha: 0.7),
                 fontWeight: FontWeight.w600,
-                fontSize: 18,
+                fontSize: 13,
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
 }
+
 
 
 // ─────────────────────────────────────────────────────────────
@@ -1227,15 +1224,19 @@ class _DayToggle extends StatelessWidget {
     return Container(
       height: 48,
       decoration: BoxDecoration(
-        color: L.fill.withValues(alpha: 0.55),
+        color: L.card.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: L.border.withValues(alpha: 0.08), width: 0.8),
+        border: Border.all(
+          color: L.purple.withValues(alpha: 0.15),
+          width: 1.0,
+        ),
       ),
       child: LayoutBuilder(
         builder: (context, constraints) {
           final halfWidth = constraints.maxWidth / 2;
           return Stack(
             children: [
+              // ── Sliding active pill ──
               AnimatedPositioned(
                 duration: 350.ms,
                 curve: Curves.easeOutBack,
@@ -1249,14 +1250,15 @@ class _DayToggle extends StatelessWidget {
                     borderRadius: BorderRadius.circular(20),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.08),
-                        blurRadius: 8,
-                        offset: const Offset(0, 4),
+                        color: L.text.withValues(alpha: 0.12),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
                       ),
                     ],
                   ),
                 ),
               ),
+              // ── Labels ──
               Row(
                 children: [
                   Expanded(
@@ -1271,10 +1273,10 @@ class _DayToggle extends StatelessWidget {
                           duration: 250.ms,
                           style: AppTypography.labelLarge.copyWith(
                             color:
-                                isToday ? L.bg : L.text.withValues(alpha: 0.6),
-                            fontWeight:
-                                isToday ? FontWeight.w600 : FontWeight.w600,
-                            letterSpacing: 0.5,
+                                isToday ? L.bg : L.sub.withValues(alpha: 0.65),
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.4,
+                            fontSize: 13,
                           ),
                           child: const Text('Today'),
                         ),
@@ -1293,10 +1295,10 @@ class _DayToggle extends StatelessWidget {
                           duration: 250.ms,
                           style: AppTypography.labelLarge.copyWith(
                             color:
-                                !isToday ? L.bg : L.text.withValues(alpha: 0.6),
-                            fontWeight:
-                                !isToday ? FontWeight.w600 : FontWeight.w600,
-                            letterSpacing: 0.5,
+                                !isToday ? L.bg : L.sub.withValues(alpha: 0.65),
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.4,
+                            fontSize: 13,
                           ),
                           child: const Text('Yesterday'),
                         ),
@@ -1315,6 +1317,7 @@ class _DayToggle extends StatelessWidget {
         .slideY(begin: -0.1, end: 0, curve: Curves.easeOutExpo);
   }
 }
+
 
 // ─────────────────────────────────────────────────────────────
 // EMERGENCY WARNING CARD
@@ -1390,13 +1393,6 @@ class _EmergencyWarningCard extends StatelessWidget {
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(18),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  )
-                ],
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,

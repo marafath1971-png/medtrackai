@@ -16,12 +16,12 @@ class AppColors {
   static const Color white = Color(0xFFFFFFFF);
   
   // ── Card Surfaces ──────────────────────────────
-  static const Color bgLight  = Color(0xFFF7F7F7);  // Light mode BG (off-white)
-  static const Color bgDark   = Color(0xFF000000);  // True black
+  static const Color bgLight  = Color(0xFFF5F5F0);  // Light mode BG (Cal AI Light-Olive)
+  static const Color bgDark   = Color(0xFF0B132B);  // Deep Slate Blue
   static const Color cardLight  = Color(0xFFFFFFFF);
-  static const Color cardDark   = Color(0xFF1C1C1E); // Apple elevated surface
-  static const Color cardLight2 = Color(0xFFF2F2F2);
-  static const Color cardDark2  = Color(0xFF2C2C2E); // Apple secondary surface
+  static const Color cardDark   = Color(0xFF1C2541); // Midnight Navy
+  static const Color cardLight2 = Color(0xFFEBEBE5); // Light mode fill/container card
+  static const Color cardDark2  = Color(0xFF283353); // Lighter Midnight Navy
 
   // ── Greyscale (2026 Premium Slate / Alpha) ──────
   static const Color grey50  = Color(0xFFF8FAFC); // Slate 50
@@ -35,10 +35,10 @@ class AppColors {
   static const Color grey800 = Color(0xFF1E293B); // Slate 800
   static const Color grey900 = Color(0xFF0F172A); // Slate 900
 
-  // ── ⭐ HERO ACCENT — Cal AI Orange ─────────────
+  // ── ⭐ HERO ACCENT — Premium Sage Green ─────────────
   // This is the ONLY accent color in the entire app
-  static const Color accent      = Color(0xFFFF6B35); // Cal AI coral orange
-  static const Color accentLight = Color(0xFFFF8A60); // Lighter variant
+  static const Color accent      = Color(0xFF4A9E86); // Premium Vibrant Sage Green
+  static const Color accentLight = Color(0xFF8EDABF); // Lighter variant
 
   // ── Semantic: Success / Error ──────────────────
   static const Color green      = Color(0xFF00C853); // Vibrant iOS-style green
@@ -82,33 +82,44 @@ class AppColors {
 }
 
 class AppTheme {
-  static final String? _fontFamily = GoogleFonts.inter().fontFamily;
+  static final String? _fontFamily = GoogleFonts.outfit().fontFamily;
 
   static ThemeData light({String? accentHex}) {
-    final acc = accentHex != null ? hexToColor(accentHex) : AppColors.accent;
+    final acc = accentHex != null ? hexToColor(accentHex) : const Color(0xFF3A7D6A);
     return ThemeData(
       useMaterial3: true,
       fontFamily: _fontFamily,
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.bgLight,
       colorScheme: ColorScheme.light(
-        primary: AppColors.black,
+        primary: const Color(0xFF1A2621),
         onPrimary: AppColors.white,
         secondary: acc,
         onSecondary: AppColors.white,
         surface: AppColors.cardLight,
-        onSurface: AppColors.black,
+        onSurface: const Color(0xFF1A2621),
         error: AppColors.red,
-        outline: AppColors.grey200,
-        surfaceContainer: AppColors.grey100,
+        outline: const Color(0xFFE2E8E4),
+        surfaceContainer: AppColors.cardLight2,
       ),
-      textTheme: _buildTextTheme(AppColors.black),
+      textTheme: _buildTextTheme(const Color(0xFF1A2621)),
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((_) => AppColors.white),
         trackColor: WidgetStateProperty.resolveWith((states) =>
-            states.contains(WidgetState.selected) ? AppColors.green : AppColors.grey300),
+            states.contains(WidgetState.selected) ? const Color(0xFF3A7D6A) : const Color(0xFFEBEBE5)),
         trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
         splashRadius: 0,
+      ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       cardTheme: CardThemeData(
         color: AppColors.cardLight,
@@ -116,12 +127,12 @@ class AppTheme {
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: AppRadius.roundXL,
-          side: BorderSide(color: Colors.black.withValues(alpha: 0.07)),
+          side: const BorderSide(color: Color(0xFFE2E8E4)),
         ),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.black,
+          backgroundColor: const Color(0xFF1A2621),
           foregroundColor: AppColors.white,
           textStyle: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w700),
           minimumSize: const Size(double.infinity, 60),
@@ -132,7 +143,7 @@ class AppTheme {
     ).copyWith(
       extensions: [
         AppThemeColors.fromColorScheme(
-          ColorScheme.light(primary: AppColors.black, secondary: acc),
+          ColorScheme.light(primary: const Color(0xFF1A2621), secondary: acc),
           Brightness.light,
         ),
       ],
@@ -164,6 +175,17 @@ class AppTheme {
             states.contains(WidgetState.selected) ? AppColors.green : AppColors.grey800),
         trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
         splashRadius: 0,
+      ),
+      pageTransitionsTheme: const PageTransitionsTheme(
+        builders: {
+          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
+        },
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
       ),
       cardTheme: CardThemeData(
         color: AppColors.cardDark,
@@ -290,22 +312,22 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
 
     return AppThemeColors(
       bg:     bg,
-      onBg:   isDark ? AppColors.white : AppColors.black,
+      onBg:   isDark ? AppColors.white : const Color(0xFF1A2621),
       card:   card,
-      onCard: isDark ? AppColors.white : AppColors.black,
+      onCard: isDark ? AppColors.white : const Color(0xFF1A2621),
       card2:  card2,
-      onCard2:isDark ? AppColors.white : AppColors.black,
+      onCard2:isDark ? AppColors.white : const Color(0xFF1A2621),
       border: isDark
           ? Colors.white.withValues(alpha: 0.08)
-          : Colors.black.withValues(alpha: 0.07),
-      text: isDark ? AppColors.white : AppColors.black,
+          : const Color(0xFFE2E8E4),
+      text: isDark ? AppColors.white : const Color(0xFF1A2621),
       sub:  isDark
           ? Colors.white.withValues(alpha: 0.65) // 2026 pure alpha blending instead of muddy grey
-          : Colors.black.withValues(alpha: 0.55), // 2026 pure alpha blending instead of muddy grey
+          : const Color(0xFF64736D),
       fill: isDark
           ? Colors.white.withValues(alpha: 0.07)
-          : Colors.black.withValues(alpha: 0.05),
-      onFill:    isDark ? AppColors.white : AppColors.black,
+          : const Color(0xFFEBEBE5),
+      onFill:    isDark ? AppColors.white : const Color(0xFF1A2621),
       primary:   colorScheme.primary,
       onPrimary: colorScheme.onPrimary,
       secondary: colorScheme.secondary,
@@ -330,13 +352,13 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
           : Colors.white.withValues(alpha: 0.85),
       glassBorder:isDark
           ? Colors.white.withValues(alpha: 0.08)
-          : Colors.black.withValues(alpha: 0.05),
+          : const Color(0xFF3A7D6A).withValues(alpha: 0.1),
       shadowSoft:  [], // Cal AI: zero shadows everywhere
       mainGradient: LinearGradient(
           colors: [colorScheme.primary, colorScheme.primary]),
       // Cal AI signature orange — always constant regardless of mode
-      accent:      AppColors.accent,
-      accentLight: AppColors.accent.withValues(alpha: 0.15),
+      accent:      isDark ? AppColors.accent : const Color(0xFF3A7D6A),
+      accentLight: (isDark ? AppColors.accent : const Color(0xFF3A7D6A)).withValues(alpha: 0.15),
     );
   }
 

@@ -34,7 +34,11 @@ import 'services/purchases_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint('No .env file found (expected for production builds).');
+  }
 
   // Initialize Firebase
   try {
@@ -169,6 +173,13 @@ class MedAIApp extends StatelessWidget {
 
 class _AppScrollBehavior extends ScrollBehavior {
   const _AppScrollBehavior();
+
+  @override
+  Set<PointerDeviceKind> get dragDevices => {
+        PointerDeviceKind.touch,
+        PointerDeviceKind.mouse,
+        PointerDeviceKind.trackpad,
+      };
 
   @override
   ScrollPhysics getScrollPhysics(BuildContext context) {

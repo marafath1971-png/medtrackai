@@ -125,31 +125,43 @@ class _LaserScanner extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Container(
-          height: 4,
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [
-                AppColors.accent.withValues(alpha: 0.0),
-                AppColors.accent.withValues(alpha: 0.8),
-                AppColors.accent.withValues(alpha: 0.0),
-              ],
-              stops: const [0.1, 0.5, 0.9],
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.accent.withValues(alpha: 0.5),
-                blurRadius: 12,
-                spreadRadius: 2,
-              )
-            ],
-          ),
-        ).animate(onPlay: (c) => c.repeat()).slideY(
-              begin: -constraints.maxHeight / 4,
-              end: constraints.maxHeight / 4,
+        return Stack(
+          children: [
+            Positioned(
+              left: 0,
+              right: 0,
+              top: 0,
+              height: 4,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.accent.withValues(alpha: 0.0),
+                      AppColors.accent.withValues(alpha: 0.8),
+                      AppColors.accent.withValues(alpha: 0.0),
+                    ],
+                    stops: const [0.1, 0.5, 0.9],
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.accent.withValues(alpha: 0.5),
+                      blurRadius: 12,
+                      spreadRadius: 2,
+                    )
+                  ],
+                ),
+              ),
+            ).animate(
+              key: const ValueKey('body_map_laser_scanner_anim'),
+              onPlay: (c) => c.repeat(reverse: true),
+            ).moveY(
+              begin: 0,
+              end: constraints.maxHeight - 4,
               duration: 3.seconds,
               curve: Curves.easeInOutSine,
-            );
+            ),
+          ],
+        );
       },
     );
   }

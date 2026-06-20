@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_shimmer.dart';
+import '../../models/constants.dart';
 import '../../services/growth_tracker.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
@@ -169,7 +170,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
             ),
           ),
           child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
+            physics: const ClampingScrollPhysics(),
             child: Padding(
               padding: EdgeInsets.fromLTRB(24, 16, 24, bottomPad + 24),
               child: Column(
@@ -528,7 +529,8 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                   ),
                 ),
         ),
-      ),
+      ).animate(onPlay: (c) => c.repeat())
+       .shimmer(duration: 2500.ms, color: Colors.white.withValues(alpha: 0.5), blendMode: BlendMode.srcOver),
     );
   }
 
@@ -567,7 +569,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const _LegalLink(label: 'Privacy Policy', url: 'https://yourapp.com/privacy'),
+            const _LegalLink(label: 'Privacy Policy', url: kPrivacyPolicyUrl),
             Text(
               '  ·  ',
               style: AppTypography.labelSmall.copyWith(
@@ -575,7 +577,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                 fontSize: 10,
               ),
             ),
-            const _LegalLink(label: 'Terms of Use', url: 'https://yourapp.com/terms'),
+            const _LegalLink(label: 'Terms of Use', url: kTermsOfServiceUrl),
           ],
         ),
       ],

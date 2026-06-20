@@ -359,7 +359,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
           ),
         ],
       ),
-    ))
+    )))
         .animate()
         .slideY(begin: 0.15, end: 0, duration: 400.ms, curve: Curves.easeOutCubic);
   }

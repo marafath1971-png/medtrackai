@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
 import '../../core/utils/haptic_engine.dart';
+import 'package:provider/provider.dart';
+import '../../providers/app_state.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../core/utils/color_utils.dart';
-import '../../domain/entities/medicine.dart';
 import '../common/app_shimmer.dart';
 export '../common/app_shimmer.dart';
 
@@ -241,24 +242,7 @@ class GlassCard extends StatelessWidget {
                     )
                   : BorderSide.none,
             ),
-            shadows: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.10),
-                blurRadius: 48,
-                offset: const Offset(0, 24),
-                spreadRadius: -12,
-              ),
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 12,
-                offset: const Offset(0, 4),
-              ),
-              BoxShadow(
-                color: Colors.white.withValues(alpha: 0.35),
-                blurRadius: 1,
-                offset: const Offset(0, -0.5),
-              ),
-            ],
+            shadows: const [],
           ),
           child: child,
         ),
@@ -438,58 +422,126 @@ class AppToast extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    final String emoji;
-
+    
+    // Choose premium colors & icons for 2026 aesthetics
+    final IconData iconData;
+    final Color accentColor;
+    
     switch (type) {
       case 'error':
-        emoji = '🚨';
+        iconData = Icons.error_rounded;
+        accentColor = AppColors.error;
         break;
       case 'warning':
-        emoji = '⚠️';
+        iconData = Icons.warning_amber_rounded;
+        accentColor = AppColors.warning;
         break;
       case 'info':
-        emoji = 'ℹ️';
+        iconData = Icons.info_outline_rounded;
+        accentColor = AppColors.blue;
         break;
       default:
-        emoji = '✅';
+        iconData = Icons.check_circle_rounded;
+        accentColor = AppColors.success;
     }
 
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
     return Positioned(
-      bottom: bottomPadding + 120,
+      bottom: bottomPadding + 115,
       left: 24,
       right: 24,
       child: Center(
-        child: GlassCard(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          borderRadius: BorderRadius.circular(24),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(emoji, style: const TextStyle(fontSize: 16)),
-              const SizedBox(width: 10),
-              Flexible(
-                child: Text(
-                  message,
-                  style: AppTypography.bodyMedium.copyWith(
-                    color: L.text,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.2,
+        child: Dismissible(
+          key: UniqueKey(),
+          direction: DismissDirection.horizontal,
+          onDismissed: (_) {
+            context.read<AppState>().clearToast();
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(99),
+              boxShadow: [
+                BoxShadow(
+                  color: accentColor.withValues(alpha: 0.12),
+                  blurRadius: 24,
+                  spreadRadius: 2,
+                  offset: const Offset(0, 8),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(99),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: context.isDark
+                        ? Colors.black.withValues(alpha: 0.45)
+                        : Colors.white.withValues(alpha: 0.8),
+                    borderRadius: BorderRadius.circular(99),
+                    border: Border.all(
+                      color: accentColor.withValues(alpha: 0.25),
+                      width: 1.2,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Beautiful animated glowing icon container
+                      Container(
+                        padding: const EdgeInsets.all(6),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: accentColor.withValues(alpha: 0.12),
+                          border: Border.all(
+                            color: accentColor.withValues(alpha: 0.25),
+                            width: 1,
+                          ),
+                        ),
+                        child: Icon(
+                          iconData,
+                          color: accentColor,
+                          size: 16,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Flexible(
+                        child: Padding(
+                          padding: const EdgeInsets.only(right: 4),
+                          child: Text(
+                            message,
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: L.text,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 13.5,
+                              letterSpacing: -0.2,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+          )
+              .animate()
+              .scale(
+                begin: const Offset(0.9, 0.9),
+                curve: Curves.easeOutBack,
+                duration: 400.ms,
+              )
+              .fadeIn(duration: 250.ms)
+              .slideY(
+                begin: 0.5,
+                end: 0.0,
+                curve: Curves.easeOutBack,
+                duration: 400.ms,
+              ),
         ),
-      )
-          .animate()
-          .fadeIn(duration: 400.ms)
-          .slideY(begin: 0.5, end: 0, curve: Curves.easeOutQuart)
-          .shimmer(
-              delay: 600.ms,
-              duration: 1200.ms,
-              color: Colors.white.withValues(alpha: 0.1)),
+      ),
     );
   }
 }
@@ -1075,11 +1127,15 @@ class _DoseCardState extends State<DoseCard>
                                     style: AppTypography.labelSmall.copyWith(
                                         color: L.sub.withValues(alpha: 0.25),
                                         fontSize: 12)),
-                                Text(widget.med.dose,
-                                    style: AppTypography.labelSmall.copyWith(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: L.sub.withValues(alpha: 0.4))),
+                                Flexible(
+                                  child: Text(widget.med.dose,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: AppTypography.labelSmall.copyWith(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: L.sub.withValues(alpha: 0.4))),
+                                ),
                               ],
                               if (widget.isNext && !isDone) ...[
                                 const SizedBox(width: 8),

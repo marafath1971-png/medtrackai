@@ -144,13 +144,13 @@ class HomeHeader extends StatelessWidget {
                     top: 2,
                     right: 2,
                     child: Container(
-                      width: 9,
-                      height: 9,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFFF6B35), // Cal AI orange dot
-                        shape: BoxShape.circle,
-                        border: Border.all(color: L.bg, width: 1.5),
-                      ),
+                       width: 9,
+                       height: 9,
+                       decoration: BoxDecoration(
+                         color: L.accent, // Theme accent dot
+                         shape: BoxShape.circle,
+                         border: Border.all(color: L.bg, width: 1.5),
+                       ),
                     ),
                   ),
                 ],

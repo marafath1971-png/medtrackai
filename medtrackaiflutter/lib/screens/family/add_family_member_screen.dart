@@ -428,9 +428,9 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: L.border.withValues(alpha: 0.1)),
+        color: L.card.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: L.border.withValues(alpha: 0.08)),
       ),
       child: TextField(
         controller: controller,
@@ -462,9 +462,9 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
         height: 64,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: L.border.withValues(alpha: 0.1)),
+          color: L.card.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: L.border.withValues(alpha: 0.08)),
         ),
         child: Row(
           children: [
@@ -495,9 +495,9 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
       child: Container(
         height: 64,
         decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: L.border.withValues(alpha: 0.1)),
+          color: L.card.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: L.border.withValues(alpha: 0.08)),
         ),
         child: Center(
           child: Text(

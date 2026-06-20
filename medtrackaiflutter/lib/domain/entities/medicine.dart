@@ -1,4 +1,5 @@
 import 'package:medai/domain/entities/ai_safety_profile.dart';
+import 'package:medai/models/product_analysis.dart';
 
 enum Ritual {
   none,
@@ -284,6 +285,7 @@ class Medicine {
   final String? repeatPrescriptionDueDate;
   final AISafetyProfile? aiSafetyProfile;
   final bool isCritical;
+  final ProductAnalysis? productAnalysis;
 
   Medicine({
     required this.id,
@@ -314,6 +316,7 @@ class Medicine {
     this.repeatPrescriptionDueDate,
     this.aiSafetyProfile,
     this.isCritical = false,
+    this.productAnalysis,
   });
 
   factory Medicine.empty() => Medicine(
@@ -375,6 +378,7 @@ class Medicine {
         'repeatPrescriptionDueDate': repeatPrescriptionDueDate,
         'aiSafetyProfile': aiSafetyProfile?.toJson(),
         'isCritical': isCritical,
+        'productAnalysis': productAnalysis?.toJson(),
       };
 
   factory Medicine.fromJson(Map<String, dynamic> j) => Medicine(
@@ -412,6 +416,9 @@ class Medicine {
             ? AISafetyProfile.fromJson(j['aiSafetyProfile'])
             : null,
         isCritical: j['isCritical'] ?? false,
+        productAnalysis: j['productAnalysis'] != null
+            ? ProductAnalysis.fromJson(j['productAnalysis'])
+            : null,
       );
 
   Medicine copyWith({
@@ -440,6 +447,7 @@ class Medicine {
     String? repeatPrescriptionDueDate,
     AISafetyProfile? aiSafetyProfile,
     bool? isCritical,
+    ProductAnalysis? productAnalysis,
   }) =>
       Medicine(
         id: id,
@@ -471,5 +479,6 @@ class Medicine {
             repeatPrescriptionDueDate ?? this.repeatPrescriptionDueDate,
         aiSafetyProfile: aiSafetyProfile ?? this.aiSafetyProfile,
         isCritical: isCritical ?? this.isCritical,
+        productAnalysis: productAnalysis ?? this.productAnalysis,
       );
 }

@@ -8,7 +8,6 @@ import '../../models/product_analysis.dart';
 import '../visualizer/impact_visualizer_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/controllers/medication_controller.dart';
-import '../../domain/entities/entities.dart';
 import 'product_chat_screen.dart';
 import '../../providers/app_state.dart';
 
@@ -208,15 +207,17 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
                       ritual: Ritual.withBreakfast,
                     )
                   ],
+                  productAnalysis: widget.product,
                 );
                 context.read<MedicationController>().addMedicine(newMed);
                 setState(() => _added = true);
                 
                 // Production level flow
                 context.read<AppState>().showToast('Protocol Tracked Successfully!', type: 'success');
+                final navigator = Navigator.of(context);
                 Future.delayed(const Duration(milliseconds: 1500), () {
                   if (mounted) {
-                    Navigator.of(context).popUntil((route) => route.isFirst);
+                    navigator.popUntil((route) => route.isFirst);
                   }
                 });
               },
@@ -333,6 +334,8 @@ class _HeroHeader extends StatelessWidget {
           // Medicine name (hero)
           Text(
             product.name.toUpperCase(),
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
             style: AppTypography.displaySmall.copyWith(
               color: L.text,
               fontFamily: 'Courier',
@@ -1215,9 +1218,6 @@ class _MetaRow extends StatelessWidget {
   }
 }
 
-// ══════════════════════════════════════════════
-// BOTTOM ACTION BAR
-// ══════════════════════════════════════════════
 class _BottomActionBar extends StatelessWidget {
   final ProductAnalysis product;
   final bool added;
@@ -1238,112 +1238,160 @@ class _BottomActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return ClipRect(
+    return ClipRRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
         child: Container(
-          padding: EdgeInsets.fromLTRB(20, 16, 20, botPad + 16),
+          padding: EdgeInsets.fromLTRB(
+              24, 24, 24, MediaQuery.of(context).padding.bottom + 24),
           decoration: BoxDecoration(
-            color: L.bg.withValues(alpha: 0.70),
-            border: Border(top: BorderSide(color: L.border.withValues(alpha: 0.4), width: 1.0)),
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                L.bg.withValues(alpha: 0.0),
+                L.bg.withValues(alpha: 0.8),
+                L.bg,
+              ],
+            ),
           ),
-          child: Row(
-            children: [
-              // Primary — Track It
-              Expanded(
-                flex: 3,
-                child: BouncingButton(
-                  onTap: onAdd,
-                  child: AnimatedContainer(
-                    duration: 300.ms,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      color: added ? L.green : L.text,
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: added ? [] : [
-                        BoxShadow(color: L.text.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 5))
-                      ]
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Icon(
-                            added
-                                ? Icons.check_circle_rounded
-                                : Icons.add_circle_outline_rounded,
-                            color: added ? Colors.white : L.bg,
-                            size: 22,
-                          ),
-                          const SizedBox(width: 10),
-                          Text(
-                            added ? 'ADDED TO PROTOCOL' : 'TRACK PROTOCOL',
-                            style: AppTypography.labelLarge.copyWith(
-                              color: added ? Colors.white : L.bg,
-                              fontFamily: 'Courier',
-                              fontWeight: FontWeight.w900,
-                              fontSize: 16,
-                              letterSpacing: 1.0,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: L.card.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(32),
+              border: Border.all(color: L.glassBorder, width: 0.8),
+              boxShadow: AppShadows.subtle,
+            ),
+            child: Row(
+              children: [
+                // ── TRACK PROTOCOL BUTTON ──
+                Expanded(
+                  flex: 3,
+                  child: BouncingButton(
+                    onTap: onAdd,
+                    child: AnimatedContainer(
+                      duration: 350.ms,
+                      curve: Curves.easeOutCirc,
+                      height: 54,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: added
+                              ? [L.green, L.green.withValues(alpha: 0.85)]
+                              : [
+                                  L.text,
+                                  L.text.withValues(alpha: 0.85),
+                                  L.text.withValues(alpha: 0.7)
+                                ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          stops: const [0.0, 0.7, 1.0],
+                        ),
+                        borderRadius: BorderRadius.circular(27),
+                        boxShadow: added
+                            ? AppShadows.glow(L.green, intensity: 0.4)
+                            : [
+                                BoxShadow(
+                                  color: L.text.withValues(alpha: 0.25),
+                                  blurRadius: 20,
+                                  spreadRadius: -5,
+                                  offset: const Offset(0, 8),
+                                )
+                              ],
+                        border: Border.all(
+                          color: added
+                              ? L.bg.withValues(alpha: 0.2)
+                              : L.bg.withValues(alpha: 0.1),
+                          width: 1.5,
+                        ),
+                      ),
+                      child: Center(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              added
+                                  ? Icons.verified_rounded
+                                  : Icons.add_circle_rounded,
+                              color: L.bg,
+                              size: 22,
+                            ).animate(target: added ? 1 : 0).scale(
+                                begin: const Offset(0.8, 0.8),
+                                end: const Offset(1.2, 1.2),
+                                curve: Curves.elasticOut,
+                                duration: 600.ms),
+                            const SizedBox(width: 10),
+                            Text(
+                              added ? 'ADDED TO PROTOCOL' : 'TRACK PROTOCOL',
+                              style: AppTypography.labelMedium.copyWith(
+                                color: L.bg,
+                                fontWeight: FontWeight.w900,
+                                letterSpacing: 1.2,
+                                fontSize: 12,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              // Body Impact
-              BouncingButton(
-                onTap: onImpact,
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        L.accent.withValues(alpha: 0.2),
-                        L.accent.withValues(alpha: 0.05),
-                      ],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                const SizedBox(width: 12),
+
+                // ── ORGAN IMPACT BUTTON ──
+                BouncingButton(
+                  onTap: onImpact,
+                  child: Container(
+                    width: 54,
+                    height: 54,
+                    decoration: BoxDecoration(
+                      color: L.accent.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                          color: L.accent.withValues(alpha: 0.4), width: 1.2),
+                      boxShadow: AppShadows.glow(L.accent, intensity: 0.2),
                     ),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                        color: L.accent.withValues(alpha: 0.5), width: 1.5),
-                    boxShadow: AppShadows.glow(L.accent, intensity: 0.4),
+                    child: Icon(Icons.biotech_rounded,
+                            color: L.accent, size: 24)
+                        .animate(onPlay: (c) => c.repeat(reverse: true))
+                        .scale(
+                            duration: 1.seconds,
+                            begin: const Offset(0.95, 0.95),
+                            end: const Offset(1.05, 1.05)),
                   ),
-                  child: Icon(Icons.science_rounded,
-                      color: L.accent, size: 26).animate(onPlay: (c) => c.repeat(reverse: true)).scale(duration: 1.seconds, begin: const Offset(0.9, 0.9), end: const Offset(1.1, 1.1)),
                 ),
-              ),
-              const SizedBox(width: 12),
-              // AI Chat
-              BouncingButton(
-                onTap: onChat,
-                child: Container(
-                  width: 56,
-                  height: 56,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        L.text.withValues(alpha: 0.15),
-                        L.text.withValues(alpha: 0.05),
-                      ],
-                      begin: Alignment.topRight,
-                      end: Alignment.bottomLeft,
+                const SizedBox(width: 8),
+
+                // ── AI ASSISTANT BUTTON ──
+                BouncingButton(
+                  onTap: onChat,
+                  child: Container(
+                    width: 54,
+                    height: 54,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [
+                          L.text.withValues(alpha: 0.05),
+                          L.text.withValues(alpha: 0.15),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                          color: L.text.withValues(alpha: 0.4), width: 1.0),
+                      boxShadow: AppShadows.subtle,
                     ),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: L.border.withValues(alpha: 0.6), width: 1.5),
-                    boxShadow: [
-                      BoxShadow(color: L.text.withValues(alpha: 0.1), blurRadius: 12)
-                    ],
+                    child: Icon(Icons.auto_awesome_rounded,
+                            color: L.text, size: 22)
+                        .animate(onPlay: (c) => c.repeat(reverse: true))
+                        .shimmer(
+                            duration: 2500.ms,
+                            color: AppColors.accent.withValues(alpha: 0.5)),
                   ),
-                  child: Icon(Icons.smart_toy_rounded,
-                      color: L.text, size: 24).animate(onPlay: (c) => c.repeat(reverse: true)).shimmer(duration: 2.seconds),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

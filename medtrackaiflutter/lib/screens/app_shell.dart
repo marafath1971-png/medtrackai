@@ -198,15 +198,33 @@ class _AppShellState extends State<AppShell>
 
                   // ── Sync indicator ──
                   Positioned(
-                    bottom: 110 + bottomPadding,
+                    bottom: 140 + bottomPadding,
                     right: 20,
-                    child: SyncStatusBanner(
-                            isSyncing: isSyncing, lastSynced: lastSynced)
-                        .animate(target: isSyncing ? 1 : 0)
-                        .fadeIn(duration: 300.ms)
-                        .scale(begin: const Offset(0.8, 0.8))
-                        .slideY(begin: 0.2, end: 0),
+                    child: AnimatedOpacity(
+                      duration: const Duration(milliseconds: 300),
+                      opacity: isSyncing ? 1.0 : 0.0,
+                      child: SyncStatusBanner(
+                              isSyncing: isSyncing, lastSynced: lastSynced)
+                    ),
                   ),
+
+                  // ── Detached Scan FAB (right side, above nav) ──
+                  if (!_showScan)
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 380),
+                      curve: Curves.easeOutQuart,
+                      right: 37,
+                      bottom: (16 + bottomPadding) + 76 + 24, // nav height + gap
+                      child: _MedScanFAB(
+                        pressed: _fabPressed,
+                        onTap: _openScan,
+                        onPressDown: () {
+                          HapticEngine.selection();
+                          setState(() => _fabPressed = true);
+                        },
+                        onPressUp: () => setState(() => _fabPressed = false),
+                      ),
+                    ),
 
                   // ── Toast ──
                   if (toast != null)
@@ -289,11 +307,11 @@ class _AppShellState extends State<AppShell>
     final badges = [0, 0, 0, unseenAlerts];
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(28),
+      borderRadius: BorderRadius.circular(32),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
         child: Container(
-          height: 72,
+          height: 76,
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
             // Cal AI: nearly invisible glass — no color tint
@@ -303,18 +321,10 @@ class _AppShellState extends State<AppShell>
               color: L.glassBorder, // Pure white hairline
               width: 0.8,
             ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.25),
-                blurRadius: 32,
-                offset: const Offset(0, 16),
-                spreadRadius: -4,
-              ),
-            ],
           ),
           child: Row(
             children: [
-              // ── Nav Items ──
+              // ── Nav Items (full width now) ──
               Expanded(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -330,17 +340,6 @@ class _AppShellState extends State<AppShell>
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              // ── Integrated FAB ──
-              _MedScanFAB(
-                pressed: _fabPressed,
-                onTap: _openScan,
-                onPressDown: () {
-                  HapticEngine.selection();
-                  setState(() => _fabPressed = true);
-                },
-                onPressUp: () => setState(() => _fabPressed = false),
               ),
             ],
           ),
@@ -423,9 +422,9 @@ class _AppShellState extends State<AppShell>
 }
 
 // ══════════════════════════════════════════════
-// MED SCAN FAB — Premium Island Style
+// MED SCAN FAB — Premium Animated FAB
 // ══════════════════════════════════════════════
-class _MedScanFAB extends StatelessWidget {
+class _MedScanFAB extends StatefulWidget {
   final bool pressed;
   final VoidCallback onTap;
   final VoidCallback onPressDown;
@@ -439,37 +438,122 @@ class _MedScanFAB extends StatelessWidget {
   });
 
   @override
+  State<_MedScanFAB> createState() => _MedScanFABState();
+}
+
+class _MedScanFABState extends State<_MedScanFAB>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _pulse;
+  late final Animation<double> _ringScale;
+  late final Animation<double> _ringOpacity;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulse = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2200),
+    )..repeat();
+
+    _ringScale = Tween<double>(begin: 1.0, end: 1.55).animate(
+      CurvedAnimation(parent: _pulse, curve: Curves.easeOut),
+    );
+    _ringOpacity = Tween<double>(begin: 0.45, end: 0.0).animate(
+      CurvedAnimation(parent: _pulse, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulse.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final L = context.L;
     return GestureDetector(
-      onTap: onTap,
-      onTapDown: (_) => onPressDown(),
-      onTapUp: (_) => onPressUp(),
-      onTapCancel: onPressUp,
+      onTap: widget.onTap,
+      onTapDown: (_) => widget.onPressDown(),
+      onTapUp: (_) => widget.onPressUp(),
+      onTapCancel: widget.onPressUp,
       child: AnimatedScale(
-        scale: pressed ? 0.88 : 1.0,
-        duration: 200.ms,
+        scale: widget.pressed ? 0.88 : 1.0,
+        duration: 160.ms,
         curve: Curves.easeOut,
-        child: Container(
-          width: 54,
-          height: 54,
-          decoration: BoxDecoration(
-            // Cal AI orange FAB — the hero CTA
-            gradient: AppGradients.accentOrange,
-            shape: BoxShape.circle,
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.accent.withValues(alpha: 0.35),
-                blurRadius: 16,
-                offset: const Offset(0, 6),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            // ── Pulse ring + FAB ──
+            SizedBox(
+              width: 76,
+              height: 76,
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  // Breathing ring
+                  AnimatedBuilder(
+                    animation: _pulse,
+                    builder: (_, __) => Transform.scale(
+                      scale: _ringScale.value,
+                      child: Container(
+                        width: 60,
+                        height: 60,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: L.accent.withValues(alpha: _ringOpacity.value),
+                            width: 1.5,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  // FAB circle
+                  Container(
+                    width: 58,
+                    height: 58,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          L.accent,
+                          Color.lerp(L.accent, Colors.black, 0.3)!,
+                        ],
+                      ),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        width: 1.0,
+                      ),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.camera_alt_rounded,
+                          color: Colors.white, size: 25),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
-          child: const Center(
-            child: Icon(Icons.camera_alt_rounded, color: Colors.white, size: 24),
-          ),
+            ),
+            const SizedBox(height: 2),
+            // ── Label ──
+            Text(
+              'Scan',
+              style: AppTypography.labelSmall.copyWith(
+                color: L.text.withValues(alpha: 0.55),
+                fontSize: 10,
+                fontWeight: FontWeight.w500,
+                letterSpacing: 0.4,
+              ),
+            ),
+          ],
         ),
       ),
-    );
+    )
+        .animate()
+        .fadeIn(duration: 400.ms, curve: Curves.easeOut)
+        .slideX(begin: 0.15, end: 0, duration: 400.ms, curve: Curves.easeOutBack);
   }
 }
 

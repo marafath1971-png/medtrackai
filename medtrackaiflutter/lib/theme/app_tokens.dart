@@ -35,23 +35,23 @@ class AppSpacing {
 }
 
 class AppDurations {
-  static const Duration micro = Duration(milliseconds: 120);
-  static const Duration fast = Duration(milliseconds: 200);
-  static const Duration medium = Duration(milliseconds: 400);
-  static const Duration slow = Duration(milliseconds: 800);
-  static const Duration shimmer = Duration(milliseconds: 1500);
-  static const Duration bounce = Duration(milliseconds: 600);
-  static const Duration breathe = Duration(milliseconds: 2500); // For idle pulsing animations
-  static const Duration hero = Duration(milliseconds: 350); // Page hero transitions
+  static const Duration micro = Duration(milliseconds: 150);
+  static const Duration fast = Duration(milliseconds: 250);
+  static const Duration medium = Duration(milliseconds: 500);
+  static const Duration slow = Duration(milliseconds: 1000);
+  static const Duration shimmer = Duration(milliseconds: 2000);
+  static const Duration bounce = Duration(milliseconds: 800);
+  static const Duration breathe = Duration(milliseconds: 3000); 
+  static const Duration hero = Duration(milliseconds: 400); 
 }
 
 class AppRadius {
-  static const double xs = 4;
-  static const double s = 8;
-  static const double m = 12;
-  static const double l = 16;
-  static const double xl = 16; // Changed from 20 to 16 for premium sharpness
-  static const double squircle = 20; // Reduced from 24
+  static const double xs = 8;
+  static const double s = 12;
+  static const double m = 16;
+  static const double l = 24;
+  static const double xl = 28; 
+  static const double squircle = 32; 
   static const double max = 999;
 
   static BorderRadius get roundXS => BorderRadius.circular(xs);
@@ -64,109 +64,105 @@ class AppRadius {
 }
 
 class AppCurves {
-  // Spring transition: damping 0.8, response 0.4 approximation
-  static const Curve spring = ElasticOutCurve(0.8);
-  static const Curve smooth = Curves.fastOutSlowIn;
-  // 2026 Liquid physics
-  static const Curve liquid = ElasticOutCurve(0.6); // more bouncy/fluid
-  static const Curve bouncy = ElasticOutCurve(0.4);
+  static const Curve spring = ElasticOutCurve(0.9);
+  static const Curve smooth = Curves.easeInOutCirc;
+  static const Curve liquid = ElasticOutCurve(0.7); 
+  static const Curve bouncy = ElasticOutCurve(0.5);
 }
 
 class AppTypography {
-  static TextStyle get displayXL => GoogleFonts.inter(
+  static TextStyle get displayXL => GoogleFonts.outfit(
         fontSize: 72,
-        fontWeight: FontWeight.w700,
+        fontWeight: FontWeight.w800,
+        letterSpacing: -2.5,
+        height: 1.0,
+      );
+  static TextStyle get displayLarge => GoogleFonts.outfit(
+        fontSize: 64,
+        fontWeight: FontWeight.w800,
         letterSpacing: -2.0,
         height: 1.0,
       );
-  static TextStyle get displayLarge => GoogleFonts.inter(
-        fontSize: 64,
-        fontWeight: FontWeight.w700,
-        letterSpacing: -1.5,
-        height: 1.0,
-      );
-  static TextStyle get displayMedium => GoogleFonts.inter(
+  static TextStyle get displayMedium => GoogleFonts.outfit(
         fontSize: 48,
         fontWeight: FontWeight.w700,
-        letterSpacing: -1.0,
+        letterSpacing: -1.5,
         height: 1.1,
       );
-  static TextStyle get displaySmall => GoogleFonts.inter(
+  static TextStyle get displaySmall => GoogleFonts.outfit(
         fontSize: 36,
-        fontWeight: FontWeight.w600,
-        letterSpacing: -0.8,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -1.0,
         height: 1.2,
       );
 
-  // ── Headings & Body: Inter (Minimal & Premium) ──
-  static TextStyle get headlineLarge => GoogleFonts.inter(
+  static TextStyle get headlineLarge => GoogleFonts.outfit(
         fontSize: 28,
-        fontWeight: FontWeight.w600,
-        letterSpacing: -0.5,
+        fontWeight: FontWeight.w700,
+        letterSpacing: -0.8,
       );
-  static TextStyle get headlineMedium => GoogleFonts.inter(
+  static TextStyle get headlineMedium => GoogleFonts.outfit(
         fontSize: 24,
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.5,
+        letterSpacing: -0.6,
       );
-  static TextStyle get headlineSmall => GoogleFonts.inter(
+  static TextStyle get headlineSmall => GoogleFonts.outfit(
         fontSize: 20,
         fontWeight: FontWeight.w600,
-        letterSpacing: -0.4,
+        letterSpacing: -0.5,
       );
-  static TextStyle get titleLarge => GoogleFonts.inter(
+  static TextStyle get titleLarge => GoogleFonts.outfit(
         fontSize: 18,
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3,
       );
-  static TextStyle get titleMedium => GoogleFonts.inter(
+  static TextStyle get titleMedium => GoogleFonts.outfit(
         fontSize: 16,
         fontWeight: FontWeight.w500,
         letterSpacing: -0.2,
       );
-  static TextStyle get bodyLarge => GoogleFonts.inter(
+  static TextStyle get bodyLarge => GoogleFonts.outfit(
         fontSize: 17,
         fontWeight: FontWeight.w400,
         letterSpacing: -0.1,
       );
-  static TextStyle get bodyMedium => GoogleFonts.inter(
+  static TextStyle get bodyMedium => GoogleFonts.outfit(
         fontSize: 15,
         fontWeight: FontWeight.w400,
         height: 1.5,
         letterSpacing: 0.0,
       );
-  static TextStyle get labelLarge => GoogleFonts.inter(
+  static TextStyle get labelLarge => GoogleFonts.outfit(
         fontSize: 14,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         letterSpacing: 0.1,
       );
-  static TextStyle get labelMedium => GoogleFonts.inter(
+  static TextStyle get labelMedium => GoogleFonts.outfit(
         fontSize: 12,
         fontWeight: FontWeight.w500,
         letterSpacing: 0.2,
       );
-  static TextStyle get labelSmall => GoogleFonts.inter(
+  static TextStyle get labelSmall => GoogleFonts.outfit(
         fontSize: 11,
-        fontWeight: FontWeight.w600,
+        fontWeight: FontWeight.w700,
         letterSpacing: 0.5,
       );
-  static TextStyle get bodySmall => GoogleFonts.inter(
+  static TextStyle get bodySmall => GoogleFonts.outfit(
         fontSize: 12,
         fontWeight: FontWeight.w400,
         height: 1.4,
         letterSpacing: 0.2,
       );
 
-  // ── Specialty Fonts ──
-  static TextStyle get monoNumber => GoogleFonts.inter(
-        fontWeight: FontWeight.w500,
+  static TextStyle get monoNumber => GoogleFonts.spaceGrotesk(
+        fontWeight: FontWeight.w600,
         letterSpacing: -0.5,
       );
       
-  static TextStyle get sectionLabel => GoogleFonts.inter(
+  static TextStyle get sectionLabel => GoogleFonts.outfit(
         fontSize: 11,
-        fontWeight: FontWeight.w600,
-        letterSpacing: 1.0,
+        fontWeight: FontWeight.w700,
+        letterSpacing: 1.5,
       );
 }
 
@@ -250,14 +246,14 @@ class AppGradients {
 
   // ── Cal AI Hero Gradient — orange accent ──
   static const LinearGradient accentOrange = LinearGradient(
-    colors: [Color(0xFFFF6B35), Color(0xFFFF8A60)],
+    colors: [Color(0xFF00E5FF), Color(0xFF80F2FF)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
   // ── Progress Ring gradient (orange → green for completion feel) ──
   static const LinearGradient ringProgress = LinearGradient(
-    colors: [Color(0xFFFF6B35), Color(0xFFFF9A5C)],
+    colors: [Color(0xFF00E5FF), Color(0xFF0B132B)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );

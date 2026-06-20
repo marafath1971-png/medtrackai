@@ -425,21 +425,22 @@ class _Viewfinder extends StatelessWidget {
                 return AnimatedBuilder(
                   animation: scanLineCtrl,
                   builder: (context, _) {
-                    return Positioned(
-                      top: scanLineCtrl.value * constraints.maxHeight,
-                      left: 8,
-                      right: 8,
-                      child: Container(
-                        height: 2,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white.withValues(alpha: 0.6),
-                              blurRadius: 12,
-                              spreadRadius: 2,
-                            ),
-                          ],
+                    return Align(
+                      alignment: Alignment(0, scanLineCtrl.value * 2 - 1),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        child: Container(
+                          height: 2,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white.withValues(alpha: 0.6),
+                                blurRadius: 12,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
                     );

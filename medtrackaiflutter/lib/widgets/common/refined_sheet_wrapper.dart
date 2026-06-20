@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
@@ -33,25 +34,37 @@ class RefinedSheetWrapper extends StatelessWidget {
     if (scrollable) {
       content = Flexible(
         child: SingleChildScrollView(
-          physics: const BouncingScrollPhysics(
-              parent: AlwaysScrollableScrollPhysics()),
+          physics: const ClampingScrollPhysics(),
           child: content,
         ),
       );
     }
 
-    return Container(
-      padding: EdgeInsets.only(
-          bottom: bottomInset > 0 ? bottomInset : bottomPadding),
-      decoration: BoxDecoration(
-        color: L.card,
-        borderRadius:
-            const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
-        border: const Border(
-          top: BorderSide(color: Color(0x1A000000), width: 0.8),
-        ),
-      ),
-      child: Column(
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          padding: EdgeInsets.only(
+              bottom: bottomInset > 0 ? bottomInset : bottomPadding),
+          decoration: BoxDecoration(
+            color: L.card.withValues(alpha: 0.85),
+            borderRadius:
+                const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
+            border: Border(
+              top: BorderSide(color: L.glassBorder, width: 1.0),
+              left: BorderSide(color: L.glassBorder, width: 1.0),
+              right: BorderSide(color: L.glassBorder, width: 1.0),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: L.text.withValues(alpha: 0.05),
+                blurRadius: 40,
+                offset: const Offset(0, -10),
+              )
+            ],
+          ),
+          child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -103,6 +116,8 @@ class RefinedSheetWrapper extends StatelessWidget {
           ],
           Flexible(child: content),
         ],
+      ),
+        ),
       ),
     );
   }

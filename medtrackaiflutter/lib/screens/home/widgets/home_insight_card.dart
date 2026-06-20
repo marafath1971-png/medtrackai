@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../providers/app_state.dart';
@@ -58,12 +59,19 @@ class _HomeInsightCardState extends State<HomeInsightCard> {
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: L.card.withValues(alpha: 0.7),
           borderRadius: BorderRadius.circular(32),
-          boxShadow: AppShadows.neumorphic,
+          border: Border.all(
+            color: L.glassBorder,
+            width: 0.5,
+          ),
+          boxShadow: L.shadowSoft,
         ),
-        clipBehavior: Clip.antiAlias,
-        child: Stack(
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(32),
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+            child: Stack(
           children: [
             // ── Main Content ────────────────────────────────────────────────
             Padding(
@@ -419,6 +427,8 @@ class _HomeInsightCardState extends State<HomeInsightCard> {
               ),
           ],
         ),
+      ),
+      ),
       ),
     )
         .animate(target: state.hasNewDataForAI ? 1 : 0)

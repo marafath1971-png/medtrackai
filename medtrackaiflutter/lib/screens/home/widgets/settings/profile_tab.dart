@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../providers/app_state.dart';
 import '../../../../theme/app_theme.dart';
@@ -72,13 +73,13 @@ class _ProfileTabState extends State<ProfileTab> {
                 .copyWith(color: widget.L.text, fontWeight: FontWeight.w900)),
         content: Text(
           'This action is permanent and will delete all your medication history and account data from our servers.',
-          style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', color: widget.L.sub),
+          style: AppTypography.bodyMedium.copyWith(color: widget.L.sub),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
             child: Text('CANCEL',
-                style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', color: widget.L.sub)),
+                style: AppTypography.labelLarge.copyWith(color: widget.L.sub)),
           ),
           TextButton(
             onPressed: () {
@@ -86,7 +87,7 @@ class _ProfileTabState extends State<ProfileTab> {
               widget.state.deleteAccount();
             },
             child: Text('DELETE',
-                style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', color: Colors.redAccent, fontWeight: FontWeight.w900)),
+                style: AppTypography.labelLarge.copyWith(color: Colors.redAccent, fontWeight: FontWeight.w900)),
           ),
         ],
       ),
@@ -155,7 +156,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       children: [
                         Flexible(
                           child: Text(p?.name ?? 'Your Name',
-                              style: AppTypography.titleLarge.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
+                              style: AppTypography.titleLarge.copyWith(fontWeight: FontWeight.w900,
                                   color: L.text,
                                   fontSize: 22,
                                   letterSpacing: -0.5)),
@@ -166,11 +167,15 @@ class _ProfileTabState extends State<ProfileTab> {
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 6, vertical: 2),
                             decoration: BoxDecoration(
-                              color: Colors.amber,
+                              gradient: const LinearGradient(
+                                colors: [Colors.amber, Colors.orangeAccent],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                               borderRadius: BorderRadius.circular(4),
                             ),
                             child: Text('PRO',
-                                style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
+                                style: AppTypography.labelSmall.copyWith(fontWeight: FontWeight.w900,
                                     fontSize: 10,
                                     color: Colors.black,
                                     letterSpacing: 0.5)),
@@ -181,7 +186,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     const SizedBox(height: 6),
                     Text(
                         '${p?.age != null && p!.age.isNotEmpty ? "Age ${p.age}" : "Age not set"}${p?.gender != null && p!.gender.isNotEmpty ? " · ${p.gender}" : ""}',
-                        style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.6),
+                        style: AppTypography.bodySmall.copyWith(color: L.sub.withValues(alpha: 0.6),
                             fontWeight: FontWeight.w700)),
                   ])),
               if (!_editing)
@@ -200,7 +205,7 @@ class _ProfileTabState extends State<ProfileTab> {
                         border:
                             Border.all(color: L.border.withValues(alpha: 0.1))),
                     child: Text(s.edit.toUpperCase(),
-                        style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
+                        style: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w900,
                             fontSize: 10,
                             letterSpacing: 1.0,
                             color: L.text)),
@@ -304,7 +309,7 @@ class _ProfileTabState extends State<ProfileTab> {
                         color: L.fill, borderRadius: BorderRadius.circular(24)),
                     child: Center(
                         child: Text(s.cancel,
-                            style: AppTypography.titleMedium.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w700, color: L.text)))),
+                            style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w700, color: L.text)))),
               )),
               const SizedBox(width: 8),
               Expanded(
@@ -334,17 +339,10 @@ class _ProfileTabState extends State<ProfileTab> {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                             color: L.text,
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: L.text.withValues(alpha: 0.1),
-                                blurRadius: 20,
-                                offset: const Offset(0, 10),
-                              )
-                            ]),
+                            borderRadius: BorderRadius.circular(20)),
                         child: Center(
                             child: Text('SAVE CHANGES',
-                                style: AppTypography.titleMedium.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
+                                style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w900,
                                     fontSize: 14,
                                     letterSpacing: 0.5,
                                     color: L.bg)))),
@@ -422,13 +420,13 @@ class _ProfileTabState extends State<ProfileTab> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                           Text('Upgrade to MedAI Pro ✨',
-                              style: AppTypography.titleLarge.copyWith(fontFamily: 'Courier', color: L.text,
+                              style: AppTypography.titleLarge.copyWith(color: L.text,
                                   fontSize: 18,
                                   letterSpacing: -0.5,
                                   fontWeight: FontWeight.w900)),
                           const SizedBox(height: 4),
                           Text('Unlock AI insights, Family Sharing & more 🚀',
-                              style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub,
+                              style: AppTypography.labelSmall.copyWith(color: L.sub,
                                   fontWeight: FontWeight.w600,
                                   letterSpacing: 0.1)),
                         ])),
@@ -593,37 +591,38 @@ class _ProfileTabState extends State<ProfileTab> {
                 ),
               ]),
             ),
-            SettingsSection(
-              title: 'Developer Options',
-              child: Column(
-                children: [
-                  SettingsModalRow(
-                    icon: '🚀',
-                    label: 'Growth & Analytics Dashboard',
-                    sub: 'Funnel analytics and mock simulator',
-                    onClick: () {
-                      HapticEngine.selection();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const GrowthDashboardScreen(),
-                        ),
-                      );
-                    },
-                    first: true,
-                    last: true,
-                    border: false,
-                  ),
-                ],
+            if (kDebugMode)
+              SettingsSection(
+                title: 'Developer Options',
+                child: Column(
+                  children: [
+                    SettingsModalRow(
+                      icon: '🚀',
+                      label: 'Growth & Analytics Dashboard',
+                      sub: 'Funnel analytics and mock simulator',
+                      onClick: () {
+                        HapticEngine.selection();
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const GrowthDashboardScreen(),
+                          ),
+                        );
+                      },
+                      first: true,
+                      last: true,
+                      border: false,
+                    ),
+                  ],
+                ),
               ),
-            ),
             const SizedBox(height: 12),
             Center(
               child: Column(
                 children: [
                   Text(
                     'MedAI 1.0.0+1',
-                    style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.4),
+                    style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.4),
                       fontWeight: FontWeight.w900,
                       fontSize: 10,
                       letterSpacing: 1.0,
@@ -632,7 +631,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   const SizedBox(height: 4),
                   Text(
                     'MADE WITH ❤️ BY MEDAI TEAM',
-                    style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.2),
+                    style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.2),
                       fontWeight: FontWeight.w900,
                       fontSize: 8,
                       letterSpacing: 2.0,

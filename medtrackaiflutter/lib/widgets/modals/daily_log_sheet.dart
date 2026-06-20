@@ -116,7 +116,7 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
             decoration: BoxDecoration(
-              color: L.card,
+              color: L.card.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(20),
               border: Border.all(color: L.border.withValues(alpha: 0.1)),
             ),
@@ -178,7 +178,7 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: L.card,
+              color: L.card.withValues(alpha: 0.5),
               borderRadius: AppRadius.roundSquircle,
               border: Border.all(color: L.border.withValues(alpha: 0.1)),
             ),
@@ -216,10 +216,9 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                         Text(
                           '${(completion * 100).round()}%',
                           style: AppTypography.labelLarge.copyWith(
-                            fontFamily: 'Courier',
                             fontWeight: FontWeight.w900,
-                            fontSize: 16,
-                            letterSpacing: -1.0,
+                            fontSize: 15,
+                            letterSpacing: -0.5,
                             color: L.text,
                           ),
                         ),
@@ -244,13 +243,12 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '$takenCount of ${doses.length} doses recorded',
+                        '$takenCount of ${allDosesToShow.length} doses logged',
                         style: AppTypography.titleLarge.copyWith(
-                          fontFamily: 'Courier',
                           color: L.text,
-                          fontSize: 18,
+                          fontSize: 17,
                           fontWeight: FontWeight.w900,
-                          letterSpacing: -1.0,
+                          letterSpacing: -0.5,
                         ),
                       ),
                     ],
@@ -287,6 +285,12 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                 taken: taken,
                 isPrn: isPrn,
                 L: L,
+                onTap: isPrn
+                    ? null
+                    : () async {
+                        HapticEngine.selection();
+                        await state.toggleDose(d, date: _selectedDate);
+                      },
                 onUndo: isPrn
                     ? () {
                         HapticEngine.light();
@@ -405,6 +409,7 @@ class _DoseLogRow extends StatelessWidget {
   final bool isPrn;
   final AppThemeColors L;
   final VoidCallback? onUndo;
+  final VoidCallback? onTap;
 
   const _DoseLogRow({
     required this.dose,
@@ -412,6 +417,7 @@ class _DoseLogRow extends StatelessWidget {
     required this.L,
     this.isPrn = false,
     this.onUndo,
+    this.onTap,
   });
 
   @override
@@ -421,126 +427,129 @@ class _DoseLogRow extends StatelessWidget {
         ? (isPrnBadge ? L.text : L.success)
         : L.sub.withValues(alpha: 0.4);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 12),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: taken ? accentColor.withValues(alpha: 0.3) : L.border.withValues(alpha: 0.1), width: taken ? 1.5 : 1),
-        boxShadow: taken ? [
-          BoxShadow(
-            color: accentColor.withValues(alpha: 0.1),
-            blurRadius: 16,
-            offset: const Offset(0, 4),
-          )
-        ] : null,
-      ),
-      child: Row(
-        children: [
-          // Status icon
-          Container(
-            width: 44,
-            height: 44,
-            decoration: BoxDecoration(
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: L.card.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: taken ? accentColor.withValues(alpha: 0.3) : L.border.withValues(alpha: 0.1), width: taken ? 1.5 : 1),
+          boxShadow: taken ? [
+            BoxShadow(
               color: accentColor.withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(13),
-            ),
-            child: Center(
-              child: Icon(
-                taken
-                    ? Icons.check_circle_rounded
-                    : Icons.radio_button_unchecked_rounded,
-                size: 22,
-                color: accentColor,
+              blurRadius: 16,
+              offset: const Offset(0, 4),
+            )
+          ] : null,
+        ),
+        child: Row(
+          children: [
+            // Status icon
+            Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                color: accentColor.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(13),
+              ),
+              child: Center(
+                child: Icon(
+                  taken
+                      ? Icons.check_circle_rounded
+                      : Icons.radio_button_unchecked_rounded,
+                  size: 22,
+                  color: accentColor,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(
-                        dose.med.name,
-                        style: AppTypography.titleMedium.copyWith(
-                          fontWeight: FontWeight.w900,
-                          fontSize: 15,
-                          color: L.text,
-                          letterSpacing: -0.3,
-                        ),
-                      ),
-                    ),
-                    if (isPrnBadge)
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 7, vertical: 3),
-                        decoration: BoxDecoration(
-                          color: L.primary.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(AppRadius.max),
-                          border: Border.all(
-                              color: L.primary.withValues(alpha: 0.2)),
-                        ),
+            const SizedBox(width: 14),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
                         child: Text(
-                          'PRN',
-                          style: AppTypography.labelSmall.copyWith(
-                            color: L.text,
+                          dose.med.name,
+                          style: AppTypography.titleMedium.copyWith(
                             fontWeight: FontWeight.w900,
-                            fontSize: 10,
-                            letterSpacing: 0.5,
+                            fontSize: 15,
+                            color: L.text,
+                            letterSpacing: -0.3,
                           ),
                         ),
                       ),
-                  ],
-                ),
-                const SizedBox(height: 3),
-                Text(
-                  '${dose.med.dose} · ${isPrnBadge ? AppLocalizations.of(context)!.prnLabel : dose.sched.label}',
-                  style: AppTypography.bodySmall.copyWith(
-                    fontSize: 12,
-                    color: L.sub,
-                    fontWeight: FontWeight.w600,
+                      if (isPrnBadge)
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: L.primary.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(AppRadius.max),
+                            border: Border.all(
+                                color: L.primary.withValues(alpha: 0.2)),
+                          ),
+                          child: Text(
+                            'PRN',
+                            style: AppTypography.labelSmall.copyWith(
+                              color: L.text,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 10,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(width: 8),
-          if (isPrnBadge && onUndo != null)
-            GestureDetector(
-              onTap: onUndo,
-              child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: L.error.withValues(alpha: 0.08),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.delete_outline_rounded,
-                    size: 16, color: L.error),
+                  const SizedBox(height: 3),
+                  Text(
+                    '${dose.med.dose} · ${isPrnBadge ? AppLocalizations.of(context)!.prnLabel : dose.sched.label}',
+                    style: AppTypography.bodySmall.copyWith(
+                      fontSize: 12,
+                      color: L.sub,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
               ),
             ),
-          if (isPrnBadge && onUndo != null) const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-            decoration: BoxDecoration(
-              color: L.fill.withValues(alpha: 0.06),
-              borderRadius: BorderRadius.circular(AppRadius.max),
-            ),
-            child: Text(
-              fmtTime(dose.sched.h, dose.sched.m, context),
-              style: AppTypography.labelLarge.copyWith(
-                fontFamily: 'Courier',
-                fontWeight: FontWeight.w900,
-                fontSize: 13,
-                letterSpacing: 0.5,
-                color: L.text,
+            const SizedBox(width: 8),
+            if (isPrnBadge && onUndo != null)
+              GestureDetector(
+                onTap: onUndo,
+                child: Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: L.error.withValues(alpha: 0.08),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.delete_outline_rounded,
+                      size: 16, color: L.error),
+                ),
+              ),
+            if (isPrnBadge && onUndo != null) const SizedBox(width: 8),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: L.fill.withValues(alpha: 0.06),
+                borderRadius: BorderRadius.circular(AppRadius.max),
+              ),
+              child: Text(
+                fmtTime(dose.sched.h, dose.sched.m, context),
+                style: AppTypography.labelLarge.copyWith(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 12,
+                  letterSpacing: 0.2,
+                  color: L.text,
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -560,7 +569,7 @@ class _SymptomLogRow extends StatelessWidget {
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: L.card,
+        color: L.card.withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(18),
         border: Border.all(color: L.border.withValues(alpha: 0.1)),
       ),

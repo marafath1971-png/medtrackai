@@ -170,7 +170,7 @@ class _AskAiSheetState extends State<AskAiSheet> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             decoration: BoxDecoration(
-              color: L.card,
+              color: L.card.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(24),
               border: Border.all(color: L.secondary.withValues(alpha: 0.3), width: 1.5),
               boxShadow: [

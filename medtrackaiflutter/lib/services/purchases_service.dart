@@ -6,9 +6,9 @@ import '../core/utils/logger.dart';
 
 class PurchasesService {
   static String get _appleApiKey =>
-      dotenv.env['RC_APPLE_KEY'] ?? 're_your_real_apple_key_here';
+      (dotenv.isInitialized ? dotenv.env['RC_APPLE_KEY'] : null) ?? 're_your_real_apple_key_here';
   static String get _googleApiKey =>
-      dotenv.env['RC_GOOGLE_KEY'] ?? 're_your_real_google_key_here';
+      (dotenv.isInitialized ? dotenv.env['RC_GOOGLE_KEY'] : null) ?? 're_your_real_google_key_here';
 
 
   static Future<void> init() async {

@@ -51,9 +51,6 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     'country': '',
   };
 
-  String _paywallPlan = 'annual';
-  int _paywallStep = 0;
-
   List<_OBStep> get _steps => [
         const _OBStep(id: 'splash', type: 'splash'),
         const _OBStep(id: 'consent', type: 'consent'),
@@ -224,21 +221,21 @@ class _OnboardingScreenState extends State<OnboardingScreen>
     final L = context.L;
 
     final monoTheme = Theme.of(context).copyWith(
-      scaffoldBackgroundColor: const Color(0xFFFFFFFF),
+      scaffoldBackgroundColor: const Color(0xFFF5F5F0),
       colorScheme:
-          const ColorScheme.light(primary: Color(0xFF1C1C1E), secondary: Color(0xFFE8E8E8)),
+          const ColorScheme.light(primary: Color(0xFF1C1C1E), secondary: Color(0xFF3A7D6A)),
       extensions: [
         AppThemeColors.fromColorScheme(
-          const ColorScheme.light(primary: Color(0xFF1C1C1E), secondary: Color(0xFFE8E8E8)),
+          const ColorScheme.light(primary: Color(0xFF1C1C1E), secondary: Color(0xFF3A7D6A)),
           Brightness.light,
         ).copyWith(
-          bg: const Color(0xFFFFFFFF),
+          bg: const Color(0xFFF5F5F0),
           text: const Color(0xFF1C1C1E),
-          sub: const Color(0xFF666666),
-          card: const Color(0xFFF9F9F9),
-          border: const Color(0xFFE0E0E0),
+          sub: const Color(0xFF64736D),
+          card: const Color(0xFFFFFFFF),
+          border: const Color(0xFFE2E8E4),
           glassBorder: const Color(0xFF1C1C1E).withValues(alpha: 0.1),
-          fill: const Color(0xFFF0F0F0),
+          fill: const Color(0xFFEBEBE5),
         )
       ],
     );
@@ -343,12 +340,9 @@ class _OnboardingScreenState extends State<OnboardingScreen>
       case 'paywall':
         return _PaywallStep(
           form: _form,
-          plan: _paywallPlan,
-          paywallStep: _paywallStep,
-          onPlanToggle: (p) => setState(() => _paywallPlan = p),
-          onNextStep: () => setState(() => _paywallStep++),
           onComplete: _complete,
           onAuth: _next,
+          onBack: _back,
         );
       case 'social_proof':
         return _SocialProofStep(form: _form);
@@ -2291,66 +2285,140 @@ class _PlanReadyStepState extends State<_PlanReadyStep> {
     final name = widget.form['name']?.toString() ?? '';
     final goal = widget.form['goal']?.toString() ?? '';
     final wt = widget.form['wakeTime'] as Map<String, int>? ?? {'h': 7, 'm': 0};
-    final st = widget.form['sleepTime'] as Map<String, int>? ?? {'h': 22, 'm': 0};
+    final painPoints = widget.form['pain_points'] as List<dynamic>? ?? [];
+    final medCount = widget.form['med_count']?.toString() ?? '';
 
-    final items = [
-      if (goal.isNotEmpty) ('🎯', 'Goal', goal),
-      ('⏰', 'Wake reminder', '${wt['h'].toString().padLeft(2, '0')}:${wt['m'].toString().padLeft(2, '0')}'),
-      ('🌙', 'Sleep mode', '${st['h'].toString().padLeft(2, '0')}:${st['m'].toString().padLeft(2, '0')}'),
-      ('🧠', 'AI mode', 'Fully personalised'),
-      ('🛡️', 'Streak tracking', 'Activated'),
+    String formatTime(int h, int m) {
+      final ampm = h >= 12 ? 'PM' : 'AM';
+      final h12 = h % 12 == 0 ? 12 : h % 12;
+      return '$h12:${m.toString().padLeft(2, '0')} $ampm';
+    }
+
+    final highlights = [
+      if (goal.isNotEmpty) 'Goal: $goal',
+      if (medCount.isNotEmpty) 'Medication load: $medCount daily',
+      'Wake reminder: ${formatTime(wt['h']!, wt['m']!)}',
+      if (painPoints.isNotEmpty) 'Addressing struggle: ${painPoints.first}',
+      'AI adherence track: Activated',
     ];
 
     return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(),
+      physics: const ClampingScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
       child: Column(children: [
+        const SizedBox(height: 16),
+        Container(
+          width: 80,
+          height: 80,
+          decoration: BoxDecoration(
+            color: L.secondary.withValues(alpha: 0.12),
+            shape: BoxShape.circle,
+          ),
+          child: const Center(
+            child: Text(
+              '🎯',
+              style: TextStyle(fontSize: 38),
+            ),
+          ),
+        ).animate(onPlay: (c) => c.repeat(reverse: true)).slideY(begin: -0.05, end: 0.05, duration: 2000.ms, curve: Curves.easeInOut),
+        const SizedBox(height: 20),
         Text(
           'Your plan is ready${name.isNotEmpty ? ", $name" : ""}!',
           textAlign: TextAlign.center,
-          style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', fontSize: 30, color: L.text, letterSpacing: -1.0, height: 1.15),
+          style: AppTypography.displayLarge.copyWith(fontSize: 28, color: L.text, letterSpacing: -1.0, height: 1.15),
         ).animate().fadeIn().slideY(begin: 0.1, end: 0),
         const SizedBox(height: 8),
         Text(
-          'Based on your answers, we\'ve built the perfect AI track for you.',
+          'Personalised just for you ✨',
           textAlign: TextAlign.center,
-          style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', fontSize: 14, color: L.sub, height: 1.5),
+          style: AppTypography.titleMedium.copyWith(fontSize: 15, color: L.secondary, fontWeight: FontWeight.w700),
         ).animate(delay: 100.ms).fadeIn(),
-        const SizedBox(height: 24),
+        const SizedBox(height: 28),
 
-        ...items.asMap().entries.map((e) {
-          final i = e.key;
-          final item = e.value;
-          return Container(
-            margin: const EdgeInsets.only(bottom: 10),
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-            decoration: BoxDecoration(
-              color: L.card,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: L.glassBorder),
-            ),
-            child: Row(children: [
-              Text(item.$1, style: const TextStyle(fontSize: 20)),
-              const SizedBox(width: 14),
-              Expanded(child: Text(item.$2, style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', fontSize: 13, color: L.sub))),
-              Text(item.$3, style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', fontSize: 13, fontWeight: FontWeight.w700, color: L.text)),
-            ]),
-          ).animate(delay: (200 + 100 * i).ms).fadeIn().slideX(begin: 0.05, end: 0);
-        }),
-        const SizedBox(height: 32),
-        // Built-in Continue button for PlanReady (bypassing BottomCTA)
-        GestureDetector(
-          onTap: widget.onNext,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 18),
-            decoration: BoxDecoration(
-              color: L.text,
-              borderRadius: BorderRadius.circular(32),
-            ),
-            child: Text('Continue', textAlign: TextAlign.center, style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', color: L.bg, fontSize: 16)),
+        Column(
+          children: highlights.map((h) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 10),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                decoration: BoxDecoration(
+                  color: L.card,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: L.border, width: 1.0),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 22,
+                      height: 22,
+                      decoration: BoxDecoration(
+                        color: L.secondary.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.check_rounded,
+                          size: 13,
+                          color: L.secondary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        h,
+                        style: AppTypography.bodyMedium.copyWith(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: L.text,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }).toList(),
+        ).animate(delay: 200.ms).fadeIn(duration: 400.ms).slideY(begin: 0.05, end: 0),
+        const SizedBox(height: 18),
+        
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+          decoration: BoxDecoration(
+            color: L.secondary.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: L.secondary.withValues(alpha: 0.15), width: 1.0),
           ),
-        ).animate(delay: 800.ms).fadeIn(),
+          child: Column(
+            children: [
+              Text(
+                '94%',
+                style: AppTypography.displayLarge.copyWith(
+                  fontSize: 32,
+                  fontWeight: FontWeight.w900,
+                  color: L.secondary,
+                  letterSpacing: -1.0,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                'of users like you improved adherence in 2 weeks',
+                textAlign: TextAlign.center,
+                style: AppTypography.bodySmall.copyWith(
+                  fontSize: 13,
+                  color: L.sub,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
+        ).animate(delay: 400.ms).fadeIn(),
+        const SizedBox(height: 32),
+        
+        _OBButton(
+          label: 'See My Plan →',
+          onTap: widget.onNext,
+        ).animate(delay: 600.ms).fadeIn(),
       ]),
     );
   }
@@ -2601,58 +2669,137 @@ class _SocialProofStep extends StatelessWidget {
   }
 }
 
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-// PAYWALL — streamlined conversion screen
-// No duplicate buttons, single clear CTA
-// ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-class _PaywallStep extends StatelessWidget {
+class PromoCode {
+  final double discount;
+  final String label;
+  final String type; // 'trial' | 'percent' | 'forever'
+
+  const PromoCode({
+    required this.discount,
+    required this.label,
+    required this.type,
+  });
+}
+
+const Map<String, PromoCode> kPromoCodes = {
+  'WELCOME': PromoCode(discount: 100, label: 'Free 30 days', type: 'trial'),
+  'HEALTH50': PromoCode(discount: 50, label: '50% off first month', type: 'percent'),
+  'PILL30': PromoCode(discount: 30, label: '30% off', type: 'percent'),
+  'MEDTRACK': PromoCode(discount: 100, label: 'Free 14 days', type: 'trial'),
+  'FRIEND': PromoCode(discount: 20, label: '20% off forever', type: 'percent'),
+};
+
+class _PaywallStep extends StatefulWidget {
   final Map<String, dynamic> form;
-  final String plan;
-  final int paywallStep;
-  final Function(String) onPlanToggle;
-  final VoidCallback onNextStep;
   final VoidCallback onComplete;
   final VoidCallback onAuth;
+  final VoidCallback onBack;
 
   const _PaywallStep({
     required this.form,
-    required this.plan,
-    required this.paywallStep,
-    required this.onPlanToggle,
-    required this.onNextStep,
     required this.onComplete,
     required this.onAuth,
+    required this.onBack,
   });
 
   @override
+  State<_PaywallStep> createState() => _PaywallStepState();
+}
+
+class _PaywallStepState extends State<_PaywallStep> {
+  int _innerStep = 0;
+  String _plan = 'annual';
+  
+  final TextEditingController _promoController = TextEditingController();
+  PromoCode? _appliedPromo;
+  String _promoError = '';
+
+  @override
+  void dispose() {
+    _promoController.dispose();
+    super.dispose();
+  }
+
+  void _verifyPromo() {
+    final code = _promoController.text.trim().toUpperCase();
+    if (code.isEmpty) return;
+    
+    if (kPromoCodes.containsKey(code)) {
+      HapticEngine.success();
+      setState(() {
+        _appliedPromo = kPromoCodes[code];
+        _promoError = '';
+      });
+    } else {
+      HapticEngine.error();
+      setState(() {
+        _appliedPromo = null;
+        _promoError = 'Invalid code. Try WELCOME for a free trial.';
+      });
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    if (paywallStep == 0) {
-      return _PaywallMain(
-        plan: plan,
-        onToggle: onPlanToggle,
-        onSkip: onComplete,
-        onNext: onNextStep,
-        onAuth: onAuth,
+    if (_innerStep == 0) {
+      return _PaywallStep1(
+        form: widget.form,
+        plan: _plan,
+        promoController: _promoController,
+        appliedPromo: _appliedPromo,
+        promoError: _promoError,
+        onPlanToggle: (p) => setState(() => _plan = p),
+        onApplyPromo: _verifyPromo,
+        onNext: () => setState(() => _innerStep = 1),
+        onSkip: widget.onComplete,
+        onAuth: widget.onAuth,
+        onBack: widget.onBack,
+      );
+    } else if (_innerStep == 1) {
+      return _PaywallStep2(
+        form: widget.form,
+        plan: _plan,
+        appliedPromo: _appliedPromo,
+        onNext: () => setState(() => _innerStep = 2),
+        onBack: () => setState(() => _innerStep = 0),
+      );
+    } else {
+      return _PaywallStep3(
+        form: widget.form,
+        plan: _plan,
+        appliedPromo: _appliedPromo,
+        onComplete: widget.onComplete,
+        onBack: () => setState(() => _innerStep = 1),
       );
     }
-    return _PaywallTimeline(
-      plan: plan,
-      onComplete: onComplete,
-    );
   }
 }
 
-class _PaywallMain extends StatelessWidget {
+class _PaywallStep1 extends StatelessWidget {
+  final Map<String, dynamic> form;
   final String plan;
-  final Function(String) onToggle;
-  final VoidCallback onNext, onSkip, onAuth;
+  final TextEditingController promoController;
+  final PromoCode? appliedPromo;
+  final String promoError;
+  final Function(String) onPlanToggle;
+  final VoidCallback onApplyPromo;
+  final VoidCallback onNext;
+  final VoidCallback onSkip;
+  final VoidCallback onAuth;
+  final VoidCallback onBack;
 
-  const _PaywallMain({
+  const _PaywallStep1({
+    required this.form,
     required this.plan,
-    required this.onToggle,
+    required this.promoController,
+    required this.appliedPromo,
+    required this.promoError,
+    required this.onPlanToggle,
+    required this.onApplyPromo,
     required this.onNext,
     required this.onSkip,
     required this.onAuth,
+    required this.onBack,
   });
 
   @override
@@ -2660,29 +2807,42 @@ class _PaywallMain extends StatelessWidget {
     final L = context.L;
 
     final features = [
-      ('🔍', 'AI Medicine Scanner', 'Instant ID of any medicine'),
-      ('⏰', 'Smart Reminders', 'Perfectly timed alerts'),
-      ('📈', '98% Adherence', 'Clinically proven results'),
-      ('🛡️', 'Streak Protection', 'Never lose your progress'),
-      ('👪', 'Family Sharing', 'Manage meds for your family'),
-      ('🔐', 'Private & Encrypted', 'Your data stays yours'),
+      ('🔍', 'AI Medicine Scanner'),
+      ('⏰', 'Smart Reminders'),
+      ('🛡️', 'Streak Protection'),
+      ('📦', 'Unlimited Medicines'),
+      ('⚠️', 'Low Stock Alerts'),
+      ('🧠', 'AI Health Insights'),
+      ('👪', 'Family Sharing'),
+      ('🔐', 'Private & Secure'),
     ];
+
+    double annualPrice = 7.58;
+    double annualTotal = 91.00;
+    double monthlyPrice = 9.90;
+
+    if (appliedPromo != null && appliedPromo!.type == 'percent') {
+      final discountFactor = 1 - (appliedPromo!.discount / 100);
+      annualPrice *= discountFactor;
+      annualTotal *= discountFactor;
+      monthlyPrice *= discountFactor;
+    }
 
     final plans = [
       {
         'id': 'annual',
         'label': 'Annual',
         'sub': 'Best value',
-        'price': fmtCurrency(7.58, context),
+        'price': fmtCurrency(annualPrice, context),
         'per': '/month',
-        'total': 'Billed ${fmtCurrency(91.0, context)}/year',
+        'total': 'Billed ${fmtCurrency(annualTotal, context)}/year',
         'save': 'Save 24%',
       },
       {
         'id': 'monthly',
         'label': 'Monthly',
         'sub': 'Flexible',
-        'price': fmtCurrency(9.90, context),
+        'price': fmtCurrency(monthlyPrice, context),
         'per': '/month',
         'total': 'Cancel anytime',
         'save': null,
@@ -2690,37 +2850,51 @@ class _PaywallMain extends StatelessWidget {
     ];
 
     return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(
-          parent: AlwaysScrollableScrollPhysics()),
+      physics: const ClampingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        // Header
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-          decoration: BoxDecoration(
-            color: L.green.withValues(alpha: 0.1),
-            borderRadius: BorderRadius.circular(99),
-          ),
-          child: Text('MEDAI PRO',
-              style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', 
-                  fontSize: 10,
-                  color: L.green,
-                  letterSpacing: 1.5,
-                  fontWeight: FontWeight.w900)),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'MEDAI PRO',
+                  style: TextStyle(
+                    fontSize: 10,
+                    color: Color(0xFF3A7D6A),
+                    letterSpacing: 1.5,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  "Start your free trial",
+                  style: AppTypography.displayLarge.copyWith(
+                    fontSize: 26,
+                    color: L.text,
+                    letterSpacing: -0.5,
+                    height: 1.1,
+                  ),
+                ),
+              ],
+            ),
+              GestureDetector(
+                onTap: onSkip,
+                child: Text(
+                  'Skip',
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: L.sub.withValues(alpha: 0.7),
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                    decoration: TextDecoration.underline,
+                  ),
+                ),
+              ),
+          ],
         ),
-        const SizedBox(height: 10),
-        Text("The most advanced\nmedication AI",
-            style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
-                fontSize: 32,
-                color: L.text,
-                letterSpacing: -1.0,
-                height: 1.1)),
-        const SizedBox(height: 6),
-        Text('Start with 3 free AI scans. No card needed.',
-            style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
-                fontSize: 14, color: L.sub)),
-
-        const SizedBox(height: 24),
+        const SizedBox(height: 20),
 
         // Features grid
         GridView.builder(
@@ -2735,133 +2909,141 @@ class _PaywallMain extends StatelessWidget {
           itemBuilder: (_, i) {
             final f = features[i];
             return Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 12, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
               decoration: BoxDecoration(
                 color: L.card,
-                borderRadius: BorderRadius.circular(14),
-                border: Border.all(color: L.glassBorder),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: L.border, width: 1.0),
               ),
               child: Row(children: [
                 Text(f.$1, style: const TextStyle(fontSize: 16)),
                 const SizedBox(width: 8),
                 Expanded(
-                    child: Text(f.$2,
-                        style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                            color: L.text),
-                        maxLines: 2)),
+                  child: Text(
+                    f.$2,
+                    style: AppTypography.labelLarge.copyWith(
+                      fontSize: 11,
+                      fontWeight: FontWeight.w700,
+                      color: L.text,
+                    ),
+                    maxLines: 2,
+                  ),
+                ),
               ]),
-            )
-                .animate(delay: (50 * i).ms)
-                .fadeIn(duration: 300.ms)
-                .slideY(begin: 0.06, end: 0);
+            );
           },
+        ),
+
+        const SizedBox(height: 24),
+
+        // Plan selector
+        Row(
+          children: plans.map((p) {
+            return Expanded(
+              child: Padding(
+                padding: EdgeInsets.only(right: p['id'] == 'annual' ? 8.0 : 0.0),
+                child: _PaywallPlanCard(
+                  planData: p,
+                  isSelected: plan == p['id'],
+                  onTap: () => onPlanToggle(p['id'] as String),
+                ),
+              ),
+            );
+          }).toList(),
         ),
 
         const SizedBox(height: 20),
 
-        // Plan toggle
-        Row(children: plans.map((p) {
-          final isSel = plan == p['id'];
-          return Expanded(
-            child: GestureDetector(
-              onTap: () {
-                HapticEngine.selection();
-                onToggle(p['id'] as String);
-              },
-              child: AnimatedContainer(
-                duration: 250.ms,
-                margin: EdgeInsets.only(
-                    right: p['id'] == 'annual' ? 8 : 0),
-                padding: const EdgeInsets.all(16),
+        // Promo code input
+        Row(
+          children: [
+            Expanded(
+              child: Container(
+                height: 48,
                 decoration: BoxDecoration(
-                  color: isSel ? L.text : L.card,
-                  borderRadius: BorderRadius.circular(18),
+                  color: L.card,
+                  borderRadius: BorderRadius.circular(12),
                   border: Border.all(
-                      color: isSel
-                          ? L.text
-                          : L.sub.withValues(alpha: 0.15),
-                      width: 1.5),
+                    color: appliedPromo != null
+                        ? L.secondary
+                        : (promoError.isNotEmpty ? L.error : L.border),
+                    width: 1.5,
+                  ),
                 ),
-                child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (p['save'] != null)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: isSel
-                                ? L.bg
-                                : L.green.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(99),
-                          ),
-                          child: Text(p['save']!,
-                              style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', 
-                                  fontSize: 9,
-                                  color: isSel ? L.text : L.green,
-                                  fontWeight: FontWeight.w900)),
-                        ),
-                      if (p['save'] != null) const SizedBox(height: 4),
-                      Text(p['price'] as String,
-                          style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
-                              fontSize: 24,
-                              fontWeight: FontWeight.w900,
-                              color:
-                                  isSel ? L.bg : L.text,
-                              letterSpacing: -0.5)),
-                      Text(p['per'] as String,
-                          style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
-                              fontSize: 11,
-                              color: isSel
-                                  ? L.bg.withValues(alpha: 0.6)
-                                  : L.sub)),
-                      const SizedBox(height: 4),
-                      Text(p['total'] as String,
-                          style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
-                              fontSize: 10,
-                              color: isSel
-                                  ? L.bg.withValues(alpha: 0.6)
-                                  : L.sub)),
-                    ]),
+                padding: const EdgeInsets.symmetric(horizontal: 14),
+                child: TextField(
+                  controller: promoController,
+                  textCapitalization: TextCapitalization.characters,
+                  decoration: InputDecoration(
+                    hintText: 'Promo code (try WELCOME)',
+                    hintStyle: TextStyle(color: L.sub.withValues(alpha: 0.5), fontSize: 13),
+                    border: InputBorder.none,
+                    isDense: true,
+                  ),
+                  style: TextStyle(color: L.text, fontSize: 13, fontWeight: FontWeight.bold),
+                ),
               ),
             ),
-          );
-        }).toList()),
-
-        const SizedBox(height: 20),
-
-        // Primary CTA — single
-        GestureDetector(
-          onTap: onNext,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 19),
-            decoration: BoxDecoration(
-              color: L.text,
-              borderRadius: BorderRadius.circular(32),
-              boxShadow: AppShadows.glow(L.text, intensity: 0.15),
+            const SizedBox(width: 8),
+            GestureDetector(
+              onTap: onApplyPromo,
+              child: Container(
+                height: 48,
+                padding: const EdgeInsets.symmetric(horizontal: 18),
+                decoration: BoxDecoration(
+                  color: appliedPromo != null ? L.secondary.withValues(alpha: 0.12) : L.card,
+                  border: Border.all(color: appliedPromo != null ? L.secondary : L.border),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Center(
+                  child: Text(
+                    appliedPromo != null ? '✓' : 'Apply',
+                    style: TextStyle(
+                      color: appliedPromo != null ? L.secondary : L.text,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
             ),
-            child: Text('Start Free — 3 AI Scans',
-                textAlign: TextAlign.center,
-                style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
-                    fontSize: 16,
-                    fontWeight: FontWeight.w800,
-                    color: L.bg,
-                    letterSpacing: 0.2)),
+          ],
+        ),
+        if (promoError.isNotEmpty) ...[
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Text(promoError, style: TextStyle(color: L.error, fontSize: 11, fontWeight: FontWeight.w600)),
           ),
+        ],
+        if (appliedPromo != null) ...[
+          const SizedBox(height: 6),
+          Padding(
+            padding: const EdgeInsets.only(left: 4),
+            child: Text('🎉 ${appliedPromo!.label} applied!', style: TextStyle(color: L.secondary, fontSize: 11, fontWeight: FontWeight.bold)),
+          ),
+        ],
+
+        const SizedBox(height: 24),
+
+        // Primary CTA
+        _OBButton(
+          label: appliedPromo != null && appliedPromo!.type == 'trial'
+              ? 'Start Trial — ${appliedPromo!.label} →'
+              : 'Start Free Trial →',
+          onTap: onNext,
         ),
 
         const SizedBox(height: 10),
 
         Center(
-            child: Text('No charge today · Cancel anytime',
-                style: AppTypography.bodySmall
-                    .copyWith(fontSize: 12, color: L.sub))),
+          child: Text(
+            'No charge today · Cancel anytime',
+            style: AppTypography.bodySmall.copyWith(fontSize: 12, color: L.sub),
+          ),
+        ),
 
-        const SizedBox(height: 8),
+        const SizedBox(height: 16),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -2869,7 +3051,7 @@ class _PaywallMain extends StatelessWidget {
               onTap: () => context.read<AppState>().openTermsOfService(),
               child: Text(
                 'Terms of Service',
-                style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
+                style: AppTypography.bodySmall.copyWith(
                   fontSize: 11,
                   color: L.sub.withValues(alpha: 0.6),
                   decoration: TextDecoration.underline,
@@ -2884,7 +3066,7 @@ class _PaywallMain extends StatelessWidget {
               onTap: () => context.read<AppState>().openPrivacyPolicy(),
               child: Text(
                 'Privacy Policy',
-                style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
+                style: AppTypography.bodySmall.copyWith(
                   fontSize: 11,
                   color: L.sub.withValues(alpha: 0.6),
                   decoration: TextDecoration.underline,
@@ -2893,7 +3075,6 @@ class _PaywallMain extends StatelessWidget {
             ),
           ],
         ),
-
         const SizedBox(height: 20),
 
         // Auth options
@@ -2904,22 +3085,533 @@ class _PaywallMain extends StatelessWidget {
         // Skip — very small, low contrast
         Center(
           child: GestureDetector(
-            onTap: () {
-              context.read<AppState>().logPaywallEvent('paywall_skipped');
-              onSkip();
-            },
+            onTap: onSkip,
             behavior: HitTestBehavior.opaque,
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 10),
-              child: Text('Continue with free plan',
-                  style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
-                      fontSize: 12,
-                      color: L.sub.withValues(alpha: 0.45),
-                      decoration: TextDecoration.underline)),
+              child: Text(
+                'Continue with free plan',
+                style: AppTypography.bodySmall.copyWith(
+                  fontSize: 12,
+                  color: L.sub.withValues(alpha: 0.45),
+                  decoration: TextDecoration.underline,
+                ),
+              ),
             ),
           ),
         ),
       ]),
+    );
+  }
+}
+
+class _PaywallStep2 extends StatelessWidget {
+  final Map<String, dynamic> form;
+  final String plan;
+  final PromoCode? appliedPromo;
+  final VoidCallback onNext;
+  final VoidCallback onBack;
+
+  const _PaywallStep2({
+    required this.form,
+    required this.plan,
+    required this.appliedPromo,
+    required this.onNext,
+    required this.onBack,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+
+    final trustPoints = [
+      ('🔒', 'No charge today', 'Your trial starts immediately, completely free'),
+      ('📨', 'Reminder 3 days before', 'We\'ll email you before anything charges'),
+      ('❌', 'Cancel any time', 'Cancel in the app — no questions asked'),
+      ('🔐', 'Secure payment', '256-bit encryption, trusted by thousands'),
+    ];
+
+    return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: onBack,
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.arrow_back_ios_new_rounded, color: L.sub, size: 14),
+                const SizedBox(width: 6),
+                Text('Back', style: TextStyle(color: L.sub, fontWeight: FontWeight.bold, fontSize: 13)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            "We've got you covered",
+            style: AppTypography.displayLarge.copyWith(
+              fontSize: 26,
+              color: L.text,
+              letterSpacing: -0.5,
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'Your trust matters. Here\'s what happens next.',
+            style: AppTypography.bodyMedium.copyWith(fontSize: 14, color: L.sub),
+          ),
+          const SizedBox(height: 24),
+
+          Column(
+            children: trustPoints.map((tp) {
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 12),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: L.card,
+                    borderRadius: BorderRadius.circular(18),
+                    border: Border.all(color: L.border, width: 1.0),
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(tp.$1, style: const TextStyle(fontSize: 24)),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              tp.$2,
+                              style: AppTypography.labelLarge.copyWith(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w700,
+                                color: L.text,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              tp.$3,
+                              style: AppTypography.bodySmall.copyWith(
+                                fontSize: 12,
+                                color: L.sub,
+                                height: 1.4,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            }).toList(),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Testimonial card
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+            decoration: BoxDecoration(
+              color: L.secondary.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: L.secondary.withValues(alpha: 0.15), width: 1.0),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '"I haven\'t missed a single dose in 3 months. The reminders are perfectly timed."',
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: L.text,
+                    fontStyle: FontStyle.italic,
+                    height: 1.5,
+                    fontSize: 13,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  '— Sarah K., managing Type 2 Diabetes ⭐⭐⭐⭐⭐',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: L.sub,
+                    fontSize: 11,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 28),
+
+          _OBButton(
+            label: 'I Understand, Continue →',
+            onTap: onNext,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaywallStep3 extends StatelessWidget {
+  final Map<String, dynamic> form;
+  final String plan;
+  final PromoCode? appliedPromo;
+  final VoidCallback onComplete;
+  final VoidCallback onBack;
+
+  const _PaywallStep3({
+    required this.form,
+    required this.plan,
+    required this.appliedPromo,
+    required this.onComplete,
+    required this.onBack,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+
+    final trialDays = appliedPromo != null && appliedPromo!.type == 'trial'
+        ? (appliedPromo!.label.contains('30') ? 30 : 14)
+        : 7;
+
+    final today = DateTime.now();
+    final trialEnd = today.add(Duration(days: trialDays));
+    final reminderDate = trialEnd.subtract(const Duration(days: 3));
+
+    String formatDate(DateTime d) {
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+      return '${months[d.month - 1]} ${d.day}';
+    }
+
+    double annualPrice = 7.58;
+    double annualTotal = 91.00;
+    double monthlyPrice = 9.90;
+
+    if (appliedPromo != null && appliedPromo!.type == 'percent') {
+      final discountFactor = 1 - (appliedPromo!.discount / 100);
+      annualPrice *= discountFactor;
+      annualTotal *= discountFactor;
+      monthlyPrice *= discountFactor;
+    }
+
+    final String billingAmountDesc = plan == 'annual'
+        ? '${fmtCurrency(annualTotal, context)}/year billed'
+        : '${fmtCurrency(monthlyPrice, context)}/month billed';
+
+    final steps = [
+      ('🚀', 'Today', formatDate(today), 'MedAI Pro trial starts. Unlock all tools.'),
+      ('📧', 'Day ${trialDays - 3}', formatDate(reminderDate), 'We email you a reminder 3 days before trial ends.'),
+      ('💳', 'Day $trialDays', formatDate(trialEnd), billingAmountDesc),
+    ];
+
+    return SingleChildScrollView(
+      physics: const ClampingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+      padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          GestureDetector(
+            onTap: onBack,
+            behavior: HitTestBehavior.opaque,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.arrow_back_ios_new_rounded, color: L.sub, size: 14),
+                const SizedBox(width: 6),
+                Text('Back', style: TextStyle(color: L.sub, fontWeight: FontWeight.bold, fontSize: 13)),
+              ],
+            ),
+          ),
+          const SizedBox(height: 20),
+          Text(
+            "Here's exactly\nwhat happens",
+            style: AppTypography.displayLarge.copyWith(
+              fontSize: 28,
+              color: L.text,
+              letterSpacing: -1.0,
+              height: 1.1,
+            ),
+          ),
+          const SizedBox(height: 6),
+          Text(
+            'No surprises. No confusion.',
+            style: AppTypography.bodyMedium.copyWith(fontSize: 14, color: L.sub),
+          ),
+          const SizedBox(height: 32),
+
+          // Vertical timeline
+          Stack(
+            children: [
+              Positioned(
+                left: 20,
+                top: 40,
+                bottom: 40,
+                width: 2,
+                child: Opacity(
+                  opacity: 0.3,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [L.secondary, L.accent, L.text],
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                      ),
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                  ),
+                ),
+              ),
+              Column(
+                children: steps.asMap().entries.map((e) {
+                  final i = e.key;
+                  final s = e.value;
+                  final isFirst = i == 0;
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 42,
+                          height: 42,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: isFirst ? L.secondary : L.card,
+                            border: Border.all(
+                              color: isFirst ? L.secondary : L.border,
+                              width: 2.0,
+                            ),
+                          ),
+                          child: Center(
+                            child: Text(s.$1, style: const TextStyle(fontSize: 18)),
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                            decoration: BoxDecoration(
+                              color: L.card,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: isFirst ? L.secondary : L.border,
+                                width: 1.0,
+                              ),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      s.$2,
+                                      style: AppTypography.labelLarge.copyWith(
+                                        fontSize: 13,
+                                        fontWeight: FontWeight.bold,
+                                        color: isFirst ? L.secondary : L.text,
+                                      ),
+                                    ),
+                                    Text(
+                                      s.$3,
+                                      style: AppTypography.bodySmall.copyWith(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.bold,
+                                        color: L.sub,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  s.$4,
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    fontSize: 13,
+                                    color: isFirst ? L.text : L.sub,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+
+          const SizedBox(height: 24),
+
+          // Checkout Summary Box
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            decoration: BoxDecoration(
+              color: L.card,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: L.border, width: 1.0),
+            ),
+            child: Column(
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Free trial', style: TextStyle(color: L.text, fontSize: 13, fontWeight: FontWeight.bold)),
+                    Text('$trialDays days FREE', style: TextStyle(color: L.secondary, fontSize: 13, fontWeight: FontWeight.bold)),
+                  ],
+                ),
+                if (appliedPromo != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text('Promo', style: TextStyle(color: L.sub, fontSize: 12)),
+                      Text('🎉 ${appliedPromo!.label}', style: TextStyle(color: L.secondary, fontSize: 12, fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                ],
+                const SizedBox(height: 8),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Then', style: TextStyle(color: L.text, fontSize: 13, fontWeight: FontWeight.bold)),
+                    Text(
+                      plan == 'annual'
+                          ? '${fmtCurrency(annualPrice, context)}/mo'
+                          : '${fmtCurrency(monthlyPrice, context)}/mo',
+                      style: TextStyle(color: L.sub, fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Action button
+          _OBButton(
+            label: 'Start My $trialDays-Day Free Trial 🚀',
+            onTap: () async {
+              HapticEngine.selection();
+              await context.read<AppState>().purchasePremium(plan);
+              onComplete();
+            },
+          ),
+          const SizedBox(height: 10),
+          Center(
+            child: Text(
+              'Cancel any time before ${formatDate(trialEnd)} to avoid being charged.',
+              textAlign: TextAlign.center,
+              style: AppTypography.bodySmall.copyWith(fontSize: 11, color: L.sub, height: 1.4),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PaywallPlanCard extends StatefulWidget {
+  final Map<String, dynamic> planData;
+  final bool isSelected;
+  final VoidCallback onTap;
+
+  const _PaywallPlanCard({
+    required this.planData,
+    required this.isSelected,
+    required this.onTap,
+  });
+
+  @override
+  State<_PaywallPlanCard> createState() => _PaywallPlanCardState();
+}
+
+class _PaywallPlanCardState extends State<_PaywallPlanCard> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    final p = widget.planData;
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        scale: _pressed ? 0.96 : 1.0,
+        duration: 100.ms,
+        child: AnimatedContainer(
+          duration: 200.ms,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            color: widget.isSelected ? L.text : L.card,
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: widget.isSelected ? L.text : L.border,
+              width: 1.0,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (p['save'] != null) ...[
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                  decoration: BoxDecoration(
+                    color: widget.isSelected ? L.bg : const Color(0xFFE2EEEA),
+                    borderRadius: BorderRadius.circular(99),
+                  ),
+                  child: Text(
+                    p['save']!,
+                    style: AppTypography.labelSmall.copyWith(
+                      fontSize: 9,
+                      color: widget.isSelected ? L.text : const Color(0xFF3A7D6A),
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 6),
+              ],
+              Text(
+                p['price'] as String,
+                style: AppTypography.displayLarge.copyWith(
+                  fontSize: 24,
+                  fontWeight: FontWeight.w900,
+                  color: widget.isSelected ? L.bg : L.text,
+                  letterSpacing: -0.5,
+                ),
+              ),
+              Text(
+                p['per'] as String,
+                style: AppTypography.bodySmall.copyWith(
+                  fontSize: 11,
+                  color: widget.isSelected ? L.bg.withValues(alpha: 0.6) : L.sub,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                p['total'] as String,
+                style: AppTypography.bodySmall.copyWith(
+                  fontSize: 10,
+                  color: widget.isSelected ? L.bg.withValues(alpha: 0.6) : L.sub,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }
@@ -2931,213 +3623,144 @@ class _AuthButtons extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(children: [
-      _buildBtn(
-          'Continue with Apple',
-          null,
-          () async {
-            await AuthService.signInWithApple();
-            onAuth();
-          },
-          icon: Icons.apple_rounded),
+      _PaywallAuthBtn(
+        label: 'Continue with Apple',
+        icon: Icons.apple_rounded,
+        onTap: () async {
+          await AuthService.signInWithApple();
+          onAuth();
+        },
+      ),
       const SizedBox(height: 10),
-      _buildBtn('Continue with Google', 'assets/images/google_logo.png',
-          () async {
-        await AuthService.signInWithGoogle();
-        onAuth();
-      }),
+      _PaywallAuthBtn(
+        label: 'Continue with Google',
+        asset: 'assets/images/google_logo.png',
+        onTap: () async {
+          await AuthService.signInWithGoogle();
+          onAuth();
+        },
+      ),
     ]);
-  }
-
-  Widget _buildBtn(String label, String? asset, VoidCallback onTap,
-      {IconData? icon}) {
-    return Builder(builder: (context) {
-      final L = context.L;
-      return GestureDetector(
-        onTap: onTap,
-        child: Container(
-          width: double.infinity,
-          height: 52,
-          decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                  color: Colors.black.withValues(alpha: 0.08))),
-          child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-            if (asset != null)
-              Image.asset(asset,
-                  width: 18,
-                  height: 18,
-                  errorBuilder: (c, e, s) =>
-                      const Icon(Icons.login, size: 18, color: Colors.black))
-            else if (icon != null)
-              Icon(icon, size: 20, color: Colors.black),
-            const SizedBox(width: 10),
-            Text(label,
-                style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
-                    color: Colors.black,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700)),
-          ]),
-        ),
-      );
-    });
   }
 }
 
-class _PaywallTimeline extends StatelessWidget {
-  final String plan;
-  final VoidCallback onComplete;
+class _PaywallAuthBtn extends StatefulWidget {
+  final String label;
+  final String? asset;
+  final IconData? icon;
+  final VoidCallback onTap;
 
-  const _PaywallTimeline(
-      {required this.plan, required this.onComplete});
+  const _PaywallAuthBtn({
+    required this.label,
+    this.asset,
+    this.icon,
+    required this.onTap,
+  });
+
+  @override
+  State<_PaywallAuthBtn> createState() => _PaywallAuthBtnState();
+}
+
+class _PaywallAuthBtnState extends State<_PaywallAuthBtn> {
+  bool _pressed = false;
 
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-
-    final steps = [
-      ('🚀', 'Today', 'MedAI activated with 3 free AI scans'),
-      ('📱', 'Day 7',
-          'Your reminders adapt based on your real habits'),
-      ('🛡️', plan == 'annual' ? 'After 3 Scans' : 'After 3 Scans',
-          plan == 'annual'
-              ? '${fmtCurrency(91.0, context)}/year billed'
-              : '${fmtCurrency(9.90, context)}/month billed'),
-    ];
-
-    return SingleChildScrollView(
-      physics: const BouncingScrollPhysics(
-          parent: AlwaysScrollableScrollPhysics()),
-      padding: const EdgeInsets.fromLTRB(20, 24, 20, 32),
-      child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Here's exactly\nwhat happens",
-                style: AppTypography.displayLarge.copyWith(fontFamily: 'Courier', 
-                    fontSize: 32,
-                    color: L.text,
-                    letterSpacing: -1.0,
-                    height: 1.1)),
-            const SizedBox(height: 8),
-            Text('No surprises. No confusion.',
-                style: AppTypography.bodyMedium
-                    .copyWith(fontSize: 14, color: L.sub)),
-            const SizedBox(height: 32),
-
-            // Timeline
-            ...steps.asMap().entries.map((e) {
-              final i = e.key;
-              final s = e.value;
-              return Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Column(children: [
-                    Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: i == 0 ? L.text : L.fill,
-                        border: Border.all(
-                            color: i == 0
-                                ? L.text
-                                : L.sub.withValues(alpha: 0.2),
-                            width: 2),
-                      ),
-                      child: Center(
-                          child: Text(s.$1,
-                              style: const TextStyle(fontSize: 18))),
-                    ),
-                    if (i < steps.length - 1)
-                      Container(
-                        width: 2,
-                        height: 60,
-                        color: L.sub.withValues(alpha: 0.12),
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                      ),
-                  ]),
-                  const SizedBox(width: 16),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 8),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(s.$2,
-                              style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
-                                  fontSize: 12,
-                                  color: L.sub,
-                                  letterSpacing: 0.5)),
-                          const SizedBox(height: 4),
-                          Text(s.$3,
-                              style: AppTypography.bodyMedium.copyWith(fontFamily: 'Courier', 
-                                  fontSize: 15,
-                                  fontWeight: FontWeight.w600,
-                                  color: L.text)),
-                        ]),
-                  ),
-                ],
-              )
-                  .animate(delay: (100 * i).ms)
-                  .fadeIn(duration: 400.ms)
-                  .slideX(begin: 0.06, end: 0);
-            }),
-
-            const SizedBox(height: 32),
-
-            // Trust badges
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                ('🔒', 'Secure'),
-                ('❌', 'Cancel anytime'),
-                ('📨', 'Reminder before charge'),
-              ].map((b) {
-                return Column(children: [
-                  Text(b.$1, style: const TextStyle(fontSize: 22)),
-                  const SizedBox(height: 4),
-                  Text(b.$2,
-                      textAlign: TextAlign.center,
-                      style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', 
-                          fontSize: 10, color: L.sub)),
-                ]);
-              }).toList(),
-            ),
-
-            const SizedBox(height: 32),
-
-            // Final CTA
-            GestureDetector(
-              onTap: () async {
-                HapticEngine.selection();
-                await context.read<AppState>().purchasePremium(plan);
-                onComplete();
-              },
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 19),
-                decoration: BoxDecoration(
-                  color: L.text,
-                  borderRadius: BorderRadius.circular(32),
-                  boxShadow: AppShadows.glow(L.text, intensity: 0.15),
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        scale: _pressed ? 0.97 : 1.0,
+        duration: 100.ms,
+        child: Container(
+          width: double.infinity,
+          height: 52,
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.black.withValues(alpha: 0.08), width: 1.0),
+          ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (widget.asset != null) ...[
+                Image.asset(
+                  widget.asset!,
+                  width: 18,
+                  height: 18,
                 ),
-                child: Text('Start with 3 Free Scans 🚀',
-                    textAlign: TextAlign.center,
-                    style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', 
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: L.bg,
-                        letterSpacing: 0.2)),
+                const SizedBox(width: 10),
+              ] else if (widget.icon != null) ...[
+                Icon(widget.icon, color: Colors.black, size: 20),
+                const SizedBox(width: 10),
+              ],
+              Text(
+                widget.label,
+                style: AppTypography.labelLarge.copyWith(
+                  fontFamily: 'Courier',
+                  fontSize: 14,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black,
+                ),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _OBButton extends StatefulWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _OBButton({
+    required this.label,
+    required this.onTap,
+  });
+
+  @override
+  State<_OBButton> createState() => _OBButtonState();
+}
+
+class _OBButtonState extends State<_OBButton> {
+  bool _pressed = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    return GestureDetector(
+      onTapDown: (_) => setState(() => _pressed = true),
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.onTap,
+      child: AnimatedScale(
+        scale: _pressed ? 0.97 : 1.0,
+        duration: 100.ms,
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 18),
+          decoration: BoxDecoration(
+            color: L.text,
+            borderRadius: BorderRadius.circular(32),
+          ),
+          child: Text(
+            widget.label,
+            textAlign: TextAlign.center,
+            style: AppTypography.labelLarge.copyWith(
+              fontFamily: 'Courier', 
+              fontSize: 15,
+              fontWeight: FontWeight.w800,
+              color: L.bg,
+              letterSpacing: 0.2,
             ),
-            const SizedBox(height: 12),
-            Center(
-              child: Text(
-                  'Unlock unlimited tracking and AI safety analysis.',
-                  textAlign: TextAlign.center,
-                  style: AppTypography.bodySmall
-                      .copyWith(fontSize: 12, color: L.sub, height: 1.5)),
-            ),
-          ]),
+          ),
+        ),
+      ),
     );
   }
 }

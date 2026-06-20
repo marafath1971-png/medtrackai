@@ -39,7 +39,7 @@ class WeeklyWellnessRing extends StatelessWidget {
               ],
             ),
           )
-          .animate(onPlay: (controller) => controller.repeat(reverse: true))
+          .animate(key: const ValueKey('weekly_wellness_pulse_anim'), onPlay: (controller) => controller.repeat(reverse: true))
           .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 2.seconds, curve: Curves.easeInOutSine)
           .fade(begin: 0.8, end: 1.0, duration: 2.seconds),
 
@@ -52,7 +52,7 @@ class WeeklyWellnessRing extends StatelessWidget {
               color: ringColor,
               trackColor: L.border.withValues(alpha: 0.15),
             ),
-          ).animate().rotate(duration: 800.ms, curve: Curves.easeOutCubic),
+          ).animate(key: const ValueKey('weekly_wellness_rotate_anim')).rotate(duration: 800.ms, curve: Curves.easeOutCubic),
 
           // Center Text — theme-aware
           Column(
@@ -76,7 +76,7 @@ class WeeklyWellnessRing extends StatelessWidget {
                 ),
               ),
             ],
-          ).animate().scale(delay: 400.ms, duration: 600.ms, curve: Curves.easeOutBack),
+          ).animate(key: const ValueKey('weekly_wellness_scale_anim')).scale(delay: 400.ms, duration: 600.ms, curve: Curves.easeOutBack),
         ],
       ),
     );

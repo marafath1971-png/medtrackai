@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:async';
 import 'package:provider/provider.dart';
 import '../../../providers/app_state.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -190,6 +191,7 @@ class LatencyHeatmap extends StatelessWidget {
                                   ),
                                 )
                                     .animate(
+                                        key: ValueKey('latency_pulse_${d['date']}_$i'),
                                         onPlay: (c) => c.repeat(reverse: true))
                                     .scale(
                                       begin: const Offset(1, 1),
@@ -415,7 +417,7 @@ class HealthCoachCard extends StatelessWidget {
                 ],
               ),
             ),
-          ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.05, end: 0);
+          ).animate(key: ValueKey('health_coach_item_${ins.title}')).fadeIn(duration: 600.ms).slideY(begin: 0.05, end: 0);
         }),
       ],
     );
@@ -485,7 +487,7 @@ class HealthCoachCard extends StatelessWidget {
               ),
             ],
           ),
-        ).animate().fadeIn(duration: 800.ms).slideY(begin: 0.05, end: 0),
+        ).animate(key: const ValueKey('health_coach_empty_state_anim')).fadeIn(duration: 800.ms).slideY(begin: 0.05, end: 0),
       ],
     );
   }
@@ -622,7 +624,10 @@ class AdherenceTrendChart extends StatelessWidget {
                             )
                           ] : null,
                         ),
-                      ).animate(delay: (i * 20).ms).scaleY(
+                      ).animate(
+                            key: ValueKey('trend_bar_$i'),
+                            delay: (i * 20).ms,
+                          ).scaleY(
                             begin: 0.0,
                             end: 1.0,
                             duration: 1000.ms,
@@ -774,6 +779,7 @@ class InventoryStatusCard extends StatelessWidget {
                         ),
                         textAlign: TextAlign.right,
                       ).animate(
+                        key: ValueKey('inventory_text_${med.name}'),
                         target: isLow ? 1 : 0,
                         onPlay: (c) => c.repeat(reverse: true),
                       ).shimmer(
@@ -841,6 +847,7 @@ class _HighFidelityBar extends StatelessWidget {
                   ],
                 ),
               ).animate(
+                key: ValueKey('inventory_bar_${pct}_$isLow'),
                 target: isLow ? 1 : 0,
                 onPlay: (c) => c.repeat(reverse: true),
               ).shimmer(
@@ -855,5 +862,226 @@ class _HighFidelityBar extends StatelessWidget {
         },
       ),
     );
+  }
+}
+
+class SmartLoadingInsights extends StatefulWidget {
+  final AppThemeColors L;
+  const SmartLoadingInsights({super.key, required this.L});
+
+  @override
+  State<SmartLoadingInsights> createState() => _SmartLoadingInsightsState();
+}
+
+class _SmartLoadingInsightsState extends State<SmartLoadingInsights> {
+  int _messageIndex = 0;
+  Timer? _timer;
+
+  static const List<String> _smartLoadingMessages = [
+    'Synthesizing biometrics & heart rate stability data...',
+    'Analyzing pharmacokinetic curves & onset parameters...',
+    'Consulting clinical drug safety guidelines...',
+    'Evaluating daily medication adherence progress...',
+    'Formulating personalized AI medical insights...',
+    'Calibrating smart reminder schedules for you...',
+    'Checking drug-drug interaction safety profiles...',
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(const Duration(milliseconds: 2500), (timer) {
+      if (mounted) {
+        setState(() {
+          _messageIndex = (_messageIndex + 1) % _smartLoadingMessages.length;
+        });
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final L = widget.L;
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            const Text('🧠', style: TextStyle(fontSize: 16)),
+            const SizedBox(width: 8),
+            Text(
+              'AI COACH DEEP SYNCING',
+              style: AppTypography.labelSmall.copyWith(
+                fontSize: 11,
+                color: L.purple,
+                letterSpacing: 2.0,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 16),
+        SquircleCard(
+          padding: const EdgeInsets.all(24),
+          color: L.card,
+          showBorder: true,
+          borderWidth: 0.5,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Premium Header
+              Row(
+                children: [
+                  // Spinning AI glow circle
+                  Container(
+                    width: 42,
+                    height: 42,
+                    decoration: BoxDecoration(
+                      color: L.purple.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: L.purple.withValues(alpha: 0.2),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: const Center(
+                      child: Icon(
+                        Icons.auto_awesome_rounded,
+                        color: Colors.purple,
+                        size: 20,
+                      ),
+                    ),
+                  ).animate(
+                    key: const ValueKey('ai_spinning_glow_loader'),
+                    onPlay: (c) => c.repeat(),
+                  ).rotate(duration: 3.seconds).scaleXY(
+                    begin: 0.95,
+                    end: 1.05,
+                    duration: 1.5.seconds,
+                    curve: Curves.easeInOut,
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'MedAI Engine is Active',
+                          style: AppTypography.titleMedium.copyWith(
+                            color: L.text,
+                            fontWeight: FontWeight.w900,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        // Smart rotating status message
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 400),
+                          transitionBuilder: (child, animation) {
+                            return FadeTransition(
+                              opacity: animation,
+                              child: SlideTransition(
+                                position: Tween<Offset>(
+                                  begin: const Offset(0.0, 0.2),
+                                  end: Offset.zero,
+                                ).animate(animation),
+                                child: child,
+                              ),
+                            );
+                          },
+                          child: Text(
+                            _smartLoadingMessages[_messageIndex],
+                            key: ValueKey<int>(_messageIndex),
+                            style: AppTypography.bodySmall.copyWith(
+                              color: L.purple,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 24),
+              // High fidelity loading bar
+              Container(
+                height: 4,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: L.purple.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: FractionallySizedBox(
+                  alignment: Alignment.centerLeft,
+                  widthFactor: 0.7,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: L.purple,
+                      borderRadius: BorderRadius.circular(10),
+                      boxShadow: [
+                        BoxShadow(
+                          color: L.purple.withValues(alpha: 0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 1),
+                        )
+                      ],
+                    ),
+                  ),
+                ).animate(
+                  key: const ValueKey('ai_insights_bar_shimmer'),
+                  onPlay: (c) => c.repeat(),
+                ).shimmer(
+                  duration: 1.5.seconds,
+                  color: Colors.white.withValues(alpha: 0.4),
+                ),
+              ),
+              const SizedBox(height: 24),
+              // Shimmer details that mimic coach card lines
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    height: 10,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: L.fill.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    height: 10,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: L.fill.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                  const SizedBox(height: 10),
+                  Container(
+                    height: 10,
+                    width: 160,
+                    decoration: BoxDecoration(
+                      color: L.fill.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(4),
+                    ),
+                  ),
+                ],
+              ).animate().shimmer(
+                duration: 1.8.seconds,
+                color: L.fill.withValues(alpha: 0.1),
+              ),
+            ],
+          ),
+        ),
+      ],
+    ).animate(key: const ValueKey('smart_loading_insights_fade_anim')).fadeIn(duration: 400.ms);
   }
 }

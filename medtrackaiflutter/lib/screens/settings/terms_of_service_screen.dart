@@ -5,14 +5,14 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../theme/app_theme.dart';
 import '../../../models/constants.dart';
 
-class PrivacyPolicyScreen extends StatefulWidget {
-  const PrivacyPolicyScreen({super.key});
+class TermsOfServiceScreen extends StatefulWidget {
+  const TermsOfServiceScreen({super.key});
 
   @override
-  State<PrivacyPolicyScreen> createState() => _PrivacyPolicyScreenState();
+  State<TermsOfServiceScreen> createState() => _TermsOfServiceScreenState();
 }
 
-class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
+class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
@@ -93,7 +93,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          'Privacy Policy',
+                          'Terms of Service',
                           style: AppTypography.displaySmall.copyWith(
                             color: L.text,
                             fontWeight: FontWeight.w900,
@@ -119,113 +119,85 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
             padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Medical Disclaimer — Apple 5.1.3 Required
                 _buildCard(
-                  icon: Icons.local_hospital_rounded,
-                  title: 'Medical Disclaimer',
+                  icon: Icons.gavel_rounded,
+                  title: '1. Acceptance of Terms',
                   content:
-                      '$kAppName is a medication tracking and health information tool ONLY. It does NOT provide medical diagnoses, clinical advice, or treatment recommendations. All AI-generated insights are for informational purposes only and may be inaccurate.\n\nAlways consult a licensed physician, pharmacist, or qualified healthcare professional before making any medical decision. Do not use this app as a substitute for professional medical advice. In an emergency, call your local emergency services immediately (e.g. 911, 999, 112).',
-                  accent: AppColors.red,
+                      'By downloading, accessing, or using $kAppName ("App"), you agree to be bound by these Terms of Service. If you do not agree with any part of these terms, you must not use the App.',
                   delay: 50,
                   L: L,
                 ),
 
                 _buildCard(
-                  icon: Icons.shield_rounded,
-                  title: '1. Information We Collect',
+                  icon: Icons.medical_information_rounded,
+                  title: '2. Not Medical Advice',
                   content:
-                      'We collect only what is necessary to operate the app:\n\n• Account data: email address, display name, profile photo (if provided)\n• Health data: medication names, dosages, schedules, adherence logs, and vitals you manually enter or import from Apple Health / Google Health Connect\n• Device data: device model, OS version, crash logs (via Firebase Crashlytics)\n• Usage data: feature interactions, scan counts, and session duration (via Firebase Analytics) — fully anonymised\n• Camera/microphone: used only in real-time during scanning or voice input; images are processed and not stored permanently without your consent\n\nWe do NOT collect: government IDs, precise location (unless you grant permission), financial data, or contact lists.',
+                      'The App is a medication tracking and health information management tool. IT DOES NOT PROVIDE MEDICAL ADVICE, DIAGNOSES, OR CLINICAL TREATMENT RECOMMENDATIONS.\n\nAI-generated insights (powered by Google Gemini) are for informational purposes only. You must always consult a licensed physician or pharmacist before making any medical decisions, changing dosages, or stopping medications. In a medical emergency, immediately contact your local emergency services.',
+                  accent: AppColors.red,
                   delay: 100,
                   L: L,
                 ),
 
                 _buildCard(
-                  icon: Icons.auto_awesome_rounded,
-                  title: '2. AI & Scan Processing',
+                  icon: Icons.person_rounded,
+                  title: '3. User Accounts',
                   content:
-                      'When you scan a medicine or use the AI assistant, your image or query is sent to Google\'s Gemini API for processing. This data is:\n\n• Transmitted over TLS encryption\n• Processed by Google under their Privacy Policy (policies.google.com)\n• Not used to train public AI models\n• Not linked to your identity — requests are anonymous\n\nGemini API responses are informational only. MedTrackAI does not verify AI-generated medical content for clinical accuracy.',
+                      'You are responsible for maintaining the confidentiality of your account credentials (including biometric locks) and for all activities that occur under your account. You must notify us immediately of any unauthorised access.',
                   delay: 150,
                   L: L,
                 ),
 
                 _buildCard(
-                  icon: Icons.people_rounded,
-                  title: '3. Family & Caregiver Sharing',
+                  icon: Icons.auto_awesome_rounded,
+                  title: '4. Acceptable Use',
                   content:
-                      'If you add a family member or caregiver to your Circle, you explicitly grant them permission to view your medication schedule and adherence logs. You can revoke this access at any time from the Family Hub.\n\nShared data is encrypted in transit and at rest. Caregivers cannot modify your medication data without your consent.',
+                      'You agree NOT to:\n• Use the App for unlawful medical practices\n• Attempt to reverse engineer, decompile, or hack the App or its AI systems\n• Intentionally submit false or malicious data to the AI scanning engine\n• Share your premium subscription inappropriately',
                   delay: 200,
                   L: L,
                 ),
 
                 _buildCard(
-                  icon: Icons.business_rounded,
-                  title: '4. Third-Party Services',
+                  icon: Icons.subscriptions_rounded,
+                  title: '5. Premium Subscriptions',
                   content:
-                      'We integrate the following third-party services:\n\n• Firebase (Google) — Authentication, database, storage, analytics, crash reporting\n• RevenueCat — In-app purchase management\n• Google Gemini API — AI analysis engine\n• Apple HealthKit / Google Health Connect — Health data sync (opt-in only)\n\nEach service operates under its own privacy policy. We do not sell your data to advertisers or data brokers.',
+                      'Certain features (e.g., unlimited AI scans, advanced clinical reports) require a Premium subscription. Payments are processed via your Apple ID or Google Play account. Subscriptions auto-renew unless canceled at least 24 hours before the end of the current period. You can manage subscriptions in your device settings.',
                   delay: 250,
                   L: L,
                 ),
 
                 _buildCard(
-                  icon: Icons.lock_clock_rounded,
-                  title: '5. Data Retention',
+                  icon: Icons.health_and_safety_rounded,
+                  title: '6. Apple Health & Health Connect',
                   content:
-                      '• Active account data: retained as long as your account exists\n• Deleted account data: permanently erased within 30 days of account deletion request\n• Anonymised analytics: retained for up to 24 months for product improvement\n• Crash logs: retained for 90 days\n\nYou can request immediate deletion at any time from Settings → Delete Account Permanently.',
+                      'If you opt-in, the App integrates with Apple HealthKit and Google Health Connect to read and write health data (e.g., heart rate, steps, blood glucose). We use this data solely to provide you with insights regarding your medication adherence and its potential impact on your vitals. We do not sell this data.',
                   delay: 300,
                   L: L,
                 ),
 
                 _buildCard(
-                  icon: Icons.security_rounded,
-                  title: '6. Security',
+                  icon: Icons.warning_amber_rounded,
+                  title: '7. Limitation of Liability',
                   content:
-                      'Your data is protected using:\n\n• AES-256 encryption for stored data\n• TLS 1.3 for all data in transit\n• Firebase Security Rules limiting data access\n• Biometric lock (FaceID / Fingerprint) for app access\n• Optional PIN lock\n\nNo security system is 100% infallible. In the event of a data breach, we will notify affected users within 72 hours as required by GDPR.',
+                      'TO THE MAXIMUM EXTENT PERMITTED BY LAW, WE SHALL NOT BE LIABLE FOR ANY INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES, INCLUDING BUT NOT LIMITED TO PERSONAL INJURY, WRONGFUL DEATH, OR HEALTH DETERIORATION ARISING FROM YOUR USE OF THE APP OR RELIANCE ON ITS AI-GENERATED CONTENT.',
                   delay: 350,
                   L: L,
                 ),
 
                 _buildCard(
-                  icon: Icons.gavel_rounded,
-                  title: '7. Your Rights (GDPR / CCPA)',
-                  content:
-                      'Depending on your region, you have the right to:\n\n• Access: Request a copy of your personal data\n• Rectification: Correct inaccurate data\n• Erasure: Request deletion of your account and all associated data\n• Portability: Export your data as a CSV or PDF report\n• Objection: Opt out of analytics data collection at any time from Settings\n• Withdraw consent: Remove Health Connect / HealthKit access at any time\n\nTo exercise any right, contact us at $kSupportEmail',
-                  delay: 400,
-                  L: L,
-                ),
-
-                _buildCard(
-                  icon: Icons.child_care_rounded,
-                  title: '8. Children\'s Privacy',
-                  content:
-                      '$kAppName is not intended for children under 13 years of age (or 16 in the EU). We do not knowingly collect personal data from children. If you believe a child has provided us with personal data, contact us immediately and we will delete it.',
-                  delay: 450,
-                  L: L,
-                ),
-
-                _buildCard(
-                  icon: Icons.cloud_off_rounded,
-                  title: '9. Your Data, Your Control',
-                  content:
-                      'You own your data at all times. You may:\n\n• Export your full health history as a clinical PDF or CSV report\n• Delete your account and all data permanently\n• Revoke Health integration access\n• Disable analytics from Settings → Privacy\n\nWe comply with GDPR (EU), CCPA (California), PIPEDA (Canada), and follow HIPAA-equivalent security practices.',
-                  delay: 500,
-                  L: L,
-                ),
-
-                _buildCard(
                   icon: Icons.email_rounded,
-                  title: '10. Contact & Updates',
+                  title: '8. Contact Information',
                   content:
-                      'For privacy enquiries, data requests, or concerns:\n\n📧 $kSupportEmail\n🌐 $kPrivacyPolicyUrl\n\nWe may update this Privacy Policy from time to time. We will notify you of material changes via in-app notification. Continued use of the app after changes constitutes acceptance.',
-                  delay: 550,
+                      'If you have questions about these Terms, please contact our support team:\n\n📧 $kSupportEmail\n🌐 $kTermsOfServiceUrl',
+                  delay: 400,
                   L: L,
                 ),
 
                 const SizedBox(height: 24),
 
-                // Web link to hosted policy
+                // Web link to hosted terms
                 GestureDetector(
                   onTap: () async {
-                    final url = Uri.parse(kPrivacyPolicyUrl);
+                    final url = Uri.parse(kTermsOfServiceUrl);
                     if (await canLaunchUrl(url)) {
                       await launchUrl(url, mode: LaunchMode.externalApplication);
                     }
@@ -243,7 +215,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: Text(
-                            'View full policy online at $kPrivacyPolicyUrl',
+                            'View full terms online at $kTermsOfServiceUrl',
                             style: AppTypography.bodySmall.copyWith(
                               color: AppColors.accent,
                               fontWeight: FontWeight.w600,
@@ -255,7 +227,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                       ],
                     ),
                   ),
-                ).animate().fadeIn(delay: 600.ms),
+                ).animate().fadeIn(delay: 450.ms),
 
                 const SizedBox(height: 40),
                 Center(
@@ -265,7 +237,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                           color: L.sub.withValues(alpha: 0.3), size: 32),
                       const SizedBox(height: 12),
                       Text(
-                        '$kAppName\nSecure · Private · GDPR Compliant',
+                        '$kAppName\nSecure · Private · Transparent',
                         textAlign: TextAlign.center,
                         style: AppTypography.labelMedium.copyWith(
                           color: L.sub.withValues(alpha: 0.5),
@@ -275,7 +247,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                       ),
                     ],
                   ),
-                ).animate().fadeIn(delay: 650.ms, duration: 800.ms),
+                ).animate().fadeIn(delay: 500.ms, duration: 800.ms),
               ]),
             ),
           ),

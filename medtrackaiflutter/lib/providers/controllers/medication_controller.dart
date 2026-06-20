@@ -441,6 +441,23 @@ class MedicationController extends ChangeNotifier {
         ],
       };
       AnalyticsService.logDoseAction(medName: dose.med.name, action: 'take');
+    } else {
+      // 1. Revert Inventory
+      final idx = _meds.indexWhere((m) => m.id == dose.med.id);
+      if (idx != -1) {
+        final m = _meds[idx];
+        final updatedMed = m.copyWith(count: m.count + 1);
+        _meds[idx] = updatedMed;
+        await medRepo.updateMedicine(updatedMed, profileId: _currentProfileId);
+      }
+      // 2. Revert History
+      _history = {
+        ..._history,
+        dateKey: (_history[dateKey] ?? [])
+            .where((e) => !(e.medId == dose.med.id && e.label == dose.sched.label))
+            .toList(),
+      };
+      AnalyticsService.logDoseAction(medName: dose.med.name, action: 'untake');
     }
 
     await medRepo.saveTakenToday(_takenToday, profileId: _currentProfileId);

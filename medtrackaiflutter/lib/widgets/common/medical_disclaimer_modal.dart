@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../theme/app_theme.dart';
 import '../../core/utils/haptic_engine.dart';
+import '../../models/constants.dart';
 
 /// Medical disclaimer modal — shown once on first app launch.
 /// Required for legal compliance in all markets.
@@ -100,7 +101,7 @@ class MedicalDisclaimerModal extends StatelessWidget {
               _DisclaimerItem(
                 icon: Icons.medical_services_rounded,
                 text:
-                    'MedAI is a medication tracking and information tool. It does not provide medical diagnoses or treatment recommendations.',
+                    '$kAppName is a medication tracking and health information tool ONLY. It does NOT provide medical diagnoses or clinical treatment recommendations.',
                 L: L,
                 delay: 200,
               ),

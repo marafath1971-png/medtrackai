@@ -19,13 +19,7 @@ class _SimulateMissCardState extends State<SimulateMissCard> {
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
           color: L.card,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 4,
-                offset: const Offset(0, 1))
-          ]),
+          borderRadius: BorderRadius.circular(24)),
       child: Column(children: [
         Row(children: [
           Container(

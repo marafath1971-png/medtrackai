@@ -8,7 +8,6 @@ import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../core/utils/haptic_engine.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../../widgets/common/app_shimmer.dart';
 import '../../../widgets/shared/shared_widgets.dart';
 
 class EditFamilyMemberScreen extends StatefulWidget {
@@ -486,9 +485,9 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
   }) {
     return Container(
       decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: L.border.withValues(alpha: 0.1)),
+        color: L.card.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: L.border.withValues(alpha: 0.08)),
       ),
       child: TextField(
         controller: controller,
@@ -520,9 +519,9 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
         height: 64,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: L.border.withValues(alpha: 0.1)),
+          color: L.card.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: L.border.withValues(alpha: 0.08)),
         ),
         child: Row(
           children: [
@@ -553,9 +552,9 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
       child: Container(
         height: 64,
         decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: L.border.withValues(alpha: 0.1)),
+          color: L.card.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: L.border.withValues(alpha: 0.08)),
         ),
         child: Center(
           child: Text(

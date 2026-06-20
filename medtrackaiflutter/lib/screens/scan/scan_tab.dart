@@ -826,72 +826,72 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
   }
 
   Widget _buildScanningEffect() {
-    return AnimatedBuilder(
-      animation: _scanLineController,
-      builder: (context, _) {
-        return Positioned(
-          top: _scanLineController.value * 180,
-          left: 0,
-          right: 0,
-          child: Container(
-            height: 2,
-            decoration: const BoxDecoration(
-              color: AppColors.accent,
+    return RepaintBoundary(
+      child: AnimatedBuilder(
+        animation: _scanLineController,
+        builder: (context, _) {
+          return Align(
+            alignment: Alignment(0, (_scanLineController.value * 2) - 1),
+            child: Container(
+              height: 2,
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: AppColors.accent,
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
   Widget _buildStepIndicator(AppThemeColors L) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
-      children: List.generate(_scanSteps.length, (i) {
-        final isActive = i == _scanStep;
-        final isDone = i < _scanStep;
-        return Expanded(
-          child: Row(
-            children: [
-              AnimatedContainer(
-                duration: 400.ms,
-                width: 32,
-                height: 32,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: isDone ? L.text : L.card,
-                  border: Border.all(
-                    color: isActive || isDone
-                        ? L.text
-                        : L.border.withValues(alpha: 0.1),
-                    width: 0.5,
-                  ),
-                ),
-                child: Center(
-                  child: isDone
-                      ? Icon(Icons.check_rounded, size: 16, color: L.bg)
-                      : isActive
-                          ? AppLoadingIndicator(size: 14, color: L.text)
-                          : Text('${i + 1}',
-                              style: AppTypography.labelSmall.copyWith(
-                                color: L.sub.withValues(alpha: 0.3),
-                                fontWeight: FontWeight.w900,
-                              )),
-                ),
+      children: List.generate(_scanSteps.length * 2 - 1, (index) {
+        if (index % 2 == 0) {
+          final i = index ~/ 2;
+          final isActive = i == _scanStep;
+          final isDone = i < _scanStep;
+          return AnimatedContainer(
+            duration: 400.ms,
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: isDone ? L.text : L.card,
+              border: Border.all(
+                color: isActive || isDone
+                    ? L.text
+                    : L.border.withValues(alpha: 0.1),
+                width: 0.5,
               ),
-              if (i < _scanSteps.length - 1)
-                Expanded(
-                  child: Container(
-                    height: 2,
-                    margin: const EdgeInsets.symmetric(horizontal: 8),
-                    color: isDone
-                        ? Colors.black
-                        : Colors.black.withValues(alpha: 0.1),
-                  ),
-                ),
-            ],
-          ),
-        );
+            ),
+            child: Center(
+              child: isDone
+                  ? Icon(Icons.check_rounded, size: 16, color: L.bg)
+                  : isActive
+                      ? AppLoadingIndicator(size: 14, color: L.text)
+                      : Text('${i + 1}',
+                          style: AppTypography.labelSmall.copyWith(
+                            color: L.sub.withValues(alpha: 0.3),
+                            fontWeight: FontWeight.w900,
+                          )),
+            ),
+          );
+        } else {
+          final i = index ~/ 2;
+          final isDone = i < _scanStep;
+          return Expanded(
+            child: Container(
+              height: 2,
+              margin: const EdgeInsets.symmetric(horizontal: 8),
+              color: isDone
+                  ? context.L.text
+                  : context.L.text.withValues(alpha: 0.1),
+            ),
+          );
+        }
       }),
     );
   }
@@ -2860,26 +2860,26 @@ class _BentoMetricTileState extends State<_BentoMetricTile> {
           margin: const EdgeInsets.all(4),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: L.card,
-            borderRadius: BorderRadius.circular(20),
+            color: _isFocused ? L.secondary.withValues(alpha: 0.05) : L.card.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: _isFocused
-                  ? L.secondary
-                  : L.border.withValues(alpha: 0.12),
-              width: _isFocused ? 1.5 : 0.8,
+                  ? L.secondary.withValues(alpha: 0.6)
+                  : L.border.withValues(alpha: 0.08),
+              width: _isFocused ? 1.5 : 0.5,
             ),
             boxShadow: [
               if (_isFocused)
                 BoxShadow(
                   color: L.secondary.withValues(alpha: 0.15),
-                  blurRadius: 15,
-                  spreadRadius: 1,
+                  blurRadius: 20,
+                  spreadRadius: 2,
                 )
               else
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.015),
-                  blurRadius: 8,
-                  offset: const Offset(0, 3),
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 10,
+                  offset: const Offset(0, 4),
                 )
             ],
           ),
@@ -3208,12 +3208,12 @@ class _ExpandableInputCardState extends State<_ExpandableInputCard> {
         margin: const EdgeInsets.only(top: 16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: widget.L.card,
+          color: _isFocused ? baseColor.withValues(alpha: 0.03) : widget.L.card.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(32),
           border: Border.all(
             color: _isFocused
-                ? baseColor
-                : baseColor.withValues(alpha: 0.15),
+                ? baseColor.withValues(alpha: 0.5)
+                : baseColor.withValues(alpha: 0.1),
             width: _isFocused ? 1.5 : 1.0,
           ),
           boxShadow: [

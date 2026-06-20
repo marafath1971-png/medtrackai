@@ -259,9 +259,9 @@ class _BentoMetricCard extends StatelessWidget {
                     label.toUpperCase(),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.6),
+                    style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.6),
                       fontWeight: FontWeight.w900,
-                      letterSpacing: 0.5,
+                      letterSpacing: 1.0,
                       fontSize: 10,
                     ),
                   ),
@@ -275,7 +275,7 @@ class _BentoMetricCard extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: AppTypography.displaySmall.copyWith(fontFamily: 'Courier', color: L.text,
+                  style: AppTypography.displaySmall.copyWith(color: L.text,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -1.0,
                     height: 1.0,
@@ -285,7 +285,7 @@ class _BentoMetricCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     unit,
-                    style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.8),
+                    style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.8),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -297,7 +297,7 @@ class _BentoMetricCard extends StatelessWidget {
               sublabel,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.5),
+              style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.5),
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),
@@ -311,7 +311,8 @@ class _BentoMetricCard extends StatelessWidget {
                   data: sparklineData,
                   color: sparklineColor,
                 ),
-              ),
+              ).animate(onPlay: (c) => c.repeat())
+               .shimmer(duration: 2500.ms, color: Colors.white.withValues(alpha: 0.3)),
             ),
           ],
         ),
@@ -371,17 +372,17 @@ class _BentoSmallCard extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: AppTypography.titleLarge.copyWith(fontFamily: 'Courier', color: valueColor,
+                  style: AppTypography.titleLarge.copyWith(color: valueColor,
                     fontWeight: FontWeight.w900,
                     letterSpacing: -0.5,
                   ),
                 ),
                 Text(
                   label.toUpperCase(),
-                  style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.sub.withValues(alpha: 0.6),
+                  style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.6),
                     fontWeight: FontWeight.w900,
-                    fontSize: 10, // Standardized for micro-labels
-                    letterSpacing: 0.5,
+                    fontSize: 10,
+                    letterSpacing: 1.0,
                   ),
                 ),
               ],

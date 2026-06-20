@@ -7,6 +7,7 @@ import '../../theme/app_theme.dart';
 import '../../widgets/common/app_loading_indicator.dart';
 import '../../services/smart_alert_service.dart';
 import '../../widgets/shared/shared_widgets.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
 // ══════════════════════════════════════════════
 // AUTH SCREEN — Sign In / Sign Up
@@ -140,7 +141,7 @@ class _AuthScreenState extends State<AuthScreen> {
         body: SafeArea(
           child: Scrollbar(
             child: SingleChildScrollView(
-              physics: const BouncingScrollPhysics(
+              physics: const ClampingScrollPhysics(
                   parent: AlwaysScrollableScrollPhysics()),
               padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.screenPadding),
@@ -280,17 +281,17 @@ class _AuthScreenState extends State<AuthScreen> {
                       padding: const EdgeInsets.symmetric(
                           horizontal: 14, vertical: 10),
                       decoration: BoxDecoration(
-                          color: L.redLight, borderRadius: AppRadius.roundM),
+                          color: L.error.withValues(alpha: 0.1), borderRadius: AppRadius.roundM),
                       child: Row(children: [
                         Icon(Icons.error_outline_rounded,
-                            color: L.red, size: 16),
+                            color: L.error, size: 16),
                         const SizedBox(width: 8),
                         Flexible(
                             child: Text(_error!,
                                 style: AppTypography.bodySmall
-                                    .copyWith(fontSize: 13, color: L.red))),
+                                    .copyWith(fontSize: 13, color: L.error))),
                       ]),
-                    ),
+                    ).animate().slideY(begin: -0.2, end: 0, duration: 300.ms, curve: Curves.easeOutBack).fadeIn(duration: 200.ms),
                   ],
                   const SizedBox(height: 28),
 
@@ -529,11 +530,11 @@ class _PrimaryBtn extends StatelessWidget {
         width: double.infinity,
         height: 64,
         decoration: BoxDecoration(
-          color: Colors.black,
+          color: L.text,
           borderRadius: BorderRadius.circular(24),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withValues(alpha: 0.2),
+              color: L.text.withValues(alpha: 0.2),
               blurRadius: 20,
               offset: const Offset(0, 10),
             )

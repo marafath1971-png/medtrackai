@@ -118,13 +118,17 @@ class PremiumEmptyState extends StatelessWidget {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      actionLabel!,
-                      style: AppTypography.labelLarge.copyWith(
-                        color: Colors.black, // Dark text on bright neon button
-                        fontSize: 15,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 0.5,
+                    Flexible(
+                      child: Text(
+                        actionLabel!,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.labelLarge.copyWith(
+                          color: Colors.black, // Dark text on bright neon button
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 0.5,
+                        ),
                       ),
                     ),
                     const SizedBox(width: 8),

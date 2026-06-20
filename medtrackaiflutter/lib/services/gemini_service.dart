@@ -18,7 +18,8 @@ import '../models/product_analysis.dart';
 // ══════════════════════════════════════════════
 
 class GeminiService {
-  static String get _apiKey => dotenv.env['GEMINI_API_KEY'] ?? '';
+  static String get _apiKey =>
+      (dotenv.isInitialized ? dotenv.env['GEMINI_API_KEY'] : null) ?? '';
 
   /// Detects high-risk medical keywords to trigger immediate safety redirects.
   static bool detectHighRiskQuery(String input) {
@@ -41,10 +42,9 @@ class GeminiService {
     return highRiskKeywords.any((k) => query.contains(k));
   }
 
+  // Only use Gemini 2.5 Flash — no Pro models.
   static const List<Map<String, String>> _standardModels = [
     {'model': 'gemini-2.5-flash', 'version': 'v1beta'},
-    {'model': 'gemini-2.0-flash', 'version': 'v1beta'},
-    {'model': 'gemini-flash-latest', 'version': 'v1beta'},
   ];
 
   static GenerativeModel _getModel(String modelName,
@@ -112,8 +112,8 @@ class GeminiService {
         final modelName = config['model']!;
 
         try {
-
-          final bool useProxy = AuthService.isLoggedIn && _apiKey.isEmpty;
+          bool useProxy =
+              DateTime.now().year > 2000; // FORCE PROXY FOR SECURITY
           String responseText = '';
 
           if (useProxy) {
@@ -131,7 +131,8 @@ class GeminiService {
             responseText = result.data['text'] ?? '';
             appLogger.d('[GeminiService] Proxy Response: $responseText');
           } else if (_apiKey.isNotEmpty) {
-            appLogger.d('[GeminiService] Guest user detected. Bypassing proxy, trying direct Gemini API for $modelName...');
+            appLogger.d(
+                '[GeminiService] Guest user detected. Bypassing proxy, trying direct Gemini API for $modelName...');
             final version = config['version']!;
             final model = _getModel(modelName, apiVersion: version);
             final prompt = _buildScanPrompt(hint, country: country);
@@ -144,7 +145,8 @@ class GeminiService {
             responseText = response.text ?? '';
             appLogger.d('[GeminiService] Direct API Response: $responseText');
           } else {
-            throw const FormatException('Client unauthenticated and GEMINI_API_KEY is empty.');
+            throw const FormatException(
+                'Client unauthenticated and GEMINI_API_KEY is empty.');
           }
 
           if (responseText.isEmpty) {
@@ -159,10 +161,10 @@ class GeminiService {
           return Success(parsed);
         } catch (e) {
           final proxyErrorStr = e.toString().toLowerCase();
-          bool shouldContinue = proxyErrorStr.contains('quota') || 
-                                proxyErrorStr.contains('limit') || 
-                                proxyErrorStr.contains('exhausted') || 
-                                proxyErrorStr.contains('429');
+          bool shouldContinue = proxyErrorStr.contains('quota') ||
+              proxyErrorStr.contains('limit') ||
+              proxyErrorStr.contains('exhausted') ||
+              proxyErrorStr.contains('429');
           String fallbackErrorStr = '';
 
           // ── 1.0 FALLBACK: If Cloud Function fails for any reason ──────
@@ -171,8 +173,7 @@ class GeminiService {
                 '[GeminiService] Proxy failed. Falling back to direct API for $modelName.');
             try {
               final version = config['version']!;
-              final model =
-                  _getModel(modelName, apiVersion: version);
+              final model = _getModel(modelName, apiVersion: version);
               final prompt = _buildScanPrompt(hint, country: country);
 
               final response = await _withRetry(() => model.generateContent([
@@ -190,7 +191,7 @@ class GeminiService {
               fallbackErrorStr = fallbackErr.toString().toLowerCase();
               appLogger.e(
                   '[GeminiService] Direct Fallback also failed: $fallbackErr');
-              
+
               if (fallbackErrorStr.contains('quota') ||
                   fallbackErrorStr.contains('limit') ||
                   fallbackErrorStr.contains('exhausted') ||
@@ -201,10 +202,15 @@ class GeminiService {
             }
           }
 
-          lastError = fallbackErrorStr.isNotEmpty ? _humanizeError(fallbackErrorStr) : _humanizeError(e);
-          appLogger.e('[GeminiService] Failed with $modelName. Proxy/Direct: $e, Fallback: $fallbackErrorStr');
+          lastError = fallbackErrorStr.isNotEmpty
+              ? _humanizeError(fallbackErrorStr)
+              : _humanizeError(e);
+          appLogger.e(
+              '[GeminiService] Failed with $modelName. Proxy/Direct: $e, Fallback: $fallbackErrorStr');
 
-          if (shouldContinue || proxyErrorStr.contains('not-found') || proxyErrorStr.contains('unavailable')) {
+          if (shouldContinue ||
+              proxyErrorStr.contains('not-found') ||
+              proxyErrorStr.contains('unavailable')) {
             continue; // Try the next model in the list
           }
           break; // Stop if it's a non-retryable error and we shouldn't continue
@@ -218,15 +224,18 @@ class GeminiService {
         return Success(ScanResult(identified: false, systemBusy: true));
       }
       // Production Error Handling: If we've exhausted all models and they failed.
-      return Error(ScanFailure(lastError.isNotEmpty ? lastError : 'Failed to analyze stack. Please try again.'));
+      return Error(ScanFailure(lastError.isNotEmpty
+          ? lastError
+          : 'Failed to analyze stack. Please try again.'));
     }); // End PerformanceService.measure
   }
 
   /// Task Phase 3: AI Product Insights
-  static Future<Result<ProductAnalysis>> analyzeProductInsight(String query, {File? image, String country = ''}) async {
+  static Future<Result<ProductAnalysis>> analyzeProductInsight(String query,
+      {File? image, String country = ''}) async {
     return PerformanceService.measure('product_insight_trace', () async {
       String lastError = '';
-      
+
       final prompt = '''
 You are MedAI Pro, an expert clinical AI. The user has provided an input (a search query, barcode text, voice transcript, or image) to understand a product: "$query".
 Analyze the product and return a deeply informative breakdown. 
@@ -270,18 +279,21 @@ Return ONLY valid JSON matching this exact structure:
           String responseText = '';
 
           if (useProxy) {
-            appLogger.d('[GeminiService] Trying $modelName proxy for ProductAnalysis...');
+            appLogger.d(
+                '[GeminiService] Trying $modelName proxy for ProductAnalysis...');
             final params = {
               'prompt': prompt,
               'model': modelName,
               'isImage': parts.length > 1,
             };
             if (parts.length > 1) {
-              params['imageBase64'] = base64Encode((parts[1] as DataPart).bytes);
+              params['imageBase64'] =
+                  base64Encode((parts[1] as DataPart).bytes);
             }
             final result = await FirebaseFunctions.instance
                 .httpsCallable('geminiProxy')
-                .call(params).timeout(const Duration(seconds: 30));
+                .call(params)
+                .timeout(const Duration(seconds: 30));
             responseText = result.data['text'] ?? '';
           } else if (_apiKey.isNotEmpty) {
             final version = config['version']!;
@@ -291,13 +303,15 @@ Return ONLY valid JSON matching this exact structure:
                 ]).timeout(const Duration(seconds: 30)));
             responseText = response.text ?? '';
           } else {
-             throw const FormatException('Client unauthenticated and GEMINI_API_KEY is empty.');
+            throw const FormatException(
+                'Client unauthenticated and GEMINI_API_KEY is empty.');
           }
 
           if (responseText.isNotEmpty) {
             final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(responseText);
             if (jsonMatch != null) {
-              final data = json.decode(jsonMatch.group(0)!) as Map<String, dynamic>;
+              final data =
+                  json.decode(jsonMatch.group(0)!) as Map<String, dynamic>;
               return Success(ProductAnalysis.fromJson(data));
             }
           }
@@ -309,7 +323,8 @@ Return ONLY valid JSON matching this exact structure:
 
       // Production Error Handling if it fails
       appLogger.e('[GeminiService] All models failed. Error: $lastError');
-      return Error(ScanFailure('Unable to generate product insight at this time.'));
+      return Error(
+          ScanFailure('Unable to generate product insight at this time.'));
     });
   }
 
@@ -378,10 +393,10 @@ Return ONLY valid JSON matching this exact structure:
           }
         } catch (e) {
           final proxyErrorStr = e.toString().toLowerCase();
-          bool shouldContinue = proxyErrorStr.contains('quota') || 
-                                proxyErrorStr.contains('limit') || 
-                                proxyErrorStr.contains('exhausted') || 
-                                proxyErrorStr.contains('429');
+          bool shouldContinue = proxyErrorStr.contains('quota') ||
+              proxyErrorStr.contains('limit') ||
+              proxyErrorStr.contains('exhausted') ||
+              proxyErrorStr.contains('429');
           String fallbackErrorStr = '';
 
           // ── 1.0 FALLBACK: If Cloud Function fails for any reason ──────
@@ -390,8 +405,7 @@ Return ONLY valid JSON matching this exact structure:
                 '[GeminiService] Proxy Insight unreachable or App Check failed. Falling back to direct API for $modelName.');
             try {
               final version = config['version']!;
-              final model =
-                  _getModel(modelName, apiVersion: version);
+              final model = _getModel(modelName, apiVersion: version);
               final prompt = _buildInsightPrompt(
                 meds,
                 streak,
@@ -431,7 +445,7 @@ Return ONLY valid JSON matching this exact structure:
               fallbackErrorStr = fallbackErr.toString().toLowerCase();
               appLogger.e(
                   '[GeminiService] Direct Insight Fallback also failed: $fallbackErr');
-                  
+
               if (fallbackErrorStr.contains('quota') ||
                   fallbackErrorStr.contains('limit') ||
                   fallbackErrorStr.contains('exhausted') ||
@@ -442,11 +456,15 @@ Return ONLY valid JSON matching this exact structure:
             }
           }
 
-          lastError = fallbackErrorStr.isNotEmpty ? _humanizeError(fallbackErrorStr) : _humanizeError(e);
-          appLogger
-              .w('[GeminiService] Insight failed with $modelName. Proxy: $e, Fallback: $fallbackErrorStr');
-              
-          if (shouldContinue || proxyErrorStr.contains('not-found') || proxyErrorStr.contains('unavailable')) {
+          lastError = fallbackErrorStr.isNotEmpty
+              ? _humanizeError(fallbackErrorStr)
+              : _humanizeError(e);
+          appLogger.w(
+              '[GeminiService] Insight failed with $modelName. Proxy: $e, Fallback: $fallbackErrorStr');
+
+          if (shouldContinue ||
+              proxyErrorStr.contains('not-found') ||
+              proxyErrorStr.contains('unavailable')) {
             continue; // Try the next model
           }
           break;
@@ -660,7 +678,9 @@ Return ONLY a JSON object:
 Use common actionable step phrases like "View Daily Log", "Refresh Insights", "Medication Details", "Check Streak".
 ''';
   }
-  static Future<Result<AISafetyProfile>> analyzeMedicineSafety(Medicine m) async {
+
+  static Future<Result<AISafetyProfile>> analyzeMedicineSafety(
+      Medicine m) async {
     final prompt = '''
 You are MedAI Pro, a clinical pharmacology AI.
 Analyze the medication: "${m.name}" (Dose: ${m.dose}, Form: ${m.form}).
@@ -690,13 +710,14 @@ Return ONLY valid JSON with NO markdown formatting, adhering to this exact struc
         final model = _getModel(modelName, apiVersion: apiVersion);
         final response = await _withRetry(() => model.generateContent(
             [Content.text(prompt)]).timeout(const Duration(seconds: 30)));
-            
+
         if (response.text != null && response.text!.isNotEmpty) {
           final responseText = response.text!.trim();
           try {
             final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(responseText);
             if (jsonMatch != null) {
-              final data = json.decode(jsonMatch.group(0)!) as Map<String, dynamic>;
+              final data =
+                  json.decode(jsonMatch.group(0)!) as Map<String, dynamic>;
               return Success(AISafetyProfile.fromJson(data));
             }
           } catch (e) {
@@ -707,8 +728,9 @@ Return ONLY valid JSON with NO markdown formatting, adhering to this exact struc
         appLogger.e('[GeminiService] AI Safety failed for $modelName: $e');
       }
     }
-    
-    return const Error(ScanFailure('Unable to analyze medication safety at this time.'));
+
+    return const Error(
+        ScanFailure('Unable to analyze medication safety at this time.'));
   }
 
   /// Analyzes a symptom in the context of current medications.
@@ -754,10 +776,8 @@ Use emojis ✨.
           }
         }
       } catch (e) {
-        final s = e.toString().toLowerCase();
-        // Fallback if proxy missing or unauthorized
-        if ((s.contains('not-found') || s.contains('404')) &&
-            _apiKey.isNotEmpty) {
+        // Fallback if proxy missing, unauthorized, or App Check fails
+        if (_apiKey.isNotEmpty) {
           try {
             final model = _getModel(modelName, apiVersion: apiVersion);
             final response = await _withRetry(() => model.generateContent(
@@ -845,7 +865,8 @@ Return ONLY valid JSON:
     required List<Map<String, String>> chatHistory,
     String userContext = '',
   }) async {
-    final historyContext = chatHistory.map((m) => '${m['role']}: ${m['content']}').join('\n');
+    final historyContext =
+        chatHistory.map((m) => '${m['role']}: ${m['content']}').join('\n');
     final prompt = '''
 You are MedAI Pro, a clinical health coach specializing in medication safety and adherence.
 The user is asking a question about the medicine/supplement: "$productName".
@@ -869,7 +890,7 @@ Do not use markdown formatting like bolding or bullet points unless absolutely n
 
     for (final config in _standardModels) {
       final modelName = config['model']!;
-      
+
       try {
         final bool useProxy = AuthService.isLoggedIn && _apiKey.isEmpty;
         String responseText = '';
@@ -890,7 +911,8 @@ Do not use markdown formatting like bolding or bullet points unless absolutely n
               [Content.text(prompt)]).timeout(const Duration(seconds: 15)));
           responseText = response.text ?? '';
         } else {
-           throw const FormatException('Client unauthenticated and GEMINI_API_KEY is empty.');
+          throw const FormatException(
+              'Client unauthenticated and GEMINI_API_KEY is empty.');
         }
 
         if (responseText.isNotEmpty) {
@@ -900,19 +922,25 @@ Do not use markdown formatting like bolding or bullet points unless absolutely n
         appLogger.w('[GeminiService] Product Chat failed with $modelName: $e');
       }
     }
-    
+
     // ── Simulated Fallback for Demo Mode ──
-    appLogger.e('[GeminiService] All chat models failed. Using simulated response.');
-    
+    appLogger
+        .e('[GeminiService] All chat models failed. Using simulated response.');
+
     final lowerQuery = query.toLowerCase();
-    String simulatedResponse = "That's a great question about $productName. Make sure to take it exactly as directed, and consult your physician if you experience any severe side effects.";
-    
+    String simulatedResponse =
+        "That's a great question about $productName. Make sure to take it exactly as directed, and consult your physician if you experience any severe side effects.";
+
     if (lowerQuery.contains('coffee') || lowerQuery.contains('caffeine')) {
-      simulatedResponse = "It is generally best to avoid taking $productName at the exact same time as coffee, as caffeine can sometimes interfere with absorption. Wait about an hour.";
-    } else if (lowerQuery.contains('food') || lowerQuery.contains('empty stomach')) {
-      simulatedResponse = "For optimal absorption and to avoid stomach upset, follow the specific food guidelines on the label for $productName.";
+      simulatedResponse =
+          "It is generally best to avoid taking $productName at the exact same time as coffee, as caffeine can sometimes interfere with absorption. Wait about an hour.";
+    } else if (lowerQuery.contains('food') ||
+        lowerQuery.contains('empty stomach')) {
+      simulatedResponse =
+          "For optimal absorption and to avoid stomach upset, follow the specific food guidelines on the label for $productName.";
     } else if (lowerQuery.contains('interact') || lowerQuery.contains('safe')) {
-      simulatedResponse = "Based on your active medications, there are no severe red flags, but you should always verify with your pharmacist when adding $productName to your regimen.";
+      simulatedResponse =
+          "Based on your active medications, there are no severe red flags, but you should always verify with your pharmacist when adding $productName to your regimen.";
     }
 
     return Success(simulatedResponse);
@@ -1245,9 +1273,8 @@ Example: "$patientName is doing great with their morning heart medication, but s
     for (final config in _standardModels) {
       final modelName = config['model']!;
       try {
-        final result = await FirebaseFunctions.instance
-            .httpsCallable('geminiProxy')
-            .call({
+        final result =
+            await FirebaseFunctions.instance.httpsCallable('geminiProxy').call({
           'prompt': prompt,
           'model': modelName,
         }).timeout(const Duration(seconds: 6));
@@ -1255,10 +1282,8 @@ Example: "$patientName is doing great with their morning heart medication, but s
         final text = (result.data['text'] as String?)?.trim() ?? '';
         if (text.isNotEmpty) return text;
       } catch (e) {
-        final s = e.toString().toLowerCase();
-        // Fallback to direct API if proxy is missing/misconfigured
-        if ((s.contains('not-found') || s.contains('404')) &&
-            _apiKey.isNotEmpty) {
+        // Fallback to direct API if proxy fails
+        if (_apiKey.isNotEmpty) {
           appLogger.w(
               '[GeminiService] Protector proxy missing. Falling back to direct API for $modelName.');
           try {
@@ -1275,7 +1300,8 @@ Example: "$patientName is doing great with their morning heart medication, but s
                 '[GeminiService] Protector direct fallback failed: $fallbackErr');
           }
         } else {
-          appLogger.w('[GeminiService] Protector insight failed with $modelName: $e');
+          appLogger.w(
+              '[GeminiService] Protector insight failed with $modelName: $e');
         }
       }
     }
@@ -1371,11 +1397,8 @@ Rules:
                 .w('[GeminiService] AI Safety Profile JSON parse error: $e');
           }
         } catch (e) {
-          final s = e.toString().toLowerCase();
-
-          // ── 1.0 FALLBACK: If Cloud Function is missing/misconfigured ──────
-          if ((s.contains('not-found') || s.contains('404')) &&
-              _apiKey.isNotEmpty) {
+          // ── 1.0 FALLBACK: If Cloud Function fails for any reason ──────
+          if (_apiKey.isNotEmpty) {
             appLogger.w(
                 '[GeminiService] Proxy missing. Falling back to direct API for $modelName.');
             try {
@@ -1407,16 +1430,23 @@ Rules:
       // ── Premium Simulated Fallback when both Cloud Functions and direct APIs fail ──
       final nameLower = med.name.toLowerCase();
       final isAspirin = nameLower.contains('aspirin');
-      final isAdvil = nameLower.contains('advil') || nameLower.contains('ibuprofen');
+      final isAdvil =
+          nameLower.contains('advil') || nameLower.contains('ibuprofen');
 
       return Success(AISafetyProfile(
-        warnings: isAspirin 
-            ? ['May cause stomach bleeding', 'Avoid in children (Reye syndrome risk)']
+        warnings: isAspirin
+            ? [
+                'May cause stomach bleeding',
+                'Avoid in children (Reye syndrome risk)'
+              ]
             : isAdvil
                 ? ['May cause stomach upset', 'Do not take with other NSAIDs']
                 : ['Monitor blood pressure', 'Avoid if pregnant'],
         interactions: isAspirin
-            ? ['Interacts with blood thinners like Warfarin', 'Avoid other NSAIDs']
+            ? [
+                'Interacts with blood thinners like Warfarin',
+                'Avoid other NSAIDs'
+              ]
             : isAdvil
                 ? ['Reduces efficacy of aspirin', 'Avoid taking with alcohol']
                 : ['Potassium supplements increase hyperkalemia risk'],
@@ -1424,10 +1454,16 @@ Rules:
             ? ['Take strictly with meals or milk to protect stomach']
             : ['Take at the same time every morning', 'Avoid grapefruit juice'],
         ahaMoments: isAspirin
-            ? ['Taking low-dose daily aspirin can reduce heart attack risk by 30%!']
+            ? [
+                'Taking low-dose daily aspirin can reduce heart attack risk by 30%!'
+              ]
             : isAdvil
-                ? ['Taking with milk delays absorption slightly but protects your stomach lining.']
-                : ['Did you know? Taking this at 8 AM matches your body\'s natural circadian rhythm for blood pressure control.'],
+                ? [
+                    'Taking with milk delays absorption slightly but protects your stomach lining.'
+                  ]
+                : [
+                    'Did you know? Taking this at 8 AM matches your body\'s natural circadian rhythm for blood pressure control.'
+                  ],
         mechanismOfAction: isAspirin
             ? 'Blocks COX-1 and COX-2 enzymes to inhibit platelet aggregation and reduce pain/inflammation.'
             : isAdvil
@@ -1435,10 +1471,14 @@ Rules:
                 : 'Relaxes blood vessels by blocking ACE, reducing overall cardiovascular strain.',
         onsetMinutes: 30,
         peakHours: 2.0,
-        durationHours: isAspirin ? 4.0 : isAdvil ? 6.0 : 12.0,
-        bodySystems: isAspirin 
-            ? ['hematologic', 'gastrointestinal'] 
-            : isAdvil 
+        durationHours: isAspirin
+            ? 4.0
+            : isAdvil
+                ? 6.0
+                : 12.0,
+        bodySystems: isAspirin
+            ? ['hematologic', 'gastrointestinal']
+            : isAdvil
                 ? ['gastrointestinal', 'musculoskeletal']
                 : ['cardiovascular', 'renal'],
         timelineEffects: [
@@ -1462,8 +1502,11 @@ Rules:
   /// Parse natural language dose log text into a structured confirmation.
   /// Input: "I took 1 Aspirin 10 minutes ago"
   /// Output: "Aspirin 81mg logged at 9:15 AM ✅"
-  static Future<Result<Map<String, dynamic>>> parseConversationalLog(String input, List<Medicine> userMeds) async {
-    final medList = userMeds.map((m) => '- ID: ${m.id}, Name: ${m.name} (${m.dose})').join('\n');
+  static Future<Result<Map<String, dynamic>>> parseConversationalLog(
+      String input, List<Medicine> userMeds) async {
+    final medList = userMeds
+        .map((m) => '- ID: ${m.id}, Name: ${m.name} (${m.dose})')
+        .join('\n');
     const promptTemplate = '''
 You are a medical logging assistant inside a medication tracker app.
 A user typed the following message to log a medication dose:
@@ -1506,15 +1549,15 @@ Rules:
         '${now.hour}:${now.minute.toString().padLeft(2, '0')} ${now.hour < 12 ? 'AM' : 'PM'}';
     final prompt = promptTemplate
         .replaceAll('{INPUT}', input)
-        .replaceAll('{MED_LIST}', medList.isNotEmpty ? medList : 'No medications found.')
+        .replaceAll('{MED_LIST}',
+            medList.isNotEmpty ? medList : 'No medications found.')
         .replaceAll('{TIME}', timeStr);
 
     for (final config in _standardModels) {
       final modelName = config['model']!;
       try {
-        final result = await FirebaseFunctions.instance
-            .httpsCallable('geminiProxy')
-            .call({
+        final result =
+            await FirebaseFunctions.instance.httpsCallable('geminiProxy').call({
           'prompt': prompt,
           'model': modelName,
         }).timeout(const Duration(seconds: 6));
@@ -1537,15 +1580,12 @@ Rules:
           }
         }
       } catch (e) {
-        final s = e.toString().toLowerCase();
-        // Fallback to direct API if proxy is missing/misconfigured
-        if ((s.contains('not-found') || s.contains('404')) &&
-            _apiKey.isNotEmpty) {
+        // Fallback to direct API if proxy fails
+        if (_apiKey.isNotEmpty) {
           appLogger.w(
               '[GeminiService] ConvLog proxy missing. Falling back to direct API for $modelName.');
           try {
-            final model =
-                _getModel(modelName, apiVersion: config['version']!);
+            final model = _getModel(modelName, apiVersion: config['version']!);
             final response = await _withRetry(
                 () => model.generateContent([Content.text(prompt)]));
             final raw = response.text?.trim() ?? '';
@@ -1583,7 +1623,7 @@ Rules:
       final inputLower = input.toLowerCase();
       String detectedMed = 'Medication';
       int? detectedMedId;
-      
+
       for (var med in userMeds) {
         if (inputLower.contains(med.name.toLowerCase())) {
           detectedMed = med.name;
@@ -1613,23 +1653,29 @@ Rules:
       }
 
       if (detectedMedId == null) {
-         return const Error(ScanFailure('Could not identify a medication in your message.'));
+        return const Error(
+            ScanFailure('Could not identify a medication in your message.'));
       }
 
       String doseStr = '1 dose';
-      final dosePattern = RegExp(r'\b(\d+\s*(mg|mcg|g|ml|tablet|tablets|pill|pills|puff|puffs|dose|doses|cap|caps|capsule|capsules))\b', caseSensitive: false);
+      final dosePattern = RegExp(
+          r'\b(\d+\s*(mg|mcg|g|ml|tablet|tablets|pill|pills|puff|puffs|dose|doses|cap|caps|capsule|capsules))\b',
+          caseSensitive: false);
       final doseMatch = dosePattern.firstMatch(inputLower);
       if (doseMatch != null) {
         doseStr = input.substring(doseMatch.start, doseMatch.end);
       }
 
       String timeStr = 'just now';
-      final relativePattern = RegExp(r'\b(\d+\s*(min|mins|minute|minutes|hour|hours|hr|hrs)\s*ago)\b', caseSensitive: false);
+      final relativePattern = RegExp(
+          r'\b(\d+\s*(min|mins|minute|minutes|hour|hours|hr|hrs)\s*ago)\b',
+          caseSensitive: false);
       final relMatch = relativePattern.firstMatch(inputLower);
       if (relMatch != null) {
         timeStr = input.substring(relMatch.start, relMatch.end);
       } else {
-        final absPattern = RegExp(r'\b(at\s*\d{1,2}(:\d{2})?\s*(am|pm)?)\b', caseSensitive: false);
+        final absPattern = RegExp(r'\b(at\s*\d{1,2}(:\d{2})?\s*(am|pm)?)\b',
+            caseSensitive: false);
         final absMatch = absPattern.firstMatch(inputLower);
         if (absMatch != null) {
           timeStr = input.substring(absMatch.start, absMatch.end);

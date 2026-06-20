@@ -36,7 +36,7 @@ class TrendDrilldownSheet extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 decoration: BoxDecoration(
-                  color: L.card,
+                  color: L.card.withValues(alpha: 0.5),
                   borderRadius: BorderRadius.circular(20),
                   border: Border.all(color: L.border.withValues(alpha: 0.1)),
                 ),
@@ -125,7 +125,7 @@ class TrendDrilldownSheet extends StatelessWidget {
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: L.card,
+              color: L.card.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(28),
               border: Border.all(color: L.border.withValues(alpha: 0.1)),
             ),
@@ -174,7 +174,7 @@ class TrendDrilldownSheet extends StatelessWidget {
               width: double.infinity,
               height: 54,
               decoration: BoxDecoration(
-                color: L.card,
+                color: L.card.withValues(alpha: 0.5),
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(color: L.border.withValues(alpha: 0.1)),
               ),

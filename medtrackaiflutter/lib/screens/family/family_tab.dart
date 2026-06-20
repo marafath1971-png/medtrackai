@@ -389,12 +389,7 @@ class HubView extends StatelessWidget {
                               border: Border.all(
                                   color: Colors.white.withValues(alpha: 0.3),
                                   width: 1.5),
-                              boxShadow: [
-                                BoxShadow(
-                                    color: L.error.withValues(alpha: 0.5),
-                                    blurRadius: 24,
-                                    offset: const Offset(0, 10))
-                              ],
+                              boxShadow: const [],
                             ),
                             child: Row(
                               children: [
@@ -823,15 +818,7 @@ class _CompactPivotPill extends StatelessWidget {
           border: active
               ? Border.all(color: L.border.withValues(alpha: 0.08), width: 0.5)
               : null,
-          boxShadow: active
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    blurRadius: 4,
-                    offset: const Offset(0, 2),
-                  )
-                ]
-              : null,
+          boxShadow: null,
         ),
         child: Text(
           label,
@@ -909,18 +896,14 @@ class _FamilyHeader extends StatelessWidget {
                           ),
                         ),
                         if (isActive) ...[
-                          const SizedBox(width: 8),
+                        const SizedBox(width: 8),
                           Container(
                             width: 10,
                             height: 10,
                             decoration: BoxDecoration(
                                 color: L.success,
                                 shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: L.success.withValues(alpha: 0.5),
-                                      blurRadius: 8)
-                                ]),
+                            ),
                           )
                               .animate(onPlay: (c) => c.repeat(reverse: true))
                               .fade(begin: 0.3, end: 1.0, duration: 1.seconds)
@@ -987,6 +970,7 @@ class _CircleStatBento extends StatelessWidget {
         padding: const EdgeInsets.all(20),
         radius: 24,
         borderWidth: 0.5,
+        boxShadow: const [],
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [

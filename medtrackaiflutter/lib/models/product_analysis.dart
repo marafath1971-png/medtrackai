@@ -31,6 +31,23 @@ class ProductAnalysis {
     required this.expertPerspectives,
   });
 
+  Map<String, dynamic> toJson() => {
+        'id': id,
+        'name': name,
+        'category': category,
+        'description': description,
+        'whyTakeIt': whyTakeIt,
+        'howItWorks': howItWorks,
+        'benefits': benefits,
+        'sideEffects': sideEffects,
+        'foodInteractions': foodInteractions,
+        'medicineInteractions': medicineInteractions,
+        'timing': timing,
+        'halalStatus': halalStatus,
+        'scientificEvidence': scientificEvidence,
+        'expertPerspectives': expertPerspectives.map((e) => e.toJson()).toList(),
+      };
+
   factory ProductAnalysis.fromJson(Map<String, dynamic> json) {
     return ProductAnalysis(
       id: json['id'] ?? DateTime.now().millisecondsSinceEpoch.toString(),
@@ -103,6 +120,12 @@ class ExpertPerspective {
     required this.explanation,
     required this.icon,
   });
+
+  Map<String, dynamic> toJson() => {
+        'role': role,
+        'explanation': explanation,
+        'icon': icon,
+      };
 
   factory ExpertPerspective.fromJson(Map<String, dynamic> json) {
     return ExpertPerspective(

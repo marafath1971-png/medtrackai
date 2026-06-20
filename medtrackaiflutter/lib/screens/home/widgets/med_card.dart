@@ -128,14 +128,16 @@ class MedCard extends StatelessWidget {
                     const SizedBox(height: 4),
                     Row(
                       children: [
-                        Text(
-                          '${med.dose} · ${med.form}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTypography.labelSmall.copyWith(
-                            color: L.sub,
-                            fontWeight: FontWeight.w500,
-                            fontSize: 12,
+                        Flexible(
+                          child: Text(
+                            '${med.dose} · ${med.form}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.labelSmall.copyWith(
+                              color: L.sub,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 12,
+                            ),
                           ),
                         ),
                       ],

@@ -194,7 +194,7 @@ class _PremiumPaywallState extends State<PremiumPaywall> {
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              color: L.card,
+              color: L.card.withValues(alpha: 0.5),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(color: L.border.withValues(alpha: 0.1)),
             ),
@@ -237,7 +237,7 @@ class _PremiumPaywallState extends State<PremiumPaywall> {
         width: double.infinity,
         height: 56,
         decoration: BoxDecoration(
-          color: L.card,
+          color: L.card.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(color: L.border.withValues(alpha: 0.1)),
         ),

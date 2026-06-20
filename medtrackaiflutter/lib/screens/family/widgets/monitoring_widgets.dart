@@ -90,6 +90,7 @@ class PatientCard extends StatelessWidget {
                 child: SquircleCard(
                   padding: const EdgeInsets.all(AppSpacing.p16),
                   radius: 12,
+                  boxShadow: const [],
                   child: Column(
                   children: [
                     Row(
@@ -107,12 +108,7 @@ class PatientCard extends StatelessWidget {
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: color.withValues(alpha: 0.4),
-                                  blurRadius: 16,
-                                  spreadRadius: 0)
-                            ],
+                            boxShadow: null,
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(2.0),
@@ -290,14 +286,7 @@ class WeeklyAdherenceChart extends StatelessWidget {
                     color: pct == 0.0 ? L.fill : color,
                     borderRadius:
                         const BorderRadius.vertical(top: Radius.circular(6)),
-                    boxShadow: [
-                      if (pct > 0.0)
-                        BoxShadow(
-                          color: color.withValues(alpha: 0.2),
-                          blurRadius: 8,
-                          offset: const Offset(0, 2),
-                        )
-                    ],
+                    boxShadow: null,
                   ),
                 ),
                 const SizedBox(height: AppSpacing.p12),

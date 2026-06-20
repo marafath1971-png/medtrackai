@@ -8,8 +8,10 @@ import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
 import '../../widgets/common/unified_header.dart';
 import '../../widgets/common/modern_time_picker.dart';
+import '../../widgets/common/refined_sheet_wrapper.dart';
 import 'widgets/body_impact_card.dart';
 import 'widgets/inline_ai_coach.dart';
+import '../analysis/product_analysis_screen.dart';
 // ══════════════════════════════════════════════════════════════════════
 // MEDICINE DETAIL SCREEN (Cal AI Industrial Hub Refined)
 // ══════════════════════════════════════════════════════════════════════
@@ -131,6 +133,11 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                   const SizedBox(height: 16),
                   _buildQuickActions(med, context.read<AppState>(), L),
                   const SizedBox(height: 24),
+
+                  if (med.productAnalysis != null) ...[
+                    _buildAnalysisButton(med, L),
+                    const SizedBox(height: 24),
+                  ],
 
                   if (med.aiSafetyProfile != null && (med.aiSafetyProfile!.mechanismOfAction.isNotEmpty && med.aiSafetyProfile!.mechanismOfAction != 'Details about how this medication works in your body will appear here.')) ...[
                     Builder(builder: (context) {
@@ -718,39 +725,61 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
     );
   }
 
+  Widget _buildAnalysisButton(Medicine med, AppThemeColors L) {
+    return BouncingButton(
+      onTap: () {
+        HapticEngine.selection();
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductAnalysisScreen(product: med.productAnalysis!),
+          ),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: L.accent.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: L.accent.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.auto_awesome, color: L.accent, size: 20),
+            const SizedBox(width: 8),
+            Text(
+              'View Full AI Analysis',
+              style: AppTypography.labelLarge.copyWith(
+                color: L.accent,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   void _showRestockSheet(Medicine med, AppState state, AppThemeColors L) {
     HapticEngine.selection();
     int addAmount = 30;
     showModalBottomSheet(
       context: context,
-      backgroundColor: L.bg,
-      shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
       builder: (ctx) => StatefulBuilder(
-        builder: (ctx, setSheetState) => SafeArea(
-          top: false,
-          child: Padding(
-            padding: const EdgeInsets.fromLTRB(28, 20, 28, 32),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                        color: L.border.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(2))),
-                const SizedBox(height: 28),
-                Text('RESTOCK INVENTORY',
-                    style: AppTypography.titleLarge.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: L.text,
-                        letterSpacing: -0.5)),
-                const SizedBox(height: 8),
-                Text('Add units to ${med.name}',
-                    style: AppTypography.bodySmall
-                        .copyWith(color: L.sub, fontWeight: FontWeight.w500)),
-                const SizedBox(height: 32),
+        builder: (ctx, setSheetState) => RefinedSheetWrapper(
+          title: 'RESTOCK INVENTORY',
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Add units to ${med.name}',
+                  style: AppTypography.bodySmall
+                      .copyWith(color: L.sub, fontWeight: FontWeight.w500)),
+              const SizedBox(height: 32),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -815,7 +844,6 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
             ),
           ),
         ),
-      ),
     );
   }
 
@@ -1207,32 +1235,11 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setState) {
           final L = ctx.L;
-          return Container(
-            padding: EdgeInsets.only(
-                left: 24,
-                right: 24,
-                top: 24,
-                bottom: MediaQuery.of(ctx).padding.bottom + 24),
-            decoration: BoxDecoration(
-              color: L.card,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
-              boxShadow: L.shadowSoft,
-            ),
+          return RefinedSheetWrapper(
+            title: 'Edit Reminder',
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Container(
-                    width: 40,
-                    height: 4,
-                    decoration: BoxDecoration(
-                        color: L.border.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10))),
-                const SizedBox(height: 24),
-                Text("Edit Reminder",
-                    style: AppTypography.headlineMedium
-                        .copyWith(fontWeight: FontWeight.w600, color: L.text)),
-                const SizedBox(height: 32),
                 
                 // Active Days
                 Align(

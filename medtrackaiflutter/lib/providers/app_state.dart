@@ -284,6 +284,9 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
         toast = 'Dose logged';
         toastType = 'success';
+      } else {
+        toast = 'Dose unlogged';
+        toastType = 'info';
       }
 
       safeNotifyListeners();
@@ -964,6 +967,13 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       toast = null;
       notifyListeners();
     });
+  }
+
+  void clearToast() {
+    if (toast != null) {
+      toast = null;
+      notifyListeners();
+    }
   }
 
   // ── Utility ────────────────────────────────────────────────────────

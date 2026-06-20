@@ -22,6 +22,19 @@ class SettingsModal extends StatefulWidget {
 class _SettingsModalState extends State<SettingsModal> {
   String _activeTab = 'profile'; // profile | stats | app | data | global
 
+  // Nested navigator key — keeps all sub-screen navigation inside the modal.
+  final GlobalKey<NavigatorState> _nestedNavKey = GlobalKey<NavigatorState>();
+
+  /// Intercept Android back button: pop inner route first, then close modal.
+  Future<bool> _onWillPop() async {
+    final innerNav = _nestedNavKey.currentState;
+    if (innerNav != null && innerNav.canPop()) {
+      innerNav.pop();
+      return false; // handled — do not close modal
+    }
+    return true; // let parent handle (close modal)
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = context.read<AppState>();
@@ -37,140 +50,161 @@ class _SettingsModalState extends State<SettingsModal> {
       {'id': 'global', 'label': s.settingsGlobal.toUpperCase(), 'icon': '🌐'},
     ];
 
-    return GestureDetector(
-      onTap: widget.onClose,
-      child: Container(
-        color: Colors.black.withValues(alpha: 0.4), // Softer backdrop
-        child: Align(
-          alignment: Alignment.bottomCenter,
-          child: GestureDetector(
-            onTap: () {},
-            child: Container(
-              height: size.height * 0.9,
-              width: size.width,
-              constraints: const BoxConstraints(maxWidth: 430),
-              decoration: BoxDecoration(
-                  color: L.meshBg,
-                  borderRadius:
-                      const BorderRadius.vertical(top: Radius.circular(32)),
-                  boxShadow: AppShadows.neumorphic),
-              child: Column(children: [
-                const SizedBox(height: 12),
-                Container(
-                    width: 40,
-                    height: 5,
-                    decoration: BoxDecoration(
-                        color: L.text.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(10))),
-                // Header
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
-                  child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(s.settings.toUpperCase(),
-                                style: AppTypography.labelSmall.copyWith(
-                                    fontWeight: FontWeight.w900,
-                                    color: L.sub.withValues(alpha: 0.5),
-                                    letterSpacing: 2.0,
-                                    fontSize: 10)),
-                            const SizedBox(height: 4),
-                            Text("Command Center",
-                                style: AppTypography.displaySmall.copyWith(
-                                    fontFamily: 'Courier',
-                                    fontWeight: FontWeight.w900,
-                                    color: L.text,
-                                    fontSize: 24,
-                                    letterSpacing: -1.0)),
-                          ],
-                        ),
-                        GestureDetector(
-                          onTap: widget.onClose,
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                                color: L.text.withValues(alpha: 0.05),
-                                shape: BoxShape.circle),
-                            child: Center(
-                                child: Icon(Icons.close_rounded,
-                                    color: L.text, size: 20)),
-                          ),
-                        ),
-                      ])
-                      .animate()
-                      .fade(duration: 400.ms)
-                      .slideY(begin: -0.1, end: 0),
-                ),
-                // Tab Bar
-                Container(
-                  margin: const EdgeInsets.symmetric(vertical: 16),
-                  height: 42,
-                  child: SingleChildScrollView(
-                    physics: const BouncingScrollPhysics(),
-                    scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) return;
+        final shouldClose = await _onWillPop();
+        if (shouldClose && context.mounted) widget.onClose();
+      },
+      child: GestureDetector(
+        onTap: widget.onClose,
+        child: Container(
+          color: Colors.black.withValues(alpha: 0.4), // Softer backdrop
+          child: Align(
+            alignment: Alignment.bottomCenter,
+            child: GestureDetector(
+              onTap: () {},
+              child: Container(
+                height: size.height * 0.9,
+                width: size.width,
+                constraints: const BoxConstraints(maxWidth: 430),
+                decoration: BoxDecoration(
+                    color: L.meshBg,
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(32)),
+                    boxShadow: AppShadows.neumorphic),
+                child: Column(children: [
+                  const SizedBox(height: 12),
+                  Container(
+                      width: 40,
+                      height: 5,
+                      decoration: BoxDecoration(
+                          color: L.text.withValues(alpha: 0.1),
+                          borderRadius: BorderRadius.circular(10))),
+                  // Header
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
                     child: Row(
-                        children: tabs.map((t) {
-                      final isAct = _activeTab == t['id'];
-                      final idx = tabs.indexOf(t);
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 10),
-                        child: GestureDetector(
-                          onTap: () {
-                            HapticEngine.selection();
-                            setState(() => _activeTab = t['id'] as String);
-                          },
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            curve: Curves.easeOutQuart,
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 18, vertical: 0),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                                color: isAct
-                                    ? L.text
-                                    : L.card.withValues(alpha: 0.5),
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                    color: isAct
-                                        ? L.text
-                                        : L.border.withValues(alpha: 0.08),
-                                    width: 0.5)),
-                            child: Row(children: [
-                              Text(t['icon'] as String,
-                                      style: const TextStyle(fontSize: 14))
-                                  .animate(target: isAct ? 1 : 0)
-                                  .scale(
-                                      begin: const Offset(1.0, 1.0),
-                                      end: const Offset(1.2, 1.2),
-                                      duration: 200.ms),
-                              const SizedBox(width: 8),
-                              Text(t['label'] as String,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(s.settings.toUpperCase(),
                                   style: AppTypography.labelSmall.copyWith(
                                       fontWeight: FontWeight.w900,
-                                      color: isAct
-                                          ? L.bg
-                                          : L.text.withValues(alpha: 0.4),
-                                      letterSpacing: 0.5,
+                                      color: L.sub.withValues(alpha: 0.5),
+                                      letterSpacing: 2.0,
                                       fontSize: 10)),
-                            ]),
+                              const SizedBox(height: 4),
+                              Text("Command Center",
+                                  style: AppTypography.displaySmall.copyWith(
+                                      fontWeight: FontWeight.w900,
+                                      color: L.text,
+                                      fontSize: 24,
+                                      letterSpacing: -1.0)),
+                            ],
                           ),
-                        )
-                            .animate()
-                            .fade(delay: (idx * 30).ms)
-                            .scale(begin: const Offset(0.95, 0.95)),
-                      );
-                    }).toList()),
+                          GestureDetector(
+                            onTap: widget.onClose,
+                            child: Container(
+                              width: 40,
+                              height: 40,
+                              decoration: BoxDecoration(
+                                  color: L.text.withValues(alpha: 0.05),
+                                  shape: BoxShape.circle),
+                              child: Center(
+                                  child: Icon(Icons.close_rounded,
+                                      color: L.text, size: 20)),
+                            ),
+                          ),
+                        ])
+                        .animate()
+                        .fade(duration: 400.ms)
+                        .slideY(begin: -0.1, end: 0),
                   ),
-                ),
-                Divider(height: 1, color: L.border.withValues(alpha: 0.1)),
-                // Content
-                Expanded(child: _buildContent(state, L)),
-              ]),
+                  // Tab Bar
+                  Container(
+                    margin: const EdgeInsets.symmetric(vertical: 16),
+                    height: 42,
+                    child: SingleChildScrollView(
+                      physics: const BouncingScrollPhysics(),
+                      scrollDirection: Axis.horizontal,
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      child: Row(
+                          children: tabs.map((t) {
+                        final isAct = _activeTab == t['id'];
+                        final idx = tabs.indexOf(t);
+                        return Padding(
+                          padding: const EdgeInsets.only(right: 10),
+                          child: GestureDetector(
+                            onTap: () {
+                              HapticEngine.selection();
+                              // Reset inner navigator to root when switching tabs
+                              while (_nestedNavKey.currentState?.canPop() == true) {
+                                _nestedNavKey.currentState!.pop();
+                              }
+                              setState(() => _activeTab = t['id'] as String);
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 300),
+                              curve: Curves.easeOutQuart,
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 18, vertical: 0),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                  color: isAct
+                                      ? L.text
+                                      : L.card.withValues(alpha: 0.5),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                      color: isAct
+                                          ? L.text
+                                          : L.border.withValues(alpha: 0.08),
+                                      width: 0.5)),
+                              child: Row(children: [
+                                Text(t['icon'] as String,
+                                        style: const TextStyle(fontSize: 14))
+                                    .animate(target: isAct ? 1 : 0)
+                                    .scale(
+                                        begin: const Offset(1.0, 1.0),
+                                        end: const Offset(1.2, 1.2),
+                                        duration: 200.ms),
+                                const SizedBox(width: 8),
+                                Text(t['label'] as String,
+                                    style: AppTypography.labelSmall.copyWith(
+                                        fontWeight: FontWeight.w900,
+                                        color: isAct
+                                            ? L.bg
+                                            : L.text.withValues(alpha: 0.4),
+                                            letterSpacing: 0.5,
+                                            fontSize: 10)),
+                              ]),
+                            ),
+                          )
+                              .animate()
+                              .fade(delay: (idx * 30).ms)
+                              .scale(begin: const Offset(0.95, 0.95)),
+                        );
+                      }).toList()),
+                    ),
+                  ),
+                  Divider(height: 1, color: L.border.withValues(alpha: 0.1)),
+                  // Content
+                  Expanded(
+                    child: Navigator(
+                      key: _nestedNavKey,
+                      onGenerateRoute: (settings) {
+                        return MaterialPageRoute(
+                          settings: settings,
+                          builder: (_) => _buildContent(state, L),
+                        );
+                      },
+                    ),
+                  ),
+                ]),
+              ),
             ),
           ),
         ),

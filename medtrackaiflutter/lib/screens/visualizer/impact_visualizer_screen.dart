@@ -90,7 +90,7 @@ class _ImpactVisualizerScreenState extends State<ImpactVisualizerScreen> with Si
       startHour: 3.0,
       peakHour: 8.0,
       endHour: 20.0,
-      color: const Color(0xFFFF6B35), // Coral Orange
+      color: AppColors.accent, // Theme accent
     ),
   ];
 
@@ -150,7 +150,7 @@ class _ImpactVisualizerScreenState extends State<ImpactVisualizerScreen> with Si
                       center: Alignment.center,
                       radius: 1.5,
                       colors: [
-                        L.text.withValues(alpha: 0.04 * maxAct * (0.8 + 0.2 * _pulseController.value)),
+                        Color.lerp(L.bg, L.text, 0.05 * maxAct * (0.8 + 0.2 * _pulseController.value)) ?? Colors.transparent,
                         L.bg,
                       ],
                     ),
@@ -268,22 +268,23 @@ class _ImpactVisualizerScreenState extends State<ImpactVisualizerScreen> with Si
                         child: Container(
                           padding: const EdgeInsets.all(12),
                           decoration: BoxDecoration(
-                            color: L.card,
+                            color: L.glassBorder.withValues(alpha: 0.2),
                             shape: BoxShape.circle,
-                            border: Border.all(color: L.border.withValues(alpha: 0.4)),
+                            border: Border.all(color: L.glassBorder),
+                            boxShadow: AppShadows.subtle,
                           ),
-                          child: Icon(Icons.arrow_back_rounded, color: L.text, size: 20),
+                          child: Icon(Icons.arrow_back_ios_new_rounded, color: L.text, size: 18),
                         ),
                       ),
                       Expanded(
                         child: Center(
                           child: Text(
-                            'ORGAN IMPACT',
+                            'ORGAN IMPACT MAP',
                             style: AppTypography.labelSmall.copyWith(
-                              color: L.sub.withValues(alpha: 0.7),
-                              letterSpacing: 2.0,
+                              color: L.text.withValues(alpha: 0.8),
+                              letterSpacing: 3.0,
                               fontWeight: FontWeight.w900,
-                              fontSize: 11,
+                              fontSize: 10,
                             ),
                           ),
                         ),
@@ -328,13 +329,14 @@ class _ImpactVisualizerScreenState extends State<ImpactVisualizerScreen> with Si
                         const SizedBox(height: 8),
                         SliderTheme(
                           data: SliderThemeData(
-                            trackHeight: 2,
-                            activeTrackColor: L.text,
-                            inactiveTrackColor: L.border.withValues(alpha: 0.15),
-                            thumbColor: L.text,
-                            overlayColor: L.text.withValues(alpha: 0.1),
-                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 8),
-                            overlayShape: const RoundSliderOverlayShape(overlayRadius: 16),
+                            trackHeight: 6,
+                            activeTrackColor: L.accent,
+                            inactiveTrackColor: L.text.withValues(alpha: 0.05),
+                            thumbColor: Colors.white,
+                            overlayColor: L.accent.withValues(alpha: 0.2),
+                            thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10, elevation: 4),
+                            overlayShape: const RoundSliderOverlayShape(overlayRadius: 20),
+                            trackShape: const RoundedRectSliderTrackShape(),
                           ),
                           child: Slider(
                             value: _currentHour,
@@ -615,12 +617,17 @@ class _OrganNetworkPainter extends CustomPainter {
       final col = node['color'] as Color;
 
       if (act > 0.05) {
-        // Glowing active node
-        glowPaint.color = col.withValues(alpha: 0.5 * act * (0.8 + 0.2 * pulse));
-        canvas.drawCircle(pos, 7 + 5 * act * pulse, glowPaint);
+        // Glowing active node (Premium 2026 style)
+        glowPaint.color = col.withValues(alpha: 0.6 * act * (0.8 + 0.2 * pulse));
+        glowPaint.maskFilter = const MaskFilter.blur(BlurStyle.normal, 16.0);
+        canvas.drawCircle(pos, 10 + 6 * act * pulse, glowPaint);
 
         nodePaint.color = col;
-        canvas.drawCircle(pos, 2.5 + 2 * act, nodePaint);
+        canvas.drawCircle(pos, 3.5 + 2 * act, nodePaint);
+        
+        // Inner bright core
+        final corePaint = Paint()..color = Colors.white.withValues(alpha: 0.8)..style = PaintingStyle.fill;
+        canvas.drawCircle(pos, 1.5, corePaint);
       } else {
         // Inactive node
         nodePaint.color = col.withValues(alpha: 0.15);

@@ -55,7 +55,7 @@ class ProfileSelectorRibbon extends StatelessWidget {
                         name: 'Me',
                         isSelected: isSelected,
                         onTap: () => state.switchProfile(null),
-                        color: const Color(0xFF6366F1), // Industrial Indigo
+                        color: L.accent,
                       );
                     }
 
@@ -198,11 +198,11 @@ class ProfileSelectorRibbon extends StatelessWidget {
 
   Color _getProfileColor(int index) {
     final colors = [
-      const Color(0xFFEC4899), // Pink
-      const Color(0xFF10B981), // Emerald
-      const Color(0xFFF59E0B), // Amber
-      const Color(0xFF8B5CF6), // Violet
-      const Color(0xFF06B6D4), // Cyan
+      const Color(0xFF3A7D6A), // Sage Green
+      const Color(0xFFC07B65), // Terracotta
+      const Color(0xFF8E9B7B), // Olive
+      const Color(0xFFD4B26F), // Muted Amber
+      const Color(0xFF9E8A78), // Earth Brown
     ];
     return colors[index % colors.length];
   }
@@ -256,15 +256,7 @@ class _ProfileAvatar extends StatelessWidget {
                 : (isCritical ? Colors.red.withValues(alpha: 0.4) : L.border.withValues(alpha: 0.1)),
             width: isSelected ? 1.5 : 1,
           ),
-          boxShadow: isSelected
-              ? [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.25),
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  )
-                ]
-              : null,
+          boxShadow: null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

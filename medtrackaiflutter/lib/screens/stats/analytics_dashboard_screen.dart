@@ -1,11 +1,10 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../core/utils/haptic_engine.dart';
-import '../../../widgets/common/bouncing_button.dart';
+import '../../../widgets/shared/shared_widgets.dart';
 
 class AnalyticsDashboardScreen extends StatefulWidget {
   const AnalyticsDashboardScreen({super.key});
@@ -47,7 +46,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                 ],
               ),
             ),
-          ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(1,1), end: const Offset(1.2,1.2), duration: 4.seconds),
+          ).animate(key: const ValueKey('analytics_bg_glow_anim'), onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(1,1), end: const Offset(1.2,1.2), duration: 4.seconds),
           
           SafeArea(
             child: Column(
@@ -59,7 +58,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                   child: Row(
                     children: [
                       BouncingButton(
-                        onPressed: () {
+                        onTap: () {
                           HapticEngine.selection();
                           Navigator.pop(context);
                         },
@@ -81,7 +80,6 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                             Text(
                               'BIO-ANALYTICS',
                               style: AppTypography.labelLarge.copyWith(
-                                fontFamily: 'Courier',
                                 color: L.secondary,
                                 fontSize: 12,
                                 fontWeight: FontWeight.w900,
@@ -105,12 +103,11 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                 
                 Expanded(
                   child: ListView(
-                    physics: const BouncingScrollPhysics(),
                     padding: const EdgeInsets.all(AppSpacing.screenPadding),
                     children: [
                       // Longevity Score Card
                       _LongevityScoreCard(score: longevityScore, L: L)
-                        .animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
+                        .animate(key: const ValueKey('analytics_score_card_anim')).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
                         
                       const SizedBox(height: 24),
                       
@@ -139,7 +136,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                             ),
                           ),
                         ],
-                      ).animate(delay: 100.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
+                      ).animate(key: const ValueKey('analytics_stat_grid_anim'), delay: 100.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
                       
                       const SizedBox(height: 24),
                       
@@ -147,14 +144,13 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                       Text(
                         'TREND ANALYSIS',
                         style: AppTypography.labelSmall.copyWith(
-                          fontFamily: 'Courier',
                           color: L.sub,
                           letterSpacing: 1.5,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _TrendGraph(L: L).animate(delay: 200.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
+                      _TrendGraph(L: L).animate(key: const ValueKey('analytics_trend_graph_anim'), delay: 200.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
                     ],
                   ),
                 ),
@@ -180,14 +176,8 @@ class _LongevityScoreCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: L.card,
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: L.primary.withValues(alpha: 0.2), width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: L.primary.withValues(alpha: 0.1),
-            blurRadius: 30,
-            offset: const Offset(0, 10),
-          )
-        ],
+        border: Border.all(color: L.border.withValues(alpha: 0.1), width: 1.0),
+        boxShadow: AppShadows.neumorphic,
       ),
       child: Column(
         children: [
@@ -195,12 +185,11 @@ class _LongevityScoreCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(Icons.bolt_rounded, color: L.primary, size: 20)
-                .animate(onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(1,1), end: const Offset(1.2,1.2)),
+                .animate(key: const ValueKey('analytics_bolt_icon_anim'), onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(1,1), end: const Offset(1.2,1.2)),
               const SizedBox(width: 8),
               Text(
                 'LONGEVITY SCORE',
                 style: AppTypography.labelLarge.copyWith(
-                  fontFamily: 'Courier',
                   color: L.primary,
                   fontWeight: FontWeight.w900,
                   letterSpacing: 2.0,
@@ -212,7 +201,6 @@ class _LongevityScoreCard extends StatelessWidget {
           Text(
             '$score',
             style: AppTypography.displayLarge.copyWith(
-              fontFamily: 'Courier',
               color: L.text,
               fontSize: 72,
               fontWeight: FontWeight.w900,
@@ -224,7 +212,6 @@ class _LongevityScoreCard extends StatelessWidget {
           Text(
             'Top 5% of MedTrack Users 🚀',
             style: AppTypography.bodyMedium.copyWith(
-              fontFamily: 'Courier',
               color: L.sub,
               fontWeight: FontWeight.w900,
             ),
@@ -277,7 +264,6 @@ class _StatMiniCard extends StatelessWidget {
           Text(
             value,
             style: AppTypography.headlineMedium.copyWith(
-              fontFamily: 'Courier',
               color: L.text,
               fontWeight: FontWeight.w900,
               letterSpacing: -1.0,
@@ -287,7 +273,6 @@ class _StatMiniCard extends StatelessWidget {
           Text(
             title,
             style: AppTypography.labelSmall.copyWith(
-              fontFamily: 'Courier',
               color: color,
               fontWeight: FontWeight.w900,
               letterSpacing: 1.0,
@@ -297,7 +282,6 @@ class _StatMiniCard extends StatelessWidget {
           Text(
             subtitle,
             style: AppTypography.bodySmall.copyWith(
-              fontFamily: 'Courier',
               color: L.sub,
               fontSize: 10,
               fontWeight: FontWeight.w900,
@@ -309,36 +293,81 @@ class _StatMiniCard extends StatelessWidget {
   }
 }
 
-class _TrendGraph extends StatelessWidget {
+class _TrendGraph extends StatefulWidget {
   final AppThemeColors L;
 
   const _TrendGraph({required this.L});
 
   @override
+  State<_TrendGraph> createState() => _TrendGraphState();
+}
+
+class _TrendGraphState extends State<_TrendGraph> {
+  bool _animate = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        setState(() => _animate = true);
+      }
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final L = widget.L;
+    final data = [0.4, 0.6, 0.5, 0.8, 0.7, 0.9, 1.0];
+    
     return Container(
-      height: 150,
+      height: 180,
+      padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: L.card,
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: L.border.withValues(alpha: 0.05)),
+        boxShadow: AppShadows.neumorphic,
       ),
-      child: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.auto_graph_rounded, color: L.sub.withValues(alpha: 0.3), size: 48),
-            const SizedBox(height: 8),
-            Text(
-              'Gathering more data for trend map...',
-              style: AppTypography.bodySmall.copyWith(
-                fontFamily: 'Courier',
-                color: L.sub,
-                fontWeight: FontWeight.w900,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                'Weekly Performance',
+                style: AppTypography.labelMedium.copyWith(
+                  color: L.text,
+                  fontWeight: FontWeight.w700,
+                ),
               ),
-            ),
-          ],
-        ),
+              Icon(Icons.show_chart_rounded, color: L.secondary, size: 20),
+            ],
+          ),
+          const Spacer(),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: List.generate(data.length, (index) {
+              final targetHeight = 100.0 * data[index];
+              return Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: AnimatedContainer(
+                    duration: Duration(milliseconds: 500 + index * 100),
+                    curve: Curves.easeOutBack,
+                    height: _animate ? targetHeight : 0.0,
+                    decoration: BoxDecoration(
+                      color: index == data.length - 1 ? L.secondary : L.secondary.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(6),
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
+        ],
       ),
     );
   }

@@ -216,24 +216,26 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
     final bottom = MediaQuery.of(context).viewInsets.bottom;
 
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(36)),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
         child: Container(
           padding: EdgeInsets.fromLTRB(24, 12, 24, 24 + bottom),
           decoration: BoxDecoration(
-            color: L.bg.withValues(alpha: 0.85),
+            color: L.bg.withValues(alpha: 0.7),
             borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(36)),
-            border: Border.all(
-              color: AppColors.accent.withValues(alpha: 0.25),
-              width: 1.2,
+                const BorderRadius.vertical(top: Radius.circular(40)),
+            border: Border(
+              top: BorderSide(
+                color: AppColors.accent.withValues(alpha: 0.3),
+                width: 1.5,
+              ),
             ),
             boxShadow: [
               BoxShadow(
-                color: AppColors.accent.withValues(alpha: 0.05),
-                blurRadius: 40,
-                spreadRadius: 10,
+                color: AppColors.accent.withValues(alpha: 0.08),
+                blurRadius: 60,
+                spreadRadius: 20,
               ),
             ],
           ),

@@ -182,28 +182,38 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
     return Align(
       alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.75),
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.all(16),
+        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
+        margin: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         decoration: BoxDecoration(
-          color: msg.isUser ? L.primary : L.card,
+          color: msg.isUser 
+              ? L.text 
+              : L.card.withValues(alpha: 0.6),
           borderRadius: BorderRadius.only(
             topLeft: const Radius.circular(24),
             topRight: const Radius.circular(24),
             bottomLeft: Radius.circular(msg.isUser ? 24 : 8),
             bottomRight: Radius.circular(msg.isUser ? 8 : 24),
           ),
-          border: msg.isUser ? null : Border.all(color: L.border),
-          boxShadow: L.shadowSoft,
+          border: Border.all(
+            color: msg.isUser 
+                ? Colors.transparent 
+                : L.accent.withValues(alpha: 0.4),
+            width: msg.isUser ? 0 : 1.2,
+          ),
+          boxShadow: msg.isUser 
+              ? [BoxShadow(color: L.text.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 4))]
+              : AppShadows.glow(L.accent, intensity: 0.1),
         ),
         child: Text(
           msg.text,
           style: AppTypography.bodyMedium.copyWith(
-            color: msg.isUser ? Colors.white : L.text,
-            height: 1.5,
+            color: msg.isUser ? L.bg : L.text,
+            height: 1.6,
+            fontWeight: msg.isUser ? FontWeight.w500 : FontWeight.w400,
           ),
         ),
-      ).animate().fadeIn(duration: 300.ms).slideY(begin: 0.1, end: 0),
+      ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutBack),
     );
   }
 
@@ -251,71 +261,73 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
 
   Widget _buildInputArea(AppThemeColors L) {
     return Container(
-      padding: EdgeInsets.fromLTRB(20, 12, 20, MediaQuery.of(context).padding.bottom + 12),
+      padding: EdgeInsets.fromLTRB(16, 12, 16, MediaQuery.of(context).padding.bottom + 16),
       decoration: BoxDecoration(
-        color: L.bg,
-        border: Border(top: BorderSide(color: L.border)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.02),
-            offset: const Offset(0, -4),
-            blurRadius: 10,
-          )
-        ],
+        color: L.bg.withValues(alpha: 0.8),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (_messages.length == 1) // Only show suggestions at the start
-            SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                children: _suggestions.map((s) => _buildSuggestionChip(L, s)).toList(),
-              ),
-            ),
-          Row(
+      child: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  decoration: BoxDecoration(
-                    color: L.card,
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: L.border),
+              if (_messages.length == 1) // Only show suggestions at the start
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  physics: const BouncingScrollPhysics(),
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: Row(
+                    children: _suggestions.map((s) => _buildSuggestionChip(L, s)).toList(),
                   ),
-                  child: TextField(
-                    controller: _controller,
-                    style: AppTypography.bodyMedium.copyWith(color: L.text),
-                    decoration: InputDecoration(
-                      hintText: "Ask a question...",
-                      hintStyle: AppTypography.bodyMedium.copyWith(color: L.sub),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+              Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 24),
+                      decoration: BoxDecoration(
+                        color: L.card.withValues(alpha: 0.5),
+                        borderRadius: BorderRadius.circular(32),
+                        border: Border.all(color: L.glassBorder, width: 1.2),
+                        boxShadow: AppShadows.subtle,
+                      ),
+                      child: TextField(
+                        controller: _controller,
+                        style: AppTypography.bodyMedium.copyWith(color: L.text),
+                        decoration: InputDecoration(
+                          hintText: "Ask AI a question...",
+                          hintStyle: AppTypography.bodyMedium.copyWith(color: L.text.withValues(alpha: 0.4)),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(vertical: 18),
+                        ),
+                        onSubmitted: _sendMessage,
+                      ),
                     ),
-                    onSubmitted: _sendMessage,
                   ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              BouncingButton(
-                onTap: () => _sendMessage(_controller.text),
-                child: Container(
-                  width: 50,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: L.primary,
-                    shape: BoxShape.circle,
-                    boxShadow: L.shadowSoft,
+                  const SizedBox(width: 12),
+                  BouncingButton(
+                    onTap: () => _sendMessage(_controller.text),
+                    child: Container(
+                      width: 56,
+                      height: 56,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [L.text, L.text.withValues(alpha: 0.8)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        shape: BoxShape.circle,
+                        boxShadow: AppShadows.glow(L.text, intensity: 0.3),
+                      ),
+                      child: Icon(Icons.arrow_upward_rounded, color: L.bg, size: 24),
+                    ),
                   ),
-                  child: const Icon(Icons.arrow_upward_rounded, color: Colors.white),
-                ),
+                ],
               ),
             ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -32,6 +32,7 @@ class _CaregiverCardState extends State<CaregiverCard> {
       onTap: widget.onDashboard,
       child: SquircleCard(
         padding: const EdgeInsets.all(AppSpacing.p20),
+        boxShadow: const [],
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -52,14 +53,7 @@ class _CaregiverCardState extends State<CaregiverCard> {
                       )
                     : null,
                 border: isActive ? null : Border.all(color: L.border),
-                boxShadow: isActive
-                    ? [
-                        BoxShadow(
-                            color: medColor.withValues(alpha: 0.4),
-                            blurRadius: 16,
-                            spreadRadius: 0)
-                      ]
-                    : null,
+                boxShadow: null,
               ),
               child: Padding(
                 padding: EdgeInsets.all(isActive ? 2.0 : 0.0),
