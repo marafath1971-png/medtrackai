@@ -6,6 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import '../../services/growth_tracker.dart';
 import '../../theme/app_theme.dart';
+import '../mascot_widget.dart';
 
 // ══════════════════════════════════════════════
 // RARITY STREAK PLAYER CARDS
@@ -45,20 +46,20 @@ class ShareCardData {
 
     if (streak >= 365) {
       tier = ShareCardTier.holo;
-      label = 'Holo · 365 days';
-      color = const Color(0xFFD4B8FF); // Soft violet
+      label = 'Holo · 365 Days';
+      color = const Color(0xFFBF5AF2); // Soft neon purple
     } else if (streak >= 100) {
       tier = ShareCardTier.gold;
-      label = 'Gold · 100 days';
-      color = const Color(0xFFE8B84B); // Gold/Amber
+      label = 'Gold · 100 Days';
+      color = const Color(0xFFFFCC00); // Bright gold
     } else if (streak >= 30) {
       tier = ShareCardTier.silver;
-      label = 'Silver · 30 days';
-      color = const Color(0xFFB8BCC4); // Silver
+      label = 'Silver · 30 Days';
+      color = const Color(0xFF00F2FE); // Shimmering cyan
     } else {
       tier = ShareCardTier.bronze;
-      label = 'Bronze · 7 days';
-      color = const Color(0xFFC97B4A); // Bronze/Coral
+      label = 'Bronze · 7 Days';
+      color = const Color(0xFFF97316); // Coral orange
     }
 
     return ShareCardData(
@@ -140,7 +141,7 @@ class ShareMilestoneCard extends StatefulWidget {
       // ignore: deprecated_member_use
       await Share.shareXFiles(
         [XFile(file.path)],
-        text: '🔥 My $streak-day medication streak! Adherence: ${(adherencePct * 100).round()}%.\n\nTracked with MedAI 💊',
+        text: '🔥 My $streak-day medication streak! Adherence: ${(adherencePct * 100).round()}%.\n\nTracked with Medai 💊',
       );
     } catch (e) {
       overlay.remove();
@@ -163,9 +164,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
       vsync: this,
       duration: const Duration(seconds: 3),
     );
-    if (widget.data.tier == ShareCardTier.holo) {
-      _shimmerCtrl.repeat();
-    }
+    _shimmerCtrl.repeat();
   }
 
   @override
@@ -178,117 +177,219 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
   Widget build(BuildContext context) {
     final data = widget.data;
     final int score = (data.adherencePct * 100).round();
-    
-    // Theme Colors matching mockups
     Color accentColor = data.adherenceColor;
-    BoxBorder borderTreatment;
     
+    // Choose mascot mood based on streak
+    String mascotMood = 'content';
+    if (data.streakNumber == 0) {
+      mascotMood = 'sleepy';
+    } else if (data.streakNumber > 0 && data.streakNumber < 30) {
+      mascotMood = 'content';
+    } else if (data.streakNumber >= 30 && data.streakNumber < 100) {
+      mascotMood = 'energetic';
+    } else {
+      mascotMood = 'happy';
+    }
+
+    // Set up card background gradients & borders
+    LinearGradient bgGradient;
+    Border cardBorder;
+    Color glowColor;
+
     switch (data.tier) {
       case ShareCardTier.bronze:
-        borderTreatment = Border.all(color: Colors.white.withValues(alpha: 0.06), width: 0.8);
+        bgGradient = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0F0E0D), Color(0xFF1F120E)],
+        );
+        cardBorder = Border.all(color: const Color(0xFFF97316).withValues(alpha: 0.3), width: 1.2);
+        glowColor = const Color(0xFFF97316).withValues(alpha: 0.08);
         break;
       case ShareCardTier.silver:
-        borderTreatment = Border.all(color: Colors.white.withValues(alpha: 0.06), width: 0.8);
+        bgGradient = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0F1418), Color(0xFF1D262F)],
+        );
+        cardBorder = Border.all(color: const Color(0xFF00F2FE).withValues(alpha: 0.3), width: 1.2);
+        glowColor = const Color(0xFF00F2FE).withValues(alpha: 0.08);
         break;
       case ShareCardTier.gold:
-        borderTreatment = Border.all(color: const Color(0xFFFFC107).withValues(alpha: 0.25), width: 1.0);
+        bgGradient = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0D0B08), Color(0xFF281F0E)],
+        );
+        cardBorder = Border.all(color: const Color(0xFFFFCC00).withValues(alpha: 0.4), width: 1.5);
+        glowColor = const Color(0xFFFFCC00).withValues(alpha: 0.12);
         break;
       case ShareCardTier.holo:
-        borderTreatment = Border.all(color: const Color(0xFFD4B8FF).withValues(alpha: 0.35), width: 1.2);
+        bgGradient = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF140F20), Color(0xFF2B163B)],
+        );
+        cardBorder = Border.all(color: const Color(0xFFBF5AF2).withValues(alpha: 0.5), width: 1.8);
+        glowColor = const Color(0xFFBF5AF2).withValues(alpha: 0.15);
         break;
     }
 
     final cardContent = Container(
       width: 320,
-      height: 568, // 9:16 aspect ratio roughly (fits Instagram/TikTok stories)
+      height: 568, // 9:16 aspect ratio
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
-        borderRadius: BorderRadius.circular(28),
-        border: borderTreatment,
+        gradient: bgGradient,
+        borderRadius: BorderRadius.circular(32),
+        border: cardBorder,
         boxShadow: [
-          if (data.tier == ShareCardTier.gold || data.tier == ShareCardTier.holo)
-            BoxShadow(
-              color: accentColor.withValues(alpha: 0.15),
-              blurRadius: 40,
-              spreadRadius: -5,
-              offset: const Offset(0, 10),
-            ),
+          BoxShadow(
+            color: glowColor,
+            blurRadius: 40,
+            spreadRadius: 2,
+            offset: const Offset(0, 10),
+          ),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(27),
+        borderRadius: BorderRadius.circular(30),
         child: Stack(
           children: [
-            // Ambient flat circles for Holo tier background (as placeholder + shimmering overlay)
+            // ── Background Ambient Light Blobs ──
             if (data.tier == ShareCardTier.holo) ...[
-              // Top-right soft purple circle
               Positioned(
-                top: -30,
-                right: -30,
+                top: -50,
+                right: -50,
                 child: ImageFiltered(
-                  imageFilter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  imageFilter: ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40),
                   child: Container(
-                    width: 120,
-                    height: 120,
+                    width: 200,
+                    height: 200,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0xFFA78BFA).withValues(alpha: 0.15),
+                      color: const Color(0xFFBF5AF2).withValues(alpha: 0.25),
                     ),
                   ),
                 ),
               ),
-              // Bottom-left soft pink circle
               Positioned(
-                bottom: 20,
-                left: -20,
+                bottom: -30,
+                left: -30,
                 child: ImageFiltered(
-                  imageFilter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                  imageFilter: ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40),
                   child: Container(
-                    width: 100,
-                    height: 100,
+                    width: 180,
+                    height: 180,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0xFFF0729E).withValues(alpha: 0.15),
+                      color: const Color(0xFF00F2FE).withValues(alpha: 0.25),
+                    ),
+                  ),
+                ),
+              ),
+            ] else ...[
+              Positioned(
+                top: -60,
+                right: -60,
+                child: ImageFiltered(
+                  imageFilter: ui.ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+                  child: Container(
+                    width: 200,
+                    height: 200,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: accentColor.withValues(alpha: 0.15),
                     ),
                   ),
                 ),
               ),
             ],
 
-            // Dot grid overlay for high-tech biohacking feel
+            // Dot grid overlay for futuristic feel
             Positioned.fill(child: _DotGridPainterWidget()),
 
-            // Content
+            // ── Card Content ──
             Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 28),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  // Header Row
+                  // 1. Header tag line
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        data.label.toUpperCase(),
+                        'MEDAI MILESTONE // SHIELD',
                         style: TextStyle(
                           color: accentColor,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                          letterSpacing: 1.2,
+                          fontSize: 9,
+                          fontFamily: 'Outfit',
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2.0,
                         ),
                       ),
-                      Icon(
-                        Icons.medication_rounded,
-                        color: data.tier == ShareCardTier.bronze || data.tier == ShareCardTier.silver
-                            ? const Color(0xFF5F5E5A)
-                            : accentColor,
-                        size: 18,
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.05),
+                          borderRadius: BorderRadius.circular(4),
+                          border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 0.5),
+                        ),
+                        child: const Text(
+                          '[SECURE_v2.026]',
+                          style: TextStyle(
+                            color: Colors.white30,
+                            fontSize: 7,
+                            fontWeight: FontWeight.w600,
+                            letterSpacing: 0.5,
+                          ),
+                        ),
                       ),
                     ],
                   ),
 
-                  // Streak Number Display
+                  // 2. Mascot Centerpiece (Concentric Ring Halo)
+                  Center(
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Outer Ring Glow
+                        Container(
+                          width: 140,
+                          height: 140,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: accentColor.withValues(alpha: 0.12),
+                              width: 1.0,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: 120,
+                          height: 120,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: accentColor.withValues(alpha: 0.2),
+                              width: 2.0,
+                            ),
+                            boxShadow: [
+                              BoxShadow(
+                                color: accentColor.withValues(alpha: 0.08),
+                                blurRadius: 16,
+                                spreadRadius: 2,
+                              ),
+                            ],
+                          ),
+                        ),
+                        MascotWidget(size: 96, mood: mascotMood),
+                      ],
+                    ),
+                  ),
+
+                  // 3. Huge Streak Display
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -296,47 +397,94 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                         '${data.streakNumber}',
                         style: const TextStyle(
                           color: Colors.white,
-                          fontSize: 84,
+                          fontSize: 92,
                           fontWeight: FontWeight.bold,
-                          height: 1.0,
-                          letterSpacing: -3,
+                          height: 0.95,
+                          letterSpacing: -4,
                         ),
                       ),
-                      const SizedBox(height: 2),
-                      const Text(
-                        'day streak',
-                        style: TextStyle(
-                          color: Color(0xFF6B7280),
-                          fontSize: 13,
-                          fontWeight: FontWeight.w500,
-                          letterSpacing: 0.5,
-                        ),
+                      const SizedBox(height: 4),
+                      Row(
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 12,
+                            decoration: BoxDecoration(
+                              color: accentColor,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'DAY COMPLIANCE STREAK',
+                            style: TextStyle(
+                              color: Colors.white.withValues(alpha: 0.5),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.2,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ),
 
-                  // User Adherence Row
+                  // 4. Biohacking Stats 2x2 Grid
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        data.userName.isNotEmpty ? data.userName : 'Alex',
-                        style: TextStyle(
-                          color: accentColor,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 0.5,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildGridItem(
+                              title: 'ADHERENCE',
+                              value: '$score%',
+                              color: accentColor,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _buildGridItem(
+                              title: 'TOTAL LOGS',
+                              value: '${data.totalDoses} doses',
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '$score% adherence',
-                        style: const TextStyle(
-                          color: Color(0xFF6B7280),
-                          fontSize: 12,
-                        ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildGridItem(
+                              title: 'SHIELD LEVEL',
+                              value: data.tier.name.toUpperCase(),
+                              color: accentColor,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          Expanded(
+                            child: _buildGridItem(
+                              title: 'STATUS',
+                              value: score >= 90 ? 'OPTIMAL' : 'STABLE',
+                              color: score >= 90 ? AppColors.green : AppColors.amber,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
+                  ),
+
+                  // 5. Card Footer
+                  Center(
+                    child: Text(
+                      'JOIN THE ROUTINE AT MEDAI.APP 💊',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.3),
+                        fontSize: 8,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2.2,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -346,7 +494,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
       ),
     );
 
-    // Apply shimmering linear gradient wrapper for Holo tier
+    // Apply shifting linear gradient overlay to whole card for Holo tier
     if (data.tier == ShareCardTier.holo) {
       return AnimatedBuilder(
         animation: _shimmerCtrl,
@@ -359,17 +507,17 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                 end: Alignment.bottomRight,
                 stops: [
                   0.0,
-                  (_shimmerCtrl.value - 0.2).clamp(0.0, 1.0),
+                  (_shimmerCtrl.value - 0.25).clamp(0.0, 1.0),
                   _shimmerCtrl.value,
-                  (_shimmerCtrl.value + 0.2).clamp(0.0, 1.0),
+                  (_shimmerCtrl.value + 0.25).clamp(0.0, 1.0),
                   1.0,
                 ],
                 colors: const [
-                  Color(0xFFD4B8FF), // Purple
-                  Color(0xFFFBBF24), // Gold
-                  Color(0xFFF0729E), // Pink
-                  Color(0xFF60A5FA), // Blue
-                  Color(0xFFD4B8FF), // Purple
+                  Color(0xFFBF5AF2), // Purple
+                  Color(0xFF00F2FE), // Cyan
+                  Color(0xFFFF2D55), // Coral Red
+                  Color(0xFFFFCC00), // Gold
+                  Color(0xFFBF5AF2), // Purple
                 ],
               ).createShader(bounds);
             },
@@ -380,6 +528,44 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
     }
 
     return cardContent;
+  }
+
+  Widget _buildGridItem({
+    required String title,
+    required String value,
+    required Color color,
+  }) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.white.withValues(alpha: 0.03),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05), width: 1.0),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              color: Colors.white.withValues(alpha: 0.35),
+              fontSize: 8,
+              fontWeight: FontWeight.w800,
+              letterSpacing: 1.0,
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: TextStyle(
+              color: color,
+              fontSize: 13,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
 
@@ -469,14 +655,14 @@ class ShareAdherenceCard extends StatelessWidget {
       final f = File('${dir.path}/medai_adherence.png');
       await f.writeAsBytes(bytes);
       entry.remove();
-      
+
       // Track share sheet opened
       await GrowthTracker.trackShare('open_sheet');
 
       // ignore: deprecated_member_use
       await Share.shareXFiles(
         [XFile(f.path)],
-        text: '📊 My Med AI health score: ${(adherencePct * 100).round()}%\n🔥 $streak-day streak\n\n#MedAI #Biohacking #Health',
+        text: '📊 My Medai health score: ${(adherencePct * 100).round()}%\n🔥 $streak-day streak\n\n#Medai #Biohacking #Health',
       );
     } catch (_) {
       entry.remove();
@@ -487,113 +673,204 @@ class ShareAdherenceCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final score = (adherencePct * 100).round();
     final isOptimal = adherencePct >= 0.9;
+    final accentColor = isOptimal ? AppColors.green : AppColors.amber;
+    
+    // Choose mascot mood based on streak
+    String mascotMood = 'content';
+    if (streak == 0) {
+      mascotMood = 'sleepy';
+    } else if (streak > 0 && streak < 30) {
+      mascotMood = 'content';
+    } else if (streak >= 30 && streak < 100) {
+      mascotMood = 'energetic';
+    } else {
+      mascotMood = 'happy';
+    }
 
     return Container(
       width: 320,
-      height: 400,
+      height: 420,
       decoration: BoxDecoration(
-        color: AppColors.cardDark,
-        borderRadius: BorderRadius.circular(28),
+        gradient: const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF0B0E14), Color(0xFF181F2A)],
+        ),
+        borderRadius: BorderRadius.circular(32),
         border: Border.all(
-          color: isOptimal
-              ? AppColors.green.withValues(alpha: 0.4)
-              : AppColors.amber.withValues(alpha: 0.4),
+          color: accentColor.withValues(alpha: 0.3),
           width: 1.5,
         ),
+        boxShadow: [
+          BoxShadow(
+            color: accentColor.withValues(alpha: 0.08),
+            blurRadius: 40,
+            spreadRadius: 2,
+            offset: const Offset(0, 8),
+          ),
+        ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadius.circular(27),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
+        borderRadius: BorderRadius.circular(30),
+        child: Stack(
+          children: [
+            // Soft background light blob
+            Positioned(
+              top: -40,
+              right: -40,
+              child: ImageFiltered(
+                imageFilter: ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+                child: Container(
+                  width: 150,
+                  height: 150,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: accentColor.withValues(alpha: 0.15),
+                  ),
+                ),
+              ),
+            ),
+            
+            // Dot Grid overlay
+            Positioned.fill(child: _DotGridPainterWidget()),
+
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 26),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
-                  const SizedBox(width: 8),
-                  const Text(
-                    'Med AI',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w900,
-                    ),
+                  // Top Row
+                  Row(
+                    children: [
+                      const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Medai',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                      const Spacer(),
+                      Text(
+                        'HEALTH REPORT',
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          letterSpacing: 2,
+                          fontSize: 8,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ],
                   ),
-                  const Spacer(),
-                  Text(
-                    'HEALTH REPORT',
-                    style: TextStyle(
-                      color: Colors.white.withValues(alpha: 0.4),
-                      letterSpacing: 2,
-                      fontSize: 8,
-                    ),
+
+                  // Mascot Circular Halo in Middle Left / Right
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      // Score Column
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '$score',
+                            style: TextStyle(
+                              color: accentColor,
+                              fontSize: 76,
+                              fontWeight: FontWeight.w900,
+                              letterSpacing: -3,
+                              height: 1.0,
+                            ),
+                          ),
+                          const Text(
+                            'ADHERENCE SCORE',
+                            style: TextStyle(
+                              color: Color(0xFF6B7280),
+                              letterSpacing: 2.0,
+                              fontSize: 9,
+                              fontWeight: FontWeight.w800,
+                            ),
+                          ),
+                        ],
+                      ),
+                      // Dynamic Mascot
+                      Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            width: 84,
+                            height: 84,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: accentColor.withValues(alpha: 0.15),
+                                width: 1.0,
+                              ),
+                            ),
+                          ),
+                          MascotWidget(size: 64, mood: mascotMood),
+                        ],
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              const Spacer(),
-              Text(
-                '$score',
-                style: TextStyle(
-                  color: isOptimal
-                      ? AppColors.green
-                      : AppColors.amber,
-                  fontSize: 72,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: -3,
-                  height: 1.0,
-                ),
-              ),
-              const Text(
-                'ADHERENCE SCORE',
-                style: TextStyle(
-                  color: Color(0xFF6B7280),
-                  letterSpacing: 2.5,
-                  fontSize: 10,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 20),
-              // Progress bar
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: adherencePct.clamp(0.0, 1.0),
-                  backgroundColor:
-                      Colors.white.withValues(alpha: 0.06),
-                  valueColor: AlwaysStoppedAnimation<Color>(
-                    isOptimal
-                        ? AppColors.green
-                        : AppColors.amber,
+
+                  // Adherence Progress Bar
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: LinearProgressIndicator(
+                          value: adherencePct.clamp(0.0, 1.0),
+                          backgroundColor: Colors.white.withValues(alpha: 0.05),
+                          valueColor: AlwaysStoppedAnimation<Color>(accentColor),
+                          minHeight: 6,
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            '🔥 $streak-day streak',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                          if (topMed.isNotEmpty)
+                            Text(
+                              '💊 $topMed',
+                              style: TextStyle(
+                                color: Colors.white.withValues(alpha: 0.45),
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
-                  minHeight: 6,
-                ),
-              ),
-              const SizedBox(height: 20),
-              Row(
-                children: [
-                  Text(
-                    '🔥 $streak-day streak',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 13,
-                    ),
-                  ),
-                  if (topMed.isNotEmpty) ...[
-                    const SizedBox(width: 16),
-                    Text(
-                      '💊 $topMed',
+
+                  // Footer
+                  Center(
+                    child: Text(
+                      'JOIN THE ROUTINE AT MEDAI.APP 💊',
                       style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.4),
-                        fontSize: 13,
+                        color: Colors.white.withValues(alpha: 0.25),
+                        fontSize: 8,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 2.0,
                       ),
                     ),
-                  ],
+                  ),
                 ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
