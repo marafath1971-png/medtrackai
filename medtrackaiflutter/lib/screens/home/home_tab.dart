@@ -21,6 +21,7 @@ import '../../widgets/viral/ai_quick_log_sheet.dart';
 import '../medicine/medicine_detail_screen.dart';
 import '../../widgets/common/mesh_gradient.dart';
 import 'widgets/recovery_course_tracker.dart';
+import 'widgets/home_mascot_card.dart';
 
 class HomeTab extends StatefulWidget {
   final VoidCallback onScan;
@@ -227,6 +228,14 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
                       ).animate().fadeIn(duration: 600.ms).slideY(
                           begin: 0.06, end: 0, curve: Curves.easeOutExpo),
                     ),
+                  ),
+
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+                    sliver: const SliverToBoxAdapter(
+                      child: HomeMascotCard(),
+                    ).animate().fadeIn(duration: 600.ms, delay: 150.ms).slideY(
+                        begin: 0.06, end: 0, curve: Curves.easeOutExpo),
                   ),
 
                   if (streak >= 7)
