@@ -1,0 +1,60 @@
+========================================================================
+MEDAI — APP DEFINITION AND TARGET AUDIENCE
+========================================================================
+
+1. WHAT IS MEDAI?
+-----------------
+Medai is a premium, consumer-facing AI-powered Medication Management & 
+Habit-building application (inspired by premium consumer apps like Medisafe, 
+Cal AI, and Duolingo). It turns the daily routine of tracking medications 
+and supplements into a sleek, engaging, and personalized habit loop.
+
+2. CORE FEATURES & VALUE PROPOSITIONS
+-------------------------------------
+* AI-Powered Scanner Hub:
+  - Pill Identifier: Computer vision identifies pills from camera scans.
+  - Supplement Interaction Scanner: Scans and flags risky interactions 
+    between medications and vitamins/supplements.
+  - AI Quick-Log: Uses natural language processing to log doses or query
+    schedule details.
+* Gamification & Motivation:
+  - Streaks & Milestones: Employs streak metrics (e.g. 3-day shield, 100-day 
+    crown) and smooth haptic feedback to reward regular adherence.
+  - Med Wrapped: A Spotify Wrapped/Duolingo-style visual summary of adherence 
+    data to drive social sharing and virality.
+* Caregiver & Multi-Profile Support:
+  - Secure profile switching with PIN protection so users can manage schedules 
+    for dependents (children, elderly relatives) safely.
+* Smart & Style-Rich Notifications:
+  - Personalized alerts ranging from gentle nudges to firm reminders, complete
+    with health tips or motivational messaging.
+* Premium Experience:
+  - High-end dark mode aesthetics, smooth micro-animations, custom low-stock 
+    alerts, and visualizer modules matching Apple Human Interface standards.
+
+3. TARGET AUDIENCE DEFINITION
+-----------------------------
+* DEMOGRAPHICS:
+  - Age:
+    - Core Group (30–55): Professionals managing daily stress, mental health,
+      prescriptions, or early chronic conditions (e.g. hypertension).
+    - Elderly & Caregivers (55+): Multi-medication users requiring help 
+      with complex schedules.
+  - Tech Literacy: Moderate to high. They expect beautiful, responsive, 
+    low-friction interactions (e.g. scanning a label over manual entry).
+  - Income Level: Middle-to-upper class (target audience for premium digital 
+    health subscription models).
+
+* PSYCHOGRAPHICS:
+  - The "Habit Builder": Wellness-focused users tracking vitamins, supplements, 
+    and lifestyle health. Driven by streaks and progress visuals.
+  - The "Anxious Manager": Users with conditions like Diabetes, Heart Disease, 
+    or Anxiety who need peace of mind and strict schedule compliance.
+  - The "Dedicated Caregiver": Users managing complex medication schedules 
+    for spouses, parents, or children.
+
+* PAIN POINTS SOLVED:
+  - Forgetting doses due to busy schedules.
+  - Running out of medication (low-stock warning card).
+  - Lack of compiled adherence logs for doctor consultations.
+  - Confusion over complex schedule setups.
