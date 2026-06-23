@@ -4,7 +4,9 @@ import '../../providers/app_state.dart';
 import '../../theme/app_theme.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../core/utils/date_formatter.dart';
+import '../../core/utils/color_utils.dart';
 import '../common/refined_sheet_wrapper.dart';
+import '../shared/shared_widgets.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../common/premium_empty_state.dart';
@@ -423,49 +425,107 @@ class _DoseLogRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isPrnBadge = isPrn;
-    final accentColor = taken
-        ? (isPrnBadge ? L.text : L.success)
-        : L.sub.withValues(alpha: 0.4);
+    final medColor = hexToColor(dose.med.color);
 
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: L.card.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: taken ? accentColor.withValues(alpha: 0.3) : L.border.withValues(alpha: 0.1), width: taken ? 1.5 : 1),
-          boxShadow: taken ? [
-            BoxShadow(
-              color: accentColor.withValues(alpha: 0.1),
-              blurRadius: 16,
-              offset: const Offset(0, 4),
-            )
-          ] : null,
-        ),
-        child: Row(
-          children: [
-            // Status icon
-            Container(
+    // 2026 Premium Pure Black Styling
+    final Color bgColor = taken ? Colors.black : L.card.withValues(alpha: 0.8);
+    final Color textColor = taken ? Colors.white : L.text;
+    final Color subTextColor = taken ? Colors.white60 : L.sub.withValues(alpha: 0.65);
+    final Color borderColor = taken ? Colors.white12 : L.border.withValues(alpha: 0.1);
+
+    final Widget checkboxChild = taken
+        ? KeyedSubtree(
+            key: const ValueKey('checked'),
+            child: Container(
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: accentColor.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(13),
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [medColor, Color.lerp(medColor, Colors.white, 0.2)!],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: medColor.withValues(alpha: 0.4),
+                    blurRadius: 12,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: const Center(
+                child: Icon(Icons.check_rounded, size: 22, color: Colors.white),
+              ),
+            ),
+          )
+        : KeyedSubtree(
+            key: const ValueKey('unchecked'),
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: medColor.withValues(alpha: 0.08),
+                border: Border.all(
+                  color: medColor.withValues(alpha: 0.4),
+                  width: 1.5,
+                ),
               ),
               child: Center(
-                child: Icon(
-                  taken
-                      ? Icons.check_circle_rounded
-                      : Icons.radio_button_unchecked_rounded,
-                  size: 22,
-                  color: accentColor,
+                child: MedImage(
+                  imageUrl: dose.med.imageUrl,
+                  borderRadius: 100,
+                  placeholder: Icon(
+                    Icons.medication_rounded,
+                    size: 20,
+                    color: medColor.withValues(alpha: 0.8),
+                  ),
                 ),
               ),
             ),
-            const SizedBox(width: 14),
+          );
+
+    return BouncingButton(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
+        curve: Curves.easeOutCubic,
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: bgColor,
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: borderColor, width: taken ? 1.5 : 1.0),
+          boxShadow: taken
+              ? [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.2),
+                    blurRadius: 16,
+                    offset: const Offset(0, 8),
+                  )
+                ]
+              : AppShadows.neumorphic,
+        ),
+        child: Row(
+          children: [
+            AnimatedSwitcher(
+              duration: const Duration(milliseconds: 400),
+              transitionBuilder: (child, anim) {
+                final scale = Tween<double>(begin: 0.5, end: 1.0).animate(
+                  CurvedAnimation(parent: anim, curve: Curves.elasticOut),
+                );
+                final fade = Tween<double>(begin: 0.0, end: 1.0).animate(
+                  CurvedAnimation(parent: anim, curve: Curves.easeOut),
+                );
+                return FadeTransition(
+                  opacity: fade,
+                  child: ScaleTransition(scale: scale, child: child),
+                );
+              },
+              child: checkboxChild,
+            ),
+            const SizedBox(width: 16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -476,67 +536,72 @@ class _DoseLogRow extends StatelessWidget {
                         child: Text(
                           dose.med.name,
                           style: AppTypography.titleMedium.copyWith(
-                            fontWeight: FontWeight.w900,
-                            fontSize: 15,
-                            color: L.text,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                            color: textColor,
                             letterSpacing: -0.3,
+                            decoration: taken ? TextDecoration.lineThrough : null,
+                            decorationColor: textColor.withValues(alpha: 0.4),
                           ),
                         ),
                       ),
-                      if (isPrnBadge)
+                      if (isPrnBadge) ...[
+                        const SizedBox(width: 8),
                         Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 7, vertical: 3),
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                           decoration: BoxDecoration(
-                            color: L.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(AppRadius.max),
+                            color: taken ? Colors.white12 : L.accent.withValues(alpha: 0.12),
+                            borderRadius: BorderRadius.circular(20),
                             border: Border.all(
-                                color: L.primary.withValues(alpha: 0.2)),
+                              color: taken ? Colors.white24 : L.accent.withValues(alpha: 0.3),
+                              width: 0.8,
+                            ),
                           ),
                           child: Text(
                             'PRN',
                             style: AppTypography.labelSmall.copyWith(
-                              color: L.text,
+                              color: taken ? Colors.white : L.accent,
                               fontWeight: FontWeight.w900,
-                              fontSize: 10,
-                              letterSpacing: 0.5,
+                              fontSize: 9,
+                              letterSpacing: 0.8,
                             ),
                           ),
                         ),
+                      ],
                     ],
                   ),
-                  const SizedBox(height: 3),
+                  const SizedBox(height: 4),
                   Text(
                     '${dose.med.dose} · ${isPrnBadge ? AppLocalizations.of(context)!.prnLabel : dose.sched.label}',
                     style: AppTypography.bodySmall.copyWith(
-                      fontSize: 12,
-                      color: L.sub,
+                      fontSize: 13,
+                      color: subTextColor,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
               ),
             ),
-            const SizedBox(width: 8),
-            if (isPrnBadge && onUndo != null)
+            const SizedBox(width: 12),
+            if (isPrnBadge && onUndo != null) ...[
               GestureDetector(
                 onTap: onUndo,
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: L.error.withValues(alpha: 0.08),
+                    color: taken ? Colors.white12 : L.error.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.delete_outline_rounded,
-                      size: 16, color: L.error),
+                  child: Icon(Icons.delete_outline_rounded, size: 18, color: taken ? Colors.white : L.error),
                 ),
               ),
-            if (isPrnBadge && onUndo != null) const SizedBox(width: 8),
+              const SizedBox(width: 8),
+            ],
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
               decoration: BoxDecoration(
-                color: L.fill.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(AppRadius.max),
+                color: taken ? Colors.white10 : L.fill.withValues(alpha: 0.5),
+                borderRadius: BorderRadius.circular(20),
               ),
               child: Text(
                 fmtTime(dose.sched.h, dose.sched.m, context),
@@ -544,7 +609,7 @@ class _DoseLogRow extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                   fontSize: 12,
                   letterSpacing: 0.2,
-                  color: L.text,
+                  color: textColor.withValues(alpha: 0.9),
                 ),
               ),
             ),

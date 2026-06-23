@@ -274,6 +274,7 @@ class Medicine {
   final String intakeInstructions;
   final List<ScheduleEntry> schedule;
   final String courseStartDate;
+  final int? courseDurationDays;
   final String unit;
   final bool isPrescription;
   final RefillInfo? refillInfo;
@@ -305,6 +306,7 @@ class Medicine {
     this.intakeInstructions = '',
     this.schedule = const [],
     required this.courseStartDate,
+    this.courseDurationDays,
     this.unit = 'units',
     this.isPrescription = false,
     this.refillInfo,
@@ -323,10 +325,38 @@ class Medicine {
         id: -1,
         name: 'Empty Medicine',
         courseStartDate: '',
+        courseDurationDays: null,
         schedule: [],
       );
 
-  double get coursePct => 1.0;
+  int get currentCourseDay {
+    if (courseStartDate.isEmpty) return 0;
+    try {
+      final start = DateTime.parse(courseStartDate);
+      final now = DateTime.now();
+      // Calculate difference in days, adding 1 so the start day is day 1.
+      final difference = now.difference(start).inDays;
+      return difference >= 0 ? difference + 1 : 0;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  bool get isCourseActive {
+    if (courseDurationDays == null || courseDurationDays! <= 0) return false;
+    final day = currentCourseDay;
+    return day > 0 && day <= courseDurationDays!;
+  }
+
+  double get courseProgressPct {
+    if (courseDurationDays == null || courseDurationDays! <= 0) return 0.0;
+    final day = currentCourseDay;
+    if (day == 0) return 0.0;
+    if (day >= courseDurationDays!) return 1.0;
+    return day / courseDurationDays!;
+  }
+
+  double get coursePct => courseProgressPct;
 
   String? get halalStatus {
     if (isHalalSafe) return 'safe';
@@ -367,6 +397,7 @@ class Medicine {
         'intakeInstructions': intakeInstructions,
         'schedule': schedule.map((s) => s.toJson()).toList(),
         'courseStartDate': courseStartDate,
+        'courseDurationDays': courseDurationDays,
         'unit': unit,
         'isPrescription': isPrescription,
         'refillInfo': refillInfo?.toJson(),
@@ -398,13 +429,14 @@ class Medicine {
         notes: j['notes'] ?? '',
         intakeInstructions: j['intakeInstructions'] ?? '',
         schedule: (j['schedule'] as List<dynamic>? ?? [])
-            .map((s) => ScheduleEntry.fromJson(s))
+            .map((s) => ScheduleEntry.fromJson(Map<String, dynamic>.from(s as Map)))
             .toList(),
         courseStartDate: j['courseStartDate'] ?? '',
+        courseDurationDays: j['courseDurationDays'] as int?,
         unit: j['unit'] ?? 'units',
         isPrescription: j['isPrescription'] ?? false,
         refillInfo: j['refillInfo'] != null
-            ? RefillInfo.fromJson(j['refillInfo'])
+            ? RefillInfo.fromJson(Map<String, dynamic>.from(j['refillInfo'] as Map))
             : null,
         price: (j['price'] as num?)?.toDouble(),
         currency: j['currency'],
@@ -413,11 +445,11 @@ class Medicine {
         isSachet: j['isSachet'] ?? false,
         repeatPrescriptionDueDate: j['repeatPrescriptionDueDate'],
         aiSafetyProfile: j['aiSafetyProfile'] != null
-            ? AISafetyProfile.fromJson(j['aiSafetyProfile'])
+            ? AISafetyProfile.fromJson(Map<String, dynamic>.from(j['aiSafetyProfile'] as Map))
             : null,
         isCritical: j['isCritical'] ?? false,
         productAnalysis: j['productAnalysis'] != null
-            ? ProductAnalysis.fromJson(j['productAnalysis'])
+            ? ProductAnalysis.fromJson(Map<String, dynamic>.from(j['productAnalysis'] as Map))
             : null,
       );
 
@@ -436,6 +468,7 @@ class Medicine {
     String? notes,
     String? intakeInstructions,
     List<ScheduleEntry>? schedule,
+    int? courseDurationDays,
     String? unit,
     bool? isPrescription,
     RefillInfo? refillInfo,
@@ -467,6 +500,7 @@ class Medicine {
         intakeInstructions: intakeInstructions ?? this.intakeInstructions,
         schedule: schedule ?? this.schedule,
         courseStartDate: courseStartDate,
+        courseDurationDays: courseDurationDays ?? this.courseDurationDays,
         unit: unit ?? this.unit,
         isPrescription: isPrescription ?? this.isPrescription,
         refillInfo: refillInfo ?? this.refillInfo,

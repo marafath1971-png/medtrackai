@@ -1,3 +1,4 @@
+import '../../widgets/common/premium_shimmer.dart';
 import 'package:flutter/material.dart';
 import '../../services/growth_tracker.dart';
 import '../../theme/app_theme.dart';
@@ -54,8 +55,9 @@ class _GrowthDashboardScreenState extends State<GrowthDashboardScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const ContextualLoader(message: "Loading dashboard...")
           : SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.all(20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

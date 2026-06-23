@@ -1,3 +1,6 @@
+import 'package:permission_handler/permission_handler.dart';
+import '../../widgets/common/permission_soft_prompt.dart';
+import 'package:medai/widgets/common/premium_shimmer.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'dart:math' as math;
@@ -51,6 +54,22 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
   }
 
   Future<void> _initCamera() async {
+    await PermissionSoftPrompt.show(
+      context: context,
+      title: 'Camera Access',
+      explanation: 'We need your camera to identify supplements and check for interactions.',
+      icon: Icons.camera_alt_rounded,
+      buttonText: 'Enable Camera',
+      permission: Permission.camera,
+      fallbackExplanation: 'Camera permission is required to identify supplements. Please enable it in Settings.',
+      onGranted: _setupCameraState,
+      onDenied: () {
+        if (mounted) setState(() => _cameraError = true);
+      },
+    );
+  }
+
+  Future<void> _setupCameraState() async {
     try {
       _cameras = await availableCameras();
       if (_cameras != null && _cameras!.isNotEmpty) {
@@ -167,7 +186,7 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
       return Container(
         color: L.bg,
         child: Center(
-          child: CircularProgressIndicator(color: AppColors.accent),
+          child: ContextualLoader(message: "Scanning interactions..."),
         ),
       );
     }
@@ -278,10 +297,9 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                       Text(
                         'SYNERGY SCANNER',
                         style: AppTypography.labelSmall.copyWith(
-                          fontFamily: 'Courier',
                           color: L.text,
                           fontWeight: FontWeight.w900,
-                          letterSpacing: 2.0,
+                          letterSpacing: 1.8,
                         ),
                       ),
                     ],
@@ -326,10 +344,9 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                     child: Text(
                       _isScanning ? 'ANALYZING STACK 🧬...' : 'ALIGN BOTTLES IN FRAME 🎯',
                       style: AppTypography.labelMedium.copyWith(
-                        fontFamily: 'Courier',
                         color: context.L.text,
                         fontWeight: FontWeight.w900,
-                        letterSpacing: 1.5,
+                        letterSpacing: 1.2,
                       ),
                     ),
                   ).animate().fadeIn(),
@@ -376,24 +393,36 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                 child: BackdropFilter(
                   filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
                   child: Container(
-                    color: L.bg.withValues(alpha: 0.85),
+                    color: L.bg.withValues(alpha: 0.88),
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        // Floating Header Icon
-                        Container(
-                          width: 88,
-                          height: 88,
-                          decoration: BoxDecoration(
-                            color: L.card,
-                            shape: BoxShape.circle,
-                            border: Border.all(color: AppColors.accent.withValues(alpha: 0.5), width: 2),
-                            boxShadow: AppShadows.glow(AppColors.accent, intensity: 0.6),
-                          ),
-                          child: const Center(
-                            child: Text('⚡️', style: TextStyle(fontSize: 40)),
-                          ),
+                        // Floating Header Icon with pulsing shadow glow
+                        AnimatedBuilder(
+                          animation: _pulseController,
+                          builder: (context, child) {
+                            return Container(
+                              width: 88,
+                              height: 88,
+                              decoration: BoxDecoration(
+                                color: L.card,
+                                shape: BoxShape.circle,
+                                border: Border.all(color: AppColors.accent.withValues(alpha: 0.5), width: 2),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.accent.withValues(
+                                        alpha: 0.4 + (_pulseController.value * 0.3)),
+                                    blurRadius: 20 + (_pulseController.value * 10),
+                                    spreadRadius: 1 + (_pulseController.value * 2),
+                                  )
+                                ],
+                              ),
+                              child: const Center(
+                                child: Text('⚡️', style: TextStyle(fontSize: 40)),
+                              ),
+                            );
+                          },
                         ).animate().scale(curve: Curves.elasticOut, duration: 900.ms),
                         
                         const SizedBox(height: 24),
@@ -402,10 +431,9 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                         Text(
                           'SYNERGY REPORT',
                           style: AppTypography.headlineMedium.copyWith(
-                            fontFamily: 'Courier',
                             color: L.text,
                             fontWeight: FontWeight.w900,
-                            letterSpacing: 2.5,
+                            letterSpacing: 3.0,
                           ),
                         ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
                         
@@ -416,10 +444,23 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                           width: double.infinity,
                           padding: const EdgeInsets.all(24),
                           decoration: BoxDecoration(
-                            color: L.card,
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                L.card.withValues(alpha: 0.8),
+                                L.card.withValues(alpha: 0.45),
+                              ],
+                            ),
                             borderRadius: BorderRadius.circular(28),
-                            border: Border.all(color: L.border.withValues(alpha: 0.5)),
-                            boxShadow: AppShadows.glass,
+                            border: Border.all(color: L.border.withValues(alpha: 0.15)),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.25),
+                                blurRadius: 30,
+                                offset: const Offset(0, 10),
+                              )
+                            ],
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.center,
@@ -431,10 +472,11 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                                   color: AppColors.accent,
                                   fontWeight: FontWeight.w900,
                                   letterSpacing: -0.5,
+                                  fontSize: 20,
                                 ),
                               ),
                               const SizedBox(height: 16),
-                              Container(height: 1, color: L.border.withValues(alpha: 0.2)),
+                              Container(height: 1, color: L.border.withValues(alpha: 0.15)),
                               const SizedBox(height: 16),
                               Text(
                                 _scanResult!.interactions.isNotEmpty 
@@ -442,9 +484,10 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                                   : 'No specific synergy or interactions found for this combination. 🤷‍♂️',
                                 textAlign: TextAlign.center,
                                 style: AppTypography.bodyLarge.copyWith(
-                                  color: L.sub,
-                                  fontWeight: FontWeight.w500,
+                                  color: L.text.withValues(alpha: 0.8),
+                                  fontWeight: FontWeight.w600,
                                   height: 1.6,
+                                  fontSize: 15,
                                 ),
                               ),
                             ],
@@ -466,12 +509,19 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                             width: double.infinity,
                             padding: const EdgeInsets.symmetric(vertical: 20),
                             decoration: BoxDecoration(
-                              color: L.text,
+                              gradient: LinearGradient(
+                                colors: [
+                                  L.secondary,
+                                  L.secondary.withValues(alpha: 0.85),
+                                ],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
                               borderRadius: BorderRadius.circular(100),
                               boxShadow: [
                                 BoxShadow(
-                                  color: L.text.withValues(alpha: 0.2),
-                                  blurRadius: 16,
+                                  color: L.secondary.withValues(alpha: 0.35),
+                                  blurRadius: 20,
                                   offset: const Offset(0, 8),
                                 )
                               ]
@@ -484,8 +534,7 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                                 Text(
                                   'SCAN ANOTHER',
                                   style: AppTypography.labelLarge.copyWith(
-                                    fontFamily: 'Courier',
-                                    color: L.bg,
+                                    color: Colors.white,
                                     fontWeight: FontWeight.w900,
                                     letterSpacing: 1.5,
                                   ),

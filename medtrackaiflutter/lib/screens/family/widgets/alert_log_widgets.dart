@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../models/models.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/shared/shared_widgets.dart';
+import '../../../core/utils/haptic_engine.dart';
 
 class AlertLogCard extends StatelessWidget {
   final MissedAlert alert;
@@ -14,7 +15,7 @@ class AlertLogCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) => BouncingButton(
         onTap: () {
-          HapticFeedback.lightImpact();
+          HapticEngine.light();
           onTap();
         },
         child: Container(
@@ -118,6 +119,7 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
       ),
       body: SafeArea(
           child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.all(24),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -156,7 +158,7 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
                                 : () {
                                     setState(() => _step++);
                                     if (_step == 4) {
-                                      HapticFeedback.heavyImpact();
+                                      HapticEngine.heavy();
                                     }
                                   },
                             child: Container(
@@ -331,6 +333,7 @@ class AlertDetailView extends StatelessWidget {
                 .copyWith(fontSize: 18, fontWeight: FontWeight.w900)),
       ),
       body: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

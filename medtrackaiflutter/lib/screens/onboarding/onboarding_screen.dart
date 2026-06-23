@@ -13,6 +13,7 @@ import '../../services/notification_service.dart';
 import '../../services/auth_service.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../widgets/mascot_widget.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 // ══════════════════════════════════════════════════════
 // MED AI — 2026 ONBOARDING
@@ -403,7 +404,7 @@ class _TopBar extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
       child: Row(
         children: [
-          GestureDetector(
+          AnimatedPressable(
             onTap: onBack,
             child: AnimatedOpacity(
               opacity: onBack != null ? 1.0 : 0.0,
@@ -500,7 +501,7 @@ class _BottomCTA extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: canGo ? onTap : null,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 28),
@@ -629,7 +630,7 @@ class _SplashStepState extends State<_SplashStep>
     final L = context.L;
     final isDark = context.isDark;
 
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: widget.onNext,
       behavior: HitTestBehavior.opaque,
       child: Stack(
@@ -896,7 +897,7 @@ class _TextStepState extends State<_TextStep> {
     final L = context.L;
     final hasVal = _ctrl.text.trim().isNotEmpty;
 
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
@@ -965,6 +966,7 @@ class _SingleStep extends StatelessWidget {
     final isGrid = (step.options?.length ?? 0) > 4;
 
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
@@ -1037,7 +1039,7 @@ class _OptionCardState extends State<_OptionCard> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return AnimatedPressable(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
@@ -1119,6 +1121,7 @@ class _MultiStep extends StatelessWidget {
     final L = context.L;
 
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -1175,7 +1178,7 @@ class _MultiOptionRowState extends State<_MultiOptionRow> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return AnimatedPressable(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
@@ -1254,6 +1257,7 @@ class _TimeStep extends StatelessWidget {
     final m = time['m'] ?? 0;
 
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -1268,7 +1272,7 @@ class _TimeStep extends StatelessWidget {
         Row(children: kQuickTimes.map((qt) {
           final isActive = h == qt['h'] && m == qt['m'];
           return Expanded(
-              child: GestureDetector(
+              child: AnimatedPressable(
             onTap: () {
               HapticEngine.selection();
               onChanged(step.field!, {
@@ -1375,7 +1379,7 @@ class _TimeCounter extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     return Column(children: [
-      GestureDetector(
+      AnimatedPressable(
         onTap: () {
           HapticEngine.selection();
           onChanged(value < max ? value + 1 : min);
@@ -1392,7 +1396,7 @@ class _TimeCounter extends StatelessWidget {
               color: L.text,
               fontWeight: FontWeight.w800,
               letterSpacing: -1.5)),
-      GestureDetector(
+      AnimatedPressable(
         onTap: () {
           HapticEngine.selection();
           onChanged(value > min ? value - 1 : max);
@@ -1679,6 +1683,7 @@ class _DataGraphStepState extends State<_DataGraphStep>
       children: [
         Expanded(
           child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             physics: const BouncingScrollPhysics(
                 parent: AlwaysScrollableScrollPhysics()),
             padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -1687,7 +1692,7 @@ class _DataGraphStepState extends State<_DataGraphStep>
               children: [
                 // Toggle row — before/after switch
                 Row(children: [
-                  GestureDetector(
+                  AnimatedPressable(
                     onTap: _showAfter ? _toggle : null,
                     child: AnimatedContainer(
                       duration: 250.ms,
@@ -1707,7 +1712,7 @@ class _DataGraphStepState extends State<_DataGraphStep>
                     ),
                   ),
                   const SizedBox(width: 8),
-                  GestureDetector(
+                  AnimatedPressable(
                     onTap: !_showAfter ? _toggle : null,
                     child: AnimatedContainer(
                       duration: 250.ms,
@@ -1918,7 +1923,7 @@ class _DataGraphStepState extends State<_DataGraphStep>
         // Bottom CTA — only one button here
         Padding(
           padding: const EdgeInsets.fromLTRB(24, 0, 24, 28),
-          child: GestureDetector(
+          child: AnimatedPressable(
             onTap: widget.onNext,
             child: Container(
               width: double.infinity,
@@ -2303,6 +2308,7 @@ class _PlanReadyStepState extends State<_PlanReadyStep> {
     ];
 
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics: const ClampingScrollPhysics(),
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
       child: Column(children: [
@@ -2566,6 +2572,7 @@ class _SocialProofStep extends StatelessWidget {
     ];
 
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics: const BouncingScrollPhysics(
           parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
@@ -2685,7 +2692,7 @@ const Map<String, PromoCode> kPromoCodes = {
   'WELCOME': PromoCode(discount: 100, label: 'Free 30 days', type: 'trial'),
   'HEALTH50': PromoCode(discount: 50, label: '50% off first month', type: 'percent'),
   'PILL30': PromoCode(discount: 30, label: '30% off', type: 'percent'),
-  'MEDTRACK': PromoCode(discount: 100, label: 'Free 14 days', type: 'trial'),
+  'MEDAI': PromoCode(discount: 100, label: 'Free 14 days', type: 'trial'),
   'FRIEND': PromoCode(discount: 20, label: '20% off forever', type: 'percent'),
 };
 
@@ -2850,6 +2857,7 @@ class _PaywallStep1 extends StatelessWidget {
     ];
 
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics: const ClampingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -2880,7 +2888,7 @@ class _PaywallStep1 extends StatelessWidget {
                 ),
               ],
             ),
-              GestureDetector(
+              AnimatedPressable(
                 onTap: onSkip,
                 child: Text(
                   'Skip',
@@ -2898,6 +2906,7 @@ class _PaywallStep1 extends StatelessWidget {
 
         // Features grid
         GridView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           shrinkWrap: true,
           physics: const NeverScrollableScrollPhysics(),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -2985,7 +2994,7 @@ class _PaywallStep1 extends StatelessWidget {
               ),
             ),
             const SizedBox(width: 8),
-            GestureDetector(
+            AnimatedPressable(
               onTap: onApplyPromo,
               child: Container(
                 height: 48,
@@ -3047,7 +3056,7 @@ class _PaywallStep1 extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GestureDetector(
+            AnimatedPressable(
               onTap: () => context.read<AppState>().openTermsOfService(),
               child: Text(
                 'Terms of Service',
@@ -3062,7 +3071,7 @@ class _PaywallStep1 extends StatelessWidget {
               '  ·  ',
               style: TextStyle(color: L.sub.withValues(alpha: 0.4), fontSize: 11),
             ),
-            GestureDetector(
+            AnimatedPressable(
               onTap: () => context.read<AppState>().openPrivacyPolicy(),
               child: Text(
                 'Privacy Policy',
@@ -3084,7 +3093,7 @@ class _PaywallStep1 extends StatelessWidget {
 
         // Skip — very small, low contrast
         Center(
-          child: GestureDetector(
+          child: AnimatedPressable(
             onTap: onSkip,
             behavior: HitTestBehavior.opaque,
             child: Padding(
@@ -3132,12 +3141,13 @@ class _PaywallStep2 extends StatelessWidget {
     ];
 
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics: const ClampingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
+          AnimatedPressable(
             onTap: onBack,
             behavior: HitTestBehavior.opaque,
             child: Row(
@@ -3314,12 +3324,13 @@ class _PaywallStep3 extends StatelessWidget {
     ];
 
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics: const ClampingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          GestureDetector(
+          AnimatedPressable(
             onTap: onBack,
             behavior: HitTestBehavior.opaque,
             child: Row(
@@ -3516,6 +3527,27 @@ class _PaywallStep3 extends StatelessWidget {
               style: AppTypography.bodySmall.copyWith(fontSize: 11, color: L.sub, height: 1.4),
             ),
           ),
+          const SizedBox(height: 24),
+          Center(
+            child: AnimatedPressable(
+              onTap: () async {
+                HapticEngine.light();
+                await context.read<AppState>().restorePurchases();
+                if (context.mounted && context.read<AppState>().isPremium) {
+                  onComplete();
+                }
+              },
+              child: Text(
+                'Restore Purchases',
+                style: AppTypography.labelSmall.copyWith(
+                  color: L.sub,
+                  fontWeight: FontWeight.w600,
+                  decoration: TextDecoration.underline,
+                  decorationColor: L.sub.withValues(alpha: 0.5),
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -3544,7 +3576,7 @@ class _PaywallPlanCardState extends State<_PaywallPlanCard> {
   Widget build(BuildContext context) {
     final L = context.L;
     final p = widget.planData;
-    return GestureDetector(
+    return AnimatedPressable(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
@@ -3667,7 +3699,7 @@ class _PaywallAuthBtnState extends State<_PaywallAuthBtn> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return AnimatedPressable(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
@@ -3733,7 +3765,7 @@ class _OBButtonState extends State<_OBButton> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return AnimatedPressable(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
@@ -3790,6 +3822,7 @@ class _ConsentStepState extends State<_ConsentStep> {
   Widget build(BuildContext context) {
     final L = context.L;
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics: const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
       child: Column(
@@ -3864,7 +3897,7 @@ class _ConsentStepState extends State<_ConsentStep> {
                   const TextSpan(text: 'I agree to the '),
                   WidgetSpan(
                     alignment: PlaceholderAlignment.middle,
-                    child: GestureDetector(
+                    child: AnimatedPressable(
                       onTap: () => context.read<AppState>().openTermsOfService(),
                       child: Text(
                         'Terms of Service',
@@ -3879,7 +3912,7 @@ class _ConsentStepState extends State<_ConsentStep> {
                   const TextSpan(text: ' & '),
                   WidgetSpan(
                     alignment: PlaceholderAlignment.middle,
-                    child: GestureDetector(
+                    child: AnimatedPressable(
                       onTap: () => context.read<AppState>().openPrivacyPolicy(),
                       child: Text(
                         'Privacy Policy',
@@ -3943,7 +3976,7 @@ class _ConsentRowState extends State<_ConsentRow> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return AnimatedPressable(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),

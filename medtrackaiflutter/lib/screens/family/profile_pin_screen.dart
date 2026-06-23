@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/managed_profile.dart';
 import '../../theme/app_theme.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 class ProfilePinScreen extends StatefulWidget {
   final ManagedProfile profile;
@@ -164,7 +165,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
   }
 
   Widget _buildKey(String value, AppThemeColors L) {
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: () => _onKeyPress(value),
       child: Container(
         width: 72,
@@ -189,7 +190,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
   }
 
   Widget _buildBackspaceKey(AppThemeColors L) {
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: _onBackspace,
       child: SizedBox(
         width: 72,

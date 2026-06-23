@@ -55,6 +55,7 @@ class MedicalDisclaimerModal extends StatelessWidget {
           border: Border.all(color: L.border.withValues(alpha: 0.1)),
         ),
         child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const BouncingScrollPhysics(
               parent: AlwaysScrollableScrollPhysics()),
           padding: const EdgeInsets.all(28),

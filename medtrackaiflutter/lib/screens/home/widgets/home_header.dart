@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../providers/app_state.dart';
 import '../../../../theme/app_theme.dart';
 import '../../../../core/utils/haptic_engine.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 // ══════════════════════════════════════════════
 // HOME HEADER — Cal AI 2026 Premium Style
@@ -57,7 +58,7 @@ class HomeHeader extends StatelessWidget {
         child: Row(
           children: [
             // ── Logo + Brand ──
-            GestureDetector(
+            AnimatedPressable(
               onTap: () {
                 HapticEngine.selection();
                 onTap?.call();
@@ -101,7 +102,7 @@ class HomeHeader extends StatelessWidget {
             ),
             const Spacer(),
             // ── Invite Caregiver (Viral Hook) ──
-            GestureDetector(
+            AnimatedPressable(
               onTap: () {
                 HapticEngine.selection();
                 state.showToast('Invite link copied!');
@@ -131,7 +132,7 @@ class HomeHeader extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             // ── Notification Bell ──
-            GestureDetector(
+            AnimatedPressable(
               onTap: () {
                 HapticEngine.selection();
                 onOpenSettings();
@@ -204,7 +205,7 @@ class HomeWeekStrip extends StatelessWidget {
               d.year == now.year && d.month == now.month && d.day == now.day;
           final isFuture = d.isAfter(now);
 
-          return GestureDetector(
+          return AnimatedPressable(
             onTap: () => onDateSelected(d),
             behavior: HitTestBehavior.opaque,
             child: Column(

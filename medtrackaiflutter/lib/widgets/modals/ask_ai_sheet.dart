@@ -89,6 +89,7 @@ class _AskAiSheetState extends State<AskAiSheet> {
                       ),
                     )
                   : ListView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                       shrinkWrap: true,
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.only(bottom: 24),

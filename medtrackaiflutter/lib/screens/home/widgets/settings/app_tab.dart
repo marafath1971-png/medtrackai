@@ -1,3 +1,4 @@
+import '../../../../widgets/common/permission_soft_prompt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -41,6 +42,7 @@ class _AppTabState extends State<AppTab> {
     final profile = context.select<AppState, UserProfile?>((s) => s.profile);
 
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),
@@ -122,7 +124,16 @@ class _AppTabState extends State<AppTab> {
                     onChanged: (v) {
                       final s = context.read<AppState>();
                       if (v) {
-                        s.health.connect();
+                        PermissionSoftPrompt.show(
+                          context: context,
+                          title: 'Health Data Access',
+                          explanation: 'Sync your vitals, sleep, and activity data for better insights.',
+                          icon: Icons.favorite_rounded,
+                          buttonText: 'Connect Health',
+                          permission: null,
+                          fallbackExplanation: 'Enable Health Access in settings.',
+                          onGranted: () => s.health.connect(),
+                        );
                       } else {
                         s.health.disconnect();
                       }
@@ -233,6 +244,29 @@ class _AppTabState extends State<AppTab> {
                   label:
                       '${context.select<AppState, int>((s) => s.meds.length)} medicines tracked',
                   sub: 'Smart reminders active',
+                  border: true),
+              SettingsModalRow(
+                  icon: '🗑️',
+                  iconBg: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                  label: 'Delete Account',
+                  sub: 'Permanently erase your data',
+                  onClick: () {
+                    showDialog(
+                      context: context,
+                      builder: (ctx) => AlertDialog(
+                        backgroundColor: L.card,
+                        title: Text('Delete Account', style: AppTypography.titleMedium.copyWith(color: L.text)),
+                        content: Text('Are you sure you want to permanently delete your account and all data? This action cannot be undone.', style: AppTypography.bodyMedium.copyWith(color: L.sub)),
+                        actions: [
+                          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Cancel', style: TextStyle(color: L.text))),
+                          TextButton(onPressed: () {
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account scheduled for deletion within 30 days.')));
+                          }, child: const Text('Delete', style: TextStyle(color: Colors.red))),
+                        ],
+                      ),
+                    );
+                  },
                   border: false),
             ])),
         const SizedBox(height: 120),

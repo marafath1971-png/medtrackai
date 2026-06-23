@@ -1,3 +1,6 @@
+import 'package:permission_handler/permission_handler.dart';
+import '../../widgets/common/permission_soft_prompt.dart';
+import '../../widgets/common/premium_shimmer.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -53,6 +56,22 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
   }
 
   Future<void> _initCamera() async {
+    await PermissionSoftPrompt.show(
+      context: context,
+      title: 'Camera Access',
+      explanation: 'We need your camera to identify pills and medications accurately.',
+      icon: Icons.camera_alt_rounded,
+      buttonText: 'Enable Camera',
+      permission: Permission.camera,
+      fallbackExplanation: 'Camera permission is required to identify pills. Please enable it in Settings.',
+      onGranted: _setupCameraState,
+      onDenied: () {
+        if (mounted) setState(() => _cameraError = true);
+      },
+    );
+  }
+
+  Future<void> _setupCameraState() async {
     try {
       _cameras = await availableCameras();
       if (_cameras != null && _cameras!.isNotEmpty) {
@@ -185,9 +204,9 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
       return Container(
         color: const Color(0xFF0A0A0A),
         child: const Center(
-          child: CircularProgressIndicator(
-            color: AppColors.accent,
-            strokeWidth: 2,
+          child: ContextualLoader(
+            message: 'Initializing camera...',
+            isDark: true,
           ),
         ),
       );
@@ -356,7 +375,7 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
                   ),
                   const SizedBox(height: 32),
                   // Shutter button
-                  GestureDetector(
+                  AnimatedPressable(
                     onTap: _captureAndScan,
                     child: AnimatedContainer(
                       duration: 200.ms,
@@ -516,7 +535,7 @@ class _CornerPainter extends CustomPainter {
 // ──────────────────────────────────────────────
 // Pill Result Overlay — Professional Cal AI style
 // ──────────────────────────────────────────────
-class _PillResultOverlay extends StatelessWidget {
+class _PillResultOverlay extends StatefulWidget {
   final ScanResult scanResult;
   final VoidCallback onScanAnother;
 
@@ -526,18 +545,41 @@ class _PillResultOverlay extends StatelessWidget {
   });
 
   @override
+  State<_PillResultOverlay> createState() => _PillResultOverlayState();
+}
+
+class _PillResultOverlayState extends State<_PillResultOverlay> with SingleTickerProviderStateMixin {
+  late AnimationController _scanAnimationController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scanAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
+  }
+
+  @override
+  void dispose() {
+    _scanAnimationController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final name =
-        scanResult.name.isNotEmpty ? scanResult.name : 'Unknown Pill';
+        widget.scanResult.name.isNotEmpty ? widget.scanResult.name : 'Unknown Pill';
 
     return Positioned.fill(
       child: ClipRRect(
         child: BackdropFilter(
           filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
           child: Container(
-            color: Colors.black.withValues(alpha: 0.85),
+            color: Colors.black.withValues(alpha: 0.88),
             child: SafeArea(
               child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -588,6 +630,89 @@ class _PillResultOverlay extends StatelessWidget {
 
                     const SizedBox(height: 28),
 
+                    // Pill Image with sweeping scanner animation
+                    if (widget.scanResult.imageUrl != null && widget.scanResult.imageUrl!.isNotEmpty) ...[
+                      Center(
+                        child: Container(
+                          height: 180,
+                          width: 240,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.15), width: 1),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.3),
+                                blurRadius: 15,
+                              )
+                            ],
+                          ),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(23),
+                            child: Stack(
+                              children: [
+                                Positioned.fill(
+                                  child: MedImage(
+                                    imageUrl: widget.scanResult.imageUrl!,
+                                    borderRadius: 0,
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Positioned.fill(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [
+                                          Colors.black.withValues(alpha: 0.1),
+                                          Colors.transparent,
+                                          Colors.black.withValues(alpha: 0.4),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                // Sweeping laser line
+                                Positioned.fill(
+                                  child: AnimatedBuilder(
+                                    animation: _scanAnimationController,
+                                    builder: (context, child) {
+                                      return FractionalTranslation(
+                                        translation:
+                                            Offset(0, _scanAnimationController.value - 0.5),
+                                        child: Container(
+                                          height: 3,
+                                          width: double.infinity,
+                                          decoration: BoxDecoration(
+                                            gradient: LinearGradient(
+                                              colors: [
+                                                AppColors.accent.withValues(alpha: 0.0),
+                                                AppColors.accent,
+                                                AppColors.accent.withValues(alpha: 0.0),
+                                              ],
+                                            ),
+                                            boxShadow: [
+                                              BoxShadow(
+                                                color: AppColors.accent.withValues(alpha: 0.8),
+                                                blurRadius: 10,
+                                                spreadRadius: 2,
+                                              )
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 28),
+                    ],
+
                     // ── Medicine name
                     Text(
                       name,
@@ -603,9 +728,9 @@ class _PillResultOverlay extends StatelessWidget {
                     const SizedBox(height: 8),
 
                     // ── Interactions / category
-                    if (scanResult.interactions.isNotEmpty)
+                    if (widget.scanResult.interactions.isNotEmpty)
                       Text(
-                        scanResult.interactions,
+                        widget.scanResult.interactions,
                         style: AppTypography.bodyMedium.copyWith(
                           color: Colors.white.withValues(alpha: 0.55),
                           fontSize: 14,
@@ -616,16 +741,16 @@ class _PillResultOverlay extends StatelessWidget {
                     const SizedBox(height: 28),
 
                     // ── Info grid
-                    _InfoGrid(scanResult: scanResult),
+                    _InfoGrid(scanResult: widget.scanResult),
 
                     const SizedBox(height: 32),
 
                     // ── Side effects (if any)
-                    if (scanResult.sideEffects.isNotEmpty) ...[
+                    if (widget.scanResult.sideEffects.isNotEmpty) ...[
                       _SectionLabel('Common Side Effects'),
                       const SizedBox(height: 10),
                       Text(
-                        scanResult.sideEffects,
+                        widget.scanResult.sideEffects,
                         style: AppTypography.bodySmall.copyWith(
                           color: Colors.white.withValues(alpha: 0.7),
                           height: 1.6,
@@ -669,7 +794,7 @@ class _PillResultOverlay extends StatelessWidget {
                     const SizedBox(height: 12),
 
                     BouncingButton(
-                      onTap: onScanAnother,
+                      onTap: widget.onScanAnother,
                       child: Container(
                         width: double.infinity,
                         padding: const EdgeInsets.symmetric(vertical: 16),
@@ -719,7 +844,7 @@ class _PillResultOverlay extends StatelessWidget {
     HapticEngine.selection();
     final appState = context.read<AppState>();
     final name =
-        scanResult.name.isNotEmpty ? scanResult.name : 'Identified Pill';
+        widget.scanResult.name.isNotEmpty ? widget.scanResult.name : 'Identified Pill';
     final newMed = Medicine(
       id: DateTime.now().millisecondsSinceEpoch,
       name: name,
@@ -769,22 +894,36 @@ class _InfoGrid extends StatelessWidget {
     if (items.isEmpty) return const SizedBox.shrink();
 
     return Wrap(
-      spacing: 10,
-      runSpacing: 10,
+      spacing: 12,
+      runSpacing: 12,
       children: items.map((item) {
         return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.06),
-            borderRadius: BorderRadius.circular(16),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Colors.white.withValues(alpha: 0.08),
+                Colors.white.withValues(alpha: 0.02),
+              ],
+            ),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
-                color: Colors.white.withValues(alpha: 0.1), width: 0.8),
+                color: Colors.white.withValues(alpha: 0.12), width: 1.0),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.15),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              )
+            ],
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(item.$1, size: 15, color: AppColors.accent),
-              const SizedBox(width: 8),
+              Icon(item.$1, size: 16, color: AppColors.accent),
+              const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
@@ -792,19 +931,19 @@ class _InfoGrid extends StatelessWidget {
                   Text(
                     item.$2.toUpperCase(),
                     style: AppTypography.labelSmall.copyWith(
-                      color: Colors.white.withValues(alpha: 0.4),
-                      fontSize: 9,
+                      color: Colors.white.withValues(alpha: 0.45),
+                      fontSize: 9.5,
                       letterSpacing: 1.0,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w900,
                     ),
                   ),
-                  const SizedBox(height: 2),
+                  const SizedBox(height: 3),
                   Text(
                     item.$3,
                     style: AppTypography.labelMedium.copyWith(
                       color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
                     ),
                   ),
                 ],

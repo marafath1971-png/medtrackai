@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../theme/app_theme.dart';
 import '../../../models/constants.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 class TermsOfServiceScreen extends StatefulWidget {
   const TermsOfServiceScreen({super.key});
@@ -19,6 +20,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
     return Scaffold(
       backgroundColor: L.bg,
       body: CustomScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
@@ -195,7 +197,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
                 const SizedBox(height: 24),
 
                 // Web link to hosted terms
-                GestureDetector(
+                AnimatedPressable(
                   onTap: () async {
                     final url = Uri.parse(kTermsOfServiceUrl);
                     if (await canLaunchUrl(url)) {

@@ -220,6 +220,7 @@ class _PrnPickerSheet extends StatelessWidget {
 
               Flexible(
                 child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: meds

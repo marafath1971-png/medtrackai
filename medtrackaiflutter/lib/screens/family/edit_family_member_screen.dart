@@ -217,6 +217,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
         ],
       ),
       body: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const BouncingScrollPhysics(),
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Column(
@@ -226,7 +227,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
             Center(
               child: Column(
                 children: [
-                  GestureDetector(
+                  AnimatedPressable(
                     onTap: _pickImage,
                     child: Container(
                       width: 90,
@@ -315,7 +316,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
               childAspectRatio: 2.4,
               children: _roles.map((role) {
                 final isSelected = _selectedRole == role['label'];
-                return GestureDetector(
+                return AnimatedPressable(
                   onTap: () {
                     HapticEngine.selection();
                     setState(() {
@@ -513,7 +514,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
     required VoidCallback onTap,
     required dynamic L,
   }) {
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: onTap,
       child: Container(
         height: 64,
@@ -544,7 +545,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
   }
 
   Widget _buildGenderPicker(dynamic L) {
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: () {
         HapticEngine.selection();
         setState(() => _gender = _gender == 'Male' ? 'Female' : 'Male');

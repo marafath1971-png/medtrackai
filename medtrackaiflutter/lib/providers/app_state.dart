@@ -36,6 +36,7 @@ import 'controllers/health_controller.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/review_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../models/constants.dart';
 
 // ══════════════════════════════════════════════
 // APP STATE — CENTRAL STATE BRIDGE
@@ -552,14 +553,14 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   // ── LAUNCH READINESS: SUPPORT & LEGAL ───────────────────────
 
   Future<void> openPrivacyPolicy() async {
-    final url = Uri.parse('https://medtrack.ai/privacy');
+    final url = Uri.parse(kPrivacyPolicyUrl);
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     }
   }
 
   Future<void> openTermsOfService() async {
-    final url = Uri.parse('https://medtrack.ai/terms');
+    final url = Uri.parse(kTermsOfServiceUrl);
     if (await canLaunchUrl(url)) {
       await launchUrl(url, mode: LaunchMode.externalApplication);
     }
@@ -568,7 +569,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> contactSupport() async {
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
-      path: 'support@medtrack.ai',
+      path: kSupportEmail,
       query: encodeQueryParameters(<String, String>{
         'subject': 'MedAI Support Inquiry',
         'body':

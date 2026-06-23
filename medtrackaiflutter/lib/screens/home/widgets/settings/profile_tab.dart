@@ -101,6 +101,7 @@ class _ProfileTabState extends State<ProfileTab> {
     final s = AppLocalizations.of(context)!;
 
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),

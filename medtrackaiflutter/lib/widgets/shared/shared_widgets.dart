@@ -9,7 +9,9 @@ import '../../providers/app_state.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../core/utils/color_utils.dart';
 import '../common/app_shimmer.dart';
+import '../common/animated_pressable.dart';
 export '../common/app_shimmer.dart';
+export '../common/animated_pressable.dart';
 
 // ══════════════════════════════════════════════
 // RING CHART (CustomPainter — matches JSX Ring component)
@@ -137,7 +139,9 @@ class AppToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return AnimatedPressable(
+      scaleFactor: 0.95, // Nice subtle squish for toggle press state
+      hapticEnabled: false, // We handle custom haptics in onTap
       onTap: () {
         if (!value) {
           HapticEngine.success();
@@ -147,8 +151,8 @@ class AppToggle extends StatelessWidget {
         onChanged(!value);
       },
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
-        curve: AppCurves.spring,
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeInOut,
         width: 52,
         height: 30,
         decoration: BoxDecoration(
@@ -157,12 +161,14 @@ class AppToggle extends StatelessWidget {
         ),
         child: Stack(children: [
           AnimatedAlign(
-            duration: const Duration(milliseconds: 400),
-            curve: AppCurves.spring,
+            duration: const Duration(milliseconds: 150),
+            curve: Curves.easeInOut,
             alignment: value ? Alignment.centerRight : Alignment.centerLeft,
             child: Padding(
               padding: const EdgeInsets.all(3),
-              child: Container(
+              child: AnimatedContainer(
+                duration: const Duration(milliseconds: 150),
+                curve: Curves.easeInOut,
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
@@ -197,6 +203,7 @@ class GlassCard extends StatelessWidget {
   final BorderRadius? borderRadius;
   final bool showBorder;
   final Color? tintColor;
+  final VoidCallback? onTap;
 
   const GlassCard({
     super.key,
@@ -207,6 +214,7 @@ class GlassCard extends StatelessWidget {
     this.borderRadius,
     this.showBorder = true,
     this.tintColor,
+    this.onTap,
   });
 
   @override
@@ -214,13 +222,15 @@ class GlassCard extends StatelessWidget {
     final L = context.L;
     final r = borderRadius ?? AppRadius.roundXL;
 
-    return ClipPath(
+    Widget content = ClipPath(
       clipper: ShapeBorderClipper(
         shape: ContinuousRectangleBorder(borderRadius: r),
       ),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          curve: Curves.easeOutCubic,
           width: width,
           height: height,
           padding: padding ?? const EdgeInsets.all(20),
@@ -248,6 +258,16 @@ class GlassCard extends StatelessWidget {
         ),
       ),
     );
+
+    if (onTap != null) {
+      return AnimatedPressable(
+        onTap: onTap,
+        scaleFactor: 0.98,
+        hapticEnabled: true,
+        child: content,
+      );
+    }
+    return content;
   }
 }
 
@@ -255,54 +275,35 @@ class GlassCard extends StatelessWidget {
 // BOUNCING BUTTON (iOS 26 Spring Interaction)
 // ══════════════════════════════════════════════
 
-class BouncingButton extends StatefulWidget {
+class BouncingButton extends StatelessWidget {
   final Widget child;
   final VoidCallback? onTap;
+  final VoidCallback? onLongPress;
   final double scaleFactor;
   final bool hapticEnabled;
-  final Duration duration;
+  final Duration duration; // Kept for API compatibility, though AnimatedPressable uses physics
 
   const BouncingButton({
     super.key,
     required this.child,
     this.onTap,
-    this.scaleFactor = 0.92,
+    this.onLongPress,
+    this.scaleFactor = 0.97,
     this.hapticEnabled = true,
-    this.duration = const Duration(milliseconds: 350), // hero duration
+    this.duration = const Duration(milliseconds: 350), 
   });
 
   @override
-  State<BouncingButton> createState() => _BouncingButtonState();
-}
-
-class _BouncingButtonState extends State<BouncingButton> {
-  bool _isPressed = false;
-
-  @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTapDown: (_) {
-        setState(() => _isPressed = true);
-        if (widget.hapticEnabled) HapticEngine.lightTap();
-      },
-      onTapUp: (_) => setState(() => _isPressed = false),
-      onTapCancel: () => setState(() => _isPressed = false),
-      onTap: widget.onTap,
-      child: AnimatedScale(
-        scale: _isPressed ? widget.scaleFactor : 1.0,
-        duration: widget.duration,
-        curve: AppCurves.spring,
-        child: Container(
-          constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
-          alignment: Alignment.center,
-          child: ColorFiltered(
-            colorFilter: ColorFilter.mode(
-              Colors.black.withValues(alpha: _isPressed ? 0.05 : 0),
-              BlendMode.srcATop,
-            ),
-            child: widget.child,
-          ),
-        ),
+    return AnimatedPressable(
+      onTap: onTap,
+      onLongPress: onLongPress,
+      scaleFactor: scaleFactor,
+      hapticEnabled: hapticEnabled,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
+        alignment: Alignment.center,
+        child: child,
       ),
     );
   }
@@ -321,6 +322,7 @@ class SquircleCard extends StatelessWidget {
   final double? borderRadius;
   final double? radius;
   final double? borderWidth;
+  final VoidCallback? onTap;
 
   const SquircleCard({
     super.key,
@@ -332,6 +334,7 @@ class SquircleCard extends StatelessWidget {
     this.borderRadius,
     this.radius,
     this.borderWidth,
+    this.onTap,
   });
 
   @override
@@ -341,7 +344,9 @@ class SquircleCard extends StatelessWidget {
     final r = radius ?? borderRadius ?? AppRadius.xl;
     final bw = borderWidth ?? 0.5;
 
-    return Container(
+    Widget content = AnimatedContainer(
+      duration: const Duration(milliseconds: 150),
+      curve: Curves.easeOutCubic,
       padding: padding ?? const EdgeInsets.all(20),
       decoration: BoxDecoration(
         gradient: LinearGradient(
@@ -376,6 +381,15 @@ class SquircleCard extends StatelessWidget {
       ),
       child: child,
     );
+
+    if (onTap != null) {
+      return AnimatedPressable(
+        onTap: onTap,
+        scaleFactor: 0.98,
+        child: content,
+      );
+    }
+    return content;
   }
 }
 
@@ -912,10 +926,12 @@ class DoseCard extends StatefulWidget {
 }
 
 class _DoseCardState extends State<DoseCard>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   bool _pressed = false;
   bool _showBurst = false;
   late AnimationController _burstCtrl;
+  late AnimationController _breathCtrl;
+  late Animation<double> _breathAnim;
 
   @override
   void initState() {
@@ -928,11 +944,21 @@ class _DoseCardState extends State<DoseCard>
           if (mounted) setState(() => _showBurst = false);
         }
       });
+      
+    _breathCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+    
+    _breathAnim = Tween<double>(begin: 0.08, end: 0.32).animate(
+      CurvedAnimation(parent: _breathCtrl, curve: Curves.easeInOutSine),
+    );
   }
 
   @override
   void dispose() {
     _burstCtrl.dispose();
+    _breathCtrl.dispose();
     super.dispose();
   }
 
@@ -950,231 +976,261 @@ class _DoseCardState extends State<DoseCard>
     final medColor = hexToColor(widget.med.color);
     final isDone = widget.taken;
 
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Dismissible(
-          key: ValueKey('dose_${widget.sched.id}_${widget.taken}'),
-          direction:
-              isDone ? DismissDirection.none : DismissDirection.startToEnd,
-          confirmDismiss: (dir) async {
-            if (dir == DismissDirection.startToEnd) {
-              _triggerDopamineBurst();
-            }
-            return false;
-          },
-          background: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            alignment: Alignment.centerLeft,
-            decoration: BoxDecoration(
-              // Cal AI: orange swipe background
-              color: AppColors.accent.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(
-                color: AppColors.accent.withValues(alpha: 0.4),
-                width: 0.8,
+    final Widget checkboxChild = isDone
+        ? KeyedSubtree(
+            key: const ValueKey('checked'),
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: LinearGradient(
+                  colors: [medColor, Color.lerp(medColor, const Color(0xFF10B981), 0.45)!],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                boxShadow: AppShadows.glow(medColor, intensity: 0.35),
+              ),
+              child: const Center(
+                child: Icon(Icons.check_rounded, size: 20, color: Colors.white),
               ),
             ),
-            child: Row(
-              children: [
-                Icon(Icons.check_rounded, color: AppColors.accent, size: 22),
-                const SizedBox(width: 12),
-                Text('Mark as taken',
-                    style: AppTypography.labelMedium.copyWith(
-                        color: AppColors.accent,
+          )
+        : KeyedSubtree(
+            key: const ValueKey('unchecked'),
+            child: Container(
+              width: 44,
+              height: 44,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: medColor.withValues(alpha: 0.08),
+                border: Border.all(
+                  color: medColor.withValues(alpha: 0.35),
+                  width: 1.5,
+                ),
+              ),
+              child: Center(
+                child: MedImage(
+                  imageUrl: widget.med.imageUrl,
+                  borderRadius: 100,
+                  placeholder: Icon(
+                    Icons.medication_rounded,
+                    size: 20,
+                    color: medColor.withValues(alpha: 0.8),
+                  ),
+                ),
+              ),
+            ),
+          );
+
+    return AnimatedBuilder(
+      animation: _breathAnim,
+      builder: (context, child) {
+        final double currentBreath = _breathAnim.value;
+        return Stack(
+          clipBehavior: Clip.none,
+          children: [
+            Dismissible(
+              key: ValueKey('dose_${widget.sched.id}_${widget.taken}'),
+              direction: isDone ? DismissDirection.none : DismissDirection.startToEnd,
+              confirmDismiss: (dir) async {
+                if (dir == DismissDirection.startToEnd) {
+                  _triggerDopamineBurst();
+                }
+                return false;
+              },
+              background: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 24),
+                alignment: Alignment.centerLeft,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      L.accent.withValues(alpha: 0.08),
+                      L.success.withValues(alpha: 0.2),
+                    ],
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  border: Border.all(
+                    color: L.success.withValues(alpha: 0.25),
+                    width: 1.0,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.check_rounded, color: L.success, size: 22),
+                    const SizedBox(width: 12),
+                    Text(
+                      'Mark as taken',
+                      style: AppTypography.labelMedium.copyWith(
+                        color: L.success,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 0.5,
-                        fontSize: 14)),
-              ],
-            ),
-          ),
-          child: GestureDetector(
-            onTapDown: (_) {
-              setState(() => _pressed = true);
-              HapticEngine.selection();
-            },
-            onTapUp: (_) => setState(() => _pressed = false),
-            onTapCancel: () => setState(() => _pressed = false),
-            onTap: widget.onTap,
-            child: AnimatedScale(
-              scale: _pressed ? 0.97 : 1.0,
-              duration: const Duration(milliseconds: 100),
-              curve: Curves.easeOutCubic,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              child: GestureDetector(
+                onTapDown: (_) {
+                  setState(() => _pressed = true);
+                  HapticEngine.selection();
+                },
+                onTapUp: (_) => setState(() => _pressed = false),
+                onTapCancel: () => setState(() => _pressed = false),
+                onTap: widget.onTap,
+                child: AnimatedScale(
+                  scale: _pressed ? 0.97 : 1.0,
+                  duration: const Duration(milliseconds: 100),
+                  curve: Curves.easeOutCubic,
                   child: Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
-                      color: isDone ? L.card.withValues(alpha: 0.4) : L.card.withValues(alpha: 0.65),
-                      borderRadius: BorderRadius.circular(20),
+                      gradient: LinearGradient(
+                        colors: isDone
+                            ? [L.card.withValues(alpha: 0.55), L.card.withValues(alpha: 0.45)]
+                            : [L.card, L.card.withValues(alpha: 0.9)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                         color: isDone
-                            ? L.border.withValues(alpha: 0.1)
-                            : (widget.isNext ? L.accent.withValues(alpha: 0.25) : L.border.withValues(alpha: 0.18)),
-                        width: 1.0,
+                            ? L.border.withValues(alpha: 0.05)
+                            : widget.overdue
+                                ? L.error.withValues(alpha: 0.3)
+                                : widget.isNext
+                                    ? L.accent.withValues(alpha: currentBreath)
+                                    : L.border.withValues(alpha: 0.08),
+                        width: widget.isNext && !isDone ? 1.8 : 1.0,
                       ),
                       boxShadow: isDone
                           ? null
                           : [
-                              BoxShadow(
-                                color: (widget.overdue
-                                        ? L.error
-                                        : (widget.isNext ? L.accent : medColor))
-                                    .withValues(alpha: 0.05),
-                                blurRadius: 16,
-                                spreadRadius: -2,
-                                offset: const Offset(0, 4),
-                              ),
+                              ...AppShadows.neumorphic,
+                              if (widget.isNext)
+                                BoxShadow(
+                                  color: L.accent.withValues(alpha: currentBreath * 0.45),
+                                  blurRadius: 18,
+                                  spreadRadius: 1.5,
+                                ),
+                              if (widget.overdue)
+                                BoxShadow(
+                                  color: L.error.withValues(alpha: 0.04),
+                                  blurRadius: 12,
+                                  spreadRadius: 0.5,
+                                ),
                             ],
                     ),
                     child: Row(
                       children: [
-                        Container(
-                          width: 44,
-                          height: 44,
-                          padding: const EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: isDone
-                                  ? medColor.withValues(alpha: 0.15)
-                                  : medColor.withValues(alpha: 0.35),
-                              width: 1.2,
-                            ),
-                            boxShadow: isDone ? null : [
-                              BoxShadow(
-                                color: medColor.withValues(alpha: 0.1),
-                                blurRadius: 6,
-                                spreadRadius: 0.5,
-                              ),
-                            ],
-                          ),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: isDone
-                                  ? medColor.withValues(alpha: 0.05)
-                                  : medColor.withValues(alpha: 0.08),
-                            ),
-                            child: Center(
-                              child: isDone
-                                  ? Icon(Icons.check_circle_rounded,
-                                      size: 16, color: medColor)
-                                  : MedImage(
-                                      imageUrl: widget.med.imageUrl,
-                                      borderRadius: 100,
-                                      placeholder: Icon(Icons.medication_rounded,
-                                          size: 16,
-                                          color: medColor.withValues(alpha: 0.8)),
-                                    ),
-                            ),
-                          ),
-                        )
-                            .animate(target: isDone ? 1 : 0)
-                            .scale(
-                                begin: const Offset(1.0, 1.0),
-                                end: const Offset(1.15, 1.15),
-                                duration: 200.ms,
-                                curve: Curves.elasticOut)
-                            .then()
-                            .scale(
-                                begin: const Offset(1.15, 1.15),
-                                end: const Offset(1.0, 1.0),
-                                duration: 200.ms),
-                    const SizedBox(width: 14),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            widget.med.name,
-                            style: AppTypography.labelLarge.copyWith(
-                              color: isDone
-                                  ? L.text.withValues(alpha: 0.3)
-                                  : L.text,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 15,
-                              letterSpacing: -0.3,
-                              decoration:
-                                  isDone ? TextDecoration.lineThrough : null,
-                              decorationColor: L.text.withValues(alpha: 0.2),
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                          const SizedBox(height: 3),
-                          Row(
+                        AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 500),
+                          transitionBuilder: (child, anim) {
+                            final scale = Tween<double>(begin: 0.72, end: 1.0).animate(
+                              CurvedAnimation(parent: anim, curve: Curves.elasticOut),
+                            );
+                            return ScaleTransition(scale: scale, child: child);
+                          },
+                          child: checkboxChild,
+                        ),
+                        const SizedBox(width: 14),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                fmtTime(widget.sched.h, widget.sched.m,
-                                    context),
-                                style: AppTypography.labelSmall.copyWith(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: isDone
-                                      ? L.sub.withValues(alpha: 0.25)
-                                      : widget.overdue
-                                          ? L.error.withValues(alpha: 0.8)
-                                          : L.sub.withValues(alpha: 0.55),
+                                widget.med.name,
+                                style: AppTypography.labelLarge.copyWith(
+                                  color: isDone ? L.text.withValues(alpha: 0.35) : L.text,
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 15,
+                                  letterSpacing: -0.3,
+                                  decoration: isDone ? TextDecoration.lineThrough : null,
+                                  decorationColor: L.text.withValues(alpha: 0.2),
                                 ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
-                              if (widget.med.dose.isNotEmpty) ...[
-                                Text(' · ',
+                              const SizedBox(height: 3),
+                              Row(
+                                children: [
+                                  Text(
+                                    fmtTime(widget.sched.h, widget.sched.m, context),
                                     style: AppTypography.labelSmall.copyWith(
-                                        color: L.sub.withValues(alpha: 0.25),
-                                        fontSize: 12)),
-                                Flexible(
-                                  child: Text(widget.med.dose,
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: isDone
+                                          ? L.sub.withValues(alpha: 0.25)
+                                          : widget.overdue
+                                              ? L.error.withValues(alpha: 0.85)
+                                              : L.sub.withValues(alpha: 0.6),
+                                    ),
+                                  ),
+                                  if (widget.med.dose.isNotEmpty) ...[
+                                    Text(
+                                      ' · ',
                                       style: AppTypography.labelSmall.copyWith(
+                                        color: L.sub.withValues(alpha: 0.25),
+                                        fontSize: 12,
+                                      ),
+                                    ),
+                                    Flexible(
+                                      child: Text(
+                                        widget.med.dose,
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: AppTypography.labelSmall.copyWith(
                                           fontSize: 12,
                                           fontWeight: FontWeight.w600,
-                                          color: L.sub.withValues(alpha: 0.4))),
-                                ),
-                              ],
-                              if (widget.isNext && !isDone) ...[
-                                const SizedBox(width: 8),
-                                Text('· swipe →',
-                                    style: AppTypography.labelSmall.copyWith(
+                                          color: isDone ? L.sub.withValues(alpha: 0.25) : L.sub.withValues(alpha: 0.45),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                  if (widget.isNext && !isDone) ...[
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      '· swipe →',
+                                      style: AppTypography.labelSmall.copyWith(
                                         fontSize: 10,
-                                        fontWeight: FontWeight.w700,
-                                        color: L.accent.withValues(alpha: 0.7)))
-                                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                                    .fade(begin: 0.4, end: 1.0, duration: 900.ms),
-                              ],
+                                        fontWeight: FontWeight.w800,
+                                        color: L.accent.withValues(alpha: 0.75),
+                                      ),
+                                    )
+                                        .animate(onPlay: (c) => c.repeat(reverse: true))
+                                        .fade(begin: 0.4, end: 1.0, duration: 900.ms),
+                                  ],
+                                ],
+                              ),
                             ],
                           ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(width: 12),
+                        _buildCta(L, medColor),
+                      ],
                     ),
-                    const SizedBox(width: 12),
-                    _buildCta(L, medColor),
-                  ],
+                  ),
                 ),
               ),
-        ),
-      ),
-    ),
-  ),
-),
-        if (_showBurst)
-          Positioned.fill(
-            child: IgnorePointer(
-              child: _DopamineBurstOverlay(controller: _burstCtrl, medColor: medColor),
             ),
-          ),
-      ],
+            if (_showBurst)
+              Positioned.fill(
+                child: IgnorePointer(
+                  child: DopamineBurstOverlay(controller: _burstCtrl, medColor: medColor),
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 
   Widget _buildCta(AppThemeColors L, Color medColor) {
     if (widget.taken) {
-      // Cal AI: simple green check
       return const SizedBox.shrink();
     }
     if (widget.overdue) {
@@ -1186,16 +1242,19 @@ class _DoseCardState extends State<DoseCard>
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
-            color: L.error.withValues(alpha: 0.1),
+            color: L.error.withValues(alpha: 0.12),
             borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: L.error.withValues(alpha: 0.25), width: 0.8),
+            border: Border.all(color: L.error.withValues(alpha: 0.3), width: 0.8),
           ),
-          child: Text('LATE',
-              style: AppTypography.labelSmall.copyWith(
-                  color: L.error,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 10,
-                  letterSpacing: 0.5)),
+          child: Text(
+            'LATE',
+            style: AppTypography.labelSmall.copyWith(
+              color: L.error,
+              fontWeight: FontWeight.w900,
+              fontSize: 10,
+              letterSpacing: 0.8,
+            ),
+          ),
         ),
       );
     }
@@ -1206,19 +1265,26 @@ class _DoseCardState extends State<DoseCard>
           _triggerDopamineBurst();
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
           decoration: BoxDecoration(
-            // Cal AI: orange accent for next-dose CTA
-            color: L.accent.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(12),
-            border: Border.all(color: L.accent.withValues(alpha: 0.3), width: 0.8),
+            gradient: LinearGradient(
+              colors: [L.accent, Color.lerp(L.accent, Colors.teal, 0.35)!],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+            borderRadius: BorderRadius.circular(14),
+            boxShadow: AppShadows.glow(L.accent, intensity: 0.3),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 0.8),
           ),
-          child: Text('Log',
-              style: AppTypography.labelMedium.copyWith(
-                  color: L.accent,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 13,
-                  letterSpacing: 0)),
+          child: Text(
+            'Log',
+            style: AppTypography.labelMedium.copyWith(
+              color: Colors.white,
+              fontWeight: FontWeight.w800,
+              fontSize: 13,
+              letterSpacing: 0.2,
+            ),
+          ),
         ),
       );
     }
@@ -1228,25 +1294,28 @@ class _DoseCardState extends State<DoseCard>
         widget.onTake();
       },
       child: Container(
-        width: 36,
-        height: 36,
+        width: 38,
+        height: 38,
         decoration: BoxDecoration(
-          color: L.fill,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: L.border, width: 0.8),
+          color: L.fill.withValues(alpha: 0.4),
+          shape: BoxShape.circle,
+          border: Border.all(color: L.border.withValues(alpha: 0.15), width: 1.0),
         ),
-        child: Icon(Icons.add_rounded,
-            size: 18, color: L.text.withValues(alpha: 0.5)),
+        child: Icon(
+          Icons.add_rounded,
+          size: 20,
+          color: L.text.withValues(alpha: 0.7),
+        ),
       ),
     );
   }
 }
 
 // ── Dopamine Burst Particle System ───────────────
-class _DopamineBurstOverlay extends StatelessWidget {
+class DopamineBurstOverlay extends StatelessWidget {
   final AnimationController controller;
   final Color medColor;
-  const _DopamineBurstOverlay({required this.controller, required this.medColor});
+  const DopamineBurstOverlay({super.key, required this.controller, required this.medColor});
 
   @override
   Widget build(BuildContext context) {

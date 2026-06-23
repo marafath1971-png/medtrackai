@@ -290,6 +290,7 @@ class HubView extends StatelessWidget {
 
           // ── SCROLLABLE CONTENT ──
           SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             controller: scrollController,
             physics: const BouncingScrollPhysics(
                 parent: AlwaysScrollableScrollPhysics()),
@@ -452,6 +453,7 @@ class HubView extends StatelessWidget {
                               .fadeIn(duration: 600.ms)
                         else ...[
                           ListView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -493,11 +495,12 @@ class HubView extends StatelessWidget {
                           SizedBox(
                             height: 70,
                             child: ListView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                               scrollDirection: Axis.horizontal,
                               itemCount: state.profile!.familyMembers.length,
                               itemBuilder: (context, index) {
                                 final member = state.profile!.familyMembers[index];
-                                return GestureDetector(
+                                return AnimatedPressable(
                                   onTap: () async {
                                     HapticEngine.selection();
                                     if (member.pin != null && member.pin!.isNotEmpty) {
@@ -673,6 +676,7 @@ class HubView extends StatelessWidget {
                               .fadeIn(duration: 600.ms)
                         else ...[
                           ListView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
@@ -703,6 +707,7 @@ class HubView extends StatelessWidget {
                             )),
                         const SizedBox(height: 14),
                         ListView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                           padding: EdgeInsets.zero,
                           shrinkWrap: true,
                           physics: const NeverScrollableScrollPhysics(),
@@ -803,7 +808,7 @@ class _CompactPivotPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: () {
         HapticEngine.selection();
         onTap();

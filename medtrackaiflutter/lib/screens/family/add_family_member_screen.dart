@@ -10,6 +10,7 @@ import '../../../theme/app_theme.dart';
 import '../../../core/utils/haptic_engine.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../widgets/common/app_shimmer.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 class AddFamilyMemberScreen extends StatefulWidget {
   const AddFamilyMemberScreen({super.key});
@@ -162,6 +163,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
         centerTitle: true,
       ),
       body: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,7 +172,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
             Center(
               child: Column(
                 children: [
-                  GestureDetector(
+                  AnimatedPressable(
                     onTap: _pickImage,
                     child: Container(
                       width: 90,
@@ -259,7 +261,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
               childAspectRatio: 2.4,
               children: _roles.map((role) {
                 final isSelected = _selectedRole == role['label'];
-                return GestureDetector(
+                return AnimatedPressable(
                   onTap: () {
                     HapticEngine.selection();
                     setState(() {
@@ -456,7 +458,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
     required VoidCallback onTap,
     required dynamic L,
   }) {
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: onTap,
       child: Container(
         height: 64,
@@ -487,7 +489,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
   }
 
   Widget _buildGenderPicker(dynamic L) {
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: () {
         HapticEngine.selection();
         setState(() => _gender = _gender == 'Male' ? 'Female' : 'Male');

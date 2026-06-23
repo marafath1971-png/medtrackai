@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../theme/app_theme.dart';
 import '../../../models/constants.dart';
+import '../../../widgets/common/animated_pressable.dart';
 
 class PrivacyPolicyScreen extends StatefulWidget {
   const PrivacyPolicyScreen({super.key});
@@ -19,6 +20,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
     return Scaffold(
       backgroundColor: L.bg,
       body: CustomScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(
@@ -134,7 +136,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   icon: Icons.shield_rounded,
                   title: '1. Information We Collect',
                   content:
-                      'We collect only what is necessary to operate the app:\n\n• Account data: email address, display name, profile photo (if provided)\n• Health data: medication names, dosages, schedules, adherence logs, and vitals you manually enter or import from Apple Health / Google Health Connect\n• Device data: device model, OS version, crash logs (via Firebase Crashlytics)\n• Usage data: feature interactions, scan counts, and session duration (via Firebase Analytics) — fully anonymised\n• Camera/microphone: used only in real-time during scanning or voice input; images are processed and not stored permanently without your consent\n\nWe do NOT collect: government IDs, precise location (unless you grant permission), financial data, or contact lists.',
+                      'We collect only what is necessary to operate the app:\n\n• Account data: email address, display name, profile photo (if provided)\n• Health data: medication names, dosages, schedules, adherence logs, and vitals you manually enter or import from Apple Health / Google Health Connect\n• Device data: device model, OS version, crash logs (via Firebase Crashlytics)\n• Usage data: feature interactions, scan counts, and session duration (via Firebase Analytics) — fully anonymised\n• Camera/microphone: used only in real-time during scanning or voice input; images are processed and not stored permanently without your consent\n• We do NOT collect: government IDs, precise location (unless you grant permission), financial data, or contact lists.',
                   delay: 100,
                   L: L,
                 ),
@@ -143,7 +145,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   icon: Icons.auto_awesome_rounded,
                   title: '2. AI & Scan Processing',
                   content:
-                      'When you scan a medicine or use the AI assistant, your image or query is sent to Google\'s Gemini API for processing. This data is:\n\n• Transmitted over TLS encryption\n• Processed by Google under their Privacy Policy (policies.google.com)\n• Not used to train public AI models\n• Not linked to your identity — requests are anonymous\n\nGemini API responses are informational only. MedTrackAI does not verify AI-generated medical content for clinical accuracy.',
+                      'When you scan a medicine or use the AI assistant, your image or query is sent to Google\'s Gemini API for processing. This data is:\n\n• Transmitted over TLS encryption\n• Processed by Google under their Privacy Policy (policies.google.com)\n• Not used to train public AI models\n• Not linked to your identity — requests are anonymous\n\nGemini API responses are informational only. Medai does not verify AI-generated medical content for clinical accuracy.',
                   delay: 150,
                   L: L,
                 ),
@@ -223,7 +225,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 const SizedBox(height: 24),
 
                 // Web link to hosted policy
-                GestureDetector(
+                AnimatedPressable(
                   onTap: () async {
                     final url = Uri.parse(kPrivacyPolicyUrl);
                     if (await canLaunchUrl(url)) {

@@ -12,6 +12,8 @@ class ProductAnalysis {
   final String timing; // e.g. "Take with food, morning"
   final String halalStatus; // Halal, Haram, Doubtful
   final String scientificEvidence; // e.g. "Strong evidence for sleep"
+  final String? childSafetyAlert;
+  final List<String> allergyAlerts;
   final List<ExpertPerspective> expertPerspectives;
 
   ProductAnalysis({
@@ -28,6 +30,8 @@ class ProductAnalysis {
     required this.timing,
     required this.halalStatus,
     required this.scientificEvidence,
+    this.childSafetyAlert,
+    required this.allergyAlerts,
     required this.expertPerspectives,
   });
 
@@ -45,6 +49,8 @@ class ProductAnalysis {
         'timing': timing,
         'halalStatus': halalStatus,
         'scientificEvidence': scientificEvidence,
+        'childSafetyAlert': childSafetyAlert,
+        'allergyAlerts': allergyAlerts,
         'expertPerspectives': expertPerspectives.map((e) => e.toJson()).toList(),
       };
 
@@ -63,8 +69,10 @@ class ProductAnalysis {
       timing: json['timing'] ?? '',
       halalStatus: json['halalStatus'] ?? 'Unknown',
       scientificEvidence: json['scientificEvidence'] ?? '',
+      childSafetyAlert: json['childSafetyAlert'],
+      allergyAlerts: List<String>.from(json['allergyAlerts'] ?? []),
       expertPerspectives: (json['expertPerspectives'] as List<dynamic>?)
-              ?.map((e) => ExpertPerspective.fromJson(e as Map<String, dynamic>))
+              ?.map((e) => ExpertPerspective.fromJson(Map<String, dynamic>.from(e as Map)))
               .toList() ??
           [],
     );
@@ -85,6 +93,7 @@ class ProductAnalysis {
         timing: 'Best taken 30-60 minutes before bed.',
         halalStatus: 'Halal Certified',
         scientificEvidence: 'Strong clinical backing for sleep improvement and anxiety reduction.',
+        allergyAlerts: [],
         expertPerspectives: [
           ExpertPerspective(
             role: 'Doctor',

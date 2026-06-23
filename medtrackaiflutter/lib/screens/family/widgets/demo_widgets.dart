@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_theme.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 class SimulateMissCard extends StatefulWidget {
   final AppThemeColors L;
@@ -42,7 +43,7 @@ class _SimulateMissCardState extends State<SimulateMissCard> {
                 Text('Simulate a missed dose alert',
                     style: AppTypography.labelSmall.copyWith(color: L.sub)),
               ])),
-          GestureDetector(
+          AnimatedPressable(
             onTap: _simulating
                 ? null
                 : () async {

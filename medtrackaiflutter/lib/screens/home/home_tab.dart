@@ -20,6 +20,7 @@ import '../../widgets/viral/share_milestone_card.dart';
 import '../../widgets/viral/ai_quick_log_sheet.dart';
 import '../medicine/medicine_detail_screen.dart';
 import '../../widgets/common/mesh_gradient.dart';
+import 'widgets/recovery_course_tracker.dart';
 
 class HomeTab extends StatefulWidget {
   final VoidCallback onScan;
@@ -94,6 +95,8 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
         .toList();
     final hasSevereSymptom = severeSymptoms.isNotEmpty;
 
+    final activeCourses = meds.where((m) => m.isCourseActive).toList();
+
     // Pre-calculate time groups for timeline to avoid redundant computations and ensure correct childCount
     final groups = [
       (
@@ -148,6 +151,7 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
             child: Scrollbar(
               controller: _scrollController,
               child: CustomScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 controller: _scrollController,
                 key: const PageStorageKey('home_scroll'),
                 physics: const BouncingScrollPhysics(
@@ -187,6 +191,29 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
                       ),
                     ),
                   ),
+
+                  if (activeCourses.isNotEmpty)
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate(
+                        (context, index) {
+                          final med = activeCourses[index];
+                          return RecoveryCourseTracker(
+                            medicine: med,
+                            onTap: () {
+                              HapticEngine.selection();
+                              setState(() {
+                                _viewingMed = med;
+                                _startInEditMode = false;
+                              });
+                            },
+                          )
+                          .animate()
+                          .fadeIn(duration: 500.ms, delay: (100 * index).ms)
+                          .slideY(begin: 0.1, end: 0, curve: Curves.easeOutBack);
+                        },
+                        childCount: activeCourses.length,
+                      ),
+                    ),
 
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(20, 8, 20, 24),
@@ -502,7 +529,7 @@ class _AiQuickLogFABState extends State<_AiQuickLogFAB>
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return AnimatedPressable(
       onTapDown: (_) {
         HapticEngine.selection();
         setState(() => _pressed = true);
@@ -517,26 +544,49 @@ class _AiQuickLogFABState extends State<_AiQuickLogFAB>
           duration: 150.ms,
           curve: Curves.easeOutCubic,
           child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             decoration: BoxDecoration(
-              color: L.primary,
-              borderRadius: BorderRadius.circular(24),
-              boxShadow: L.shadowSoft,
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(32),
+              boxShadow: [
+                BoxShadow(
+                  color: L.accent.withValues(alpha: 0.2 + _glowAnim.value * 0.2),
+                  blurRadius: 24,
+                  spreadRadius: 2,
+                  offset: const Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.5),
+                width: 1.0,
+              ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.add_rounded,
-                    color: Colors.white, size: 20),
+                Container(
+                  padding: const EdgeInsets.all(4),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.05),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(Icons.add_rounded, color: Colors.black, size: 16),
+                ),
                 const SizedBox(width: 6),
+                const Icon(Icons.auto_awesome_rounded, color: Colors.black87, size: 14),
+                const SizedBox(width: 8),
                 Text(
                   'Log Dose',
                   style: AppTypography.labelLarge.copyWith(
-                    color: Colors.white,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0,
+                    color: Colors.black,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: 0.2,
                   ),
                 ),
               ],
@@ -564,7 +614,7 @@ class _ShareMilestoneCardCTA extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     final gradColors = _getStreakGradient(streak, L);
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: () {
         HapticEngine.selection();
         ShareMilestoneCard.share(
@@ -578,24 +628,20 @@ class _ShareMilestoneCardCTA extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              gradColors[0].withValues(alpha: 0.12),
-              gradColors[1].withValues(alpha: 0.04),
-            ],
-          ),
+          color: L.card,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: gradColors[0].withValues(alpha: 0.3), width: 0.8),
+          border: Border.all(color: L.border.withValues(alpha: 0.08), width: 1.0),
+          boxShadow: AppShadows.neumorphic,
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(10),
               decoration: BoxDecoration(
-                gradient: LinearGradient(colors: gradColors),
+                color: L.accent.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.share_rounded, size: 18, color: Colors.white),
+              child: Icon(Icons.share_rounded, size: 18, color: L.accent),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -705,10 +751,10 @@ class _NextDoseCarouselState extends State<_NextDoseCarousel> {
                   onTap: () => widget.onView(d.med),
                   child: SquircleCard(
                     padding: const EdgeInsets.all(16),
-                    // margin: const EdgeInsets.symmetric(horizontal: 4),
                     color: L.card,
                     showBorder: true,
                     borderWidth: 1.0,
+                    boxShadow: AppShadows.neumorphic,
                     child: Row(
                       children: [
                         Container(
@@ -1025,13 +1071,14 @@ class _CalAiRingHero extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final isDark = context.isDark;
     final isAllDone = total > 0 && dosePct >= 1.0;
     final isEmpty = total == 0;
 
-    // Clean two-tone gradient: accent → slightly darker
+    // Clean two-tone premium gradient for the ring: flowing from sage to deep teal, or glowing emerald to mint
     final ringColors = isAllDone
-        ? [L.green, Color.lerp(L.green, Colors.teal, 0.4)!]
-        : [L.accent, Color.lerp(L.accent, L.secondary, 0.5)!];
+        ? [L.green, const Color(0xFF00E676)]
+        : [L.accent, Color.lerp(L.accent, Colors.teal, 0.355)!];
 
     final statusText = isEmpty
         ? 'Add a medicine to get started'
@@ -1039,162 +1086,178 @@ class _CalAiRingHero extends StatelessWidget {
             ? '🎉 All doses complete'
             : '$remaining dose${remaining == 1 ? '' : 's'} remaining';
 
+
+
+    // Adaptive streak badge styling (glow in dark mode, crisp in light mode)
+    final streakBg = isDark
+        ? const Color(0xFFFF9F0A).withValues(alpha: 0.08)
+        : const Color(0xFFFFF3E0);
+    final streakBorder = isDark
+        ? const Color(0xFFFF9F0A).withValues(alpha: 0.25)
+        : const Color(0xFFFFCC80).withValues(alpha: 0.6);
+    final streakTextColor = isDark
+        ? const Color(0xFFFF9F0A)
+        : const Color(0xFFE65100);
+
+    final trackColor = isDark
+        ? L.accent.withValues(alpha: 0.08)
+        : L.accent.withValues(alpha: 0.05);
+
     return Container(
       padding: const EdgeInsets.fromLTRB(24, 28, 24, 28),
       decoration: BoxDecoration(
+        color: L.card,
         borderRadius: BorderRadius.circular(32),
-        gradient: LinearGradient(
-          colors: [
-            L.purple.withValues(alpha: 0.1),
-            L.card.withValues(alpha: 0.85),
-          ],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
         border: Border.all(
-          color: L.purple.withValues(alpha: 0.18),
-          width: 1.5,
+          color: L.border.withValues(alpha: 0.08),
+          width: 1.2,
         ),
-        boxShadow: AppShadows.subtle,
+        boxShadow: AppShadows.neumorphic,
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          // ── Header row ──
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Left: title + subtitle
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              // ── Header row ──
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text(
-                    isAllDone ? 'All Done!' : 'Today',
-                    style: AppTypography.headlineSmall.copyWith(
-                      color: L.text,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 20,
-                    ),
+                  // Left: title + subtitle
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isAllDone ? 'All Done!' : 'Today',
+                        style: AppTypography.headlineSmall.copyWith(
+                          color: L.text,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 20,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        isAllDone
+                            ? 'Perfect day ✨'
+                            : '$takenCount of $total doses taken',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: L.sub.withValues(alpha: 0.65),
+                          fontWeight: FontWeight.w500,
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 2),
-                  Text(
-                    isAllDone
-                        ? 'Perfect day ✨'
-                        : '$takenCount of $total doses taken',
-                    style: AppTypography.bodySmall.copyWith(
-                      color: L.sub.withValues(alpha: 0.65),
-                      fontWeight: FontWeight.w500,
-                      fontSize: 13,
+                  // Right: 🔥 Streak badge
+                  Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: streakBg,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(
+                        color: streakBorder,
+                        width: 0.8,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Text('🔥', style: TextStyle(fontSize: 16))
+                            .animate(onPlay: (c) => c.repeat(reverse: true))
+                            .scaleXY(begin: 0.92, end: 1.08, duration: 900.ms, curve: Curves.easeInOutSine),
+                        const SizedBox(width: 5),
+                        Text(
+                          '$streak',
+                          style: AppTypography.titleMedium.copyWith(
+                            color: streakTextColor,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 16,
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        Text(
+                          'day${streak == 1 ? '' : 's'}',
+                          style: AppTypography.bodySmall.copyWith(
+                            color: streakTextColor.withValues(alpha: 0.7),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 11,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              // Right: 🔥 Streak badge
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFFFF3E0),
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: const Color(0xFFFFCC80).withValues(alpha: 0.6),
-                    width: 0.8,
-                  ),
-                ),
-                child: Row(
+
+              const SizedBox(height: 32),
+
+              // ── Ring ──
+              _AnimatedRing(
+                percent: dosePct,
+                colors: ringColors,
+                trackColor: trackColor,
+                size: 220,
+                strokeWidth: 18,
+                child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Text('🔥', style: TextStyle(fontSize: 16))
-                        .animate(onPlay: (c) => c.repeat(reverse: true))
-                        .scaleXY(begin: 0.92, end: 1.08, duration: 900.ms, curve: Curves.easeInOutSine),
-                    const SizedBox(width: 5),
-                    Text(
-                      '$streak',
-                      style: AppTypography.titleMedium.copyWith(
-                        color: const Color(0xFFE65100),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
-                      ),
+                    TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0, end: dosePct * 100),
+                      duration: const Duration(milliseconds: 1600),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, _) {
+                        return Text(
+                          '${value.round()}%',
+                          style: AppTypography.displayXL.copyWith(
+                            color: L.text,
+                            height: 1.0,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 52,
+                          ),
+                        );
+                      },
                     ),
-                    const SizedBox(width: 3),
+                    const SizedBox(height: 4),
                     Text(
-                      'day${streak == 1 ? '' : 's'}',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: const Color(0xFFE65100).withValues(alpha: 0.7),
-                        fontWeight: FontWeight.w500,
-                        fontSize: 11,
+                      isEmpty ? 'No meds' : '$takenCount / $total',
+                      style: AppTypography.labelMedium.copyWith(
+                        color: L.sub.withValues(alpha: 0.55),
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                        fontSize: 13,
                       ),
                     ),
                   ],
                 ),
               ),
-            ],
-          ),
 
-          const SizedBox(height: 32),
+              const SizedBox(height: 28),
 
-          // ── Ring ──
-          _AnimatedRing(
-            percent: dosePct,
-            colors: ringColors,
-            trackColor: L.fill.withValues(alpha: 0.7),
-            size: 220,
-            strokeWidth: 20,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0, end: dosePct * 100),
-                  duration: const Duration(milliseconds: 1600),
-                  curve: Curves.easeOutCubic,
-                  builder: (context, value, _) {
-                    return Text(
-                      '${value.round()}%',
-                      style: AppTypography.displayXL.copyWith(
-                        color: L.text,
-                        height: 1.0,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 52,
-                      ),
-                    );
-                  },
+              // ── Status pill ──
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: isAllDone
+                      ? L.green.withValues(alpha: 0.10)
+                      : L.fill.withValues(alpha: 0.4),
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: isAllDone
+                        ? L.green.withValues(alpha: 0.18)
+                        : L.border.withValues(alpha: 0.5),
+                    width: 0.8,
+                  ),
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  isEmpty ? 'No meds' : '$takenCount / $total',
-                  style: AppTypography.labelMedium.copyWith(
-                    color: L.sub.withValues(alpha: 0.55),
+                child: Text(
+                  statusText,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: isAllDone ? L.green : L.sub.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w600,
-                    letterSpacing: 0.5,
                     fontSize: 13,
                   ),
                 ),
-              ],
-            ),
-          ),
-
-          const SizedBox(height: 28),
-
-          // ── Status pill ──
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: isAllDone
-                  ? L.green.withValues(alpha: 0.10)
-                  : L.fill.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              statusText,
-              style: AppTypography.bodySmall.copyWith(
-                color: isAllDone ? L.green : L.sub.withValues(alpha: 0.7),
-                fontWeight: FontWeight.w600,
-                fontSize: 13,
               ),
-            ),
+            ],
           ),
-        ],
-      ),
     );
   }
 }
@@ -1262,7 +1325,7 @@ class _DayToggle extends StatelessWidget {
               Row(
                 children: [
                   Expanded(
-                    child: GestureDetector(
+                    child: AnimatedPressable(
                       onTap: () {
                         HapticEngine.selection();
                         onChanged(today);
@@ -1284,7 +1347,7 @@ class _DayToggle extends StatelessWidget {
                     ),
                   ),
                   Expanded(
-                    child: GestureDetector(
+                    child: AnimatedPressable(
                       onTap: () {
                         HapticEngine.selection();
                         onChanged(yesterday);
@@ -1379,7 +1442,7 @@ class _EmergencyWarningCard extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          GestureDetector(
+          AnimatedPressable(
             onTap: () async {
               HapticEngine.heavyImpact();
               final url = Uri.parse('tel:911');

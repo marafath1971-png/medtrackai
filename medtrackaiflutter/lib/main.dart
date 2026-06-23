@@ -18,6 +18,7 @@ import 'firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'providers/app_state.dart';
 import 'theme/app_theme.dart';
+import 'theme/spring_scroll_behavior.dart';
 import 'screens/onboarding/onboarding_screen.dart';
 import 'screens/app_shell.dart';
 import 'screens/auth/auth_screen.dart';
@@ -48,8 +49,8 @@ void main() async {
     // Initialize App Check for production security
     await FirebaseAppCheck.instance.activate(
       providerAndroid:
-          kDebugMode ? AndroidDebugProvider() : AndroidPlayIntegrityProvider(),
-      providerApple: kDebugMode ? AppleDebugProvider() : AppleAppAttestProvider(),
+          kDebugMode ? AndroidDebugProvider(debugToken: '631C02B3-4721-4D27-9DC7-8CE8D4B664E0') : AndroidPlayIntegrityProvider(),
+      providerApple: kDebugMode ? AppleDebugProvider(debugToken: '631C02B3-4721-4D27-9DC7-8CE8D4B664E0') : AppleAppAttestProvider(),
     );
   } catch (e) {
     debugPrint('Firebase/AppCheck initialization failure: $e');
@@ -152,17 +153,20 @@ class MedAIApp extends StatelessWidget {
       ],
       builder: (context, child) {
         final L = context.L;
-        return Container(
-          color: L.meshBg,
-          child: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 430),
-              child: child ?? const SizedBox.expand(),
+        return GestureDetector(
+          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+          child: Container(
+            color: L.meshBg,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 430),
+                child: child ?? const SizedBox.expand(),
+              ),
             ),
           ),
         );
       },
-      scrollBehavior: const _AppScrollBehavior(),
+      scrollBehavior: const SpringScrollBehavior(),
       routes: {
         '/onboarding': (_) => const OnboardingScreen(),
       },
@@ -171,27 +175,7 @@ class MedAIApp extends StatelessWidget {
   }
 }
 
-class _AppScrollBehavior extends ScrollBehavior {
-  const _AppScrollBehavior();
-
-  @override
-  Set<PointerDeviceKind> get dragDevices => {
-        PointerDeviceKind.touch,
-        PointerDeviceKind.mouse,
-        PointerDeviceKind.trackpad,
-      };
-
-  @override
-  ScrollPhysics getScrollPhysics(BuildContext context) {
-    return const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics());
-  }
-
-  @override
-  Widget buildOverscrollIndicator(
-      BuildContext context, Widget child, ScrollableDetails details) {
-    return child;
-  }
-}
+// (Replaced by SpringScrollBehavior in lib/theme)
 
 class _RootRouter extends StatefulWidget {
   @override

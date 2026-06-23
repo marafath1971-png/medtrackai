@@ -10,6 +10,7 @@ import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import '../../services/purchases_service.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 // ══════════════════════════════════════════════════════════════
 // PREMIUM PAYWALL OVERLAY
 // Apple Guideline 3.1.1 & Google Play Billing Policy Compliant
@@ -170,6 +171,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
             ),
           ),
           child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             physics: const ClampingScrollPhysics(),
             child: Padding(
               padding: EdgeInsets.fromLTRB(24, 16, 24, bottomPad + 24),
@@ -381,7 +383,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
         }
 
         return Expanded(
-          child: GestureDetector(
+          child: AnimatedPressable(
             onTap: () {
               HapticEngine.selection();
               setState(() => _selectedPlan = i);
@@ -478,7 +480,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
         ? 'Start ${_packages[_selectedPlan].storeProduct.title.split(' ').first} · ${_packages[_selectedPlan].storeProduct.priceString}'
         : 'Unavailable';
 
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: hasPackages ? _handlePurchase : null,
       child: AnimatedContainer(
         duration: 200.ms,
@@ -538,7 +540,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
     return Column(
       children: [
         // Restore purchases
-        GestureDetector(
+        AnimatedPressable(
           onTap: _handleRestore,
           child: Text(
             'Restore Purchases',
@@ -661,7 +663,7 @@ class _LegalLink extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: () {
         // Launch URL — add url_launcher if needed
         HapticEngine.light();

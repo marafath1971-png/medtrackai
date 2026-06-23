@@ -1,3 +1,4 @@
+import 'package:medai/widgets/common/premium_shimmer.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -208,7 +209,7 @@ class _ReentryScreenState extends State<ReentryScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             _isApplyingFreeze 
-                                ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
+                                ? const ContextualLoader(message: "", isDark: true)
                                 : const Icon(Icons.ac_unit_rounded, size: 20, color: Colors.white),
                             const SizedBox(width: 8),
                             Text(

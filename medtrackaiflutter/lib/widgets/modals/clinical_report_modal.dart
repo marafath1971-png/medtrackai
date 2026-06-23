@@ -1,3 +1,4 @@
+import 'package:medai/widgets/common/premium_shimmer.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/app_state.dart';
@@ -171,7 +172,7 @@ class _ClinicalReportModalState extends State<ClinicalReportModal> {
                   ? const SizedBox(
                       height: 24,
                       width: 24,
-                      child: CircularProgressIndicator(color: Colors.black, strokeWidth: 3),
+                      child: ContextualLoader(message: "Generating report...", isDark: false),
                     )
                   : Row(
                       mainAxisAlignment: MainAxisAlignment.center,

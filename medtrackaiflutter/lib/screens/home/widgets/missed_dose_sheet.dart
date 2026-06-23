@@ -5,6 +5,7 @@ import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../services/notification_service.dart';
 import '../../../core/utils/haptic_engine.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 /// Shows smart guidance when a dose is overdue.
 /// Options: Take Now, Skip, Smart Advice.
@@ -265,7 +266,7 @@ class _ActionBtn extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: () {
         HapticEngine.selection();
         onTap();

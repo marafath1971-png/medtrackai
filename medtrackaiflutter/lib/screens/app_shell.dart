@@ -1,3 +1,5 @@
+import 'package:permission_handler/permission_handler.dart';
+import '../widgets/common/permission_soft_prompt.dart';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +21,7 @@ import '../widgets/modals/dose_celebration_modal.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/common/medical_disclaimer_modal.dart';
 import '../widgets/viral/reentry_screen.dart';
+import '../widgets/modals/ai_consent_sheet.dart';
 
 // ══════════════════════════════════════════════
 // APP SHELL — Bottom nav + FAB + overlays
@@ -40,7 +43,8 @@ class _AppShellState extends State<AppShell>
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      if (mounted) await AIConsentSheet.checkAndShow(context);
       if (mounted) MedicalDisclaimerModal.showIfNeeded(context);
       _checkReentry();
     });
@@ -99,9 +103,21 @@ class _AppShellState extends State<AppShell>
     }
   }
 
-  void _openScan() {
+  void _openScan() async {
     HapticEngine.medium();
-    setState(() => _showScan = true);
+    await PermissionSoftPrompt.show(
+      context: context,
+      title: 'Camera Access',
+      explanation: 'We need your camera to scan medicine bottles and pills. This data is processed securely.',
+      icon: Icons.camera_alt_rounded,
+      buttonText: 'Enable Camera',
+      permission: Permission.camera,
+      fallbackExplanation: 'Camera permission is required to scan. Please enable it in Settings.',
+      onGranted: () {
+        setState(() => _showScan = true);
+      },
+      onDenied: () {},
+    );
   }
 
   @override
@@ -353,7 +369,7 @@ class _AppShellState extends State<AppShell>
     final selected = _tab == index;
 
     return Expanded(
-      child: GestureDetector(
+      child: AnimatedPressable(
         onTap: () {
           if (_tab != index) {
             HapticEngine.selection();
@@ -472,7 +488,7 @@ class _MedScanFABState extends State<_MedScanFAB>
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: widget.onTap,
       onTapDown: (_) => widget.onPressDown(),
       onTapUp: (_) => widget.onPressUp(),
@@ -626,7 +642,7 @@ class LowStockBanner extends StatelessWidget {
               ],
             ),
           ),
-          GestureDetector(
+          AnimatedPressable(
             onTap: onDismiss,
             behavior: HitTestBehavior.opaque,
             child: Container(

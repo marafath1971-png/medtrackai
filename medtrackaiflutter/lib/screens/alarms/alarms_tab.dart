@@ -113,6 +113,7 @@ class _AlarmsTabState extends State<AlarmsTab> {
             color: L.text,
             backgroundColor: L.bg,
             child: CustomScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               controller: _scrollController,
               physics: const BouncingScrollPhysics(
                   parent: AlwaysScrollableScrollPhysics()),
@@ -526,16 +527,17 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
     final s = widget.sch.sched as ScheduleEntry;
     final L = widget.L;
 
-    return SquircleCard(
-      color: L.card.withValues(alpha: 0.5),
-      radius: 28,
-      showBorder: true,
-      borderWidth: 0.5,
-      child: Padding(
-        padding: const EdgeInsets.all(28),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+    return Container(
+      padding: const EdgeInsets.all(28),
+      decoration: BoxDecoration(
+        color: L.card,
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: L.border.withValues(alpha: 0.08), width: 1.2),
+        boxShadow: AppShadows.neumorphic,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -621,13 +623,17 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          med.name,
-                          style: AppTypography.headlineMedium.copyWith(color: L.text,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 32,
-                            letterSpacing: -1.0,
-                            height: 1.0,
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Text(
+                            med.name,
+                            style: AppTypography.headlineMedium.copyWith(color: L.text,
+                              fontWeight: FontWeight.w900,
+                              fontSize: 32,
+                              letterSpacing: -1.0,
+                              height: 1.0,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -686,10 +692,9 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                 L: L,
               ),
           ],
-        ),
       ),
     );
-  }
+    }
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -737,18 +742,27 @@ class _AlarmCard extends StatelessWidget {
         alignment: Alignment.centerRight,
         padding: const EdgeInsets.only(right: 24),
         decoration: BoxDecoration(
-          color: L.error.withValues(alpha: 0.05),
+          color: L.error.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(24),
         ),
-        child: const Center(child: Text('🗑️', style: TextStyle(fontSize: 18))),
+        child: const Text('🗑️', style: TextStyle(fontSize: 18)),
       ),
-      child: GestureDetector(
+      child: BouncingButton(
         onTap: onEdit,
-        child: SquircleCard(
-          color: L.card.withValues(alpha: 0.5),
+        scaleFactor: 0.97,
+        child: Container(
           padding: const EdgeInsets.all(16),
-          radius: 24,
-          borderWidth: 0.5,
+          decoration: BoxDecoration(
+            color: isEnabled ? L.card : L.card.withValues(alpha: 0.55),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: isEnabled
+                  ? (isNext ? L.accent.withValues(alpha: 0.3) : L.border.withValues(alpha: 0.08))
+                  : L.border.withValues(alpha: 0.05),
+              width: isNext ? 1.5 : 1.0,
+            ),
+            boxShadow: isEnabled ? AppShadows.neumorphic : null,
+          ),
           child: Row(
             children: [
               Container(
@@ -1177,6 +1191,7 @@ class _MedPickerSheet extends StatelessWidget {
         constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.55),
         child: ListView.separated(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           shrinkWrap: true,
           padding: const EdgeInsets.fromLTRB(0, 8, 0, 40),
           itemCount: meds.length,

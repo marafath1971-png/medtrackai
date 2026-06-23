@@ -44,6 +44,7 @@ class ProfileSelectorRibbon extends StatelessWidget {
               const SizedBox(width: 4),
               Expanded(
                 child: ListView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   itemCount: familyMembers.length + 2, // Primary + Members + Add
@@ -230,7 +231,7 @@ class _ProfileAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: () {
         HapticEngine.selection();
         onTap();
@@ -346,7 +347,7 @@ class _AddProfileButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: onTap,
       child: Container(
         margin: const EdgeInsets.symmetric(horizontal: 4),

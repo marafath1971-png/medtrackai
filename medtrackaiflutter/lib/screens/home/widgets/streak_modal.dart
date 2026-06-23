@@ -7,6 +7,7 @@ import '../../../core/utils/haptic_engine.dart';
 import '../../../providers/app_state.dart';
 
 import 'package:confetti/confetti.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 // ══════════════════════════════════════════════
 // CONSISTENCY HUB (Duolingo-style Viral Celebratory)
@@ -131,7 +132,7 @@ class _StreakModalState extends State<StreakModal> {
 
     return Stack(
       children: [
-        GestureDetector(
+        AnimatedPressable(
           onTap: widget.onClose,
           child: Container(
             color: Colors.black.withValues(alpha: 0.7),
@@ -175,6 +176,7 @@ class _StreakModalState extends State<StreakModal> {
                           radius: const Radius.circular(10),
                           thickness: 4,
                           child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                             physics: const ClampingScrollPhysics(),
                             padding: const EdgeInsets.fromLTRB(24, 8, 24, 120),
                             child: Column(
@@ -389,7 +391,7 @@ class _StreakModalState extends State<StreakModal> {
       child: Row(
         children: [
           Expanded(
-            child: GestureDetector(
+            child: AnimatedPressable(
               onTap: () {
                 HapticEngine.selection();
                 ShareService.shareStreak(streak);
@@ -517,6 +519,7 @@ class _Heatmap extends StatelessWidget {
   Widget build(BuildContext context) {
     final today = DateTime.now();
     return GridView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -573,6 +576,7 @@ class _AscensionTrack extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     return ListView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
       itemCount: milestones.length,

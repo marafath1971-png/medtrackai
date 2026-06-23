@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -10,6 +11,7 @@ import 'package:medai/providers/app_state.dart';
 import 'package:medai/screens/paywall/premium_paywall_overlay.dart';
 import '../../services/growth_tracker.dart';
 import '../../screens/medicine/medicine_detail_screen.dart';
+import 'package:medai/widgets/shared/shared_widgets.dart';
 
 // ══════════════════════════════════════════════
 // AI QUICK LOG SHEET
@@ -52,6 +54,8 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
   bool _speechEnabled = false;
 
   late AnimationController _pulseCtrl;
+  late AnimationController _burstCtrl;
+  bool _showSuccessBurst = false;
 
   @override
   void initState() {
@@ -60,6 +64,10 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
       vsync: this,
       duration: const Duration(milliseconds: 1200),
     )..repeat(reverse: true);
+    _burstCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 800),
+    );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initSpeech();
       GrowthTracker.trackVoiceLog(success: false, fallback: false);
@@ -133,6 +141,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
   void dispose() {
     if (_isListening) _speech.cancel();
     _pulseCtrl.dispose();
+    _burstCtrl.dispose();
     _ctrl.dispose();
     _focus.dispose();
     super.dispose();
@@ -180,10 +189,12 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
           setState(() {
             _parsedResult = confirmation;
             _phase = _SheetPhase.success;
+            _showSuccessBurst = true;
           });
+          _burstCtrl.forward(from: 0);
           HapticEngine.medium();
           // Auto-close after confirmation
-          Future.delayed(const Duration(seconds: 3), () {
+          Future.delayed(const Duration(milliseconds: 3500), () {
             if (mounted) Navigator.of(context).pop();
           });
         },
@@ -307,7 +318,9 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
               AnimatedSwitcher(
                 duration: 400.ms,
                 switchInCurve: Curves.easeOutExpo,
-                child: _buildPhaseContent(L),
+                child: _isListening && _phase == _SheetPhase.input
+                    ? _buildVoiceModePhase(L)
+                    : _buildPhaseContent(L),
               ),
 
               const SizedBox(height: 20),
@@ -347,6 +360,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
                 ),
                 const SizedBox(height: 12),
                 SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   scrollDirection: Axis.horizontal,
                   clipBehavior: Clip.none,
                   child: Row(
@@ -379,6 +393,94 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
     );
   }
 
+  Widget _buildVoiceModePhase(AppThemeColors L) {
+    return Column(
+      key: const ValueKey('voice'),
+      children: [
+        const SizedBox(height: 16),
+        Text(
+          'LISTENING...',
+          style: AppTypography.labelSmall.copyWith(
+            color: L.error,
+            letterSpacing: 2.0,
+            fontWeight: FontWeight.w900,
+            fontSize: 11,
+          ),
+        ).animate(onPlay: (c) => c.repeat(reverse: true))
+         .fade(begin: 0.5, end: 1.0, duration: 600.ms),
+        const SizedBox(height: 16),
+        
+        // Siri-like Animated Soundwave
+        SizedBox(
+          height: 80,
+          width: double.infinity,
+          child: CustomPaint(
+            painter: _VoiceWavePainter(
+              animationValue: _pulseCtrl.value,
+              color: L.accent,
+            ),
+          ),
+        ),
+        
+        const SizedBox(height: 16),
+        
+        // Transcribed text display
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          decoration: BoxDecoration(
+            color: L.fill.withValues(alpha: 0.3),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: L.border.withValues(alpha: 0.05)),
+          ),
+          child: Text(
+            _ctrl.text.isEmpty ? 'Say what you took, e.g. "I took Vitamin D"' : _ctrl.text,
+            textAlign: TextAlign.center,
+            style: AppTypography.bodyMedium.copyWith(
+              color: _ctrl.text.isEmpty ? L.sub.withValues(alpha: 0.4) : L.text,
+              fontStyle: _ctrl.text.isEmpty ? FontStyle.italic : FontStyle.normal,
+              fontWeight: FontWeight.w500,
+              fontSize: 14,
+            ),
+          ),
+        ),
+        
+        const SizedBox(height: 24),
+        
+        // Big stop recording / confirm button
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            GestureDetector(
+              onTap: () {
+                HapticEngine.selection();
+                setState(() {
+                  _isListening = false;
+                  _speech.stop();
+                });
+              },
+              child: Container(
+                width: 76,
+                height: 76,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: L.error.withValues(alpha: 0.15),
+                  border: Border.all(color: L.error.withValues(alpha: 0.4), width: 2),
+                  boxShadow: AppShadows.glow(L.error, intensity: 0.5),
+                ),
+                child: const Center(
+                  child: Icon(Icons.stop_rounded, color: Colors.red, size: 36),
+                ),
+              ).animate(onPlay: (c) => c.repeat(reverse: true))
+               .scaleXY(begin: 0.95, end: 1.05, duration: 800.ms),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+      ],
+    );
+  }
+
   Widget _buildPhaseContent(AppThemeColors L) {
     switch (_phase) {
       case _SheetPhase.input:
@@ -398,14 +500,22 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
       children: [
         Container(
           decoration: BoxDecoration(
-            color: L.fill.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(20),
+            color: L.card.withValues(alpha: 0.8),
+            borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: _focus.hasFocus
-                  ? AppColors.accent.withValues(alpha: 0.4)
-                  : L.border.withValues(alpha: 0.1),
-              width: 1,
+                  ? L.accent.withValues(alpha: 0.5)
+                  : L.border.withValues(alpha: 0.12),
+              width: 1.2,
             ),
+            boxShadow: [
+              if (_focus.hasFocus)
+                BoxShadow(
+                  color: L.accent.withValues(alpha: 0.08),
+                  blurRadius: 16,
+                  spreadRadius: 1,
+                ),
+            ],
           ),
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -414,6 +524,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
                 child: TextField(
                   controller: _ctrl,
                   focusNode: _focus,
+                  autofocus: true,
                   maxLines: 3,
                   minLines: 1,
                   textInputAction: TextInputAction.done,
@@ -421,13 +532,12 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
                   style: AppTypography.bodyLarge.copyWith(
                     color: L.text,
                     fontSize: 16,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                   decoration: InputDecoration(
                     hintText: '"I took 2 Tylenol 30 minutes ago..."',
                     hintStyle: AppTypography.bodyLarge.copyWith(
-                      fontFamily: 'Courier',
-                      color: L.sub.withValues(alpha: 0.35),
+                      color: L.sub.withValues(alpha: 0.4),
                       fontSize: 15,
                     ),
                     border: InputBorder.none,
@@ -470,25 +580,31 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
             width: double.infinity,
             padding: const EdgeInsets.symmetric(vertical: 18),
             decoration: BoxDecoration(
-              gradient: AppGradients.accentOrange,
-              borderRadius: BorderRadius.circular(18),
-              boxShadow:
-                  AppShadows.glow(AppColors.accent, intensity: 0.25),
+              gradient: LinearGradient(
+                colors: [L.accent, Color.lerp(L.accent, Colors.teal, 0.45)!],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: AppShadows.glow(L.accent, intensity: 0.3),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.15),
+                width: 0.8,
+              ),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Icon(Icons.auto_awesome_rounded,
-                    color: Colors.black, size: 18),
+                    color: Colors.white, size: 18),
                 const SizedBox(width: 10),
                 Text(
                   'LOG WITH AI',
                   style: AppTypography.labelLarge.copyWith(
-                    fontFamily: 'Courier',
-                    color: Colors.black,
-                    fontSize: 16,
+                    color: Colors.white,
+                    fontSize: 15,
                     fontWeight: FontWeight.w900,
-                    letterSpacing: 1.0,
+                    letterSpacing: 1.5,
                   ),
                 ),
               ],
@@ -504,33 +620,14 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
       key: const ValueKey('thinking'),
       children: [
         const SizedBox(height: 20),
-        Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: AppColors.accent.withValues(alpha: 0.1),
-            border: Border.all(
-                color: AppColors.accent.withValues(alpha: 0.3),
-                width: 1.5),
-          ),
-          child: const Center(
-            child: Icon(Icons.auto_awesome_rounded,
-                color: AppColors.accent, size: 32),
-          ),
-        )
-            .animate(onPlay: (c) => c.repeat(reverse: true))
-            .scaleXY(begin: 1.0, end: 1.15, duration: 800.ms)
-            .then()
-            .shimmer(
-                duration: 1500.ms,
-                color: AppColors.accent.withValues(alpha: 0.5)),
-        const SizedBox(height: 16),
+        _AiOrbVisualizer(L: L),
+        const SizedBox(height: 24),
         Text(
           'AI is parsing your log...',
           style: AppTypography.titleMedium.copyWith(
             color: L.text,
-            fontWeight: FontWeight.w700,
+            fontWeight: FontWeight.w800,
+            fontSize: 16,
           ),
         ),
         const SizedBox(height: 8),
@@ -538,9 +635,9 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
           '"${_ctrl.text}"',
           textAlign: TextAlign.center,
           style: AppTypography.bodySmall.copyWith(
-            fontFamily: 'Courier',
-            color: L.sub.withValues(alpha: 0.5),
+            color: L.sub.withValues(alpha: 0.65),
             fontStyle: FontStyle.italic,
+            fontSize: 13,
           ),
         ),
         const SizedBox(height: 20),
@@ -549,58 +646,80 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
   }
 
   Widget _buildSuccessPhase(AppThemeColors L) {
-    return Column(
-      key: const ValueKey('success'),
+    return Stack(
+      alignment: Alignment.center,
+      clipBehavior: Clip.none,
       children: [
-        const SizedBox(height: 20),
-        Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            gradient: AppGradients.healthGreen,
-            boxShadow: AppShadows.glow(L.success, intensity: 0.4),
-          ),
-          child: const Center(
-            child: Icon(Icons.check_rounded, color: Colors.white, size: 36),
-          ),
-        )
-            .animate()
-            .scale(
-                begin: const Offset(0.5, 0.5),
-                end: const Offset(1, 1),
-                curve: Curves.elasticOut,
-                duration: 600.ms),
-        const SizedBox(height: 16),
-        Text(
-          'Logged! ✅',
-          style: AppTypography.titleLarge.copyWith(
-            color: L.text,
-            fontWeight: FontWeight.w900,
-          ),
+        Column(
+          key: const ValueKey('success'),
+          children: [
+            const SizedBox(height: 20),
+            Container(
+              width: 72,
+              height: 72,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: AppGradients.healthGreen,
+                boxShadow: AppShadows.glow(L.success, intensity: 0.4),
+              ),
+              child: const Center(
+                child: Icon(Icons.check_rounded, color: Colors.white, size: 36),
+              ),
+            )
+                .animate()
+                .scale(
+                    begin: const Offset(0.5, 0.5),
+                    end: const Offset(1, 1),
+                    curve: Curves.elasticOut,
+                    duration: 600.ms),
+            const SizedBox(height: 20),
+            Text(
+              'Logged Successfully! 🎉',
+              style: AppTypography.headlineSmall.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w900,
+                letterSpacing: -0.5,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(18),
+              decoration: BoxDecoration(
+                color: L.green.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: L.green.withValues(alpha: 0.20),
+                  width: 1.0,
+                ),
+              ),
+              child: Text(
+                _parsedResult.isNotEmpty
+                    ? _parsedResult
+                    : 'Dose recorded successfully',
+                textAlign: TextAlign.center,
+                style: AppTypography.bodyMedium.copyWith(
+                  color: L.green,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 14,
+                  height: 1.4,
+                ),
+              ),
+            ),
+            const SizedBox(height: 20),
+          ],
         ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: L.success.withValues(alpha: 0.08),
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(
-                color: L.success.withValues(alpha: 0.2),
-                width: 0.8),
-          ),
-          child: Text(
-            _parsedResult.isNotEmpty
-                ? _parsedResult
-                : 'Dose recorded successfully',
-            textAlign: TextAlign.center,
-            style: AppTypography.bodyMedium.copyWith(
-              color: L.success,
-              fontWeight: FontWeight.w600,
+        if (_showSuccessBurst)
+          Positioned(
+            top: 20,
+            child: IgnorePointer(
+              child: SizedBox(
+                width: 150,
+                height: 150,
+                child: DopamineBurstOverlay(controller: _burstCtrl, medColor: L.green),
+              ),
             ),
           ),
-        ),
-        const SizedBox(height: 20),
       ],
     );
   }
@@ -609,30 +728,44 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
     return Column(
       key: const ValueKey('error'),
       children: [
-        const SizedBox(height: 20),
+        const SizedBox(height: 24),
         Container(
-          width: 72,
-          height: 72,
+          width: 80,
+          height: 80,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: L.error.withValues(alpha: 0.1),
-            border: Border.all(color: L.error.withValues(alpha: 0.3)),
+            border: Border.all(color: L.error.withValues(alpha: 0.3), width: 1.5),
+            boxShadow: AppShadows.glow(L.error, intensity: 0.2),
           ),
           child: Center(
-            child: Icon(Icons.warning_rounded, color: L.error, size: 32),
+            child: Icon(Icons.error_outline_rounded, color: L.error, size: 36),
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 20),
         Text(
-          _errorMsg,
+          'We didn\'t catch that',
           textAlign: TextAlign.center,
-          style: AppTypography.bodyMedium.copyWith(
-            color: L.sub.withValues(alpha: 0.7),
-            fontWeight: FontWeight.w600,
-            height: 1.5,
+          style: AppTypography.titleLarge.copyWith(
+            color: L.text,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Text(
+            _errorMsg,
+            textAlign: TextAlign.center,
+            style: AppTypography.bodyMedium.copyWith(
+              color: L.sub.withValues(alpha: 0.8),
+              fontWeight: FontWeight.w600,
+              height: 1.5,
+            ),
+          ),
+        ),
+        const SizedBox(height: 24),
         GestureDetector(
           onTap: () => setState(() {
             _phase = _SheetPhase.input;
@@ -640,18 +773,30 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
           }),
           child: Container(
             padding:
-                const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
             decoration: BoxDecoration(
-              color: L.fill,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: L.border.withValues(alpha: 0.1)),
-            ),
-            child: Text(
-              'Try again',
-              style: AppTypography.labelLarge.copyWith(
-                color: L.text,
-                fontWeight: FontWeight.w700,
+              gradient: LinearGradient(
+                colors: [L.fill, L.fill.withValues(alpha: 0.7)],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
               ),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: L.border.withValues(alpha: 0.15)),
+              boxShadow: AppShadows.neumorphic,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.refresh_rounded, size: 18, color: L.text),
+                const SizedBox(width: 8),
+                Text(
+                  'Try again',
+                  style: AppTypography.labelLarge.copyWith(
+                    color: L.text,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -661,7 +806,6 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
             HapticEngine.selection();
             await GrowthTracker.trackVoiceLog(success: false, fallback: true);
             if (mounted) {
-              Navigator.of(context).pop();
               final appState = Provider.of<AppState>(context, listen: false);
               final newMed = Medicine(
                 id: DateTime.now().millisecondsSinceEpoch,
@@ -679,7 +823,10 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
                 refillAt: 0,
               );
               await appState.addMedicine(newMed);
+              // Give state a small window to propagate before opening DetailScreen
+              await Future.delayed(const Duration(milliseconds: 250));
               if (!mounted) return;
+              Navigator.of(context).pop();
               Navigator.of(context).push(
                 MaterialPageRoute(
                     builder: (_) => MedicineDetailScreen(
@@ -715,6 +862,179 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
 
 enum _SheetPhase { input, thinking, success, error }
 
+// ── Siri-style Animated Soundwave Visualizer ───────────────
+class _VoiceWavePainter extends CustomPainter {
+  final double animationValue;
+  final Color color;
+
+  _VoiceWavePainter({required this.animationValue, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final yCenter = size.height / 2;
+    final rect = Rect.fromLTWH(0, 0, size.width, size.height);
+    
+    // Siri-style gradient: transparent edges, glowing accent/white center
+    final gradient = LinearGradient(
+      colors: [
+        Colors.transparent,
+        color.withValues(alpha: 0.08),
+        color.withValues(alpha: 0.75),
+        Colors.white,
+        color.withValues(alpha: 0.75),
+        color.withValues(alpha: 0.08),
+        Colors.transparent,
+      ],
+      stops: const [0.0, 0.15, 0.4, 0.5, 0.6, 0.85, 1.0],
+    );
+    final shader = gradient.createShader(rect);
+
+    for (int wave = 0; wave < 5; wave++) {
+      final paint = Paint()
+        ..shader = shader
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = wave == 2 ? 3.0 : 1.5;
+
+      final path = Path();
+      
+      // Calculate dynamic amplitude based on wave index and pulse anim
+      final double baseAmp = 8.0 + (wave * 6.0);
+      final double pulse = math.sin(animationValue * math.pi * 2 + (wave * math.pi / 2));
+      final double amplitude = baseAmp * (0.6 + 0.4 * pulse);
+      
+      final double frequency = 0.012 + (wave * 0.006);
+      final double phaseShift = animationValue * math.pi * 2 + (wave * 1.8);
+
+      path.moveTo(0, yCenter);
+      for (double x = 0; x <= size.width; x += 1.5) {
+        // Bell curve envelope so the wave is flat at the edges and peaks in the center
+        final double envelope = math.sin((x / size.width) * math.pi);
+        final y = yCenter + amplitude * envelope * math.sin(frequency * x - phaseShift);
+        path.lineTo(x, y);
+      }
+      canvas.drawPath(path, paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(covariant _VoiceWavePainter oldDelegate) => true;
+}
+
+// ── Glowing, Rotating AI Orb Visualizer ───────────────
+class _AiOrbVisualizer extends StatefulWidget {
+  final AppThemeColors L;
+  const _AiOrbVisualizer({required this.L});
+
+  @override
+  State<_AiOrbVisualizer> createState() => _AiOrbVisualizerState();
+}
+
+class _AiOrbVisualizerState extends State<_AiOrbVisualizer>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _ctrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _ctrl,
+      builder: (context, _) {
+        return SizedBox(
+          width: 90,
+          height: 90,
+          child: CustomPaint(
+            painter: _AiOrbPainter(
+              angle: _ctrl.value * 2 * math.pi,
+              color: widget.L.accent,
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _AiOrbPainter extends CustomPainter {
+  final double angle;
+  final Color color;
+
+  _AiOrbPainter({required this.angle, required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final center = Offset(size.width / 2, size.height / 2);
+    final baseRadius = size.width / 3.2;
+
+    // Soft ambient glow background
+    final bgPaint = Paint()
+      ..color = color.withValues(alpha: 0.12)
+      ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 16);
+    canvas.drawCircle(center, baseRadius * 1.6, bgPaint);
+
+    // Overlapping morphing blobs to create a liquid/organic feel
+    final time = angle;
+    for (int i = 0; i < 3; i++) {
+      final blobAngle = time + (i * math.pi * 2 / 3);
+      final offsetDistance = baseRadius * 0.18 * math.sin(time * 2 + i);
+      final blobCenter = Offset(
+        center.dx + offsetDistance * math.cos(blobAngle),
+        center.dy + offsetDistance * math.sin(blobAngle),
+      );
+      final blobRadius = baseRadius * (0.95 + 0.12 * math.cos(time * 1.5 + i));
+
+      final blobPaint = Paint()
+        ..shader = RadialGradient(
+          colors: [
+            Colors.white.withValues(alpha: 0.9),
+            color.withValues(alpha: 0.7),
+            color.withValues(alpha: 0.05),
+            Colors.transparent,
+          ],
+          stops: const [0.0, 0.35, 0.85, 1.0],
+        ).createShader(Rect.fromCircle(center: blobCenter, radius: blobRadius));
+
+      canvas.drawCircle(blobCenter, blobRadius, blobPaint);
+    }
+
+    // Delicate orbital rings that float around the core
+    final ringPaint = Paint()
+      ..color = color.withValues(alpha: 0.35)
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 1.2;
+
+    canvas.save();
+    canvas.translate(center.dx, center.dy);
+    canvas.rotate(time);
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset.zero, width: baseRadius * 2.2, height: baseRadius * 0.7),
+      ringPaint,
+    );
+    canvas.rotate(math.pi / 2.5 + time * 0.5);
+    canvas.drawOval(
+      Rect.fromCenter(center: Offset.zero, width: baseRadius * 2.2, height: baseRadius * 0.6),
+      ringPaint..color = color.withValues(alpha: 0.2),
+    );
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _AiOrbPainter oldDelegate) => true;
+}
+
 class _ExampleChip extends StatelessWidget {
   final String text;
   final VoidCallback onTap;
@@ -724,7 +1044,7 @@ class _ExampleChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return BouncingButton(
       onTap: () {
         HapticEngine.selection();
         onTap();
@@ -732,23 +1052,33 @@ class _ExampleChip extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
         decoration: BoxDecoration(
-          color: L.fill.withValues(alpha: 0.5),
+          color: L.card.withValues(alpha: 0.65),
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
-              color: L.border.withValues(alpha: 0.1), width: 0.8),
+            color: L.border.withValues(alpha: 0.12),
+            width: 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.03),
+              blurRadius: 4,
+              offset: const Offset(0, 2),
+            ),
+          ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Icon(Icons.add_rounded,
-                size: 14, color: L.sub.withValues(alpha: 0.5)),
+                size: 14, color: L.sub.withValues(alpha: 0.6)),
             const SizedBox(width: 6),
             Text(
               text,
               style: AppTypography.bodySmall.copyWith(
-                color: L.sub.withValues(alpha: 0.7),
-                fontWeight: FontWeight.w600,
+                color: L.text.withValues(alpha: 0.8),
+                fontWeight: FontWeight.w700,
                 fontSize: 12,
+                letterSpacing: 0.1,
               ),
             ),
           ],
@@ -768,14 +1098,24 @@ class _MealChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return GestureDetector(
+    return BouncingButton(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
         decoration: BoxDecoration(
-          color: L.fill,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: L.border.withValues(alpha: 0.1), width: 1),
+          color: L.card.withValues(alpha: 0.8),
+          borderRadius: BorderRadius.circular(18),
+          border: Border.all(
+            color: L.border.withValues(alpha: 0.12),
+            width: 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.04),
+              blurRadius: 6,
+              offset: const Offset(0, 3),
+            ),
+          ],
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -786,7 +1126,9 @@ class _MealChip extends StatelessWidget {
               text,
               style: AppTypography.labelLarge.copyWith(
                 color: L.text,
-                fontWeight: FontWeight.w700,
+                fontWeight: FontWeight.w800,
+                fontSize: 13,
+                letterSpacing: 0.2,
               ),
             ),
           ],

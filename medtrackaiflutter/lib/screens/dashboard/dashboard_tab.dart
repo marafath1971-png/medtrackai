@@ -126,6 +126,7 @@ class _DashboardTabState extends State<DashboardTab> {
           child: Scrollbar(
             controller: _scrollController,
             child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               controller: _scrollController,
               physics: const BouncingScrollPhysics(
                   parent: AlwaysScrollableScrollPhysics()),

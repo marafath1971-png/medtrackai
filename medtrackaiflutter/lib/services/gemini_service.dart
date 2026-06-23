@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:cloud_functions/cloud_functions.dart' hide Result;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter/foundation.dart';
 import '../domain/entities/entities.dart';
 import '../core/utils/result.dart';
 import '../core/error/failures.dart';
@@ -19,7 +20,7 @@ import '../models/product_analysis.dart';
 
 class GeminiService {
   static String get _apiKey =>
-      (dotenv.isInitialized ? dotenv.env['GEMINI_API_KEY'] : null) ?? '';
+      (kDebugMode && dotenv.isInitialized ? dotenv.env['GEMINI_API_KEY'] : null) ?? '';
 
   /// Detects high-risk medical keywords to trigger immediate safety redirects.
   static bool detectHighRiskQuery(String input) {
@@ -232,14 +233,24 @@ class GeminiService {
 
   /// Task Phase 3: AI Product Insights
   static Future<Result<ProductAnalysis>> analyzeProductInsight(String query,
-      {File? image, String country = ''}) async {
+      {File? image, String country = '', List<String> allergies = const []}) async {
     return PerformanceService.measure('product_insight_trace', () async {
       String lastError = '';
+
+      final allergyInstruction = allergies.isNotEmpty 
+          ? 'CRITICAL: The user has the following known allergies: ${allergies.join(", ")}. You MUST cross-reference the product active and inactive ingredients against these allergies. If there is a match or high risk of cross-reactivity, list them in the "allergyAlerts" array. If safe, return an empty array.' 
+          : 'Return an empty array for "allergyAlerts".';
+
+      const childSafetyInstruction = 'CRITICAL PEDIATRIC CHECK: You must explicitly evaluate if this product is safe for children. If it requires strict weight-based dosing, is contraindicated for pediatrics, or has severe age restrictions, provide a highly specific warning in the "childSafetyAlert" field. If it is generally safe or not applicable, return null for "childSafetyAlert".';
 
       final prompt = '''
 You are MedAI Pro, an expert clinical AI. The user has provided an input (a search query, barcode text, voice transcript, or image) to understand a product: "$query".
 Analyze the product and return a deeply informative breakdown. 
 If the product is unrecognizable or unsafe, return the best guess or a safe generic response.
+
+$allergyInstruction
+$childSafetyInstruction
+
 Return ONLY valid JSON matching this exact structure:
 {
   "name": "Product Name",
@@ -254,6 +265,8 @@ Return ONLY valid JSON matching this exact structure:
   "timing": "Best time to take it (e.g. 'Morning with food')",
   "halalStatus": "Halal|Haram|Doubtful|Unknown",
   "scientificEvidence": "Short summary of scientific backing",
+  "allergyAlerts": ["Alert 1", "Alert 2"],
+  "childSafetyAlert": "Warning text if applicable, otherwise null",
   "expertPerspectives": [
     {"role": "Doctor", "explanation": "Medical perspective", "icon": "👩‍⚕️"},
     {"role": "Pharmacist", "explanation": "Pharmacology/interactions", "icon": "💊"},
@@ -1055,7 +1068,7 @@ Do not use markdown formatting like bolding or bullet points unless absolutely n
         s.contains('network') ||
         s.contains('unable to resolve host') ||
         s.contains('host lookup')) {
-      return "Connection issues? Check your internet and let's try identifying that medicine again. 🌐";
+      return "Connection lost. Please check your internet and try again.";
     }
     if (s.contains('safety') || s.contains('finish_reason_safety')) {
       return "Our AI couldn't process this for safety reasons. Please ensure the label is clearly visible and medical in nature. ⚖️";

@@ -160,6 +160,7 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
         children: [
           Expanded(
             child: ListView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               controller: _scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
               itemCount: _messages.length + (_isTyping ? 1 : 0),
@@ -274,6 +275,7 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
             children: [
               if (_messages.length == 1) // Only show suggestions at the start
                 SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.only(bottom: 16),
@@ -293,6 +295,7 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
                         boxShadow: AppShadows.subtle,
                       ),
                       child: TextField(
+  autofocus: true,
                         controller: _controller,
                         style: AppTypography.bodyMedium.copyWith(color: L.text),
                         decoration: InputDecoration(
@@ -333,7 +336,7 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
   }
 
   Widget _buildSuggestionChip(AppThemeColors L, String text) {
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: () => _sendMessage(text),
       child: Container(
         margin: const EdgeInsets.only(right: 8),

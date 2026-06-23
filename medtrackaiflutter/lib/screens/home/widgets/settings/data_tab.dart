@@ -7,6 +7,7 @@ import '../../../../theme/app_theme.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../paywall/premium_paywall_overlay.dart';
 import 'settings_shared.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 class DataTab extends StatefulWidget {
   final AppState state;
@@ -55,6 +56,7 @@ class _DataTabState extends State<DataTab> {
         context.select<AppState, int>((s) => s.symptoms.length);
 
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),
@@ -160,7 +162,7 @@ class _DataTabState extends State<DataTab> {
               const SizedBox(height: 16),
               Row(children: [
                 Expanded(
-                    child: GestureDetector(
+                    child: AnimatedPressable(
                         onTap: () => setState(() => _confirming = false),
                         child: Container(
                             padding: const EdgeInsets.symmetric(vertical: 10),
@@ -173,7 +175,7 @@ class _DataTabState extends State<DataTab> {
                                         color: L.text)))))),
                 const SizedBox(width: 8),
                 Expanded(
-                    child: GestureDetector(
+                    child: AnimatedPressable(
                         onTap: () {
                           context.read<AppState>().deleteAllData();
                           widget.onClose();

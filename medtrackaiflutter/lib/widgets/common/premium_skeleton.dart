@@ -1,28 +1,28 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
 
 /// A premium, subtle skeleton loader inspired by Apple and Linear.
 /// Instead of a fast, distracting shimmer, this gently pulses opacity 
 /// to indicate loading state without drawing the eye aggressively.
-class AppShimmer extends StatefulWidget {
-  final double? width;
-  final double? height;
-  final double? radius;
-  final BoxShape shape;
+class PremiumSkeletonLoader extends StatefulWidget {
+  final double width;
+  final double height;
+  final BorderRadiusGeometry? borderRadius;
+  final Widget? child;
 
-  const AppShimmer({
+  const PremiumSkeletonLoader({
     super.key,
-    this.width,
-    this.height,
-    this.radius,
-    this.shape = BoxShape.rectangle,
+    this.width = double.infinity,
+    this.height = 20,
+    this.borderRadius,
+    this.child,
   });
 
   @override
-  State<AppShimmer> createState() => _AppShimmerState();
+  State<PremiumSkeletonLoader> createState() => _PremiumSkeletonLoaderState();
 }
 
-class _AppShimmerState extends State<AppShimmer> with SingleTickerProviderStateMixin {
+class _PremiumSkeletonLoaderState extends State<PremiumSkeletonLoader>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _opacityAnim;
 
@@ -47,21 +47,24 @@ class _AppShimmerState extends State<AppShimmer> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
+    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final baseColor = isDark 
+        ? Colors.white.withValues(alpha: 0.08)
+        : Colors.black.withValues(alpha: 0.05);
+
     return AnimatedBuilder(
       animation: _opacityAnim,
       builder: (context, child) {
         return Opacity(
           opacity: _opacityAnim.value,
           child: Container(
-            width: widget.width ?? double.infinity,
-            height: widget.height ?? double.infinity,
+            width: widget.width,
+            height: widget.height,
             decoration: BoxDecoration(
-              color: context.L.fill,
-              shape: widget.shape,
-              borderRadius: widget.shape == BoxShape.circle 
-                  ? null 
-                  : BorderRadius.circular(widget.radius ?? AppRadius.xl),
+              color: baseColor,
+              borderRadius: widget.borderRadius ?? BorderRadius.circular(8),
             ),
+            child: widget.child,
           ),
         );
       },

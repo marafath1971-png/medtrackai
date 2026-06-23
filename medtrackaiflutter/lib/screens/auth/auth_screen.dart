@@ -134,13 +134,14 @@ class _AuthScreenState extends State<AuthScreen> {
     final L = context.L;
     final topPad = MediaQuery.of(context).padding.top;
 
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: () => FocusScope.of(context).unfocus(),
       child: Scaffold(
         backgroundColor: L.bg,
         body: SafeArea(
           child: Scrollbar(
             child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               physics: const ClampingScrollPhysics(
                   parent: AlwaysScrollableScrollPhysics()),
               padding: const EdgeInsets.symmetric(
@@ -489,6 +490,7 @@ class _AuthField extends StatelessWidget {
         border: Border.all(color: L.border.withValues(alpha: 0.1)),
       ),
       child: TextField(
+        autofocus: true,
         controller: controller,
         obscureText: obscure,
         keyboardType: keyboardType,

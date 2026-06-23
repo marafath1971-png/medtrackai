@@ -38,6 +38,7 @@ class CourseCompletionDialog extends StatelessWidget {
           ],
         ),
         child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const BouncingScrollPhysics(),
           child: Column(
             mainAxisSize: MainAxisSize.min,

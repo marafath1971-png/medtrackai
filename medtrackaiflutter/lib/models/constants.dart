@@ -3,12 +3,12 @@
 // ══════════════════════════════════════════════
 
 // ── Legal & Store Compliance ─────────────────
-const String kAppName = 'MedTrackAI';
+const String kAppName = 'Medai';
 const String kAppVersion = '1.0.0';
-const String kPrivacyPolicyUrl = 'https://medtrackai.app/privacy';
-const String kTermsOfServiceUrl = 'https://medtrackai.app/terms';
-const String kSupportEmail = 'support@medtrackai.app';
-const String kSupportUrl = 'mailto:support@medtrackai.app?subject=MedTrackAI%20Support';
+const String kPrivacyPolicyUrl = 'https://medai.app/privacy';
+const String kTermsOfServiceUrl = 'https://medai.app/terms';
+const String kSupportEmail = 'support@medai.app';
+const String kSupportUrl = 'mailto:support@medai.app?subject=Medai%20Support';
 
 const String kModel = 'claude-sonnet-4-20250514';
 const String kAnthropicBaseUrl = 'https://api.anthropic.com/v1/messages';

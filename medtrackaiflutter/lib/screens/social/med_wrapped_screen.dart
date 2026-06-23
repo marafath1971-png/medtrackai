@@ -13,6 +13,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/ambient_mesh_bg.dart';
 import '../../widgets/common/mesh_gradient.dart';
 import '../../theme/app_theme.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 class MedWrappedScreen extends StatefulWidget {
   const MedWrappedScreen({super.key});
@@ -341,7 +342,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: GestureDetector(
+                    child: AnimatedPressable(
                       onTap: _shareWrapped,
                       child: Container(
                         padding: const EdgeInsets.symmetric(vertical: 18),

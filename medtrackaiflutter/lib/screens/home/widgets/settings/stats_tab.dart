@@ -83,6 +83,7 @@ class StatsTab extends StatelessWidget {
     final dailyRates = weekData.map((w) => w['rate'] as double).toList();
 
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),

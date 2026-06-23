@@ -7,6 +7,8 @@ import '../../../providers/app_state.dart';
 import '../../../models/constants.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/app_shimmer.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
+import '../../../core/utils/haptic_engine.dart';
 
 class AddHeader extends StatelessWidget {
   final int step;
@@ -23,7 +25,7 @@ class AddHeader extends StatelessWidget {
             : "Caregiver Active!";
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
-        GestureDetector(
+        AnimatedPressable(
             onTap: onBack,
             child: SizedBox(
                 width: 24,
@@ -85,6 +87,7 @@ class AddCgStep1 extends StatelessWidget {
         backgroundColor: L.meshBg,
         body: SafeArea(
             child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 child: Column(
@@ -104,7 +107,7 @@ class AddCgStep1 extends StatelessWidget {
                           spacing: 7,
                           runSpacing: 7,
                           children: kCgAvatars
-                              .map((a) => GestureDetector(
+                              .map((a) => AnimatedPressable(
                                     onTap: () => onAvatarChange(a),
                                     child: AnimatedContainer(
                                         duration:
@@ -183,7 +186,7 @@ class AddCgStep1 extends StatelessWidget {
                             'Doctor',
                             'Caregiver'
                           ]
-                              .map((r) => GestureDetector(
+                              .map((r) => AnimatedPressable(
                                     onTap: () => onRelChange(r),
                                     child: AnimatedContainer(
                                         duration:
@@ -277,7 +280,7 @@ class AddCgStep1 extends StatelessWidget {
                       ]),
                       const SizedBox(height: 28),
 
-                      GestureDetector(
+                      AnimatedPressable(
                           onTap: nameCtrl.text.trim().isEmpty ? null : onNext,
                           child: AnimatedContainer(
                               duration: const Duration(milliseconds: 200),
@@ -318,7 +321,7 @@ class DelayBtn extends StatelessWidget {
       required this.L});
   @override
   Widget build(BuildContext context) => Expanded(
-      child: GestureDetector(
+      child: AnimatedPressable(
           onTap: () => onTap(delay),
           child: AnimatedContainer(
             duration: const Duration(milliseconds: 150),
@@ -399,7 +402,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
 
   void _handleActivation() async {
     setState(() => _scanState = 'done');
-    HapticFeedback.heavyImpact();
+    HapticEngine.heavy();
     await Future.delayed(const Duration(milliseconds: 800));
     if (!mounted) return;
     widget.onNext();
@@ -422,6 +425,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
         backgroundColor: L.meshBg,
         body: SafeArea(
             child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 child: Column(
@@ -527,7 +531,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                       )),
                       const SizedBox(height: 16),
                       Center(
-                          child: GestureDetector(
+                          child: AnimatedPressable(
                         onTap: () {
                           Clipboard.setData(
                               ClipboardData(text: widget.inviteCode));
@@ -654,6 +658,7 @@ class AddCgStep3 extends StatelessWidget {
         backgroundColor: L.meshBg,
         body: SafeArea(
             child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
                 child: Column(
@@ -746,7 +751,7 @@ class AddCgStep3 extends StatelessWidget {
                             ]),
                       ),
                       const SizedBox(height: 48),
-                      GestureDetector(
+                      AnimatedPressable(
                           onTap: onDone,
                           child: Container(
                               width: double.infinity,

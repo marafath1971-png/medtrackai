@@ -10,6 +10,7 @@ class UserProfile {
   final String height; 
   final String weight;
   final List<String> conditions;
+  final List<String> allergies;
   final String medCount;
   final String forgetting;
   final String currentMethods; // Pillbox, Notes, etc.
@@ -65,6 +66,7 @@ class UserProfile {
     this.height = '',
     this.weight = '',
     this.conditions = const [],
+    this.allergies = const [],
     this.medCount = '',
     this.forgetting = '',
     this.currentMethods = '',
@@ -120,6 +122,7 @@ class UserProfile {
         'height': height,
         'weight': weight,
         'conditions': conditions,
+        'allergies': allergies,
         'medCount': medCount,
         'forgetting': forgetting,
         'current_methods': currentMethods,
@@ -175,6 +178,7 @@ class UserProfile {
         height: j['height'] ?? '',
         weight: j['weight'] ?? '',
         conditions: List<String>.from(j['conditions'] ?? []),
+        allergies: List<String>.from(j['allergies'] ?? []),
         medCount: j['medCount'] ?? '',
         forgetting: j['forgetting'] ?? '',
         currentMethods: j['current_methods'] ?? '',
@@ -224,10 +228,10 @@ class UserProfile {
             j['lastNudgeAt'] != null ? DateTime.parse(j['lastNudgeAt']) : null,
         nudgeCount: j['nudgeCount'] ?? 0,
         caregiverContacts: (j['caregiverContacts'] as List? ?? [])
-            .map((c) => Caregiver.fromJson(c))
+            .map((c) => Caregiver.fromJson(Map<String, dynamic>.from(c as Map)))
             .toList(),
         familyMembers: (j['familyMembers'] as List? ?? [])
-            .map((m) => ManagedProfile.fromJson(m))
+            .map((m) => ManagedProfile.fromJson(Map<String, dynamic>.from(m as Map)))
             .toList(),
       );
 
@@ -240,6 +244,7 @@ class UserProfile {
     String? height,
     String? weight,
     List<String>? conditions,
+    List<String>? allergies,
     String? medCount,
     String? forgetting,
     String? currentMethods,
@@ -292,6 +297,7 @@ class UserProfile {
         height: height ?? this.height,
         weight: weight ?? this.weight,
         conditions: conditions ?? this.conditions,
+        allergies: allergies ?? this.allergies,
         medCount: medCount ?? this.medCount,
         forgetting: forgetting ?? this.forgetting,
         currentMethods: currentMethods ?? this.currentMethods,

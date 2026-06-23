@@ -10,6 +10,7 @@ import 'settings/data_tab.dart';
 import '../../../screens/settings/global_settings_screen.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/haptic_engine.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 class SettingsModal extends StatefulWidget {
   final VoidCallback onClose;
@@ -57,7 +58,7 @@ class _SettingsModalState extends State<SettingsModal> {
         final shouldClose = await _onWillPop();
         if (shouldClose && context.mounted) widget.onClose();
       },
-      child: GestureDetector(
+      child: AnimatedPressable(
         onTap: widget.onClose,
         child: Container(
           color: Colors.black.withValues(alpha: 0.4), // Softer backdrop
@@ -129,6 +130,7 @@ class _SettingsModalState extends State<SettingsModal> {
                     margin: const EdgeInsets.symmetric(vertical: 16),
                     height: 42,
                     child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                       physics: const BouncingScrollPhysics(),
                       scrollDirection: Axis.horizontal,
                       padding: const EdgeInsets.symmetric(horizontal: 24),

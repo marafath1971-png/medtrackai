@@ -61,6 +61,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
       body: Stack(
         children: [
           ListView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: EdgeInsets.fromLTRB(20, topPad + 110, 20, 120),
             children: [
               // ── LOCALIZATION BLOCK ───────────────────────
@@ -703,6 +704,7 @@ class _PickerSheet extends StatelessWidget {
     return RefinedSheetWrapper(
       title: title,
       child: ListView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const ClampingScrollPhysics(),
         shrinkWrap: true,
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 48),

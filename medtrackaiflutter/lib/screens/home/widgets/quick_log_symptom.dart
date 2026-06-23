@@ -41,7 +41,7 @@ class QuickLogSymptom extends StatelessWidget {
                     letterSpacing: 2.5,
                     fontWeight: FontWeight.w900,
                   )),
-              GestureDetector(
+              AnimatedPressable(
                 onTap: () {
                   HapticEngine.selection();
                   DailyLogSheet.show(context);
@@ -80,6 +80,7 @@ class QuickLogSymptom extends StatelessWidget {
         SizedBox(
           height: 100,
           child: ListView.separated(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             padding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.screenPadding),
             scrollDirection: Axis.horizontal,
@@ -118,7 +119,7 @@ class _SymptomButton extends StatefulWidget {
 class _SymptomButtonState extends State<_SymptomButton> {
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: () => _showSeverityPicker(context),
       child: Container(
         width: 90,
@@ -246,7 +247,7 @@ class _SeverityBottomSheetState extends State<_SeverityBottomSheet> {
                     final isTrailing = index == 9;
 
                     return Expanded(
-                      child: GestureDetector(
+                      child: AnimatedPressable(
                         onTap: () {
                           setState(() => _severity = value.toDouble());
                           HapticEngine.selection();
@@ -340,7 +341,7 @@ class _SeverityBottomSheetState extends State<_SeverityBottomSheet> {
                     ],
                   ),
                   const SizedBox(height: 14),
-                  GestureDetector(
+                  AnimatedPressable(
                     onTap: () async {
                       HapticEngine.heavyImpact();
                       final url = Uri.parse('tel:911');
@@ -435,7 +436,7 @@ class _SeverityBottomSheetState extends State<_SeverityBottomSheet> {
                             spacing: 8,
                             runSpacing: 8,
                             children: analysis.steps
-                                .map((step) => GestureDetector(
+                                .map((step) => AnimatedPressable(
                                       onTap: () => state.executeStepAction(
                                           step, context),
                                       child: Container(

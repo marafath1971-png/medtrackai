@@ -183,6 +183,7 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
           // Chat Area
           Expanded(
             child: ListView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               controller: _scrollController,
               padding: const EdgeInsets.all(20),
               itemCount: _messages.length + (_isLoading ? 1 : 0),
@@ -204,6 +205,7 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
             SizedBox(
               height: 50,
               child: ListView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 itemCount: suggestions.length,
@@ -240,6 +242,7 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
                         border: Border.all(color: L.border.withValues(alpha: 0.2)),
                       ),
                       child: TextField(
+  autofocus: true,
                         controller: _controller,
                         style: AppTypography.bodyMedium.copyWith(color: L.text),
                         decoration: InputDecoration(

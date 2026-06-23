@@ -4,6 +4,7 @@ import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../stats/analytics_dashboard_screen.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 class HomeStatsGrid extends StatelessWidget {
   final AppState state;
@@ -579,7 +580,7 @@ class _PressableCardState extends State<_PressableCard> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AnimatedPressable(
       onTapDown: (_) => setState(() => _pressed = true),
       onTapUp: (_) => setState(() => _pressed = false),
       onTapCancel: () => setState(() => _pressed = false),
@@ -613,7 +614,7 @@ class HeaderActionBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return AnimatedPressable(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,
       child: Container(

@@ -449,6 +449,7 @@ class InsightsContent extends StatelessWidget {
     return Scaffold(
       backgroundColor: L.meshBg,
       body: CustomScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverAppBar(

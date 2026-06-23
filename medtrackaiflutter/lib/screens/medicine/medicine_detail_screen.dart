@@ -113,6 +113,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       radius: const Radius.circular(10),
       thickness: 4,
       child: CustomScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         controller: _scrollController,
         physics: const BouncingScrollPhysics(
             parent: AlwaysScrollableScrollPhysics()),
@@ -245,6 +246,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
             radius: const Radius.circular(10),
             thickness: 4,
             child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               controller: _scrollController,
               physics: const BouncingScrollPhysics(
                   parent: AlwaysScrollableScrollPhysics()),
@@ -687,39 +689,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
         const SizedBox(width: 12),
         // ── LOG FLEXIBLE DOSE ──
         Expanded(
-          child: BouncingButton(
-            onTap: () {
-              HapticEngine.doseTaken();
-              state.logPrnDose(
-                med.id,
-                'Flexible Dose',
-                TimeOfDay.now().format(context),
-              );
-              state.showToast('Flexible dose logged ✓');
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                color: const Color(0xFF34C759),
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Text('✅', style: TextStyle(fontSize: 16)),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Log Dose',
-                    style: AppTypography.titleMedium.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          child: _AnimatedLogDoseButton(med: med),
         ),
       ],
     );
@@ -1082,6 +1052,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
         SizedBox(
           height: 100,
           child: ListView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             scrollDirection: Axis.horizontal,
             physics: const BouncingScrollPhysics(),
             clipBehavior: Clip.none,
@@ -1259,7 +1230,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                       .entries
                       .map((e) {
                     final isSelected = selectedDays.contains(e.key);
-                    return GestureDetector(
+                    return AnimatedPressable(
                       onTap: () {
                         HapticEngine.selection();
                         setState(() {
@@ -1306,6 +1277,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                 const SizedBox(height: 12),
                 Flexible(
                   child: ListView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
                     children: Ritual.values.map((r) {
@@ -1417,6 +1389,7 @@ class _DiagnosticCard extends StatelessWidget {
         borderRadius: AppRadius.roundM,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1442,7 +1415,7 @@ class _DiagnosticCard extends StatelessWidget {
                 ),
               ],
             ),
-            const Spacer(),
+            const SizedBox(height: 8),
             FittedBox(
               fit: BoxFit.scaleDown,
               child: Text(
@@ -1635,6 +1608,7 @@ class _HistoryMatrix extends StatelessWidget {
             return SizedBox(
               height: (itemSize * rows) + (spacing * (rows - 1)),
               child: GridView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: EdgeInsets.zero,
                 physics: const NeverScrollableScrollPhysics(),
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -1924,6 +1898,7 @@ class _ColorPicker extends StatelessWidget {
           SizedBox(
             height: 44,
             child: ListView.separated(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.symmetric(horizontal: 20),
               scrollDirection: Axis.horizontal,
               itemCount: colors.length,
@@ -1931,7 +1906,7 @@ class _ColorPicker extends StatelessWidget {
               itemBuilder: (context, index) {
                 final hex = colors[index];
                 final isSelected = selectedColor.toUpperCase() == hex.toUpperCase();
-                return GestureDetector(
+                return AnimatedPressable(
                   onTap: () {
                     HapticEngine.selection();
                     onColorSelected(hex);
@@ -1992,6 +1967,7 @@ class _CategoryPicker extends StatelessWidget {
           SizedBox(
             height: 80,
             child: ListView.separated(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.symmetric(horizontal: 20),
               scrollDirection: Axis.horizontal,
               itemCount: categories.length,
@@ -1999,7 +1975,7 @@ class _CategoryPicker extends StatelessWidget {
               itemBuilder: (context, index) {
                 final cat = categories[index];
                 final isSelected = selectedCategory.toLowerCase() == cat.toLowerCase();
-                return GestureDetector(
+                return AnimatedPressable(
                   onTap: () {
                     HapticEngine.selection();
                     onCategorySelected(cat);
@@ -2063,6 +2039,160 @@ class _RestockBtn extends StatelessWidget {
               fontSize: 14,
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════════════════════════════
+// 2026 PREMIUM ANIMATED LOG DOSE BUTTON
+// ══════════════════════════════════════════════════════════════════════
+class _AnimatedLogDoseButton extends StatefulWidget {
+  final Medicine med;
+  const _AnimatedLogDoseButton({required this.med});
+
+  @override
+  State<_AnimatedLogDoseButton> createState() => _AnimatedLogDoseButtonState();
+}
+
+class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
+    with SingleTickerProviderStateMixin {
+  int _state = 0; // 0: idle, 1: loading, 2: success
+
+  void _handleTap() async {
+    if (_state != 0) return;
+    HapticEngine.selection();
+    setState(() => _state = 1);
+
+    // Premium processing delay to make it feel robust and real
+    await Future.delayed(const Duration(milliseconds: 1400));
+    if (!mounted) return;
+
+    HapticEngine.doseTaken();
+    final state = context.read<AppState>();
+    state.logPrnDose(
+      widget.med.id,
+      'Flexible Dose',
+      TimeOfDay.now().format(context),
+    );
+    state.showToast('Flexible dose logged ✓');
+
+    setState(() => _state = 2);
+
+    // Reset back to idle after a few seconds
+    await Future.delayed(const Duration(milliseconds: 3000));
+    if (mounted) setState(() => _state = 0);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BouncingButton(
+      onTap: _handleTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeOutExpo,
+        padding: const EdgeInsets.symmetric(vertical: 16),
+        decoration: BoxDecoration(
+          color: _state == 2 ? const Color(0xFF34C759) : Colors.white,
+          borderRadius: BorderRadius.circular(100),
+          boxShadow: [
+            if (_state == 0)
+              BoxShadow(
+                color: const Color(0xFF34C759).withValues(alpha: 0.3),
+                blurRadius: 16,
+                spreadRadius: 1,
+                offset: const Offset(0, 4),
+              ),
+            if (_state == 2)
+              BoxShadow(
+                color: const Color(0xFF34C759).withValues(alpha: 0.5),
+                blurRadius: 24,
+                spreadRadius: 4,
+                offset: const Offset(0, 8),
+              ),
+            if (_state == 0)
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.05),
+                blurRadius: 8,
+                offset: const Offset(0, 4),
+              ),
+          ],
+          border: Border.all(
+            color: _state == 2 ? Colors.transparent : Colors.black.withValues(alpha: 0.05),
+            width: 1.0,
+          ),
+        ),
+        child: AnimatedSwitcher(
+          duration: const Duration(milliseconds: 400),
+          switchInCurve: Curves.easeOutBack,
+          switchOutCurve: Curves.easeInBack,
+          transitionBuilder: (child, animation) => ScaleTransition(
+            scale: animation,
+            child: FadeTransition(opacity: animation, child: child),
+          ),
+          child: _state == 0
+              ? Row(
+                  key: const ValueKey('idle'),
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(4),
+                      decoration: BoxDecoration(
+                        color: Colors.black.withValues(alpha: 0.05),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.check_rounded, color: Colors.black, size: 16),
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      'Log Dose',
+                      style: AppTypography.titleMedium.copyWith(
+                        color: Colors.black,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ],
+                )
+              : _state == 1
+                  ? Row(
+                      key: const ValueKey('loading'),
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const SizedBox(
+                          width: 18,
+                          height: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.black87),
+                        ),
+                        const SizedBox(width: 12),
+                        Text(
+                          'Logging...',
+                          style: AppTypography.titleMedium.copyWith(
+                            color: Colors.black87,
+                            fontWeight: FontWeight.w700,
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    )
+                  : Row(
+                      key: const ValueKey('success'),
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.verified_rounded, color: Colors.white, size: 20)
+                            .animate().scale(curve: Curves.easeOutBack, duration: 400.ms),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Logged!',
+                          style: AppTypography.titleMedium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 15,
+                          ),
+                        ).animate().slideX(begin: 0.2, end: 0, curve: Curves.easeOutBack, duration: 400.ms),
+                      ],
+                    ),
         ),
       ),
     );

@@ -112,7 +112,7 @@ class AppTheme {
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.android: MaterialSharedAxisFadePageTransitionsBuilder(),
           TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
           TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
         },
@@ -178,7 +178,7 @@ class AppTheme {
       ),
       pageTransitionsTheme: const PageTransitionsTheme(
         builders: {
-          TargetPlatform.android: CupertinoPageTransitionsBuilder(),
+          TargetPlatform.android: MaterialSharedAxisFadePageTransitionsBuilder(),
           TargetPlatform.iOS: CupertinoPageTransitionsBuilder(),
           TargetPlatform.macOS: CupertinoPageTransitionsBuilder(),
         },
@@ -426,4 +426,65 @@ extension ThemeContextExtension on BuildContext {
       Theme.of(this).extension<AppThemeColors>() ??
       AppThemeColors.fromColorScheme(Theme.of(this).colorScheme, Theme.of(this).brightness);
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
+}
+
+/// A high-performance 2D shared-axis transition (slight vertical translation + cross-fade)
+/// designed to meet the 250ms easeOutCubic specification for Android.
+class MaterialSharedAxisFadePageTransitionsBuilder extends PageTransitionsBuilder {
+  const MaterialSharedAxisFadePageTransitionsBuilder();
+
+  @override
+  Widget buildTransitions<T>(
+    PageRoute<T> route,
+    BuildContext context,
+    Animation<double> animation,
+    Animation<double> secondaryAnimation,
+    Widget child,
+  ) {
+    final slideIn = Tween<Offset>(
+      begin: const Offset(0.0, 0.08),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: animation,
+      curve: const Cubic(0.215, 0.610, 0.355, 1.000), // easeOutCubic
+    ));
+
+    final fadeIn = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: animation,
+      curve: const Cubic(0.215, 0.610, 0.355, 1.000), // easeOutCubic
+    ));
+
+    final slideOut = Tween<Offset>(
+      begin: Offset.zero,
+      end: const Offset(0.0, -0.04),
+    ).animate(CurvedAnimation(
+      parent: secondaryAnimation,
+      curve: const Cubic(0.215, 0.610, 0.355, 1.000), // easeOutCubic
+    ));
+
+    final fadeOut = Tween<double>(
+      begin: 1.0,
+      end: 0.0,
+    ).animate(CurvedAnimation(
+      parent: secondaryAnimation,
+      curve: const Cubic(0.215, 0.610, 0.355, 1.000), // easeOutCubic
+    ));
+
+    return SlideTransition(
+      position: slideIn,
+      child: FadeTransition(
+        opacity: fadeIn,
+        child: SlideTransition(
+          position: slideOut,
+          child: FadeTransition(
+            opacity: fadeOut,
+            child: child,
+          ),
+        ),
+      ),
+    );
+  }
 }

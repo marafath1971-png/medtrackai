@@ -1,2 +1,4 @@
 Analyzing medtrackaiflutter...                                  
-No issues found! (ran in 12.8s)
+
+warning • Unused import: 'package:medai/models/product_analysis.dart' • test/providers/medication_serialization_test.dart:3:8 • unused_import
+

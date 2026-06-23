@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../theme/app_theme.dart';
+import '../core/utils/haptic_engine.dart';
 
 class SmartStepper extends StatefulWidget {
   final int value;
@@ -48,7 +49,7 @@ class _SmartStepperState extends State<SmartStepper>
     if (next > widget.max) next = widget.max;
 
     if (next != _currentValue) {
-      HapticFeedback.lightImpact();
+      HapticEngine.light();
       setState(() => _currentValue = next);
       widget.onChanged(next);
     }

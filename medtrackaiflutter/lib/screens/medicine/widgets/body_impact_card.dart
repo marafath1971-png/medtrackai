@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../theme/app_theme.dart';
 import '../../../../domain/entities/body_impact.dart';
 import '../../../widgets/biohacking/pharma_timeline_widget.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 class BodyImpactCard extends StatelessWidget {
   final BodyImpactSummary impact;
@@ -109,7 +110,7 @@ class BodyImpactCard extends StatelessWidget {
 
                 // Ask AI CTA
                 if (onAskAIPressed != null)
-                  GestureDetector(
+                  AnimatedPressable(
                     onTap: onAskAIPressed,
                     child: Container(
                       width: double.infinity,
@@ -148,8 +149,9 @@ class BodyImpactCard extends StatelessWidget {
 
   Widget _buildAhaCarousel(AppThemeColors L, List<String> facts) {
     return SizedBox(
-      height: 110,
+      height: 125,
       child: ListView.builder(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         scrollDirection: Axis.horizontal,
         physics: const BouncingScrollPhysics(),
         itemCount: facts.length,

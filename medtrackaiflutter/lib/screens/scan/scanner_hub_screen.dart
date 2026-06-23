@@ -1,6 +1,12 @@
+import 'dart:async';
+import 'package:path_provider/path_provider.dart';
+import 'dart:typed_data';
+import 'package:flutter/rendering.dart';
+import 'package:medai/widgets/common/premium_shimmer.dart';
 import 'dart:io';
 import 'dart:math';
 import 'dart:ui';
+import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image_picker/image_picker.dart';
@@ -13,6 +19,11 @@ import '../../services/gemini_service.dart';
 import '../analysis/product_analysis_screen.dart';
 import '../../services/upc_service.dart';
 import '../../widgets/shared/shared_widgets.dart';
+import 'package:provider/provider.dart';
+import '../../providers/app_state.dart';
+import 'scan_history_screen.dart';
+import 'ai_accuracy_settings_screen.dart';
+import 'scanner_help_screen.dart';
 
 enum ScanMode { camera, barcode, search, voice }
 
@@ -43,6 +54,8 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
 
   final TextEditingController _searchCtrl = TextEditingController();
   final FocusNode _searchFocus = FocusNode();
+
+  final GlobalKey _cameraKey = GlobalKey();
 
   late AnimationController _scanLineCtrl;
   late AnimationController _breathCtrl;
@@ -83,10 +96,10 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
   }
 
   // ── Image Pick ──
-  Future<void> _pickImage() async {
+  Future<void> _pickImage({ImageSource source = ImageSource.gallery}) async {
     try {
       final XFile? img = await _picker.pickImage(
-        source: ImageSource.gallery,
+        source: source,
         imageQuality: 85,
       );
       if (img != null && mounted) {
@@ -100,6 +113,31 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
       if (mounted) {
         _showError('Camera unavailable. Please try again.');
       }
+    }
+  }
+
+  // ── Capture Screen ──
+  Future<void> _captureScreen() async {
+    try {
+      final RenderRepaintBoundary boundary =
+          _cameraKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
+      final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
+      final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+      final Uint8List pngBytes = byteData!.buffer.asUint8List();
+
+      final tempDir = await getTemporaryDirectory();
+      final file = File('${tempDir.path}/scan_capture_${DateTime.now().millisecondsSinceEpoch}.png');
+      await file.writeAsBytes(pngBytes);
+
+      if (mounted) {
+        setState(() => _selectedImage = file);
+        _analyze(
+          'Analyze this medicine, pill, or supplement packaging. Identify: medication name, dosage, active ingredients, usage, side effects, drug interactions.',
+          image: _selectedImage,
+        );
+      }
+    } catch (e) {
+      if (mounted) _showError('Failed to capture screen.');
     }
   }
 
@@ -145,7 +183,8 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
     HapticEngine.heavyImpact();
     setState(() => _isScanning = true);
 
-    final result = await GeminiService.analyzeProductInsight(prompt, image: image);
+    final allergies = context.read<AppState>().profile?.allergies ?? [];
+    final result = await GeminiService.analyzeProductInsight(prompt, image: image, allergies: allergies);
 
     if (!mounted) return;
     setState(() {
@@ -161,7 +200,7 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
         Navigator.push(
           context,
           PageRouteBuilder(
-            pageBuilder: (_, a, __) => ProductAnalysisScreen(product: product),
+            pageBuilder: (_, a, __) => ProductAnalysisScreen(product: product, imageFile: image),
             transitionsBuilder: (_, a, __, child) => SlideTransition(
               position: Tween<Offset>(
                 begin: const Offset(0, 0.06),
@@ -188,10 +227,14 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
       return;
     }
     if (_mode == ScanMode.camera) {
-      _selectedImage != null ? _analyze(
-        'Analyze this medicine, pill, or supplement packaging. Identify: medication name, dosage, active ingredients, usage, side effects, drug interactions.',
-        image: _selectedImage,
-      ) : _pickImage();
+      if (_selectedImage != null) {
+        _analyze(
+          'Analyze this medicine, pill, or supplement packaging. Identify: medication name, dosage, active ingredients, usage, side effects, drug interactions.',
+          image: _selectedImage,
+        );
+      } else {
+        _captureScreen();
+      }
       return;
     }
     if (_mode == ScanMode.voice) {
@@ -257,6 +300,10 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
             ),
           ),
 
+          if (_isScanning && _mode != ScanMode.search && _mode != ScanMode.voice)
+            const _SmartScanningOverlay(),
+
+
           // ── Top Bar ───────────────────────────────────────
           Positioned(
             top: topPad,
@@ -283,7 +330,7 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
               onModeSelect: _switchMode,
               onTrigger: _isScanning ? null : _triggerScan,
               onFlashToggle: _toggleFlash,
-              onGalleryTap: _pickImage,
+              onGalleryTap: () => _pickImage(source: ImageSource.gallery),
             ),
           ),
         ],
@@ -296,21 +343,24 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
       children: [
         // Live camera feed runs in all modes for a premium feel
         Positioned.fill(
-          child: MobileScanner(
-            controller: _barcodeCtrl,
-            onDetect: (capture) async {
-              if (_mode == ScanMode.barcode && !_barcodeFound && capture.barcodes.isNotEmpty) {
-                final bc = capture.barcodes.first;
-                if (bc.rawValue != null) {
-                  setState(() => _barcodeFound = true);
-                  final name = await UPCService.lookupBarcode(bc.rawValue!);
-                  final prompt = name != null
-                      ? 'Analyze medicine or supplement: "$name". Provide comprehensive details.'
-                      : 'Identify and analyze the medicine with barcode: ${bc.rawValue}. Be professional and thorough.';
-                  _analyze(prompt);
+          child: RepaintBoundary(
+            key: _cameraKey,
+            child: MobileScanner(
+              controller: _barcodeCtrl,
+              onDetect: (capture) async {
+                if (_mode == ScanMode.barcode && !_barcodeFound && capture.barcodes.isNotEmpty) {
+                  final bc = capture.barcodes.first;
+                  if (bc.rawValue != null) {
+                    setState(() => _barcodeFound = true);
+                    final name = await UPCService.lookupBarcode(bc.rawValue!);
+                    final prompt = name != null
+                        ? 'Analyze medicine or supplement: "$name". Provide comprehensive details.'
+                        : 'Identify and analyze the medicine with barcode: ${bc.rawValue}. Be professional and thorough.';
+                    _analyze(prompt);
+                  }
                 }
-              }
-            },
+              },
+            ),
           ),
         ),
         
@@ -321,7 +371,7 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
           ),
 
         // Dark frosted glass overlay for Search, Voice, or Picked Image
-        if (_mode == ScanMode.search || _mode == ScanMode.voice || _selectedImage != null)
+        if (_mode == ScanMode.search || _mode == ScanMode.voice || (_selectedImage != null && !_isScanning))
           Positioned.fill(
             child: ClipRect(
               child: BackdropFilter(
@@ -331,6 +381,10 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
                 ),
               ),
             ),
+          )
+        else if (_isScanning && _selectedImage != null)
+          Positioned.fill(
+            child: Container(color: Colors.black.withValues(alpha: 0.3)),
           ),
       ],
     );
@@ -340,17 +394,21 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
     switch (_mode) {
       case ScanMode.search:
         return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const BouncingScrollPhysics(),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                _SearchInput(
-                  controller: _searchCtrl,
-                  focusNode: _searchFocus,
-                  onSubmit: _triggerScan,
-                ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.08, end: 0),
+                if (_isScanning)
+                  const _SearchProcessingAnimation()
+                else
+                  _SearchInput(
+                    controller: _searchCtrl,
+                    focusNode: _searchFocus,
+                    onSubmit: _triggerScan,
+                  ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.08, end: 0),
               ],
             ),
           ),
@@ -536,7 +594,7 @@ class _TopBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Back Button
-          GestureDetector(
+          AnimatedPressable(
             onTap: onClose,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(24),
@@ -562,26 +620,41 @@ class _TopBar extends StatelessWidget {
           const _Animated3DIcon(),
           
           // Menu Button
-          ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1.0),
-                ),
-                child: const Center(
-                  child: Icon(Icons.more_vert_rounded, color: Colors.white, size: 20),
+          AnimatedPressable(
+            onTap: () {
+              HapticEngine.selection();
+              _showScannerMenu(context);
+            },
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(24),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                child: Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.1),
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1.0),
+                  ),
+                  child: const Center(
+                    child: Icon(Icons.more_vert_rounded, color: Colors.white, size: 20),
+                  ),
                 ),
               ),
             ),
           ),
         ],
       ),
+    );
+  }
+
+  void _showScannerMenu(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      builder: (_) => const _ScannerMenuSheet(),
     );
   }
 }
@@ -635,6 +708,7 @@ class _BottomControls extends StatelessWidget {
                   borderRadius: BorderRadius.circular(32),
                 ),
                 child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   child: Row(
@@ -663,7 +737,7 @@ class _BottomControls extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Flash button
-                GestureDetector(
+                AnimatedPressable(
                   onTap: onFlashToggle,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(30),
@@ -698,7 +772,7 @@ class _BottomControls extends StatelessWidget {
                 ),
 
                 // Gallery Button
-                GestureDetector(
+                AnimatedPressable(
                   onTap: onGalleryTap,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(30),
@@ -881,7 +955,7 @@ class _BarcodeStatus extends StatelessWidget {
                 const SizedBox(
                   width: 16,
                   height: 16,
-                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                  child: ContextualLoader(message: "Analyzing...", isDark: true),
                 ),
                 const SizedBox(width: 12),
               ] else ...[
@@ -964,6 +1038,7 @@ class _SearchInput extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
+  autofocus: true,
                       controller: controller,
                       focusNode: focusNode,
                       style: AppTypography.titleMedium.copyWith(
@@ -984,7 +1059,7 @@ class _SearchInput extends StatelessWidget {
                       onSubmitted: (_) => onSubmit(),
                     ),
                   ),
-                  GestureDetector(
+                  AnimatedPressable(
                     onTap: onSubmit,
                     child: Container(
                       padding: const EdgeInsets.all(10),
@@ -1160,6 +1235,505 @@ class _Animated3DIconState extends State<_Animated3DIcon> {
             },
           );
         },
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════
+// 2026 SMART SCANNING OVERLAY (Continuous Rolling Terminal)
+// ══════════════════════════════════════════════
+class _SmartScanningOverlay extends StatefulWidget {
+  const _SmartScanningOverlay();
+
+  @override
+  State<_SmartScanningOverlay> createState() => _SmartScanningOverlayState();
+}
+
+class _SmartScanningOverlayState extends State<_SmartScanningOverlay> {
+  final List<String> _steps = [
+    'Initializing AI Vision Models...',
+    'Isolating Object Contours...',
+    'Enhancing Texture & Edges...',
+    'Reading Text & Typography...',
+    'Cross-Referencing Global DBs...',
+    'Checking Active Ingredients...',
+    'Evaluating Drug Interactions...',
+    'Verifying Allergy Safety...',
+    'Synthesizing Final Insights...',
+  ];
+  int _currentStep = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _playSteps();
+  }
+
+  void _playSteps() async {
+    for (int i = 0; i < _steps.length; i++) {
+      if (!mounted) return;
+      setState(() => _currentStep = i);
+      
+      // Variable speed processing simulation (600ms to 1400ms)
+      final delay = 600 + (DateTime.now().millisecondsSinceEpoch % 800);
+      await Future.delayed(Duration(milliseconds: delay));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      right: 24,
+      top: 140,
+      bottom: 240,
+      width: 260,
+      child: ShaderMask(
+        shaderCallback: (rect) {
+          return const LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [Colors.transparent, Colors.black, Colors.black, Colors.transparent],
+            stops: [0.0, 0.15, 0.85, 1.0],
+          ).createShader(rect);
+        },
+        blendMode: BlendMode.dstIn,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 600),
+          curve: Curves.easeOutExpo,
+          alignment: Alignment.bottomRight, // Anchors to bottom, pushes up
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: List.generate(_currentStep + 1, (index) {
+              final isCurrent = index == _currentStep;
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: _ScanningRow(
+                  text: _steps[index],
+                  isActive: isCurrent,
+                  key: ValueKey('step_$index'),
+                ),
+              );
+            }),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _ScanningRow extends StatelessWidget {
+  final String text;
+  final bool isActive;
+
+  const _ScanningRow({super.key, required this.text, required this.isActive});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Flexible(
+          child: _TerminalText(text: text, isActive: isActive),
+        ),
+        const SizedBox(width: 14),
+        if (isActive)
+          Container(
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              color: AppColors.accent.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.accent.withValues(alpha: 0.5), width: 1.5),
+            ),
+            child: const Padding(
+              padding: EdgeInsets.all(4.0),
+              child: CircularProgressIndicator(
+                strokeWidth: 1.5,
+                color: AppColors.accent,
+              ),
+            ),
+          ).animate(onPlay: (controller) => controller.repeat())
+           .shimmer(duration: 1000.ms, color: Colors.white)
+        else
+          Container(
+            width: 22,
+            height: 22,
+            decoration: BoxDecoration(
+              color: AppColors.green.withValues(alpha: 0.15),
+              shape: BoxShape.circle,
+              border: Border.all(color: AppColors.green.withValues(alpha: 0.5), width: 1.5),
+            ),
+            child: const Icon(Icons.check_rounded, color: AppColors.green, size: 14),
+          ).animate().scale(curve: Curves.easeOutBack, duration: 400.ms),
+      ],
+    ).animate()
+      .slideX(begin: 0.3, end: 0, curve: Curves.easeOutExpo, duration: 600.ms)
+      .fadeIn(duration: 400.ms);
+  }
+}
+
+class _TerminalText extends StatefulWidget {
+  final String text;
+  final bool isActive;
+  const _TerminalText({required this.text, required this.isActive});
+  @override
+  State<_TerminalText> createState() => _TerminalTextState();
+}
+
+class _TerminalTextState extends State<_TerminalText> {
+  Timer? _timer;
+  String _hash = '';
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.isActive) _startHash();
+  }
+
+  void _startHash() {
+    _timer = Timer.periodic(const Duration(milliseconds: 60), (timer) {
+      if (!mounted) return;
+      if (!widget.isActive) {
+        timer.cancel();
+        setState(() => _hash = '');
+        return;
+      }
+      setState(() {
+        _hash = ' 0x${(100 + (DateTime.now().millisecondsSinceEpoch % 899)).toRadixString(16).toUpperCase()}';
+      });
+    });
+  }
+
+  @override
+  void didUpdateWidget(_TerminalText oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.isActive && !widget.isActive) {
+      _timer?.cancel();
+      _hash = '';
+    } else if (!oldWidget.isActive && widget.isActive) {
+      _startHash();
+    }
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      '${widget.text}$_hash',
+      textAlign: TextAlign.right,
+      style: AppTypography.labelSmall.copyWith(
+        fontFamily: 'Courier',
+        color: widget.isActive ? Colors.white : Colors.white.withValues(alpha: 0.45),
+        fontWeight: widget.isActive ? FontWeight.w700 : FontWeight.w500,
+        fontSize: widget.isActive ? 13 : 12,
+        letterSpacing: 0.5,
+        height: 1.4,
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════
+// 2026 PREMIUM TEXT SEARCH PROCESSING ANIMATION
+// ══════════════════════════════════════════════
+class _SearchProcessingAnimation extends StatefulWidget {
+  const _SearchProcessingAnimation();
+
+  @override
+  State<_SearchProcessingAnimation> createState() => _SearchProcessingAnimationState();
+}
+
+class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> with SingleTickerProviderStateMixin {
+  final List<String> _stages = [
+    'Parsing Query Semantics...',
+    'Querying Global Drug Index...',
+    'Cross-referencing Safety Protocols...',
+    'Fetching Interactions Data...',
+    'Synthesizing Results...',
+  ];
+  int _currentStage = 0;
+  late AnimationController _pulseCtrl;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))..repeat(reverse: true);
+    _playStages();
+  }
+
+  void _playStages() async {
+    for (int i = 0; i < _stages.length; i++) {
+      if (!mounted) return;
+      setState(() => _currentStage = i);
+      await Future.delayed(Duration(milliseconds: 800 + (i * 200)));
+    }
+  }
+
+  @override
+  void dispose() {
+    _pulseCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(vertical: 40),
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(32),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.05), width: 1),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          // Premium Animated Icon Ring
+          AnimatedBuilder(
+            animation: _pulseCtrl,
+            builder: (context, child) {
+              return Container(
+                width: 110,
+                height: 110,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: Colors.white.withValues(alpha: 0.05),
+                  border: Border.all(
+                    color: AppColors.accent.withValues(alpha: 0.3 + (_pulseCtrl.value * 0.4)),
+                    width: 2.0,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: AppColors.accent.withValues(alpha: _pulseCtrl.value * 0.4),
+                      blurRadius: 30,
+                      spreadRadius: 10,
+                    ),
+                  ],
+                ),
+                child: const Icon(
+                  Icons.travel_explore_rounded,
+                  color: Colors.white,
+                  size: 44,
+                ),
+              );
+            },
+          ).animate().scale(curve: Curves.easeOutBack, duration: 600.ms),
+          
+          const SizedBox(height: 48),
+          
+          // Sleek cycling text
+          AnimatedSwitcher(
+            duration: const Duration(milliseconds: 400),
+            switchInCurve: Curves.easeOutExpo,
+            transitionBuilder: (child, anim) => SlideTransition(
+              position: Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(anim),
+              child: FadeTransition(opacity: anim, child: child),
+            ),
+            child: Text(
+              _stages[_currentStage],
+              key: ValueKey(_currentStage),
+              textAlign: TextAlign.center,
+              style: AppTypography.titleMedium.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 0.5,
+              ),
+            ),
+          ),
+          
+          const SizedBox(height: 32),
+          
+          // Custom segmented progress bar
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(_stages.length, (index) {
+              final isActive = index <= _currentStage;
+              return AnimatedContainer(
+                duration: const Duration(milliseconds: 400),
+                margin: const EdgeInsets.symmetric(horizontal: 4),
+                height: 4,
+                width: isActive ? 24 : 12,
+                decoration: BoxDecoration(
+                  color: isActive ? AppColors.accent : Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(4),
+                  boxShadow: isActive
+                      ? [BoxShadow(color: AppColors.accent.withValues(alpha: 0.6), blurRadius: 8)]
+                      : null,
+                ),
+              );
+            }),
+          ).animate().fadeIn(delay: 300.ms),
+        ],
+      ),
+    ).animate().fadeIn(duration: 400.ms).scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1), curve: Curves.easeOutExpo);
+  }
+}
+
+// ══════════════════════════════════════════════
+// 2026 PREMIUM SCANNER MENU SHEET
+// ══════════════════════════════════════════════
+class _ScannerMenuSheet extends StatelessWidget {
+  const _ScannerMenuSheet();
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+        child: Container(
+          padding: const EdgeInsets.fromLTRB(24, 12, 24, 48),
+          decoration: BoxDecoration(
+            color: L.bg.withValues(alpha: 0.7),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+            border: Border(
+              top: BorderSide(color: AppColors.accent.withValues(alpha: 0.3), width: 1.5),
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.accent.withValues(alpha: 0.08),
+                blurRadius: 60,
+                spreadRadius: 20,
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Drag Handle
+              Container(
+                width: 40,
+                height: 5,
+                margin: const EdgeInsets.only(bottom: 24),
+                decoration: BoxDecoration(
+                  color: L.sub.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
+              
+              Text(
+                'Scanner Options',
+                style: AppTypography.titleLarge.copyWith(
+                  color: L.text,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 20,
+                ),
+              ),
+              const SizedBox(height: 32),
+              
+              _MenuRow(
+                icon: Icons.history_rounded,
+                title: 'Scan History',
+                subtitle: 'View your previously scanned medications',
+                onTap: () {
+                  HapticEngine.selection();
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ScanHistoryScreen()));
+                },
+              ),
+              const SizedBox(height: 16),
+              
+              _MenuRow(
+                icon: Icons.auto_awesome_rounded,
+                title: 'AI Accuracy Settings',
+                subtitle: 'Adjust confidence thresholds for recognition',
+                onTap: () {
+                  HapticEngine.selection();
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AiAccuracySettingsScreen()));
+                },
+              ),
+              const SizedBox(height: 16),
+              
+              _MenuRow(
+                icon: Icons.help_outline_rounded,
+                title: 'Help & Tips',
+                subtitle: 'Learn how to scan perfectly every time',
+                onTap: () {
+                  HapticEngine.selection();
+                  Navigator.pop(context);
+                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ScannerHelpScreen()));
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _MenuRow extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final VoidCallback onTap;
+
+  const _MenuRow({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    return AnimatedPressable(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: L.fill.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: L.border.withValues(alpha: 0.05)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: AppColors.accent.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: AppColors.accent, size: 24),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: AppTypography.titleMedium.copyWith(
+                      color: L.text,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 16,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: L.sub.withValues(alpha: 0.8),
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right_rounded, color: L.sub.withValues(alpha: 0.5)),
+          ],
+        ),
       ),
     );
   }

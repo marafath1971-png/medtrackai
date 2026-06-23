@@ -5,28 +5,68 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../core/utils/logger.dart';
 
 class PurchasesService {
-  static String get _appleApiKey =>
-      (dotenv.isInitialized ? dotenv.env['RC_APPLE_KEY'] : null) ?? 're_your_real_apple_key_here';
-  static String get _googleApiKey =>
-      (dotenv.isInitialized ? dotenv.env['RC_GOOGLE_KEY'] : null) ?? 're_your_real_google_key_here';
+  static bool _configured = false;
 
+  static String get _appleApiKey {
+    if (!dotenv.isInitialized) return '';
+    return (dotenv.env['RC_APPLE_KEY'] ?? dotenv.env['PURCHASES_API_KEY'] ?? '').trim();
+  }
+
+  static String get _googleApiKey {
+    if (!dotenv.isInitialized) return '';
+    return (dotenv.env['RC_GOOGLE_KEY'] ?? dotenv.env['PURCHASES_API_KEY'] ?? '').trim();
+  }
+
+  static bool _isValidKey(String key) {
+    final cleaned = key.trim();
+    if (cleaned.isEmpty) return false;
+    
+    final lower = cleaned.toLowerCase();
+    // Check for common placeholders
+    if (lower.contains('placeholder') ||
+        lower.contains('your_real') ||
+        lower.contains('your_key') ||
+        lower.contains('dummy') ||
+        lower.contains('demo') ||
+        lower == 'goog_' ||
+        lower == 'appl_' ||
+        lower == 'public_') {
+      return false;
+    }
+    
+    // RevenueCat public API keys typically start with goog_, appl_, or public_ and are at least 25 characters long.
+    if (cleaned.startsWith('goog_') || cleaned.startsWith('appl_') || cleaned.startsWith('public_')) {
+      return cleaned.length > 25;
+    }
+    
+    return false;
+  }
 
   static Future<void> init() async {
-    await Purchases.setLogLevel(LogLevel.info);
-
-    PurchasesConfiguration? configuration;
-    if (Platform.isAndroid) {
-      configuration = PurchasesConfiguration(_googleApiKey);
-    } else if (Platform.isIOS) {
-      configuration = PurchasesConfiguration(_appleApiKey);
+    final key = Platform.isAndroid ? _googleApiKey : _appleApiKey;
+    appLogger.i('💰 RevenueCat: Resolved API Key is "$key"');
+    
+    if (!_isValidKey(key)) {
+      appLogger.w('💰 RevenueCat: No valid API key configured. Billing features will run in mock/bypass mode.');
+      _configured = false;
+      return;
     }
 
-    if (configuration != null) {
+    try {
+      appLogger.i('💰 RevenueCat: Valid API key detected. Configuring Purchases SDK...');
+      await Purchases.setLogLevel(LogLevel.info);
+      final configuration = PurchasesConfiguration(key);
       await Purchases.configure(configuration);
+      _configured = true;
+      appLogger.i('💰 RevenueCat: Purchases SDK configured successfully.');
+    } catch (e) {
+      appLogger.e('💰 RevenueCat Configuration Error', error: e);
+      _configured = false;
     }
   }
 
   static Future<bool> isPremium() async {
+    if (!_configured) return false;
     try {
       final customerInfo = await Purchases.getCustomerInfo();
       return customerInfo.entitlements.all['premium']?.isActive ?? false;
@@ -35,7 +75,9 @@ class PurchasesService {
       return false;
     }
   }
+
   static Future<List<Package>> getAvailablePackages() async {
+    if (!_configured) return [];
     try {
       final offerings = await Purchases.getOfferings();
       return offerings.current?.availablePackages ?? [];
@@ -46,6 +88,10 @@ class PurchasesService {
   }
 
   static Future<bool> purchasePackage(String packageId) async {
+    if (!_configured) {
+      appLogger.w('💰 RevenueCat: Cannot purchase. Billing is not configured.');
+      return false;
+    }
     try {
       final offerings = await Purchases.getOfferings();
       final package = offerings.current?.getPackage(packageId);
@@ -65,6 +111,7 @@ class PurchasesService {
   }
 
   static Future<bool> restorePurchases() async {
+    if (!_configured) return false;
     try {
       final customerInfo = await Purchases.restorePurchases();
       return customerInfo.entitlements.all['premium']?.isActive ?? false;

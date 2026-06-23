@@ -103,6 +103,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                 
                 Expanded(
                   child: ListView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.all(AppSpacing.screenPadding),
                     children: [
                       // Longevity Score Card
@@ -210,7 +211,7 @@ class _LongevityScoreCard extends StatelessWidget {
           ).animate().shimmer(duration: 2.seconds, color: L.primary.withValues(alpha: 0.3)),
           const SizedBox(height: 8),
           Text(
-            'Top 5% of MedTrack Users 🚀',
+            'Top 5% of Medai Users 🚀',
             style: AppTypography.bodyMedium.copyWith(
               color: L.sub,
               fontWeight: FontWeight.w900,

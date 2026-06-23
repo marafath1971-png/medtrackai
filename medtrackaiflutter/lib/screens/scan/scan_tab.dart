@@ -1,3 +1,4 @@
+import '../../widgets/common/permission_soft_prompt.dart';
 import 'dart:io';
 import 'dart:ui';
 import 'dart:async';
@@ -96,14 +97,23 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
   }
 
   Future<void> _initCamera() async {
-    try {
-      // 1. Explicit Permission Check for better DX
-      final status = await Permission.camera.request().timeout(const Duration(seconds: 5));
-      if (!status.isGranted) {
+    await PermissionSoftPrompt.show(
+      context: context,
+      title: 'Camera Access',
+      explanation: 'We need your camera to scan medicine bottles and pills. This data is processed securely.',
+      icon: Icons.camera_alt_rounded,
+      buttonText: 'Enable Camera',
+      permission: Permission.camera,
+      fallbackExplanation: 'Camera permission is required to scan. Please enable it in Settings.',
+      onGranted: _setupCameraState,
+      onDenied: () {
         if (mounted) setState(() => _cameraError = true);
-        return;
-      }
+      },
+    );
+  }
 
+  Future<void> _setupCameraState() async {
+    try {
       _cameras = await availableCameras().timeout(const Duration(seconds: 5));
       if (_cameras != null && _cameras!.isNotEmpty) {
         _controller = CameraController(
@@ -1097,6 +1107,7 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
               border: Border.all(color: context.L.glassBorder, width: 0.8),
             ),
         child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const BouncingScrollPhysics(),
           scrollDirection: Axis.horizontal,
           child: Row(
@@ -1228,10 +1239,11 @@ class _ResultModal extends StatefulWidget {
   State<_ResultModal> createState() => _ResultModalState();
 }
 
-class _ResultModalState extends State<_ResultModal> {
+class _ResultModalState extends State<_ResultModal> with SingleTickerProviderStateMixin {
   late int _count;
   late List<ScheduleEntry> _manualSchedule;
   bool _useAutoSchedule = true;
+  late AnimationController _scanAnimationController;
 
   // Editable Controllers
   late TextEditingController _nameController;
@@ -1257,6 +1269,11 @@ class _ResultModalState extends State<_ResultModal> {
   @override
   void initState() {
     super.initState();
+    _scanAnimationController = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 3),
+    )..repeat(reverse: true);
+
     _count = widget.result.pillCount > 0 ? widget.result.pillCount : 30;
 
     _nameController = TextEditingController(text: widget.result.name);
@@ -1316,6 +1333,7 @@ class _ResultModalState extends State<_ResultModal> {
 
   @override
   void dispose() {
+    _scanAnimationController.dispose();
     _nameController.dispose();
     _brandController.dispose();
     _doseController.dispose();
@@ -1520,6 +1538,7 @@ class _ResultModalState extends State<_ResultModal> {
                   height: MediaQuery.of(context).size.height *
                       0.75, // Provide reasonable height for modal content
                   child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.symmetric(horizontal: 24),
                     physics: const BouncingScrollPhysics(),
                     child: Column(
@@ -1831,17 +1850,24 @@ class _ResultModalState extends State<_ResultModal> {
 
                   // AI Medical Disclaimer Card
                   Container(
-                    padding: const EdgeInsets.all(16),
+                    padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
-                      color: L.error.withValues(alpha: 0.05),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: L.error.withValues(alpha: 0.15), width: 1.0),
+                      gradient: LinearGradient(
+                        colors: [
+                          L.error.withValues(alpha: 0.08),
+                          L.error.withValues(alpha: 0.01),
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(24),
+                      border: Border.all(color: L.error.withValues(alpha: 0.2), width: 1.0),
                     ),
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(Icons.info_outline_rounded, color: L.error, size: 18),
-                        const SizedBox(width: 10),
+                        Icon(Icons.info_outline_rounded, color: L.error, size: 20),
+                        const SizedBox(width: 12),
                         Expanded(
                           child: Text(
                             '⚠️ AI MEDICAL DISCLAIMER: Details are automatically extracted via AI. Always verify dosage, schedule, and warning details with your medical provider or original prescription labels before ingestion.',
@@ -1849,7 +1875,7 @@ class _ResultModalState extends State<_ResultModal> {
                               color: L.error,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              height: 1.4,
+                              height: 1.5,
                             ),
                           ),
                         ),
@@ -1903,19 +1929,20 @@ class _ResultModalState extends State<_ResultModal> {
                       width: double.infinity,
                       height: 64,
                       decoration: BoxDecoration(
-                        color: L.text,
-                        borderRadius: BorderRadius.circular(24),
+                        gradient: LinearGradient(
+                          colors: [
+                            L.secondary,
+                            L.secondary.withValues(alpha: 0.85),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(28),
                         boxShadow: [
                           BoxShadow(
-                            color: L.text.withValues(alpha: 0.25),
+                            color: L.secondary.withValues(alpha: 0.3),
                             blurRadius: 25,
                             offset: const Offset(0, 8),
-                          ),
-                          BoxShadow(
-                            color: L.primary.withValues(alpha: 0.15),
-                            blurRadius: 10,
-                            spreadRadius: -2,
-                            offset: const Offset(0, 4),
                           ),
                         ],
                       ),
@@ -1923,13 +1950,14 @@ class _ResultModalState extends State<_ResultModal> {
                         child: Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            const Text("🔒", style: TextStyle(fontSize: 16)),
+                            const Icon(Icons.verified_user_rounded, color: Colors.white, size: 20),
                             const SizedBox(width: 12),
                             Text(
                               "SECURE & FINALIZE",
                               style: AppTypography.labelLarge.copyWith(
                                   fontWeight: FontWeight.w900,
-                                  color: L.bg,
+                                  color: Colors.white,
+                                  fontSize: 15,
                                   letterSpacing: 1.5),
                             ),
                           ],
@@ -2106,6 +2134,7 @@ class _ResultModalState extends State<_ResultModal> {
     required AppThemeColors L,
   }) {
     return TextField(
+  autofocus: true,
       controller: controller,
       style: AppTypography.headlineMedium.copyWith(
         fontSize: fontSize,
@@ -2152,93 +2181,197 @@ class _ResultModalState extends State<_ResultModal> {
 
   Widget _buildHeroSection(AppThemeColors L) {
     return Container(
-      height: 180,
+      height: 200,
       width: double.infinity,
       decoration: BoxDecoration(
         color: L.card,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: L.border.withValues(alpha: 0.08), width: 0.5),
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: L.border.withValues(alpha: 0.12), width: 1.0),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.12),
+            blurRadius: 25,
+            offset: const Offset(0, 10),
+          )
+        ],
       ),
-      child: Stack(
-        children: [
-          Positioned.fill(
-            child: MedImage(
-              imageUrl: widget.result.imageUrl,
-              borderRadius: 24,
-              fit: BoxFit.cover,
-            ),
-          ),
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  colors: [
-                    Colors.black.withValues(alpha: 0.1),
-                    Colors.black.withValues(alpha: 0.3),
-                  ],
-                ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(27),
+        child: Stack(
+          children: [
+            // Pill Image
+            Positioned.fill(
+              child: MedImage(
+                imageUrl: widget.result.imageUrl,
+                borderRadius: 0,
+                fit: BoxFit.cover,
               ),
             ),
-          ),
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: ClipRRect(
-              borderRadius:
-                  const BorderRadius.vertical(bottom: Radius.circular(24)),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                  color: L.bg.withValues(alpha: 0.8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        children: [
-                          _buildStatusBadge(widget.result.identified,
-                              widget.result.systemBusy),
-                          const Spacer(),
-                          if (widget.result.confidence == 'high')
-                            Text("⚡ 98% MATCH",
-                                style: TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 1,
-                                    color: L.text)),
-                        ],
-                      ),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _buildEditableField(
-                              controller: _nameController,
-                              fontSize: 26,
-                              fontWeight: FontWeight.w900,
-                              hint: "Medicine Name",
-                              L: L,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Icon(
-                            Icons.edit_rounded,
-                            size: 16,
-                            color: L.text.withValues(alpha: 0.3),
-                          ),
-                        ],
-                      ),
+            // High-fidelity dark ambient gradient overlay
+            Positioned.fill(
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.black.withValues(alpha: 0.15),
+                      Colors.transparent,
+                      Colors.black.withValues(alpha: 0.45),
                     ],
+                    stops: const [0.0, 0.45, 1.0],
                   ),
                 ),
               ),
             ),
-          ),
-        ],
+            // Sweeping glowing laser scanner line
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: _scanAnimationController,
+                builder: (context, child) {
+                  return FractionalTranslation(
+                    translation: Offset(0, _scanAnimationController.value - 0.5),
+                    child: Container(
+                      height: 4,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            L.accent.withValues(alpha: 0.0),
+                            L.accent,
+                            L.accent.withValues(alpha: 0.0),
+                          ],
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: L.accent.withValues(alpha: 0.8),
+                            blurRadius: 15,
+                            spreadRadius: 3,
+                          )
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            // Active Scanning Indicator badge in the corner
+            Positioned(
+              top: 16,
+              right: 16,
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: Colors.black.withValues(alpha: 0.65),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: L.accent.withValues(alpha: 0.35), width: 1.0),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        color: L.accent,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                            color: L.accent,
+                            blurRadius: 4,
+                            spreadRadius: 1,
+                          )
+                        ],
+                      ),
+                    ).animate(onPlay: (c) => c.repeat(reverse: true))
+                     .scale(begin: const Offset(0.7, 0.7), end: const Offset(1.3, 1.3), duration: 800.ms),
+                    const SizedBox(width: 6),
+                    Text(
+                      "SCAN ACTIVE",
+                      style: TextStyle(
+                        color: L.accent,
+                        fontSize: 9,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: 1.2,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            // Bottom Info panel with glassmorphism
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: ClipRRect(
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    color: L.bg.withValues(alpha: 0.75),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            _buildStatusBadge(widget.result.identified, widget.result.systemBusy),
+                            const Spacer(),
+                            if (widget.result.confidence == 'high')
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                decoration: BoxDecoration(
+                                  color: L.green.withValues(alpha: 0.15),
+                                  borderRadius: BorderRadius.circular(10),
+                                  border: Border.all(color: L.green.withValues(alpha: 0.4), width: 0.8),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text("⚡", style: TextStyle(color: L.green, fontSize: 10)),
+                                    const SizedBox(width: 4),
+                                    Text(
+                                      "98% AI MATCH",
+                                      style: TextStyle(
+                                        fontSize: 9,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: 0.8,
+                                        color: L.green,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildEditableField(
+                                controller: _nameController,
+                                fontSize: 24,
+                                fontWeight: FontWeight.w900,
+                                hint: "Medicine Name",
+                                L: L,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            Icon(
+                              Icons.edit_rounded,
+                              size: 16,
+                              color: L.text.withValues(alpha: 0.35),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -2467,7 +2600,7 @@ class _ResultModalState extends State<_ResultModal> {
               _ModalQtyBtn(
                 icon: Icons.remove_rounded,
                 onTap: () {
-                  HapticFeedback.lightImpact();
+                  HapticEngine.light();
                   setState(() => _count = (_count - 1).clamp(1, 999));
                 },
               ),
@@ -2483,7 +2616,7 @@ class _ResultModalState extends State<_ResultModal> {
               _ModalQtyBtn(
                 icon: Icons.add_rounded,
                 onTap: () {
-                  HapticFeedback.lightImpact();
+                  HapticEngine.light();
                   setState(() => _count++);
                 },
               ),
@@ -2756,7 +2889,7 @@ class _ResultModalState extends State<_ResultModal> {
           ),
           IconButton(
             onPressed: () {
-              HapticFeedback.mediumImpact();
+              HapticEngine.medium();
               setState(() {
                 _manualSchedule.removeAt(idx);
               });
@@ -2792,6 +2925,7 @@ class _ResultModalState extends State<_ResultModal> {
             const SizedBox(height: 20),
             Flexible(
               child: ListView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                 shrinkWrap: true,
                 children: Ritual.values.map((r) {
                   final isSelected = s.ritual == r;
@@ -2847,6 +2981,8 @@ class _BentoMetricTileState extends State<_BentoMetricTile> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final Color focusColor = L.secondary;
+
     return Flexible(
       flex: widget.flex,
       child: Focus(
@@ -2857,27 +2993,40 @@ class _BentoMetricTileState extends State<_BentoMetricTile> {
         },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
-          margin: const EdgeInsets.all(4),
+          margin: const EdgeInsets.all(5),
           padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: _isFocused ? L.secondary.withValues(alpha: 0.05) : L.card.withValues(alpha: 0.6),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: _isFocused
+                  ? [
+                      focusColor.withValues(alpha: 0.12),
+                      focusColor.withValues(alpha: 0.02),
+                    ]
+                  : [
+                      L.card.withValues(alpha: 0.75),
+                      L.card.withValues(alpha: 0.4),
+                    ],
+            ),
             borderRadius: BorderRadius.circular(24),
             border: Border.all(
               color: _isFocused
-                  ? L.secondary.withValues(alpha: 0.6)
-                  : L.border.withValues(alpha: 0.08),
-              width: _isFocused ? 1.5 : 0.5,
+                  ? focusColor.withValues(alpha: 0.6)
+                  : L.border.withValues(alpha: 0.12),
+              width: _isFocused ? 1.5 : 1.0,
             ),
             boxShadow: [
               if (_isFocused)
                 BoxShadow(
-                  color: L.secondary.withValues(alpha: 0.15),
+                  color: focusColor.withValues(alpha: 0.15),
                   blurRadius: 20,
-                  spreadRadius: 2,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 4),
                 )
               else
                 BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.05),
+                  color: Colors.black.withValues(alpha: 0.03),
                   blurRadius: 10,
                   offset: const Offset(0, 4),
                 )
@@ -2890,19 +3039,17 @@ class _BentoMetricTileState extends State<_BentoMetricTile> {
               Row(
                 children: [
                   Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: _isFocused 
-                          ? L.secondary.withValues(alpha: 0.1) 
+                      color: _isFocused
+                          ? focusColor.withValues(alpha: 0.15)
                           : L.text.withValues(alpha: 0.04),
                       shape: BoxShape.circle,
                     ),
                     child: Icon(
-                      widget.icon, 
-                      size: 12, 
-                      color: _isFocused 
-                          ? L.secondary 
-                          : L.text.withValues(alpha: 0.6),
+                      widget.icon,
+                      size: 13,
+                      color: _isFocused ? focusColor : L.text.withValues(alpha: 0.55),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -2911,25 +3058,21 @@ class _BentoMetricTileState extends State<_BentoMetricTile> {
                       widget.title.replaceFirst('ID_', '').toUpperCase(),
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.labelSmall.copyWith(
-                        color: _isFocused 
-                            ? L.secondary 
-                            : L.text.withValues(alpha: 0.4),
+                        color: _isFocused ? focusColor : L.text.withValues(alpha: 0.45),
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.0,
-                        fontSize: 9,
+                        fontSize: 9.5,
                       ),
                     ),
                   ),
                   Icon(
                     Icons.edit_rounded,
-                    size: 10,
-                    color: _isFocused
-                        ? L.secondary
-                        : L.text.withValues(alpha: 0.15),
+                    size: 11,
+                    color: _isFocused ? focusColor : L.text.withValues(alpha: 0.2),
                   ),
                 ],
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 12),
               widget.child,
             ],
           ),
@@ -3208,32 +3351,46 @@ class _ExpandableInputCardState extends State<_ExpandableInputCard> {
         margin: const EdgeInsets.only(top: 16),
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: _isFocused ? baseColor.withValues(alpha: 0.03) : widget.L.card.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(32),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: _isFocused
+                ? [
+                    baseColor.withValues(alpha: 0.06),
+                    baseColor.withValues(alpha: 0.01),
+                  ]
+                : [
+                    widget.L.card.withValues(alpha: 0.6),
+                    widget.L.card.withValues(alpha: 0.3),
+                  ],
+          ),
+          borderRadius: BorderRadius.circular(28),
           border: Border.all(
             color: _isFocused
                 ? baseColor.withValues(alpha: 0.5)
-                : baseColor.withValues(alpha: 0.1),
+                : baseColor.withValues(alpha: 0.08),
             width: _isFocused ? 1.5 : 1.0,
           ),
           boxShadow: [
             if (_isFocused)
               BoxShadow(
-                color: baseColor.withValues(alpha: 0.15),
+                color: baseColor.withValues(alpha: 0.12),
                 blurRadius: 25,
                 spreadRadius: 1,
+                offset: const Offset(0, 8),
               )
             else ...[
               BoxShadow(
-                color: baseColor.withValues(alpha: 0.05),
-                blurRadius: 20,
+                color: Colors.black.withValues(alpha: 0.02),
+                blurRadius: 15,
                 offset: const Offset(0, 8),
               ),
               if (isDangerous)
                 BoxShadow(
-                  color: Colors.redAccent.withValues(alpha: 0.08),
-                  blurRadius: 30,
-                  spreadRadius: -5,
+                  color: Colors.redAccent.withValues(alpha: 0.05),
+                  blurRadius: 25,
+                  spreadRadius: -4,
+                  offset: const Offset(0, 4),
                 )
             ]
           ],
@@ -3319,6 +3476,7 @@ class _ExpandableInputCardState extends State<_ExpandableInputCard> {
                 ),
               ),
               child: TextField(
+  autofocus: true,
                 controller: widget.controller,
                 maxLines: null,
                 style: AppTypography.bodyMedium.copyWith(

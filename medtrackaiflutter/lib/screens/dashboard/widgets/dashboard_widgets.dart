@@ -32,6 +32,7 @@ class _TimelinePillSelectorState extends State<TimelinePillSelector> {
     final L = widget.L;
     final tabs = ['This week', 'Last week', '2w ago', '3w ago'];
     return SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       child: Container(
@@ -47,7 +48,7 @@ class _TimelinePillSelectorState extends State<TimelinePillSelector> {
               mainAxisSize: MainAxisSize.min,
               children: List.generate(tabs.length, (index) {
                 final isSelected = widget.selectedIndex == index;
-                return GestureDetector(
+                return AnimatedPressable(
                   onTap: () => widget.onSelect(index),
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 260),
@@ -135,120 +136,120 @@ class LatencyHeatmap extends StatelessWidget {
             ],
           ),
           child: Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: List.generate(7, (i) {
-                final date = DateTime.now().subtract(Duration(days: 6 - i));
-                final dateStr = date.toIso8601String().substring(0, 10);
-                final dayLatency =
-                    latencyData.where((e) => e['date'] == dateStr).toList();
+            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: List.generate(7, (i) {
+              final date = DateTime.now().subtract(Duration(days: 6 - i));
+              final dateStr = date.toIso8601String().substring(0, 10);
+              final dayLatency =
+                  latencyData.where((e) => e['date'] == dateStr).toList();
 
-                return Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      Expanded(
-                        child: Stack(
-                          alignment: Alignment.center,
-                          children: [
-                            Container(
-                              width: 0.5,
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    Colors.transparent,
-                                    L.border.withValues(alpha: 0.1),
-                                    Colors.transparent
+              return Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Expanded(
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          Container(
+                            width: 0.5,
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                colors: [
+                                  Colors.transparent,
+                                  L.border.withValues(alpha: 0.1),
+                                  Colors.transparent
+                                ],
+                                begin: Alignment.topCenter,
+                                end: Alignment.bottomCenter,
+                              ),
+                            ),
+                          ),
+                          ...dayLatency.map((d) {
+                            final latency = (d['latency'] as int?) ?? 0;
+                            final color = latency.abs() < 15
+                                ? L.text
+                                : (latency.abs() < 60 ? L.sub : L.error);
+                            final bottomPos = ((latency + 60) / 120 * 100)
+                                .clamp(0.0, 100.0);
+
+                            return Positioned(
+                              bottom: bottomPos,
+                              child: Container(
+                                width: 10,
+                                height: 12,
+                                decoration: BoxDecoration(
+                                  color: color,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(color: L.bg, width: 2),
+                                  boxShadow: [
+                                    BoxShadow(
+                                        color: color.withValues(alpha: 0.5),
+                                        blurRadius: 12,
+                                        spreadRadius: 2),
                                   ],
-                                  begin: Alignment.topCenter,
-                                  end: Alignment.bottomCenter,
+                                ),
+                              )
+                                  .animate(
+                                      key: ValueKey('latency_pulse_${d['date']}_$i'),
+                                      onPlay: (c) => c.repeat(reverse: true))
+                                  .scale(
+                                    begin: const Offset(1, 1),
+                                    end: const Offset(1.3, 1.3),
+                                    duration: 1500.ms,
+                                    curve: Curves.easeInOutSine,
+                                    delay: (i * 100).ms,
+                                  ),
+                            );
+                          }),
+                          // Viral Laser Line Scan
+                          Positioned.fill(
+                            child: Align(
+                              alignment: Alignment.bottomCenter,
+                              child: Container(
+                                height: 2,
+                                decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: L.accent.withValues(alpha: 0.8),
+                                      blurRadius: 8,
+                                      spreadRadius: 2,
+                                    )
+                                  ],
+                                  color: L.accent,
                                 ),
                               ),
                             ),
-                            ...dayLatency.map((d) {
-                              final latency = (d['latency'] as int?) ?? 0;
-                              final color = latency.abs() < 15
-                                  ? L.text
-                                  : (latency.abs() < 60 ? L.sub : L.error);
-                              final bottomPos = ((latency + 60) / 120 * 100)
-                                  .clamp(0.0, 100.0);
-
-                              return Positioned(
-                                bottom: bottomPos,
-                                child: Container(
-                                  width: 10,
-                                  height: 12,
-                                  decoration: BoxDecoration(
-                                    color: color,
-                                    shape: BoxShape.circle,
-                                    border: Border.all(color: L.bg, width: 2),
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: color.withValues(alpha: 0.5),
-                                          blurRadius: 12,
-                                          spreadRadius: 2),
-                                    ],
-                                  ),
-                                )
-                                    .animate(
-                                        key: ValueKey('latency_pulse_${d['date']}_$i'),
-                                        onPlay: (c) => c.repeat(reverse: true))
-                                    .scale(
-                                      begin: const Offset(1, 1),
-                                      end: const Offset(1.3, 1.3),
-                                      duration: 1500.ms,
-                                      curve: Curves.easeInOutSine,
-                                      delay: (i * 100).ms,
-                                    ),
-                              );
-                            }),
-                            // Viral Laser Line Scan
-                            Positioned.fill(
-                              child: Align(
-                                alignment: Alignment.bottomCenter,
-                                child: Container(
-                                  height: 2,
-                                  decoration: BoxDecoration(
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: L.accent.withValues(alpha: 0.8),
-                                        blurRadius: 8,
-                                        spreadRadius: 2,
-                                      )
-                                    ],
-                                    color: L.accent,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        [
-                          'SUN',
-                          'MON',
-                          'TUE',
-                          'WED',
-                          'THU',
-                          'FRI',
-                          'SAT'
-                        ][date.weekday % 7],
-                        style: AppTypography.labelSmall.copyWith(
-                            fontSize: 10,
-                            fontFamily: 'Courier',
-                            color: L.sub,
-                            fontWeight: FontWeight.w900),
-                      ),
-                    ],
-                  ),
-                );
-              }),
-            ),
+                    ),
+                    const SizedBox(height: 16),
+                    Text(
+                      [
+                        'SUN',
+                        'MON',
+                        'TUE',
+                        'WED',
+                        'THU',
+                        'FRI',
+                        'SAT'
+                      ][date.weekday % 7],
+                      style: AppTypography.labelSmall.copyWith(
+                          fontSize: 10,
+                          fontFamily: 'Courier',
+                          color: L.sub,
+                          fontWeight: FontWeight.w900),
+                    ),
+                  ],
+                ),
+              );
+            }),
           ),
-        ],
-      );
+        ),
+      ],
+    );
   }
 
   Widget _buildEmptyState(AppThemeColors L) {

@@ -3,6 +3,7 @@ import 'package:mobile_scanner/mobile_scanner.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/app_loading_indicator.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
 
 class JoinAsCaregiverView extends StatefulWidget {
   final AppState state;
@@ -70,7 +71,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
           Padding(
             padding: const EdgeInsets.all(20),
             child: Row(children: [
-              GestureDetector(
+              AnimatedPressable(
                   onTap: widget.onBack,
                   child: Icon(Icons.close_rounded, color: L.text, size: 24)),
               const SizedBox(width: 14),
@@ -83,6 +84,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
           ),
           Expanded(
               child: SingleChildScrollView(
+  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   physics: const BouncingScrollPhysics(),
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Column(
@@ -166,7 +168,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                                       fontWeight: FontWeight.w600))),
                         ],
                         const SizedBox(height: 40),
-                        GestureDetector(
+                        AnimatedPressable(
                             onTap: () => _checkCode(_codeCtrl.text),
                             child: AnimatedContainer(
                                 duration: const Duration(milliseconds: 200),

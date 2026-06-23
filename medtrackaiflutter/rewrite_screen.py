@@ -1,5 +1,6 @@
-import 'dart:io';
-import 'dart:ui';
+import os
+
+new_code = r'''import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
@@ -11,14 +12,14 @@ import 'package:provider/provider.dart';
 import '../../providers/controllers/medication_controller.dart';
 import 'product_chat_screen.dart';
 import '../../providers/app_state.dart';
+import '../../domain/entities/medicine.dart';
 
 // ══════════════════════════════════════════════════════════
 // PRODUCT ANALYSIS SCREEN — Cal AI 2026 Professional
 // ══════════════════════════════════════════════════════════
 class ProductAnalysisScreen extends StatefulWidget {
   final ProductAnalysis product;
-  final File? imageFile;
-  const ProductAnalysisScreen({super.key, required this.product, this.imageFile});
+  const ProductAnalysisScreen({super.key, required this.product});
 
   @override
   State<ProductAnalysisScreen> createState() => _ProductAnalysisScreenState();
@@ -100,7 +101,6 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
           
           // Main Content
           CustomScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             controller: _scrollCtrl,
             physics: const BouncingScrollPhysics(),
             slivers: [
@@ -108,34 +108,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
                   child: _HeroHeader(
                       product: widget.product,
                       topPad: topPad,
-                      safetyColor: _safetyColor,
-                      imageFile: widget.imageFile)),
-
-              if (widget.product.allergyAlerts.isNotEmpty)
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                  sliver: SliverToBoxAdapter(
-                    child: _AllergyAlertCard(alerts: widget.product.allergyAlerts)
-                        .animate(onPlay: (c) => c.repeat(reverse: true))
-                        .shimmer(duration: 2.seconds, color: Colors.white.withValues(alpha: 0.2))
-                        .animate()
-                        .fadeIn(duration: 400.ms)
-                        .scaleXY(begin: 0.9, end: 1.0, curve: Curves.easeOutBack),
-                  ),
-                ),
-
-              if (widget.product.childSafetyAlert != null && widget.product.childSafetyAlert!.isNotEmpty)
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
-                  sliver: SliverToBoxAdapter(
-                    child: _ChildSafetyCard(alertText: widget.product.childSafetyAlert!)
-                        .animate(onPlay: (c) => c.repeat(reverse: true))
-                        .shimmer(duration: 3.seconds, color: Colors.white.withValues(alpha: 0.2))
-                        .animate()
-                        .fadeIn(duration: 400.ms)
-                        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutBack),
-                  ),
-                ),
+                      safetyColor: _safetyColor)),
 
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
@@ -265,7 +238,6 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
                       ritual: Ritual.withBreakfast,
                     )
                   ],
-                  imageUrl: widget.imageFile?.path,
                   productAnalysis: widget.product,
                 );
                 context.read<MedicationController>().addMedicine(newMed);
@@ -305,7 +277,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
                   color: L.bg.withValues(alpha: 0.5),
                   alignment: Alignment.bottomLeft,
                   padding: const EdgeInsets.only(left: 16, bottom: 8),
-                  child: AnimatedPressable(
+                  child: GestureDetector(
                     onTap: () {
                       HapticEngine.selection();
                       Navigator.pop(context);
@@ -338,7 +310,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
 class _MeshPainter extends CustomPainter {
   final Color color;
   final double pulse;
-  final AppThemeColors themeContext;
+  final AppThemeExtension themeContext;
 
   _MeshPainter({required this.color, required this.pulse, required this.themeContext});
 
@@ -363,13 +335,11 @@ class _HeroHeader extends StatelessWidget {
   final ProductAnalysis product;
   final double topPad;
   final Color safetyColor;
-  final File? imageFile;
 
   const _HeroHeader({
     required this.product,
     required this.topPad,
     required this.safetyColor,
-    this.imageFile,
   });
 
   @override
@@ -383,37 +353,6 @@ class _HeroHeader extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (imageFile != null)
-            Center(
-              child: Container(
-                margin: const EdgeInsets.only(bottom: 32),
-                height: 180,
-                width: 180,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(32),
-                  border: Border.all(color: L.border.withValues(alpha: 0.5), width: 1.5),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.2),
-                      blurRadius: 40,
-                      offset: const Offset(0, 20),
-                    ),
-                    BoxShadow(
-                      color: safetyColor.withValues(alpha: 0.2),
-                      blurRadius: 40,
-                      spreadRadius: -5,
-                    )
-                  ],
-                ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(32),
-                  child: Image.file(
-                    imageFile!,
-                    fit: BoxFit.cover,
-                  ),
-                ),
-              ).animate().fadeIn(duration: 800.ms).scale(curve: Curves.easeOutBack, begin: const Offset(0.9, 0.9)),
-            ),
           // Glass Category Pill
           ClipRRect(
             borderRadius: BorderRadius.circular(16),
@@ -1252,14 +1191,13 @@ class _ExpertSection extends StatelessWidget {
               SizedBox(
                 height: 80,
                 child: ListView.builder(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
                   itemCount: perspectives.length,
                   itemBuilder: (_, i) {
                     final isSelected = safe == i;
                     final p = perspectives[i];
-                    return AnimatedPressable(
+                    return GestureDetector(
                       onTap: () {
                         HapticEngine.selection();
                         onSelect(i);
@@ -1541,11 +1479,7 @@ class _BottomActionBar extends StatelessWidget {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [L.accent.withValues(alpha: 0.25), L.accent.withValues(alpha: 0.05)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color: L.accent.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                       border: Border.all(
                           color: L.accent.withValues(alpha: 0.5), width: 1.5),
@@ -1569,22 +1503,17 @@ class _BottomActionBar extends StatelessWidget {
                     width: 56,
                     height: 56,
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [AppColors.accent.withValues(alpha: 0.3), AppColors.accent.withValues(alpha: 0.05)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
+                      color: L.text.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
                       border: Border.all(
-                          color: AppColors.accent.withValues(alpha: 0.6), width: 1.5),
-                      boxShadow: AppShadows.glow(AppColors.accent, intensity: 0.4),
+                          color: L.text.withValues(alpha: 0.3), width: 1.5),
                     ),
                     child: Icon(Icons.auto_awesome_rounded,
-                            color: AppColors.accent, size: 24)
+                            color: L.text, size: 24)
                         .animate(onPlay: (c) => c.repeat())
                         .shimmer(
                             duration: 2000.ms,
-                            color: Colors.white),
+                            color: AppColors.accent),
                   ),
                 ),
               ],
@@ -1595,177 +1524,9 @@ class _BottomActionBar extends StatelessWidget {
     );
   }
 }
+'''
 
-// ══════════════════════════════════════════════
-// ALLERGY ALERT CARD
-// ══════════════════════════════════════════════
-class _AllergyAlertCard extends StatelessWidget {
-  final List<String> alerts;
-  const _AllergyAlertCard({required this.alerts});
-
-  @override
-  Widget build(BuildContext context) {
-    final L = context.L;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: AppColors.red.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.red.withValues(alpha: 0.6), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.red.withValues(alpha: 0.2),
-                blurRadius: 30,
-                spreadRadius: -5,
-              )
-            ]
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.red.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.warning_amber_rounded, color: AppColors.red, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'CRITICAL ALLERGY ALERT',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: AppColors.red,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2.0,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'This product contains ingredients that match your known allergies. Do not consume without consulting a physician.',
-                style: AppTypography.bodySmall.copyWith(
-                  color: L.text,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                  height: 1.4,
-                ),
-              ),
-              const SizedBox(height: 16),
-              ...alerts.map((a) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 4, right: 8),
-                      child: Icon(Icons.close_rounded, color: AppColors.red, size: 16),
-                    ),
-                    Expanded(
-                      child: Text(
-                        a,
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.red,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              )),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// ══════════════════════════════════════════════
-// PEDIATRIC SAFETY CARD
-// ══════════════════════════════════════════════
-class _ChildSafetyCard extends StatelessWidget {
-  final String alertText;
-  const _ChildSafetyCard({required this.alertText});
-
-  @override
-  Widget build(BuildContext context) {
-    final L = context.L;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: AppColors.amber.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.amber.withValues(alpha: 0.6), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.amber.withValues(alpha: 0.1),
-                blurRadius: 20,
-                spreadRadius: -2,
-              )
-            ]
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.amber.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.child_care_rounded, color: AppColors.amber, size: 20),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'PEDIATRIC SAFETY ALERT',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: AppColors.amber,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2.0,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 4, right: 8),
-                    child: Icon(Icons.shield_rounded, color: AppColors.amber, size: 16),
-                  ),
-                  Expanded(
-                    child: Text(
-                      alertText,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: L.text,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        height: 1.4,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
+file_path = '/Users/arafathossain/trackai-main/medtrackaiflutter/lib/screens/analysis/product_analysis_screen.dart'
+with open(file_path, 'w', encoding='utf-8') as f:
+    f.write(new_code)
+print("File rewritten successfully.")
