@@ -1706,4 +1706,63 @@ Rules:
           'AI could not parse your log. Try: "I took 1 Aspirin at 8am"'));
     }
   }
+
+  /// Generates a dynamic Gen Z self-care quote or tip based on the user's streak using Gemini.
+  static Future<String> generateMascotQuote({
+    required int streak,
+    required List<String> recentMeds,
+    String mood = 'content',
+  }) async {
+    final medList = recentMeds.isEmpty ? 'None' : recentMeds.join(', ');
+    final prompt = '''
+You are the Medai app's mascot companion, talking to the user.
+Your personality is Gen Z, friendly, authentic, and highly motivational but slightly funny (not corporate or clinical).
+Current user metrics:
+- Adherence Streak: $streak days
+- Mascot Mood: $mood (streak status indicator)
+- Current Meds: $medList
+
+Provide a single-sentence encouraging self-care quote or tip that matches your mascot mood:
+- If mood is 'sleepy' (0 streak): encourage them to start their streak and wake you up.
+- If mood is 'content' (1-2 streak): friendly encouragement.
+- If mood is 'energetic' (3-6 streak): energetic hype and congrats.
+- If mood is 'happy' (7+ streak): treat them like a main character, ultimate praise, hype them up.
+
+Keep it very short (max 12 words), use Gen Z slang and emojis (e.g. 💅, 💧, 🔥, 👑, ✨, bestie, green flag, flex, lock in).
+Do NOT include markdown, quotes around the sentence, or any introductory text. Return ONLY the sentence.
+''';
+
+    for (final config in _standardModels) {
+      final modelName = config['model']!;
+      final apiVersion = config['version']!;
+      try {
+        final result = await FirebaseFunctions.instance
+            .httpsCallable('geminiProxy')
+            .call({
+          'prompt': prompt,
+          'model': modelName,
+        }).timeout(const Duration(seconds: 8));
+
+        if (result.data['text'] != null) {
+          final text = result.data['text'].trim().replaceAll('"', '');
+          if (text.isNotEmpty) return text;
+        }
+      } catch (e) {
+        // Fallback to direct API if key present
+        if (_apiKey.isNotEmpty) {
+          try {
+            final model = _getModel(modelName, apiVersion: apiVersion);
+            final response = await model.generateContent([Content.text(prompt)])
+                .timeout(const Duration(seconds: 8));
+            if (response.text != null && response.text!.isNotEmpty) {
+              final text = response.text!.trim().replaceAll('"', '');
+              if (text.isNotEmpty) return text;
+            }
+          } catch (_) {}
+        }
+      }
+    }
+    
+    return ''; // Return empty so client falls back to local pool
+  }
 }

@@ -8,6 +8,7 @@ import '../../../theme/app_theme.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/mascot_widget.dart';
 import '../../../widgets/common/animated_pressable.dart';
+import '../../../services/gemini_service.dart';
 
 class HomeMascotCard extends StatefulWidget {
   const HomeMascotCard({super.key});
@@ -21,6 +22,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
   late final AnimationController _bounceCtrl;
   
   String _currentQuote = "hydrate before you dehydrate 💧";
+  bool _isLoading = false;
 
   final List<String> _sleepyQuotes = [
     "shhh... i'm resting up. let's wake up with a dose! 😴",
@@ -77,8 +79,51 @@ class _HomeMascotCardState extends State<HomeMascotCard>
     super.dispose();
   }
 
-  void _refreshQuote() {
-    final streak = context.read<AppState>().getStreak();
+  Future<void> _refreshQuote() async {
+    if (_isLoading) return;
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    final appState = context.read<AppState>();
+    final streak = appState.getStreak();
+    final recentMeds = appState.meds.map((m) => m.name).toList();
+
+    // Determine mascot mood based on streak
+    String mood = 'content';
+    if (streak == 0) {
+      mood = 'sleepy';
+    } else if (streak > 0 && streak < 3) {
+      mood = 'content';
+    } else if (streak >= 3 && streak < 7) {
+      mood = 'energetic';
+    } else {
+      mood = 'happy';
+    }
+
+    String aiQuote = '';
+    try {
+      aiQuote = await GeminiService.generateMascotQuote(
+        streak: streak,
+        recentMeds: recentMeds,
+        mood: mood,
+      );
+    } catch (e) {
+      debugPrint('Error generating mascot quote: $e');
+    }
+
+    if (aiQuote.isNotEmpty) {
+      if (mounted) {
+        setState(() {
+          _currentQuote = aiQuote;
+          _isLoading = false;
+        });
+      }
+      return;
+    }
+
+    // Local Fallback Pool
     List<String> pool;
     if (streak == 0) {
       pool = _sleepyQuotes;
@@ -92,17 +137,18 @@ class _HomeMascotCardState extends State<HomeMascotCard>
 
     final random = Random();
     String nextQuote = pool[random.nextInt(pool.length)];
-    
-    // Avoid showing the exact same quote twice in a row if pool has multiple options
     if (pool.length > 1) {
       while (nextQuote == _currentQuote) {
         nextQuote = pool[random.nextInt(pool.length)];
       }
     }
 
-    setState(() {
-      _currentQuote = nextQuote;
-    });
+    if (mounted) {
+      setState(() {
+        _currentQuote = nextQuote;
+        _isLoading = false;
+      });
+    }
   }
 
   void _onTap() {
@@ -200,32 +246,108 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                     child: child,
                   ),
                 ),
-                child: Column(
-                  key: ValueKey(_currentQuote),
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'MEDAI COMPANION',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: L.accent,
-                        fontSize: 9,
-                        letterSpacing: 1.2,
-                        fontWeight: FontWeight.w900,
+                child: _isLoading
+                    ? Container(
+                        key: const ValueKey('mascot_coaching_loading'),
+                        height: 38,
+                        alignment: Alignment.centerLeft,
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              'COACHING',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: L.accent.withValues(alpha: 0.8),
+                                fontSize: 9,
+                                letterSpacing: 1.2,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            ...List.generate(3, (index) {
+                              return Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 1.5),
+                                width: 5,
+                                height: 5,
+                                decoration: BoxDecoration(
+                                  color: L.accent.withValues(alpha: 0.8),
+                                  shape: BoxShape.circle,
+                                ),
+                              ).animate(
+                                onPlay: (c) => c.repeat(),
+                              ).scale(
+                                begin: const Offset(0.6, 0.6),
+                                end: const Offset(1.2, 1.2),
+                                duration: 600.ms,
+                                delay: (index * 150).ms,
+                                curve: Curves.easeInOut,
+                              ).fadeIn(
+                                begin: 0.4,
+                                duration: 600.ms,
+                                delay: (index * 150).ms,
+                              );
+                            }),
+                          ],
+                        ),
+                      )
+                    : Column(
+                        key: ValueKey(_currentQuote),
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Row(
+                            children: [
+                              Text(
+                                'MEDAI COMPANION',
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: L.accent,
+                                  fontSize: 9,
+                                  letterSpacing: 1.2,
+                                  fontWeight: FontWeight.w900,
+                                ),
+                              ),
+                              const Spacer(),
+                              Container(
+                                padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 1.5),
+                                decoration: BoxDecoration(
+                                  color: L.accent.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(4),
+                                  border: Border.all(
+                                    color: L.accent.withValues(alpha: 0.2),
+                                    width: 0.5,
+                                  ),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Icon(Icons.auto_awesome_rounded, size: 7, color: L.accent),
+                                    const SizedBox(width: 2.5),
+                                    Text(
+                                      'AI LIVE',
+                                      style: AppTypography.labelSmall.copyWith(
+                                        color: L.accent,
+                                        fontSize: 6.5,
+                                        fontWeight: FontWeight.w900,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _currentQuote,
+                            style: AppTypography.bodyMedium.copyWith(
+                              color: L.text,
+                              fontWeight: FontWeight.w500,
+                              fontSize: 13.5,
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
                       ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      _currentQuote,
-                      style: AppTypography.bodyMedium.copyWith(
-                        color: L.text,
-                        fontWeight: FontWeight.w500,
-                        fontSize: 13.5,
-                        height: 1.3,
-                      ),
-                    ),
-                  ],
-                ),
               ),
             ),
           ),
