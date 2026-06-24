@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../widgets/modals/mascot_shop_sheet.dart';
 import '../../../widgets/mascot_widget.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../services/gemini_service.dart';
@@ -212,6 +213,22 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                     ),
                   ),
                   MascotWidget(size: 64, mood: mood),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: GestureDetector(
+                      onTap: () => MascotShopSheet.show(context),
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: L.card,
+                          shape: BoxShape.circle,
+                          boxShadow: [BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 4, offset: const Offset(0, 2))],
+                        ),
+                        child: Text('👕', style: const TextStyle(fontSize: 12)),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),

@@ -1521,40 +1521,58 @@ Rules:
         .map((m) => '- ID: ${m.id}, Name: ${m.name} (${m.dose})')
         .join('\n');
     const promptTemplate = '''
-You are a medical logging assistant inside a medication tracker app.
-A user typed the following message to log a medication dose:
+You are a medical assistant inside a medication tracker app.
+A user typed the following message to either log a past dose OR schedule a new medication:
 
 USER INPUT: "{INPUT}"
 
 Here are the user's current medications:
 {MED_LIST}
 
-Extract the following details from this natural language message:
-- Medicine ID (match the medicine name to the closest ID in the list. required)
-- Dosage/amount (if mentioned)
-- Time of intake (if mentioned, relative like "10 mins ago" or absolute like "8am")
+Determine if the user wants to LOG a dose or SCHEDULE a new medication.
 
-Respond ONLY with a JSON object in this exact format:
+If LOGGING A DOSE (e.g. "I took Aspirin 10 mins ago"):
+Extract:
+- action: "log_dose"
+- Medicine ID (match name to the closest ID in the list)
+- Time of intake
+Respond ONLY with this JSON format:
 {
   "success": true,
+  "action": "log_dose",
   "med_id": 12345,
-  "dosage": "81mg",
   "time_taken": "9:15 AM",
   "confirmation": "Aspirin 81mg logged at 9:15 AM ✅"
 }
 
-If you cannot extract a medicine name or match it to the list, respond with:
+If SCHEDULING A NEW MEDICATION (e.g. "Remind me to take Metformin every morning at 8am"):
+Extract:
+- action: "schedule_med"
+- Medicine Name
+- Dosage (if mentioned)
+- Times (array of HH:mm 24-hour strings, e.g. ["08:00"])
+- Frequency string (e.g., "daily", "as_needed")
+Respond ONLY with this JSON format:
+{
+  "success": true,
+  "action": "schedule_med",
+  "med_name": "Metformin",
+  "dosage": "500mg",
+  "frequency": "daily",
+  "times": ["08:00"],
+  "confirmation": "Scheduled Metformin for 08:00 daily 🗓️"
+}
+
+If you cannot understand the request, respond with:
 {
   "success": false,
-  "confirmation": "Could not identify a medication in your message that matches your inventory."
+  "confirmation": "Could not understand that. Try 'I took Aspirin' or 'Remind me to take Advil daily at 8am'."
 }
 
 Rules:
-- Never add medical advice or recommendations
-- If time is relative (e.g., "10 minutes ago"), calculate from current time
+- Never add medical advice
 - Current time is: {TIME}
-- Keep confirmation message short and friendly (under 60 chars)
-- This is for medication logging only — do not respond to anything else
+- Keep confirmation message short and friendly
 ''';
 
     final now = DateTime.now();
@@ -1584,7 +1602,7 @@ Rules:
             final isSuccess = data['success'] == true;
             final confirmation =
                 data['confirmation'] as String? ?? 'Dose logged ✅';
-            if (isSuccess && data['med_id'] != null) {
+            if (isSuccess && (data['med_id'] != null || data['action'] == 'schedule_med')) {
               appLogger.i('[GeminiService] Conversational log parsed: $data');
               return Success(data);
             } else {
@@ -1610,7 +1628,7 @@ Rules:
                 final isSuccess = data['success'] == true;
                 final confirmation =
                     data['confirmation'] as String? ?? 'Dose logged ✅';
-                if (isSuccess && data['med_id'] != null) {
+                if (isSuccess && (data['med_id'] != null || data['action'] == 'schedule_med')) {
                   appLogger.i(
                       '[GeminiService] ConvLog direct fallback parsed: $data');
                   return Success(data);

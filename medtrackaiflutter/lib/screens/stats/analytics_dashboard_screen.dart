@@ -4,7 +4,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../core/utils/date_formatter.dart';
 import '../../../widgets/shared/shared_widgets.dart';
+import 'monthly_wrapped_screen.dart';
+import '../social/med_buddies_screen.dart';
+import 'trophy_case_screen.dart';
 
 class AnalyticsDashboardScreen extends StatefulWidget {
   const AnalyticsDashboardScreen({super.key});
@@ -152,6 +156,196 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                       ),
                       const SizedBox(height: 16),
                       _TrendGraph(L: L).animate(key: const ValueKey('analytics_trend_graph_anim'), delay: 200.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
+
+                      const SizedBox(height: 32),
+                      
+                      // Monthly Wrapped Entry Point
+                      BouncingButton(
+                        onTap: () {
+                          HapticEngine.heavyImpact();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const MonthlyWrappedScreen(),
+                              fullscreenDialog: true, // Use a dialog-style transition for the story
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              colors: [L.primary, L.secondary],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(24),
+                            boxShadow: [
+                              BoxShadow(color: L.primary.withValues(alpha: 0.4), blurRadius: 20, offset: const Offset(0, 10)),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'MONTHLY WRAPPED',
+                                    style: AppTypography.labelSmall.copyWith(
+                                      color: L.onPrimary.withValues(alpha: 0.8),
+                                      letterSpacing: 2.0,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'View Your Stats 🚀',
+                                    style: AppTypography.headlineMedium.copyWith(
+                                      color: L.onPrimary,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: L.onPrimary.withValues(alpha: 0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.play_arrow_rounded, color: L.onPrimary, size: 24),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ).animate(delay: 300.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0).shimmer(duration: 2.seconds, delay: 1.seconds, color: L.onPrimary.withValues(alpha: 0.3)),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Med Buddies Entry Point
+                      BouncingButton(
+                        onTap: () {
+                          HapticEngine.heavyImpact();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const MedBuddiesScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                          decoration: BoxDecoration(
+                            color: L.card,
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(color: L.border.withValues(alpha: 0.1)),
+                            boxShadow: AppShadows.neumorphic,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'SOCIAL ACCOUNTABILITY',
+                                    style: AppTypography.labelSmall.copyWith(
+                                      color: L.secondary,
+                                      letterSpacing: 2.0,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Med Buddies & Leaderboards 👯‍♀️',
+                                    style: AppTypography.headlineMedium.copyWith(
+                                      color: L.text,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: L.accent.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.arrow_forward_ios_rounded, color: L.accent, size: 20),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ).animate(delay: 400.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
+                      
+                      const SizedBox(height: 16),
+                      
+                      // Trophy Case Entry Point
+                      BouncingButton(
+                        onTap: () {
+                          HapticEngine.heavyImpact();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const TrophyCaseScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
+                          decoration: BoxDecoration(
+                            color: L.card,
+                            borderRadius: BorderRadius.circular(24),
+                            border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
+                            boxShadow: [
+                              BoxShadow(color: Colors.amber.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'ACHIEVEMENTS',
+                                    style: AppTypography.labelSmall.copyWith(
+                                      color: Colors.amber.shade700,
+                                      letterSpacing: 2.0,
+                                      fontWeight: FontWeight.w900,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Trophy Case 🏆',
+                                    style: AppTypography.headlineMedium.copyWith(
+                                      color: L.text,
+                                      fontWeight: FontWeight.w900,
+                                      letterSpacing: -0.5,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.amber.withValues(alpha: 0.1),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Icon(Icons.emoji_events_rounded, color: Colors.amber.shade700, size: 24),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ).animate(delay: 500.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
+
+                      const SizedBox(height: 32),
                     ],
                   ),
                 ),

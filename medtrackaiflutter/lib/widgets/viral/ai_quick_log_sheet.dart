@@ -12,6 +12,7 @@ import 'package:medai/screens/paywall/premium_paywall_overlay.dart';
 import '../../services/growth_tracker.dart';
 import '../../screens/medicine/medicine_detail_screen.dart';
 import 'package:medai/widgets/shared/shared_widgets.dart';
+import '../../../domain/entities/medicine.dart';
 
 // ══════════════════════════════════════════════
 // AI QUICK LOG SHEET
@@ -176,12 +177,52 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
       final result = await GeminiService.parseConversationalLog(input, state.meds);
       result.fold(
         (parsedMap) {
+          final action = parsedMap['action'] as String?;
           final medId = parsedMap['med_id'] as int?;
-          final confirmation = parsedMap['confirmation'] as String? ?? 'Dose recorded successfully';
+          final confirmation = parsedMap['confirmation'] as String? ?? 'Processed successfully';
           final timeTaken = parsedMap['time_taken'] as String? ?? 'Just now';
           
-          if (medId != null) {
-            state.logPrnDose(medId, 'AI Log', timeTaken);
+          if (action == 'schedule_med') {
+            final medName = parsedMap['med_name'] as String? ?? 'New Medicine';
+            final dosage = parsedMap['dosage'] as String? ?? '';
+            final timesList = parsedMap['times'] as List<dynamic>? ?? [];
+            
+            final schedule = timesList.map((t) {
+              final parts = t.toString().split(':');
+              final h = int.tryParse(parts.first) ?? 8;
+              final m = parts.length > 1 ? (int.tryParse(parts.last) ?? 0) : 0;
+              return ScheduleEntry(
+                id: DateTime.now().microsecondsSinceEpoch.toString(),
+                h: h,
+                m: m,
+                label: 'Dose',
+                days: [1, 2, 3, 4, 5, 6, 7],
+              );
+            }).toList();
+            
+            if (schedule.isEmpty) {
+              schedule.add(ScheduleEntry(
+                id: DateTime.now().microsecondsSinceEpoch.toString(),
+                h: 8,
+                m: 0,
+                label: 'Dose',
+                days: [1, 2, 3, 4, 5, 6, 7],
+              ));
+            }
+            
+            final newMed = Medicine(
+              id: DateTime.now().millisecondsSinceEpoch,
+              name: medName,
+              dose: dosage,
+              courseStartDate: DateTime.now().toIso8601String(),
+              schedule: schedule,
+            );
+            
+            state.addMedicine(newMed);
+          } else if (medId != null || action == 'log_dose') {
+            if (medId != null) {
+              state.logPrnDose(medId, 'AI Log', timeTaken);
+            }
           }
           
           state.incrementVoiceLogCount();
@@ -336,13 +377,12 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
                       onTap: () => _ctrl.text = 'I took 1 Aspirin',
                     ),
                     _ExampleChip(
-                      text: 'Took my Metformin 500mg',
-                      onTap: () => _ctrl.text = 'Took my Metformin 500mg',
+                      text: 'Remind me to take Metformin daily at 8am',
+                      onTap: () => _ctrl.text = 'Remind me to take Metformin daily at 8am',
                     ),
                     _ExampleChip(
-                      text: 'Just had my morning vitamins',
-                      onTap: () =>
-                          _ctrl.text = 'Just had my morning vitamins',
+                      text: 'Schedule Vitamin D every morning',
+                      onTap: () => _ctrl.text = 'Schedule Vitamin D every morning',
                     ),
                   ],
                 ),
@@ -674,7 +714,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
                     duration: 600.ms),
             const SizedBox(height: 20),
             Text(
-              'Logged Successfully! 🎉',
+              _parsedResult.contains('Scheduled') ? 'Scheduled! 🗓️' : 'Logged Successfully! 🎉',
               style: AppTypography.headlineSmall.copyWith(
                 color: L.text,
                 fontWeight: FontWeight.w900,

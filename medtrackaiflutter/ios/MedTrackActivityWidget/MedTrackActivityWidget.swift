@@ -1,56 +1,102 @@
-//
-//  MedTrackActivityWidget.swift
-//  MedTrackActivityWidget
-//
-//  Created by Arafat Hossain on 8/4/26.
-//
-
 import WidgetKit
 import SwiftUI
 
-struct Provider: AppIntentTimelineProvider {
+struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: ConfigurationAppIntent())
+        SimpleEntry(date: Date(), streak: 5, nextMedName: "Aspirin", nextMedTime: "08:00", mascotMood: "happy")
     }
 
-    func snapshot(for configuration: ConfigurationAppIntent, in context: Context) async -> SimpleEntry {
-        SimpleEntry(date: Date(), configuration: configuration)
-    }
-    
-    func timeline(for configuration: ConfigurationAppIntent, in context: Context) async -> Timeline<SimpleEntry> {
-        var entries: [SimpleEntry] = []
-
-        // Generate a timeline consisting of five entries an hour apart, starting from the current date.
-        let currentDate = Date()
-        for hourOffset in 0 ..< 5 {
-            let entryDate = Calendar.current.date(byAdding: .hour, value: hourOffset, to: currentDate)!
-            let entry = SimpleEntry(date: entryDate, configuration: configuration)
-            entries.append(entry)
-        }
-
-        return Timeline(entries: entries, policy: .atEnd)
+    func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> ()) {
+        let entry = getEntry()
+        completion(entry)
     }
 
-//    func relevances() async -> WidgetRelevances<ConfigurationAppIntent> {
-//        // Generate a list containing the contexts this widget is relevant in.
-//    }
+    func getTimeline(in context: Context, completion: @escaping (Timeline<Entry>) -> ()) {
+        let entry = getEntry()
+        let timeline = Timeline(entries: [entry], policy: .never)
+        completion(timeline)
+    }
+
+    private func getEntry() -> SimpleEntry {
+        let sharedDefaults = UserDefaults(suiteName: "group.com.medtrackai")
+        let streak = sharedDefaults?.integer(forKey: "streak") ?? 0
+        let nextMedName = sharedDefaults?.string(forKey: "nextMedName") ?? "All Done!"
+        let nextMedTime = sharedDefaults?.string(forKey: "nextMedTime") ?? "--:--"
+        let mascotMood = sharedDefaults?.string(forKey: "mascotMood") ?? "neutral"
+        return SimpleEntry(date: Date(), streak: streak, nextMedName: nextMedName, nextMedTime: nextMedTime, mascotMood: mascotMood)
+    }
 }
 
 struct SimpleEntry: TimelineEntry {
     let date: Date
-    let configuration: ConfigurationAppIntent
+    let streak: Int
+    let nextMedName: String
+    let nextMedTime: String
+    let mascotMood: String
 }
 
 struct MedTrackActivityWidgetEntryView : View {
     var entry: Provider.Entry
+    @Environment(\.widgetFamily) var family
 
     var body: some View {
-        VStack {
-            Text("Time:")
-            Text(entry.date, style: .time)
+        switch family {
+        case .accessoryCircular:
+            ZStack {
+                AccessoryWidgetBackground()
+                VStack(spacing: 2) {
+                    Text(getEmoji(for: entry.mascotMood))
+                        .font(.system(size: 20))
+                    Text("\(entry.streak)🔥")
+                        .font(.system(size: 10, weight: .bold))
+                }
+            }
+        case .accessoryRectangular:
+            VStack(alignment: .leading) {
+                Text(getEmoji(for: entry.mascotMood) + " \(entry.streak) Day Streak")
+                    .font(.headline)
+                Text(entry.nextMedName)
+                    .font(.subheadline)
+                Text(entry.nextMedTime)
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            }
+        default:
+            // systemSmall
+            ZStack {
+                LinearGradient(gradient: Gradient(colors: [Color(red: 0.05, green: 0.05, blue: 0.05), Color(red: 0.1, green: 0.1, blue: 0.15)]), startPoint: .topLeading, endPoint: .bottomTrailing)
+                VStack(alignment: .leading, spacing: 8) {
+                    HStack {
+                        Text(getEmoji(for: entry.mascotMood))
+                            .font(.title)
+                        Spacer()
+                        Text("\(entry.streak)🔥")
+                            .font(.headline)
+                            .foregroundColor(.orange)
+                    }
+                    Spacer()
+                    Text("Up Next")
+                        .font(.caption)
+                        .foregroundColor(.gray)
+                    Text(entry.nextMedName)
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundColor(.white)
+                    Text(entry.nextMedTime)
+                        .font(.system(size: 14, weight: .medium))
+                        .foregroundColor(Color(red: 0.0, green: 0.9, blue: 0.7)) // Neon green accent
+                }
+                .padding()
+            }
+        }
+    }
 
-            Text("Favorite Emoji:")
-            Text(entry.configuration.favoriteEmoji)
+    func getEmoji(for mood: String) -> String {
+        switch mood {
+        case "happy": return "🤖"
+        case "sad": return "🥺"
+        case "proud": return "😎"
+        case "sleepy": return "😴"
+        default: return "🤖"
         }
     }
 }
@@ -59,30 +105,11 @@ struct MedTrackActivityWidget: Widget {
     let kind: String = "MedTrackActivityWidget"
 
     var body: some WidgetConfiguration {
-        AppIntentConfiguration(kind: kind, intent: ConfigurationAppIntent.self, provider: Provider()) { entry in
+        StaticConfiguration(kind: kind, provider: Provider()) { entry in
             MedTrackActivityWidgetEntryView(entry: entry)
-                .containerBackground(.fill.tertiary, for: .widget)
         }
+        .configurationDisplayName("MedAI Dashboard")
+        .description("View your streak and next medication.")
+        .supportedFamilies([.systemSmall, .accessoryCircular, .accessoryRectangular])
     }
-}
-
-extension ConfigurationAppIntent {
-    fileprivate static var smiley: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "😀"
-        return intent
-    }
-    
-    fileprivate static var starEyes: ConfigurationAppIntent {
-        let intent = ConfigurationAppIntent()
-        intent.favoriteEmoji = "🤩"
-        return intent
-    }
-}
-
-#Preview(as: .systemSmall) {
-    MedTrackActivityWidget()
-} timeline: {
-    SimpleEntry(date: .now, configuration: .smiley)
-    SimpleEntry(date: .now, configuration: .starEyes)
 }

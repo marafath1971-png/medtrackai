@@ -10,6 +10,8 @@ import '../../../../services/share_service.dart';
 import '../../../settings/privacy_policy_screen.dart';
 import '../../../../widgets/common/paywall_sheet.dart';
 import 'settings_shared.dart';
+import '../../../settings/theme_customization_screen.dart';
+import '../../../../core/utils/haptic_engine.dart';
 
 class AppTab extends StatefulWidget {
   final AppState state;
@@ -109,6 +111,23 @@ class _AppTabState extends State<AppTab> {
                   last: e.key == _leadOpts.length - 1,
                   border: e.key < _leadOpts.length - 1);
             }).toList())),
+        SettingsSection(
+            title: 'Aesthetics & Theme',
+            child: SettingsModalRow(
+                icon: '✨',
+                iconBg: const Color(0xFFE879F9).withValues(alpha: 0.1),
+                label: 'App Appearance',
+                sub: 'Custom icons and themes',
+                onClick: () {
+                  HapticEngine.heavyImpact();
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const ThemeCustomizationScreen(),
+                    ),
+                  );
+                },
+                border: false)),
         SettingsSection(
             title: 'Health & Wellness',
             child: SettingsModalRow(

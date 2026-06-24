@@ -232,10 +232,15 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
 
                   SliverPadding(
                     padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                    sliver: const SliverToBoxAdapter(
-                      child: HomeMascotCard(),
-                    ).animate().fadeIn(duration: 600.ms, delay: 150.ms).slideY(
-                        begin: 0.06, end: 0, curve: Curves.easeOutExpo),
+                    sliver: SliverToBoxAdapter(
+                      child: const HomeMascotCard()
+                          .animate()
+                          .fadeIn(duration: 600.ms, delay: 150.ms)
+                          .slideY(
+                              begin: 0.06,
+                              end: 0,
+                              curve: Curves.easeOutExpo),
+                    ),
                   ),
 
                   if (streak >= 7)
@@ -439,7 +444,14 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
           Positioned(
             bottom: 110 + MediaQuery.of(context).padding.bottom,
             left: 20,
-            child: const _AiQuickLogFAB(),
+            right: 20,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                const _AiQuickLogFAB(),
+                _InstantScanFAB(onScan: widget.onScan),
+              ],
+            ),
           ),
         ],
       ),
@@ -1494,3 +1506,103 @@ class _EmergencyWarningCard extends StatelessWidget {
 // BADGE GALLERY — Horizontal scrolling badges based on streak
 // ─────────────────────────────────────────────────────────────
 
+class _InstantScanFAB extends StatefulWidget {
+  final VoidCallback onScan;
+  const _InstantScanFAB({required this.onScan});
+
+  @override
+  State<_InstantScanFAB> createState() => _InstantScanFABState();
+}
+
+class _InstantScanFABState extends State<_InstantScanFAB> with SingleTickerProviderStateMixin {
+  bool _pressed = false;
+  late AnimationController _glowCtrl;
+  late Animation<double> _glowAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _glowCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 2000),
+    )..repeat(reverse: true);
+    _glowAnim = Tween<double>(begin: 0.1, end: 0.4).animate(
+      CurvedAnimation(parent: _glowCtrl, curve: Curves.easeInOutSine),
+    );
+  }
+
+  @override
+  void dispose() {
+    _glowCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    return AnimatedPressable(
+      onTapDown: (_) {
+        HapticEngine.selection();
+        setState(() => _pressed = true);
+      },
+      onTapUp: (_) => setState(() => _pressed = false),
+      onTapCancel: () => setState(() => _pressed = false),
+      onTap: widget.onScan,
+      child: AnimatedBuilder(
+        animation: _glowAnim,
+        builder: (context, child) => AnimatedScale(
+          scale: _pressed ? 0.92 : 1.0,
+          duration: 150.ms,
+          curve: Curves.easeOutCubic,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [L.primary, L.secondary],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(32),
+              boxShadow: [
+                BoxShadow(
+                  color: L.primary.withValues(alpha: 0.3 + _glowAnim.value * 0.3),
+                  blurRadius: 20,
+                  spreadRadius: 2,
+                  offset: const Offset(0, 8),
+                ),
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.2),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+              ],
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.2),
+                width: 1.0,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.camera_alt_rounded,
+                  color: L.onPrimary,
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'AR Scan',
+                  style: AppTypography.labelLarge.copyWith(
+                    color: L.onPrimary,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

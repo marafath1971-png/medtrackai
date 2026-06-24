@@ -1,18 +1,29 @@
-//
-//  AppIntent.swift
-//  MedTrackActivityWidget
-//
-//  Created by Arafat Hossain on 8/4/26.
-//
-
-import WidgetKit
 import AppIntents
 
-struct ConfigurationAppIntent: WidgetConfigurationIntent {
-    static var title: LocalizedStringResource { "Configuration" }
-    static var description: IntentDescription { "This is an example widget." }
+struct LogMedicationIntent: AppIntent {
+    static var title: LocalizedStringResource = "Log Medication"
+    static var description: IntentDescription? = IntentDescription("Log your latest medication dose in MedAI.")
+    
+    // Opens the main Flutter app when triggered via Siri
+    static var openAppWhenRun: Bool = true
+    
+    @MainActor
+    func perform() async throws -> some IntentResult {
+        return .result()
+    }
+}
 
-    // An example configurable parameter.
-    @Parameter(title: "Favorite Emoji", default: "😃")
-    var favoriteEmoji: String
+struct MedAIAppShortcuts: AppShortcutsProvider {
+    static var appShortcuts: [AppShortcut] {
+        AppShortcut(
+            intent: LogMedicationIntent(),
+            phrases: [
+                "Log my medication in \(.applicationName)",
+                "Take pill with \(.applicationName)",
+                "Record dose in \(.applicationName)"
+            ],
+            shortTitle: "Log Medication",
+            systemImageName: "pills.fill"
+        )
+    }
 }

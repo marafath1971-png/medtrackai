@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 import '../../theme/app_theme.dart';
+import '../../providers/app_state.dart';
 
 class MascotWidget extends StatelessWidget {
   final double size;
@@ -14,10 +16,40 @@ class MascotWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Determine the animation based on mood
-    Widget child = CustomPaint(
-      size: Size(size, size),
-      painter: _MascotPainter(mood: mood),
+    Widget child = Consumer<AppState>(
+      builder: (context, state, _) {
+        final accessoryId = state.mascotAccessory;
+        
+        // Map accessory ID to emoji
+        String? accessoryEmoji;
+        switch (accessoryId) {
+          case 'glasses': accessoryEmoji = '🕶️'; break;
+          case 'crown': accessoryEmoji = '👑'; break;
+          case 'party': accessoryEmoji = '🥳'; break;
+          case 'wizard': accessoryEmoji = '🧙‍♂️'; break;
+          case 'halo': accessoryEmoji = '😇'; break;
+          case 'nerd': accessoryEmoji = '🤓'; break;
+        }
+
+        return Stack(
+          alignment: Alignment.center,
+          clipBehavior: Clip.none,
+          children: [
+            CustomPaint(
+              size: Size(size, size),
+              painter: _MascotPainter(mood: mood),
+            ),
+            if (accessoryEmoji != null)
+              Positioned(
+                top: _getAccessoryTopOffset(accessoryId, size),
+                child: Text(
+                  accessoryEmoji,
+                  style: TextStyle(fontSize: _getAccessorySize(accessoryId, size)),
+                ),
+              ),
+          ],
+        );
+      },
     );
 
     if (mood == 'energetic') {
@@ -26,6 +58,24 @@ class MascotWidget extends StatelessWidget {
       return child.animate(onPlay: (c) => c.repeat(reverse: true)).moveY(begin: 0, end: 2, duration: 2000.ms, curve: Curves.easeInOut);
     } else {
       return child;
+    }
+  }
+
+  double _getAccessoryTopOffset(String? id, double size) {
+    if (id == 'crown' || id == 'party' || id == 'wizard' || id == 'halo') {
+      return -size * 0.15; // Hats go on top
+    } else {
+      return size * 0.20; // Glasses go on eyes
+    }
+  }
+
+  double _getAccessorySize(String? id, double size) {
+    if (id == 'crown' || id == 'party' || id == 'wizard') {
+      return size * 0.6;
+    } else if (id == 'halo') {
+      return size * 0.8;
+    } else {
+      return size * 0.55;
     }
   }
 }

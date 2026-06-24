@@ -21,6 +21,7 @@ import '../services/link_service.dart';
 import '../services/purchases_service.dart';
 import '../services/performance_service.dart';
 import '../services/dynamic_icon_service.dart';
+import '../services/native_widget_service.dart';
 import '../services/voice_service.dart';
 import '../services/gemini_service.dart';
 import '../services/growth_tracker.dart';
@@ -73,6 +74,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   String? pendingCelebrationMedName;
   int? pendingMilestoneAnimation;
   int? pendingDetailMedId;
+  String? mascotAccessory;
 
   // Voice Assistant State
   bool isVoiceActive = false;
@@ -137,6 +139,11 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   AppPhase get phase => auth.phase;
   UserProfile? get profile => auth.profile;
   Future<void> saveProfile(UserProfile p) => auth.saveProfile(p);
+
+  void setMascotAccessory(String? accessory) {
+    mascotAccessory = accessory;
+    safeNotifyListeners();
+  }
 
   List<Medicine> get meds => med.meds;
   List<Medicine> get activeMeds => med.meds;
@@ -993,7 +1000,42 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   // ── Internal Helpers ───────────────────────────────────────────────
 
   void safeNotifyListeners() {
-    if (!_isDisposed) notifyListeners();
+    if (!_isDisposed) {
+      notifyListeners();
+      _syncNativeWidget();
+    }
+  }
+
+  void _syncNativeWidget() {
+    try {
+      final s = getStreak();
+      String mood = 'content';
+      if (s == 0) {
+        mood = 'sleepy';
+      } else if (s > 0 && s < 3) {
+        mood = 'content';
+      } else if (s >= 3 && s < 7) {
+        mood = 'energetic';
+      } else {
+        mood = 'happy';
+      }
+      
+      final todayDoses = getDoses();
+      // Simple approximation: pick the first one
+      final nextMedName = todayDoses.isNotEmpty ? todayDoses.first.med.name : 'All Done! 🎉';
+      final nextMedTime = todayDoses.isNotEmpty 
+          ? '${todayDoses.first.sched.h}:${todayDoses.first.sched.m.toString().padLeft(2, '0')}' 
+          : '--:--';
+
+      NativeWidgetService.syncWidgetData(
+        streak: s,
+        nextMedName: nextMedName,
+        nextMedTime: nextMedTime,
+        mascotMood: mood,
+      );
+    } catch (e) {
+      appLogger.w('Failed to sync widget from state: $e');
+    }
   }
 
   void _syncUserProfileFromAuth() {
