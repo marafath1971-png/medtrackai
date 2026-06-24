@@ -9,6 +9,7 @@ import '../../../widgets/shared/shared_widgets.dart';
 import 'monthly_wrapped_screen.dart';
 import '../social/med_buddies_screen.dart';
 import 'trophy_case_screen.dart';
+import 'inventory_visualizer_screen.dart';
 
 class AnalyticsDashboardScreen extends StatefulWidget {
   const AnalyticsDashboardScreen({super.key});
@@ -110,6 +111,73 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.all(AppSpacing.screenPadding),
                     children: [
+                      // Inventory Entry Point
+                      BouncingButton(
+                        onTap: () {
+                          HapticEngine.selection();
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const InventoryVisualizerScreen(),
+                            ),
+                          );
+                        },
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            ),
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              )
+                            ],
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.2),
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Text('📦', style: TextStyle(fontSize: 24)),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Live Inventory',
+                                      style: AppTypography.titleMedium.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    Text(
+                                      'View stock levels & low stock alerts',
+                                      style: AppTypography.bodySmall.copyWith(
+                                        color: Colors.white.withValues(alpha: 0.8),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 16),
+                            ],
+                          ),
+                        ),
+                      ).animate(key: const ValueKey('analytics_inventory_btn')).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
+                      
+                      const SizedBox(height: 24),
+                      
                       // Longevity Score Card
                       _LongevityScoreCard(score: longevityScore, L: L)
                         .animate(key: const ValueKey('analytics_score_card_anim')).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),

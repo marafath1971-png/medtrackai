@@ -197,6 +197,16 @@ class NotificationService {
       if (sched.ritual != Ritual.none && showMedicationNames) {
         body = '${med.dose} · ${_getRitualMessage(sched.ritual)}';
       }
+      
+      // Inject Smart / Style-Rich Messaging
+      final random = Random();
+      if (currentStreak >= 3) {
+        body += '\n\n${NotificationCopy.motivationalTips[random.nextInt(NotificationCopy.motivationalTips.length)]}';
+      } else if (currentStreak == 0) {
+        body += '\n\n${NotificationCopy.gentleNudges[random.nextInt(NotificationCopy.gentleNudges.length)]}';
+      } else {
+        body += '\n\n${NotificationCopy.firmReminders[random.nextInt(NotificationCopy.firmReminders.length)]}';
+      }
 
       await _plugin.zonedSchedule(
         id: notifId.remainder(0x7FFFFFFF),
