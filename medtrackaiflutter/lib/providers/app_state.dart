@@ -140,6 +140,19 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   UserProfile? get profile => auth.profile;
   Future<void> saveProfile(UserProfile p) => auth.saveProfile(p);
 
+  void setActiveProfile(ManagedProfile? p) {
+    _activeProfile = p;
+    safeNotifyListeners();
+  }
+
+  void addDependent(ManagedProfile dependent) {
+    if (profile != null) {
+      final updatedFamily = List<ManagedProfile>.from(profile!.familyMembers)..add(dependent);
+      saveProfile(profile!.copyWith(familyMembers: updatedFamily));
+      safeNotifyListeners();
+    }
+  }
+
   void setMascotAccessory(String? accessory) {
     mascotAccessory = accessory;
     safeNotifyListeners();

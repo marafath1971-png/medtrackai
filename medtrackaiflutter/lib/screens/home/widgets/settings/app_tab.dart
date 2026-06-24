@@ -12,6 +12,7 @@ import '../../../../widgets/common/paywall_sheet.dart';
 import 'settings_shared.dart';
 import '../../../settings/theme_customization_screen.dart';
 import '../../../../core/utils/haptic_engine.dart';
+import '../../../family/profile_switcher_sheet.dart';
 
 class AppTab extends StatefulWidget {
   final AppState state;
@@ -111,6 +112,17 @@ class _AppTabState extends State<AppTab> {
                   last: e.key == _leadOpts.length - 1,
                   border: e.key < _leadOpts.length - 1);
             }).toList())),
+        SettingsSection(
+            title: 'Caregiver & Profiles',
+            child: SettingsModalRow(
+                icon: '👨‍👩‍👧',
+                iconBg: const Color(0xFF10B981).withValues(alpha: 0.1),
+                label: 'Family & Dependents',
+                sub: 'Manage meds for loved ones',
+                onClick: () {
+                  ProfileSwitcherSheet.show(context);
+                },
+                border: false)),
         SettingsSection(
             title: 'Aesthetics & Theme',
             child: SettingsModalRow(
