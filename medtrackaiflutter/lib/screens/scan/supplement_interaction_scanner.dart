@@ -16,6 +16,8 @@ import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
 import '../../services/gemini_service.dart';
 import '../../domain/entities/scan_result.dart';
+import 'package:provider/provider.dart';
+import '../../providers/app_state.dart';
 
 // ══════════════════════════════════════════════
 // HOOK E: SUPPLEMENT INTERACTION SCANNER (Viral)
@@ -133,14 +135,18 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
       final XFile image = await _controller!.takePicture();
       final file = File(image.path);
       final compressedFile = await _compressImage(file) ?? file;
-
+      
+      if (!mounted) return;
+      final state = context.read<AppState>();
       final result = await GeminiService.scanMedicine(
         compressedFile,
         hint: 'Multiple supplements. Identify the stack and describe their synergy or interactions.',
+        profile: state.profile,
       );
 
       result.fold(
         (success) {
+          if (!mounted) return;
           HapticEngine.successScan();
           setState(() {
             _scanResult = success;

@@ -49,7 +49,7 @@ class GeminiService {
   ];
 
   static GenerativeModel _getModel(String modelName,
-      {String apiVersion = 'v1'}) {
+      {String apiVersion = 'v1', GenerationConfig? generationConfig}) {
     if (_apiKey.isEmpty) {
       appLogger.w('[GeminiService] Warning: GEMINI_API_KEY is empty.');
     }
@@ -57,11 +57,12 @@ class GeminiService {
       model: modelName,
       apiKey: _apiKey,
       requestOptions: RequestOptions(apiVersion: apiVersion),
+      generationConfig: generationConfig,
     );
   }
 
   static Future<Result<ScanResult>> scanMedicine(File imageFile,
-      {String? hint, String? qrData, String country = ''}) async {
+      {String? hint, String? qrData, String country = '', UserProfile? profile}) async {
     return PerformanceService.measure('medicine_scan_trace', () async {
       // 1. Regional Power Feature: JAHIS Detection (Japan)
       if (qrData != null && JahisParser.isJahis(qrData)) {
@@ -135,7 +136,18 @@ class GeminiService {
             appLogger.d(
                 '[GeminiService] Guest user detected. Bypassing proxy, trying direct Gemini API for $modelName...');
             final version = config['version']!;
-            final model = _getModel(modelName, apiVersion: version);
+            
+            // Adjust temperature based on profile AI settings
+            final temperature = (profile != null && !profile.aiDeepAnalysis) ? 0.1 : 0.4;
+            
+            final generationConfig = GenerationConfig(
+              temperature: temperature,
+              topK: 32,
+              topP: 0.9,
+              maxOutputTokens: 2048,
+            );
+            
+            final model = _getModel(modelName, apiVersion: version, generationConfig: generationConfig);
             final prompt = _buildScanPrompt(hint, country: country);
             final response = await _withRetry(() => model.generateContent([
                   Content.multi([
@@ -174,7 +186,16 @@ class GeminiService {
                 '[GeminiService] Proxy failed. Falling back to direct API for $modelName.');
             try {
               final version = config['version']!;
-              final model = _getModel(modelName, apiVersion: version);
+              
+              final temperature = (profile != null && !profile.aiDeepAnalysis) ? 0.1 : 0.4;
+              final generationConfig = GenerationConfig(
+                temperature: temperature,
+                topK: 32,
+                topP: 0.9,
+                maxOutputTokens: 2048,
+              );
+              
+              final model = _getModel(modelName, apiVersion: version, generationConfig: generationConfig);
               final prompt = _buildScanPrompt(hint, country: country);
 
               final response = await _withRetry(() => model.generateContent([
@@ -1300,9 +1321,18 @@ Example: "$patientName is doing great with their morning heart medication, but s
           appLogger.w(
               '[GeminiService] Protector proxy missing. Falling back to direct API for $modelName.');
           try {
+            final temperature = 0.4;
+            
+            final generationConfig = GenerationConfig(
+              temperature: temperature,
+              topK: 32,
+              topP: 0.9,
+              maxOutputTokens: 2048,
+            );
             final model = GenerativeModel(
               model: modelName,
               apiKey: _apiKey,
+              generationConfig: generationConfig,
             );
             final response =
                 await model.generateContent([Content.text(prompt)]);

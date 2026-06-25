@@ -136,7 +136,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                 ),
                 Switch(
                   value: _isCritical,
-                  activeColor: L.primary,
+                  activeThumbColor: L.primary,
                   onChanged: (val) {
                     HapticEngine.selection();
                     setState(() => _isCritical = val);

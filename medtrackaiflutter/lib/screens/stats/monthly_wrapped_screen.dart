@@ -40,7 +40,6 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
     
     final adherence = (state.getAdherenceScore() * 100).round();
     final streak = state.getStreak();
-    final totalSymptoms = state.symptoms.length;
     final totalDoses = state.history.values.fold<int>(0, (sum, list) => sum + list.length);
 
     return Scaffold(

@@ -1,40 +1,36 @@
-import 'package:local_auth/local_auth.dart';
 import 'package:flutter/services.dart';
-import '../../core/utils/logger.dart';
+import 'package:local_auth/local_auth.dart';
+import '../core/utils/logger.dart';
 
 class BiometricService {
   static final LocalAuthentication _auth = LocalAuthentication();
 
-  static Future<bool> canCheckBiometrics() async {
+  static Future<bool> isBiometricAvailable() async {
     try {
-      final bool canAuthenticateWithBiometrics = await _auth.canCheckBiometrics;
-      final bool canAuthenticate =
-          canAuthenticateWithBiometrics || await _auth.isDeviceSupported();
-      return canAuthenticate;
-    } catch (e) {
-      appLogger.e('Biometric Check Error', error: e);
+      final canCheck = await _auth.canCheckBiometrics;
+      final isDeviceSupported = await _auth.isDeviceSupported();
+      return canCheck && isDeviceSupported;
+    } on PlatformException catch (e) {
+      appLogger.e('Error checking biometric availability: ${e.message}');
       return false;
     }
   }
 
-  static Future<bool> authenticate() async {
+  static Future<bool> authenticate({String reason = 'Authenticate to access MedAI'}) async {
     try {
-      final canCheck = await canCheckBiometrics();
-      if (!canCheck) {
-        appLogger.w('Biometrics not available or supported');
+      final available = await isBiometricAvailable();
+      if (!available) {
+        appLogger.w('Biometric authentication is not available on this device.');
         return false;
       }
 
-      return await _auth.authenticate(
-        localizedReason: 'Please authenticate to unlock MedAI',
-        biometricOnly: false,
-        persistAcrossBackgrounding: true,
+      final authenticated = await _auth.authenticate(
+        localizedReason: reason,
       );
+      
+      return authenticated;
     } on PlatformException catch (e) {
-      appLogger.e('Biometric Auth Error', error: e);
-      return false;
-    } catch (e) {
-      appLogger.e('Unexpected Biometric Error', error: e);
+      appLogger.e('Error during biometric authentication: ${e.message}');
       return false;
     }
   }

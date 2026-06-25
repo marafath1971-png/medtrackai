@@ -23,7 +23,6 @@ import '../../services/growth_tracker.dart';
 
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:path/path.dart' as p;
-import 'package:flutter/services.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_loading_indicator.dart';
 import '../../core/utils/result.dart';
@@ -114,6 +113,9 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
 
   Future<void> _setupCameraState() async {
     try {
+      // Delay initialization to ensure the route transition is buttery smooth first
+      await Future.delayed(const Duration(milliseconds: 350));
+      
       _cameras = await availableCameras().timeout(const Duration(seconds: 5));
       if (_cameras != null && _cameras!.isNotEmpty) {
         _controller = CameraController(
@@ -185,7 +187,7 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
 
     final state = Provider.of<AppState>(context, listen: false);
     if ((state.profile?.scansUsed ?? 0) >= 3 &&
-        !(state.profile?.isPremium ?? false)) {
+        !state.isPremium) {
       PremiumPaywallOverlay.show(context, triggerSource: 'scan_limit');
       return;
     }
@@ -206,7 +208,7 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
   Future<void> _pickFromGallery() async {
     final state = Provider.of<AppState>(context, listen: false);
     if ((state.profile?.scansUsed ?? 0) >= 3 &&
-        !(state.profile?.isPremium ?? false)) {
+        !state.isPremium) {
       PremiumPaywallOverlay.show(context, triggerSource: 'scan_limit');
       return;
     }
@@ -269,10 +271,15 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
     // Wrapped in a catch-all to prevent app crashes on network-failure components
     List<dynamic> results;
     try {
+      final isPrivacyMode = state.profile?.aiPrivacyMode ?? false;
+      
       results = await Future.wait([
-        GeminiService.scanMedicine(fileToScan,
-            country: state.profile?.country ?? ''),
-        state.uploadImage(fileToScan),
+        GeminiService.scanMedicine(
+          fileToScan,
+          country: state.profile?.country ?? '',
+          profile: state.profile,
+        ),
+        if (!isPrivacyMode) state.uploadImage(fileToScan) else Future.value(null),
       ]).timeout(const Duration(seconds: 40));
     } catch (e) {
       appLogger.e('[ScanTab] Processing pipeline failure', error: e);
@@ -1048,7 +1055,7 @@ class _ScanTabState extends State<ScanTab> with TickerProviderStateMixin {
   Widget _buildScanLimitPill(BuildContext context) {
     final state = context.watch<AppState>();
     final used = state.profile?.scansUsed ?? 0;
-    final isPremium = state.profile?.isPremium ?? false;
+    final isPremium = state.isPremium;
 
     Widget pill = Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

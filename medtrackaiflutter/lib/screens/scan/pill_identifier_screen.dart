@@ -140,15 +140,19 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
       final XFile image = await _controller!.takePicture();
       final file = File(image.path);
       final compressedFile = await _compressImage(file) ?? file;
-
+      
+      if (!mounted) return;
+      final state = context.read<AppState>();
       final result = await GeminiService.scanMedicine(
         compressedFile,
         hint:
             'This is a single loose pill. Identify its generic name, brand name, dosage strength, shape, color, and any visible imprint codes. Return structured data.',
+        profile: state.profile,
       );
 
       result.fold(
         (success) {
+          if (!mounted) return;
           HapticEngine.successScan();
           _beamCtrl.stop();
           setState(() {

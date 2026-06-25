@@ -9,6 +9,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
 import '../auth/pin_verification_screen.dart';
 import 'add_dependent_screen.dart';
+import '../../services/biometric_service.dart';
 
 class ProfileSwitcherSheet extends StatelessWidget {
   const ProfileSwitcherSheet({super.key});
@@ -27,15 +28,25 @@ class ProfileSwitcherSheet extends StatelessWidget {
     final state = context.read<AppState>();
     
     if (requiredPin != null && requiredPin.isNotEmpty) {
-      final success = await Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => PinVerificationScreen(correctPin: requiredPin, profileName: profile?.name ?? '')),
+      // 1. Try Biometrics first
+      final bioSuccess = await BiometricService.authenticate(
+        reason: 'Authenticate to access ${profile?.name ?? "profile"}',
       );
-      if (success != true) return;
+      
+      // 2. If biometric fails or cancelled, fallback to PIN
+      if (!bioSuccess) {
+        if (!context.mounted) return;
+        final pinSuccess = await Navigator.push(
+          context,
+          MaterialPageRoute(builder: (_) => PinVerificationScreen(correctPin: requiredPin, profileName: profile?.name ?? '')),
+        );
+        if (pinSuccess != true) return;
+      }
     }
 
     HapticEngine.success();
     state.setActiveProfile(profile);
+    if (!context.mounted) return;
     Navigator.pop(context);
   }
 

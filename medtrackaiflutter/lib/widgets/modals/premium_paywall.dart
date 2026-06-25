@@ -8,6 +8,8 @@ import '../../services/auth_service.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_loading_indicator.dart';
 import '../../widgets/common/refined_sheet_wrapper.dart';
+import '../../services/purchases_service.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 
 class PremiumPaywall extends StatefulWidget {
   const PremiumPaywall({super.key});
@@ -18,14 +20,50 @@ class PremiumPaywall extends StatefulWidget {
 
 class _PremiumPaywallState extends State<PremiumPaywall> {
   bool _isProcessing = false;
+  bool _isLoadingPackages = true;
+  List<Package> _packages = [];
+  Package? _selectedPackage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadPackages();
+  }
+
+  Future<void> _loadPackages() async {
+    final packages = await PurchasesService.getAvailablePackages();
+    if (mounted) {
+      setState(() {
+        _packages = packages;
+        if (_packages.isNotEmpty) {
+          _selectedPackage = _packages.first;
+        }
+        _isLoadingPackages = false;
+      });
+    }
+  }
 
   Future<void> _handleUnlock(AppState state) async {
     setState(() => _isProcessing = true);
-    await Future.delayed(const Duration(seconds: 2));
+    
+    bool success = false;
+    if (_selectedPackage != null) {
+      success = await PurchasesService.purchasePackage(_selectedPackage!.identifier);
+    } else {
+      // Mock unlock if no packages (fallback mode)
+      await Future.delayed(const Duration(seconds: 2));
+      success = true;
+    }
+
     if (!mounted) return;
-    await state.unlockPremium();
-    if (!mounted) return;
-    Navigator.pop(context);
+    
+    if (success) {
+      await state.unlockPremium();
+      if (!mounted) return;
+      Navigator.pop(context);
+    } else {
+      setState(() => _isProcessing = false);
+    }
   }
 
   @override
@@ -136,6 +174,17 @@ class _PremiumPaywallState extends State<PremiumPaywall> {
             ),
             const SizedBox(height: 24),
           ],
+
+          // Packages list
+          if (_isLoadingPackages)
+            const AppLoadingIndicator(size: 24)
+          else if (_packages.isNotEmpty)
+            ..._packages.map((pkg) => _buildPackageCard(pkg, L))
+          else
+            // Fallback mock package
+            _buildMockPackageCard(L),
+
+          const SizedBox(height: 24),
 
           // Main Unlock Button
           GestureDetector(
@@ -263,6 +312,102 @@ class _PremiumPaywallState extends State<PremiumPaywall> {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildPackageCard(Package pkg, AppThemeColors L) {
+    final isSelected = _selectedPackage?.identifier == pkg.identifier;
+    return GestureDetector(
+      onTap: () {
+        HapticEngine.selection();
+        setState(() => _selectedPackage = pkg);
+      },
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: isSelected ? L.primary.withValues(alpha: 0.1) : L.card.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: isSelected ? L.primary : L.border.withValues(alpha: 0.1),
+            width: isSelected ? 2 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  pkg.storeProduct.title.split(' (').first,
+                  style: AppTypography.titleMedium.copyWith(
+                    color: L.text,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  pkg.storeProduct.description,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: L.sub,
+                  ),
+                ),
+              ],
+            ),
+            Text(
+              pkg.storeProduct.priceString,
+              style: AppTypography.titleLarge.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w900,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMockPackageCard(AppThemeColors L) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: L.primary.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: L.primary, width: 2),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                "Lifetime Access",
+                style: AppTypography.titleMedium.copyWith(
+                  color: L.text,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                "Unlock all premium features forever",
+                style: AppTypography.bodySmall.copyWith(
+                  color: L.sub,
+                ),
+              ),
+            ],
+          ),
+          Text(
+            "Free",
+            style: AppTypography.titleLarge.copyWith(
+              color: L.text,
+              fontWeight: FontWeight.w900,
+            ),
+          ),
+        ],
       ),
     );
   }

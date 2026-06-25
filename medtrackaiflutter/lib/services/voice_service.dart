@@ -57,4 +57,18 @@ class VoiceService {
   static Future<void> stop() async {
     await _speech.stop();
   }
+
+  /// Handles intents launched from Siri Shortcuts or Google Assistant deep links
+  static Future<void> handleVoiceIntent(String intent, {required Function(String) onCommandReceived}) async {
+    appLogger.i('[VoiceService] Received OS voice intent: $intent');
+    
+    // Simulate natural language parsing of the intent
+    if (intent.toLowerCase().contains("log") || intent.toLowerCase().contains("take")) {
+      onCommandReceived("Log my medication");
+    } else if (intent.toLowerCase().contains("schedule") || intent.toLowerCase().contains("what")) {
+      onCommandReceived("What is my schedule today?");
+    } else {
+      onCommandReceived(intent); // Pass raw for Gemini processing
+    }
+  }
 }

@@ -53,7 +53,7 @@ class _HomeInsightCardState extends State<HomeInsightCard> {
     final onLoadInsight = widget.onLoadInsight;
     final L = context.L;
     final List<HealthInsight> insights = state.healthInsights;
-    final isPremium = state.profile?.isPremium ?? false;
+    final isPremium = state.isPremium;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),

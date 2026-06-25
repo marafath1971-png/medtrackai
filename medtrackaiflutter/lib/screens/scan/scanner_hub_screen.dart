@@ -199,16 +199,8 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
         if (!mounted) return;
         Navigator.push(
           context,
-          PageRouteBuilder(
-            pageBuilder: (_, a, __) => ProductAnalysisScreen(product: product, imageFile: image),
-            transitionsBuilder: (_, a, __, child) => SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 0.06),
-                end: Offset.zero,
-              ).animate(CurvedAnimation(parent: a, curve: Curves.easeOutExpo)),
-              child: FadeTransition(opacity: a, child: child),
-            ),
-            transitionDuration: const Duration(milliseconds: 500),
+          MaterialPageRoute(
+            builder: (_) => ProductAnalysisScreen(product: product, imageFile: image),
           ),
         );
       },

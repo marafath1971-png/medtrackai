@@ -5,7 +5,6 @@ import 'dart:math' as math;
 import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../core/utils/haptic_engine.dart';
-import '../../../domain/entities/medicine.dart';
 
 class InventoryVisualizerScreen extends StatefulWidget {
   const InventoryVisualizerScreen({super.key});

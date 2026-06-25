@@ -54,11 +54,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
     _gender = m.gender ?? 'Male';
     _isCritical = m.isCritical;
 
-    try {
-      _selectedIcon = IconData(int.parse(m.avatar), fontFamily: 'MaterialIcons');
-    } catch (_) {
-      _selectedIcon = Icons.person_rounded;
-    }
+    _selectedIcon = Icons.person_rounded;
   }
 
   Future<void> _pickImage() async {

@@ -56,6 +56,13 @@ class UserProfile {
   final int nudgeCount;
   final List<Caregiver> caregiverContacts;
   final List<ManagedProfile> familyMembers;
+  
+  // ── AI Scanner Settings ───────────────────────────
+  final double aiConfidenceThreshold;
+  final bool aiDeepAnalysis;
+  final bool aiAutoCrop;
+  final bool aiClinicalMode;
+  final bool aiPrivacyMode;
 
   UserProfile({
     this.name = '',
@@ -111,6 +118,11 @@ class UserProfile {
     this.nudgeCount = 0,
     this.caregiverContacts = const [],
     this.familyMembers = const [],
+    this.aiConfidenceThreshold = 85.0,
+    this.aiDeepAnalysis = true,
+    this.aiAutoCrop = true,
+    this.aiClinicalMode = false,
+    this.aiPrivacyMode = false,
   }) : createdAt = createdAt ?? DateTime.now();
 
   Map<String, dynamic> toJson() => {
@@ -167,6 +179,11 @@ class UserProfile {
         'nudgeCount': nudgeCount,
         'caregiverContacts': caregiverContacts.map((c) => c.toJson()).toList(),
         'familyMembers': familyMembers.map((m) => m.toJson()).toList(),
+        'aiConfidenceThreshold': aiConfidenceThreshold,
+        'aiDeepAnalysis': aiDeepAnalysis,
+        'aiAutoCrop': aiAutoCrop,
+        'aiClinicalMode': aiClinicalMode,
+        'aiPrivacyMode': aiPrivacyMode,
       };
 
   factory UserProfile.fromJson(Map<String, dynamic> j) => UserProfile(
@@ -233,6 +250,11 @@ class UserProfile {
         familyMembers: (j['familyMembers'] as List? ?? [])
             .map((m) => ManagedProfile.fromJson(Map<String, dynamic>.from(m as Map)))
             .toList(),
+        aiConfidenceThreshold: (j['aiConfidenceThreshold'] ?? 85.0).toDouble(),
+        aiDeepAnalysis: j['aiDeepAnalysis'] ?? true,
+        aiAutoCrop: j['aiAutoCrop'] ?? true,
+        aiClinicalMode: j['aiClinicalMode'] ?? false,
+        aiPrivacyMode: j['aiPrivacyMode'] ?? false,
       );
 
   UserProfile copyWith({
@@ -287,6 +309,11 @@ class UserProfile {
     int? nudgeCount,
     List<Caregiver>? caregiverContacts,
     List<ManagedProfile>? familyMembers,
+    double? aiConfidenceThreshold,
+    bool? aiDeepAnalysis,
+    bool? aiAutoCrop,
+    bool? aiClinicalMode,
+    bool? aiPrivacyMode,
   }) =>
       UserProfile(
         name: name ?? this.name,
@@ -342,5 +369,10 @@ class UserProfile {
         nudgeCount: nudgeCount ?? this.nudgeCount,
         caregiverContacts: caregiverContacts ?? this.caregiverContacts,
         familyMembers: familyMembers ?? this.familyMembers,
+        aiConfidenceThreshold: aiConfidenceThreshold ?? this.aiConfidenceThreshold,
+        aiDeepAnalysis: aiDeepAnalysis ?? this.aiDeepAnalysis,
+        aiAutoCrop: aiAutoCrop ?? this.aiAutoCrop,
+        aiClinicalMode: aiClinicalMode ?? this.aiClinicalMode,
+        aiPrivacyMode: aiPrivacyMode ?? this.aiPrivacyMode,
       );
 }

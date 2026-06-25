@@ -4,7 +4,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../core/utils/haptic_engine.dart';
-import '../../../core/utils/date_formatter.dart';
 import '../../../widgets/shared/shared_widgets.dart';
 import 'monthly_wrapped_screen.dart';
 import '../social/med_buddies_screen.dart';

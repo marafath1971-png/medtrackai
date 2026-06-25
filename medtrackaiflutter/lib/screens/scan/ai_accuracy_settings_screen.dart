@@ -5,7 +5,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../theme/app_theme.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/shared/shared_widgets.dart';
-
+import 'package:provider/provider.dart';
+import '../../../providers/app_state.dart';
 // ══════════════════════════════════════════════════════════════════════
 // 2026 PREMIUM AI ACCURACY SETTINGS
 // ══════════════════════════════════════════════════════════════════════
@@ -17,14 +18,12 @@ class AiAccuracySettingsScreen extends StatefulWidget {
 }
 
 class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
-  double _confidenceThreshold = 85.0;
-  bool _deepAnalysis = true;
-  bool _autoCrop = true;
-  bool _clinicalMode = false;
-
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final state = context.watch<AppState>();
+    final profile = state.profile;
+    if (profile == null) return const SizedBox.shrink();
 
     return Scaffold(
       backgroundColor: L.bg,
@@ -107,7 +106,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                               borderRadius: BorderRadius.circular(100),
                             ),
                             child: Text(
-                              '${_confidenceThreshold.toInt()}%',
+                              '${profile.aiConfidenceThreshold.toInt()}%',
                               style: AppTypography.labelLarge.copyWith(
                                 color: AppColors.accent,
                                 fontWeight: FontWeight.w800,
@@ -126,11 +125,11 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                           thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
                         ),
                         child: Slider(
-                          value: _confidenceThreshold,
+                          value: profile.aiConfidenceThreshold,
                           min: 50,
                           max: 100,
                           onChanged: (val) {
-                            setState(() => _confidenceThreshold = val);
+                            state.auth.saveProfile(profile.copyWith(aiConfidenceThreshold: val));
                             HapticEngine.selection();
                           },
                         ),
@@ -169,9 +168,9 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                       _buildSwitchTile(
                         title: 'Deep Semantic Analysis',
                         subtitle: 'Uses Gemini Pro for advanced label parsing',
-                        value: _deepAnalysis,
+                        value: profile.aiDeepAnalysis,
                         onChanged: (val) {
-                          setState(() => _deepAnalysis = val);
+                          state.auth.saveProfile(profile.copyWith(aiDeepAnalysis: val));
                           HapticEngine.selection();
                         },
                         L: L,
@@ -180,9 +179,9 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                       _buildSwitchTile(
                         title: 'Auto-Crop Images',
                         subtitle: 'Automatically frames the pill or bottle',
-                        value: _autoCrop,
+                        value: profile.aiAutoCrop,
                         onChanged: (val) {
-                          setState(() => _autoCrop = val);
+                          state.auth.saveProfile(profile.copyWith(aiAutoCrop: val));
                           HapticEngine.selection();
                         },
                         L: L,
@@ -191,9 +190,20 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                       _buildSwitchTile(
                         title: 'Clinical Mode',
                         subtitle: 'Prioritize NDC codes and FDA databases',
-                        value: _clinicalMode,
+                        value: profile.aiClinicalMode,
                         onChanged: (val) {
-                          setState(() => _clinicalMode = val);
+                          state.auth.saveProfile(profile.copyWith(aiClinicalMode: val));
+                          HapticEngine.selection();
+                        },
+                        L: L,
+                      ),
+                      Divider(height: 1, color: L.border.withValues(alpha: 0.1), indent: 16, endIndent: 16),
+                      _buildSwitchTile(
+                        title: 'Privacy Mode (No Logging)',
+                        subtitle: 'Do not save scan history or images locally',
+                        value: profile.aiPrivacyMode,
+                        onChanged: (val) {
+                          state.auth.saveProfile(profile.copyWith(aiPrivacyMode: val));
                           HapticEngine.selection();
                         },
                         L: L,
@@ -258,7 +268,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
           const SizedBox(width: 16),
           CupertinoSwitch(
             value: value,
-            activeColor: AppColors.accent,
+            activeTrackColor: AppColors.accent,
             onChanged: onChanged,
           ),
         ],

@@ -33,7 +33,7 @@ class AIConsentSheet extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 20,
             offset: const Offset(0, -10),
           ),
@@ -49,7 +49,7 @@ class AIConsentSheet extends StatelessWidget {
               height: 48,
               margin: const EdgeInsets.only(bottom: 24),
               decoration: BoxDecoration(
-                color: context.L.text.withOpacity(0.05),
+                color: context.L.text.withValues(alpha: 0.05),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.security_rounded, size: 24, color: context.L.text),

@@ -27,3 +27,6 @@
 -keep class io.flutter.plugin.** { *; }
 -keep class com.google.firebase.** { *; }
 -keep class com.google.android.gms.** { *; }
+
+# Ignore warnings for Play Core deferred components
+-dontwarn com.google.android.play.core.**

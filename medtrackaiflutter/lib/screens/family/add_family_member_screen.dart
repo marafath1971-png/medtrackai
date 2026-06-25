@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:io';
+import 'dart:ui';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
@@ -145,9 +146,18 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
     final L = context.L;
     return Scaffold(
       backgroundColor: L.meshBg,
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        flexibleSpace: ClipRRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              color: L.meshBg.withValues(alpha: 0.5),
+            ),
+          ),
+        ),
         leading: IconButton(
           icon: Icon(Icons.close_rounded, color: L.text),
           onPressed: () => Navigator.of(context).pop(),
@@ -162,214 +172,283 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
         ),
         centerTitle: true,
       ),
-      body: SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Avatar Preview & Role
-            Center(
-              child: Column(
-                children: [
-                  AnimatedPressable(
-                    onTap: _pickImage,
-                    child: Container(
-                      width: 90,
-                      height: 90,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: L.card,
-                        boxShadow: L.shadowSoft,
-                        border: Border.all(color: L.border.withValues(alpha: 0.1)),
-                      ),
-                      child: Center(
-                        child: _photoPath != null
-                            ? ClipOval(
-                                child: Image.file(
-                                  File(_photoPath!),
-                                  width: 90,
-                                  height: 90,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : Icon(
-                                _selectedIcon,
-                                size: 42,
-                                color: L.text,
-                              ),
-                      ),
-                    ),
-                  ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Tap to add photo',
-                    style: TextStyle(color: L.sub.withValues(alpha: 0.4), fontSize: 11),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _selectedRole.toUpperCase(),
-                    style: AppTypography.labelSmall.copyWith(
-                      fontFamily: 'Courier',
-                      color: L.sub.withValues(alpha: 0.6),
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2,
-                    ),
-                  ),
-                ],
+      body: Stack(
+        children: [
+          // Background subtle glowing orb for premium feel
+          Positioned(
+            top: -100,
+            right: -100,
+            child: Container(
+              width: 300,
+              height: 300,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: L.text.withValues(alpha: 0.05),
               ),
-            ),
-            const SizedBox(height: 32),
-
-            // Basic Info Section
-            _buildSectionHeader('BASIC INFORMATION', L),
-            const SizedBox(height: 12),
-            _buildInputField(
-              controller: _nameController,
-              hint: 'Full Name',
-              L: L,
-            ),
-            const SizedBox(height: 16),
-            
-            Row(
-              children: [
-                Expanded(
-                  child: _buildSelectorField(
-                    label: _dob == null ? 'Date of Birth' : '${_dob!.day}/${_dob!.month}/${_dob!.year}',
-                    icon: Icons.calendar_today_rounded,
-                    onTap: _selectDate,
-                    L: L,
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _buildGenderPicker(L),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-
-            // Role Selector Grid
-            _buildSectionHeader('RELATIONSHIP', L),
-            const SizedBox(height: 12),
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              mainAxisSpacing: 10,
-              crossAxisSpacing: 10,
-              childAspectRatio: 2.4,
-              children: _roles.map((role) {
-                final isSelected = _selectedRole == role['label'];
-                return AnimatedPressable(
-                  onTap: () {
-                    HapticEngine.selection();
-                    setState(() {
-                      _selectedRole = role['label']!;
-                      _selectedIcon = role['icon'];
-                    });
-                  },
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    decoration: BoxDecoration(
-                      color: isSelected ? L.text : L.card,
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: isSelected ? L.text : L.border.withValues(alpha: 0.1),
-                      ),
-                      boxShadow: isSelected ? [
-                        BoxShadow(color: L.text.withValues(alpha: 0.2), blurRadius: 12, offset: const Offset(0, 6))
-                      ] : null,
-                    ),
-                    child: Center(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Icon(
-                            role['icon'],
-                            size: 16,
-                            color: isSelected ? L.bg : L.text,
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            role['label']!,
-                            style: AppTypography.labelSmall.copyWith(
-                              fontFamily: 'Courier',
-                              color: isSelected ? L.bg : L.text,
-                              fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+            ).animate(onPlay: (c) => c.repeat(reverse: true)).scaleXY(begin: 0.9, end: 1.1, duration: 4.seconds),
+          ),
+          SafeArea(
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 120),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Avatar Preview & Role
+                  Center(
+                    child: Column(
+                      children: [
+                        AnimatedPressable(
+                          onTap: _pickImage,
+                          child: Container(
+                            width: 100,
+                            height: 100,
+                            padding: const EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              gradient: LinearGradient(
+                                colors: [L.text.withValues(alpha: 0.3), L.text.withValues(alpha: 0.05)],
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                              ),
+                            ),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: L.card,
+                                border: Border.all(color: L.border.withValues(alpha: 0.1)),
+                              ),
+                              child: Center(
+                                child: _photoPath != null
+                                    ? ClipOval(
+                                        child: Image.file(
+                                          File(_photoPath!),
+                                          width: 100,
+                                          height: 100,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      )
+                                    : Icon(
+                                        _selectedIcon,
+                                        size: 46,
+                                        color: L.text,
+                                      ),
+                              ),
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                  ),
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 32),
-
-            // Medical Notes
-            _buildSectionHeader('MEDICAL NOTES / ALLERGIES', L),
-            const SizedBox(height: 12),
-            _buildInputField(
-              controller: _notesController,
-              hint: 'e.g. Penicillin allergy, diabetic...',
-              maxLines: 3,
-              L: L,
-            ),
-            const SizedBox(height: 24),
-
-            // PIN Code
-            _buildSectionHeader('PIN CODE (OPTIONAL)', L),
-            const SizedBox(height: 12),
-            _buildInputField(
-              controller: _pinController,
-              hint: '4-digit PIN (e.g. 1234)',
-              maxLines: 1,
-              keyboardType: TextInputType.number,
-              maxLength: 4,
-              L: L,
-            ),
-            const SizedBox(height: 24),
-
-            // Critical Care Toggle
-            Container(
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: L.card,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: L.border.withValues(alpha: 0.1)),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Critical Care Member',
-                          style: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w900, color: L.text),
+                        ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: L.text.withValues(alpha: 0.05),
+                            borderRadius: BorderRadius.circular(99),
+                          ),
+                          child: Text(
+                            'Tap to add photo',
+                            style: AppTypography.labelSmall.copyWith(
+                              color: L.text.withValues(alpha: 0.7),
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: 16),
                         Text(
-                          'Prioritize alerts and monitoring',
-                          style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.6)),
+                          _selectedRole.toUpperCase(),
+                          style: AppTypography.labelSmall.copyWith(
+                            fontFamily: 'Courier',
+                            color: L.sub.withValues(alpha: 0.5),
+                            fontWeight: FontWeight.w900,
+                            letterSpacing: 2,
+                          ),
                         ),
                       ],
                     ),
                   ),
-                  Switch.adaptive(
-                    value: _isCritical,
-                    activeTrackColor: L.text,
-                    onChanged: (v) => setState(() => _isCritical = v),
+                  const SizedBox(height: 40),
+
+                  // Basic Info Section
+                  _buildSectionHeader('BASIC INFORMATION', L),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    controller: _nameController,
+                    hint: 'Full Name',
+                    L: L,
                   ),
+                  const SizedBox(height: 16),
+                  
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildSelectorField(
+                          label: _dob == null ? 'Date of Birth' : '${_dob!.day}/${_dob!.month}/${_dob!.year}',
+                          icon: Icons.calendar_today_rounded,
+                          onTap: _selectDate,
+                          L: L,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildGenderPicker(L),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Role Selector Grid
+                  _buildSectionHeader('RELATIONSHIP', L),
+                  const SizedBox(height: 16),
+                  GridView.count(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    crossAxisCount: 2,
+                    mainAxisSpacing: 12,
+                    crossAxisSpacing: 12,
+                    childAspectRatio: 2.2,
+                    children: _roles.map((role) {
+                      final isSelected = _selectedRole == role['label'];
+                      return AnimatedPressable(
+                        onTap: () {
+                          HapticEngine.selection();
+                          setState(() {
+                            _selectedRole = role['label']!;
+                            _selectedIcon = role['icon'];
+                          });
+                        },
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: isSelected ? 0 : 20, sigmaY: isSelected ? 0 : 20),
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 250),
+                              curve: Curves.easeOutCubic,
+                              decoration: BoxDecoration(
+                                color: isSelected ? L.text : L.card.withValues(alpha: 0.6),
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(
+                                  color: isSelected ? L.text : L.border.withValues(alpha: 0.1),
+                                ),
+                                boxShadow: isSelected ? [
+                                  BoxShadow(color: L.text.withValues(alpha: 0.2), blurRadius: 16, offset: const Offset(0, 6))
+                                ] : [],
+                              ),
+                              child: Center(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      role['icon'],
+                                      size: 18,
+                                      color: isSelected ? L.bg : L.text,
+                                    ),
+                                    const SizedBox(width: 10),
+                                    Text(
+                                      role['label']!,
+                                      style: AppTypography.labelSmall.copyWith(
+                                        fontFamily: 'Courier',
+                                        color: isSelected ? L.bg : L.text,
+                                        fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Medical Notes
+                  _buildSectionHeader('MEDICAL NOTES / ALLERGIES', L),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    controller: _notesController,
+                    hint: 'e.g. Penicillin allergy, diabetic...',
+                    maxLines: 3,
+                    L: L,
+                  ),
+                  const SizedBox(height: 40),
+
+                  // PIN Code
+                  _buildSectionHeader('PIN CODE (OPTIONAL)', L),
+                  const SizedBox(height: 16),
+                  _buildInputField(
+                    controller: _pinController,
+                    hint: '4-digit PIN (e.g. 1234)',
+                    maxLines: 1,
+                    keyboardType: TextInputType.number,
+                    maxLength: 4,
+                    L: L,
+                  ),
+                  const SizedBox(height: 40),
+
+                  // Critical Care Toggle
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(24),
+                    child: BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                      child: Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: L.card.withValues(alpha: 0.6),
+                          borderRadius: BorderRadius.circular(24),
+                          border: Border.all(color: L.border.withValues(alpha: 0.1)),
+                        ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Critical Care Member',
+                                    style: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w900, color: L.text),
+                                  ),
+                                  const SizedBox(height: 6),
+                                  Text(
+                                    'Prioritize alerts and monitoring',
+                                    style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.6)),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Switch.adaptive(
+                              value: _isCritical,
+                              activeTrackColor: L.text,
+                              onChanged: (v) => setState(() => _isCritical = v),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 120),
                 ],
               ),
             ),
-            const SizedBox(height: 40),
-
-            // Save Button
-            SizedBox(
+          ),
+        ],
+      ),
+      bottomNavigationBar: ClipRRect(
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+          child: Container(
+            padding: EdgeInsets.only(
+              left: 24, 
+              right: 24, 
+              top: 16, 
+              bottom: MediaQuery.of(context).padding.bottom + 16,
+            ),
+            decoration: BoxDecoration(
+              color: L.meshBg.withValues(alpha: 0.6),
+              border: Border(
+                top: BorderSide(color: L.border.withValues(alpha: 0.1)),
+              )
+            ),
+            child: SizedBox(
               width: double.infinity,
               height: 64,
               child: ElevatedButton(
@@ -377,8 +456,9 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                 style: ElevatedButton.styleFrom(
                   backgroundColor: L.text,
                   foregroundColor: L.bg,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
                   elevation: 0,
+                  shadowColor: Colors.transparent,
                 ),
                 child: _isSaving
                     ? const SizedBox(
@@ -400,9 +480,8 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                         ),
                       ),
               ),
-            ).animate().slideY(begin: 0.2, end: 0),
-            const SizedBox(height: 40),
-          ],
+            ).animate().slideY(begin: 1.0, end: 0, duration: 400.ms, curve: Curves.easeOutCubic),
+          ),
         ),
       ),
     );
@@ -413,7 +492,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
       title,
       style: AppTypography.labelSmall.copyWith(
         fontFamily: 'Courier',
-        color: L.sub.withValues(alpha: 0.6),
+        color: L.sub.withValues(alpha: 0.5),
         fontWeight: FontWeight.w900,
         letterSpacing: 2.0,
       ),
@@ -428,26 +507,32 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
     int? maxLength,
     required dynamic L,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: L.card.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: L.border.withValues(alpha: 0.08)),
-      ),
-      child: TextField(
-        controller: controller,
-        maxLines: maxLines,
-        keyboardType: keyboardType,
-        maxLength: maxLength,
-        buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: L.sub.withValues(alpha: 0.3)),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(20),
-          counterText: '',
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(24),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        child: Container(
+          decoration: BoxDecoration(
+            color: L.card.withValues(alpha: 0.6),
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: L.border.withValues(alpha: 0.1)),
+          ),
+          child: TextField(
+            controller: controller,
+            maxLines: maxLines,
+            keyboardType: keyboardType,
+            maxLength: maxLength,
+            buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null,
+            decoration: InputDecoration(
+              hintText: hint,
+              hintStyle: TextStyle(color: L.sub.withValues(alpha: 0.3)),
+              border: InputBorder.none,
+              contentPadding: const EdgeInsets.all(20),
+              counterText: '',
+            ),
+            style: AppTypography.labelMedium.copyWith(color: L.text, fontWeight: FontWeight.w600),
+          ),
         ),
-        style: AppTypography.labelMedium.copyWith(color: L.text, fontWeight: FontWeight.w600),
       ),
     );
   }
@@ -460,29 +545,35 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
   }) {
     return AnimatedPressable(
       onTap: onTap,
-      child: Container(
-        height: 64,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: L.card.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: L.border.withValues(alpha: 0.08)),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, size: 20, color: L.sub.withValues(alpha: 0.6)),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(
-                label,
-                style: AppTypography.labelSmall.copyWith(
-                  color: label.contains('/') ? L.text : L.sub.withValues(alpha: 0.5),
-                  fontWeight: label.contains('/') ? FontWeight.w800 : FontWeight.w600,
-                ),
-                overflow: TextOverflow.ellipsis,
-              ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            height: 64,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            decoration: BoxDecoration(
+              color: L.card.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: L.border.withValues(alpha: 0.1)),
             ),
-          ],
+            child: Row(
+              children: [
+                Icon(icon, size: 20, color: L.sub.withValues(alpha: 0.6)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    label,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: label.contains('/') ? L.text : L.sub.withValues(alpha: 0.5),
+                      fontWeight: label.contains('/') ? FontWeight.w800 : FontWeight.w600,
+                    ),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
     );
@@ -494,21 +585,27 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
         HapticEngine.selection();
         setState(() => _gender = _gender == 'Male' ? 'Female' : 'Male');
       },
-      child: Container(
-        height: 64,
-        decoration: BoxDecoration(
-          color: L.card.withValues(alpha: 0.5),
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: L.border.withValues(alpha: 0.08)),
-        ),
-        child: Center(
-          child: Text(
-            _gender.toUpperCase(),
-            style: AppTypography.labelSmall.copyWith(
-              fontFamily: 'Courier',
-              color: L.text,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.5,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(24),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            height: 64,
+            decoration: BoxDecoration(
+              color: L.card.withValues(alpha: 0.6),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: L.border.withValues(alpha: 0.1)),
+            ),
+            child: Center(
+              child: Text(
+                _gender.toUpperCase(),
+                style: AppTypography.labelSmall.copyWith(
+                  fontFamily: 'Courier',
+                  color: L.text,
+                  fontWeight: FontWeight.w900,
+                  letterSpacing: 1.5,
+                ),
+              ),
             ),
           ),
         ),

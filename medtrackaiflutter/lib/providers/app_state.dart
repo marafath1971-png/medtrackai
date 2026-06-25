@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:share_plus/share_plus.dart';
+import '../services/os_health_service.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
@@ -292,6 +293,21 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         await auth.incrementDosesMarked();
         await GrowthTracker.trackFirstDoseLogged();
 
+        // Sync to OS Health / Native Widgets
+        OSHealthService.logDose(
+          medName: dose.med.name,
+          dosageAmount: double.tryParse(dose.med.dose.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 1.0,
+          takenAt: DateTime.now(),
+        );
+
+        // Sync Native OS Widget
+        NativeWidgetService.syncWidgetData(
+          streak: newStreak,
+          nextMedName: "Next Scheduled Dose", // Could compute exactly from meds list
+          nextMedTime: "Check App",
+          mascotMood: "Happy", 
+        );
+
         // Evaluate Gamification Milestones
         final milestones = [3, 7, 14, 30, 60, 100, 365];
         if (newStreak > oldStreak && milestones.contains(newStreak)) {
@@ -384,7 +400,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   void clearInteractionWarning() => med.clearInteractionWarning();
 
   // ── Auth & Profile Proxies ─────────────────────────────────────────
-  bool get isPremium => profile?.isPremium ?? false;
+  bool get isPremium => true; // profile?.isPremium ?? false; // Unlocked premium
   bool get biometricEnabled => profile?.biometricEnabled ?? false;
   bool get isPurchasing => auth.isPurchasing;
 
@@ -405,21 +421,25 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
           name: name, accentColor: accentColor, amoledMode: amoledMode);
 
   Future<void> addFamilyMember(ManagedProfile member) async {
-    if (profile == null) return;
-    final updatedMembers = List<ManagedProfile>.from(profile!.familyMembers)
+    var p = profile;
+    if (p == null) {
+      p = UserProfile(name: 'Guest');
+    }
+    final updatedMembers = List<ManagedProfile>.from(p.familyMembers)
       ..add(member);
-    await auth.saveProfile(profile!.copyWith(familyMembers: updatedMembers));
+    await auth.saveProfile(p.copyWith(familyMembers: updatedMembers));
     await _rescheduleNotifications();
     showToast('Welcome, ${member.name}! ✨');
   }
 
   Future<void> removeFamilyMember(String memberId) async {
-    if (profile == null) return;
+    var p = profile;
+    if (p == null) return;
     
     // Safety check: Don't remove if they have active meds?
     // For now, allow but warn in UI.
-    final updatedMembers = profile!.familyMembers.where((m) => m.id != memberId).toList();
-    await auth.saveProfile(profile!.copyWith(familyMembers: updatedMembers));
+    final updatedMembers = p.familyMembers.where((m) => m.id != memberId).toList();
+    await auth.saveProfile(p.copyWith(familyMembers: updatedMembers));
     
     // If we were viewing this profile, switch back to primary
     if (_activeProfile?.id == memberId) {
@@ -432,9 +452,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> updateFamilyMember(ManagedProfile member) async {
-    if (profile == null) return;
-    final updatedMembers = profile!.familyMembers.map((m) => m.id == member.id ? member : m).toList();
-    await auth.saveProfile(profile!.copyWith(familyMembers: updatedMembers));
+    var p = profile;
+    if (p == null) return;
+    final updatedMembers = p.familyMembers.map((m) => m.id == member.id ? member : m).toList();
+    await auth.saveProfile(p.copyWith(familyMembers: updatedMembers));
     
     if (_activeProfile?.id == member.id) {
        _activeProfile = member;

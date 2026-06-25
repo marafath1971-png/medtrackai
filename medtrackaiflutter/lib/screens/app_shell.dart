@@ -35,7 +35,6 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   int _tab = 0;
-  bool _showScan = false;
   bool _fabPressed = false;
   bool _showReentry = false;
 
@@ -114,7 +113,12 @@ class _AppShellState extends State<AppShell>
       permission: Permission.camera,
       fallbackExplanation: 'Camera permission is required to scan. Please enable it in Settings.',
       onGranted: () {
-        setState(() => _showScan = true);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ScannerHubScreen(onClose: () => Navigator.pop(context)),
+          ),
+        );
       },
       onDenied: () {},
     );
@@ -181,23 +185,10 @@ class _AppShellState extends State<AppShell>
                     ),
                   ),
 
-                  // ── Scan Overlay — High Detail ──
-                  if (_showScan)
-                    Positioned.fill(
-                      child: ScannerHubScreen(
-                        key: const ValueKey('scan_tab'),
-                        onClose: () => setState(() => _showScan = false),
-                      )
-                          .animate()
-                          .fadeIn(duration: 350.ms, curve: Curves.easeOut)
-                          .scale(
-                            begin: const Offset(0.94, 0.94),
-                            curve: Curves.easeOutBack,
-                          ),
-                    ),
+                  // Removed Scanner Overlay logic because we now use Navigator.push
 
                   // ── Low stock banner ──
-                  if (lowMeds.isNotEmpty && !_showScan && !bannerDismissed)
+                  if (lowMeds.isNotEmpty && !bannerDismissed)
                     Positioned(
                       top: MediaQuery.of(context).padding.top + AppSpacing.p12,
                       left: AppSpacing.p16,
@@ -225,8 +216,7 @@ class _AppShellState extends State<AppShell>
                   ),
 
                   // ── Detached Scan FAB (right side, above nav) ──
-                  if (!_showScan)
-                    AnimatedPositioned(
+                  AnimatedPositioned(
                       duration: const Duration(milliseconds: 380),
                       curve: Curves.easeOutQuart,
                       right: 37,
@@ -252,10 +242,10 @@ class _AppShellState extends State<AppShell>
                     curve: Curves.easeOutQuart,
                     left: 20,
                     right: 20,
-                    bottom: _showScan ? -(120 + bottomPadding) : (16 + bottomPadding),
+                    bottom: (16 + bottomPadding),
                     child: AnimatedOpacity(
                       duration: const Duration(milliseconds: 250),
-                      opacity: _showScan ? 0 : 1,
+                      opacity: 1,
                       child: _buildBottomIsland(L, unseenAlerts),
                     ),
                   ),

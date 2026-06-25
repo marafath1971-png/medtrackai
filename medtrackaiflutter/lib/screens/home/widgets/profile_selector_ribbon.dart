@@ -289,8 +289,7 @@ class _ProfileAvatar extends StatelessWidget {
                         : (avatar != null && avatar!.isNotEmpty
                             ? (int.tryParse(avatar!) != null
                                 ? Icon(
-                                    IconData(int.parse(avatar!),
-                                        fontFamily: 'MaterialIcons'),
+                                    Icons.person_rounded,
                                     size: 14,
                                     color: isSelected ? Colors.white : L.text,
                                   )

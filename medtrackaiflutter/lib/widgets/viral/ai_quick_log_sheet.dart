@@ -12,7 +12,6 @@ import 'package:medai/screens/paywall/premium_paywall_overlay.dart';
 import '../../services/growth_tracker.dart';
 import '../../screens/medicine/medicine_detail_screen.dart';
 import 'package:medai/widgets/shared/shared_widgets.dart';
-import '../../../domain/entities/medicine.dart';
 
 // ══════════════════════════════════════════════
 // AI QUICK LOG SHEET
@@ -26,7 +25,7 @@ class AiQuickLogSheet extends StatefulWidget {
   static Future<void> show(BuildContext context) {
     final state = Provider.of<AppState>(context, listen: false);
     if ((state.profile?.voiceLogsUsed ?? 0) >= 3 &&
-        !(state.profile?.isPremium ?? false)) {
+        !state.isPremium) {
       return PremiumPaywallOverlay.show(context, triggerSource: 'voice_limit');
     }
     return showModalBottomSheet(
@@ -97,7 +96,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
   void _listen() async {
     final state = Provider.of<AppState>(context, listen: false);
     if ((state.profile?.voiceLogsUsed ?? 0) >= 3 &&
-        !(state.profile?.isPremium ?? false)) {
+        !state.isPremium) {
       Navigator.of(context).pop();
       PremiumPaywallOverlay.show(context, triggerSource: 'voice_limit');
       return;
@@ -154,7 +153,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
 
     final state = Provider.of<AppState>(context, listen: false);
     if ((state.profile?.voiceLogsUsed ?? 0) >= 3 &&
-        !(state.profile?.isPremium ?? false)) {
+        !state.isPremium) {
       Navigator.of(context).pop();
       PremiumPaywallOverlay.show(context, triggerSource: 'voice_limit');
       return;
