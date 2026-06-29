@@ -1,16 +1,23 @@
+import 'dart:ui';
+
+import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import '../../services/auth_service.dart';
 import '../../providers/app_state.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_loading_indicator.dart';
 import '../../services/smart_alert_service.dart';
 import '../../widgets/shared/shared_widgets.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:url_launcher/url_launcher.dart';
+import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/med_ai_mascot.dart';
+import '../../core/utils/haptic_engine.dart';
+
 // ══════════════════════════════════════════════
-// AUTH SCREEN — Sign In / Sign Up
+// AUTH SCREEN — Sign In / Sign Up (2026)
 // ══════════════════════════════════════════════
 
 class AuthScreen extends StatefulWidget {
@@ -28,12 +35,28 @@ class _AuthScreenState extends State<AuthScreen> {
   String? _error;
   bool _showPass = false;
   bool _loadingApple = false;
+  late final ConfettiController _confetti;
+
+  @override
+  void initState() {
+    super.initState();
+    _confetti = ConfettiController(duration: const Duration(seconds: 2));
+  }
 
   @override
   void dispose() {
     _emailCtrl.dispose();
     _passCtrl.dispose();
+    _confetti.dispose();
     super.dispose();
+  }
+
+  Future<void> _onAuthSuccess() async {
+    HapticEngine.success();
+    if (!MedAiA11y.reducedMotion(context)) {
+      _confetti.play();
+      await Future.delayed(const Duration(milliseconds: 800));
+    }
   }
 
   Future<void> _submit() async {
@@ -49,6 +72,7 @@ class _AuthScreenState extends State<AuthScreen> {
         await AuthService.signInWithEmail(
             _emailCtrl.text.trim(), _passCtrl.text);
       }
+      await _onAuthSuccess();
     } on FirebaseAuthException catch (e) {
       setState(() => _error = _friendlyError(e.code));
     } finally {
@@ -63,6 +87,7 @@ class _AuthScreenState extends State<AuthScreen> {
     });
     try {
       await AuthService.signInWithGoogle();
+      await _onAuthSuccess();
     } on FirebaseAuthException catch (e) {
       setState(() => _error = _friendlyError(e.code));
     } catch (e) {
@@ -79,10 +104,10 @@ class _AuthScreenState extends State<AuthScreen> {
     });
     try {
       await AuthService.signInWithApple();
+      await _onAuthSuccess();
     } on FirebaseAuthException catch (e) {
       setState(() => _error = _friendlyError(e.code));
     } catch (e) {
-      // User cancelled is a normal case — don't show error
       final msg = e.toString();
       if (!msg.contains('AuthorizationErrorCode.canceled') &&
           !msg.contains('com.apple.AuthenticationServices') &&
@@ -110,6 +135,36 @@ class _AuthScreenState extends State<AuthScreen> {
     }
   }
 
+  void _showEmailSheet() {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => _EmailAuthSheet(
+        isSignUp: _isSignUp,
+        emailCtrl: _emailCtrl,
+        passCtrl: _passCtrl,
+        showPass: _showPass,
+        loading: _loading,
+        error: _error,
+        onToggleSignUp: () {
+          setState(() {
+            _isSignUp = !_isSignUp;
+            _error = null;
+          });
+          Navigator.pop(ctx);
+          _showEmailSheet();
+        },
+        onTogglePass: () => setState(() => _showPass = !_showPass),
+        onSubmit: () async {
+          Navigator.pop(ctx);
+          await _submit();
+        },
+        onForgot: _forgotPassword,
+      ),
+    );
+  }
+
   String _friendlyError(String code) {
     switch (code) {
       case 'user-not-found':
@@ -132,256 +187,448 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final prefs = context.watch<AppState>().onboardingPrefs;
     final topPad = MediaQuery.of(context).padding.top;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
 
-    return AnimatedPressable(
-      onTap: () => FocusScope.of(context).unfocus(),
-      child: Scaffold(
-        backgroundColor: L.bg,
-        body: SafeArea(
-          child: Scrollbar(
+    return AppScaffold(
+      showAurora: true,
+      body: Stack(
+        children: [
+          SafeArea(
             child: SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              physics: const ClampingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics()),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              physics: const BouncingScrollPhysics(
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
               padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.screenPadding),
+                horizontal: AppSpacing.screenPadding,
+              ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: topPad + 40),
-
-                  // ── Logo ───────────────────────────────────────────────
-                  Container(
-                    width: 72,
-                    height: 72,
-                    decoration: BoxDecoration(
-                      color: L.card,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(color: L.border.withValues(alpha: 0.1)),
+                  SizedBox(height: topPad + 16),
+                  Hero(
+                    tag: 'medai-logo',
+                    child: MedAiMascot(
+                      size: 72,
+                      semanticLabel: 'Med AI mascot',
                     ),
-                    child: const Center(
-                        child: Image(
-                      image: AssetImage('assets/images/home_logo.png'),
-                      width: 44,
-                      height: 44,
-                    )),
-                  ),
-                  const SizedBox(height: 24),
-
-                  RichText(
-                      text: TextSpan(
-                    style: AppTypography.displayLarge.copyWith(
-                        fontSize: 32,
-                        color: L.text,
-                        letterSpacing: -1.0,
-                        fontWeight: FontWeight.w900),
-                    children: [
-                      TextSpan(
-                          text: _isSignUp
-                              ? 'Create\nyour '
-                              : 'Welcome\nback to '),
-                      TextSpan(
-                          text: 'Med ',
-                          style: AppTypography.displayLarge.copyWith(
-                              fontSize: 32,
-                              color: L.text,
-                              fontWeight: FontWeight.w900)),
-                      TextSpan(
-                          text: 'Ai',
-                          style: AppTypography.displayLarge.copyWith(
-                              fontSize: 32,
-                              color: L.success,
-                              fontWeight: FontWeight.w900)),
-                    ],
-                  )),
+                  ).entranceHero(),
+                  const SizedBox(height: 28),
+                  Text(
+                    _isSignUp ? 'Create your account' : 'Welcome back',
+                    style: AppTypography.headlineLarge.copyWith(
+                      color: L.text,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.6,
+                    ),
+                  ).entranceCard(0),
                   const SizedBox(height: 8),
                   Text(
-                    _isSignUp
-                        ? 'Sign up to sync your medicines across all devices.'
-                        : 'Sign in to access your medicine data.',
-                    style: AppTypography.bodySmall
-                        .copyWith(fontSize: 15, color: L.sub, height: 1.5),
-                  ),
-                  const SizedBox(height: 36),
-
-                  // ── Apple Sign In (App Store Requirement to be above others) ──
-                  if (Theme.of(context).platform == TargetPlatform.iOS) ...[
-                    _AppleBtn(onTap: _appleSignIn, loading: _loadingApple),
-                    const SizedBox(height: 12),
-                  ],
-                  // ── Google Sign In ─────────────────────────────────────
-                  _GoogleBtn(onTap: _googleSignIn, loading: _loading),
-
-                  const SizedBox(height: 20),
-
-                  // ── Divider ────────────────────────────────────────────
-                  Row(children: [
-                    Expanded(child: Divider(color: L.border)),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 12),
-                      child: Text('or',
-                          style: AppTypography.bodySmall
-                              .copyWith(fontSize: 13, color: L.sub)),
+                    prefs.personalizedAuthHeadline,
+                    style: AppTypography.bodyLarge.copyWith(
+                      color: L.sub,
+                      height: 1.45,
                     ),
-                    Expanded(child: Divider(color: L.border)),
-                  ]),
-                  const SizedBox(height: 20),
-
-                  // ── Email ──────────────────────────────────────────────
-                  _AuthField(
-                    controller: _emailCtrl,
-                    label: 'Email address',
-                    keyboardType: TextInputType.emailAddress,
-                    L: L,
-                  ),
-                  const SizedBox(height: 12),
-
-                  // ── Password ───────────────────────────────────────────
-                  _AuthField(
-                    controller: _passCtrl,
-                    label: 'Password',
-                    obscure: !_showPass,
-                    suffix: GestureDetector(
-                      onTap: () => setState(() => _showPass = !_showPass),
-                      child: Icon(
-                          _showPass
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded,
-                          color: L.sub,
-                          size: 18),
-                    ),
-                    L: L,
-                  ),
-
-                  // ── Forgot password ────────────────────────────────────
-                  if (!_isSignUp) ...[
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: BouncingButton(
-                        onTap: _forgotPassword,
-                        scaleFactor: 0.95,
-                        child: Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('Forgot password?',
-                              style: AppTypography.labelLarge.copyWith(
-                                  fontSize: 13,
-                                  color: L.text.withValues(alpha: 0.6),
-                                  fontWeight: FontWeight.w800)),
-                        ),
-                      ),
-                    ),
-                  ],
-
-                  // ── Error ──────────────────────────────────────────────
+                  ).entranceCard(1),
                   if (_error != null) ...[
-                    const SizedBox(height: 12),
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 14, vertical: 10),
-                      decoration: BoxDecoration(
-                          color: L.error.withValues(alpha: 0.1), borderRadius: AppRadius.roundM),
-                      child: Row(children: [
-                        Icon(Icons.error_outline_rounded,
-                            color: L.error, size: 16),
-                        const SizedBox(width: 8),
-                        Flexible(
-                            child: Text(_error!,
-                                style: AppTypography.bodySmall
-                                    .copyWith(fontSize: 13, color: L.error))),
-                      ]),
-                    ).animate().slideY(begin: -0.2, end: 0, duration: 300.ms, curve: Curves.easeOutBack).fadeIn(duration: 200.ms),
+                    const SizedBox(height: 16),
+                    _AuthErrorBanner(message: _error!),
                   ],
                   const SizedBox(height: 28),
-
-                  // ── Legal Terms (2026 Compliance) ──────────────────────
+                  if (Theme.of(context).platform == TargetPlatform.iOS) ...[
+                    _SocialAuthBtn(
+                      label: 'Continue with Apple',
+                      icon: Icons.apple_rounded,
+                      variant: _SocialVariant.dark,
+                      loading: _loadingApple,
+                      onTap: _appleSignIn,
+                    ).entranceCard(2),
+                    const SizedBox(height: 12),
+                  ],
+                  _SocialAuthBtn(
+                    label: 'Continue with Google',
+                    imageAsset: 'assets/images/google_logo.png',
+                    loading: _loading,
+                    onTap: _googleSignIn,
+                  ).entranceCard(3),
+                  const SizedBox(height: 12),
+                  _SocialAuthBtn(
+                    label: 'Continue with Email',
+                    icon: Icons.mail_outline_rounded,
+                    onTap: _showEmailSheet,
+                  ).entranceCard(4),
+                  const SizedBox(height: 28),
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Wrap(
                       alignment: WrapAlignment.center,
                       children: [
-                        Text('By continuing, you agree to our ', style: AppTypography.bodySmall.copyWith(fontSize: 12, color: L.sub.withValues(alpha: 0.6))),
-                        GestureDetector(
-                          onTap: () async {
-                            final url = Uri.parse('https://example.com/terms-of-service-2026');
-                            if (await canLaunchUrl(url)) launchUrl(url);
-                          },
-                          child: Text('Terms of Service', style: AppTypography.bodySmall.copyWith(fontSize: 12, color: L.text, fontWeight: FontWeight.w700, decoration: TextDecoration.underline)),
+                        Text(
+                          'By continuing, you agree to our ',
+                          style: AppTypography.bodySmall.copyWith(
+                            fontSize: 12,
+                            color: L.sub.withValues(alpha: 0.6),
+                          ),
                         ),
-                        Text(' and ', style: AppTypography.bodySmall.copyWith(fontSize: 12, color: L.sub.withValues(alpha: 0.6))),
-                        GestureDetector(
-                          onTap: () async {
-                            final url = Uri.parse('https://example.com/privacy-policy-2026');
-                            if (await canLaunchUrl(url)) launchUrl(url);
-                          },
-                          child: Text('Privacy Policy', style: AppTypography.bodySmall.copyWith(fontSize: 12, color: L.text, fontWeight: FontWeight.w700, decoration: TextDecoration.underline)),
+                        _LegalLink(
+                          label: 'Terms',
+                          url: 'https://example.com/terms-of-service-2026',
                         ),
-                        Text('.', style: AppTypography.bodySmall.copyWith(fontSize: 12, color: L.sub.withValues(alpha: 0.6))),
+                        Text(
+                          ' and ',
+                          style: AppTypography.bodySmall.copyWith(
+                            fontSize: 12,
+                            color: L.sub.withValues(alpha: 0.6),
+                          ),
+                        ),
+                        _LegalLink(
+                          label: 'Privacy Policy',
+                          url: 'https://example.com/privacy-policy-2026',
+                        ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Semantics(
+                      button: true,
+                      label: 'Continue without account',
+                      child: AnimatedPressable(
+                        onTap: () => context.read<AppState>().skipAuth(),
+                        hitTestPadding: const EdgeInsets.all(8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 10,
+                          ),
+                          child: Text(
+                            'Continue without account →',
+                            style: AppTypography.bodySmall.copyWith(
+                              fontSize: 13,
+                              color: L.sub,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 80),
+                ],
+              ),
+            ),
+          ),
+          if (!reduceMotion)
+            Align(
+              alignment: Alignment.topCenter,
+              child: ConfettiWidget(
+                confettiController: _confetti,
+                blastDirectionality: BlastDirectionality.explosive,
+                colors: const [
+                  AppThemeColors2026.electric,
+                  AppThemeColors2026.wellness,
+                  Color(0xFFFF9F0A),
+                ],
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
 
-                  // ── Submit Button ──────────────────────────────────────
-                  _PrimaryBtn(
-                    label: _isSignUp ? 'Create Account' : 'Sign In',
-                    loading: _loading,
-                    onTap: _submit,
+enum _SocialVariant { light, dark }
+
+class _SocialAuthBtn extends StatelessWidget {
+  final String label;
+  final IconData? icon;
+  final String? imageAsset;
+  final _SocialVariant variant;
+  final bool loading;
+  final VoidCallback onTap;
+
+  const _SocialAuthBtn({
+    required this.label,
+    this.icon,
+    this.imageAsset,
+    this.variant = _SocialVariant.light,
+    this.loading = false,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    final isDark = variant == _SocialVariant.dark;
+
+    return Semantics(
+      button: true,
+      enabled: !loading,
+      label: label,
+      child: AnimatedPressable(
+        onTap: loading ? null : onTap,
+        disabled: loading,
+        scaleFactor: 0.98,
+        child: MedAiGlass(
+          radius: AppRadius.l,
+          blur: 24,
+          tint: isDark ? L.text : L.card,
+          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              if (loading)
+                AppLoadingIndicator(
+                  size: 20,
+                  color: isDark ? Colors.white : L.text,
+                )
+              else if (imageAsset != null)
+                Image.asset(imageAsset!, width: 20, height: 20)
+              else if (icon != null)
+                Icon(icon, size: 22, color: isDark ? Colors.white : L.text),
+              const SizedBox(width: 12),
+              Text(
+                label,
+                style: AppTypography.titleMedium.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: isDark ? Colors.white : L.text,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _AuthErrorBanner extends StatelessWidget {
+  final String message;
+  const _AuthErrorBanner({required this.message});
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+      decoration: BoxDecoration(
+        color: L.error.withValues(alpha: 0.1),
+        borderRadius: AppRadius.roundM,
+        border: Border.all(color: L.error.withValues(alpha: 0.3), width: 0.5),
+      ),
+      child: Row(
+        children: [
+          Icon(Icons.error_outline_rounded, color: L.error, size: 18),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              message,
+              style: AppTypography.bodySmall.copyWith(
+                color: L.error,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+        ],
+      ),
+    ).entranceCard(0);
+  }
+}
+
+class _LegalLink extends StatelessWidget {
+  final String label;
+  final String url;
+  const _LegalLink({required this.label, required this.url});
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    return Semantics(
+      link: true,
+      label: label,
+      child: AnimatedPressable(
+        onTap: () async {
+          final uri = Uri.parse(url);
+          if (await canLaunchUrl(uri)) launchUrl(uri);
+        },
+        scaleFactor: 0.98,
+        child: Text(
+          label,
+          style: AppTypography.bodySmall.copyWith(
+            fontSize: 12,
+            color: L.text,
+            fontWeight: FontWeight.w700,
+            decoration: TextDecoration.underline,
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _EmailAuthSheet extends StatelessWidget {
+  final bool isSignUp;
+  final TextEditingController emailCtrl;
+  final TextEditingController passCtrl;
+  final bool showPass;
+  final bool loading;
+  final String? error;
+  final VoidCallback onToggleSignUp;
+  final VoidCallback onTogglePass;
+  final VoidCallback onSubmit;
+  final VoidCallback onForgot;
+
+  const _EmailAuthSheet({
+    required this.isSignUp,
+    required this.emailCtrl,
+    required this.passCtrl,
+    required this.showPass,
+    required this.loading,
+    required this.error,
+    required this.onToggleSignUp,
+    required this.onTogglePass,
+    required this.onSubmit,
+    required this.onForgot,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    final bottom = MediaQuery.of(context).viewInsets.bottom;
+
+    return Padding(
+      padding: EdgeInsets.only(bottom: bottom),
+      child: ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: L.card.withValues(alpha: context.isDark ? 0.88 : 0.94),
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+              border: Border(
+                top: BorderSide(color: L.glassBorder.withValues(alpha: 0.35)),
+              ),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 36,
+                      height: 4,
+                      margin: const EdgeInsets.only(bottom: 20),
+                      decoration: BoxDecoration(
+                        color: L.border,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    ),
+                  ),
+                  Text(
+                    isSignUp ? 'Sign up with email' : 'Sign in with email',
+                    style: AppTypography.headlineSmall.copyWith(
+                      color: L.text,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.4,
+                    ),
                   ),
                   const SizedBox(height: 20),
-
-                  // ── Toggle ─────────────────────────────────────────────
-                  Center(
-                    child: BouncingButton(
-                      onTap: () => setState(() {
-                        _isSignUp = !_isSignUp;
-                        _error = null;
-                      }),
-                      scaleFactor: 0.95,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: RichText(
-                            text: TextSpan(
-                          style: AppTypography.bodySmall
-                              .copyWith(fontSize: 14, color: L.sub),
-                          children: [
-                            TextSpan(
-                                text: _isSignUp
-                                    ? 'Already have an account? '
-                                    : "Don't have an account? "),
-                            TextSpan(
-                              text: _isSignUp ? 'Sign In' : 'Sign Up',
-                              style: AppTypography.bodySmall.copyWith(
-                                  fontSize: 14,
-                                  color: L.text,
-                                  fontWeight: FontWeight.w900,
-                                  decoration: TextDecoration.underline),
+                  _AuthField(
+                    controller: emailCtrl,
+                    label: 'Email address',
+                    keyboardType: TextInputType.emailAddress,
+                    autofillHints: const [AutofillHints.email],
+                    L: L,
+                  ),
+                  const SizedBox(height: 12),
+                  _AuthField(
+                    controller: passCtrl,
+                    label: 'Password',
+                    obscure: !showPass,
+                    autofillHints: isSignUp
+                        ? const [AutofillHints.newPassword]
+                        : const [AutofillHints.password],
+                    suffix: Semantics(
+                      button: true,
+                      label: showPass ? 'Hide password' : 'Show password',
+                      child: AnimatedPressable(
+                        onTap: onTogglePass,
+                        hitTestPadding: const EdgeInsets.all(8),
+                        child: Icon(
+                          showPass
+                              ? Icons.visibility_off_rounded
+                              : Icons.visibility_rounded,
+                          color: L.sub,
+                          size: 20,
+                        ),
+                      ),
+                    ),
+                    L: L,
+                  ),
+                  if (!isSignUp) ...[
+                    const SizedBox(height: 8),
+                    Align(
+                      alignment: Alignment.centerRight,
+                      child: Semantics(
+                        button: true,
+                        label: 'Forgot password',
+                        child: AnimatedPressable(
+                          onTap: onForgot,
+                          hitTestPadding: const EdgeInsets.all(4),
+                          child: Text(
+                            'Forgot password?',
+                            style: AppTypography.labelMedium.copyWith(
+                              color: AppThemeColors2026.electric,
+                              fontWeight: FontWeight.w700,
                             ),
-                          ],
-                        )),
+                          ),
+                        ),
                       ),
                     ),
+                  ],
+                  if (error != null) ...[
+                    const SizedBox(height: 12),
+                    _AuthErrorBanner(message: error!),
+                  ],
+                  const SizedBox(height: 20),
+                  MedAiCTA(
+                    label: isSignUp ? 'Create Account' : 'Sign In',
+                    loading: loading,
+                    onTap: loading ? null : onSubmit,
+                    semanticsLabel:
+                        isSignUp ? 'Create account' : 'Sign in with email',
                   ),
-
-                  // ── Skip / Continue without account ───────────────────
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 12),
                   Center(
-                    child: BouncingButton(
-                      onTap: () {
-                        context.read<AppState>().skipAuth();
-                      },
-                      scaleFactor: 0.95,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text('Continue without account →',
-                            style: AppTypography.bodySmall
-                                .copyWith(fontSize: 13, color: L.sub)),
+                    child: Semantics(
+                      button: true,
+                      label: isSignUp
+                          ? 'Switch to sign in'
+                          : 'Switch to sign up',
+                      child: AnimatedPressable(
+                        onTap: onToggleSignUp,
+                        hitTestPadding: const EdgeInsets.all(8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8),
+                          child: Text(
+                            isSignUp
+                                ? 'Already have an account? Sign In'
+                                : "Don't have an account? Sign Up",
+                            style: AppTypography.labelMedium.copyWith(
+                              color: L.sub,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 120),
                 ],
               ),
             ),
@@ -392,83 +639,12 @@ class _AuthScreenState extends State<AuthScreen> {
   }
 }
 
-// ── Reusable widgets ──────────────────────────────────────────────────
-
-class _GoogleBtn extends StatelessWidget {
-  final VoidCallback onTap;
-  final bool loading;
-  const _GoogleBtn({required this.onTap, required this.loading});
-
-  @override
-  Widget build(BuildContext context) {
-    final L = context.L;
-    return BouncingButton(
-      onTap: loading ? () {} : onTap,
-      scaleFactor: 0.98,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: L.border.withValues(alpha: 0.1)),
-        ),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          loading
-              ? const AppLoadingIndicator(size: 20)
-              : Image.asset(
-                  'assets/images/google_logo.png',
-                  width: 20,
-                  height: 20,
-                ),
-          const SizedBox(width: 12),
-          Text('Continue with Google',
-              style: AppTypography.titleLarge.copyWith(
-                  fontSize: 15, fontWeight: FontWeight.w700, color: L.text)),
-        ]),
-      ),
-    );
-  }
-}
-
-class _AppleBtn extends StatelessWidget {
-  final VoidCallback onTap;
-  final bool loading;
-  const _AppleBtn({required this.onTap, required this.loading});
-
-  @override
-  Widget build(BuildContext context) {
-    final L = context.L;
-    return BouncingButton(
-      onTap: loading ? () {} : onTap,
-      scaleFactor: 0.98,
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: L.border.withValues(alpha: 0.1)),
-        ),
-        child: Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-          loading
-              ? const AppLoadingIndicator(size: 20)
-              : Icon(Icons.apple_rounded, size: 22, color: L.text),
-          const SizedBox(width: 12),
-          Text('Continue with Apple',
-              style: AppTypography.titleLarge.copyWith(
-                  fontSize: 15, fontWeight: FontWeight.w700, color: L.text)),
-        ]),
-      ),
-    );
-  }
-}
-
 class _AuthField extends StatelessWidget {
   final TextEditingController controller;
   final String label;
   final bool obscure;
   final TextInputType? keyboardType;
+  final Iterable<String>? autofillHints;
   final Widget? suffix;
   final AppThemeColors L;
 
@@ -478,79 +654,50 @@ class _AuthField extends StatelessWidget {
     required this.L,
     this.obscure = false,
     this.keyboardType,
+    this.autofillHints,
     this.suffix,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: L.border.withValues(alpha: 0.1)),
-      ),
-      child: TextField(
-        autofocus: true,
-        controller: controller,
-        obscureText: obscure,
-        keyboardType: keyboardType,
-        style: AppTypography.bodyLarge
-            .copyWith(fontSize: 15, color: L.text, fontWeight: FontWeight.w600),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: AppTypography.bodySmall.copyWith(
-              fontSize: 14, color: L.sub, fontWeight: FontWeight.w600),
-          border: InputBorder.none,
-          contentPadding:
-              const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-          suffixIcon: suffix != null
-              ? Padding(
-                  padding: const EdgeInsets.only(right: 16), child: suffix)
-              : null,
-          suffixIconConstraints:
-              const BoxConstraints(minWidth: 0, minHeight: 0),
-        ),
-      ),
-    );
-  }
-}
-
-class _PrimaryBtn extends StatelessWidget {
-  final String label;
-  final bool loading;
-  final VoidCallback onTap;
-  const _PrimaryBtn(
-      {required this.label, required this.loading, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final L = context.L;
-    return BouncingButton(
-      onTap: loading ? () {} : onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        width: double.infinity,
-        height: 64,
+    return Semantics(
+      textField: true,
+      label: label,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: AppA11y.minTapTarget),
         decoration: BoxDecoration(
-          color: L.text,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-              color: L.text.withValues(alpha: 0.2),
-              blurRadius: 20,
-              offset: const Offset(0, 10),
-            )
-          ],
+          color: L.fill,
+          borderRadius: AppRadius.roundL,
+          border: Border.all(color: L.border.withValues(alpha: 0.35), width: 0.5),
         ),
-        child: Center(
-          child: loading
-              ? const AppLoadingIndicator(size: 24)
-              : Text(label.toUpperCase(),
-                  style: AppTypography.titleLarge.copyWith(
-                      fontSize: 14,
-                      color: L.bg,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.5)),
+        child: TextField(
+          controller: controller,
+          obscureText: obscure,
+          keyboardType: keyboardType,
+          autofillHints: autofillHints,
+          style: AppTypography.bodyLarge.copyWith(
+            color: L.text,
+            fontWeight: FontWeight.w600,
+          ),
+          decoration: InputDecoration(
+            labelText: label,
+            labelStyle: AppTypography.bodySmall.copyWith(color: L.sub),
+            border: InputBorder.none,
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 18,
+              vertical: 16,
+            ),
+            suffixIcon: suffix != null
+                ? Padding(
+                    padding: const EdgeInsets.only(right: 12),
+                    child: suffix,
+                  )
+                : null,
+            suffixIconConstraints: const BoxConstraints(
+              minWidth: 0,
+              minHeight: 0,
+            ),
+          ),
         ),
       ),
     );

@@ -191,12 +191,9 @@ class FirestoreDataSource {
   }
 
   Stream<List<Caregiver>> getCaregiversStream(String uid) {
-    return _userDoc(uid).snapshots().map((doc) {
-      final data = doc.data() as Map<String, dynamic>?;
-      if (data == null || !data.containsKey('caregivers')) return [];
-      final list = data['caregivers'] as List<dynamic>;
-      return list
-          .map((item) => Caregiver.fromJson(item as Map<String, dynamic>))
+    return _caregivers(uid).snapshots().map((snap) {
+      return snap.docs
+          .map((d) => Caregiver.fromJson(d.data() as Map<String, dynamic>))
           .toList();
     });
   }
@@ -212,6 +209,9 @@ class FirestoreDataSource {
       batch.set(_caregivers(uid).doc('${cg.id}'), cg.toJson());
     }
     await batch.commit();
+    await _userDoc(uid).set({
+      'caregivers': caregivers.map((c) => c.toJson()).toList(),
+    }, SetOptions(merge: true));
   }
 
   /// Upsert a single caregiver doc without a read (used by auto-sync).
@@ -325,13 +325,21 @@ class FirestoreDataSource {
   }
 
   // ── Invites ────────────────────────────────────────────────────────
-  Future<void> createInvite(String patientUid, Caregiver cg) async {
+  Future<void> createInvite(
+    String patientUid,
+    Caregiver cg, {
+    String? patientName,
+    String? patientAvatar,
+  }) async {
     final inviteCode = cg.inviteCode;
+    if (inviteCode == null || inviteCode.isEmpty) return;
     await _db.collection('caregiverInvites').doc(inviteCode).set({
       'patientUid': patientUid,
       'cgId': cg.id,
       'cgName': cg.name,
       'relation': cg.relation,
+      'patientName': patientName,
+      'patientAvatar': patientAvatar,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
@@ -343,6 +351,21 @@ class FirestoreDataSource {
 
   Future<void> deleteInvite(String inviteCode) async {
     await _db.collection('caregiverInvites').doc(inviteCode).delete();
+  }
+
+  Future<void> addMonitoringPatient(
+      String caregiverUid, Map<String, dynamic> patient) async {
+    await _userDoc(caregiverUid).set({
+      'monitoring': FieldValue.arrayUnion([patient]),
+    }, SetOptions(merge: true));
+  }
+
+  Future<void> activatePatientCaregiver(
+      String patientUid, int cgId, String caregiverUid) async {
+    await _caregivers(patientUid).doc('$cgId').set({
+      'status': 'active',
+      'joinedCaregiverUid': caregiverUid,
+    }, SetOptions(merge: true));
   }
 
   Future<void> nudgePatient(String patientUid) async {

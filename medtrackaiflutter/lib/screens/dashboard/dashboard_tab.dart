@@ -5,7 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../widgets/common/premium_empty_state.dart';
 import '../../providers/app_state.dart';
 import '../../widgets/shared/shared_widgets.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../widgets/modals/trend_drilldown_sheet.dart';
 import '../../core/utils/haptic_engine.dart';
 
@@ -20,7 +20,7 @@ import '../../services/voice_service.dart';
 import '../../widgets/modals/clinical_report_modal.dart';
 import '../../widgets/biohacking/pharma_timeline_widget.dart';
 import '../../widgets/biohacking/interactive_body_map.dart';
-import '../../widgets/common/mesh_gradient.dart';
+import '../../widgets/common/app_scaffold.dart';
 
 class DashboardTab extends StatefulWidget {
   final VoidCallback onScan;
@@ -66,6 +66,14 @@ class _DashboardTabState extends State<DashboardTab> {
     }
   }
 
+  Widget _dashboardEntrance(Widget child, {Duration? delay}) {
+    if (MedAiA11y.reducedMotion(context)) return child;
+    return child
+        .animate(key: ValueKey(child.hashCode), delay: delay)
+        .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
+        .slideY(begin: 0.08, end: 0, curve: AppCurves.smooth);
+  }
+
   @override
   Widget build(BuildContext context) {
     final L = context.L;
@@ -91,27 +99,9 @@ class _DashboardTabState extends State<DashboardTab> {
         ? meds[_selectedTimelineMedIndex] 
         : (meds.isNotEmpty ? meds.first : null);
 
-    return Scaffold(
-      backgroundColor: L.bg,
+    return AppScaffold(
+      showAurora: context.isDark,
       body: Stack(children: [
-        // ── Ambient Background (2026 Viral Aura) ──
-        Positioned.fill(
-          child: Container(color: L.bg),
-        ),
-        Positioned.fill(
-          child: Opacity(
-            opacity: 0.15,
-            child: MeshGradient(
-              colors: [
-                L.accent.withValues(alpha: 0.6),
-                L.purple.withValues(alpha: 0.6),
-                L.bg,
-                Colors.blue.withValues(alpha: 0.6),
-              ],
-            ),
-          ),
-        ),
-        
         // ── Main Content ──
         RefreshIndicator(
           onRefresh: () async {
@@ -137,41 +127,40 @@ class _DashboardTabState extends State<DashboardTab> {
                   const SizedBox(height: AppSpacing.l),
 
                   // --- SUMMARY STATS (Bento) ---
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
-                    child: Row(
-                      children: [
-                        _buildSummaryCard(
-                          context,
-                          s.adherenceLabel.toUpperCase(),
-                          adherence * 100,
-                          '%',
-                          '📈',
-                          L.green,
-                          onTap: () {
-                            if (!mounted) return;
-                            _showTrendDrilldown(context, state, L);
-                          },
-                        ),
-                        const SizedBox(width: 16),
-                        _buildSummaryCard(
-                          context,
-                          s.streakLabel.toUpperCase(),
-                          streak.toDouble(),
-                          'D',
-                          '⚡',
-                          AppColors.accent,
-                          onTap: () {
-                            if (!mounted) return;
-                            StreakModal.show(context, state);
-                          },
-                        ),
-                      ],
+                  _dashboardEntrance(
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: Row(
+                        children: [
+                          _buildSummaryCard(
+                            context,
+                            s.adherenceLabel,
+                            adherence * 100,
+                            '%',
+                            '📈',
+                            L.green,
+                            onTap: () {
+                              if (!mounted) return;
+                              _showTrendDrilldown(context, state, L);
+                            },
+                          ),
+                          const SizedBox(width: 16),
+                          _buildSummaryCard(
+                            context,
+                            s.streakLabel,
+                            streak.toDouble(),
+                            'D',
+                            '⚡',
+                            AppColors.accent,
+                            onTap: () {
+                              if (!mounted) return;
+                              StreakModal.show(context, state);
+                            },
+                          ),
+                        ],
+                      ),
                     ),
-                  )
-                      .animate(key: const ValueKey('dashboard_summary_anim'))
-                      .fadeIn(duration: 600.ms)
-                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuart),
+                  ),
                   const SizedBox(height: 16),
 
                   // --- BIOMETRIC BENTO (Task 1) ---
@@ -289,17 +278,13 @@ class _DashboardTabState extends State<DashboardTab> {
                   const SizedBox(height: AppSpacing.xxl),
 
                   // --- EXPORT PDF BUTTON (PREMIUM) ---
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.screenPadding),
-                    child: Container(
-                      width: double.infinity,
-                      height: 60,
-                      decoration: BoxDecoration(
-                        color: L.text,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: BouncingButton(
+                  _dashboardEntrance(
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.screenPadding),
+                      child: MedAiCTA(
+                        label: s.generateClinicalReport,
+                        icon: Icons.picture_as_pdf_rounded,
                         onTap: () {
                           HapticEngine.selection();
                           final state = context.read<AppState>();
@@ -311,29 +296,11 @@ class _DashboardTabState extends State<DashboardTab> {
                           ClinicalReportModal.show(
                               context, state, adherence, streak);
                         },
-                        scaleFactor: 0.95,
-                        child: Center(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const Icon(Icons.picture_as_pdf_rounded,
-                                  color: Colors.white, size: 20),
-                              const SizedBox(width: 8),
-                              Text(s.generateClinicalReport,
-                                  style: AppTypography.labelLarge.copyWith(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 1.0,
-                                      fontSize: 13)),
-                            ],
-                          ),
-                        ),
+                        semanticsLabel: 'Generate clinical report PDF',
                       ),
                     ),
-                  )
-                      .animate(key: const ValueKey('dashboard_export_pdf_anim'), delay: 100.ms)
-                      .fadeIn(duration: 600.ms)
-                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutExpo),
+                    delay: 100.ms,
+                  ),
 
                   const SizedBox(height: 16),
 
@@ -350,11 +317,10 @@ class _DashboardTabState extends State<DashboardTab> {
                           history: state.history,
                         );
                       },
-                      child: Text('EXPORT DATA AS CSV',
-                          style: AppTypography.labelSmall.copyWith(
+                      child: Text('Export data as CSV',
+                          style: AppTypography.labelLarge.copyWith(
                               color: L.sub,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 1.0)),
+                              fontWeight: FontWeight.w600)),
                     ),
                   )
                       .animate(key: const ValueKey('dashboard_export_csv_anim'), delay: 150.ms)
@@ -364,37 +330,30 @@ class _DashboardTabState extends State<DashboardTab> {
                   const SizedBox(height: AppSpacing.xxl),
 
                   // --- FOOTER INFO ---
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: AppSpacing.screenPadding),
-                    child: Container(
-                      padding: const EdgeInsets.all(AppSpacing.m),
-                      decoration: BoxDecoration(
-                        color: L.card,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(
-                            color: L.border,
-                            width: 0.8),
-                      ),
-                      child: Row(
-                        children: [
-                          Icon(Icons.info_outline_rounded,
-                              color: L.sub, size: 20),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Text(
-                              s.aiCoachDisclaimer,
-                              style: AppTypography.bodySmall.copyWith(
-                                  color: L.sub, fontSize: 12, height: 1.4),
+                  _dashboardEntrance(
+                    Padding(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: AppSpacing.screenPadding),
+                      child: MedAiGlass(
+                        padding: const EdgeInsets.all(AppSpacing.m),
+                        child: Row(
+                          children: [
+                            Icon(Icons.info_outline_rounded,
+                                color: L.sub, size: 20),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                s.aiCoachDisclaimer,
+                                style: AppTypography.bodySmall.copyWith(
+                                    color: L.sub, fontSize: 12, height: 1.4),
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  )
-                      .animate(key: const ValueKey('dashboard_footer_info_anim'), delay: 150.ms)
-                      .fadeIn(duration: 600.ms)
-                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutExpo),
+                    delay: 150.ms,
+                  ),
 
                   const SizedBox(height: 120), // Reduced spacer
                 ],
@@ -445,10 +404,10 @@ class _DashboardHeader extends StatelessWidget {
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 250),
+          duration: MedAiA11y.motion(context, const Duration(milliseconds: 250)),
           padding: EdgeInsets.fromLTRB(24, topPadding + 12, 24, 16),
           decoration: BoxDecoration(
-            color: L.meshBg.withValues(alpha: isScrolled ? 0.8 : 0.0),
+            color: L.bg.withValues(alpha: isScrolled ? 0.92 : 0.0),
             border: Border(
               bottom: BorderSide(
                 color: L.border.withValues(alpha: isScrolled ? 0.1 : 0.0),
@@ -463,32 +422,40 @@ class _DashboardHeader extends StatelessWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'PERFORMANCE',
+                    'ANALYTICS',
                     style: AppTypography.labelSmall.copyWith(
-                      color: L.sub.withValues(alpha: 0.6),
-                      fontSize: 10,
-                      letterSpacing: 2.0,
-                      fontWeight: FontWeight.w900,
+                      color: L.sub,
+                      fontWeight: FontWeight.w600,
+                      fontSize: 11,
+                      letterSpacing: 0.8,
                     ),
                   ),
-                  const SizedBox(height: 4),
                   Text(
-                    'Health Insights',
-                    style: AppTypography.headlineSmall.copyWith(
+                    'Health insights',
+                    style: AppTypography.headlineLarge.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: -1.0,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.6,
                     ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    'How your meds are working',
+                    style: AppTypography.bodySmall.copyWith(color: L.sub),
                   ),
                 ],
               ),
               const Spacer(),
               // Actions
-              _HeaderActionBtn(
-                icon: Icons.add_rounded,
-                onTap: onDailyLog,
-                isPrimary: true,
-                L: L,
+              Semantics(
+                button: true,
+                label: 'Daily log',
+                child: _HeaderActionBtn(
+                  icon: Icons.add_rounded,
+                  onTap: onDailyLog,
+                  isPrimary: true,
+                  L: L,
+                ),
               ),
             ],
           ),
@@ -513,14 +480,16 @@ class _HeaderActionBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BouncingButton(
+    return AnimatedPressable(
       onTap: onTap,
       scaleFactor: 0.9,
       child: Container(
-        width: 44,
-        height: 44,
+        width: MedAiA11y.minTapTarget,
+        height: MedAiA11y.minTapTarget,
         decoration: BoxDecoration(
-          color: isPrimary ? L.text : L.card,
+          color: isPrimary
+              ? (context.isDark ? L.text : AppColors.eatoNavy)
+              : L.card,
           shape: BoxShape.circle,
           border: Border.all(
             color: L.border.withValues(alpha: isPrimary ? 0.0 : 0.1),
@@ -530,7 +499,7 @@ class _HeaderActionBtn extends StatelessWidget {
         child: Center(
           child: Icon(
             icon,
-            color: isPrimary ? L.bg : L.text,
+            color: isPrimary ? Colors.white : L.text,
             size: 22,
           ),
         ),
@@ -554,23 +523,14 @@ void _showTrendDrilldown(
       String suffix, String emoji, Color color,
       {VoidCallback? onTap}) {
     final L = context.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
     return Expanded(
-      child: BouncingButton(
-        onTap: onTap,
-        scaleFactor: 0.92,
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(32),
-            gradient: LinearGradient(
-              colors: [
-                color.withValues(alpha: 0.1),
-                L.card.withValues(alpha: 0.8),
-              ],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-            ),
-            border: Border.all(color: color.withValues(alpha: 0.2), width: 1.5),
-          ),
+      child: Semantics(
+        button: onTap != null,
+        label: '$label ${numValue.round()}$suffix',
+        child: MedAiDepthCard(
+          accentGlow: context.isDark,
+          onTap: onTap,
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 28),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -587,38 +547,49 @@ void _showTrendDrilldown(
               const SizedBox(height: 20),
               Text(label,
                   style: AppTypography.labelMedium.copyWith(
-                      color: L.text.withValues(alpha: 0.8),
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 3.0)),
+                      color: L.sub,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.2)),
               const SizedBox(height: 12),
-              TweenAnimationBuilder<double>(
-                tween: Tween<double>(begin: 0.0, end: numValue),
-                duration: 2000.ms,
-                curve: Curves.elasticOut,
-                builder: (context, value, child) {
-                  return FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text('${value.round()}$suffix',
-                        style: AppTypography.displayLarge.copyWith(
-                            fontSize: 54,
-                            color: L.text,
-                            fontFamily: 'Courier',
-                            fontWeight: FontWeight.w900,
-                            height: 1.0,
-                            letterSpacing: -3.0,
-                            shadows: [
-                              Shadow(
-                                color: color.withValues(alpha: 0.5),
-                                blurRadius: 16,
-                                offset: const Offset(0, 4),
-                              )
-                            ])),
-                  );
-                },
-              ),
+              reduceMotion
+                  ? FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text('${numValue.round()}$suffix',
+                          style: AppTypography.displayLarge.copyWith(
+                              fontSize: 54,
+                              color: L.text,
+                              fontWeight: FontWeight.w800,
+                              height: 1.0,
+                              letterSpacing: -3.0)),
+                    )
+                  : TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0.0, end: numValue),
+                      duration: 2000.ms,
+                      curve: Curves.elasticOut,
+                      builder: (context, value, child) {
+                        return FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Text('${value.round()}$suffix',
+                              style: AppTypography.displayLarge.copyWith(
+                                  fontSize: 54,
+                                  color: L.text,
+                                  fontWeight: FontWeight.w800,
+                                  height: 1.0,
+                                  letterSpacing: -3.0,
+                                  shadows: [
+                                    Shadow(
+                                      color: color.withValues(alpha: 0.5),
+                                      blurRadius: 16,
+                                      offset: const Offset(0, 4),
+                                    )
+                                  ])),
+                        );
+                      },
+                    ),
               const SizedBox(height: 12),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
                 decoration: BoxDecoration(
                   color: color.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
@@ -629,9 +600,12 @@ void _showTrendDrilldown(
                   children: [
                     Icon(Icons.auto_awesome_rounded, color: color, size: 14),
                     const SizedBox(width: 4),
-                    Text('GOAL 100%',
-                        style: AppTypography.labelSmall
-                            .copyWith(color: color, fontSize: 10, fontWeight: FontWeight.w900, letterSpacing: 1.5)),
+                    Text('Goal 100%',
+                        style: AppTypography.labelSmall.copyWith(
+                            color: color,
+                            fontSize: 11,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: 0.1)),
                   ],
                 ),
               ),
@@ -657,49 +631,49 @@ void _showTrendDrilldown(
     if (!connected) {
       return Padding(
         padding: const EdgeInsets.symmetric(horizontal: 20),
-        child: BouncingButton(
-          onTap: () async {
-            HapticEngine.selection();
-            final ok = await state.connectHealth();
-            if (ok) state.syncHealthData();
-          },
-          child: SquircleCard(
-            padding: const EdgeInsets.all(24),
-            color: L.card,
-            child: Row(
-              children: [
-                Container(
-                  width: 48,
-                  height: 48,
-                  decoration: BoxDecoration(
-                      color: L.bg,
-                      shape: BoxShape.circle),
-                  child: const Center(
-                      child: Text('🩺', style: TextStyle(fontSize: 22))),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('CONNECT HEALTH DATA',
-                          style: AppTypography.labelSmall.copyWith(
-                              fontWeight: FontWeight.w900,
-                              color: L.secondary,
-                              letterSpacing: 1.0)),
-                      const SizedBox(height: 4),
-                      Text('Sync vitals to see how meds affect your heart.',
-                          style: AppTypography.bodySmall.copyWith(
-                              color: L.sub, fontSize: 12, height: 1.3)),
-                    ],
+        child: Semantics(
+          button: true,
+          label: 'Connect health data',
+          child: MedAiDepthCard(
+              accentGlow: true,
+              onTap: () async {
+                HapticEngine.selection();
+                final ok = await state.connectHealth();
+                if (ok) state.syncHealthData();
+              },
+              padding: const EdgeInsets.all(24),
+              child: Row(
+                children: [
+                  Container(
+                    width: 48,
+                    height: 48,
+                    decoration: BoxDecoration(
+                        color: L.bg, shape: BoxShape.circle),
+                    child: const Center(
+                        child: Text('🩺', style: TextStyle(fontSize: 22))),
                   ),
-                ),
-                Icon(Icons.chevron_right_rounded, color: L.sub, size: 20),
-              ],
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Connect health data',
+                            style: AppTypography.titleMedium.copyWith(
+                                fontWeight: FontWeight.w700, color: L.text)),
+                        const SizedBox(height: 4),
+                        Text(
+                            'Sync vitals to see how meds affect your heart.',
+                            style: AppTypography.bodySmall.copyWith(
+                                color: L.sub, fontSize: 12, height: 1.3)),
+                      ],
+                    ),
+                  ),
+                  Icon(Icons.chevron_right_rounded, color: L.sub, size: 22),
+                ],
+              ),
             ),
           ),
-        ),
-      ).animate(key: const ValueKey('dashboard_biometric_bento_connect_anim')).fadeIn(duration: 800.ms).slideY(begin: 0.1, end: 0);
+        );
     }
 
     return Padding(
@@ -712,7 +686,7 @@ void _showTrendDrilldown(
                 flex: 3,
                 child: _buildBentoCard(
                   context,
-                  'STEPS',
+                  'Steps',
                   '${steps.toInt()}',
                   '👟',
                   L.secondary,
@@ -739,7 +713,7 @@ void _showTrendDrilldown(
               Expanded(
                 child: _buildBentoCard(
                   context,
-                  'GLUCOSE',
+                  'Glucose',
                   bg > 0 ? '${bg.toInt()}' : '--',
                   '🩸',
                   const Color(0xFF10B981),
@@ -750,7 +724,7 @@ void _showTrendDrilldown(
               Expanded(
                 child: _buildBentoCard(
                   context,
-                  'PRESSURE',
+                  'Pressure',
                   (systolic > 0 && diastolic > 0) ? '${systolic.toInt()}/${diastolic.toInt()}' : '--/--',
                   '🩺',
                   const Color(0xFF3B82F6),
@@ -768,13 +742,9 @@ void _showTrendDrilldown(
       BuildContext context, String label, String value, String emoji, Color? c,
       {bool syncing = false}) {
     final L = context.L;
-    return Container(
+    return MedAiDepthCard(
+      accentGlow: true,
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
-      decoration: BoxDecoration(
-        color: L.card.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: (c ?? L.border).withValues(alpha: 0.3), width: 1.0),
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -804,22 +774,18 @@ void _showTrendDrilldown(
           const SizedBox(height: 20),
           Text(value,
               style: AppTypography.displayLarge.copyWith(
-                  fontSize: 34,
-                  fontWeight: FontWeight.w900,
-                  fontFamily: 'Courier',
-                  color: c ?? L.text,
-                  letterSpacing: -1.5,
-                  shadows: [
-                    Shadow(
-                      color: (c ?? L.text).withValues(alpha: 0.4),
-                      blurRadius: 12,
-                    )
-                  ]
+                fontSize: 32,
+                fontWeight: FontWeight.w800,
+                color: c ?? L.text,
+                letterSpacing: -1.0,
               )),
           const SizedBox(height: 6),
           Text(label,
               style: AppTypography.labelSmall.copyWith(
-                  color: L.sub, fontWeight: FontWeight.w900, fontSize: 11, letterSpacing: 2.0)),
+                  color: L.sub,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                  letterSpacing: 0.1)),
         ],
       ),
     );

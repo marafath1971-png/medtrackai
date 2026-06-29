@@ -9,6 +9,7 @@ list(APPEND FLUTTER_PLUGIN_LIST
   flutter_timezone
   gtk
   printing
+  rive_common
   url_launcher_linux
 )
 

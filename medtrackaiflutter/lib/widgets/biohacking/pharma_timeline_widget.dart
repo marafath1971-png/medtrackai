@@ -287,10 +287,10 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'BIOIMPACT VISUALIZER',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: L.sub.withValues(alpha: 0.4),
-                        letterSpacing: 1.5,
+                      'Bioimpact timeline',
+                      style: AppTypography.labelMedium.copyWith(
+                        color: L.sub,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 2),

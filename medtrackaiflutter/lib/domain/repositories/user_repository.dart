@@ -18,7 +18,8 @@ abstract class IUserRepository {
   Future<String> getLanguage();
   Future<void> saveLanguage(String language);
 
-  Future<void> createInvite(String patientUid, Caregiver cg);
+  Future<void> createInvite(String patientUid, Caregiver cg,
+      {String? patientName, String? patientAvatar});
   Future<Caregiver?> getInvite(String code);
   Future<Map<String, dynamic>?> getRawInvite(String code);
   Future<void> deleteInvite(String code);
@@ -34,4 +35,9 @@ abstract class IUserRepository {
 
   Future<List<Medicine>> getPatientMeds(String uid);
   Future<Map<String, List<DoseEntry>>> getPatientHistory(String uid);
+
+  /// Caregiver joins a patient's circle via invite code.
+  Future<void> addMonitoringPatient(Map<String, dynamic> patient);
+  Future<void> activatePatientCaregiver(
+      String patientUid, int cgId, String caregiverUid);
 }

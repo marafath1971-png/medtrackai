@@ -1,17 +1,16 @@
+import 'package:go_router/go_router.dart';
+import '../../../../app/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../providers/app_state.dart';
-import '../../../../theme/app_theme.dart';
+import '../../../../theme/med_ai_ui.dart';
+import '../../../../widgets/common/animated_pressable.dart';
 import '../../../../services/auth_service.dart';
 import '../../../../widgets/common/paywall_sheet.dart';
-import '../../../../widgets/shared/shared_widgets.dart';
 import 'settings_shared.dart';
-import '../../../settings/global_settings_screen.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/haptic_engine.dart';
-import '../../../admin/growth_dashboard_screen.dart';
-import '../../../social/med_wrapped_screen.dart';
 
 class ProfileTab extends StatefulWidget {
   final AppState state;
@@ -63,6 +62,79 @@ class _ProfileTabState extends State<ProfileTab> {
     super.dispose();
   }
 
+  Widget _maybeShimmerRow(
+      bool reduceMotion, Widget row, AppThemeColors L) {
+    if (reduceMotion) return row;
+    return row
+        .animate(onPlay: (c) => c.repeat(reverse: true))
+        .shimmer(duration: 3000.ms, color: L.primary.withValues(alpha: 0.05));
+  }
+
+  Widget _upgradeCard(
+      AppThemeColors L, bool reduceMotion, BuildContext context) {
+    Widget rocket = const Text('🚀', style: TextStyle(fontSize: 24));
+    if (!reduceMotion) {
+      rocket = rocket
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scale(
+              begin: const Offset(1.0, 1.0),
+              end: const Offset(1.2, 1.2),
+              duration: 1500.ms,
+              curve: Curves.easeInOut);
+    }
+
+    Widget card = Semantics(
+      button: true,
+      label: 'Upgrade to MedAI Pro',
+      child: MedAiDepthCard(
+        accentGlow: true,
+        padding: const EdgeInsets.all(20),
+        onTap: () {
+          HapticEngine.selection();
+          PaywallSheet.show(context);
+        },
+        child: Row(children: [
+          Container(
+            width: 50,
+            height: 50,
+            decoration: BoxDecoration(
+              color: AppColors.accent.withValues(alpha: 0.10),
+              shape: BoxShape.circle,
+            ),
+            child: Center(child: rocket),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                Text('Upgrade to MedAI Pro ✨',
+                    style: AppTypography.titleLarge.copyWith(
+                        color: L.text,
+                        fontSize: 18,
+                        letterSpacing: -0.5,
+                        fontWeight: FontWeight.w900)),
+                const SizedBox(height: 4),
+                Text('Unlock AI insights, Family Sharing & more 🚀',
+                    style: AppTypography.labelSmall.copyWith(
+                        color: L.sub,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.1)),
+              ])),
+          Icon(Icons.chevron_right_rounded, color: AppColors.accent, size: 28),
+        ]),
+      ),
+    );
+
+    if (reduceMotion) return card;
+    return card
+        .animate(onPlay: (c) => c.repeat())
+        .shimmer(
+            delay: 3.seconds,
+            duration: 2.seconds,
+            color: L.primary.withValues(alpha: 0.1));
+  }
+
   void _confirmDeleteAccount(BuildContext context) {
     showDialog(
       context: context,
@@ -70,7 +142,7 @@ class _ProfileTabState extends State<ProfileTab> {
         backgroundColor: widget.L.bg,
         title: Text('Delete Account?',
             style: AppTypography.titleLarge
-                .copyWith(color: widget.L.text, fontWeight: FontWeight.w900)),
+                .copyWith(color: widget.L.text, fontWeight: FontWeight.w800)),
         content: Text(
           'This action is permanent and will delete all your medication history and account data from our servers.',
           style: AppTypography.bodyMedium.copyWith(color: widget.L.sub),
@@ -78,7 +150,7 @@ class _ProfileTabState extends State<ProfileTab> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('CANCEL',
+            child: Text('Cancel',
                 style: AppTypography.labelLarge.copyWith(color: widget.L.sub)),
           ),
           TextButton(
@@ -86,8 +158,8 @@ class _ProfileTabState extends State<ProfileTab> {
               Navigator.pop(ctx);
               widget.state.deleteAccount();
             },
-            child: Text('DELETE',
-                style: AppTypography.labelLarge.copyWith(color: Colors.redAccent, fontWeight: FontWeight.w900)),
+            child: Text('Delete',
+                style: AppTypography.labelLarge.copyWith(color: Colors.redAccent, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -99,6 +171,128 @@ class _ProfileTabState extends State<ProfileTab> {
     final p = widget.state.profile;
     final L = widget.L;
     final s = AppLocalizations.of(context)!;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+
+    Widget avatarEmoji = Text(p?.avatar ?? '😊',
+        style: AppTypography.displaySmall.copyWith(fontSize: 36));
+    if (!reduceMotion && p?.photoUrl == null) {
+      avatarEmoji = avatarEmoji
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scale(
+              begin: const Offset(1.0, 1.0),
+              end: const Offset(1.1, 1.1),
+              duration: 2000.ms,
+              curve: Curves.easeInOut);
+    }
+
+    Widget heroCard = MedAiDepthCard(
+      padding: const EdgeInsets.all(24),
+      child: Row(children: [
+        Container(
+          width: 72,
+          height: 72,
+          decoration: BoxDecoration(
+              color: L.fill.withValues(alpha: 0.4),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(color: L.border.withValues(alpha: 0.1))),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: Center(
+                child: p?.photoUrl != null
+                    ? Image.network(
+                        p!.photoUrl!,
+                        fit: BoxFit.cover,
+                        width: 72,
+                        height: 72,
+                        errorBuilder: (_, __, ___) => Text(p.avatar,
+                            style: AppTypography.displaySmall
+                                .copyWith(fontSize: 36)),
+                      )
+                    : avatarEmoji),
+          ),
+        ),
+        const SizedBox(width: 20),
+        Expanded(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+              Row(
+                children: [
+                  Flexible(
+                    child: Text(p?.name ?? 'Your Name',
+                        style: AppTypography.titleLarge.copyWith(
+                            fontWeight: FontWeight.w800,
+                            color: L.text,
+                            fontSize: 22,
+                            letterSpacing: -0.5)),
+                  ),
+                  if (widget.state.isPremium) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 2),
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Colors.amber, Colors.orangeAccent],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text('PRO',
+                          style: AppTypography.labelSmall.copyWith(
+                              fontWeight: FontWeight.w800,
+                              fontSize: 10,
+                              color: Colors.black,
+                              letterSpacing: 0.5)),
+                    ),
+                  ],
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                  '${p?.age != null && p!.age.isNotEmpty ? "Age ${p.age}" : "Age not set"}${p?.gender != null && p!.gender.isNotEmpty ? " · ${p.gender}" : ""}',
+                  style: AppTypography.bodySmall.copyWith(
+                      color: L.sub.withValues(alpha: 0.6),
+                      fontWeight: FontWeight.w700)),
+            ])),
+        if (!_editing)
+          Semantics(
+            button: true,
+            label: s.edit,
+            child: AnimatedPressable(
+              onTap: () {
+                HapticEngine.selection();
+                setState(() => _editing = true);
+              },
+              scaleFactor: 0.96,
+              child: Container(
+                constraints:
+                    const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                decoration: BoxDecoration(
+                    color: L.fill.withValues(alpha: 0.5),
+                    borderRadius: BorderRadius.circular(12),
+                    border:
+                        Border.all(color: L.border.withValues(alpha: 0.1))),
+                child: Text(s.edit,
+                    style: AppTypography.labelLarge.copyWith(
+                        fontWeight: FontWeight.w700,
+                        fontSize: 12,
+                        letterSpacing: 0.1,
+                        color: L.text)),
+              ),
+            ),
+          ),
+      ]),
+    );
+    if (!reduceMotion) {
+      heroCard = heroCard
+          .animate()
+          .fade(duration: AppDurations.fast)
+          .slideY(begin: 0.1, end: 0, curve: AppCurves.smooth);
+    }
 
     return SingleChildScrollView(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -108,134 +302,28 @@ class _ProfileTabState extends State<ProfileTab> {
       child: Column(
         children: [
           // Avatar + Name Hero
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: L.card,
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: L.border, width: 0.8),
-            ),
-            child: Row(children: [
-              Container(
-                width: 72,
-                height: 72,
-                decoration: BoxDecoration(
-                    color: L.fill.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(24),
-                    border: Border.all(color: L.border.withValues(alpha: 0.1))),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(24),
-                  child: Center(
-                      child: p?.photoUrl != null
-                          ? Image.network(
-                              p!.photoUrl!,
-                              fit: BoxFit.cover,
-                              width: 72,
-                              height: 72,
-                              errorBuilder: (_, __, ___) => Text(p.avatar,
-                                  style: AppTypography.displaySmall
-                                      .copyWith(fontSize: 36)),
-                            )
-                          : Text(p?.avatar ?? '😊',
-                                  style: AppTypography.displaySmall
-                                      .copyWith(fontSize: 36))
-                              .animate(onPlay: (c) => c.repeat(reverse: true))
-                              .scale(
-                                begin: const Offset(1.0, 1.0),
-                                end: const Offset(1.1, 1.1),
-                                duration: 2000.ms,
-                                curve: Curves.easeInOut,
-                              )),
-                ),
-              ),
-              const SizedBox(width: 20),
-              Expanded(
-                  child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                    Row(
-                      children: [
-                        Flexible(
-                          child: Text(p?.name ?? 'Your Name',
-                              style: AppTypography.titleLarge.copyWith(fontWeight: FontWeight.w900,
-                                  color: L.text,
-                                  fontSize: 22,
-                                  letterSpacing: -0.5)),
-                        ),
-                        if (widget.state.isPremium) ...[
-                          const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 6, vertical: 2),
-                            decoration: BoxDecoration(
-                              gradient: const LinearGradient(
-                                colors: [Colors.amber, Colors.orangeAccent],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                            child: Text('PRO',
-                                style: AppTypography.labelSmall.copyWith(fontWeight: FontWeight.w900,
-                                    fontSize: 10,
-                                    color: Colors.black,
-                                    letterSpacing: 0.5)),
-                          ),
-                        ],
-                      ],
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                        '${p?.age != null && p!.age.isNotEmpty ? "Age ${p.age}" : "Age not set"}${p?.gender != null && p!.gender.isNotEmpty ? " · ${p.gender}" : ""}',
-                        style: AppTypography.bodySmall.copyWith(color: L.sub.withValues(alpha: 0.6),
-                            fontWeight: FontWeight.w700)),
-                  ])),
-              if (!_editing)
-                BouncingButton(
-                  onTap: () {
-                    HapticEngine.selection();
-                    setState(() => _editing = true);
-                  },
-                  scaleFactor: 0.9,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 10),
-                    decoration: BoxDecoration(
-                        color: L.fill.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(12),
-                        border:
-                            Border.all(color: L.border.withValues(alpha: 0.1))),
-                    child: Text(s.edit.toUpperCase(),
-                        style: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w900,
-                            fontSize: 10,
-                            letterSpacing: 1.0,
-                            color: L.text)),
-                  ),
-                ),
-            ]),
-          ).animate().fade(duration: 400.ms).slideY(begin: 0.1, end: 0),
+          heroCard,
           const SizedBox(height: 20),
 
           // ── APP SETTINGS (GLOBAL AUTHORITY) ──────────
           SettingsSection(
             title: 'App Settings',
             child: Column(children: [
-              SettingsModalRow(
-                icon: '🌐',
-                label: s.globalSettings,
-                sub: s.globalSettingsSubtitle,
-                onClick: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) => const GlobalSettingsScreen()),
-                  );
-                },
-                first: true,
-                last: true,
-                border: false,
-              ).animate(onPlay: (c) => c.repeat(reverse: true)).shimmer(
-                  duration: 3000.ms, color: L.primary.withValues(alpha: 0.05)),
+              _maybeShimmerRow(
+                reduceMotion,
+                SettingsModalRow(
+                  icon: '🌐',
+                  label: s.globalSettings,
+                  sub: s.globalSettingsSubtitle,
+                  onClick: () {
+                    context.push(AppRoutes.settingsGlobal);
+                  },
+                  first: true,
+                  last: true,
+                  border: false,
+                ),
+                L,
+              ),
             ]),
           ),
           const SizedBox(height: 24),
@@ -291,63 +379,49 @@ class _ProfileTabState extends State<ProfileTab> {
             // Removed redundant country selector from edit form to consolidate in Global Settings
             Row(children: [
               Expanded(
-                  child: BouncingButton(
-                onTap: () {
-                  HapticEngine.selection();
-                  setState(() {
-                    _editing = false;
-                    _nameCtrl.text = p?.name ?? '';
-                    _ageCtrl.text = p?.age ?? '';
-                    _genderInput = p?.gender;
-                    _goalInput = p?.goal;
-                    _countryInput = p?.country;
-                  });
-                },
-                scaleFactor: 0.95,
-                child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 13),
-                    decoration: BoxDecoration(
-                        color: L.fill, borderRadius: BorderRadius.circular(24)),
-                    child: Center(
-                        child: Text(s.cancel,
-                            style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w700, color: L.text)))),
-              )),
+                child: MedAiCTA(
+                  label: s.cancel,
+                  secondary: true,
+                  onTap: () {
+                    HapticEngine.selection();
+                    setState(() {
+                      _editing = false;
+                      _nameCtrl.text = p?.name ?? '';
+                      _ageCtrl.text = p?.age ?? '';
+                      _genderInput = p?.gender;
+                      _goalInput = p?.goal;
+                      _countryInput = p?.country;
+                    });
+                  },
+                ),
+              ),
               const SizedBox(width: 8),
               Expanded(
-                  flex: 2,
-                  child: BouncingButton(
-                    onTap: () {
-                      HapticEngine.success();
-                      final newProfile = p?.copyWith(
-                              name: _nameCtrl.text,
-                              age: _ageCtrl.text,
-                              gender: _genderInput,
-                              goal: _goalInput,
-                              country: _countryInput) ??
-                          UserProfile(
-                              name: _nameCtrl.text,
-                              age: _ageCtrl.text,
-                              gender: _genderInput ?? '',
-                              goal: _goalInput ?? '',
-                              avatar: '😊',
-                              conditions: const [],
-                              notifPerm: true);
-                      widget.state.saveProfile(newProfile);
-                      setState(() => _editing = false);
-                    },
-                    scaleFactor: 0.95,
-                    child: Container(
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        decoration: BoxDecoration(
-                            color: L.text,
-                            borderRadius: BorderRadius.circular(20)),
-                        child: Center(
-                            child: Text('SAVE CHANGES',
-                                style: AppTypography.titleMedium.copyWith(fontWeight: FontWeight.w900,
-                                    fontSize: 14,
-                                    letterSpacing: 0.5,
-                                    color: L.bg)))),
-                  )),
+                flex: 2,
+                child: MedAiCTA(
+                  label: 'Save changes',
+                  semanticsLabel: 'Save profile changes',
+                  onTap: () {
+                    HapticEngine.success();
+                    final newProfile = p?.copyWith(
+                            name: _nameCtrl.text,
+                            age: _ageCtrl.text,
+                            gender: _genderInput,
+                            goal: _goalInput,
+                            country: _countryInput) ??
+                        UserProfile(
+                            name: _nameCtrl.text,
+                            age: _ageCtrl.text,
+                            gender: _genderInput ?? '',
+                            goal: _goalInput ?? '',
+                            avatar: '😊',
+                            conditions: const [],
+                            notifPerm: true);
+                    widget.state.saveProfile(newProfile);
+                    setState(() => _editing = false);
+                  },
+                ),
+              ),
             ]),
             const SizedBox(height: 24),
           ] else ...[
@@ -382,63 +456,10 @@ class _ProfileTabState extends State<ProfileTab> {
                       border: false),
                 ])),
             if (!widget.state.isPremium)
-              BouncingButton(
-                onTap: () {
-                  HapticEngine.selection();
-                  PaywallSheet.show(context);
-                },
-                scaleFactor: 0.97,
-                child: Container(
-                  margin: const EdgeInsets.only(bottom: 24),
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: L.card,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: L.border, width: 0.8),
-                  ),
-                  child: Row(children: [
-                    Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: AppColors.accent.withValues(alpha: 0.10),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Center(
-                          child: const Text('🚀',
-                                  style: TextStyle(fontSize: 24))
-                              .animate(onPlay: (c) => c.repeat(reverse: true))
-                              .scale(
-                                begin: const Offset(1.0, 1.0),
-                                end: const Offset(1.2, 1.2),
-                                duration: 1500.ms,
-                                curve: Curves.easeInOut,
-                              )),
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                          Text('Upgrade to MedAI Pro ✨',
-                              style: AppTypography.titleLarge.copyWith(color: L.text,
-                                  fontSize: 18,
-                                  letterSpacing: -0.5,
-                                  fontWeight: FontWeight.w900)),
-                          const SizedBox(height: 4),
-                          Text('Unlock AI insights, Family Sharing & more 🚀',
-                              style: AppTypography.labelSmall.copyWith(color: L.sub,
-                                  fontWeight: FontWeight.w600,
-                                  letterSpacing: 0.1)),
-                        ])),
-                    Icon(Icons.chevron_right_rounded,
-                        color: AppColors.accent, size: 28),
-                  ]),
-                ),
-              ).animate(onPlay: (c) => c.repeat()).shimmer(
-                  delay: 3.seconds,
-                  duration: 2.seconds,
-                  color: L.primary.withValues(alpha: 0.1)),
+              Padding(
+                padding: const EdgeInsets.only(bottom: 24),
+                child: _upgradeCard(L, reduceMotion, context),
+              ),
             SettingsSection(
               title: 'Subscription',
               child: Column(children: [
@@ -480,12 +501,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   sub: 'View your yearly consistency slideshow',
                   onClick: () {
                     HapticEngine.selection();
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => const MedWrappedScreen(),
-                      ),
-                    );
+                    context.push(AppRoutes.statsMedWrapped);
                   },
                   border: true,
                 ),
@@ -603,12 +619,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       sub: 'Funnel analytics and mock simulator',
                       onClick: () {
                         HapticEngine.selection();
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const GrowthDashboardScreen(),
-                          ),
-                        );
+                        context.push(AppRoutes.adminGrowth);
                       },
                       first: true,
                       last: true,
@@ -624,18 +635,19 @@ class _ProfileTabState extends State<ProfileTab> {
                   Text(
                     'MedAI 1.0.0+1',
                     style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.4),
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w800,
                       fontSize: 10,
                       letterSpacing: 1.0,
                     ),
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'MADE WITH ❤️ BY MEDAI TEAM',
-                    style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.2),
-                      fontWeight: FontWeight.w900,
-                      fontSize: 8,
-                      letterSpacing: 2.0,
+                    'Made with ❤️ by the MedAI team',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: L.sub.withValues(alpha: 0.3),
+                      fontWeight: FontWeight.w600,
+                      fontSize: 10,
+                      letterSpacing: 0.1,
                     ),
                   ),
                 ],

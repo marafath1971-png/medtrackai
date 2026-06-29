@@ -1,10 +1,11 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:url_launcher/url_launcher.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
 import '../../../models/constants.dart';
+import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/animated_pressable.dart';
+import '../../../core/utils/haptic_engine.dart';
 
 class PrivacyPolicyScreen extends StatefulWidget {
   const PrivacyPolicyScreen({super.key});
@@ -14,114 +15,96 @@ class PrivacyPolicyScreen extends StatefulWidget {
 }
 
 class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
+  Widget _entrance(Widget child, {int delay = 0}) {
+    if (MedAiA11y.reducedMotion(context)) return child;
+    return child
+        .animate(delay: delay.ms)
+        .fadeIn(duration: AppDurations.fast)
+        .slideY(begin: 0.08, end: 0, curve: AppCurves.smooth);
+  }
+
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return Scaffold(
-      backgroundColor: L.bg,
+
+    return AppScaffold(
+      showAurora: true,
       body: CustomScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const BouncingScrollPhysics(),
         slivers: [
-          SliverAppBar(
-            backgroundColor: L.bg,
-            expandedHeight: 220,
-            pinned: true,
-            stretch: true,
-            leading: Navigator.canPop(context)
-                ? IconButton(
-                    icon: Icon(Icons.arrow_back_ios_new_rounded, color: L.text),
-                    onPressed: () => Navigator.pop(context),
-                  )
-                : null,
-            flexibleSpace: FlexibleSpaceBar(
-              stretchModes: const [StretchMode.zoomBackground],
-              background: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Positioned.fill(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [
-                            AppColors.accent.withValues(alpha: 0.15),
-                            L.bg
-                          ],
-                          begin: Alignment.topCenter,
-                          end: Alignment.bottomCenter,
-                        ),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    top: -50,
-                    right: -50,
-                    child: Container(
-                      width: 200,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: AppColors.accent.withValues(alpha: 0.2),
-                      ),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 50, sigmaY: 50),
-                        child: Container(color: Colors.transparent),
-                      ),
-                    ),
-                  ),
-                  Positioned(
-                    bottom: 40,
-                    left: 24,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 12, vertical: 6),
+          SliverToBoxAdapter(
+            child: SafeArea(
+              bottom: false,
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.screenPadding, 12, AppSpacing.screenPadding, 24),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Semantics(
+                      button: true,
+                      label: 'Back',
+                      child: AnimatedPressable(
+                        onTap: () {
+                          HapticEngine.selection();
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          width: MedAiA11y.minTapTarget,
+                          height: MedAiA11y.minTapTarget,
                           decoration: BoxDecoration(
-                            color: L.text.withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(12),
+                            color: L.card,
+                            borderRadius: BorderRadius.circular(14),
                             border: Border.all(
-                                color: L.border.withValues(alpha: 0.1)),
+                                color: L.border.withValues(alpha: 0.12)),
+                            boxShadow: AppShadows.soft,
                           ),
-                          child: Text(
-                            'LEGAL & COMPLIANCE',
-                            style: AppTypography.labelSmall.copyWith(
-                              color: AppColors.accent,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 2,
-                            ),
-                          ),
+                          child: Icon(Icons.arrow_back_ios_new_rounded,
+                              color: L.text, size: 18),
                         ),
-                        const SizedBox(height: 12),
-                        Text(
-                          'Privacy Policy',
-                          style: AppTypography.displaySmall.copyWith(
-                            color: L.text,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -1,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          'Last Updated: June 2026',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: L.sub,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                  )
-                ],
+                    const SizedBox(height: 24),
+                    MedAiGlass(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      radius: AppRadius.l,
+                      child: Text(
+                        'LEGAL & COMPLIANCE',
+                        style: AppTypography.labelSmall.copyWith(
+                          color: L.accent,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 2,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      'Privacy Policy',
+                      style: AppTypography.displaySmall.copyWith(
+                        color: L.text,
+                        fontWeight: FontWeight.w900,
+                        letterSpacing: -1,
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Text(
+                      'Last Updated: June 2026',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: L.sub,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.fromLTRB(24, 16, 24, 100),
+            padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                // Medical Disclaimer — Apple 5.1.3 Required
                 _buildCard(
                   icon: Icons.local_hospital_rounded,
                   title: 'Medical Disclaimer',
@@ -131,7 +114,6 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   delay: 50,
                   L: L,
                 ),
-
                 _buildCard(
                   icon: Icons.shield_rounded,
                   title: '1. Information We Collect',
@@ -140,7 +122,6 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   delay: 100,
                   L: L,
                 ),
-
                 _buildCard(
                   icon: Icons.auto_awesome_rounded,
                   title: '2. AI & Scan Processing',
@@ -149,7 +130,6 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   delay: 150,
                   L: L,
                 ),
-
                 _buildCard(
                   icon: Icons.people_rounded,
                   title: '3. Family & Caregiver Sharing',
@@ -158,7 +138,6 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   delay: 200,
                   L: L,
                 ),
-
                 _buildCard(
                   icon: Icons.business_rounded,
                   title: '4. Third-Party Services',
@@ -167,7 +146,6 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   delay: 250,
                   L: L,
                 ),
-
                 _buildCard(
                   icon: Icons.lock_clock_rounded,
                   title: '5. Data Retention',
@@ -176,7 +154,6 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   delay: 300,
                   L: L,
                 ),
-
                 _buildCard(
                   icon: Icons.security_rounded,
                   title: '6. Security',
@@ -185,7 +162,6 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   delay: 350,
                   L: L,
                 ),
-
                 _buildCard(
                   icon: Icons.gavel_rounded,
                   title: '7. Your Rights (GDPR / CCPA)',
@@ -194,7 +170,6 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   delay: 400,
                   L: L,
                 ),
-
                 _buildCard(
                   icon: Icons.child_care_rounded,
                   title: '8. Children\'s Privacy',
@@ -203,7 +178,6 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   delay: 450,
                   L: L,
                 ),
-
                 _buildCard(
                   icon: Icons.cloud_off_rounded,
                   title: '9. Your Data, Your Control',
@@ -212,7 +186,6 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   delay: 500,
                   L: L,
                 ),
-
                 _buildCard(
                   icon: Icons.email_rounded,
                   title: '10. Contact & Updates',
@@ -221,63 +194,64 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                   delay: 550,
                   L: L,
                 ),
-
                 const SizedBox(height: 24),
-
-                // Web link to hosted policy
-                AnimatedPressable(
-                  onTap: () async {
-                    final url = Uri.parse(kPrivacyPolicyUrl);
-                    if (await canLaunchUrl(url)) {
-                      await launchUrl(url, mode: LaunchMode.externalApplication);
-                    }
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: AppColors.accent.withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: AppColors.accent.withValues(alpha: 0.3)),
-                    ),
-                    child: Row(
-                      children: [
-                        Icon(Icons.open_in_new_rounded, color: AppColors.accent, size: 18),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            'View full policy online at $kPrivacyPolicyUrl',
-                            style: AppTypography.bodySmall.copyWith(
-                              color: AppColors.accent,
-                              fontWeight: FontWeight.w600,
-                              decoration: TextDecoration.underline,
-                              decorationColor: AppColors.accent,
+                _entrance(
+                  Semantics(
+                    button: true,
+                    label: 'View full privacy policy online',
+                    child: MedAiGlass(
+                      onTap: () async {
+                        HapticEngine.selection();
+                        final url = Uri.parse(kPrivacyPolicyUrl);
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url,
+                              mode: LaunchMode.externalApplication);
+                        }
+                      },
+                      child: Row(
+                        children: [
+                          Icon(Icons.open_in_new_rounded,
+                              color: L.accent, size: 18),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              'View full policy online at $kPrivacyPolicyUrl',
+                              style: AppTypography.bodySmall.copyWith(
+                                color: L.accent,
+                                fontWeight: FontWeight.w600,
+                                decoration: TextDecoration.underline,
+                                decorationColor: L.accent,
+                              ),
                             ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  delay: 600,
+                ),
+                const SizedBox(height: 40),
+                _entrance(
+                  Center(
+                    child: Column(
+                      children: [
+                        Icon(Icons.verified_user_rounded,
+                            color: L.sub.withValues(alpha: 0.3), size: 32),
+                        const SizedBox(height: 12),
+                        Text(
+                          '$kAppName\nSecure · Private · GDPR Compliant',
+                          textAlign: TextAlign.center,
+                          style: AppTypography.labelMedium.copyWith(
+                            color: L.sub.withValues(alpha: 0.5),
+                            fontWeight: FontWeight.w800,
+                            height: 1.5,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ).animate().fadeIn(delay: 600.ms),
-
-                const SizedBox(height: 40),
-                Center(
-                  child: Column(
-                    children: [
-                      Icon(Icons.verified_user_rounded,
-                          color: L.sub.withValues(alpha: 0.3), size: 32),
-                      const SizedBox(height: 12),
-                      Text(
-                        '$kAppName\nSecure · Private · GDPR Compliant',
-                        textAlign: TextAlign.center,
-                        style: AppTypography.labelMedium.copyWith(
-                          color: L.sub.withValues(alpha: 0.5),
-                          fontWeight: FontWeight.w800,
-                          height: 1.5,
-                        ),
-                      ),
-                    ],
-                  ),
-                ).animate().fadeIn(delay: 650.ms, duration: 800.ms),
+                  delay: 650,
+                ),
               ]),
             ),
           ),
@@ -294,62 +268,58 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
     required AppThemeColors L,
     Color? accent,
   }) {
-    final accentColor = accent ?? AppColors.accent;
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: accent != null
-            ? accentColor.withValues(alpha: 0.05)
-            : L.card.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(
-          color: accentColor.withValues(alpha: accent != null ? 0.25 : 0.08),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.03),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(10),
-                decoration: BoxDecoration(
-                  color: accentColor.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
+    final accentColor = accent ?? L.accent;
+    return _entrance(
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: Semantics(
+          label: title,
+          child: MedAiDepthCard(
+            color: accent != null
+                ? accentColor.withValues(alpha: 0.05)
+                : null,
+            accentGlow: accent != null,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      width: MedAiA11y.minTapTarget,
+                      height: MedAiA11y.minTapTarget,
+                      decoration: BoxDecoration(
+                        color: accentColor.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(icon, size: 20, color: accentColor),
+                    ),
+                    const SizedBox(width: 16),
+                    Expanded(
+                      child: Text(
+                        title,
+                        style: AppTypography.titleMedium.copyWith(
+                          color: L.text,
+                          fontWeight: FontWeight.w800,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-                child: Icon(icon, size: 20, color: accentColor),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Text(
-                  title,
-                  style: AppTypography.titleMedium.copyWith(
-                    color: L.text,
-                    fontWeight: FontWeight.w800,
+                const SizedBox(height: 16),
+                Text(
+                  content,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: L.sub,
+                    height: 1.7,
+                    fontWeight: FontWeight.w500,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          Text(
-            content,
-            style: AppTypography.bodySmall.copyWith(
-              color: L.sub,
-              height: 1.7,
-              fontWeight: FontWeight.w500,
+              ],
             ),
           ),
-        ],
+        ),
       ),
-    ).animate().fadeIn(delay: delay.ms, duration: 400.ms).slideY(begin: 0.1, end: 0);
+      delay: delay,
+    );
   }
 }

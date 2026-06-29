@@ -1,19 +1,18 @@
-import 'package:permission_handler/permission_handler.dart';
-import '../widgets/common/permission_soft_prompt.dart';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'dart:ui';
 import 'package:provider/provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import '../app/app_routes.dart';
 import '../providers/app_state.dart';
-import '../theme/app_theme.dart';
+import '../theme/med_ai_ui.dart';
 import '../widgets/shared/shared_widgets.dart';
+import '../widgets/common/permission_soft_prompt.dart';
 import '../core/utils/haptic_engine.dart';
-import 'home/home_tab.dart';
+import '../core/constants/med_ai_assets.dart';
+import '../widgets/common/app_svg_icon.dart';
 import 'home/widgets/streak_modal.dart';
-import 'scan/scanner_hub_screen.dart';
-import 'dashboard/dashboard_tab.dart';
-import 'alarms/alarms_tab.dart';
-import 'family/family_tab.dart';
+import 'package:go_router/go_router.dart';
 import 'security/lock_screen.dart';
 
 import '../services/analytics_service.dart';
@@ -22,21 +21,22 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/common/medical_disclaimer_modal.dart';
 import '../widgets/viral/reentry_screen.dart';
 import '../widgets/modals/ai_consent_sheet.dart';
+import 'package:flutter/scheduler.dart';
 
 // ══════════════════════════════════════════════
 // APP SHELL — Bottom nav + FAB + overlays
 // ══════════════════════════════════════════════
 class AppShell extends StatefulWidget {
-  const AppShell({super.key});
+  final Widget child;
+  const AppShell({super.key, required this.child});
   @override
   State<AppShell> createState() => _AppShellState();
 }
 
 class _AppShellState extends State<AppShell>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
-  int _tab = 0;
-  bool _fabPressed = false;
   bool _showReentry = false;
+  AppState? _appState;
 
   @override
   void initState() {
@@ -47,16 +47,24 @@ class _AppShellState extends State<AppShell>
       if (mounted) MedicalDisclaimerModal.showIfNeeded(context);
       _checkReentry();
     });
+  }
 
-    // Handle celebratory triggers
-    context.read<AppState>().addListener(_handleCelebration);
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final newState = context.read<AppState>();
+    if (!identical(newState, _appState)) {
+      _appState?.removeListener(_handleCelebration);
+      _appState = newState;
+      _appState!.addListener(_handleCelebration);
+    }
   }
 
   int _missedDoses = 0;
 
   void _checkReentry() async {
-    final state = context.read<AppState>();
-    final missed = await state.checkDailyReentry();
+    if (!mounted) return;
+    final missed = await _appState!.checkDailyReentry();
     if (missed != null && mounted) {
       setState(() {
         _missedDoses = missed;
@@ -65,9 +73,18 @@ class _AppShellState extends State<AppShell>
     }
   }
 
-  void _handleCelebration() async {
+  void _handleCelebration() {
+    // Defer to post-frame — never access context during build/layout
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _runCelebrationLogic();
+    });
+  }
+
+  void _runCelebrationLogic() async {
     if (!mounted) return;
-    final state = context.read<AppState>();
+    // Use cached _appState — never call context.read() here
+    final state = _appState!;
 
     // First Priority: Streak Milestones
     final milestone = state.pendingMilestoneAnimation;
@@ -91,7 +108,7 @@ class _AppShellState extends State<AppShell>
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    context.read<AppState>().removeListener(_handleCelebration);
+    _appState?.removeListener(_handleCelebration);
     super.dispose();
   }
 
@@ -102,26 +119,61 @@ class _AppShellState extends State<AppShell>
     }
   }
 
+  void _onReentryClosed() {
+    setState(() {
+      _showReentry = false;
+    });
+    AIConsentSheet.checkAndShow(context);
+  }
+
   void _openScan() async {
     HapticEngine.medium();
     await PermissionSoftPrompt.show(
       context: context,
       title: 'Camera Access',
-      explanation: 'We need your camera to scan medicine bottles and pills. This data is processed securely.',
+      explanation:
+          'We need your camera to scan medicine bottles and pills. This data is processed securely.',
       icon: Icons.camera_alt_rounded,
       buttonText: 'Enable Camera',
       permission: Permission.camera,
-      fallbackExplanation: 'Camera permission is required to scan. Please enable it in Settings.',
+      fallbackExplanation:
+          'Camera permission is required to scan. Please enable it in Settings.',
       onGranted: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ScannerHubScreen(onClose: () => Navigator.pop(context)),
-          ),
-        );
+        context.push(AppRoutes.scan);
       },
       onDenied: () {},
     );
+  }
+
+  void _navigateToTab(int index) {
+    switch (index) {
+      case 0:
+        context.go('/home');
+        break;
+      case 1:
+        context.go('/analytics');
+        break;
+      case 2:
+        context.go('/alarms');
+        break;
+      case 3:
+        context.go('/circle');
+        break;
+    }
+    AnalyticsService.logScreenView(
+      ['Home', 'Analytics', 'Alarms', 'Circles'][index],
+    );
+  }
+
+  int _calculateSelectedIndex(BuildContext context) {
+    try {
+      final String location = GoRouterState.of(context).uri.path;
+      if (location.startsWith('/home')) return 0;
+      if (location.startsWith('/analytics')) return 1;
+      if (location.startsWith('/alarms')) return 2;
+      if (location.startsWith('/circle')) return 3;
+    } catch (_) {}
+    return 0;
   }
 
   @override
@@ -153,35 +205,13 @@ class _AppShellState extends State<AppShell>
               body: Stack(
                 clipBehavior: Clip.none,
                 children: [
-                  // ── Main content ──
+                  // ── Main content with swipe tab navigation ──
                   Positioned.fill(
-                    child: AnimatedSwitcher(
-                      duration: 450.ms,
-                      switchInCurve: Curves.easeOutBack,
-                      switchOutCurve: Curves.easeIn,
-                      transitionBuilder: (child, animation) {
-                        final isIncoming = child.key == ValueKey(_tab);
-                        return FadeTransition(
-                          opacity: animation,
-                          child: ScaleTransition(
-                            scale: Tween<double>(
-                              begin: isIncoming ? 0.95 : 1.0,
-                              end: 1.0,
-                            ).animate(animation),
-                            child: SlideTransition(
-                              position: Tween<Offset>(
-                                begin: isIncoming ? const Offset(0, 0.04) : Offset.zero,
-                                end: Offset.zero,
-                              ).animate(animation),
-                              child: child,
-                            ),
-                          ),
-                        );
-                      },
-                      child: KeyedSubtree(
-                        key: ValueKey(_tab),
-                        child: _buildCurrentTab(),
-                      ),
+                    child: MedAiSwipeTabs(
+                      currentIndex: _calculateSelectedIndex(context),
+                      tabCount: 4,
+                      onTabChanged: _navigateToTab,
+                      child: widget.child,
                     ),
                   ),
 
@@ -215,23 +245,6 @@ class _AppShellState extends State<AppShell>
                     ),
                   ),
 
-                  // ── Detached Scan FAB (right side, above nav) ──
-                  AnimatedPositioned(
-                      duration: const Duration(milliseconds: 380),
-                      curve: Curves.easeOutQuart,
-                      right: 37,
-                      bottom: (16 + bottomPadding) + 76 + 24, // nav height + gap
-                      child: _MedScanFAB(
-                        pressed: _fabPressed,
-                        onTap: _openScan,
-                        onPressDown: () {
-                          HapticEngine.selection();
-                          setState(() => _fabPressed = true);
-                        },
-                        onPressUp: () => setState(() => _fabPressed = false),
-                      ),
-                    ),
-
                   // ── Toast ──
                   if (toast != null)
                     AppToast(message: toast, type: toastType ?? 'success'),
@@ -257,7 +270,7 @@ class _AppShellState extends State<AppShell>
                         missedDoses: _missedDoses, 
                         userName: context.select<AppState, String>((s) => s.activeProfile?.name ?? s.profile?.name ?? 'there'),
                         onDismiss: ({required bool streakSaved}) {
-                          setState(() => _showReentry = false);
+                          _onReentryClosed();
                           if (streakSaved) {
                             final st = context.read<AppState>();
                             Future.delayed(const Duration(milliseconds: 300), () {
@@ -276,75 +289,108 @@ class _AppShellState extends State<AppShell>
     );
   }
 
-  Widget _buildCurrentTab() {
-    switch (_tab) {
-      case 0:
-        return HomeTab(
-          onScan: _openScan,
-          onSwitchTab: (i) => setState(() => _tab = i),
-        );
-      case 1:
-        return DashboardTab(
-          onScan: _openScan,
-        );
-      case 2:
-        return const AlarmsTab();
-      case 3:
-        return const FamilyTab();
-      default:
-        return const SizedBox.shrink();
-    }
-  }
-
   Widget _buildBottomIsland(AppThemeColors L, int unseenAlerts) {
     const labels = ['Home', 'Analytics', 'Alarms', 'Circle'];
-    const activeIcons = [
-      Icons.home_rounded,
-      Icons.bar_chart_rounded,
-      Icons.alarm_on_rounded,
-      Icons.people_alt_rounded,
-    ];
-    const inactiveIcons = [
-      Icons.home_outlined,
-      Icons.bar_chart_outlined,
-      Icons.alarm_outlined,
-      Icons.people_alt_outlined,
+    const iconPaths = [
+      MedAiAssets.iconHome,
+      MedAiAssets.iconAnalytics,
+      MedAiAssets.iconAlarms,
+      MedAiAssets.iconFamily,
     ];
     final badges = [0, 0, 0, unseenAlerts];
+    final currentIndex = _calculateSelectedIndex(context);
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(32),
+      borderRadius: BorderRadius.circular(28),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+        filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
         child: Container(
-          height: 76,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+          height: 80,
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
           decoration: BoxDecoration(
-            // Cal AI: nearly invisible glass — no color tint
-            color: L.glass,
+            color: context.isDark
+                ? L.card.withValues(alpha: 0.72)
+                : L.card,
             borderRadius: BorderRadius.circular(28),
             border: Border.all(
-              color: L.glassBorder, // Pure white hairline
-              width: 0.8,
+              color: context.isDark
+                  ? L.glassBorder.withValues(alpha: 0.35)
+                  : AppColors.eatoGold.withValues(alpha: 0.12),
+              width: context.isDark ? 0.5 : 1,
             ),
+            boxShadow: context.isDark
+                ? AppShadows.premium
+                : [
+                    BoxShadow(
+                      color: AppColors.eatoNavy.withValues(alpha: 0.06),
+                      blurRadius: 20,
+                      offset: const Offset(0, 8),
+                    ),
+                  ],
           ),
           child: Row(
             children: [
-              // ── Nav Items (full width now) ──
-              Expanded(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: List.generate(
-                    4,
-                    (i) => _buildNavItem(
-                      i,
-                      activeIcons[i],
-                      inactiveIcons[i],
-                      labels[i],
-                      L,
-                      badges[i],
-                    ),
+              _buildNavItem(0, iconPaths[0], labels[0], L, badges[0], currentIndex),
+              _buildNavItem(1, iconPaths[1], labels[1], L, badges[1], currentIndex),
+              _buildScanButton(L),
+              _buildNavItem(2, iconPaths[2], labels[2], L, badges[2], currentIndex),
+              _buildNavItem(3, iconPaths[3], labels[3], L, badges[3], currentIndex),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Center Scan action — the prominent primary action in the nav, matching
+  /// the reference (Cal AI / Eato) center-scan pattern.
+  Widget _buildScanButton(AppThemeColors L) {
+    return Expanded(
+      child: Semantics(
+        button: true,
+        label: 'Scan medicine',
+        child: AnimatedPressable(
+          onTap: _openScan,
+          behavior: HitTestBehavior.opaque,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: context.isDark
+                        ? [L.text, L.text.withValues(alpha: 0.85)]
+                        : [
+                            AppColors.eatoGold,
+                            AppColors.eatoGold.withValues(alpha: 0.88),
+                          ],
                   ),
+                  shape: BoxShape.circle,
+                  boxShadow: AppShadows.glow(
+                    context.isDark ? L.accent : AppColors.eatoGold,
+                    intensity: 0.35,
+                  ),
+                ),
+                child: Center(
+                  child: AppSvgIcon(
+                    assetPath: MedAiAssets.iconScan,
+                    size: 22,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                'Scan',
+                style: AppTypography.labelSmall.copyWith(
+                  color: L.sub.withValues(alpha: 0.6),
+                  fontSize: 10,
+                  fontWeight: FontWeight.w600,
                 ),
               ),
             ],
@@ -354,212 +400,89 @@ class _AppShellState extends State<AppShell>
     );
   }
 
-  Widget _buildNavItem(int index, IconData activeIcon, IconData inactiveIcon,
-      String label, AppThemeColors L, int cnt) {
-    final selected = _tab == index;
+  Widget _buildNavItem(int index, String iconPath, String label,
+      AppThemeColors L, int cnt, int currentIndex) {
+    final selected = currentIndex == index;
 
     return Expanded(
-      child: AnimatedPressable(
-        onTap: () {
-          if (_tab != index) {
+      child: Semantics(
+        button: true,
+        selected: selected,
+        label: label,
+        child: AnimatedPressable(
+          onTap: () {
             HapticEngine.selection();
-            setState(() => _tab = index);
-            AnalyticsService.logScreenView(
-                ['Home', 'Analytics', 'Alarms', 'Circles'][index]);
-          }
-        },
-        behavior: HitTestBehavior.opaque,
-        child: AnimatedContainer(
-          duration: const Duration(milliseconds: 400),
-          curve: AppCurves.liquid,
-          transform: Matrix4.translationValues(0.0, selected ? -4.0 : 0.0, 0.0)
-            ..multiply(Matrix4.diagonal3Values(selected ? 1.15 : 1.0, selected ? 1.15 : 1.0, 1.0)),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Stack(
-                clipBehavior: Clip.none,
-                alignment: Alignment.center,
-                children: [
-                  Icon(
-                    selected ? activeIcon : inactiveIcon,
-                    size: 24,
-                    color: selected ? L.text : L.sub.withValues(alpha: 0.4),
-                  ),
-                  if (cnt > 0)
-                    Positioned(
-                      top: -2,
-                      right: -4,
-                      child: Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: L.error,
-                          shape: BoxShape.circle,
-                          border: Border.all(color: L.card, width: 1.5),
-                        ),
+            _navigateToTab(index);
+          },
+          behavior: HitTestBehavior.opaque,
+          hitTestPadding: const EdgeInsets.symmetric(vertical: 4),
+          child: AnimatedContainer(
+            duration: MedAiA11y.motion(context, AppDurations.fast),
+            curve: AppCurves.expressive,
+            constraints: const BoxConstraints(minHeight: AppA11y.minTapTarget),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                AnimatedContainer(
+                  duration: MedAiA11y.motion(context, AppDurations.fast),
+                  padding: selected
+                      ? const EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                      : EdgeInsets.zero,
+                  decoration: selected
+                      ? BoxDecoration(
+                          color: L.accent.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(14),
+                        )
+                      : null,
+                  child: Stack(
+                    clipBehavior: Clip.none,
+                    alignment: Alignment.center,
+                    children: [
+                      AppSvgIcon(
+                        assetPath: iconPath,
+                        size: 22,
+                        color: selected ? L.text : L.sub.withValues(alpha: 0.45),
                       ),
-                    ),
-                ],
-              ),
-              const SizedBox(height: 4),
+                      if (cnt > 0)
+                        Positioned(
+                          top: -2,
+                          right: -4,
+                          child: Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: L.error,
+                              shape: BoxShape.circle,
+                              border: Border.all(color: L.card, width: 1.5),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 2),
                 Text(
                   label,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: selected 
+                  style: selected
                       ? AppTypography.labelSmall.copyWith(
                           color: L.text,
                           fontSize: 10,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                         )
                       : AppTypography.labelSmall.copyWith(
-                          color: L.sub.withValues(alpha: 0.4),
+                          color: L.sub.withValues(alpha: 0.45),
                           fontSize: 10,
                           fontWeight: FontWeight.w500,
                         ),
                 ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
     );
-  }
-}
-
-// ══════════════════════════════════════════════
-// MED SCAN FAB — Premium Animated FAB
-// ══════════════════════════════════════════════
-class _MedScanFAB extends StatefulWidget {
-  final bool pressed;
-  final VoidCallback onTap;
-  final VoidCallback onPressDown;
-  final VoidCallback onPressUp;
-
-  const _MedScanFAB({
-    required this.pressed,
-    required this.onTap,
-    required this.onPressDown,
-    required this.onPressUp,
-  });
-
-  @override
-  State<_MedScanFAB> createState() => _MedScanFABState();
-}
-
-class _MedScanFABState extends State<_MedScanFAB>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _pulse;
-  late final Animation<double> _ringScale;
-  late final Animation<double> _ringOpacity;
-
-  @override
-  void initState() {
-    super.initState();
-    _pulse = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2200),
-    )..repeat();
-
-    _ringScale = Tween<double>(begin: 1.0, end: 1.55).animate(
-      CurvedAnimation(parent: _pulse, curve: Curves.easeOut),
-    );
-    _ringOpacity = Tween<double>(begin: 0.45, end: 0.0).animate(
-      CurvedAnimation(parent: _pulse, curve: Curves.easeOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _pulse.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final L = context.L;
-    return AnimatedPressable(
-      onTap: widget.onTap,
-      onTapDown: (_) => widget.onPressDown(),
-      onTapUp: (_) => widget.onPressUp(),
-      onTapCancel: widget.onPressUp,
-      child: AnimatedScale(
-        scale: widget.pressed ? 0.88 : 1.0,
-        duration: 160.ms,
-        curve: Curves.easeOut,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // ── Pulse ring + FAB ──
-            SizedBox(
-              width: 76,
-              height: 76,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // Breathing ring
-                  AnimatedBuilder(
-                    animation: _pulse,
-                    builder: (_, __) => Transform.scale(
-                      scale: _ringScale.value,
-                      child: Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: L.accent.withValues(alpha: _ringOpacity.value),
-                            width: 1.5,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                  // FAB circle
-                  Container(
-                    width: 58,
-                    height: 58,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          L.accent,
-                          Color.lerp(L.accent, Colors.black, 0.3)!,
-                        ],
-                      ),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.15),
-                        width: 1.0,
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.camera_alt_rounded,
-                          color: Colors.white, size: 25),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 2),
-            // ── Label ──
-            Text(
-              'Scan',
-              style: AppTypography.labelSmall.copyWith(
-                color: L.text.withValues(alpha: 0.55),
-                fontSize: 10,
-                fontWeight: FontWeight.w500,
-                letterSpacing: 0.4,
-              ),
-            ),
-          ],
-        ),
-      ),
-    )
-        .animate()
-        .fadeIn(duration: 400.ms, curve: Curves.easeOut)
-        .slideX(begin: 0.15, end: 0, duration: 400.ms, curve: Curves.easeOutBack);
   }
 }
 

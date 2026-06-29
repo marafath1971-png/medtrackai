@@ -3,12 +3,12 @@ import 'package:flutter/services.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
-import 'dart:ui';
 import '../../../providers/app_state.dart';
 import '../../../models/constants.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
+import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/app_shimmer.dart';
-import 'package:medai/widgets/common/animated_pressable.dart';
+import '../../../widgets/common/animated_pressable.dart';
 import '../../../core/utils/haptic_engine.dart';
 
 class AddHeader extends StatelessWidget {
@@ -17,50 +17,71 @@ class AddHeader extends StatelessWidget {
   final VoidCallback onBack;
   const AddHeader(
       {super.key, required this.step, required this.L, required this.onBack});
+
   @override
   Widget build(BuildContext context) {
     final title = step == 1
-        ? "Add Caregiver"
+        ? 'Add caregiver'
         : step == 2
-            ? "Share QR Code"
-            : "Caregiver Active!";
+            ? 'Share QR code'
+            : 'Caregiver active';
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       Row(children: [
-        AnimatedPressable(
+        Semantics(
+          button: true,
+          label: 'Back',
+          child: AnimatedPressable(
             onTap: onBack,
             child: Container(
-                padding: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: L.card.withValues(alpha: 0.5),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(Icons.arrow_back_ios_new_rounded,
-                    color: L.text, size: 18))),
+              width: MedAiA11y.minTapTarget,
+              height: MedAiA11y.minTapTarget,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: L.card,
+                shape: BoxShape.circle,
+                border: Border.all(color: L.border.withValues(alpha: 0.12)),
+              ),
+              child: Icon(Icons.arrow_back_ios_new_rounded,
+                  color: L.text, size: 18),
+            ),
+          ),
+        ),
         const SizedBox(width: 12),
-        Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text(title,
-              style: AppTypography.titleLarge.copyWith(
-                  fontSize: 24, fontWeight: FontWeight.w800, color: L.text, letterSpacing: -0.5)),
-          Text('Step $step of 3',
-              style: AppTypography.labelLarge
-                  .copyWith(fontSize: 12, color: L.sub.withValues(alpha: 0.6), fontWeight: FontWeight.w600)),
-        ]),
+        Expanded(
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Text(title,
+                style: AppTypography.titleLarge.copyWith(
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    color: L.text,
+                    letterSpacing: -0.5)),
+            Text('Step $step of 3',
+                style: AppTypography.labelLarge.copyWith(
+                    fontSize: 12,
+                    color: L.sub.withValues(alpha: 0.6),
+                    fontWeight: FontWeight.w600)),
+          ]),
+        ),
       ]),
       const SizedBox(height: 24),
-      Row(
-          children: [1, 2, 3]
-              .map((n) => Expanded(
-                  child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeOutCubic,
-                      margin: EdgeInsets.only(right: n == 3 ? 0 : 8),
-                      height: 6,
-                      decoration: BoxDecoration(
-                          color: step >= n
-                              ? L.text
-                              : L.fill.withValues(alpha: 0.1),
-                          borderRadius: BorderRadius.circular(10)))))
-              .toList()),
+      Semantics(
+        label: 'Step $step of 3',
+        child: Row(
+            children: [1, 2, 3]
+                .map((n) => Expanded(
+                    child: AnimatedContainer(
+                        duration: MedAiA11y.motion(
+                            context, const Duration(milliseconds: 300)),
+                        curve: Curves.easeOutCubic,
+                        margin: EdgeInsets.only(right: n == 3 ? 0 : 8),
+                        height: 6,
+                        decoration: BoxDecoration(
+                            color: step >= n
+                                ? L.text
+                                : L.fill.withValues(alpha: 0.1),
+                            borderRadius: BorderRadius.circular(10)))))
+                .toList()),
+      ),
       const SizedBox(height: 32),
     ]);
   }
@@ -90,131 +111,81 @@ class AddCgStep1 extends StatelessWidget {
       required this.onNext});
 
   @override
-  Widget build(BuildContext context) => Scaffold(
-        backgroundColor: L.meshBg,
+  Widget build(BuildContext context) => AppScaffold(
+        showAurora: context.isDark,
         body: Stack(
           children: [
-            Positioned(
-              top: -100,
-              left: -50,
-              child: Container(
-                width: 250,
-                height: 250,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: L.text.withValues(alpha: 0.05),
-                ),
-              ).animate(onPlay: (c) => c.repeat(reverse: true)).scaleXY(begin: 1.0, end: 1.2, duration: 5.seconds),
-            ),
             SafeArea(
                 child: SingleChildScrollView(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: const EdgeInsets.only(left: 24, right: 24, top: 12, bottom: 120),
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
+                    padding: const EdgeInsets.only(
+                        left: 24, right: 24, top: 12, bottom: 120),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           AddHeader(step: 1, L: L, onBack: onBack),
-
-                          // Avatar
-                          Text('CHOOSE AVATAR',
-                              style: AppTypography.labelLarge.copyWith(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.5,
-                                  color: L.sub.withValues(alpha: 0.5))),
-                          const SizedBox(height: 12),
+                          MedAiSectionHeader(title: 'Choose avatar'),
                           Wrap(
                               spacing: 12,
                               runSpacing: 12,
                               children: kCgAvatars
-                                  .map((a) => AnimatedPressable(
-                                        onTap: () {
-                                          HapticEngine.selection();
-                                          onAvatarChange(a);
-                                        },
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(24),
-                                          child: BackdropFilter(
-                                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                            child: AnimatedContainer(
-                                                duration: const Duration(milliseconds: 200),
-                                                curve: Curves.easeOutCubic,
-                                                width: 52,
-                                                height: 52,
-                                                decoration: BoxDecoration(
-                                                  color: avatar == a
-                                                      ? L.text
-                                                      : L.card.withValues(alpha: 0.6),
-                                                  borderRadius: BorderRadius.circular(24),
-                                                  border: avatar == a
-                                                      ? null
-                                                      : Border.all(color: L.border.withValues(alpha: 0.1)),
-                                                  boxShadow: avatar == a ? [
-                                                    BoxShadow(color: L.text.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 4))
-                                                  ] : [],
-                                                ),
-                                                child: Center(
-                                                    child: Text(a,
-                                                        style: AppTypography
-                                                            .headlineLarge
-                                                            .copyWith(
-                                                                fontSize: 26,
-                                                                color: avatar == a
-                                                                    ? L.bg
-                                                                    : null)))),
+                                  .map((a) => Semantics(
+                                        button: true,
+                                        label: 'Avatar $a',
+                                        selected: avatar == a,
+                                        child: AnimatedPressable(
+                                          onTap: () {
+                                            HapticEngine.selection();
+                                            onAvatarChange(a);
+                                          },
+                                          child: MedAiGlass(
+                                            padding: EdgeInsets.zero,
+                                            radius: 24,
+                                            tint: avatar == a ? L.text : L.card,
+                                            child: SizedBox(
+                                              width: MedAiA11y.minTapTarget,
+                                              height: MedAiA11y.minTapTarget,
+                                              child: Center(
+                                                  child: Text(a,
+                                                      style: AppTypography
+                                                          .headlineLarge
+                                                          .copyWith(
+                                                              fontSize: 26,
+                                                              color: avatar == a
+                                                                  ? L.bg
+                                                                  : L.text))),
+                                            ),
                                           ),
                                         ),
                                       ))
                                   .toList()),
                           const SizedBox(height: 32),
-
-                          // Name
-                          Text('FULL NAME *',
-                              style: AppTypography.labelLarge.copyWith(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.5,
-                                  color: L.sub.withValues(alpha: 0.5))),
-                          const SizedBox(height: 12),
+                          MedAiSectionHeader(title: 'Full name *'),
                           ValueListenableBuilder<TextEditingValue>(
-                            valueListenable: nameCtrl,
-                            builder: (context, value, child) {
-                              return ClipRRect(
-                                borderRadius: BorderRadius.circular(24),
-                                child: BackdropFilter(
-                                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                                    decoration: BoxDecoration(
-                                        color: L.card.withValues(alpha: 0.6),
-                                        borderRadius: BorderRadius.circular(24),
-                                        border: Border.all(
-                                            color: value.text.isNotEmpty ? L.text : L.border.withValues(alpha: 0.1),
-                                            width: 1.5)),
-                                    child: TextField(
-                                        controller: nameCtrl,
-                                        style: AppTypography.bodySmall
-                                            .copyWith(fontSize: 16, color: L.text, fontWeight: FontWeight.w600),
-                                        decoration: InputDecoration(
-                                            border: InputBorder.none,
-                                            hintText: 'e.g. Sarah Johnson',
-                                            hintStyle: AppTypography.bodySmall.copyWith(
-                                                color: L.sub.withValues(alpha: 0.3)))),
-                                  ),
-                                ),
-                              );
-                            }
-                          ),
+                              valueListenable: nameCtrl,
+                              builder: (context, value, child) {
+                                return MedAiGlass(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 20, vertical: 4),
+                                  radius: AppRadius.xl,
+                                  child: TextField(
+                                      controller: nameCtrl,
+                                      style: AppTypography.bodySmall.copyWith(
+                                          fontSize: 16,
+                                          color: L.text,
+                                          fontWeight: FontWeight.w600),
+                                      decoration: InputDecoration(
+                                          border: InputBorder.none,
+                                          hintText: 'e.g. Sarah Johnson',
+                                          hintStyle: AppTypography.bodySmall
+                                              .copyWith(
+                                                  color: L.sub.withValues(
+                                                      alpha: 0.3)))),
+                                );
+                              }),
                           const SizedBox(height: 32),
-
-                          // Relationship
-                          Text('RELATIONSHIP',
-                              style: AppTypography.labelLarge.copyWith(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.5,
-                                  color: L.sub.withValues(alpha: 0.5))),
-                          const SizedBox(height: 12),
+                          MedAiSectionHeader(title: 'Relationship'),
                           Wrap(
                               spacing: 8,
                               runSpacing: 10,
@@ -228,88 +199,56 @@ class AddCgStep1 extends StatelessWidget {
                                 'Doctor',
                                 'Caregiver'
                               ]
-                                  .map((r) => AnimatedPressable(
-                                        onTap: () {
-                                          HapticEngine.selection();
-                                          onRelChange(r);
-                                        },
-                                        child: ClipRRect(
-                                          borderRadius: BorderRadius.circular(99),
-                                          child: BackdropFilter(
-                                            filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                                            child: AnimatedContainer(
-                                                duration: const Duration(milliseconds: 200),
-                                                curve: Curves.easeOutCubic,
-                                                padding: const EdgeInsets.symmetric(
-                                                    horizontal: 16, vertical: 10),
-                                                decoration: BoxDecoration(
-                                                    color: relation == r
-                                                        ? L.text
-                                                        : L.card.withValues(alpha: 0.6),
-                                                    borderRadius: BorderRadius.circular(99),
-                                                    border: Border.all(
-                                                        color: relation == r ? L.text : L.border.withValues(alpha: 0.1)),
-                                                    boxShadow: relation == r ? [
-                                                      BoxShadow(color: L.text.withValues(alpha: 0.2), blurRadius: 10, offset: const Offset(0, 4))
-                                                    ] : [],
-                                                ),
-                                                child: Text(r,
-                                                    style: AppTypography.labelLarge
-                                                        .copyWith(
-                                                            fontSize: 13,
-                                                            fontWeight: FontWeight.w700,
-                                                            color: relation == r
-                                                                ? L.bg
-                                                                : L.text.withValues(alpha: 0.8)))),
+                                  .map((r) => Semantics(
+                                        button: true,
+                                        label: r,
+                                        selected: relation == r,
+                                        child: AnimatedPressable(
+                                          onTap: () {
+                                            HapticEngine.selection();
+                                            onRelChange(r);
+                                          },
+                                          child: MedAiGlass(
+                                            padding: const EdgeInsets.symmetric(
+                                                horizontal: 16, vertical: 12),
+                                            radius: AppRadius.xl,
+                                            tint: relation == r ? L.text : L.card,
+                                            child: Text(r,
+                                                style: AppTypography.labelLarge
+                                                    .copyWith(
+                                                        fontSize: 13,
+                                                        fontWeight:
+                                                            FontWeight.w700,
+                                                        color: relation == r
+                                                            ? L.bg
+                                                            : L.text.withValues(
+                                                                alpha: 0.8))),
                                           ),
                                         ),
                                       ))
                                   .toList()),
                           const SizedBox(height: 32),
-
-                          // Phone
-                          Text('PHONE (OPTIONAL — FOR SMS)',
-                              style: AppTypography.labelLarge.copyWith(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.5,
-                                  color: L.sub.withValues(alpha: 0.5))),
-                          const SizedBox(height: 12),
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(24),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 4),
-                                decoration: BoxDecoration(
-                                    color: L.card.withValues(alpha: 0.6),
-                                    borderRadius: BorderRadius.circular(24),
-                                    border: Border.all(
-                                        color: contactCtrl.text.isNotEmpty ? L.text : L.border.withValues(alpha: 0.1),
-                                        width: 1.5)),
-                                child: TextField(
-                                    controller: contactCtrl,
-                                    keyboardType: TextInputType.phone,
-                                    style: AppTypography.bodySmall
-                                        .copyWith(fontSize: 16, color: L.text, fontWeight: FontWeight.w600),
-                                    decoration: InputDecoration(
-                                        border: InputBorder.none,
-                                        hintText: '+880 1XXX-XXXXXX',
-                                        hintStyle: AppTypography.bodySmall.copyWith(
-                                            color: L.sub.withValues(alpha: 0.3)))),
-                              ),
-                            ),
+                          MedAiSectionHeader(
+                              title: 'Phone (optional — for SMS)'),
+                          MedAiGlass(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 20, vertical: 4),
+                            radius: AppRadius.xl,
+                            child: TextField(
+                                controller: contactCtrl,
+                                keyboardType: TextInputType.phone,
+                                style: AppTypography.bodySmall.copyWith(
+                                    fontSize: 16,
+                                    color: L.text,
+                                    fontWeight: FontWeight.w600),
+                                decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    hintText: '+880 1XXX-XXXXXX',
+                                    hintStyle: AppTypography.bodySmall.copyWith(
+                                        color: L.sub.withValues(alpha: 0.3)))),
                           ),
                           const SizedBox(height: 32),
-
-                          // Alert Delay
-                          Text('ALERT AFTER MISSED DOSE',
-                              style: AppTypography.labelLarge.copyWith(
-                                  fontSize: 11,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: 1.5,
-                                  color: L.sub.withValues(alpha: 0.5))),
-                          const SizedBox(height: 12),
+                          MedAiSectionHeader(title: 'Alert after missed dose'),
                           Row(children: [
                             DelayBtn(
                                 delay: 0,
@@ -340,49 +279,32 @@ class AddCgStep1 extends StatelessWidget {
                                 L: L),
                           ]),
                         ]))),
-            
-            // Bottom Sticky Button
             Positioned(
-              bottom: 0, left: 0, right: 0,
-              child: ClipRRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-                  child: Container(
-                    padding: EdgeInsets.only(left: 24, right: 24, top: 16, bottom: MediaQuery.of(context).padding.bottom + 16),
-                    decoration: BoxDecoration(
-                      color: L.meshBg.withValues(alpha: 0.5),
-                      border: Border(top: BorderSide(color: L.border.withValues(alpha: 0.1))),
-                    ),
-                    child: ValueListenableBuilder<TextEditingValue>(
-                      valueListenable: nameCtrl,
-                      builder: (context, value, child) {
-                        return AnimatedPressable(
-                            onTap: value.text.trim().isEmpty ? null : () {
-                              HapticEngine.selection();
-                              onNext();
-                            },
-                            child: AnimatedContainer(
-                                duration: const Duration(milliseconds: 200),
-                                width: double.infinity,
-                                padding: const EdgeInsets.symmetric(vertical: 20),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: value.text.trim().isEmpty
-                                      ? L.text.withValues(alpha: 0.1)
-                                      : L.text,
-                                  borderRadius: BorderRadius.circular(32),
-                                ),
-                                child: Text('GENERATE QR CODE 🪄',
-                                    style: AppTypography.labelLarge.copyWith(
-                                        fontWeight: FontWeight.w900,
-                                        letterSpacing: 1.0,
-                                        color: value.text.trim().isEmpty
-                                            ? L.text.withValues(alpha: 0.4)
-                                            : L.bg))));
-                      }
-                    ),
-                  ),
-                ),
+              bottom: 0,
+              left: 0,
+              right: 0,
+              child: MedAiGlass(
+                radius: 0,
+                showBorder: false,
+                padding: EdgeInsets.only(
+                    left: 24,
+                    right: 24,
+                    top: 16,
+                    bottom: MediaQuery.of(context).padding.bottom + 16),
+                child: ValueListenableBuilder<TextEditingValue>(
+                    valueListenable: nameCtrl,
+                    builder: (context, value, child) {
+                      return MedAiCTA(
+                        label: 'Generate QR code',
+                        icon: Icons.qr_code_rounded,
+                        enabled: value.text.trim().isNotEmpty,
+                        semanticsLabel: 'Generate QR code for caregiver',
+                        onTap: () {
+                          HapticEngine.selection();
+                          onNext();
+                        },
+                      );
+                    }),
               ),
             ),
           ],
@@ -402,27 +324,23 @@ class DelayBtn extends StatelessWidget {
       required this.label,
       required this.onTap,
       required this.L});
+
   @override
   Widget build(BuildContext context) => Expanded(
-      child: AnimatedPressable(
-          onTap: () {
-            HapticEngine.selection();
-            onTap(delay);
-          },
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(24),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 200),
-                curve: Curves.easeOutCubic,
-                padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: current == delay ? L.text : L.card.withValues(alpha: 0.6),
-                  borderRadius: BorderRadius.circular(24),
-                  border: current == delay ? null : Border.all(color: L.border.withValues(alpha: 0.1)),
-                ),
+      child: Semantics(
+        button: true,
+        label: label,
+        selected: current == delay,
+        child: AnimatedPressable(
+            onTap: () {
+              HapticEngine.selection();
+              onTap(delay);
+            },
+            child: MedAiGlass(
+              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+              radius: AppRadius.xl,
+              tint: current == delay ? L.text : L.card,
+              child: Center(
                 child: Text(label,
                     style: AppTypography.labelLarge.copyWith(
                         fontSize: 12,
@@ -431,8 +349,8 @@ class DelayBtn extends StatelessWidget {
                             ? L.bg
                             : L.text.withValues(alpha: 0.7))),
               ),
-            ),
-          )));
+            )),
+      ));
 }
 
 class AddCgStep2 extends StatefulWidget {
@@ -473,13 +391,6 @@ class _AddCgStep2State extends State<AddCgStep2> {
       _handleActivation();
     } else {
       state.addListener(_onStateChange);
-      
-      // For demonstration: simulate caregiver joining after 3 seconds
-      Future.delayed(const Duration(seconds: 3), () {
-        if (mounted && _scanState == 'idle') {
-          state.activateCaregiver(widget.cg.id);
-        }
-      });
     }
   }
 
@@ -500,9 +411,14 @@ class _AddCgStep2State extends State<AddCgStep2> {
   void _handleActivation() async {
     setState(() => _scanState = 'done');
     HapticEngine.heavy();
-    await Future.delayed(const Duration(milliseconds: 800));
+    await Future.delayed(MedAiA11y.motion(context, const Duration(milliseconds: 800)));
     if (!mounted) return;
     widget.onNext();
+  }
+
+  Widget _entrance(Widget child) {
+    if (MedAiA11y.reducedMotion(context)) return child;
+    return child.animate().slideY(begin: 0.1, duration: 400.ms, curve: AppCurves.smooth);
   }
 
   @override
@@ -516,207 +432,179 @@ class _AddCgStep2State extends State<AddCgStep2> {
     final cg = widget.cg;
     final L = widget.L;
 
-    return Scaffold(
-        backgroundColor: L.meshBg,
+    return AppScaffold(
+        showAurora: context.isDark,
         body: SafeArea(
             child: SingleChildScrollView(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AddHeader(
-                          step: 2, L: L, onBack: () => Navigator.pop(context)),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                            decoration: BoxDecoration(
-                              color: L.card.withValues(alpha: 0.6),
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(color: L.border.withValues(alpha: 0.1)),
-                            ),
-                            child: Row(children: [
-                              Container(
-                                  width: 60,
-                                  height: 60,
-                                  decoration: BoxDecoration(
-                                      color: L.greenLight,
-                                      borderRadius: BorderRadius.circular(24)),
-                                  child: Center(
-                                      child: Text(cg.avatar,
-                                          style: AppTypography.headlineLarge
-                                              .copyWith(fontSize: 32)))),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                  child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                    Text(cg.name,
-                                        style: AppTypography.titleLarge.copyWith(
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 20,
-                                            color: L.text)),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                        '${cg.relation}${cg.contact.isNotEmpty ? ' · ${cg.contact}' : ''}',
-                                        style: AppTypography.labelMedium
-                                            .copyWith(color: L.sub.withValues(alpha: 0.8), fontWeight: FontWeight.w600)),
-                                  ])),
-                            ]),
+                          step: 2,
+                          L: L,
+                          onBack: () => Navigator.pop(context)),
+                      _entrance(
+                        MedAiDepthCard(
+                          child: Row(children: [
+                            Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                    color: L.greenLight,
+                                    borderRadius:
+                                        BorderRadius.circular(AppRadius.xl)),
+                                child: Center(
+                                    child: Text(cg.avatar,
+                                        style: AppTypography.headlineLarge
+                                            .copyWith(fontSize: 32)))),
+                            const SizedBox(width: 16),
+                            Expanded(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                  Text(cg.name,
+                                      style: AppTypography.titleLarge.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 20,
+                                          color: L.text)),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                      '${cg.relation}${cg.contact.isNotEmpty ? ' · ${cg.contact}' : ''}',
+                                      style: AppTypography.labelMedium.copyWith(
+                                          color: L.sub.withValues(alpha: 0.8),
+                                          fontWeight: FontWeight.w600)),
+                                ])),
+                          ]),
+                        ),
+                      ),
+                      const SizedBox(height: 32),
+                      Center(
+                        child: Text('Scan from caregiver app',
+                            style: AppTypography.labelLarge.copyWith(
+                                fontSize: 13,
+                                color: L.sub.withValues(alpha: 0.6),
+                                fontWeight: FontWeight.w700)),
+                      ),
+                      const SizedBox(height: 24),
+                      Center(
+                          child: Semantics(
+                        label: 'QR code for caregiver invite',
+                        child: MedAiDepthCard(
+                          padding: const EdgeInsets.all(20),
+                          radius: AppRadius.squircle,
+                          accentGlow: true,
+                          color: Colors.white,
+                          child: QrImageView(
+                            data: widget.inviteCode,
+                            size: 220,
+                            eyeStyle: const QrEyeStyle(
+                                eyeShape: QrEyeShape.square,
+                                color: Color(0xFF1C1C1E)),
+                            dataModuleStyle: const QrDataModuleStyle(
+                                dataModuleShape: QrDataModuleShape.circle,
+                                color: Color(0xFF1C1C1E)),
                           ),
                         ),
-                      ).animate().slideY(begin: 0.1, duration: 400.ms, curve: Curves.easeOutBack),
-                      const SizedBox(height: 32),
-                      
-                      Center(
-                        child: Text(
-                            'Scan from Caregiver App',
-                            style: AppTypography.labelLarge.copyWith(
-                                fontSize: 13, color: L.sub.withValues(alpha: 0.6), fontWeight: FontWeight.w800, letterSpacing: 1.0)),
-                      ).animate().fadeIn(delay: 100.ms),
-                      const SizedBox(height: 24),
-                      
-                      // QR Code Card
-                      Center(
-                          child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(32),
-                          border: Border.all(color: L.border.withValues(alpha: 0.1)),
-                          boxShadow: [
-                            BoxShadow(
-                                color: L.green.withValues(alpha: 0.2),
-                                blurRadius: 40,
-                                spreadRadius: -10,
-                                offset: const Offset(0, 20)),
-                          ],
-                        ),
-                        child: QrImageView(
-                          data: widget.inviteCode,
-                          size: 220,
-                          eyeStyle: const QrEyeStyle(
-                              eyeShape: QrEyeShape.square,
-                              color: Color(0xFF1C1C1E)),
-                          dataModuleStyle: const QrDataModuleStyle(
-                              dataModuleShape: QrDataModuleShape.circle,
-                              color: Color(0xFF1C1C1E)),
-                        ),
-                      ).animate().scale(duration: 500.ms, curve: Curves.easeOutBack)
-                        .then().shimmer(duration: 2.seconds, color: L.green.withValues(alpha: 0.1))),
-                      
+                      )),
                       const SizedBox(height: 40),
                       Center(
-                          child: Text('OR USE INVITE CODE',
+                          child: Text('Or use invite code',
                               style: AppTypography.labelLarge.copyWith(
                                   fontSize: 11,
-                                  fontWeight: FontWeight.w900,
-                                  color: L.sub.withValues(alpha: 0.5),
-                                  letterSpacing: 2.0))),
+                                  fontWeight: FontWeight.w700,
+                                  color: L.sub.withValues(alpha: 0.5)))),
                       const SizedBox(height: 12),
                       Center(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(20),
-                            child: BackdropFilter(
-                              filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                              child: Container(
-                                                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                                                    decoration: BoxDecoration(
-                              color: L.card.withValues(alpha: 0.6),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(color: L.border.withValues(alpha: 0.1)),
-                                                    ),
-                                                    child: Text(cg.inviteCode ?? '------',
-                              style: AppTypography.displayLarge.copyWith(
-                                  fontFamily: 'Courier',
-                                  fontSize: 34,
-                                  fontWeight: FontWeight.w900,
-                                  color: L.text,
-                                  letterSpacing: 8)),
-                                                  ),
-                            ),
-                          )),
+                          child: MedAiGlass(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 24, vertical: 14),
+                        radius: AppRadius.l,
+                        child: Text(cg.inviteCode ?? '------',
+                            style: AppTypography.displayLarge.copyWith(
+                                fontSize: 34,
+                                fontWeight: FontWeight.w800,
+                                color: L.text,
+                                letterSpacing: 6)),
+                      )),
                       const SizedBox(height: 16),
                       Center(
-                          child: AnimatedPressable(
-                        onTap: () {
-                          HapticEngine.selection();
-                          Clipboard.setData(ClipboardData(text: widget.inviteCode));
-                          ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Code copied! ✓', style: TextStyle(fontWeight: FontWeight.w700, color: L.bg)),
-                                backgroundColor: L.text,
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                              ));
-                        },
-                        child: Container(
+                          child: Semantics(
+                        button: true,
+                        label: 'Copy invite code',
+                        child: AnimatedPressable(
+                          onTap: () {
+                            HapticEngine.selection();
+                            Clipboard.setData(
+                                ClipboardData(text: widget.inviteCode));
+                            ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Code copied',
+                                      style: TextStyle(
+                                          fontWeight: FontWeight.w700,
+                                          color: L.bg)),
+                                  backgroundColor: L.text,
+                                  behavior: SnackBarBehavior.floating,
+                                  shape: RoundedRectangleBorder(
+                                      borderRadius:
+                                          BorderRadius.circular(16)),
+                                ));
+                          },
+                          child: MedAiGlass(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 10),
-                            decoration: BoxDecoration(
-                              color: L.text.withValues(alpha: 0.05),
-                              borderRadius: BorderRadius.circular(24),
-                            ),
+                                horizontal: 16, vertical: 12),
+                            radius: AppRadius.xl,
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(Icons.copy_rounded, color: L.text, size: 16),
+                                Icon(Icons.copy_rounded,
+                                    color: L.text, size: 16),
                                 const SizedBox(width: 8),
-                                Text('Copy Code',
+                                Text('Copy code',
                                     style: AppTypography.labelLarge.copyWith(
                                         fontSize: 13,
-                                        fontWeight: FontWeight.w800,
-                                        color: L.text,
-                                        letterSpacing: 0.5)),
-                              ],
-                            )),
-                      )),
-                      const SizedBox(height: 48),
-                      
-                      // Loading Status
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                          child: AnimatedContainer(
-                            duration: const Duration(milliseconds: 300),
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 24),
-                            decoration: BoxDecoration(
-                              color: _scanState == 'idle' ? L.card.withValues(alpha: 0.6) : L.green.withValues(alpha: 0.1),
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(color: _scanState == 'idle' ? L.border.withValues(alpha: 0.1) : L.green.withValues(alpha: 0.3)),
-                            ),
-                            child: Column(
-                              children: [
-                                if (_scanState == 'idle') ...[
-                                  const SizedBox(
-                                      width: 28,
-                                      height: 28,
-                                      child: AppShimmer(width: 28, height: 28, shape: BoxShape.circle)),
-                                  const SizedBox(height: 16),
-                                  Text('Waiting for caregiver to scan...',
-                                      style: AppTypography.labelLarge.copyWith(
-                                          fontWeight: FontWeight.w700,
-                                          fontSize: 14,
-                                          color: L.text)),
-                                ] else ...[
-                                  Icon(Icons.check_circle_rounded, color: L.green, size: 36)
-                                    .animate().scale(curve: Curves.elasticOut, duration: 800.ms),
-                                  const SizedBox(height: 12),
-                                  Text('Success! Caregiver added.',
-                                      style: AppTypography.labelLarge.copyWith(
-                                          fontWeight: FontWeight.w800,
-                                          fontSize: 15,
-                                          color: L.green))
-                                    .animate().fadeIn(),
-                                ]
+                                        fontWeight: FontWeight.w700,
+                                        color: L.text)),
                               ],
                             ),
                           ),
+                        ),
+                      )),
+                      const SizedBox(height: 48),
+                      MedAiDepthCard(
+                        color: _scanState == 'idle'
+                            ? L.card
+                            : L.green.withValues(alpha: 0.1),
+                        child: Column(
+                          children: [
+                            if (_scanState == 'idle') ...[
+                              const SizedBox(
+                                  width: 28,
+                                  height: 28,
+                                  child: AppShimmer(
+                                      width: 28,
+                                      height: 28,
+                                      shape: BoxShape.circle)),
+                              const SizedBox(height: 16),
+                              Text('Waiting for caregiver to scan...',
+                                  style: AppTypography.labelLarge.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      fontSize: 14,
+                                      color: L.text)),
+                            ] else ...[
+                              Icon(Icons.check_circle_rounded,
+                                  color: L.green, size: 36),
+                              const SizedBox(height: 12),
+                              Text('Success! Caregiver added.',
+                                  style: AppTypography.labelLarge.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 15,
+                                      color: L.green)),
+                            ]
+                          ],
                         ),
                       ),
                       const SizedBox(height: 32),
@@ -749,8 +637,8 @@ class HowItWorksRow extends StatelessWidget {
                       color: L.border.withValues(alpha: 0.05), width: 1))),
       child: Row(children: [
         Container(
-          width: 44,
-          height: 44,
+          width: MedAiA11y.minTapTarget,
+          height: MedAiA11y.minTapTarget,
           decoration: BoxDecoration(
             color: L.text.withValues(alpha: 0.05),
             shape: BoxShape.circle,
@@ -769,8 +657,10 @@ class HowItWorksRow extends StatelessWidget {
                   fontSize: 15, fontWeight: FontWeight.w800, color: L.text)),
           const SizedBox(height: 2),
           Text(desc,
-              style:
-                  AppTypography.bodySmall.copyWith(fontSize: 13, color: L.sub.withValues(alpha: 0.8), fontWeight: FontWeight.w500)),
+              style: AppTypography.bodySmall.copyWith(
+                  fontSize: 13,
+                  color: L.sub.withValues(alpha: 0.8),
+                  fontWeight: FontWeight.w500)),
         ]))
       ]),
     );
@@ -784,155 +674,135 @@ class AddCgStep3 extends StatelessWidget {
   const AddCgStep3(
       {super.key, required this.cg, required this.L, required this.onDone});
 
+  Widget _entrance(BuildContext context, Widget child, {Duration? delay}) {
+    if (MedAiA11y.reducedMotion(context)) return child;
+    return child
+        .animate(delay: delay)
+        .fadeIn(duration: AppDurations.fast)
+        .slideY(begin: 0.1, end: 0, curve: AppCurves.smooth);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        backgroundColor: L.meshBg,
+    return AppScaffold(
+        showAurora: context.isDark,
         body: SafeArea(
             child: SingleChildScrollView(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       AddHeader(step: 3, L: L, onBack: onDone),
-                      
                       Center(
-                        child: Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: L.greenLight,
-                            shape: BoxShape.circle,
+                        child: _entrance(
+                          context,
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              color: L.greenLight,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Icon(Icons.favorite_rounded,
+                                color: L.green, size: 40),
                           ),
-                          child: Icon(Icons.favorite_rounded, color: L.green, size: 40),
-                        ).animate()
-                         .scale(duration: 600.ms, curve: Curves.elasticOut)
-                         .then().shimmer(duration: 2.seconds),
+                        ),
                       ),
                       const SizedBox(height: 32),
-                      
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                          child: Container(
-                            padding: const EdgeInsets.all(20),
-                            margin: const EdgeInsets.only(bottom: 32),
-                            decoration: BoxDecoration(
-                              color: L.card.withValues(alpha: 0.6),
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(color: L.border.withValues(alpha: 0.1)),
-                            ),
-                            child: Row(children: [
-                              Container(
-                                  width: 56,
-                                  height: 56,
-                                  decoration: BoxDecoration(
-                                      color: L.text.withValues(alpha: 0.05),
-                                      borderRadius: BorderRadius.circular(20)),
-                                  child: Center(
-                                      child: Text(cg.avatar,
-                                          style: AppTypography.headlineLarge
-                                              .copyWith(fontSize: 30)))),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                  child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                    Text(cg.name,
-                                        style: AppTypography.titleLarge.copyWith(
-                                            fontWeight: FontWeight.w800,
-                                            fontSize: 20,
-                                            color: L.text)),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                        '${cg.relation}${cg.contact.isNotEmpty ? ' · ${cg.contact}' : ''}',
-                                        style: AppTypography.labelMedium
-                                            .copyWith(color: L.sub.withValues(alpha: 0.8), fontWeight: FontWeight.w600)),
-                                  ])),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 14, vertical: 6),
+                      _entrance(
+                        context,
+                        MedAiDepthCard(
+                          child: Row(children: [
+                            Container(
+                                width: 56,
+                                height: 56,
                                 decoration: BoxDecoration(
-                                    color: L.green.withValues(alpha: 0.1),
-                                    borderRadius: BorderRadius.circular(99)),
-                                child: Text('Active',
-                                    style: AppTypography.labelSmall.copyWith(
-                                        fontWeight: FontWeight.w800,
-                                        color: L.green,
-                                        letterSpacing: 0.5)),
-                              ),
-                            ]),
-                          ),
-                        ),
-                      ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
-                      
-                      Text('THEY CAN NOW:',
-                          style: AppTypography.labelLarge.copyWith(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 1.5,
-                              color: L.sub.withValues(alpha: 0.5))).animate().fadeIn(delay: 400.ms),
-                      const SizedBox(height: 16),
-                      
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(24),
-                        child: BackdropFilter(
-                          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                          child: Container(
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: L.card.withValues(alpha: 0.6),
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(color: L.border.withValues(alpha: 0.1)),
+                                    color: L.text.withValues(alpha: 0.05),
+                                    borderRadius:
+                                        BorderRadius.circular(AppRadius.l)),
+                                child: Center(
+                                    child: Text(cg.avatar,
+                                        style: AppTypography.headlineLarge
+                                            .copyWith(fontSize: 30)))),
+                            const SizedBox(width: 16),
+                            Expanded(
+                                child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                  Text(cg.name,
+                                      style: AppTypography.titleLarge.copyWith(
+                                          fontWeight: FontWeight.w800,
+                                          fontSize: 20,
+                                          color: L.text)),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                      '${cg.relation}${cg.contact.isNotEmpty ? ' · ${cg.contact}' : ''}',
+                                      style: AppTypography.labelMedium.copyWith(
+                                          color: L.sub.withValues(alpha: 0.8),
+                                          fontWeight: FontWeight.w600)),
+                                ])),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 14, vertical: 6),
+                              decoration: BoxDecoration(
+                                  color: L.green.withValues(alpha: 0.1),
+                                  borderRadius: BorderRadius.circular(99)),
+                              child: Text('Active',
+                                  style: AppTypography.labelSmall.copyWith(
+                                      fontWeight: FontWeight.w700,
+                                      color: L.green)),
                             ),
-                            child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  HowItWorksRow(
-                                      emoji: '📈',
-                                      title: 'See your daily adherence',
-                                      desc: 'Live dashboard with today\'s doses',
-                                      isLast: false,
-                                      L: L),
-                                  HowItWorksRow(
-                                      emoji: '🚨',
-                                      title: 'Get missed-dose alerts',
-                                      desc:
-                                          'Notified after ${cg.alertDelay} min if you miss a dose',
-                                      isLast: false,
-                                      L: L),
-                                  HowItWorksRow(
-                                      emoji: '🔬',
-                                      title: 'View your medicine list',
-                                      desc: 'All your medications at a glance',
-                                      isLast: true,
-                                      L: L),
-                                ]),
-                          ),
+                          ]),
                         ),
-                      ).animate().fadeIn(delay: 600.ms).slideY(begin: 0.1),
+                        delay: 200.ms,
+                      ),
+                      const SizedBox(height: 24),
+                      MedAiSectionHeader(title: 'They can now:'),
+                      _entrance(
+                        context,
+                        MedAiDepthCard(
+                          child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                HowItWorksRow(
+                                    emoji: '📈',
+                                    title: 'See your daily adherence',
+                                    desc: 'Live dashboard with today\'s doses',
+                                    isLast: false,
+                                    L: L),
+                                HowItWorksRow(
+                                    emoji: '🚨',
+                                    title: 'Get missed-dose alerts',
+                                    desc:
+                                        'Notified after ${cg.alertDelay} min if you miss a dose',
+                                    isLast: false,
+                                    L: L),
+                                HowItWorksRow(
+                                    emoji: '🔬',
+                                    title: 'View your medicine list',
+                                    desc: 'All your medications at a glance',
+                                    isLast: true,
+                                    L: L),
+                              ]),
+                        ),
+                        delay: 400.ms,
+                      ),
                       const SizedBox(height: 48),
-                      
-                      AnimatedPressable(
+                      _entrance(
+                        context,
+                        MedAiCTA(
+                          label: 'Done',
+                          semanticsLabel: 'Finish adding caregiver',
                           onTap: () {
                             HapticEngine.light();
                             onDone();
                           },
-                          child: Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.symmetric(vertical: 20),
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: L.text,
-                                borderRadius: BorderRadius.circular(32),
-                              ),
-                              child: Text('Done',
-                                  style: AppTypography.labelLarge.copyWith(
-                                      fontWeight: FontWeight.w900,
-                                      color: L.bg,
-                                      letterSpacing: 1.0)))).animate().fadeIn(delay: 800.ms).slideY(begin: 0.1),
+                        ),
+                        delay: 600.ms,
+                      ),
                     ]))));
   }
 }

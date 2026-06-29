@@ -2,12 +2,11 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_animate/flutter_animate.dart';
+
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_performance/firebase_performance.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,11 +16,10 @@ import 'l10n/app_localizations.dart';
 import 'firebase_options.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'providers/app_state.dart';
-import 'theme/app_theme.dart';
+import 'theme/med_ai_ui.dart';
 import 'theme/spring_scroll_behavior.dart';
-import 'screens/onboarding/onboarding_screen.dart';
-import 'screens/app_shell.dart';
-import 'screens/auth/auth_screen.dart';
+import 'app/router.dart';
+import 'package:go_router/go_router.dart';
 import 'services/notification_service.dart';
 import 'services/encryption_service.dart';
 import 'services/storage_service.dart';
@@ -32,6 +30,15 @@ import 'data/repositories/user_repository_impl.dart';
 import 'data/repositories/symptom_repository_impl.dart';
 import 'widgets/common/global_error_boundary.dart';
 import 'services/purchases_service.dart';
+
+/// DEV PREVIEW ONLY — when true, seeds demo data and jumps straight into the
+/// app (bypassing onboarding/auth) so redesigned screens can be reviewed.
+/// MUST be false for release.
+const bool kDevPreview = true;
+
+/// DEV PREVIEW ONLY — initial route to land on after the dev jump. Change this
+/// to screenshot a specific screen. Ignored when [kDevPreview] is false.
+const String kDevRoute = '/home';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -101,12 +108,20 @@ void main() async {
   runApp(
     GlobalErrorBoundary(
       child: ChangeNotifierProvider(
-        create: (_) => AppState(
-          medRepo: medRepo,
-          userRepo: userRepo,
-          symptomRepo: symptomRepo,
-          prefs: prefs,
-        )..loadFromStorage(),
+        create: (_) {
+          final s = AppState(
+            medRepo: medRepo,
+            userRepo: userRepo,
+            symptomRepo: symptomRepo,
+            prefs: prefs,
+          );
+          final loaded = s.loadFromStorage();
+          // DEV PREVIEW ONLY — remove before release.
+          if (kDevPreview) {
+            loaded.then((_) => s.devPreviewJump());
+          }
+          return s;
+        },
         builder: (context, child) {
           final state = context.read<AppState>();
           return MultiProvider(
@@ -125,8 +140,33 @@ void main() async {
   );
 }
 
-class MedAIApp extends StatelessWidget {
+class MedAIApp extends StatefulWidget {
   const MedAIApp({super.key});
+
+  @override
+  State<MedAIApp> createState() => _MedAIAppState();
+}
+
+class _MedAIAppState extends State<MedAIApp> {
+  String? _lastKnownUid;
+  GoRouter? _router;
+  AppState? _lastAppState;
+
+  GoRouter _getRouter(AppState appState) {
+    // Only recreate router if AppState instance changed (e.g. full re-login)
+    if (_router == null || !identical(_lastAppState, appState)) {
+      _router?.dispose();
+      _lastAppState = appState;
+      _router = createRouter(appState);
+    }
+    return _router!;
+  }
+
+  @override
+  void dispose() {
+    _router?.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +179,10 @@ class MedAIApp extends StatelessWidget {
     final language =
         context.select<AppState, String>((state) => state.language);
 
-    return MaterialApp(
+    final appState = context.watch<AppState>();
+    final router = _getRouter(appState);
+
+    return MaterialApp.router(
       title: 'MedAI',
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
@@ -148,138 +191,47 @@ class MedAIApp extends StatelessWidget {
       locale: Locale(language),
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      navigatorObservers: [
-        FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance),
-      ],
       builder: (context, child) {
         final L = context.L;
-        return GestureDetector(
-          onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-          child: Container(
-            color: L.meshBg,
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 430),
-                child: child ?? const SizedBox.expand(),
-              ),
-            ),
-          ),
-        );
-      },
-      scrollBehavior: const SpringScrollBehavior(),
-      routes: {
-        '/onboarding': (_) => const OnboardingScreen(),
-      },
-      home: _RootRouter(),
-    );
-  }
-}
+        final phase = context.select<AppState, AppPhase>((state) => state.phase);
 
-// (Replaced by SpringScrollBehavior in lib/theme)
+        return StreamBuilder<User?>(
+          stream: FirebaseAuth.instance.authStateChanges(),
+          builder: (context, authSnap) {
+            final currentUid = authSnap.data?.uid;
 
-class _RootRouter extends StatefulWidget {
-  @override
-  State<_RootRouter> createState() => _RootRouterState();
-}
+            if (currentUid != _lastKnownUid) {
+              _lastKnownUid = currentUid;
+              if (phase == AppPhase.app) {
+                final appState = context.read<AppState>();
+                Future.microtask(() => appState.loadFromStorage());
+              }
+            }
 
-class _RootRouterState extends State<_RootRouter> {
-  String? _lastKnownUid;
-
-  @override
-  Widget build(BuildContext context) {
-    final phase = context.select<AppState, AppPhase>((state) => state.phase);
-
-    // Listen to Firebase auth state to reload data ONLY on actual UID changes
-    return StreamBuilder<User?>(
-      stream: FirebaseAuth.instance.authStateChanges(),
-      builder: (context, authSnap) {
-        final currentUid = authSnap.data?.uid;
-
-        // Only reload from storage when the UID genuinely changes (sign-in / sign-out)
-        // Do NOT reload every rebuild — this would race with completeOnboarding's saveProfile
-        if (currentUid != _lastKnownUid) {
-          _lastKnownUid = currentUid;
-          // Only reload if we are already in app phase (i.e. not during onboarding setup)
-          if (phase == AppPhase.app) {
-            final appState = context.read<AppState>();
-            Future.microtask(() => appState.loadFromStorage());
-          }
-        }
-
-        Widget currentScreen;
-        switch (phase) {
-          case AppPhase.loading:
-            currentScreen = const _SplashLoading(key: ValueKey('loading'));
-            break;
-          case AppPhase.onboarding:
-            currentScreen = const OnboardingScreen(key: ValueKey('onboarding'));
-            break;
-          case AppPhase.auth:
-            currentScreen = const AuthScreen(key: ValueKey('auth'));
-            break;
-          case AppPhase.app:
-            currentScreen = const AppShell(key: ValueKey('app'));
-            break;
-        }
-
-        return AnimatedSwitcher(
-          duration: const Duration(milliseconds: 600),
-          switchInCurve: Curves.easeOutCubic,
-          switchOutCurve: Curves.easeInCubic,
-          transitionBuilder: (Widget child, Animation<double> animation) {
-            return FadeTransition(
-              opacity: animation,
-              child: SlideTransition(
-                position: Tween<Offset>(
-                  begin: const Offset(0.0, 0.05),
-                  end: Offset.zero,
-                ).animate(animation),
-                child: child,
+            return GestureDetector(
+              onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+              child: MediaQuery(
+                data: MedAiA11y.clampTextScale(MediaQuery.of(context)),
+                child: Semantics(
+                  label: 'MedAI',
+                  child: Container(
+                    color: L.meshBg,
+                    child: Center(
+                      child: ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 430),
+                        child: child ?? const SizedBox.expand(),
+                      ),
+                    ),
+                  ),
+                ),
               ),
             );
           },
-          child: currentScreen,
         );
       },
+      scrollBehavior: const SpringScrollBehavior(),
+      routerConfig: router,
     );
   }
 }
 
-class _SplashLoading extends StatelessWidget {
-  const _SplashLoading({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.oBg,
-      body: Center(
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-        Image.asset('assets/images/app_logo.png', width: 120, height: 120)
-            .animate()
-            .fadeIn(duration: 800.ms, curve: Curves.easeOut)
-            .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0)),
-        const SizedBox(height: 24),
-        Text('MedAI',
-                style: AppTypography.displayLarge.copyWith(
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
-                    color: AppColors.oText,
-                    letterSpacing: -1.0))
-            .animate()
-            .fadeIn(delay: 400.ms, duration: 800.ms)
-            .slideY(begin: 0.5, end: 0, curve: Curves.easeOutCubic),
-        const SizedBox(height: 48),
-        const SizedBox(
-                width: 28,
-                height: 2,
-                child: LinearProgressIndicator(
-                  backgroundColor: Colors.transparent,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                ))
-            .animate()
-            .fadeIn(delay: 800.ms)
-            .shimmer(duration: 1500.ms, color: Colors.white24),
-      ])),
-    );
-  }
-}

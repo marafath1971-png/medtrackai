@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../../../providers/app_state.dart';
 import '../../../../services/export_service.dart';
-import '../../../../theme/app_theme.dart';
+import '../../../../theme/med_ai_ui.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../core/utils/haptic_engine.dart';
 import '../../../paywall/premium_paywall_overlay.dart';
 import 'settings_shared.dart';
-import 'package:medai/widgets/common/animated_pressable.dart';
 
 class DataTab extends StatefulWidget {
   final AppState state;
@@ -43,6 +44,7 @@ class _DataTabState extends State<DataTab> {
   Widget build(BuildContext context) {
     final L = widget.L;
     final s = AppLocalizations.of(context)!;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
 
     final history = context
         .select<AppState, Map<String, List<DoseEntry>>>((s) => s.history);
@@ -55,54 +57,53 @@ class _DataTabState extends State<DataTab> {
     final symptomsCount =
         context.select<AppState, int>((s) => s.symptoms.length);
 
+    Widget heroCard = MedAiDepthCard(
+      padding: const EdgeInsets.all(24),
+      radius: 28,
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text('Your data',
+                style: AppTypography.titleMedium.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: L.text,
+                    letterSpacing: -0.2)),
+            const Text('📊', style: TextStyle(fontSize: 14)),
+          ],
+        ),
+        const SizedBox(height: 20),
+        GridView.count(
+          crossAxisCount: 2,
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          mainAxisSpacing: 12,
+          crossAxisSpacing: 12,
+          childAspectRatio: 1.8,
+          children: [
+            _SummaryBox(l: 'Medicines', v: '$medsCount', L: L),
+            _SummaryBox(l: 'Symptoms', v: '$symptomsCount', L: L),
+            _SummaryBox(l: 'Days tracked', v: '$daysTracked', L: L),
+            _SummaryBox(l: 'Doses logged', v: '$totalDoses', L: L),
+          ],
+        ),
+      ]),
+    );
+    if (!reduceMotion) {
+      heroCard = heroCard
+          .animate()
+          .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth);
+    }
+
     return SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),
       child: Column(children: [
-        // ── Data Summary Hero ─────────────────────────────────────────
-        Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-              color: L.card,
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                  color: L.border.withValues(alpha: 0.1), width: 0.5),
-              boxShadow: AppShadows.neumorphic),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('DATA INFRASTRUCTURE',
-                    style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        color: L.sub.withValues(alpha: 0.5),
-                        letterSpacing: 2.0)),
-                const Text('📊', style: TextStyle(fontSize: 14)),
-              ],
-            ),
-            const SizedBox(height: 20),
-            GridView.count(
-              crossAxisCount: 2,
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 1.8,
-              children: [
-                _SummaryBox(l: "MEDICINES", v: '$medsCount', L: L),
-                _SummaryBox(l: 'SYMPTOMS', v: '$symptomsCount', L: L),
-                _SummaryBox(l: "DAYS TRACKED", v: '$daysTracked', L: L),
-                _SummaryBox(l: "DOSES LOGGED", v: '$totalDoses', L: L),
-              ],
-            ),
-          ]),
-        ),
+        heroCard,
         const SizedBox(height: 16),
 
-        // ── Export & Backup ───────────────────────────────────────────
         SettingsSection(
             title: s.exportAndBackup,
             child: Column(children: [
@@ -112,12 +113,13 @@ class _DataTabState extends State<DataTab> {
                   label: s.exportPdfReport,
                   sub: s.exportPdfSubtitle,
                   onClick: () async {
-                    final success = await ExportService.exportAdherenceReport(context.read<AppState>());
+                    final success = await ExportService.exportAdherenceReport(
+                        context.read<AppState>());
                     if (!success && context.mounted) {
-                      Navigator.of(context).push(MaterialPageRoute(
-                        builder: (_) => const PremiumPaywallOverlay(),
-                        fullscreenDialog: true,
-                      ));
+                      PremiumPaywallOverlay.show(
+                        context,
+                        triggerSource: 'export_pdf',
+                      );
                     }
                   },
                   border: true),
@@ -130,7 +132,6 @@ class _DataTabState extends State<DataTab> {
                   border: false),
             ])),
 
-        // ── Reset ─────────────────────────────────────────────────────
         SettingsSection(
             title: s.resetSection,
             child: SettingsModalRow(
@@ -143,14 +144,10 @@ class _DataTabState extends State<DataTab> {
 
         if (_confirming) ...[
           const SizedBox(height: 10),
-          Container(
+          MedAiDepthCard(
             padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-                color: L.card,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: AppShadows.neumorphic,
-                border: Border.all(
-                    color: L.red.withValues(alpha: 0.3), width: 0.5)),
+            radius: 24,
+            color: L.card,
             child: Column(children: [
               Text(s.deleteConfirmTitle,
                   style: AppTypography.titleMedium
@@ -158,37 +155,42 @@ class _DataTabState extends State<DataTab> {
               const SizedBox(height: 6),
               Text(s.deleteConfirmBody,
                   textAlign: TextAlign.center,
-                  style: AppTypography.bodySmall.copyWith(fontFamily: 'Courier', color: L.sub)),
+                  style: AppTypography.bodySmall.copyWith(color: L.sub)),
               const SizedBox(height: 16),
               Row(children: [
                 Expanded(
-                    child: AnimatedPressable(
-                        onTap: () => setState(() => _confirming = false),
-                        child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                                color: L.fill.withValues(alpha: 0.4),
-                                borderRadius: BorderRadius.circular(24)),
-                            child: Center(
-                                child: Text(s.cancel,
-                                    style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w700,
-                                        color: L.text)))))),
+                  child: MedAiCTA(
+                    label: s.cancel,
+                    secondary: true,
+                    onTap: () {
+                      HapticEngine.selection();
+                      setState(() => _confirming = false);
+                    },
+                  ),
+                ),
                 const SizedBox(width: 8),
                 Expanded(
-                    child: AnimatedPressable(
-                        onTap: () {
-                          context.read<AppState>().deleteAllData();
-                          widget.onClose();
-                        },
-                        child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 10),
-                            decoration: BoxDecoration(
-                                color: L.red,
-                                borderRadius: BorderRadius.circular(24)),
-                            child: Center(
-                                child: Text(s.deleteButton,
-                                    style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w800,
-                                        color: Colors.white)))))),
+                  child: Semantics(
+                    button: true,
+                    label: s.deleteAllData,
+                    child: MedAiDepthCard(
+                      color: L.red,
+                      radius: AppRadius.max,
+                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      onTap: () {
+                        HapticEngine.alertWarning();
+                        context.read<AppState>().deleteAllData();
+                        widget.onClose();
+                      },
+                      child: Center(
+                        child: Text(s.deleteButton,
+                            style: AppTypography.labelLarge.copyWith(
+                                fontWeight: FontWeight.w800,
+                                color: Colors.white)),
+                      ),
+                    ),
+                  ),
+                ),
               ]),
             ]),
           ),
@@ -196,7 +198,6 @@ class _DataTabState extends State<DataTab> {
 
         const SizedBox(height: 16),
 
-        // ── Legal (App Store Mandatory) ───────────────────────────────
         SettingsSection(
             title: s.legalSection,
             child: Column(children: [
@@ -218,7 +219,6 @@ class _DataTabState extends State<DataTab> {
 
         const SizedBox(height: 16),
 
-        // ── App Version ───────────────────────────────────────────────
         Center(
           child: Text('${s.appVersionLabel}: ${s.appVersionValue}',
               style: AppTypography.labelSmall
@@ -236,29 +236,26 @@ class _SummaryBox extends StatelessWidget {
   const _SummaryBox({required this.l, required this.v, required this.L});
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return MedAiDepthCard(
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(16),
-          border:
-              Border.all(color: L.border.withValues(alpha: 0.05), width: 0.5),
-          boxShadow: AppShadows.neumorphic),
+      radius: 16,
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(v,
-                style: AppTypography.displaySmall.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
+                style: AppTypography.displaySmall.copyWith(
+                    fontWeight: FontWeight.w800,
                     color: L.text,
                     fontSize: 24,
-                    letterSpacing: -1.0)),
+                    letterSpacing: -0.5)),
             const SizedBox(height: 2),
-            Text(l.toUpperCase(),
-                style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
-                    color: L.sub.withValues(alpha: 0.4),
-                    fontSize: 10,
-                    letterSpacing: 0.5)),
+            Text(l,
+                style: AppTypography.labelSmall.copyWith(
+                    fontWeight: FontWeight.w600,
+                    color: L.sub,
+                    fontSize: 11,
+                    letterSpacing: 0.1)),
           ]),
     );
   }

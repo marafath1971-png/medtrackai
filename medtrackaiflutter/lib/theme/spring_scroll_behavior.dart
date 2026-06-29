@@ -15,6 +15,11 @@ class SpringScrollBehavior extends ScrollBehavior {
 
   @override
   ScrollPhysics getScrollPhysics(BuildContext context) {
+    if (MediaQuery.disableAnimationsOf(context)) {
+      return const ClampingScrollPhysics(
+        parent: AlwaysScrollableScrollPhysics(),
+      );
+    }
     return const BouncingScrollPhysics(
       decelerationRate: ScrollDecelerationRate.normal,
       parent: AlwaysScrollableScrollPhysics(),

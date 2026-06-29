@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
 import '../../../models/models.dart';
-import '../../../theme/app_theme.dart';
-import '../../../widgets/shared/shared_widgets.dart';
+import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../widgets/common/animated_pressable.dart';
+import '../../../widgets/common/app_scaffold.dart';
 
 class AlertLogCard extends StatelessWidget {
   final MissedAlert alert;
@@ -12,25 +14,22 @@ class AlertLogCard extends StatelessWidget {
   const AlertLogCard(
       {super.key, required this.alert, required this.L, required this.onTap});
   @override
-  Widget build(BuildContext context) => BouncingButton(
-        onTap: () {
-          HapticEngine.light();
-          onTap();
-        },
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 12),
+  Widget build(BuildContext context) => Padding(
+        padding: const EdgeInsets.only(bottom: 12),
+        child: Semantics(
+        button: true,
+        label: 'Missed dose alert for ${alert.medName}',
+        child: MedAiDepthCard(
           padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: L.card,
-            borderRadius: BorderRadius.circular(20),
-            border: alert.seen
-                ? Border.all(color: L.border.withValues(alpha: 0.1))
-                : Border.all(color: L.error.withValues(alpha: 0.3), width: 1.5),
-          ),
+          accentGlow: !alert.seen,
+          onTap: () {
+            HapticEngine.light();
+            onTap();
+          },
           child: Row(children: [
             Container(
-              width: 44,
-              height: 44,
+              width: MedAiA11y.minTapTargetCompact,
+              height: MedAiA11y.minTapTargetCompact,
               decoration: BoxDecoration(
                   color: L.error.withValues(alpha: 0.08),
                   borderRadius: BorderRadius.circular(12)),
@@ -54,7 +53,7 @@ class AlertLogCard extends StatelessWidget {
                   Text('Missed ${alert.doseLabel} at ${alert.time}',
                       style: AppTypography.bodySmall.copyWith(
                           color: L.sub,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w600,
                           fontSize: 11),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1),
@@ -66,14 +65,15 @@ class AlertLogCard extends StatelessWidget {
                   Container(
                     margin: const EdgeInsets.only(bottom: 6),
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                        color: L.error, borderRadius: BorderRadius.circular(4)),
-                    child: Text('NEW',
+                        color: L.fill.withValues(alpha: 0.6),
+                        borderRadius: BorderRadius.circular(99)),
+                    child: Text('New',
                         style: TextStyle(
-                            color: L.card,
+                            color: L.sub,
                             fontSize: 10,
-                            fontWeight: FontWeight.w900)),
+                            fontWeight: FontWeight.w600)),
                   ),
                 Text(alert.timestamp.split(',').first,
                     style: AppTypography.labelLarge.copyWith(
@@ -87,7 +87,8 @@ class AlertLogCard extends StatelessWidget {
                 color: L.sub.withValues(alpha: 0.3), size: 18),
           ]),
         ),
-      );
+      ),
+    );
 }
 
 class EscalationDemoView extends StatefulWidget {
@@ -103,22 +104,36 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
   @override
   Widget build(BuildContext context) {
     final L = widget.L;
-    return Scaffold(
-      backgroundColor: L.meshBg,
+    return AppScaffold(
+      showAurora: true,
       appBar: AppBar(
-        backgroundColor: L.meshBg,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-            icon:
-                Icon(Icons.arrow_back_ios_new_rounded, color: L.text, size: 18),
-            onPressed: widget.onBack),
-        title: Text('Escalation Protocol',
+        leading: Semantics(
+          button: true,
+          label: 'Go back',
+          child: AnimatedPressable(
+            onTap: widget.onBack,
+            child: Container(
+              width: MedAiA11y.minTapTarget,
+              height: MedAiA11y.minTapTarget,
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: L.fill.withValues(alpha: 0.5),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.arrow_back_ios_new_rounded,
+                  color: L.text, size: 18),
+            ),
+          ),
+        ),
+        title: Text('Escalation protocol',
             style: AppTypography.titleLarge.copyWith(
-                fontWeight: FontWeight.w900, color: L.text, fontSize: 18)),
+                fontWeight: FontWeight.w800, color: L.text, fontSize: 18)),
       ),
       body: SafeArea(
           child: SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.all(24),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -132,26 +147,22 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
                     const SizedBox(height: 40),
                     Row(children: [
                       Expanded(
-                          child: BouncingButton(
-                        onTap:
-                            _step <= 1 ? null : () => setState(() => _step--),
-                        child: Container(
-                            padding: const EdgeInsets.symmetric(vertical: 14),
-                            alignment: Alignment.center,
-                            decoration: BoxDecoration(
-                              color: _step <= 1 ? L.fill : L.card,
-                              borderRadius: BorderRadius.circular(16),
-                              border: _step <= 1 ? null : Border.all(color: L.border.withValues(alpha: 0.1)),
-                            ),
-                            child: Text('Previous',
-                                style: AppTypography.labelLarge.copyWith(
-                                    fontWeight: FontWeight.w700,
-                                    color: _step <= 1 ? L.sub : L.text))),
-                      )),
+                        child: MedAiCTA(
+                          label: 'Previous',
+                          secondary: true,
+                          fullWidth: true,
+                          enabled: _step > 1,
+                          onTap: _step <= 1
+                              ? null
+                              : () => setState(() => _step--),
+                        ),
+                      ),
                       const SizedBox(width: 12),
                       Expanded(
                           flex: 2,
-                          child: BouncingButton(
+                          child: MedAiCTA(
+                            label: _step >= 4 ? 'Completed' : 'Next Step',
+                            enabled: _step < 4,
                             onTap: _step >= 4
                                 ? null
                                 : () {
@@ -160,62 +171,49 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
                                       HapticEngine.heavy();
                                     }
                                   },
-                            child: Container(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 14),
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                    color: _step >= 4 ? L.fill : L.text,
-                                    borderRadius: BorderRadius.circular(16)),
-                                child: Text(
-                                    _step >= 4 ? 'Completed' : 'Next Step',
-                                    style: AppTypography.labelLarge.copyWith(
-                                        fontWeight: FontWeight.w800,
-                                        color: _step >= 4 ? L.sub : L.bg))),
                           )),
                     ]),
                     if (_step == 4) ...[
                       const SizedBox(height: 24),
-                      Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                            color: const Color(0xFF1C1917),
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.2),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 10))
-                            ]),
-                        child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  const Icon(Icons.campaign_rounded,
-                                      color: Color(0xFFFCA5A5), size: 20),
-                                  const SizedBox(width: 10),
-                                  Text('CRITICAL ALERT SENT',
-                                      style: AppTypography.labelLarge.copyWith(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w900,
-                                          color: const Color(0xFFFCA5A5),
-                                          letterSpacing: 1.5)),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              Text(
-                                  'Sarah J. missed their Blood Pressure medication. Please check on them immediately.',
-                                  style: AppTypography.bodySmall.copyWith(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                      height: 1.5)),
-                            ]),
-                      ).animate().scale(curve: Curves.easeOutBack),
+                      _buildCriticalAlertCard(L),
                     ],
                   ]))),
     );
+  }
+
+  Widget _buildCriticalAlertCard(AppThemeColors L) {
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+    Widget card = MedAiDepthCard(
+      padding: const EdgeInsets.all(20),
+      accentGlow: true,
+      color: const Color(0xFF1C1917),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Row(
+          children: [
+            const Icon(Icons.campaign_rounded,
+                color: Color(0xFFFCA5A5), size: 20),
+            const SizedBox(width: 10),
+            Text('Critical alert sent',
+                style: AppTypography.labelLarge.copyWith(
+                    fontSize: 11,
+                    fontWeight: FontWeight.w700,
+                    color: const Color(0xFFFCA5A5))),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Text(
+            'Sarah J. missed their Blood Pressure medication. Please check on them immediately.',
+            style: AppTypography.bodySmall.copyWith(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+                height: 1.5)),
+      ]),
+    );
+    if (!reduceMotion) {
+      card = card.animate().scale(curve: Curves.easeOutBack);
+    }
+    return card;
   }
 }
 
@@ -262,7 +260,7 @@ class EscalationTimeline extends StatelessWidget {
           child: Row(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Column(children: [
               AnimatedContainer(
-                duration: 400.ms,
+                duration: MedAiA11y.motion(context, AppDurations.medium),
                 width: 36,
                 height: 36,
                 decoration: BoxDecoration(
@@ -296,7 +294,7 @@ class EscalationTimeline extends StatelessWidget {
                           style: AppTypography.labelLarge.copyWith(
                               fontSize: 15,
                               fontWeight:
-                                  isCurrent ? FontWeight.w900 : FontWeight.w700,
+                                  isCurrent ? FontWeight.w800 : FontWeight.w700,
                               color: isActive ? L.text : L.sub)),
                       const SizedBox(height: 2),
                       Text(steps[i]['detail'] as String,
@@ -320,37 +318,41 @@ class AlertDetailView extends StatelessWidget {
       {super.key, required this.alert, required this.L, required this.onBack});
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: L.meshBg,
+    return AppScaffold(
+      showAurora: true,
       appBar: AppBar(
-        backgroundColor: L.meshBg,
+        backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: IconButton(
-            icon: const Icon(Icons.close_rounded), onPressed: onBack),
-        title: Text('Critical Alert',
+        leading: Semantics(
+          button: true,
+          label: 'Close',
+          child: AnimatedPressable(
+            onTap: onBack,
+            child: Container(
+              width: MedAiA11y.minTapTarget,
+              height: MedAiA11y.minTapTarget,
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: L.fill.withValues(alpha: 0.5),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.close_rounded, color: L.text, size: 20),
+            ),
+          ),
+        ),
+        title: Text('Critical alert',
             style: AppTypography.titleLarge
-                .copyWith(fontSize: 18, fontWeight: FontWeight.w900)),
+                .copyWith(fontSize: 18, fontWeight: FontWeight.w800)),
       ),
       body: SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
+            MedAiDepthCard(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: L.card,
-                borderRadius: BorderRadius.circular(28),
-                boxShadow: [
-                  BoxShadow(
-                      color: L.error.withValues(alpha: 0.05),
-                      blurRadius: 40,
-                      offset: const Offset(0, 20))
-                ],
-                border: Border.all(
-                    color: L.error.withValues(alpha: 0.2), width: 1.5),
-              ),
+              accentGlow: true,
               child: Column(
                 children: [
                   Container(
@@ -367,7 +369,7 @@ class AlertDetailView extends StatelessWidget {
                   Text(alert.medName,
                       style: AppTypography.displayLarge.copyWith(
                           fontSize: 24,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w800,
                           color: L.text)),
                   const SizedBox(height: 4),
                   Text('Missed ${alert.doseLabel} at ${alert.time}',
@@ -377,7 +379,7 @@ class AlertDetailView extends StatelessWidget {
                           fontWeight: FontWeight.w500)),
                   const SizedBox(height: 24),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    _Badge(label: 'CRITICAL', color: L.error),
+                    _Badge(label: 'Critical', color: L.error),
                     const SizedBox(width: 8),
                     _Badge(
                         label: alert.timestamp.split(',').first, color: L.sub),
@@ -386,11 +388,7 @@ class AlertDetailView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 32),
-            Text('SAFETY PROTOCOL',
-                style: AppTypography.labelLarge.copyWith(
-                    fontWeight: FontWeight.w800,
-                    color: L.sub,
-                    letterSpacing: 1.0)),
+            const MedAiSectionHeader(title: 'Safety protocol'),
             const SizedBox(height: 16),
             EscalationTimeline(activeStep: 4, L: L),
           ],
@@ -413,8 +411,7 @@ class _Badge extends StatelessWidget {
         child: Text(label,
             style: AppTypography.labelLarge.copyWith(
                 fontSize: 10,
-                fontWeight: FontWeight.w800,
-                color: color,
-                letterSpacing: 0.5)),
+                fontWeight: FontWeight.w600,
+                color: color)),
       );
 }

@@ -1,8 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../providers/app_state.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/modals/ask_ai_sheet.dart';
 import '../../../widgets/common/paywall_sheet.dart';
 import '../../../core/utils/haptic_engine.dart';
@@ -47,31 +46,49 @@ class _HomeInsightCardState extends State<HomeInsightCard> {
     );
   }
 
+  Widget _newDataBadge(AppThemeColors L, bool reduceMotion) {
+    Widget badge = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: L.green.withValues(alpha: 0.15),
+        borderRadius: BorderRadius.circular(4),
+        border: Border.all(color: L.green.withValues(alpha: 0.3), width: 0.5),
+      ),
+      child: Text(
+        'New data',
+        style: AppTypography.labelSmall.copyWith(
+          color: L.green,
+          fontSize: 10,
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0.1,
+        ),
+      ),
+    );
+    if (reduceMotion) return badge;
+    return badge
+        .animate(onPlay: (controller) => controller.repeat(reverse: true))
+        .shimmer(duration: 2.seconds, color: L.green.withValues(alpha: 0.2))
+        .scale(
+            begin: const Offset(1, 1),
+            end: const Offset(1.05, 1.05),
+            duration: 1.seconds);
+  }
+
   @override
   Widget build(BuildContext context) {
     final state = widget.state;
     final onLoadInsight = widget.onLoadInsight;
     final L = context.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
     final List<HealthInsight> insights = state.healthInsights;
     final isPremium = state.isPremium;
 
-    return Padding(
+    Widget card = Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-      child: Container(
-        decoration: BoxDecoration(
-          color: L.card.withValues(alpha: 0.7),
-          borderRadius: BorderRadius.circular(32),
-          border: Border.all(
-            color: L.glassBorder,
-            width: 0.5,
-          ),
-          boxShadow: L.shadowSoft,
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(32),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-            child: Stack(
+      child: MedAiGlass(
+        padding: EdgeInsets.zero,
+        radius: 32,
+        child: Stack(
           children: [
             // ── Main Content ────────────────────────────────────────────────
             Padding(
@@ -98,47 +115,15 @@ class _HomeInsightCardState extends State<HomeInsightCard> {
                             Expanded(
                               child: Row(
                                 children: [
-                                  Text('AI HEALTH COACH',
+                                  Text('AI health coach',
                                       style: AppTypography.labelMedium.copyWith(
-                                          fontSize: 11,
+                                          fontSize: 12,
                                           fontWeight: FontWeight.w700,
                                           color: L.sub,
-                                          letterSpacing: 0.5)),
+                                          letterSpacing: 0.1)),
                                   if (state.hasNewDataForAI && isPremium) ...[
                                     const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: L.green.withValues(alpha: 0.15),
-                                        borderRadius: BorderRadius.circular(4),
-                                        border: Border.all(
-                                            color:
-                                                L.green.withValues(alpha: 0.3),
-                                            width: 0.5),
-                                      ),
-                                      child: Text(
-                                        "NEW DATA",
-                                        style:
-                                            AppTypography.labelSmall.copyWith(
-                                          color: L.green,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w900,
-                                          letterSpacing: 0.3,
-                                        ),
-                                      ),
-                                    )
-                                        .animate(
-                                            onPlay: (controller) => controller
-                                                .repeat(reverse: true))
-                                        .shimmer(
-                                            duration: 2.seconds,
-                                            color:
-                                                L.green.withValues(alpha: 0.2))
-                                        .scale(
-                                            begin: const Offset(1, 1),
-                                            end: const Offset(1.05, 1.05),
-                                            duration: 1.seconds),
+                                    _newDataBadge(L, reduceMotion),
                                   ],
                                   if (!isPremium) ...[
                                     const SizedBox(width: 8),
@@ -155,7 +140,7 @@ class _HomeInsightCardState extends State<HomeInsightCard> {
                                             AppTypography.labelSmall.copyWith(
                                           color: L.text,
                                           fontSize: 11,
-                                          fontWeight: FontWeight.w900,
+                                          fontWeight: FontWeight.w700,
                                           letterSpacing: 0.5,
                                         ),
                                       ),
@@ -170,39 +155,50 @@ class _HomeInsightCardState extends State<HomeInsightCard> {
                       if (insights.isNotEmpty && isPremium)
                         Row(
                           children: [
-                            BouncingButton(
-                              onTap: () => _showAskAi(context, insights),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                    horizontal: 12, vertical: 8),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.05),
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Icon(Icons.chat_bubble_outline_rounded,
-                                        color: L.text, size: 14),
-                                    const SizedBox(width: 8),
-                                    Text('Ask AI',
-                                        style: AppTypography.labelMedium
-                                            .copyWith(
-                                                color: L.text,
-                                                fontSize: 11,
-                                                fontWeight: FontWeight.w800)),
-                                  ],
+                            Semantics(
+                              button: true,
+                              label: 'Ask AI about your insights',
+                              child: AnimatedPressable(
+                                onTap: () => _showAskAi(context, insights),
+                                child: Container(
+                                  constraints: const BoxConstraints(
+                                      minHeight: MedAiA11y.minTapTarget),
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 12, vertical: 8),
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withValues(alpha: 0.05),
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(Icons.chat_bubble_outline_rounded,
+                                          color: L.text, size: 14),
+                                      const SizedBox(width: 8),
+                                      Text('Ask AI',
+                                          style: AppTypography.labelMedium
+                                              .copyWith(
+                                                  color: L.text,
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w800)),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
                             const SizedBox(width: 8),
-                            BouncingButton(
-                              onTap: onLoadInsight,
-                              child: Container(
-                                padding: const EdgeInsets.all(8),
-                                child: Icon(Icons.refresh_rounded,
-                                    color: L.sub.withValues(alpha: 0.4),
-                                    size: 18),
+                            Semantics(
+                              button: true,
+                              label: 'Refresh insights',
+                              child: AnimatedPressable(
+                                onTap: onLoadInsight,
+                                child: SizedBox(
+                                  width: MedAiA11y.minTapTarget,
+                                  height: MedAiA11y.minTapTarget,
+                                  child: Icon(Icons.refresh_rounded,
+                                      color: L.sub.withValues(alpha: 0.4),
+                                      size: 18),
+                                ),
                               ),
                             ),
                           ],
@@ -212,16 +208,23 @@ class _HomeInsightCardState extends State<HomeInsightCard> {
                   const SizedBox(height: 16),
                   if (insights.isEmpty)
                     Center(
-                      child: BouncingButton(
-                        onTap: isPremium ? onLoadInsight : () => {},
-                        child: Padding(
-                          padding: const EdgeInsets.all(12),
-                          child: Text(
-                              isPremium
-                                  ? 'Generate insights'
-                                  : 'Premium feature',
-                              style: AppTypography.labelLarge
-                                  .copyWith(color: L.text, fontSize: 13)),
+                      child: Semantics(
+                        button: true,
+                        label: isPremium
+                            ? 'Generate insights'
+                            : 'Premium feature',
+                        child: AnimatedPressable(
+                          onTap: isPremium ? onLoadInsight : null,
+                          disabled: !isPremium,
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Text(
+                                isPremium
+                                    ? 'Generate insights'
+                                    : 'Premium feature',
+                                style: AppTypography.labelLarge
+                                    .copyWith(color: L.text, fontSize: 13)),
+                          ),
                         ),
                       ),
                     )
@@ -242,14 +245,14 @@ class _HomeInsightCardState extends State<HomeInsightCard> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    item.title.toUpperCase(),
+                                    item.title,
                                     maxLines: 1,
                                     overflow: TextOverflow.ellipsis,
                                     style: AppTypography.labelMedium.copyWith(
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w800,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
                                       color: L.sub,
-                                      letterSpacing: 1.0,
+                                      letterSpacing: 0.1,
                                     ),
                                   ),
                                   const SizedBox(height: 6),
@@ -390,33 +393,38 @@ class _HomeInsightCardState extends State<HomeInsightCard> {
                         style: AppTypography.bodySmall.copyWith(color: L.sub),
                       ),
                       const SizedBox(height: 20),
-                      BouncingButton(
-                        onTap: () {
-                          HapticEngine
-                              .selection(); // Keeping explicit haptic for emphasis
-                          PaywallSheet.show(context);
-                        },
-                        hapticEnabled: false,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 24, vertical: 12),
-                          decoration: BoxDecoration(
-                            color: L.secondary,
-                            borderRadius: BorderRadius.circular(32),
-                            boxShadow: [
-                              BoxShadow(
-                                color: L.secondary.withValues(alpha: 0.4),
-                                blurRadius: 30,
-                                offset: const Offset(0, 15),
+                      Semantics(
+                        button: true,
+                        label: 'Upgrade to Pro',
+                        child: AnimatedPressable(
+                          onTap: () {
+                            HapticEngine.selection();
+                            PaywallSheet.show(context);
+                          },
+                          lightHaptic: false,
+                          child: Container(
+                            constraints: const BoxConstraints(
+                                minHeight: MedAiA11y.minTapTarget),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 24, vertical: 12),
+                            decoration: BoxDecoration(
+                              color: L.secondary,
+                              borderRadius: BorderRadius.circular(32),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: L.secondary.withValues(alpha: 0.4),
+                                  blurRadius: 30,
+                                  offset: const Offset(0, 15),
+                                ),
+                              ],
+                            ),
+                            child: const Text(
+                              'Upgrade to Pro 💎',
+                              style: TextStyle(
+                                color: Colors.black,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
                               ),
-                            ],
-                          ),
-                          child: const Text(
-                            'Upgrade to Pro 💎',
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 14,
                             ),
                           ),
                         ),
@@ -428,12 +436,12 @@ class _HomeInsightCardState extends State<HomeInsightCard> {
           ],
         ),
       ),
-      ),
-      ),
-    )
-        .animate(target: state.hasNewDataForAI ? 1 : 0)
-        .shimmer(duration: 3.seconds, color: L.text.withValues(alpha: 0.05))
-        .fade()
-        .slideY(begin: 0.05, end: 0);
+    );
+
+    if (reduceMotion) return card;
+    return card
+        .animate()
+        .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
+        .slideY(begin: 0.05, end: 0, curve: AppCurves.smooth);
   }
 }

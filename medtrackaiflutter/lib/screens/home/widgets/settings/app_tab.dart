@@ -1,18 +1,18 @@
+import 'package:go_router/go_router.dart';
+import '../../../../app/app_routes.dart';
 import '../../../../widgets/common/permission_soft_prompt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../../../../providers/app_state.dart';
+import '../../../../theme/med_ai_ui.dart';
 import '../../../../widgets/shared/shared_widgets.dart';
-import '../../../../theme/app_theme.dart';
-import '../../../../services/share_service.dart';
-import '../../../settings/privacy_policy_screen.dart';
-import '../../../../widgets/common/paywall_sheet.dart';
 import 'settings_shared.dart';
-import '../../../settings/theme_customization_screen.dart';
-import '../../../../core/utils/haptic_engine.dart';
+import '../../../../services/share_service.dart';
+import '../../../../widgets/common/paywall_sheet.dart';
 import '../../../family/profile_switcher_sheet.dart';
+import '../../../../core/utils/haptic_engine.dart';
 
 class AppTab extends StatefulWidget {
   final AppState state;
@@ -42,6 +42,7 @@ class _AppTabState extends State<AppTab> {
   @override
   Widget build(BuildContext context) {
     final L = widget.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
     final profile = context.select<AppState, UserProfile?>((s) => s.profile);
 
     return SingleChildScrollView(
@@ -132,12 +133,7 @@ class _AppTabState extends State<AppTab> {
                 sub: 'Custom icons and themes',
                 onClick: () {
                   HapticEngine.heavyImpact();
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const ThemeCustomizationScreen(),
-                    ),
-                  );
+                  context.push(AppRoutes.settingsTheme);
                 },
                 border: false)),
         SettingsSection(
@@ -190,18 +186,13 @@ class _AppTabState extends State<AppTab> {
                 border: false)),
         SettingsSection(
             title: 'Support & Feedback',
-            child: Container(
+            child: MedAiGlass(
               padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: L.card,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(
-                    color: L.border.withValues(alpha: 0.08), width: 0.5),
-                boxShadow: AppShadows.neumorphic,
-              ),
+              radius: AppRadius.xl,
               child: Column(children: [
                 Text('Enjoying MedAI?',
-                    style: AppTypography.titleLarge.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
+                    style: AppTypography.titleLarge.copyWith(
+                        fontWeight: FontWeight.w800,
                         color: L.text,
                         fontSize: 18)),
                 const SizedBox(height: 6),
@@ -211,43 +202,36 @@ class _AppTabState extends State<AppTab> {
                 const SizedBox(height: 20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                      5,
-                      (i) => Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 4),
-                            child: Icon(Icons.star_rounded,
-                                    color: L.text, size: 32)
-                                .animate(
-                                    onPlay: (controller) =>
-                                        controller.repeat(reverse: true))
-                                .shimmer(
-                                    delay: (i * 200).ms,
-                                    duration: 2.seconds,
-                                    color: L.bg.withValues(alpha: 0.5))
-                                .scale(
-                                    begin: const Offset(1, 1),
-                                    end: const Offset(1.1, 1.1),
-                                    duration: 2.seconds,
-                                    curve: Curves.easeInOut),
-                          )),
+                  children: List.generate(5, (i) {
+                    Widget star = Icon(Icons.star_rounded,
+                        color: L.text, size: 32);
+                    if (!reduceMotion) {
+                      star = star
+                          .animate(
+                              onPlay: (controller) =>
+                                  controller.repeat(reverse: true))
+                          .shimmer(
+                              delay: (i * 200).ms,
+                              duration: 2.seconds,
+                              color: L.bg.withValues(alpha: 0.5))
+                          .scale(
+                              begin: const Offset(1, 1),
+                              end: const Offset(1.1, 1.1),
+                              duration: 2.seconds,
+                              curve: Curves.easeInOut);
+                    }
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: star,
+                    );
+                  }),
                 ),
                 const SizedBox(height: 24),
-                BouncingButton(
+                MedAiCTA(
+                  label: 'Share with friends',
+                  semanticsLabel: 'Share MedAI with friends',
                   onTap: () => ShareService.shareText(
                       'I\'m using MedAI to stay on top of my medications! 💊'),
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    decoration: BoxDecoration(
-                        color: L.text, borderRadius: BorderRadius.circular(16)),
-                    child: Center(
-                      child: Text('SHARE WITH FRIENDS',
-                          style: AppTypography.labelLarge.copyWith(fontFamily: 'Courier', fontWeight: FontWeight.w900,
-                              fontSize: 11,
-                              letterSpacing: 1.0,
-                              color: L.bg)),
-                    ),
-                  ),
                 ),
               ]),
             )),
@@ -264,10 +248,7 @@ class _AppTabState extends State<AppTab> {
                   iconBg: const Color(0xFF22C55E).withValues(alpha: 0.1),
                   label: 'Privacy',
                   sub: 'Your data stays on this device',
-                  onClick: () => Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (_) => const PrivacyPolicyScreen())),
+                  onClick: () => context.push(AppRoutes.settingsPrivacy),
                   border: true),
               SettingsModalRow(
                   icon: 'ℹ️',

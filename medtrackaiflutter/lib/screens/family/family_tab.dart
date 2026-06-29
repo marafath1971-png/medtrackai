@@ -2,16 +2,14 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import '../../app/app_routes.dart';
 import '../../providers/app_state.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../services/auth_service.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
-import 'profile_pin_screen.dart';
-import 'edit_family_member_screen.dart';
-
-// Modular Widgets
 import 'widgets/caregiver_widgets.dart';
 import 'widgets/monitoring_widgets.dart';
 import 'widgets/add_cg_flow.dart';
@@ -20,6 +18,7 @@ import 'widgets/alert_log_widgets.dart';
 import 'widgets/demo_widgets.dart';
 import '../../widgets/common/premium_empty_state.dart';
 import '../../widgets/common/paywall_sheet.dart';
+import '../../widgets/common/app_scaffold.dart';
 
 enum FamilyView {
   hub,
@@ -217,19 +216,25 @@ class _FamilyTabState extends State<FamilyTab> {
       }
     }
 
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
-      switchInCurve: Curves.easeOutCubic,
+      duration: reduceMotion ? Duration.zero : AppDurations.fast,
+      switchInCurve: AppCurves.expressive,
       switchOutCurve: Curves.easeInCubic,
-      transitionBuilder: (w, anim) => FadeTransition(
-        opacity: anim,
-        child: SlideTransition(
-          position:
-              Tween<Offset>(begin: const Offset(0.05, 0), end: Offset.zero)
-                  .animate(anim),
-          child: w,
-        ),
-      ),
+      transitionBuilder: (w, anim) {
+        if (reduceMotion) return w;
+        return FadeTransition(
+          opacity: anim,
+          child: SlideTransition(
+            position: Tween<Offset>(
+              begin: const Offset(0.04, 0),
+              end: Offset.zero,
+            ).animate(CurvedAnimation(parent: anim, curve: AppCurves.expressive)),
+            child: w,
+          ),
+        );
+      },
       child: child,
     );
   }
@@ -268,26 +273,10 @@ class HubView extends StatelessWidget {
         state.caregivers.where((c) => c.status == "active").length;
     final unseenCount = state.missedAlerts.where((a) => !a.seen).length;
 
-    return Scaffold(
-      backgroundColor: L.meshBg,
+    return AppScaffold(
+      showAurora: context.isDark,
       body: Stack(
         children: [
-          // ── PREMIUM HEADER BACKGROUND ──
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 120,
-            child: Container(
-              decoration: BoxDecoration(
-                color: L.meshBg,
-                border: Border(
-                    bottom: BorderSide(
-                        color: L.border.withValues(alpha: 0.1), width: 0.5)),
-              ),
-            ),
-          ),
-
           // ── SCROLLABLE CONTENT ──
           SingleChildScrollView(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -305,46 +294,63 @@ class HubView extends StatelessWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        'Protectors Hub 🛡️',
-                        style: AppTypography.headlineLarge.copyWith(
-                          fontFamily: 'Courier',
-                          color: L.text,
-                          fontSize: 32,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: -1.0,
+                      _familyEntrance(
+                        context,
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'YOUR CIRCLE',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: L.sub,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 11,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                            Text(
+                              'Family circle',
+                              style: AppTypography.headlineLarge.copyWith(
+                                color: L.text,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.6,
+                              ),
+                            ),
+                          ],
                         ),
-                      )
-                          .animate()
-                          .fadeIn(duration: 400.ms)
-                          .slideY(begin: 0.1, end: 0),
+                      ),
 
                       const SizedBox(height: 20),
 
-                      // Circle Snapshot Bento (High-Fidelity)
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _CircleStatBento(
-                              label: 'PROTECTORS',
-                              value: '$activeCount',
-                              emoji: '🛡️',
-                              L: L,
+                      _familyEntrance(
+                        context,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _CircleStatBento(
+                                label: 'Protectors',
+                                value: '$activeCount',
+                                emoji: '🛡️',
+                                L: L,
+                              ),
                             ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _CircleStatBento(
-                              label: 'MONITORING',
-                              value: unseenCount > 0 ? 'URGENT' : 'SECURE',
-                              emoji: unseenCount > 0 ? '🚨' : '🛡️',
-                              iconColor: unseenCount > 0 ? L.error : L.success,
-                              L: L,
-                              glow: unseenCount > 0,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _CircleStatBento(
+                                label: 'Monitoring',
+                                value: unseenCount > 0 ? 'Urgent' : 'Secure',
+                                emoji: unseenCount > 0 ? '🚨' : '🛡️',
+                                iconColor:
+                                    unseenCount > 0 ? L.error : L.success,
+                                L: L,
+                                glow: unseenCount > 0,
+                                accentGlow: unseenCount > 0,
+                              ),
                             ),
-                          ),
-                        ],
-                      ).animate(delay: 200.ms).fadeIn(),
+                          ],
+                        ),
+                        delayMs: 80,
+                      ),
 
                       const SizedBox(height: 24),
 
@@ -353,8 +359,19 @@ class HubView extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(4),
                             decoration: BoxDecoration(
-                              color: L.fill.withValues(alpha: 0.15),
+                              color: L.card,
                               borderRadius: BorderRadius.circular(24),
+                              border: Border.all(
+                                color: L.border.withValues(alpha: 0.5),
+                                width: 1,
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: AppColors.eatoNavy.withValues(alpha: 0.04),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
                             ),
                             child: Row(
                               children: [
@@ -379,70 +396,74 @@ class HubView extends StatelessWidget {
                       const SizedBox(height: 24),
 
                       if (unseenCount > 0)
-                        BouncingButton(
-                          onTap: onMarkSeen,
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 24),
-                            padding: const EdgeInsets.all(20),
-                            decoration: BoxDecoration(
-                              color: L.error,
-                              borderRadius: AppRadius.roundL,
-                              border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.3),
-                                  width: 1.5),
-                              boxShadow: const [],
-                            ),
-                            child: Row(
-                              children: [
-                                const Text('🚨', style: TextStyle(fontSize: 24))
-                                    .animate(
-                                        onPlay: (c) => c.repeat(reverse: true))
-                                    .scale(
-                                        begin: const Offset(1.0, 1.0),
-                                        end: const Offset(1.2, 1.2),
-                                        duration: 600.ms),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'URGENT MONITORING',
-                                        style:
-                                            AppTypography.labelSmall.copyWith(
-                                          fontFamily: 'Courier',
-                                          color: Colors.white
-                                              .withValues(alpha: 0.8),
-                                          fontWeight: FontWeight.w900,
-                                          letterSpacing: 2.0,
-                                        ),
-                                      ),
-                                      Text(
-                                        '$unseenCount missed medication alerts',
-                                        style:
-                                            AppTypography.titleMedium.copyWith(
-                                          color: Colors.white,
-                                          fontWeight: FontWeight.w900,
-                                          fontSize: 15,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
+                        Semantics(
+                          button: true,
+                          label: '$unseenCount missed medication alerts',
+                          child: AnimatedPressable(
+                            onTap: onMarkSeen,
+                            scaleFactor: 0.985,
+                            child: Container(
+                              margin: const EdgeInsets.only(bottom: 24),
+                              padding: const EdgeInsets.all(20),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [L.error, L.error.withValues(alpha: 0.85)],
                                 ),
-                                const Text('→',
-                                    style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w900)),
-                              ],
+                                borderRadius: AppRadius.roundL,
+                                border: Border.all(
+                                  color: Colors.white.withValues(alpha: 0.25),
+                                  width: 0.5,
+                                ),
+                                boxShadow: AppShadows.glow(L.error, intensity: 0.35),
+                              ),
+                              child: Row(
+                                children: [
+                                  if (!MedAiA11y.reducedMotion(context))
+                                    const Text('🚨',
+                                            style: TextStyle(fontSize: 24))
+                                        .animate(
+                                            onPlay: (c) => c.repeat(reverse: true))
+                                        .scale(
+                                            begin: const Offset(1.0, 1.0),
+                                            end: const Offset(1.15, 1.15),
+                                            duration: 600.ms)
+                                  else
+                                    const Text('🚨',
+                                        style: TextStyle(fontSize: 24)),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Text(
+                                          'Urgent monitoring',
+                                          style: AppTypography.labelSmall
+                                              .copyWith(
+                                            color: Colors.white
+                                                .withValues(alpha: 0.85),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                        Text(
+                                          '$unseenCount missed medication alerts',
+                                          style: AppTypography.titleMedium
+                                              .copyWith(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.w700,
+                                            fontSize: 15,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  const Icon(Icons.chevron_right_rounded,
+                                      color: Colors.white, size: 22),
+                                ],
+                              ),
                             ),
                           ),
-                        )
-                            .animate(onPlay: (c) => c.repeat(reverse: true))
-                            .shimmer(
-                                duration: 1500.ms,
-                                color: Colors.white.withValues(alpha: 0.2)),
+                        ),
 
                       // CONTENT BASED ON PIVOT
                       if (pivot == 1) ...[
@@ -483,15 +504,10 @@ class HubView extends StatelessWidget {
                       ] else ...[
                         // ACCOUNT SECURITY / MY CAREGIVERS
                         if (state.profile?.familyMembers.isNotEmpty ?? false) ...[
-                          Text('Managing ✨',
-                              style: AppTypography.titleLarge.copyWith(
-                                fontFamily: 'Courier',
-                                color: L.text,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 18,
-                                letterSpacing: 0.5,
-                              )),
-                          const SizedBox(height: 12),
+                          MedAiSectionHeader(
+                            title: 'Managing',
+                            subtitle: '${state.profile!.familyMembers.length} profiles',
+                          ),
                           SizedBox(
                             height: 70,
                             child: ListView.builder(
@@ -504,11 +520,9 @@ class HubView extends StatelessWidget {
                                   onTap: () async {
                                     HapticEngine.selection();
                                     if (member.pin != null && member.pin!.isNotEmpty) {
-                                      final success = await Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (_) => ProfilePinScreen(profile: member),
-                                        ),
+                                      final success = await context.push<bool>(
+                                        AppRoutes.familyPin,
+                                        extra: ProfilePinRouteArgs(profile: member),
                                       );
                                       if (success == true) {
                                         state.switchProfile(member);
@@ -544,11 +558,9 @@ class HubView extends StatelessWidget {
                                           SimpleDialogOption(
                                             onPressed: () {
                                               Navigator.pop(ctx);
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (_) => EditFamilyMemberScreen(member: member),
-                                                ),
+                                              context.push(
+                                                AppRoutes.familyEditMember,
+                                                extra: EditFamilyMemberRouteArgs(member: member),
                                               );
                                             },
                                             child: Row(
@@ -581,16 +593,16 @@ class HubView extends StatelessWidget {
                                                 builder: (removeCtx) => AlertDialog(
                                                   backgroundColor: L.card,
                                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: BorderSide(color: L.border.withValues(alpha: 0.1))),
-                                                  title: Text('Remove Profile?', style: AppTypography.titleLarge.copyWith(color: L.text, fontWeight: FontWeight.w900)),
+                                                  title: Text('Remove profile?', style: AppTypography.titleLarge.copyWith(color: L.text, fontWeight: FontWeight.w800)),
                                                   content: Text('This will stop all reminders for ${member.name}. History for this member will be preserved in the cloud.', style: AppTypography.bodyMedium.copyWith(color: L.sub)),
                                                   actions: [
-                                                    TextButton(onPressed: () => Navigator.pop(removeCtx), child: Text('CANCEL', style: AppTypography.labelLarge.copyWith(color: L.sub))),
+                                                    TextButton(onPressed: () => Navigator.pop(removeCtx), child: Text('Cancel', style: AppTypography.labelLarge.copyWith(color: L.sub))),
                                                     TextButton(
                                                       onPressed: () {
                                                         state.removeFamilyMember(member.id);
                                                         Navigator.pop(removeCtx);
                                                       },
-                                                      child: Text('REMOVE', style: AppTypography.labelLarge.copyWith(color: Colors.redAccent, fontWeight: FontWeight.w900)),
+                                                      child: Text('Remove', style: AppTypography.labelLarge.copyWith(color: Colors.redAccent, fontWeight: FontWeight.w700)),
                                                     ),
                                                   ],
                                                 ),
@@ -621,7 +633,7 @@ class HubView extends StatelessWidget {
                                             : L.border.withValues(alpha: 0.1),
                                         width: member.isCritical ? 1.5 : 1.0,
                                       ),
-                                      boxShadow: L.shadowSoft,
+                                      boxShadow: AppShadows.soft,
                                     ),
                                     child: Row(
                                       children: [
@@ -697,15 +709,10 @@ class HubView extends StatelessWidget {
 
                       // ALERT LOG
                       if (state.missedAlerts.isNotEmpty) ...[
-                        Text('Recent Activity ⚡',
-                            style: AppTypography.titleLarge.copyWith(
-                              fontFamily: 'Courier',
-                              color: L.primary,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 18,
-                              letterSpacing: 0.5,
-                            )),
-                        const SizedBox(height: 14),
+                        MedAiSectionHeader(
+                          title: 'Recent activity',
+                          subtitle: '${state.missedAlerts.length} alerts',
+                        ),
                         ListView.builder(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                           padding: EdgeInsets.zero,
@@ -752,21 +759,30 @@ class HubView extends StatelessWidget {
           ? null
           : Padding(
               padding: const EdgeInsets.only(bottom: 90),
-              child: FloatingActionButton.extended(
-                onPressed: onAddCg,
-                backgroundColor: L.text,
-                elevation: 0,
-                shape: RoundedRectangleBorder(borderRadius: AppRadius.roundM),
-                icon: const Text('➕',
-                    style: TextStyle(color: Colors.white, fontSize: 14)),
-                label: const Text('Add Guardian ➕',
-                    style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 13,
-                        letterSpacing: 0.5)),
+              child: Semantics(
+                button: true,
+                label: 'Add guardian',
+                child: FloatingActionButton.extended(
+                  onPressed: onAddCg,
+                  backgroundColor: L.text,
+                  elevation: 0,
+                  extendedIconLabelSpacing: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: AppRadius.roundL,
+                  ),
+                  icon: Icon(Icons.person_add_rounded,
+                      color: L.bg, size: 20),
+                  label: Text(
+                    'Add guardian',
+                    style: AppTypography.labelLarge.copyWith(
+                      color: L.bg,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
               ),
-            ).animate().scale(delay: 400.ms, curve: Curves.easeOutBack),
+            ),
     );
   }
 
@@ -808,31 +824,39 @@ class _CompactPivotPill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedPressable(
-      onTap: () {
-        HapticEngine.selection();
-        onTap();
-      },
-      child: AnimatedContainer(
-        duration: 250.ms,
-        curve: Curves.easeOutCubic,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+    return Semantics(
+      button: true,
+      selected: active,
+      label: label,
+      child: AnimatedPressable(
+        onTap: () {
+          HapticEngine.selection();
+          onTap();
+        },
+        scaleFactor: 0.97,
+        child: AnimatedContainer(
+          duration: MedAiA11y.motion(context, AppDurations.fast),
+          curve: AppCurves.expressive,
+          constraints: const BoxConstraints(minHeight: AppA11y.minTapTargetCompact),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
         decoration: BoxDecoration(
-          color: active ? L.text : Colors.transparent,
+          color: active ? L.accent : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
-          border: active
-              ? Border.all(color: L.border.withValues(alpha: 0.08), width: 0.5)
-              : null,
-          boxShadow: null,
+          border: Border.all(
+            color: active
+                ? L.accent
+                : L.border.withValues(alpha: 0.35),
+            width: 0.5,
+          ),
         ),
         child: Text(
           label,
           style: AppTypography.labelSmall.copyWith(
-            color: active ? L.bg : L.text.withValues(alpha: 0.6),
+            color: active ? Colors.white : L.text.withValues(alpha: 0.6),
             fontSize: 12,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 0.5,
+            fontWeight: active ? FontWeight.w800 : FontWeight.w600,
           ),
+        ),
         ),
       ),
     );
@@ -865,7 +889,7 @@ class _FamilyHeader extends StatelessWidget {
           duration: 200.ms,
           padding: EdgeInsets.fromLTRB(20, topPad + 12, 20, 16),
           decoration: BoxDecoration(
-            color: L.meshBg.withValues(alpha: opacity * 0.8),
+            color: L.bg.withValues(alpha: opacity * 0.92),
             border: Border(
                 bottom: BorderSide(
                     color: L.border.withValues(alpha: opacity * 0.08),
@@ -879,74 +903,74 @@ class _FamilyHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'FAMILY',
+                      'YOUR CIRCLE',
                       style: AppTypography.labelSmall.copyWith(
-                        fontFamily: 'Courier',
-                        color: L.sub.withValues(alpha: 0.4),
-                        letterSpacing: 3.0,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 12,
+                        color: L.sub,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                        letterSpacing: 0.8,
                       ),
                     ),
-                    Row(
-                      children: [
-                        Text(
-                          '🫂 Circle',
-                          style: AppTypography.headlineMedium.copyWith(
-                            color: L.text,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 26,
-                            height: 1.1,
-                            letterSpacing: -1.0,
-                          ),
-                        ),
-                        if (isActive) ...[
-                        const SizedBox(width: 8),
-                          Container(
-                            width: 10,
-                            height: 10,
-                            decoration: BoxDecoration(
-                                color: L.success,
-                                shape: BoxShape.circle,
-                            ),
-                          )
-                              .animate(onPlay: (c) => c.repeat(reverse: true))
-                              .fade(begin: 0.3, end: 1.0, duration: 1.seconds)
-                              .scale(
-                                  begin: const Offset(0.8, 0.8),
-                                  end: const Offset(1.2, 1.2)),
-                        ]
-                      ],
+                    Text(
+                      'Family circle',
+                      style: AppTypography.headlineLarge.copyWith(
+                        color: L.text,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.6,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      isActive ? 'Monitoring active' : 'Care for loved ones',
+                      style: AppTypography.bodySmall.copyWith(color: L.sub),
                     ),
                   ],
                 ),
               ),
-              BouncingButton(
-                onTap: onJoin,
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: L.fill.withValues(alpha: 0.4),
-                    borderRadius: BorderRadius.circular(14),
-                    border: Border.all(color: L.border.withValues(alpha: 0.1), width: 1),
+              Semantics(
+                button: true,
+                label: 'Join family circle',
+                child: AnimatedPressable(
+                  onTap: onJoin,
+                  scaleFactor: 0.92,
+                  child: Container(
+                    width: AppA11y.minTapTargetCompact,
+                    height: AppA11y.minTapTargetCompact,
+                    decoration: BoxDecoration(
+                      color: L.fill.withValues(alpha: 0.5),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: L.border.withValues(alpha: 0.2),
+                        width: 0.5,
+                      ),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.link_rounded, size: 20),
+                    ),
                   ),
-                  child: const Center(
-                      child: Text('📲', style: TextStyle(fontSize: 20))),
                 ),
               ),
               const SizedBox(width: 10),
-              BouncingButton(
-                onTap: onAdd,
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: L.text,
-                    borderRadius: BorderRadius.circular(14),
+              Semantics(
+                button: true,
+                label: 'Invite guardian',
+                child: AnimatedPressable(
+                  onTap: onAdd,
+                  scaleFactor: 0.92,
+                  child: Container(
+                    width: AppA11y.minTapTargetCompact,
+                    height: AppA11y.minTapTargetCompact,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        colors: [L.text, L.text.withValues(alpha: 0.88)],
+                      ),
+                      borderRadius: BorderRadius.circular(14),
+                      boxShadow: AppShadows.glow(L.accent, intensity: 0.25),
+                    ),
+                    child: Center(
+                      child: Icon(Icons.person_add_rounded, color: L.bg, size: 20),
+                    ),
                   ),
-                  child: const Center(
-                      child: Text('➕', style: TextStyle(fontSize: 20))),
                 ),
               ),
             ],
@@ -963,62 +987,83 @@ class _CircleStatBento extends StatelessWidget {
   final Color? iconColor;
   final AppThemeColors L;
   final bool glow;
-  const _CircleStatBento(
-      {required this.label,
-      required this.value,
-      required this.emoji,
-      this.iconColor,
-      required this.L,
-      this.glow = false});
+  final bool accentGlow;
+  const _CircleStatBento({
+    required this.label,
+    required this.value,
+    required this.emoji,
+    this.iconColor,
+    required this.L,
+    this.glow = false,
+    this.accentGlow = false,
+  });
+
   @override
-  Widget build(BuildContext context) => SquircleCard(
-        padding: const EdgeInsets.all(20),
-        radius: 24,
-        borderWidth: 0.5,
-        boxShadow: const [],
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: (iconColor ?? L.primary).withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Text(emoji,
-                      style: TextStyle(
-                          fontSize: 12, color: iconColor ?? L.primary)),
-                )
-                    .animate(
-                        target: glow ? 1 : 0,
-                        onPlay: (c) => c.repeat(reverse: true))
-                    .scale(
-                        begin: const Offset(1.0, 1.0),
-                        end: const Offset(1.2, 1.2),
-                        curve: Curves.easeInOut),
-                const SizedBox(width: 10),
-                Text(label,
-                    style: AppTypography.labelSmall.copyWith(
-                        fontFamily: 'Courier',
-                        color: L.sub.withValues(alpha: 0.4),
-                        fontWeight: FontWeight.w900,
-                        fontSize: 11,
-                        letterSpacing: 1.5)),
-              ],
+  Widget build(BuildContext context) {
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+    Widget emojiWidget = Text(
+      emoji,
+      style: TextStyle(fontSize: 12, color: iconColor ?? L.primary),
+    );
+    if (glow && !reduceMotion) {
+      emojiWidget = emojiWidget
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scale(
+            begin: const Offset(1.0, 1.0),
+            end: const Offset(1.15, 1.15),
+            curve: Curves.easeInOut,
+          );
+    }
+
+    return MedAiDepthCard(
+      accentGlow: accentGlow && context.isDark,
+      padding: const EdgeInsets.all(20),
+      radius: AppRadius.l,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: (iconColor ?? L.primary).withValues(alpha: 0.12),
+                  shape: BoxShape.circle,
+                ),
+                child: emojiWidget,
+              ),
+              const SizedBox(width: 10),
+              Text(
+                label,
+                style: AppTypography.labelSmall.copyWith(
+                  color: L.sub,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Text(
+            value,
+            style: AppTypography.displaySmall.copyWith(
+              color: L.text,
+              fontWeight: FontWeight.w800,
+              fontSize: 24,
+              letterSpacing: -0.6,
+              height: 1.0,
             ),
-            const SizedBox(height: 16),
-            Text(value,
-                style: AppTypography.displaySmall.copyWith(
-                  fontFamily: 'Courier',
-                  color: L.text,
-                  fontWeight: FontWeight.w900,
-                  fontSize: 26,
-                  letterSpacing: -1.0,
-                  height: 1.0,
-                )),
-          ],
-        ),
-      );
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+Widget _familyEntrance(BuildContext context, Widget child, {int delayMs = 0}) {
+  if (MedAiA11y.reducedMotion(context)) return child;
+  return child
+      .animate(delay: delayMs.ms)
+      .fadeIn(duration: AppDurations.fast, curve: AppCurves.expressive)
+      .slideY(begin: 0.04, end: 0, curve: AppCurves.expressive);
 }

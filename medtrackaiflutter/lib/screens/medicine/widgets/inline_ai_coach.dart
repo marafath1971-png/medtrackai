@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../../../theme/app_theme.dart';
+import '../../../../theme/med_ai_ui.dart';
+import '../../../../widgets/common/animated_pressable.dart';
 import '../../../../domain/entities/entities.dart';
 import '../../../../services/gemini_service.dart';
 import '../../../../core/utils/haptic_engine.dart';
-import '../../../../widgets/shared/shared_widgets.dart';
 
 class InlineAiCoach extends StatefulWidget {
   final Medicine medicine;
@@ -73,8 +73,8 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
       ),
       if (widget.impact != null)
         HealthInsight(
-          category: 'Pharmacokinetics', 
-          title: 'Mechanism & Specs', 
+          category: 'Pharmacokinetics',
+          title: 'Mechanism & Specs',
           body: 'Mechanism: ${widget.impact!.mechanismOfAction}. Peaks at ${widget.impact!.peakHours} hours. '
               'Affects ${widget.impact!.bodySystems.join(', ')}.',
         )
@@ -102,7 +102,7 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent + 100,
-          duration: const Duration(milliseconds: 300),
+          duration: MedAiA11y.motion(context, const Duration(milliseconds: 300)),
           curve: Curves.easeOut,
         );
       }
@@ -112,173 +112,181 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
     // Suggest prompt chips
-    final suggestions = widget.impact?.bodySystems.isNotEmpty == true 
-      ? [
-          "How does it affect my ${widget.impact!.bodySystems.first}?",
-          "Can I take this on an empty stomach?",
-          "What if I miss a dose?"
-        ]
-      : [
-          "What are common side effects?",
-          "How long until it works?",
-          "Can I drink coffee with this?"
-        ];
+    final suggestions = widget.impact?.bodySystems.isNotEmpty == true
+        ? [
+            "How does it affect my ${widget.impact!.bodySystems.first}?",
+            "Can I take this on an empty stomach?",
+            "What if I miss a dose?"
+          ]
+        : [
+            "What are common side effects?",
+            "How long until it works?",
+            "Can I drink coffee with this?"
+          ];
 
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.85,
-      decoration: BoxDecoration(
-        color: L.bg,
-        borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      child: Column(
-        children: [
-          // Header
-          Container(
-           padding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
-           decoration: BoxDecoration(
-             border: Border(bottom: BorderSide(color: L.border.withValues(alpha: 0.1))),
-           ),
-           child: Row(
-             children: [
-               Container(
-                 padding: const EdgeInsets.all(10),
-                 decoration: BoxDecoration(
-                   color: L.secondary.withValues(alpha: 0.1),
-                   shape: BoxShape.circle,
-                 ),
-                 child: Icon(Icons.auto_awesome_rounded, color: L.secondary, size: 20),
-               ),
-               const SizedBox(width: 16),
-               Expanded(
-                 child: Column(
-                   crossAxisAlignment: CrossAxisAlignment.start,
-                   children: [
-                     Text(
-                       'MedAI Coach',
-                       style: AppTypography.titleMedium.copyWith(
-                         color: L.text, 
-                         fontWeight: FontWeight.w900,
-                         letterSpacing: -0.5,
-                       ),
-                     ),
-                     Text(
-                       'Discussing ${widget.medicine.name}',
-                       style: AppTypography.labelSmall.copyWith(
-                         color: L.sub,
-                         fontWeight: FontWeight.w600,
-                       ),
-                     ),
-                   ],
-                 ),
-               ),
-               IconButton(
-                 icon: Icon(Icons.close_rounded, color: L.sub),
-                 onPressed: () => Navigator.pop(context),
-               )
-             ],
-           ),
-          ),
-
-          // Chat Area
-          Expanded(
-            child: ListView.builder(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              controller: _scrollController,
-              padding: const EdgeInsets.all(20),
-              itemCount: _messages.length + (_isLoading ? 1 : 0),
-              itemBuilder: (context, index) {
-                if (index == _messages.length && _isLoading) {
-                  return _buildTypingIndicator(L);
-                }
-                
-                final msg = _messages[index];
-                final isAI = msg['role'] == 'ai';
-                
-                return _buildBubble(msg['text']!, isAI, L);
-              },
-            ),
-          ),
-
-          // Suggestion Chips
-          if (_messages.length < 3 && !_isLoading)
-            SizedBox(
-              height: 50,
-              child: ListView.builder(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                itemCount: suggestions.length,
-                itemBuilder: (context, index) {
-                  return Padding(
-                    padding: const EdgeInsets.only(right: 8),
-                    child: ActionChip(
-                      backgroundColor: L.meshBg,
-                      side: BorderSide(color: L.border.withValues(alpha: 0.1)),
-                      label: Text(suggestions[index], style: AppTypography.labelSmall.copyWith(color: L.text, fontWeight: FontWeight.w700)),
-                      onPressed: () => _sendMessage(suggestions[index]),
-                    ),
-                  );
-                },
-              ),
-            ),
-            
-          // Input Area
-          SafeArea(
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-              decoration: BoxDecoration(
-                color: L.bg,
-                border: Border(top: BorderSide(color: L.border.withValues(alpha: 0.1))),
-              ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      decoration: BoxDecoration(
-                        color: L.meshBg,
-                        borderRadius: BorderRadius.circular(24),
-                        border: Border.all(color: L.border.withValues(alpha: 0.2)),
-                      ),
-                      child: TextField(
-  autofocus: true,
-                        controller: _controller,
-                        style: AppTypography.bodyMedium.copyWith(color: L.text),
-                        decoration: InputDecoration(
-                          hintText: 'Ask a question...',
-                          hintStyle: AppTypography.bodyMedium.copyWith(color: L.sub),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+    return ClipRRect(
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.squircle)),
+      child: SizedBox(
+        height: MediaQuery.of(context).size.height * 0.85,
+        child: MedAiGlass(
+          radius: AppRadius.squircle,
+          padding: EdgeInsets.zero,
+          showBorder: false,
+          child: Column(
+            children: [
+              // Header
+              Padding(
+                padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
+                child: MedAiSectionHeader(
+                  title: 'MedAI Coach',
+                  subtitle: 'Discussing ${widget.medicine.name}',
+                  action: Semantics(
+                    button: true,
+                    label: 'Close',
+                    child: AnimatedPressable(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: MedAiA11y.minTapTarget,
+                        height: MedAiA11y.minTapTarget,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: L.fill.withValues(alpha: 0.4),
+                          shape: BoxShape.circle,
                         ),
-                        onSubmitted: (s) => _sendMessage(s),
+                        child: Icon(Icons.close_rounded, color: L.sub, size: 22),
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
-                  BouncingButton(
-                    onTap: () => _sendMessage(_controller.text),
-                    child: Container(
-                      width: 48,
-                      height: 48,
-                      decoration: BoxDecoration(
-                        color: L.secondary,
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.arrow_upward_rounded, color: Colors.white),
-                    ),
-                  ),
-                ],
+                ),
               ),
-            ),
+              Divider(height: 1, color: L.border.withValues(alpha: 0.1)),
+
+              // Chat Area
+              Expanded(
+                child: ListView.builder(
+                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  controller: _scrollController,
+                  padding: const EdgeInsets.all(20),
+                  itemCount: _messages.length + (_isLoading ? 1 : 0),
+                  itemBuilder: (context, index) {
+                    if (index == _messages.length && _isLoading) {
+                      return _buildTypingIndicator(L, reduceMotion);
+                    }
+
+                    final msg = _messages[index];
+                    final isAI = msg['role'] == 'ai';
+
+                    return _buildBubble(msg['text']!, isAI, L, reduceMotion);
+                  },
+                ),
+              ),
+
+              // Suggestion Chips
+              if (_messages.length < 3 && !_isLoading)
+                SizedBox(
+                  height: MedAiA11y.minTapTarget,
+                  child: ListView.builder(
+                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    scrollDirection: Axis.horizontal,
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    itemCount: suggestions.length,
+                    itemBuilder: (context, index) {
+                      final suggestion = suggestions[index];
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Semantics(
+                          button: true,
+                          label: suggestion,
+                          child: AnimatedPressable(
+                            onTap: () => _sendMessage(suggestion),
+                            scaleFactor: 0.97,
+                            child: Container(
+                              constraints: const BoxConstraints(
+                                minHeight: MedAiA11y.minTapTargetCompact,
+                              ),
+                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                              decoration: BoxDecoration(
+                                color: L.meshBg,
+                                borderRadius: BorderRadius.circular(AppRadius.xl),
+                                border: Border.all(color: L.border.withValues(alpha: 0.1)),
+                              ),
+                              alignment: Alignment.center,
+                              child: Text(
+                                suggestion,
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: L.text,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+              // Input Area
+              SafeArea(
+                child: Container(
+                  padding: const EdgeInsets.all(16),
+                  margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
+                  decoration: BoxDecoration(
+                    border: Border(top: BorderSide(color: L.border.withValues(alpha: 0.1))),
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: MedAiGlass(
+                          radius: AppRadius.xl,
+                          padding: EdgeInsets.zero,
+                          blur: Design2026.glassBlur * 0.5,
+                          child: TextField(
+                            autofocus: true,
+                            controller: _controller,
+                            style: AppTypography.bodyMedium.copyWith(color: L.text),
+                            decoration: InputDecoration(
+                              hintText: 'Ask a question...',
+                              hintStyle: AppTypography.bodyMedium.copyWith(color: L.sub),
+                              border: InputBorder.none,
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                            ),
+                            onSubmitted: (s) => _sendMessage(s),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Semantics(
+                        button: true,
+                        label: 'Send message',
+                        child: AnimatedPressable(
+                          onTap: () => _sendMessage(_controller.text),
+                          child: Container(
+                            width: MedAiA11y.minTapTarget,
+                            height: MedAiA11y.minTapTarget,
+                            decoration: BoxDecoration(
+                              color: L.secondary,
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(Icons.arrow_upward_rounded, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
-  Widget _buildBubble(String text, bool isAI, AppThemeColors L) {
-    return Container(
+  Widget _buildBubble(String text, bool isAI, AppThemeColors L, bool reduceMotion) {
+    Widget bubble = Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
         mainAxisAlignment: isAI ? MainAxisAlignment.start : MainAxisAlignment.end,
@@ -294,18 +302,10 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
             const SizedBox(width: 12),
           ],
           Flexible(
-            child: Container(
+            child: MedAiDepthCard(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              decoration: BoxDecoration(
-                color: isAI ? L.card : L.text,
-                borderRadius: BorderRadius.only(
-                  topLeft: const Radius.circular(24),
-                  topRight: const Radius.circular(24),
-                  bottomLeft: isAI ? Radius.zero : const Radius.circular(24),
-                  bottomRight: isAI ? const Radius.circular(24) : Radius.zero,
-                ),
-                border: isAI ? Border.all(color: L.border.withValues(alpha: 0.1)) : null,
-              ),
+              radius: 24,
+              color: isAI ? L.card : L.text,
               child: Text(
                 text,
                 style: AppTypography.bodyMedium.copyWith(
@@ -319,17 +319,23 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
           if (!isAI) const SizedBox(width: 44), // Spacer for AI avatar width
         ],
       ),
-    ).animate()
-     .fadeIn(duration: 300.ms)
-     .slideY(begin: 0.1, end: 0)
-     .scaleXY(
-        begin: isAI ? 0.95 : 1.0, 
-        end: 1.0, 
-        duration: isAI ? 600.ms : 100.ms, 
-        curve: isAI ? Curves.elasticOut : Curves.easeOut);
+    );
+
+    if (reduceMotion) return bubble;
+
+    return bubble
+        .animate()
+        .fadeIn(duration: 300.ms)
+        .slideY(begin: 0.1, end: 0)
+        .scaleXY(
+          begin: isAI ? 0.95 : 1.0,
+          end: 1.0,
+          duration: isAI ? 600.ms : 100.ms,
+          curve: isAI ? Curves.elasticOut : Curves.easeOut,
+        );
   }
 
-  Widget _buildTypingIndicator(AppThemeColors L) {
+  Widget _buildTypingIndicator(AppThemeColors L, bool reduceMotion) {
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       child: Row(
@@ -343,26 +349,17 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
             child: Icon(Icons.auto_awesome_rounded, color: L.secondary, size: 16),
           ),
           const SizedBox(width: 12),
-          Container(
+          MedAiDepthCard(
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            decoration: BoxDecoration(
-              color: L.card,
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(24),
-                topRight: Radius.circular(24),
-                bottomLeft: Radius.zero,
-                bottomRight: Radius.circular(24),
-              ),
-              border: Border.all(color: L.border.withValues(alpha: 0.1)),
-            ),
+            radius: 24,
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                _Dot(delay: 0, color: L.sub),
+                _Dot(delay: 0, color: L.sub, reduceMotion: reduceMotion),
                 const SizedBox(width: 4),
-                _Dot(delay: 200, color: L.sub),
+                _Dot(delay: 200, color: L.sub, reduceMotion: reduceMotion),
                 const SizedBox(width: 4),
-                _Dot(delay: 400, color: L.sub),
+                _Dot(delay: 400, color: L.sub, reduceMotion: reduceMotion),
               ],
             ),
           ),
@@ -375,15 +372,24 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
 class _Dot extends StatelessWidget {
   final int delay;
   final Color color;
+  final bool reduceMotion;
 
-  const _Dot({required this.delay, required this.color});
+  const _Dot({required this.delay, required this.color, required this.reduceMotion});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    final dot = Container(
       width: 6,
       height: 6,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
-    ).animate(onPlay: (c) => c.repeat()).fade(duration: 600.ms, delay: delay.ms).then().fade(duration: 600.ms, begin: 1.0, end: 0.0);
+    );
+
+    if (reduceMotion) return dot;
+
+    return dot
+        .animate(onPlay: (c) => c.repeat())
+        .fade(duration: 600.ms, delay: delay.ms)
+        .then()
+        .fade(duration: 600.ms, begin: 1.0, end: 0.0);
   }
 }

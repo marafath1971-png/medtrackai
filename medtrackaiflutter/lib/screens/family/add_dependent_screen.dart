@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:uuid/uuid.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../providers/app_state.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
-import '../../widgets/shared/shared_widgets.dart';
+import '../../widgets/common/animated_pressable.dart';
+import '../../widgets/common/app_scaffold.dart';
 
 class AddDependentScreen extends StatefulWidget {
   const AddDependentScreen({super.key});
@@ -19,174 +20,354 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
   final TextEditingController _nameCtrl = TextEditingController();
   final TextEditingController _relationCtrl = TextEditingController();
   final TextEditingController _pinCtrl = TextEditingController();
-  String _selectedAvatar = '👨‍⚕️';
+  IconData _selectedAvatar = Icons.health_and_safety_rounded;
   bool _isCritical = false;
+  bool _isSaving = false;
 
-  final List<String> _avatars = ['👨‍⚕️', '👩‍🦳', '👴', '👶', '👦', '👧', '🐶', '🐱'];
+  final List<Map<String, dynamic>> _avatars = [
+    {'label': 'Caregiver', 'icon': Icons.health_and_safety_rounded},
+    {'label': 'Senior', 'icon': Icons.elderly_rounded},
+    {'label': 'Child', 'icon': Icons.child_care_rounded},
+    {'label': 'Support', 'icon': Icons.support_agent_rounded},
+    {'label': 'Pet', 'icon': Icons.pets_rounded},
+    {'label': 'Other', 'icon': Icons.person_rounded},
+  ];
 
-  void _save() {
-    if (_nameCtrl.text.trim().isEmpty) return;
+  @override
+  void dispose() {
+    _nameCtrl.dispose();
+    _relationCtrl.dispose();
+    _pinCtrl.dispose();
+    super.dispose();
+  }
 
+  void _popOrGoCircle() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/circle');
+    }
+  }
+
+  Future<void> _save() async {
+    final name = _nameCtrl.text.trim();
+    if (name.isEmpty) {
+      context.read<AppState>().showToast('Please enter a name', type: 'error');
+      return;
+    }
+
+    final pinVal = _pinCtrl.text.trim();
+    if (pinVal.isNotEmpty && pinVal.length < 4) {
+      context.read<AppState>().showToast('PIN must be 4 digits', type: 'error');
+      return;
+    }
+
+    setState(() => _isSaving = true);
     HapticEngine.success();
-    final newProfile = ManagedProfile(
-      id: const Uuid().v4(),
-      name: _nameCtrl.text.trim(),
-      relation: _relationCtrl.text.trim().isEmpty ? 'Dependent' : _relationCtrl.text.trim(),
-      avatar: _selectedAvatar,
-      isCritical: _isCritical,
-      pin: _pinCtrl.text.trim().isEmpty ? null : _pinCtrl.text.trim(),
-    );
 
-    context.read<AppState>().addDependent(newProfile);
-    Navigator.pop(context);
+    try {
+      final newProfile = ManagedProfile(
+        id: const Uuid().v4(),
+        name: name,
+        relation: _relationCtrl.text.trim().isEmpty
+            ? 'Caregiver / Dependent'
+            : _relationCtrl.text.trim(),
+        avatar: _selectedAvatar.codePoint.toString(),
+        isCritical: _isCritical,
+        pin: pinVal.isEmpty ? null : pinVal,
+      );
+
+      await context.read<AppState>().addFamilyMember(newProfile);
+
+      if (mounted) _popOrGoCircle();
+    } catch (e) {
+      if (mounted) {
+        context
+            .read<AppState>()
+            .showToast('Failed to save. Try again.', type: 'error');
+      }
+    } finally {
+      if (mounted) setState(() => _isSaving = false);
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final L = context.L;
 
-    return Scaffold(
-      backgroundColor: L.bg,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: BouncingButton(
-          onTap: () => Navigator.pop(context),
-          child: Icon(Icons.close_rounded, color: L.text),
-        ),
-        title: Text(
-          'Add Dependent',
-          style: AppTypography.titleMedium.copyWith(color: L.text),
-        ),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(AppSpacing.screenPadding),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Avatar', style: AppTypography.labelMedium.copyWith(color: L.sub)),
-            const SizedBox(height: 12),
-            SizedBox(
-              height: 60,
-              child: ListView.builder(
-                scrollDirection: Axis.horizontal,
-                itemCount: _avatars.length,
-                itemBuilder: (context, i) {
-                  final avatar = _avatars[i];
-                  final isSelected = _selectedAvatar == avatar;
-                  return BouncingButton(
-                    onTap: () {
-                      HapticEngine.selection();
-                      setState(() => _selectedAvatar = avatar);
+    return AppScaffold(
+      showAurora: true,
+      body: CustomScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: Semantics(
+              button: true,
+              label: 'Go back',
+              child: AnimatedPressable(
+                onTap: _popOrGoCircle,
+                child: Container(
+                  width: MedAiA11y.minTapTarget,
+                  height: MedAiA11y.minTapTarget,
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: L.fill.withValues(alpha: 0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded,
+                      color: L.text, size: 18),
+                ),
+              ),
+            ),
+            title: Text(
+              'Add Caregiver',
+              style: AppTypography.titleLarge.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+              ),
+            ),
+            centerTitle: true,
+          ),
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                const MedAiSectionHeader(title: 'Avatar'),
+                const SizedBox(height: 12),
+                SizedBox(
+                  height: 88,
+                  child: ListView.builder(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: _avatars.length,
+                    clipBehavior: Clip.none,
+                    itemBuilder: (context, i) {
+                      final avatar = _avatars[i]['icon'] as IconData;
+                      final label = _avatars[i]['label'] as String;
+                      final isSelected = _selectedAvatar == avatar;
+
+                      return Semantics(
+                        button: true,
+                        selected: isSelected,
+                        label: label,
+                        child: AnimatedPressable(
+                          onTap: () {
+                            HapticEngine.selection();
+                            setState(() => _selectedAvatar = avatar);
+                          },
+                          child: AnimatedContainer(
+                            duration: MedAiA11y.motion(
+                                context, AppDurations.micro),
+                            margin: const EdgeInsets.only(right: 12),
+                            width: 72,
+                            constraints: const BoxConstraints(
+                                minHeight: MedAiA11y.minTapTarget),
+                            decoration: BoxDecoration(
+                              color: isSelected ? L.text : L.card,
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: isSelected
+                                    ? L.text
+                                    : L.border.withValues(alpha: 0.1),
+                              ),
+                              boxShadow: isSelected
+                                  ? [
+                                      BoxShadow(
+                                        color: L.text.withValues(alpha: 0.15),
+                                        blurRadius: 12,
+                                        offset: const Offset(0, 6),
+                                      )
+                                    ]
+                                  : null,
+                            ),
+                            alignment: Alignment.center,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  avatar,
+                                  color: isSelected ? L.bg : L.text,
+                                  size: 26,
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  label,
+                                  style: AppTypography.labelSmall.copyWith(
+                                    color: isSelected ? L.bg : L.sub,
+                                    fontSize: 10,
+                                    fontWeight: isSelected
+                                        ? FontWeight.w900
+                                        : FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      );
                     },
-                    child: Container(
-                      margin: const EdgeInsets.only(right: 12),
-                      width: 60,
-                      decoration: BoxDecoration(
-                        color: isSelected ? L.primary.withValues(alpha: 0.1) : L.card,
-                        border: Border.all(color: isSelected ? L.primary : L.border.withValues(alpha: 0.1)),
-                        shape: BoxShape.circle,
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(avatar, style: const TextStyle(fontSize: 28)),
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text('Name', style: AppTypography.labelMedium.copyWith(color: L.sub)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _nameCtrl,
-              style: AppTypography.bodyLarge.copyWith(color: L.text),
-              decoration: InputDecoration(
-                hintText: 'e.g. Grandpa Joe',
-                hintStyle: AppTypography.bodyLarge.copyWith(color: L.sub),
-                filled: true,
-                fillColor: L.card,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Text('Relation', style: AppTypography.labelMedium.copyWith(color: L.sub)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _relationCtrl,
-              style: AppTypography.bodyLarge.copyWith(color: L.text),
-              decoration: InputDecoration(
-                hintText: 'e.g. Grandparent',
-                hintStyle: AppTypography.bodyLarge.copyWith(color: L.sub),
-                filled: true,
-                fillColor: L.card,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  ),
+                ),
+                const SizedBox(height: 32),
+                _buildSectionHeader('BASIC DETAILS', L),
+                const SizedBox(height: 12),
+                _buildInputField(
+                  controller: _nameCtrl,
+                  hint: 'Full Name (e.g. Dr. Sarah)',
+                  icon: Icons.person_outline_rounded,
+                  L: L,
+                ),
+                const SizedBox(height: 16),
+                _buildInputField(
+                  controller: _relationCtrl,
+                  hint: 'Role (e.g. Nurse, Grandparent)',
+                  icon: Icons.assignment_ind_outlined,
+                  L: L,
+                ),
+                const SizedBox(height: 32),
+                _buildSectionHeader('SECURITY & PREFERENCES', L),
+                const SizedBox(height: 12),
+                MedAiDepthCard(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
                     children: [
-                      Text('Critical Profile', style: AppTypography.labelMedium.copyWith(color: L.text)),
-                      Text('Prioritize alerts for this dependent', style: AppTypography.labelSmall.copyWith(color: L.sub)),
+                      Container(
+                        width: MedAiA11y.minTapTargetCompact,
+                        height: MedAiA11y.minTapTargetCompact,
+                        decoration: BoxDecoration(
+                          color: L.error.withValues(alpha: 0.1),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(Icons.warning_amber_rounded,
+                            color: L.error, size: 20),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Critical Profile',
+                              style: AppTypography.labelMedium.copyWith(
+                                color: L.text,
+                                fontWeight: FontWeight.w900,
+                              ),
+                            ),
+                            Text(
+                              'Prioritize notifications and alerts',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: L.sub.withValues(alpha: 0.6),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Semantics(
+                        toggled: _isCritical,
+                        label: 'Critical profile',
+                        child: Switch.adaptive(
+                          value: _isCritical,
+                          activeTrackColor: L.error,
+                          onChanged: (v) {
+                            HapticEngine.selection();
+                            setState(() => _isCritical = v);
+                          },
+                        ),
+                      ),
                     ],
                   ),
                 ),
-                Switch(
-                  value: _isCritical,
-                  activeThumbColor: L.primary,
-                  onChanged: (val) {
-                    HapticEngine.selection();
-                    setState(() => _isCritical = val);
-                  },
+                const SizedBox(height: 16),
+                _buildInputField(
+                  controller: _pinCtrl,
+                  hint: '4-Digit PIN (Optional)',
+                  icon: Icons.lock_outline_rounded,
+                  keyboardType: TextInputType.number,
+                  maxLength: 4,
+                  obscureText: true,
+                  L: L,
                 ),
-              ],
+                const SizedBox(height: 40),
+                MedAiCTA(
+                  label: 'Save Caregiver',
+                  loading: _isSaving,
+                  semanticsLabel: 'Save caregiver profile',
+                  onTap: _isSaving ? null : _save,
+                ),
+                SizedBox(height: MediaQuery.of(context).padding.bottom + 32),
+              ]),
             ),
-            const SizedBox(height: 24),
-            Text('PIN Lock (Optional)', style: AppTypography.labelMedium.copyWith(color: L.sub)),
-            const SizedBox(height: 8),
-            TextField(
-              controller: _pinCtrl,
-              style: AppTypography.bodyLarge.copyWith(color: L.text),
-              keyboardType: TextInputType.number,
-              obscureText: true,
-              maxLength: 4,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, dynamic L) {
+    return Text(
+      title,
+      style: AppTypography.labelSmall.copyWith(
+        fontFamily: 'Courier',
+        color: L.sub.withValues(alpha: 0.6),
+        fontWeight: FontWeight.w900,
+        letterSpacing: 2.0,
+      ),
+    );
+  }
+
+  Widget _buildInputField({
+    required TextEditingController controller,
+    required String hint,
+    required IconData icon,
+    int? maxLength,
+    TextInputType? keyboardType,
+    bool obscureText = false,
+    required dynamic L,
+  }) {
+    return Container(
+      decoration: BoxDecoration(
+        color: L.card.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: L.border.withValues(alpha: 0.08)),
+      ),
+      padding: const EdgeInsets.only(left: 20, right: 20),
+      constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Icon(icon, color: L.sub.withValues(alpha: 0.6), size: 22),
+          const SizedBox(width: 16),
+          Expanded(
+            child: TextField(
+              controller: controller,
+              maxLength: maxLength,
+              keyboardType: keyboardType,
+              obscureText: obscureText,
+              buildCounter: (context,
+                      {required currentLength,
+                      required isFocused,
+                      maxLength}) =>
+                  null,
+              style: AppTypography.labelMedium.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w600,
+              ),
               decoration: InputDecoration(
-                hintText: '4-digit PIN',
-                hintStyle: AppTypography.bodyLarge.copyWith(color: L.sub),
-                filled: true,
-                fillColor: L.card,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none),
+                hintText: hint,
+                hintStyle: TextStyle(color: L.sub.withValues(alpha: 0.3)),
+                border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                isDense: true,
+                counterText: '',
               ),
             ),
-            const SizedBox(height: 40),
-            BouncingButton(
-              onTap: _save,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 18),
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(colors: [L.primary, L.secondary]),
-                  borderRadius: BorderRadius.circular(20),
-                  boxShadow: [
-                    BoxShadow(color: L.primary.withValues(alpha: 0.3), blurRadius: 15, offset: const Offset(0, 8))
-                  ],
-                ),
-                alignment: Alignment.center,
-                child: Text(
-                  'CREATE PROFILE',
-                  style: AppTypography.labelMedium.copyWith(
-                    color: L.onPrimary,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.0,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, end: 0),
+          ),
+        ],
       ),
     );
   }

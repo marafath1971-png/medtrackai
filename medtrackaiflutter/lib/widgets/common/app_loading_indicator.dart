@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
+import 'med_ai_logo.dart';
 
 class AppLoadingIndicator extends StatelessWidget {
   final double size;
@@ -47,12 +48,7 @@ class AppLoadingIndicator extends StatelessWidget {
                 ),
 
             // ── The Logo
-            Image.asset(
-              'assets/images/home_logo.png',
-              width: size,
-              height: size,
-              fit: BoxFit.contain,
-            )
+            MedAiLogo.badge(size: size, borderRadius: size * 0.22)
                 .animate(
                     onPlay: (controller) => controller.repeat(reverse: true))
                 .scale(

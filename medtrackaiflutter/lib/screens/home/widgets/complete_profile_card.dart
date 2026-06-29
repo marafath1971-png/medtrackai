@@ -1,12 +1,11 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
 import '../../../providers/app_state.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
 import '../../../models/constants.dart';
 import '../../../core/utils/haptic_engine.dart';
-import '../../../widgets/shared/shared_widgets.dart';
 
 class CompleteProfileCard extends StatelessWidget {
   const CompleteProfileCard({super.key});
@@ -17,7 +16,6 @@ class CompleteProfileCard extends StatelessWidget {
     final profile = state.profile;
     if (profile == null) return const SizedBox.shrink();
 
-    // Define tasks and check completion
     final List<_ProfileTask> tasks = [
       _ProfileTask(
         id: 'age',
@@ -72,156 +70,123 @@ class CompleteProfileCard extends StatelessWidget {
 
     final progress = doneCount / tasks.length;
     final L = context.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
 
-    return Container(
+    Widget card = Container(
       margin: const EdgeInsets.symmetric(
           horizontal: AppSpacing.screenPadding, vertical: AppSpacing.m),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(28),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-          child: Container(
-            decoration: BoxDecoration(
-              color: L.card.withValues(alpha: 0.7),
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                color: L.glassBorder,
-                width: 0.5,
+      child: MedAiGlass(
+        padding: EdgeInsets.zero,
+        radius: 28,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Complete Your Profile',
+                          style: AppTypography.titleLarge.copyWith(fontSize: 18),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Unlock more personalised insights',
+                          style: AppTypography.bodySmall.copyWith(color: L.sub),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: L.secondary.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      '${(progress * 100).toInt()}%',
+                      style: AppTypography.labelLarge.copyWith(
+                          color: L.secondary, fontWeight: FontWeight.w800),
+                    ),
+                  ),
+                ],
               ),
-              boxShadow: L.shadowSoft,
             ),
-            child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Complete Your Profile',
-                        style: AppTypography.titleLarge.copyWith(fontSize: 18),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Unlock more personalised insights',
-                        style: AppTypography.bodySmall.copyWith(color: L.sub),
-                      ),
-                    ],
-                  ),
-                ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: L.secondary.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Text(
-                    '${(progress * 100).toInt()}%',
-                    style: AppTypography.labelLarge.copyWith(
-                        color: L.secondary, fontWeight: FontWeight.w800),
-                  ),
-                ),
-              ],
+            LinearProgressIndicator(
+              value: progress,
+              backgroundColor: L.border,
+              color: L.secondary,
+              minHeight: 3,
             ),
-          ),
-          LinearProgressIndicator(
-            value: progress,
-            backgroundColor: L.border,
-            color: L.secondary,
-            minHeight: 3,
-          ),
-          const SizedBox(height: 8),
-          ...tasks
-              .where((t) => !t.isDone)
-              .take(2)
-              .map((task) => _TaskItem(task: task, L: L)),
-          const SizedBox(height: 8),
-        ],
+            const SizedBox(height: 8),
+            ...tasks
+                .where((t) => !t.isDone)
+                .take(2)
+                .map((task) => _TaskItem(task: task, L: L)),
+            const SizedBox(height: 8),
+          ],
+        ),
       ),
-    ),
-    ),
-    ),
-    ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.1, end: 0);
+    );
+
+    if (reduceMotion) return card;
+    return card
+        .animate()
+        .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
+        .slideY(begin: 0.1, end: 0, curve: AppCurves.smooth);
   }
 
   void _showAgePicker(BuildContext context, AppState state) {
-    final L = context.L;
     final controller = TextEditingController(text: state.profile?.age ?? '');
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (c) => Container(
-        padding: EdgeInsets.only(
-            bottom: MediaQuery.of(c).viewInsets.bottom,
-            left: 24,
-            right: 24,
-            top: 24),
-        decoration: BoxDecoration(
-          color: context.L.bg,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('How old are you?', style: AppTypography.headlineMedium),
-            const SizedBox(height: 24),
-            TextField(
-              controller: controller,
-              autofocus: true,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                hintText: 'e.g. 35',
-                border:
-                    OutlineInputBorder(borderRadius: BorderRadius.circular(16)),
+      builder: (c) => ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        child: MedAiGlass(
+          padding: EdgeInsets.only(
+              bottom: MediaQuery.of(c).viewInsets.bottom,
+              left: 24,
+              right: 24,
+              top: 24),
+          radius: 32,
+          showBorder: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('How old are you?', style: AppTypography.headlineMedium),
+              const SizedBox(height: 24),
+              TextField(
+                controller: controller,
+                autofocus: true,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: 'e.g. 35',
+                  border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(16)),
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            SizedBox(
-              width: double.infinity,
-              child: BouncingButton(
+              const SizedBox(height: 24),
+              MedAiCTA(
+                label: 'Save',
+                semanticsLabel: 'Save age',
                 onTap: () {
                   state.saveProfile(
                       state.profile!.copyWith(age: controller.text));
                   Navigator.pop(c);
                   HapticEngine.success();
                 },
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 18),
-                  decoration: BoxDecoration(
-                    color: L.secondary,
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: L.secondary.withValues(alpha: 0.3),
-                        blurRadius: 16,
-                        offset: const Offset(0, 8),
-                      )
-                    ],
-                  ),
-                  child: Center(
-                    child: Text(
-                      'SAVE',
-                      style: AppTypography.labelLarge.copyWith(
-                        fontFamily: 'Courier',
-                        fontWeight: FontWeight.w900,
-                        color: Colors.black,
-                        letterSpacing: 2.0,
-                      ),
-                    ),
-                  ),
-                ),
               ),
-            ),
-            const SizedBox(height: 32),
-          ],
+              const SizedBox(height: 32),
+            ],
+          ),
         ),
       ),
     );
@@ -232,30 +197,38 @@ class CompleteProfileCard extends StatelessWidget {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
-      builder: (c) => Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: context.L.bg,
-          borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(title, style: AppTypography.headlineMedium),
-            const SizedBox(height: 16),
-            ...options.map((opt) => ListTile(
-                  leading: Text(opt['e']!,
-                      style: AppTypography.displayLarge.copyWith(fontSize: 24)),
-                  title: Text(opt['v']!),
-                  onTap: () {
-                    final Map<String, dynamic> updates = {field: opt['v']};
-                    state.updateProfileFromMap(updates);
-                    Navigator.pop(c);
-                    HapticEngine.selection();
-                  },
-                )),
-            const SizedBox(height: 24),
-          ],
+      builder: (c) => ClipRRect(
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+        child: MedAiGlass(
+          padding: const EdgeInsets.all(24),
+          radius: 32,
+          showBorder: false,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(title, style: AppTypography.headlineMedium),
+              const SizedBox(height: 16),
+              ...options.map((opt) => Semantics(
+                    button: true,
+                    label: opt['v'],
+                    child: ListTile(
+                      contentPadding: EdgeInsets.zero,
+                      minVerticalPadding: 12,
+                      leading: Text(opt['e']!,
+                          style: AppTypography.displayLarge
+                              .copyWith(fontSize: 24)),
+                      title: Text(opt['v']!),
+                      onTap: () {
+                        final Map<String, dynamic> updates = {field: opt['v']};
+                        state.updateProfileFromMap(updates);
+                        Navigator.pop(c);
+                        HapticEngine.selection();
+                      },
+                    ),
+                  )),
+              const SizedBox(height: 24),
+            ],
+          ),
         ),
       ),
     );
@@ -263,7 +236,6 @@ class CompleteProfileCard extends StatelessWidget {
 
   void _showMultiPicker(BuildContext context, AppState state, String field,
       String title, List<Map<String, String>> options) {
-    final L = context.L;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -272,80 +244,53 @@ class CompleteProfileCard extends StatelessWidget {
         builder: (context, setModalState) {
           final profile = state.profile;
           final selected = List<String>.from(profile?.motivation ?? []);
+          final L = context.L;
 
-          return Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: L.bg,
-              borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(32)),
-            ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(title, style: AppTypography.headlineMedium),
-                const SizedBox(height: 16),
-                ...options.map((opt) {
-                  final val = opt['v']!;
-                  final isSel = selected.contains(val);
-                  return CheckboxListTile(
-                    secondary: Text(opt['e']!,
-                        style:
-                            AppTypography.displayLarge.copyWith(fontSize: 24)),
-                    title: Text(val),
-                    value: isSel,
-                    activeColor: L.secondary,
-                    onChanged: (checked) {
-                      setModalState(() {
-                        if (checked == true) {
-                          if (!selected.contains(val)) selected.add(val);
-                        } else {
-                          selected.remove(val);
-                        }
-                      });
-                      HapticEngine.selection();
-                    },
-                  );
-                }),
-                const SizedBox(height: 24),
-                SizedBox(
-                  width: double.infinity,
-                  child: BouncingButton(
+          return ClipRRect(
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
+            child: MedAiGlass(
+              padding: const EdgeInsets.all(24),
+              radius: 32,
+              showBorder: false,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(title, style: AppTypography.headlineMedium),
+                  const SizedBox(height: 16),
+                  ...options.map((opt) {
+                    final val = opt['v']!;
+                    final isSel = selected.contains(val);
+                    return CheckboxListTile(
+                      secondary: Text(opt['e']!,
+                          style: AppTypography.displayLarge
+                              .copyWith(fontSize: 24)),
+                      title: Text(val),
+                      value: isSel,
+                      activeColor: L.secondary,
+                      onChanged: (checked) {
+                        setModalState(() {
+                          if (checked == true) {
+                            if (!selected.contains(val)) selected.add(val);
+                          } else {
+                            selected.remove(val);
+                          }
+                        });
+                        HapticEngine.selection();
+                      },
+                    );
+                  }),
+                  const SizedBox(height: 24),
+                  MedAiCTA(
+                    label: 'Save selection',
                     onTap: () {
                       state.updateProfileFromMap({field: selected});
                       Navigator.pop(c);
                       HapticEngine.success();
                     },
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 18),
-                      decoration: BoxDecoration(
-                        color: L.secondary,
-                        borderRadius: BorderRadius.circular(24),
-                        boxShadow: [
-                          BoxShadow(
-                            color: L.secondary.withValues(alpha: 0.3),
-                            blurRadius: 16,
-                            offset: const Offset(0, 8),
-                          )
-                        ],
-                      ),
-                      child: Center(
-                        child: Text(
-                          'SAVE SELECTION',
-                          style: AppTypography.labelLarge.copyWith(
-                            fontFamily: 'Courier',
-                            fontWeight: FontWeight.w900,
-                            color: Colors.black,
-                            letterSpacing: 2.0,
-                          ),
-                        ),
-                      ),
-                    ),
                   ),
-                ),
-                const SizedBox(height: 16),
-              ],
+                  const SizedBox(height: 16),
+                ],
+              ),
             ),
           );
         },
@@ -379,20 +324,28 @@ class _TaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListTile(
-      onTap: task.onTap,
-      leading: Container(
-        padding: const EdgeInsets.all(10),
-        decoration: BoxDecoration(
-          color: L.bg,
-          borderRadius: BorderRadius.circular(12),
+    return Semantics(
+      button: true,
+      label: '${task.title}. ${task.subtitle}',
+      child: ListTile(
+        onTap: task.onTap,
+        minVerticalPadding: 12,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+        leading: Container(
+          width: 44,
+          height: 44,
+          padding: const EdgeInsets.all(10),
+          decoration: BoxDecoration(
+            color: L.bg,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Icon(task.icon, color: L.secondary, size: 20),
         ),
-        child: Icon(task.icon, color: L.secondary, size: 20),
+        title: Text(task.title, style: AppTypography.labelLarge),
+        subtitle: Text(task.subtitle,
+            style: AppTypography.bodySmall.copyWith(fontSize: 12)),
+        trailing: const Icon(Icons.chevron_right_rounded, size: 20),
       ),
-      title: Text(task.title, style: AppTypography.labelLarge),
-      subtitle: Text(task.subtitle,
-          style: AppTypography.bodySmall.copyWith(fontSize: 12)),
-      trailing: const Icon(Icons.chevron_right_rounded, size: 20),
     );
   }
 }

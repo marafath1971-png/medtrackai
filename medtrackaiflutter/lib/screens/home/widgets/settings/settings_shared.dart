@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../../../../theme/app_theme.dart';
-import '../../../../widgets/shared/shared_widgets.dart';
+import '../../../../theme/med_ai_ui.dart';
+import '../../../../widgets/common/animated_pressable.dart';
 import '../../../../core/utils/haptic_engine.dart';
 
 class SettingsSection extends StatelessWidget {
@@ -10,35 +10,14 @@ class SettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final L = context.L;
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      if (title != null)
-        Padding(
-          padding: const EdgeInsets.fromLTRB(4, 0, 4, 10),
-          child: Row(
-            children: [
-              Text(title!.toUpperCase(),
-                  style: AppTypography.labelLarge.copyWith(
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.5,
-                      fontSize: 10,
-                      color: L.sub.withValues(alpha: 0.6))),
-              const SizedBox(width: 10),
-              Expanded(
-                  child: Divider(
-                      color: L.border.withValues(alpha: 0.1), thickness: 0.5)),
-            ],
-          ),
+      if (title != null) MedAiSectionHeader(title: title!),
+      MedAiDepthCard(
+        padding: EdgeInsets.zero,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          child: child,
         ),
-      Container(
-        clipBehavior: Clip.antiAlias,
-        decoration: BoxDecoration(
-            color: L.card,
-            borderRadius: BorderRadius.circular(24),
-            border:
-                Border.all(color: L.border.withValues(alpha: 0.07), width: 0.5),
-            boxShadow: AppShadows.neumorphic),
-        child: child,
       ),
       const SizedBox(height: 28),
     ]);
@@ -72,70 +51,86 @@ class SettingsModalRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     final Color bg = iconBg ?? L.text;
+    final isInteractive = onClick != null;
 
-    return BouncingButton(
-      onTap: onClick,
-      scaleFactor: 0.98,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-          borderRadius: BorderRadius.only(
-            topLeft: first ? const Radius.circular(24) : Radius.zero,
-            topRight: first ? const Radius.circular(24) : Radius.zero,
-            bottomLeft: last ? const Radius.circular(24) : Radius.zero,
-            bottomRight: last ? const Radius.circular(24) : Radius.zero,
-          ),
-          border: border
-              ? Border(
-                  bottom: BorderSide(
-                      color: L.border.withValues(alpha: 0.15), width: 0.5))
-              : null,
+    Widget row = Container(
+      constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+      decoration: BoxDecoration(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.only(
+          topLeft: first ? const Radius.circular(AppRadius.xl) : Radius.zero,
+          topRight: first ? const Radius.circular(AppRadius.xl) : Radius.zero,
+          bottomLeft: last ? const Radius.circular(AppRadius.xl) : Radius.zero,
+          bottomRight: last ? const Radius.circular(AppRadius.xl) : Radius.zero,
         ),
-        child: Row(children: [
-          Container(
-            width: 36,
-            height: 36,
-            decoration: BoxDecoration(
-                color: bg.withValues(alpha: 0.08),
-                borderRadius: BorderRadius.circular(10),
-                border:
-                    Border.all(color: bg.withValues(alpha: 0.1), width: 0.5)),
-            child: Center(
-                child: icon is String
-                    ? Text(icon as String,
-                        style: AppTypography.titleLarge.copyWith(fontSize: 16))
-                    : Icon(icon as IconData, size: 16, color: bg)),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                Text(label,
-                    style: AppTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.w900,
-                        color: L.text,
-                        fontSize: 15,
-                        letterSpacing: -0.3),
-                    overflow: TextOverflow.ellipsis,
-                    maxLines: 1),
-                if (sub != null)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 2),
-                    child: Text(sub!,
-                        style: AppTypography.bodySmall.copyWith(
-                            color: L.sub, fontWeight: FontWeight.w500)),
-                  ),
-              ])),
-          if (right != null)
-            right!
-          else if (onClick != null)
-            Icon(Icons.chevron_right_rounded,
-                size: 18, color: L.sub.withValues(alpha: 0.5)),
-        ]),
+        border: border
+            ? Border(
+                bottom: BorderSide(
+                    color: L.border.withValues(alpha: 0.12), width: 0.5))
+            : null,
       ),
+      child: Row(children: [
+        Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+              color: bg.withValues(alpha: 0.08),
+              borderRadius: BorderRadius.circular(12),
+              border:
+                  Border.all(color: bg.withValues(alpha: 0.12), width: 0.5)),
+          child: Center(
+              child: icon is String
+                  ? Text(icon as String,
+                      style: AppTypography.titleLarge.copyWith(fontSize: 16))
+                  : Icon(icon as IconData, size: 18, color: bg)),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+              Text(label,
+                  style: AppTypography.titleMedium.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: L.text,
+                      fontSize: 15,
+                      letterSpacing: -0.2),
+                  overflow: TextOverflow.ellipsis,
+                  maxLines: 1),
+              if (sub != null)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
+                  child: Text(sub!,
+                      style: AppTypography.bodySmall.copyWith(
+                          color: L.sub, fontWeight: FontWeight.w500)),
+                ),
+            ])),
+        if (right != null)
+          right!
+        else if (onClick != null)
+          Icon(Icons.chevron_right_rounded,
+              size: 20, color: L.sub.withValues(alpha: 0.5)),
+      ]),
     );
+
+    if (isInteractive) {
+      row = Semantics(
+        button: true,
+        label: sub != null ? '$label. $sub' : label,
+        child: AnimatedPressable(
+          onTap: () {
+            HapticEngine.selection();
+            onClick!();
+          },
+          scaleFactor: 0.98,
+          child: row,
+        ),
+      );
+    }
+
+    return row;
   }
 }
 
@@ -158,37 +153,43 @@ class SettingsEditField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-      decoration: BoxDecoration(
-          color: L.card,
-          border: border
-              ? Border(
-                  bottom: BorderSide(
-                      color: L.border.withValues(alpha: 0.07), width: 0.5))
-              : null),
-      child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        Text(label.toUpperCase(),
-            style: AppTypography.labelLarge.copyWith(
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.2,
-                color: L.sub,
-                fontSize: 10)),
-        const SizedBox(height: 6),
-        TextField(
-          controller: ctrl,
-          keyboardType: keyboard,
-          style: AppTypography.bodyLarge.copyWith(
-              fontWeight: FontWeight.w900, color: L.text, fontSize: 16, letterSpacing: -0.3),
-          decoration: InputDecoration(
-              hintText: placeholder,
-              hintStyle: AppTypography.bodyLarge
-                  .copyWith(color: L.sub.withValues(alpha: 0.3)),
-              border: InputBorder.none,
-              isDense: true,
-              contentPadding: EdgeInsets.zero),
-        ),
-      ]),
+    return Semantics(
+      label: label,
+      textField: true,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+        decoration: BoxDecoration(
+            border: border
+                ? Border(
+                    bottom: BorderSide(
+                        color: L.border.withValues(alpha: 0.1), width: 0.5))
+                : null),
+        child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Text(label,
+              style: AppTypography.labelMedium.copyWith(
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.1,
+                  color: L.sub,
+                  fontSize: 12)),
+          const SizedBox(height: 6),
+          TextField(
+            controller: ctrl,
+            keyboardType: keyboard,
+            style: AppTypography.bodyLarge.copyWith(
+                fontWeight: FontWeight.w600,
+                color: L.text,
+                fontSize: 16,
+                letterSpacing: -0.2),
+            decoration: InputDecoration(
+                hintText: placeholder,
+                hintStyle: AppTypography.bodyLarge
+                    .copyWith(color: L.sub.withValues(alpha: 0.3)),
+                border: InputBorder.none,
+                isDense: true,
+                contentPadding: EdgeInsets.zero),
+          ),
+        ]),
+      ),
     );
   }
 }
@@ -213,37 +214,49 @@ class SettingsSelectRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BouncingButton(
-      onTap: () {
-        HapticEngine.selection();
-        onClick();
-      },
-      scaleFactor: 0.98,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-            color: Colors.transparent,
-            borderRadius: BorderRadius.only(
-              topLeft: first ? const Radius.circular(24) : Radius.zero,
-              topRight: first ? const Radius.circular(24) : Radius.zero,
-              bottomLeft: last ? const Radius.circular(24) : Radius.zero,
-              bottomRight: last ? const Radius.circular(24) : Radius.zero,
+    return Semantics(
+      button: true,
+      selected: isSel,
+      label: label,
+      child: AnimatedPressable(
+        onTap: () {
+          HapticEngine.selection();
+          onClick();
+        },
+        scaleFactor: 0.98,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+          decoration: BoxDecoration(
+              color: isSel ? L.accent.withValues(alpha: 0.06) : Colors.transparent,
+              borderRadius: BorderRadius.only(
+                topLeft: first ? const Radius.circular(AppRadius.xl) : Radius.zero,
+                topRight: first ? const Radius.circular(AppRadius.xl) : Radius.zero,
+                bottomLeft: last ? const Radius.circular(AppRadius.xl) : Radius.zero,
+                bottomRight: last ? const Radius.circular(AppRadius.xl) : Radius.zero,
+              ),
+              border: border
+                  ? Border(
+                      bottom: BorderSide(
+                          color: L.border.withValues(alpha: 0.12), width: 0.5))
+                  : null),
+          child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+            Expanded(
+              child: Text(label,
+                  style: AppTypography.titleMedium.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: L.text,
+                      fontSize: 15,
+                      letterSpacing: -0.2),
+                  overflow: TextOverflow.ellipsis),
             ),
-            border: border
-                ? Border(
-                    bottom: BorderSide(
-                        color: L.border.withValues(alpha: 0.15), width: 0.5))
-                : null),
-        child:
-            Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
-          Expanded(
-            child: Text(label,
-                style: AppTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w900, color: L.text, fontSize: 15, letterSpacing: -0.3),
-                overflow: TextOverflow.ellipsis),
-          ),
-          if (isSel) const Text('✅', style: TextStyle(fontSize: 16)),
-        ]),
+            if (isSel)
+              Icon(Icons.check_circle_rounded, color: L.accent, size: 22)
+            else
+              Icon(Icons.circle_outlined,
+                  color: L.sub.withValues(alpha: 0.25), size: 22),
+          ]),
+        ),
       ),
     );
   }
@@ -264,51 +277,48 @@ class SettingsStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(24),
-          border:
-              Border.all(color: L.border.withValues(alpha: 0.07), width: 0.5),
-          boxShadow: AppShadows.neumorphic),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(children: [
-            Container(
-              padding: const EdgeInsets.all(6),
-              decoration: BoxDecoration(
-                color: L.text.withValues(alpha: 0.05),
-                borderRadius: BorderRadius.circular(8),
+    return Semantics(
+      label: '$label: $val. $sub',
+      child: MedAiDepthCard(
+        accentGlow: true,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(children: [
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: L.accent.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Text(emoji, style: const TextStyle(fontSize: 14)),
               ),
-              child: Text(emoji, style: const TextStyle(fontSize: 14)),
-            ),
-            const SizedBox(width: 8),
-            Expanded(
-              child: Text(label.toUpperCase(),
-                  style: AppTypography.labelLarge.copyWith(
-                      fontWeight: FontWeight.w900,
-                      color: L.sub.withValues(alpha: 0.6),
-                      fontSize: 10,
-                      letterSpacing: 1.0),
-                  overflow: TextOverflow.ellipsis),
-            ),
-          ]),
-          const Spacer(),
-          Text(val,
-              style: AppTypography.displayMedium.copyWith(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 28,
-                  color: L.text,
-                  letterSpacing: -1)),
-          const SizedBox(height: 2),
-          Text(sub,
-              style: AppTypography.bodySmall.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: L.sub.withValues(alpha: 0.5),
-                  fontSize: 10)),
-        ],
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(label,
+                    style: AppTypography.labelMedium.copyWith(
+                        fontWeight: FontWeight.w600,
+                        color: L.sub,
+                        fontSize: 12,
+                        letterSpacing: 0.1),
+                    overflow: TextOverflow.ellipsis),
+              ),
+            ]),
+            const Spacer(),
+            Text(val,
+                style: AppTypography.displayMedium.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 28,
+                    color: L.text,
+                    letterSpacing: -0.6)),
+            const SizedBox(height: 2),
+            Text(sub,
+                style: AppTypography.bodySmall.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: L.sub.withValues(alpha: 0.5),
+                    fontSize: 10)),
+          ],
+        ),
       ),
     );
   }

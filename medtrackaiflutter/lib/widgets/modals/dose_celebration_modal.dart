@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/constants/med_ai_assets.dart';
+import '../../widgets/common/med_ai_animation.dart';
+import '../../theme/design_2026.dart';
 import '../../core/utils/haptic_engine.dart';
-import '../../theme/app_theme.dart';
 import '../../services/share_service.dart';
 import '../../services/review_service.dart';
 import '../../providers/app_state.dart';
@@ -161,54 +163,28 @@ class DoseCelebrationModal extends StatelessWidget {
                     children: [
                       // ── Animated success badge ──
                       SizedBox(
-                        width: 104,
-                        height: 104,
+                        width: 120,
+                        height: 120,
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
-                            // Rotating gradient border ring
-                            Container(
-                              width: 100,
-                              height: 100,
-                              decoration: const BoxDecoration(
-                                shape: BoxShape.circle,
-                                gradient: SweepGradient(
-                                  colors: [
-                                    Color(0x004A9E86),
-                                    Color(0xFF4A9E86),
-                                    Color(0x004A9E86),
-                                  ],
-                                ),
-                              ),
-                            )
-                            .animate(onPlay: (c) => c.repeat())
-                            .rotate(duration: 3.seconds),
-
-                            // Inner cut-out mask matching theme bg
-                            Container(
-                              width: 93,
-                              height: 93,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: context.isDark
-                                    ? const Color(0xFF0F172A)
-                                    : Colors.white,
-                              ),
+                            MedAiAnimation(
+                              kind: MedAiAnimationKind.celebrationCheck,
+                              width: 120,
+                              height: 120,
                             ),
-
-                            // Soft glowing green inner circle
                             Container(
                               width: 80,
                               height: 80,
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: AppColors.success.withValues(alpha: 0.08),
+                                color: AppThemeColors2026.electric.withValues(alpha: 0.08),
                               ),
                               child: const Center(
                                 child: Icon(
                                   Icons.check_rounded,
-                                  color: AppColors.success,
-                                  size: 40,
+                                  color: AppThemeColors2026.wellness,
+                                  size: 36,
                                 ),
                               ),
                             ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../core/utils/color_utils.dart';
@@ -40,6 +40,7 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
     final S = AppLocalizations.of(context)!;
     final state = context.watch<AppState>();
 
@@ -115,24 +116,29 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Date Navigator
-          Container(
+          MedAiDepthCard(
             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 12),
-            decoration: BoxDecoration(
-              color: L.card.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(color: L.border.withValues(alpha: 0.1)),
-            ),
+            radius: AppRadius.l,
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                IconButton(
-                  onPressed: () {
-                    HapticEngine.light();
-                    setState(() => _selectedDate =
-                        _selectedDate.subtract(const Duration(days: 1)));
-                  },
-                  icon:
-                      Icon(Icons.chevron_left_rounded, color: L.sub, size: 28),
+                Semantics(
+                  button: true,
+                  label: 'Previous day',
+                  child: AnimatedPressable(
+                    onTap: () {
+                      HapticEngine.light();
+                      setState(() => _selectedDate =
+                          _selectedDate.subtract(const Duration(days: 1)));
+                    },
+                    child: Container(
+                      width: MedAiA11y.minTapTarget,
+                      height: MedAiA11y.minTapTarget,
+                      alignment: Alignment.center,
+                      child: Icon(Icons.chevron_left_rounded,
+                          color: L.sub, size: 28),
+                    ),
+                  ),
                 ),
                 Column(
                   children: [
@@ -154,21 +160,32 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                             fontWeight: FontWeight.w700)),
                   ],
                 ),
-                IconButton(
-                  onPressed: _selectedDate.isAfter(
-                          DateTime.now().subtract(const Duration(hours: 1)))
-                      ? null
-                      : () {
-                          HapticEngine.light();
-                          setState(() => _selectedDate =
-                              _selectedDate.add(const Duration(days: 1)));
-                        },
-                  icon: Icon(Icons.chevron_right_rounded,
-                      size: 28,
-                      color: _selectedDate.isAfter(
-                              DateTime.now().subtract(const Duration(hours: 1)))
-                          ? L.border
-                          : L.sub),
+                Semantics(
+                  button: true,
+                  label: 'Next day',
+                  enabled: !_selectedDate.isAfter(
+                      DateTime.now().subtract(const Duration(hours: 1))),
+                  child: AnimatedPressable(
+                    onTap: _selectedDate.isAfter(
+                            DateTime.now().subtract(const Duration(hours: 1)))
+                        ? null
+                        : () {
+                            HapticEngine.light();
+                            setState(() => _selectedDate =
+                                _selectedDate.add(const Duration(days: 1)));
+                          },
+                    child: Container(
+                      width: MedAiA11y.minTapTarget,
+                      height: MedAiA11y.minTapTarget,
+                      alignment: Alignment.center,
+                      child: Icon(Icons.chevron_right_rounded,
+                          size: 28,
+                          color: _selectedDate.isAfter(DateTime.now()
+                                  .subtract(const Duration(hours: 1)))
+                              ? L.border
+                              : L.sub),
+                    ),
+                  ),
                 ),
               ],
             ),
@@ -177,13 +194,9 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
           const SizedBox(height: 24),
 
           // Completion Header
-          Container(
+          MedAiDepthCard(
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: L.card.withValues(alpha: 0.5),
-              borderRadius: AppRadius.roundSquircle,
-              border: Border.all(color: L.border.withValues(alpha: 0.1)),
-            ),
+            radius: AppRadius.squircle,
             child: Row(
               children: [
                 SizedBox(
@@ -211,9 +224,13 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                         strokeCap: StrokeCap.round,
                       ),
                       if (completion == 1.0)
-                        Icon(Icons.star_rounded, color: L.success, size: 24)
-                            .animate(onPlay: (c) => c.repeat())
-                            .shimmer(duration: 2.seconds)
+                        reduceMotion
+                            ? Icon(Icons.star_rounded,
+                                color: L.success, size: 24)
+                            : Icon(Icons.star_rounded,
+                                    color: L.success, size: 24)
+                                .animate(onPlay: (c) => c.repeat())
+                                .shimmer(duration: 2.seconds)
                       else
                         Text(
                           '${(completion * 100).round()}%',
@@ -282,27 +299,29 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                       e.medId == d.med.id &&
                       e.taken &&
                       e.label == d.sched.label);
-              return _DoseLogRow(
-                dose: d,
-                taken: taken,
-                isPrn: isPrn,
-                L: L,
-                onTap: isPrn
-                    ? null
-                    : () async {
-                        HapticEngine.selection();
-                        await state.toggleDose(d, date: _selectedDate);
-                      },
-                onUndo: isPrn
-                    ? () {
-                        HapticEngine.light();
-                        state.undoPrnDose(d.med.id, d.key.split('-').last);
-                      }
-                    : null,
-              )
-                  .animate(delay: (idx * 50).ms)
-                  .fadeIn(duration: 400.ms)
-                  .slideY(begin: 0.1, end: 0);
+              return _entrance(
+                reduceMotion,
+                _DoseLogRow(
+                  dose: d,
+                  taken: taken,
+                  isPrn: isPrn,
+                  L: L,
+                  reduceMotion: reduceMotion,
+                  onTap: isPrn
+                      ? null
+                      : () async {
+                          HapticEngine.selection();
+                          await state.toggleDose(d, date: _selectedDate);
+                        },
+                  onUndo: isPrn
+                      ? () {
+                          HapticEngine.light();
+                          state.undoPrnDose(d.med.id, d.key.split('-').last);
+                        }
+                      : null,
+                ),
+                delay: Duration(milliseconds: idx * 50),
+              );
             }),
 
           const SizedBox(height: 32),
@@ -316,20 +335,29 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
             ...todaySymptoms.asMap().entries.map((entry) {
               final idx = entry.key;
               final s = entry.value;
-              return _SymptomLogRow(
-                symptom: s,
-                L: L,
-                onDelete: () => state.deleteSymptom(s.id),
-              )
-                  .animate(delay: (idx * 50).ms)
-                  .fadeIn(duration: 400.ms)
-                  .slideY(begin: 0.1, end: 0);
+              return _entrance(
+                reduceMotion,
+                _SymptomLogRow(
+                  symptom: s,
+                  L: L,
+                  onDelete: () => state.deleteSymptom(s.id),
+                ),
+                delay: Duration(milliseconds: idx * 50),
+              );
             }),
 
           SizedBox(height: MediaQuery.of(context).padding.bottom + 20),
         ],
       ),
     );
+  }
+
+  static Widget _entrance(bool reduceMotion, Widget child, {Duration? delay}) {
+    if (reduceMotion) return child;
+    return child
+        .animate(delay: delay)
+        .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
+        .slideY(begin: 0.1, end: 0, curve: AppCurves.smooth);
   }
 
   bool _isSameDay(DateTime a, DateTime b) {
@@ -410,6 +438,7 @@ class _DoseLogRow extends StatelessWidget {
   final bool taken;
   final bool isPrn;
   final AppThemeColors L;
+  final bool reduceMotion;
   final VoidCallback? onUndo;
   final VoidCallback? onTap;
 
@@ -418,6 +447,7 @@ class _DoseLogRow extends StatelessWidget {
     required this.taken,
     required this.L,
     this.isPrn = false,
+    this.reduceMotion = false,
     this.onUndo,
     this.onTap,
   });
@@ -486,31 +516,40 @@ class _DoseLogRow extends StatelessWidget {
             ),
           );
 
-    return BouncingButton(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        decoration: BoxDecoration(
-          color: bgColor,
-          borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: borderColor, width: taken ? 1.5 : 1.0),
-          boxShadow: taken
-              ? [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.2),
-                    blurRadius: 16,
-                    offset: const Offset(0, 8),
-                  )
-                ]
-              : AppShadows.neumorphic,
-        ),
-        child: Row(
-          children: [
-            AnimatedSwitcher(
-              duration: const Duration(milliseconds: 400),
+    return Semantics(
+      button: onTap != null,
+      label: '${dose.med.name}, ${taken ? 'taken' : 'not taken'}',
+      child: AnimatedPressable(
+        onTap: onTap,
+        disabled: onTap == null,
+        scaleFactor: 0.98,
+        child: AnimatedContainer(
+          duration: reduceMotion
+              ? Duration.zero
+              : MedAiA11y.motion(context, AppDurations.fast),
+          curve: AppCurves.smooth,
+          margin: const EdgeInsets.only(bottom: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(AppRadius.l),
+            border: Border.all(color: borderColor, width: taken ? 1.5 : 1.0),
+            boxShadow: taken
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    )
+                  ]
+                : AppShadows.premium,
+          ),
+          child: Row(
+            children: [
+              AnimatedSwitcher(
+                duration: reduceMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 400),
               transitionBuilder: (child, anim) {
                 final scale = Tween<double>(begin: 0.5, end: 1.0).animate(
                   CurvedAnimation(parent: anim, curve: Curves.elasticOut),
@@ -584,15 +623,24 @@ class _DoseLogRow extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             if (isPrnBadge && onUndo != null) ...[
-              GestureDetector(
-                onTap: onUndo,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: taken ? Colors.white12 : L.error.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
+              Semantics(
+                button: true,
+                label: 'Remove PRN dose',
+                child: AnimatedPressable(
+                  onTap: onUndo,
+                  child: Container(
+                    width: MedAiA11y.minTapTarget,
+                    height: MedAiA11y.minTapTarget,
+                    decoration: BoxDecoration(
+                      color: taken
+                          ? Colors.white12
+                          : L.error.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.delete_outline_rounded,
+                        size: 18,
+                        color: taken ? Colors.white : L.error),
                   ),
-                  child: Icon(Icons.delete_outline_rounded, size: 18, color: taken ? Colors.white : L.error),
                 ),
               ),
               const SizedBox(width: 8),
@@ -616,6 +664,7 @@ class _DoseLogRow extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

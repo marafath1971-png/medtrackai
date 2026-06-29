@@ -1,485 +1,368 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app/app_routes.dart';
 import '../../../providers/app_state.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/haptic_engine.dart';
-import '../../../widgets/shared/shared_widgets.dart';
-import 'monthly_wrapped_screen.dart';
-import '../social/med_buddies_screen.dart';
-import 'trophy_case_screen.dart';
-import 'inventory_visualizer_screen.dart';
+import '../../../widgets/common/animated_ring_hero.dart';
+import '../../../widgets/common/app_scaffold.dart';
+import '../../../widgets/common/animated_pressable.dart';
 
 class AnalyticsDashboardScreen extends StatefulWidget {
   const AnalyticsDashboardScreen({super.key});
 
   @override
-  State<AnalyticsDashboardScreen> createState() => _AnalyticsDashboardScreenState();
+  State<AnalyticsDashboardScreen> createState() =>
+      _AnalyticsDashboardScreenState();
 }
 
 class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
+  Widget _analyticsEntrance(Widget child, {Duration? delay}) {
+    if (MedAiA11y.reducedMotion(context)) return child;
+    return child
+        .animate(delay: delay)
+        .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
+        .slideY(begin: 0.06, end: 0, curve: AppCurves.smooth);
+  }
+
   @override
   Widget build(BuildContext context) {
     final L = context.L;
     final state = context.watch<AppState>();
-    
-    // Bio-hacking formulas
+
     final adherence = state.getAdherenceScore();
     final streak = state.getStreak();
     final totalSymptoms = state.symptoms.length;
-    
-    // The "Longevity Score" is a gamified metric between 0 and 1000
-    final longevityScore = ((adherence * 800) + (streak * 2)).clamp(0, 1000).toInt();
-    
-    return Scaffold(
-      backgroundColor: L.bg,
-      body: Stack(
-        children: [
-          // Background ambient glows
-          Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: L.primary.withValues(alpha: 0.15),
-                boxShadow: [
-                  BoxShadow(color: L.primary.withValues(alpha: 0.2), blurRadius: 100)
+    final canPop = Navigator.of(context).canPop();
+
+    return AppScaffold(
+      showAurora: true,
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 20, 8),
+              child: Row(
+                children: [
+                  if (canPop) ...[
+                    _CircleBack(L: L),
+                    const SizedBox(width: 10),
+                  ],
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Analytics',
+                          style: AppTypography.headlineLarge.copyWith(
+                            color: L.text,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.6,
+                          ),
+                        ),
+                        Text(
+                          'Your medication insights',
+                          style: AppTypography.bodySmall.copyWith(color: L.sub),
+                        ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),
-          ).animate(key: const ValueKey('analytics_bg_glow_anim'), onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(1,1), end: const Offset(1.2,1.2), duration: 4.seconds),
-          
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Custom App Bar
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenPadding, vertical: 16),
-                  child: Row(
-                    children: [
-                      BouncingButton(
-                        onTap: () {
-                          HapticEngine.selection();
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(12),
-                          decoration: BoxDecoration(
-                            color: L.card,
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: L.border.withValues(alpha: 0.1)),
-                          ),
-                          child: Icon(Icons.arrow_back_ios_new_rounded, color: L.text, size: 18),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'BIO-ANALYTICS',
-                              style: AppTypography.labelLarge.copyWith(
-                                color: L.secondary,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 2.0,
-                              ),
-                            ),
-                            Text(
-                              'Performance Hub',
-                              style: AppTypography.headlineMedium.copyWith(
-                                color: L.text,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: -0.5,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                
-                Expanded(
-                  child: ListView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: const EdgeInsets.all(AppSpacing.screenPadding),
-                    children: [
-                      // Inventory Entry Point
-                      BouncingButton(
-                        onTap: () {
-                          HapticEngine.selection();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const InventoryVisualizerScreen(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            gradient: const LinearGradient(
-                              colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(20),
-                            boxShadow: [
-                              BoxShadow(
-                                color: const Color(0xFF8B5CF6).withValues(alpha: 0.3),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              )
-                            ],
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.2),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Text('📦', style: TextStyle(fontSize: 24)),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Live Inventory',
-                                      style: AppTypography.titleMedium.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      'View stock levels & low stock alerts',
-                                      style: AppTypography.bodySmall.copyWith(
-                                        color: Colors.white.withValues(alpha: 0.8),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              const Icon(Icons.arrow_forward_ios_rounded, color: Colors.white, size: 16),
-                            ],
-                          ),
-                        ),
-                      ).animate(key: const ValueKey('analytics_inventory_btn')).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
-                      
-                      const SizedBox(height: 24),
-                      
-                      // Longevity Score Card
-                      _LongevityScoreCard(score: longevityScore, L: L)
-                        .animate(key: const ValueKey('analytics_score_card_anim')).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
-                        
-                      const SizedBox(height: 24),
-                      
-                      // Stat Grid
-                      Row(
-                        children: [
-                          Expanded(
-                            child: _StatMiniCard(
-                              title: 'ADHERENCE',
-                              value: '${(adherence * 100).round()}%',
-                              subtitle: 'All Time',
-                              icon: Icons.pie_chart_outline_rounded,
-                              color: L.success,
-                              L: L,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: _StatMiniCard(
-                              title: 'SYMPTOMS',
-                              value: '$totalSymptoms',
-                              subtitle: 'Total Logs',
-                              icon: Icons.monitor_heart_outlined,
-                              color: L.error,
-                              L: L,
-                            ),
-                          ),
-                        ],
-                      ).animate(key: const ValueKey('analytics_stat_grid_anim'), delay: 100.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
-                      
-                      const SizedBox(height: 24),
-                      
-                      // Trend Visualization
-                      Text(
-                        'TREND ANALYSIS',
-                        style: AppTypography.labelSmall.copyWith(
-                          color: L.sub,
-                          letterSpacing: 1.5,
-                          fontWeight: FontWeight.w900,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _TrendGraph(L: L).animate(key: const ValueKey('analytics_trend_graph_anim'), delay: 200.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
 
-                      const SizedBox(height: 32),
-                      
-                      // Monthly Wrapped Entry Point
-                      BouncingButton(
-                        onTap: () {
-                          HapticEngine.heavyImpact();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MonthlyWrappedScreen(),
-                              fullscreenDialog: true, // Use a dialog-style transition for the story
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              colors: [L.primary, L.secondary],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            borderRadius: BorderRadius.circular(24),
-                            boxShadow: [
-                              BoxShadow(color: L.primary.withValues(alpha: 0.4), blurRadius: 20, offset: const Offset(0, 10)),
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'MONTHLY WRAPPED',
-                                    style: AppTypography.labelSmall.copyWith(
-                                      color: L.onPrimary.withValues(alpha: 0.8),
-                                      letterSpacing: 2.0,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'View Your Stats 🚀',
-                                    style: AppTypography.headlineMedium.copyWith(
-                                      color: L.onPrimary,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: -0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: L.onPrimary.withValues(alpha: 0.2),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(Icons.play_arrow_rounded, color: L.onPrimary, size: 24),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ).animate(delay: 300.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0).shimmer(duration: 2.seconds, delay: 1.seconds, color: L.onPrimary.withValues(alpha: 0.3)),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Med Buddies Entry Point
-                      BouncingButton(
-                        onTap: () {
-                          HapticEngine.heavyImpact();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const MedBuddiesScreen(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-                          decoration: BoxDecoration(
-                            color: L.card,
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: L.border.withValues(alpha: 0.1)),
-                            boxShadow: AppShadows.neumorphic,
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'SOCIAL ACCOUNTABILITY',
-                                    style: AppTypography.labelSmall.copyWith(
-                                      color: L.secondary,
-                                      letterSpacing: 2.0,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Med Buddies & Leaderboards 👯‍♀️',
-                                    style: AppTypography.headlineMedium.copyWith(
-                                      color: L.text,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: -0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: L.accent.withValues(alpha: 0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(Icons.arrow_forward_ios_rounded, color: L.accent, size: 20),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ).animate(delay: 400.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
-                      
-                      const SizedBox(height: 16),
-                      
-                      // Trophy Case Entry Point
-                      BouncingButton(
-                        onTap: () {
-                          HapticEngine.heavyImpact();
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const TrophyCaseScreen(),
-                            ),
-                          );
-                        },
-                        child: Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 20),
-                          decoration: BoxDecoration(
-                            color: L.card,
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(color: Colors.amber.withValues(alpha: 0.3)),
-                            boxShadow: [
-                              BoxShadow(color: Colors.amber.withValues(alpha: 0.1), blurRadius: 20, offset: const Offset(0, 10))
-                            ],
-                          ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'ACHIEVEMENTS',
-                                    style: AppTypography.labelSmall.copyWith(
-                                      color: Colors.amber.shade700,
-                                      letterSpacing: 2.0,
-                                      fontWeight: FontWeight.w900,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    'Trophy Case 🏆',
-                                    style: AppTypography.headlineMedium.copyWith(
-                                      color: L.text,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: -0.5,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: Colors.amber.withValues(alpha: 0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(Icons.emoji_events_rounded, color: Colors.amber.shade700, size: 24),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ).animate(delay: 500.ms).fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0),
-
-                      const SizedBox(height: 32),
-                    ],
+            Expanded(
+              child: ListView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                physics: const BouncingScrollPhysics(),
+                padding: const EdgeInsets.fromLTRB(20, 8, 20, 32),
+                children: [
+                  _analyticsEntrance(
+                    CalAiRingHero(
+                      takenCount: (adherence * 10).round(),
+                      total: 10,
+                      dosePct: adherence,
+                      streak: streak,
+                      remaining: 10 - (adherence * 10).round(),
+                    ),
                   ),
-                ),
-              ],
+
+                  const SizedBox(height: 20),
+
+                  _analyticsEntrance(
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _StatMiniCard(
+                            title: 'Adherence',
+                            value: '${(adherence * 100).round()}%',
+                            subtitle: 'All time',
+                            icon: Icons.pie_chart_outline_rounded,
+                            color: L.success,
+                            L: L,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _StatMiniCard(
+                            title: 'Symptoms',
+                            value: '$totalSymptoms',
+                            subtitle: 'Total logs',
+                            icon: Icons.monitor_heart_outlined,
+                            color: L.error,
+                            L: L,
+                          ),
+                        ),
+                      ],
+                    ),
+                    delay: 80.ms,
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  const MedAiSectionHeader(title: 'Trend analysis'),
+                  const SizedBox(height: 4),
+                  _analyticsEntrance(
+                    _TrendGraph(L: L),
+                    delay: 160.ms,
+                  ),
+
+                  const SizedBox(height: 28),
+
+                  const MedAiSectionHeader(title: 'Explore'),
+                  const SizedBox(height: 4),
+
+                  _analyticsEntrance(
+                    _NavCard(
+                      L: L,
+                      icon: Icons.inventory_2_rounded,
+                      label: 'Inventory',
+                      title: 'Stock levels & refill alerts',
+                      onTap: () {
+                        HapticEngine.selection();
+                        context.push(AppRoutes.statsInventory);
+                      },
+                    ),
+                    delay: 220.ms,
+                  ),
+                  const SizedBox(height: 12),
+
+                  _analyticsEntrance(
+                    _NavCard(
+                      L: L,
+                      icon: Icons.play_arrow_rounded,
+                      label: 'Monthly wrapped',
+                      title: 'View your stats',
+                      filled: true,
+                      onTap: () {
+                        HapticEngine.heavyImpact();
+                        context.push(AppRoutes.statsWrapped);
+                      },
+                    ),
+                    delay: 280.ms,
+                  ),
+                  const SizedBox(height: 12),
+
+                  _analyticsEntrance(
+                    _NavCard(
+                      L: L,
+                      icon: Icons.groups_rounded,
+                      label: 'Social',
+                      title: 'Med buddies & leaderboards',
+                      onTap: () {
+                        HapticEngine.heavyImpact();
+                        context.push(AppRoutes.statsBuddies);
+                      },
+                    ),
+                    delay: 340.ms,
+                  ),
+                  const SizedBox(height: 12),
+
+                  _analyticsEntrance(
+                    _NavCard(
+                      L: L,
+                      icon: Icons.emoji_events_rounded,
+                      label: 'Achievements',
+                      title: 'Trophy case',
+                      onTap: () {
+                        HapticEngine.heavyImpact();
+                        context.push(AppRoutes.statsTrophy);
+                      },
+                    ),
+                    delay: 400.ms,
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
 }
 
-class _LongevityScoreCard extends StatelessWidget {
-  final int score;
+class _CircleBack extends StatelessWidget {
   final AppThemeColors L;
-
-  const _LongevityScoreCard({required this.score, required this.L});
+  const _CircleBack({required this.L});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: L.border.withValues(alpha: 0.1), width: 1.0),
-        boxShadow: AppShadows.neumorphic,
+    return Semantics(
+      button: true,
+      label: 'Back',
+      child: AnimatedPressable(
+        onTap: () {
+          HapticEngine.selection();
+          Navigator.pop(context);
+        },
+        child: Container(
+          width: MedAiA11y.minTapTarget,
+          height: MedAiA11y.minTapTarget,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: L.card,
+            shape: BoxShape.circle,
+            border: Border.all(color: L.border.withValues(alpha: 0.5)),
+            boxShadow: AppShadows.soft,
+          ),
+          child: Icon(Icons.arrow_back_ios_new_rounded, color: L.text, size: 18),
+        ),
       ),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
+    );
+  }
+}
+
+class _NavCard extends StatelessWidget {
+  final AppThemeColors L;
+  final IconData icon;
+  final String label;
+  final String title;
+  final bool filled;
+  final VoidCallback onTap;
+
+  const _NavCard({
+    required this.L,
+    required this.icon,
+    required this.label,
+    required this.title,
+    required this.onTap,
+    this.filled = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final fg = filled ? Colors.white : L.text;
+    final sub = filled ? Colors.white.withValues(alpha: 0.85) : L.sub;
+    final body = _NavCardBody(
+      icon: icon,
+      label: label,
+      title: title,
+      fg: fg,
+      sub: sub,
+      filled: filled,
+      L: L,
+    );
+
+    if (filled) {
+      return Semantics(
+        button: true,
+        label: '$label. $title',
+        child: AnimatedPressable(
+          onTap: onTap,
+          child: Container(
+            constraints:
+                const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [L.accent, L.accent.withValues(alpha: 0.85)],
+              ),
+              borderRadius: BorderRadius.circular(AppRadius.xl),
+              boxShadow: L.accentGlow(intensity: 0.25),
+            ),
+            child: body,
+          ),
+        ),
+      );
+    }
+
+    return Semantics(
+      button: true,
+      label: '$label. $title',
+      child: MedAiDepthCard(
+        onTap: onTap,
+        padding: const EdgeInsets.all(16),
+        child: body,
+      ),
+    );
+  }
+}
+
+class _NavCardBody extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final String title;
+  final Color fg;
+  final Color sub;
+  final bool filled;
+  final AppThemeColors L;
+
+  const _NavCardBody({
+    required this.icon,
+    required this.label,
+    required this.title,
+    required this.fg,
+    required this.sub,
+    required this.filled,
+    required this.L,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Container(
+          width: 44,
+          height: 44,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: filled
+                ? Colors.white.withValues(alpha: 0.2)
+                : L.accent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(13),
+          ),
+          child: Icon(icon, color: filled ? Colors.white : L.accent, size: 22),
+        ),
+        const SizedBox(width: 14),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Icon(Icons.bolt_rounded, color: L.primary, size: 20)
-                .animate(key: const ValueKey('analytics_bolt_icon_anim'), onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(1,1), end: const Offset(1.2,1.2)),
-              const SizedBox(width: 8),
               Text(
-                'LONGEVITY SCORE',
-                style: AppTypography.labelLarge.copyWith(
-                  color: L.primary,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 2.0,
+                label,
+                style: AppTypography.labelMedium.copyWith(
+                  color: sub,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                title,
+                style: AppTypography.titleMedium.copyWith(
+                  color: fg,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
-          Text(
-            '$score',
-            style: AppTypography.displayLarge.copyWith(
-              color: L.text,
-              fontSize: 72,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -2.0,
-              height: 1.0,
-            ),
-          ).animate().shimmer(duration: 2.seconds, color: L.primary.withValues(alpha: 0.3)),
-          const SizedBox(height: 8),
-          Text(
-            'Top 5% of Medai Users 🚀',
-            style: AppTypography.bodyMedium.copyWith(
-              color: L.sub,
-              fontWeight: FontWeight.w900,
-            ),
-          ),
-        ],
-      ),
+        ),
+        Icon(Icons.chevron_right_rounded,
+            color: filled ? Colors.white : L.sub, size: 22),
+      ],
     );
   }
 }
@@ -503,53 +386,47 @@ class _StatMiniCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: L.border.withValues(alpha: 0.05)),
-        boxShadow: AppShadows.neumorphic,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Container(
-            padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              color: color.withValues(alpha: 0.1),
-              shape: BoxShape.circle,
+    return Semantics(
+      label: '$title: $value. $subtitle',
+      child: MedAiDepthCard(
+        accentGlow: true,
+        padding: const EdgeInsets.all(18),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: color.withValues(alpha: 0.12),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icon, color: color, size: 20),
             ),
-            child: Icon(icon, color: color, size: 20),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            value,
-            style: AppTypography.headlineMedium.copyWith(
-              color: L.text,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -1.0,
+            const SizedBox(height: 16),
+            Text(
+              value,
+              style: AppTypography.headlineLarge.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -1.0,
+              ),
             ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            title,
-            style: AppTypography.labelSmall.copyWith(
-              color: color,
-              fontWeight: FontWeight.w900,
-              letterSpacing: 1.0,
+            const SizedBox(height: 2),
+            Text(
+              title,
+              style: AppTypography.titleMedium.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w700,
+              ),
             ),
-          ),
-          const SizedBox(height: 2),
-          Text(
-            subtitle,
-            style: AppTypography.bodySmall.copyWith(
-              color: L.sub,
-              fontSize: 10,
-              fontWeight: FontWeight.w900,
+            Text(
+              subtitle,
+              style: AppTypography.bodySmall.copyWith(color: L.sub),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -571,9 +448,7 @@ class _TrendGraphState extends State<_TrendGraph> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        setState(() => _animate = true);
-      }
+      if (mounted) setState(() => _animate = true);
     });
   }
 
@@ -581,55 +456,69 @@ class _TrendGraphState extends State<_TrendGraph> {
   Widget build(BuildContext context) {
     final L = widget.L;
     final data = [0.4, 0.6, 0.5, 0.8, 0.7, 0.9, 1.0];
-    
-    return Container(
-      height: 180,
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: L.border.withValues(alpha: 0.05)),
-        boxShadow: AppShadows.neumorphic,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+
+    return Semantics(
+      label: 'Weekly performance trend chart',
+      child: MedAiDepthCard(
+        padding: const EdgeInsets.all(20),
+        child: SizedBox(
+          height: 140,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(
-                'Weekly Performance',
-                style: AppTypography.labelMedium.copyWith(
-                  color: L.text,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              Icon(Icons.show_chart_rounded, color: L.secondary, size: 20),
-            ],
-          ),
-          const Spacer(),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.end,
-            children: List.generate(data.length, (index) {
-              final targetHeight = 100.0 * data[index];
-              return Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4.0),
-                  child: AnimatedContainer(
-                    duration: Duration(milliseconds: 500 + index * 100),
-                    curve: Curves.easeOutBack,
-                    height: _animate ? targetHeight : 0.0,
-                    decoration: BoxDecoration(
-                      color: index == data.length - 1 ? L.secondary : L.secondary.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(6),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    'Weekly performance',
+                    style: AppTypography.titleMedium.copyWith(
+                      color: L.text,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
-                ),
-              );
-            }),
+                  Icon(Icons.show_chart_rounded, color: L.accent, size: 20),
+                ],
+              ),
+              const Spacer(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: List.generate(data.length, (index) {
+                  final targetHeight = 100.0 * data[index];
+                  return Expanded(
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      child: AnimatedContainer(
+                        duration: reduceMotion
+                            ? Duration.zero
+                            : Duration(milliseconds: 500 + index * 100),
+                        curve: Curves.easeOutBack,
+                        height: _animate ? targetHeight : 0,
+                        decoration: BoxDecoration(
+                          gradient: index == data.length - 1
+                              ? LinearGradient(
+                                  begin: Alignment.bottomCenter,
+                                  end: Alignment.topCenter,
+                                  colors: [
+                                    L.accent,
+                                    L.accent.withValues(alpha: 0.7),
+                                  ],
+                                )
+                              : null,
+                          color: index == data.length - 1
+                              ? null
+                              : L.accent.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(6),
+                        ),
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

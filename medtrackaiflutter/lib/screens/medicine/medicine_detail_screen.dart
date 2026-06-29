@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:go_router/go_router.dart';
+import '../../app/app_routes.dart';
 import '../../providers/app_state.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
+import '../../widgets/common/app_scaffold.dart';
 import '../../core/utils/color_utils.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
@@ -11,7 +14,6 @@ import '../../widgets/common/modern_time_picker.dart';
 import '../../widgets/common/refined_sheet_wrapper.dart';
 import 'widgets/body_impact_card.dart';
 import 'widgets/inline_ai_coach.dart';
-import '../analysis/product_analysis_screen.dart';
 // ══════════════════════════════════════════════════════════════════════
 // MEDICINE DETAIL SCREEN (Cal AI Industrial Hub Refined)
 // ══════════════════════════════════════════════════════════════════════
@@ -93,8 +95,9 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
         (s) => s.getHistoryCountForMed(widget.medId));
     final medColor = hexToColor(med.color);
 
-    return Scaffold(
-      backgroundColor: L.meshBg,
+    return AppScaffold(
+      showAurora: context.isDark,
+      backgroundColor: L.bg,
       body: Stack(
         children: [
           _editMode
@@ -187,7 +190,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
         Container(
           padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8),
           decoration: BoxDecoration(
-            color: L.meshBg,
+            color: L.bg,
             border: Border(
                 bottom: BorderSide(
                     color: L.text.withValues(alpha: 0.05), width: 0.5)),
@@ -197,12 +200,12 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
                 child: Row(children: [
-                  Text('MEDICINE',
+                  Text('Medicine',
                       style: AppTypography.labelSmall.copyWith(
-                          color: L.text.withValues(alpha: 0.8),
-                          letterSpacing: 2.0,
+                          color: L.text.withValues(alpha: 0.6),
+                          letterSpacing: 0.1,
                           fontWeight: FontWeight.w600,
-                          fontSize: 10)),
+                          fontSize: 11)),
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 8),
                     child: Text('/',
@@ -211,12 +214,12 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                             fontSize: 10,
                             fontWeight: FontWeight.w600)),
                   ),
-                  Text('EDIT DETAILS',
+                  Text('Edit details',
                       style: AppTypography.labelSmall.copyWith(
-                          color: L.primary,
-                          letterSpacing: 2.0,
+                          color: L.accent,
+                          letterSpacing: 0.1,
                           fontWeight: FontWeight.w600,
-                          fontSize: 10)),
+                          fontSize: 11)),
                 ]),
               ),
               UnifiedHeader(
@@ -264,36 +267,41 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
         Container(
           padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
           decoration: BoxDecoration(
-            color: L.meshBg,
+            color: L.bg,
             border: Border(
                 top: BorderSide(
                     color: L.text.withValues(alpha: 0.05), width: 0.5)),
           ),
-          child: BouncingButton(
-            onTap: () {
-              HapticEngine.success();
-              _save(med, context.read<AppState>());
-            },
-            child: Container(
-              height: 54,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: hexToColor(_editFields['color'] ?? med.color),
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: hexToColor(_editFields['color'] ?? med.color).withValues(alpha: 0.3),
-                    blurRadius: 16,
-                    offset: const Offset(0, 8),
-                  )
-                ],
-              ),
-              child: Center(
-                child: Text('SAVE CHANGES',
-                    style: AppTypography.labelLarge.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.5)),
+          child: Semantics(
+            button: true,
+            label: 'Save medicine changes',
+            child: AnimatedPressable(
+              onTap: () {
+                HapticEngine.success();
+                _save(med, context.read<AppState>());
+              },
+              child: Container(
+                constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: hexToColor(_editFields['color'] ?? med.color),
+                  borderRadius: BorderRadius.circular(AppRadius.l),
+                  boxShadow: [
+                    BoxShadow(
+                      color: hexToColor(_editFields['color'] ?? med.color)
+                          .withValues(alpha: 0.3),
+                      blurRadius: 16,
+                      offset: const Offset(0, 8),
+                    )
+                  ],
+                ),
+                child: Center(
+                  child: Text('Save changes',
+                      style: AppTypography.labelLarge.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.1)),
+                ),
               ),
             ),
           ),
@@ -318,7 +326,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
   Widget _buildSliverHeader(Medicine med, Color medColor, AppThemeColors L) {
     return SliverAppBar(
       expandedHeight: 360,
-      backgroundColor: L.meshBg,
+      backgroundColor: L.bg,
       elevation: 0,
       pinned: true,
       stretch: true,
@@ -345,7 +353,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                     end: Alignment.bottomCenter,
                     colors: [
                       medColor.withValues(alpha: 0.15),
-                      L.meshBg,
+                      L.bg,
                     ],
                   ),
                 ),
@@ -371,7 +379,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: medColor.withValues(alpha: 0.1),
+                            color: medColor.withValues(alpha: 0.15),
                             blurRadius: 40,
                             spreadRadius: 4,
                           ),
@@ -385,10 +393,13 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                           color: L.card,
                         ),
                         alignment: Alignment.center,
-                        child: (med.imageUrl?.isNotEmpty ?? false) && med.imageUrl != ' '
+                        child: (med.imageUrl?.isNotEmpty ?? false) &&
+                                med.imageUrl != ' '
                             ? ClipOval(
                                 child: Image.network(med.imageUrl!,
-                                    width: 110, height: 110, fit: BoxFit.cover,
+                                    width: 110,
+                                    height: 110,
+                                    fit: BoxFit.cover,
                                     errorBuilder: (_, __, ___) => Text(
                                           _getCategoryEmoji(med.category),
                                           style: const TextStyle(fontSize: 48),
@@ -399,9 +410,10 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                               ),
                       ),
                     ),
-                  )
-                      .animate()
-                      .scale(duration: 600.ms, curve: Curves.easeOutBack),
+                  ).let((w) => MedAiA11y.reducedMotion(context)
+                      ? w
+                      : w.animate().scale(
+                          duration: 600.ms, curve: Curves.easeOutBack)),
                   const SizedBox(height: 20),
                   Container(
                     padding:
@@ -510,33 +522,33 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
-                                "PROTOCOL",
+                                "Protocol",
                                 style: AppTypography.labelSmall.copyWith(
                                   color: Colors.black,
                                   fontWeight: FontWeight.w600,
                                   fontSize: 11,
-                                  letterSpacing: 1.0,
+                                  letterSpacing: 0.1,
                                 ),
                               ),
                             ),
                             const SizedBox(width: 8),
                             Text(
-                              'ANTIBIOTIC DETECTED',
+                              'Antibiotic detected',
                               style: AppTypography.labelSmall.copyWith(
                                   fontWeight: FontWeight.w600,
-                                  letterSpacing: 1.5,
-                                  color: L.text.withValues(alpha: 0.6)),
+                                  letterSpacing: 0.1,
+                                  color: L.sub),
                             ),
                           ],
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'MANDATORY COURSE COMPLETION',
+                          'Complete the full course',
                           style: AppTypography.titleMedium.copyWith(
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w700,
                             color: L.text,
                             fontSize: 18,
-                            letterSpacing: -0.5,
+                            letterSpacing: -0.3,
                           ),
                         ),
                         const SizedBox(height: 8),
@@ -658,30 +670,53 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       children: [
         // ── RESTOCK ──
         Expanded(
-          child: BouncingButton(
-            onTap: () => _showRestockSheet(med, state, L),
-            child: Container(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              decoration: BoxDecoration(
-                color: isLow
-                    ? const Color(0xFFFF9500)
-                    : const Color(0xFF007AFF).withValues(alpha: 0.15),
-                borderRadius: BorderRadius.circular(100),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(isLow ? '⚠️' : '🔄', style: const TextStyle(fontSize: 16)),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Restock',
-                    style: AppTypography.titleMedium.copyWith(
+          child: Semantics(
+            button: true,
+            label: 'Restock ${med.name}',
+            child: AnimatedPressable(
+              onTap: () => _showRestockSheet(med, state, L),
+              child: Container(
+                constraints:
+                    const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+                padding: const EdgeInsets.symmetric(vertical: 14),
+                decoration: BoxDecoration(
+                  gradient: isLow
+                      ? LinearGradient(
+                          colors: [
+                            const Color(0xFFFF9500),
+                            const Color(0xFFFF9500).withValues(alpha: 0.85),
+                          ],
+                        )
+                      : null,
+                  color: isLow
+                      ? null
+                      : const Color(0xFF007AFF).withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(100),
+                  border: isLow
+                      ? null
+                      : Border.all(
+                          color: const Color(0xFF007AFF).withValues(alpha: 0.25),
+                          width: 0.5),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      isLow ? Icons.warning_amber_rounded : Icons.refresh_rounded,
+                      size: 18,
                       color: isLow ? Colors.white : const Color(0xFF007AFF),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
                     ),
-                  ),
-                ],
+                    const SizedBox(width: 8),
+                    Text(
+                      'Restock',
+                      style: AppTypography.titleMedium.copyWith(
+                        color: isLow ? Colors.white : const Color(0xFF007AFF),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -696,40 +731,18 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
   }
 
   Widget _buildAnalysisButton(Medicine med, AppThemeColors L) {
-    return BouncingButton(
+    return MedAiCTA(
+      label: 'View Full AI Analysis',
+      icon: Icons.auto_awesome_rounded,
+      secondary: true,
+      semanticsLabel: 'View full AI analysis for ${med.name}',
       onTap: () {
         HapticEngine.selection();
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ProductAnalysisScreen(product: med.productAnalysis!),
-          ),
+        context.push(
+          AppRoutes.analysisProduct,
+          extra: ProductAnalysisRouteArgs(product: med.productAnalysis!),
         );
       },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: L.accent.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: L.accent.withValues(alpha: 0.3)),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.auto_awesome, color: L.accent, size: 20),
-            const SizedBox(width: 8),
-            Text(
-              'View Full AI Analysis',
-              style: AppTypography.labelLarge.copyWith(
-                color: L.accent,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 0.5,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
@@ -742,7 +755,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       isScrollControlled: true,
       builder: (ctx) => StatefulBuilder(
         builder: (ctx, setSheetState) => RefinedSheetWrapper(
-          title: 'RESTOCK INVENTORY',
+          title: 'Restock inventory',
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -768,12 +781,12 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                                 color: L.text,
                                 fontSize: 52,
                                 letterSpacing: -2.0)),
-                        Text('UNITS',
+                        Text('Units',
                             style: AppTypography.labelSmall.copyWith(
                                 color: L.sub,
                                 fontWeight: FontWeight.w600,
-                                letterSpacing: 2.0,
-                                fontSize: 10)),
+                                letterSpacing: 0.1,
+                                fontSize: 11)),
                       ],
                     ),
                     const SizedBox(width: 20),
@@ -786,7 +799,8 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                   ],
                 ),
                 const SizedBox(height: 32),
-                BouncingButton(
+                MedAiCTA(
+                  label: 'Confirm restock',
                   onTap: () {
                     HapticEngine.success();
                     final newCount = med.count + addAmount;
@@ -794,21 +808,6 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                     state.showToast('+$addAmount units added ✓');
                     Navigator.pop(ctx);
                   },
-                  child: Container(
-                    height: 54,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: L.text,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Center(
-                      child: Text('CONFIRM RESTOCK',
-                          style: AppTypography.labelLarge.copyWith(
-                              color: L.bg,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1.5)),
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -848,12 +847,12 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
           children: [
             const Text("🍽️", style: TextStyle(fontSize: 14)),
             const SizedBox(width: 10),
-            Text(intake.toUpperCase(),
+            Text(intake,
                 style: AppTypography.labelLarge.copyWith(
                     fontWeight: FontWeight.w600,
                     color: L.text,
-                    fontSize: 11,
-                    letterSpacing: 0.5)),
+                    fontSize: 12,
+                    letterSpacing: 0.1)),
           ],
         ),
       ),
@@ -871,7 +870,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
             L: L,
             trailing: _HeaderAction(
                 icon: Icons.add_rounded,
-                label: 'ADD_SLOT',
+                label: 'Add slot',
                 onTap: () async {
                   HapticEngine.selection();
                   final result = await ModernTimePicker.show(context,
@@ -889,7 +888,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                 L: L)),
         const SizedBox(height: 12),
         if (med.schedule.isEmpty)
-          _buildEmptyCard('NO_ACTIVE_REMINDERS', Icons.notifications_off_rounded, L)
+          _buildEmptyCard('No active reminders', Icons.notifications_off_rounded, L)
         else
           GlassCard(
             padding: EdgeInsets.zero,
@@ -970,13 +969,11 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                     color: s.enabled ? L.text : L.sub)),
             const SizedBox(width: 12),
             Text(
-                (s.ritual != Ritual.none ? s.ritual.displayName : s.label)
-                    .toUpperCase(),
-                style: AppTypography.labelSmall.copyWith(
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    color: L.sub,
-                    letterSpacing: 1.0)),
+                (s.ritual != Ritual.none ? s.ritual.displayName : s.label),
+                style: AppTypography.bodySmall.copyWith(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: L.sub)),
           ],
         ),
         subtitle: Padding(
@@ -1022,13 +1019,13 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _Metric(label: 'TAKEN', value: '$taken', color: L.text, L: L),
+                  _Metric(label: 'Taken', value: '$taken', color: L.text, L: L),
                   _Metric(
-                      label: 'MISSED',
+                      label: 'Missed',
                       value: '${total - taken}',
                       color: L.error,
                       L: L),
-                  _Metric(label: 'SCORE', value: '$adh%', color: L.text, L: L),
+                  _Metric(label: 'Score', value: '$adh%', color: L.text, L: L),
                 ],
               ),
               const SizedBox(height: 24),
@@ -1057,15 +1054,15 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
             physics: const BouncingScrollPhysics(),
             clipBehavior: Clip.none,
             children: [
-              _SpecTile(label: 'FORM', value: med.form, icon: Icons.medication_rounded, L: L, tintColor: medColor),
+              _SpecTile(label: 'Form', value: med.form, icon: Icons.medication_rounded, L: L, tintColor: medColor),
               const SizedBox(width: 12),
               _SpecTile(
-                  label: 'CATEGORY', value: med.category, icon: Icons.label_rounded, L: L, tintColor: medColor),
+                  label: 'Category', value: med.category, icon: Icons.label_rounded, L: L, tintColor: medColor),
               const SizedBox(width: 12),
-              _SpecTile(label: 'UNIT', value: med.unit, icon: Icons.scale_rounded, L: L, tintColor: medColor),
+              _SpecTile(label: 'Unit', value: med.unit, icon: Icons.scale_rounded, L: L, tintColor: medColor),
               const SizedBox(width: 12),
               _SpecTile(
-                  label: 'START', value: med.courseStartDate, icon: Icons.calendar_today_rounded, L: L, tintColor: medColor),
+                  label: 'Start', value: med.courseStartDate, icon: Icons.calendar_today_rounded, L: L, tintColor: medColor),
             ],
           ),
         ),
@@ -1122,7 +1119,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
   Widget _buildEditForm(Medicine med, AppState state, AppThemeColors L) {
     return Column(
       children: [
-        _FormSection(label: 'VISUALS', icon: Icons.palette_rounded, L: L, children: [
+        _FormSection(label: 'Visuals', icon: Icons.palette_rounded, L: L, children: [
           _ColorPicker(
               selectedColor: _editFields['color'] ?? med.color,
               onColorSelected: (c) => setState(() => _editFields['color'] = c),
@@ -1134,24 +1131,24 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
               L: L),
         ]),
         const SizedBox(height: 20),
-        _FormSection(label: 'IDENTITY', icon: Icons.person_rounded, L: L, children: [
+        _FormSection(label: 'Identity', icon: Icons.person_rounded, L: L, children: [
           _ModernTextField(label: 'Medicine Name', value: _editFields['name'] ?? '', onChanged: (v) => _editFields['name'] = v, L: L),
           _ModernTextField(label: 'Brand Name', value: _editFields['brand'] ?? '', onChanged: (v) => _editFields['brand'] = v, L: L, isLast: true),
         ]),
         const SizedBox(height: 20),
-        _FormSection(label: 'CONFIGURATION', icon: Icons.settings_rounded, L: L, children: [
+        _FormSection(label: 'Configuration', icon: Icons.settings_rounded, L: L, children: [
           _ModernTextField(label: 'Dosage', value: _editFields['dose'] ?? '', onChanged: (v) => _editFields['dose'] = v, L: L),
           _ModernTextField(label: 'Form', value: _editFields['form'] ?? '', onChanged: (v) => _editFields['form'] = v, L: L),
           _ModernTextField(label: 'Intake Instructions', value: _editFields['intakeInstructions'] ?? '', onChanged: (v) => _editFields['intakeInstructions'] = v, L: L, isLast: true),
         ]),
         const SizedBox(height: 20),
-        _FormSection(label: 'INVENTORY & REFILLS', icon: Icons.inventory_2_rounded, L: L, children: [
+        _FormSection(label: 'Inventory & refills', icon: Icons.inventory_2_rounded, L: L, children: [
           _ModernTextField(label: 'Current Count', value: _editFields['count'] ?? '', onChanged: (v) => _editFields['count'] = v, L: L, keyboard: TextInputType.number),
           _ModernTextField(label: 'Total Box Count', value: _editFields['totalCount'] ?? '', onChanged: (v) => _editFields['totalCount'] = v, L: L, keyboard: TextInputType.number),
           _ModernTextField(label: 'Refill Alert At', value: _editFields['refillAt'] ?? '', onChanged: (v) => _editFields['refillAt'] = v, L: L, keyboard: TextInputType.number, isLast: true),
         ]),
         const SizedBox(height: 20),
-        _FormSection(label: 'PHARMACY DETAILS', icon: Icons.local_pharmacy_rounded, L: L, children: [
+        _FormSection(label: 'Pharmacy details', icon: Icons.local_pharmacy_rounded, L: L, children: [
           _ModernTextField(label: 'Pharmacy Name', value: _editFields['pharmacyName'] ?? '', onChanged: (v) => _editFields['pharmacyName'] = v, L: L),
           _ModernTextField(label: 'Pharmacy Phone', value: _editFields['pharmacyPhone'] ?? '', onChanged: (v) => _editFields['pharmacyPhone'] = v, L: L, keyboard: TextInputType.phone),
           _ModernTextField(label: 'Rx Number', value: _editFields['rxNumber'] ?? '', onChanged: (v) => _editFields['rxNumber'] = v, L: L),
@@ -1289,11 +1286,11 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                           HapticEngine.selection();
                           setState(() => selectedRitual = r);
                         },
-                        title: Text(r.name.toUpperCase(),
+                        title: Text(r.displayName,
                             style: AppTypography.bodyLarge.copyWith(
                                 color: isSelected ? L.primary : L.text,
                                 fontWeight: isSelected
-                                    ? FontWeight.w600
+                                    ? FontWeight.w700
                                     : FontWeight.w500)),
                         trailing: isSelected
                             ? Icon(Icons.check_circle_rounded, color: L.primary)
@@ -1304,10 +1301,12 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                 ),
                 
                 const SizedBox(height: 24),
-                BouncingButton(
+                MedAiCTA(
+                  label: 'Save reminder',
                   onTap: () {
                     HapticEngine.success();
-                    final updated = s.copyWith(ritual: selectedRitual, days: selectedDays..sort());
+                    final updated = s.copyWith(
+                        ritual: selectedRitual, days: selectedDays..sort());
                     if (isNew) {
                       context.read<AppState>().addSchedule(medId, updated);
                     } else {
@@ -1317,21 +1316,6 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                     }
                     Navigator.pop(ctx);
                   },
-                  child: Container(
-                    height: 54,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: L.text,
-                      borderRadius: BorderRadius.circular(14),
-                    ),
-                    child: Center(
-                      child: Text('SAVE REMINDER',
-                          style: AppTypography.labelLarge.copyWith(
-                              color: L.bg,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1.5)),
-                    ),
-                  ),
                 ),
               ],
             ),
@@ -1342,9 +1326,8 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
   }
 
   Widget _buildEmptyCard(String text, IconData icon, AppThemeColors L) {
-    return GlassCard(
+    return MedAiGlass(
       padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
-      borderRadius: AppRadius.roundXL,
       child: Center(
           child: Column(
         children: [
@@ -1357,6 +1340,10 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       )),
     );
   }
+}
+
+extension _MedDetailLet<T> on T {
+  R let<R>(R Function(T) block) => block(this);
 }
 
 // ── MODERN UI COMPONENTS ──────────────────────────────────────────
@@ -1381,58 +1368,60 @@ class _DiagnosticCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: height,
-      child: GlassCard(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        tintColor: L.card,
-        borderRadius: AppRadius.roundM,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Text(
-                    label,
-                    style: AppTypography.labelSmall.copyWith(
-                      color: L.sub.withValues(alpha: 0.7),
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                      fontSize: 12,
+    return Semantics(
+      label: '$label: $value',
+      child: SizedBox(
+        height: height,
+        child: MedAiDepthCard(
+          accentGlow: true,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Text(
+                      label,
+                      style: AppTypography.labelSmall.copyWith(
+                        color: L.sub.withValues(alpha: 0.7),
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.5,
+                        fontSize: 12,
+                      ),
                     ),
                   ),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: BoxDecoration(
-                    color: color.withValues(alpha: 0.15),
-                    shape: BoxShape.circle,
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: color.withValues(alpha: 0.15),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Text(icon, style: const TextStyle(fontSize: 13)),
                   ),
-                  child: Text(icon, style: const TextStyle(fontSize: 13)),
-                ),
-              ],
-            ),
-            const SizedBox(height: 8),
-            FittedBox(
-              fit: BoxFit.scaleDown,
-              child: Text(
-                value,
-                style: AppTypography.displayLarge.copyWith(
-                  fontSize: 26,
-                  color: L.text,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.5,
+                ],
+              ),
+              const SizedBox(height: 8),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  value,
+                  style: AppTypography.displayLarge.copyWith(
+                    fontSize: 26,
+                    color: L.text,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.5,
+                  ),
                 ),
               ),
-            ),
-            if (child != null) ...[
-              const SizedBox(height: 6),
-              child!,
+              if (child != null) ...[
+                const SizedBox(height: 6),
+                child!,
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -1493,20 +1482,9 @@ class _SectionHeader extends StatelessWidget {
       required this.L});
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, bottom: 8),
-      child: Row(children: [
-        Text(emoji, style: const TextStyle(fontSize: 16)),
-        const SizedBox(width: 8),
-        Text(label,
-            style: AppTypography.labelSmall.copyWith(
-                color: L.sub,
-                fontWeight: FontWeight.w700,
-                letterSpacing: 0.5,
-                fontSize: 12)),
-        const Spacer(),
-        if (trailing != null) trailing!,
-      ]),
+    return MedAiSectionHeader(
+      title: '$emoji $label',
+      action: trailing,
     );
   }
 }
@@ -1523,17 +1501,21 @@ class _HeaderAction extends StatelessWidget {
       required this.L});
   @override
   Widget build(BuildContext context) {
-    return BouncingButton(
+    return Semantics(
+      button: true,
+      label: label,
+      child: AnimatedPressable(
         onTap: onTap,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTargetCompact),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
           decoration: BoxDecoration(
             color: L.card,
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(12),
             border:
-                Border.all(color: L.border.withValues(alpha: 0.1), width: 0.5),
+                Border.all(color: L.border.withValues(alpha: 0.12), width: 0.5),
           ),
-          child: Row(children: [
+          child: Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(icon, size: 14, color: L.text),
             const SizedBox(width: 4),
             Text(label,
@@ -1543,7 +1525,9 @@ class _HeaderAction extends StatelessWidget {
                     letterSpacing: 0.5,
                     fontSize: 10)),
           ]),
-        ));
+        ),
+      ),
+    );
   }
 }
 
@@ -1718,13 +1702,13 @@ class _SpecTile extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
                 Text(
-                  value.isEmpty ? 'UNDEFINED' : value.toUpperCase(),
+                  value.isEmpty ? 'Not set' : value,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.titleMedium.copyWith(
                     color: L.text,
                     fontWeight: FontWeight.w700,
-                    letterSpacing: 0.5,
+                    letterSpacing: -0.2,
                     fontSize: 14,
                   ),
                 ),
@@ -1757,33 +1741,42 @@ class _ManagementTile extends StatelessWidget {
       this.isLast = false});
   @override
   Widget build(BuildContext context) {
-    return Container(
-        decoration: BoxDecoration(
-            border: isLast
-                ? null
-                : Border(
-                    bottom: BorderSide(
-                        color: L.glassBorder.withValues(alpha: 0.08), width: 0.5))),
-        child: ListTile(
-            onTap: onTap,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            leading: Container(
-              padding: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: iconBg,
-                borderRadius: BorderRadius.circular(10),
+    return Semantics(
+      button: true,
+      label: title,
+      child: AnimatedPressable(
+        onTap: onTap,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+          decoration: BoxDecoration(
+              border: isLast
+                  ? null
+                  : Border(
+                      bottom: BorderSide(
+                          color: L.glassBorder.withValues(alpha: 0.08),
+                          width: 0.5))),
+          child: ListTile(
+              contentPadding:
+                  const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+              leading: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: iconBg,
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: Icon(icon, size: 20, color: iconColor),
               ),
-              child: Icon(icon, size: 20, color: iconColor),
-            ),
-            title: Text(title,
-                style: AppTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: color,
-                    fontSize: 15,
-                    letterSpacing: -0.5)),
-            trailing: Icon(Icons.chevron_right_rounded,
-                color: L.sub.withValues(alpha: 0.3), size: 24)));
+              title: Text(title,
+                  style: AppTypography.titleMedium.copyWith(
+                      fontWeight: FontWeight.w600,
+                      color: color,
+                      fontSize: 15,
+                      letterSpacing: -0.5)),
+              trailing: Icon(Icons.chevron_right_rounded,
+                  color: L.sub.withValues(alpha: 0.3), size: 24)),
+        ),
+      ),
+    );
   }
 }
 
@@ -1800,15 +1793,14 @@ class _FormSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Padding(
-          padding: const EdgeInsets.only(left: 8, bottom: 10),
-          child: Text(label.toUpperCase(),
-              style: AppTypography.labelSmall.copyWith(
-                  color: L.sub,
-                  fontWeight: FontWeight.w600,
-                  letterSpacing: 1.8,
-                  fontSize: 10))),
-      SquircleCard(padding: EdgeInsets.zero, child: Column(children: children)),
+      MedAiSectionHeader(title: label),
+      MedAiDepthCard(
+        padding: EdgeInsets.zero,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(AppRadius.xl),
+          child: Column(children: children),
+        ),
+      ),
     ]);
   }
 }
@@ -2019,24 +2011,28 @@ class _RestockBtn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BouncingButton(
-      onTap: onTap,
-      child: Container(
-        width: 52,
-        height: 52,
-        decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(14),
-          border:
-              Border.all(color: L.border.withValues(alpha: 0.08), width: 0.5),
-        ),
-        child: Center(
-          child: Text(
-            label,
-            style: AppTypography.labelLarge.copyWith(
-              color: L.text,
-              fontWeight: FontWeight.w600,
-              fontSize: 14,
+    return Semantics(
+      button: true,
+      label: label,
+      child: AnimatedPressable(
+        onTap: onTap,
+        child: Container(
+          width: MedAiA11y.minTapTarget,
+          height: MedAiA11y.minTapTarget,
+          decoration: BoxDecoration(
+            color: L.card,
+            borderRadius: BorderRadius.circular(14),
+            border:
+                Border.all(color: L.border.withValues(alpha: 0.1), width: 0.5),
+          ),
+          child: Center(
+            child: Text(
+              label,
+              style: AppTypography.labelLarge.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+              ),
             ),
           ),
         ),
@@ -2087,112 +2083,131 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
 
   @override
   Widget build(BuildContext context) {
-    return BouncingButton(
-      onTap: _handleTap,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 400),
-        curve: Curves.easeOutExpo,
-        padding: const EdgeInsets.symmetric(vertical: 16),
-        decoration: BoxDecoration(
-          color: _state == 2 ? const Color(0xFF34C759) : Colors.white,
-          borderRadius: BorderRadius.circular(100),
-          boxShadow: [
-            if (_state == 0)
-              BoxShadow(
-                color: const Color(0xFF34C759).withValues(alpha: 0.3),
-                blurRadius: 16,
-                spreadRadius: 1,
-                offset: const Offset(0, 4),
-              ),
-            if (_state == 2)
-              BoxShadow(
-                color: const Color(0xFF34C759).withValues(alpha: 0.5),
-                blurRadius: 24,
-                spreadRadius: 4,
-                offset: const Offset(0, 8),
-              ),
-            if (_state == 0)
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, 4),
-              ),
-          ],
-          border: Border.all(
-            color: _state == 2 ? Colors.transparent : Colors.black.withValues(alpha: 0.05),
-            width: 1.0,
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+    return Semantics(
+      button: true,
+      enabled: _state == 0,
+      label: _state == 0
+          ? 'Log flexible dose for ${widget.med.name}'
+          : _state == 1
+              ? 'Logging dose'
+              : 'Dose logged',
+      child: AnimatedPressable(
+        onTap: _handleTap,
+        child: AnimatedContainer(
+          duration: reduceMotion
+              ? Duration.zero
+              : const Duration(milliseconds: 400),
+          curve: Curves.easeOutExpo,
+          constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+          decoration: BoxDecoration(
+            color: _state == 2 ? const Color(0xFF34C759) : Colors.white,
+            borderRadius: BorderRadius.circular(100),
+            boxShadow: [
+              if (_state == 0)
+                BoxShadow(
+                  color: const Color(0xFF34C759).withValues(alpha: 0.3),
+                  blurRadius: 16,
+                  spreadRadius: 1,
+                  offset: const Offset(0, 4),
+                ),
+              if (_state == 2)
+                BoxShadow(
+                  color: const Color(0xFF34C759).withValues(alpha: 0.5),
+                  blurRadius: 24,
+                  spreadRadius: 4,
+                  offset: const Offset(0, 8),
+                ),
+              if (_state == 0)
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.05),
+                  blurRadius: 8,
+                  offset: const Offset(0, 4),
+                ),
+            ],
+            border: Border.all(
+              color: _state == 2
+                  ? Colors.transparent
+                  : Colors.black.withValues(alpha: 0.05),
+              width: 1.0,
+            ),
           ),
-        ),
-        child: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 400),
-          switchInCurve: Curves.easeOutBack,
-          switchOutCurve: Curves.easeInBack,
-          transitionBuilder: (child, animation) => ScaleTransition(
-            scale: animation,
-            child: FadeTransition(opacity: animation, child: child),
+          child: AnimatedSwitcher(
+            duration: reduceMotion
+                ? Duration.zero
+                : const Duration(milliseconds: 400),
+            switchInCurve: Curves.easeOutBack,
+            switchOutCurve: Curves.easeInBack,
+            transitionBuilder: (child, animation) => ScaleTransition(
+              scale: animation,
+              child: FadeTransition(opacity: animation, child: child),
+            ),
+            child: _state == 0
+                ? Row(
+                    key: const ValueKey('idle'),
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.05),
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.check_rounded,
+                            color: Colors.black, size: 16),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Log Dose',
+                        style: AppTypography.titleMedium.copyWith(
+                          color: Colors.black,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  )
+                : _state == 1
+                    ? Row(
+                        key: const ValueKey('loading'),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                                strokeWidth: 2.5, color: Colors.black87),
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Logging...',
+                            style: AppTypography.titleMedium.copyWith(
+                              color: Colors.black87,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      )
+                    : Row(
+                        key: const ValueKey('success'),
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.verified_rounded,
+                              color: Colors.white, size: 20),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Logged!',
+                            style: AppTypography.titleMedium.copyWith(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 15,
+                            ),
+                          ),
+                        ],
+                      ),
           ),
-          child: _state == 0
-              ? Row(
-                  key: const ValueKey('idle'),
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(4),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.05),
-                        shape: BoxShape.circle,
-                      ),
-                      child: const Icon(Icons.check_rounded, color: Colors.black, size: 16),
-                    ),
-                    const SizedBox(width: 8),
-                    Text(
-                      'Log Dose',
-                      style: AppTypography.titleMedium.copyWith(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 15,
-                      ),
-                    ),
-                  ],
-                )
-              : _state == 1
-                  ? Row(
-                      key: const ValueKey('loading'),
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(strokeWidth: 2.5, color: Colors.black87),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          'Logging...',
-                          style: AppTypography.titleMedium.copyWith(
-                            color: Colors.black87,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 15,
-                          ),
-                        ),
-                      ],
-                    )
-                  : Row(
-                      key: const ValueKey('success'),
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const Icon(Icons.verified_rounded, color: Colors.white, size: 20)
-                            .animate().scale(curve: Curves.easeOutBack, duration: 400.ms),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Logged!',
-                          style: AppTypography.titleMedium.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 15,
-                          ),
-                        ).animate().slideX(begin: 0.2, end: 0, curve: Curves.easeOutBack, duration: 400.ms),
-                      ],
-                    ),
         ),
       ),
     );

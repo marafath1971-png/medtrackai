@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../domain/entities/managed_profile.dart';
 import '../../theme/app_theme.dart';
+import '../../core/utils/haptic_engine.dart';
+import '../../widgets/common/app_scaffold.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 import 'package:medai/widgets/common/animated_pressable.dart';
 
 class ProfilePinScreen extends StatefulWidget {
@@ -16,6 +19,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
   bool _error = false;
 
   void _onKeyPress(String key) {
+    HapticEngine.selection();
     if (_enteredPin.length < 4) {
       setState(() {
         _enteredPin += key;
@@ -28,6 +32,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
   }
 
   void _onBackspace() {
+    HapticEngine.light();
     if (_enteredPin.isNotEmpty) {
       setState(() {
         _enteredPin = _enteredPin.substring(0, _enteredPin.length - 1);
@@ -51,8 +56,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
   Widget build(BuildContext context) {
     final L = context.L;
 
-    return Scaffold(
-      backgroundColor: L.bg,
+    return AppScaffold(
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
@@ -62,27 +66,24 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
         child: Column(
           children: [
             const Spacer(),
-            Text(widget.profile.avatar, style: const TextStyle(fontSize: 64)),
+            Text(widget.profile.avatar, style: const TextStyle(fontSize: 64))
+                .animate()
+                .scaleXY(begin: 0.8, duration: 500.ms, curve: AppCurves.liquid),
             const SizedBox(height: 16),
             Text(
               'Unlock ${widget.profile.name}',
-              style: TextStyle(
-                fontFamily: 'Courier',
+              style: AppTypography.headlineLarge.copyWith(
                 color: L.text,
-                fontSize: 24,
-                fontWeight: FontWeight.w900,
-                letterSpacing: 1.5,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.6,
               ),
             ),
             const SizedBox(height: 8),
             Text(
               'Enter profile PIN to switch',
-              style: TextStyle(
-                fontFamily: 'Courier',
+              style: AppTypography.bodyMedium.copyWith(
                 color: L.sub,
-                fontSize: 14,
-                fontWeight: FontWeight.w600,
-                letterSpacing: 1.0,
+                fontWeight: FontWeight.w500,
               ),
             ),
             const SizedBox(height: 32),
@@ -177,11 +178,9 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
         child: Center(
           child: Text(
             value,
-            style: TextStyle(
-              fontFamily: 'Courier',
+            style: AppTypography.headlineMedium.copyWith(
               color: L.text,
-              fontSize: 28,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w600,
             ),
           ),
         ),

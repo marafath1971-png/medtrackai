@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+
+/// WCAG 2.2 / iOS HIG minimum interactive target sizes.
+abstract final class AppA11y {
+  static const double minTapTarget = 48;
+  static const double minTapTargetCompact = 44;
+  static const double minContrastRatio = 4.5;
+}
 
 class AppSpacing {
   static const double zero = 0;
@@ -66,8 +74,12 @@ class AppRadius {
 class AppCurves {
   static const Curve spring = ElasticOutCurve(0.9);
   static const Curve smooth = Curves.easeInOutCirc;
-  static const Curve liquid = ElasticOutCurve(0.7); 
+  static const Curve liquid = ElasticOutCurve(0.7);
   static const Curve bouncy = ElasticOutCurve(0.5);
+  /// Material 3 Expressive emphasized decelerate.
+  static const Curve expressive = Cubic(0.05, 0.7, 0.1, 1.0);
+  /// iOS HIG standard ease-out for transitions.
+  static const Curve iosEaseOut = Cubic(0.25, 0.1, 0.25, 1.0);
 }
 
 class AppTypography {
@@ -167,16 +179,33 @@ class AppTypography {
 }
 
 class AppShadows {
+  /// Default elevated surface — Cal AI / Apple Health style ambient lift.
   static List<BoxShadow> get soft => [
         BoxShadow(
-          color: Colors.black.withValues(alpha: 0.08),
+          color: const Color(0xFF1A2621).withValues(alpha: 0.04),
           blurRadius: 24,
+          spreadRadius: -4,
           offset: const Offset(0, 8),
         ),
         BoxShadow(
+          color: Colors.black.withValues(alpha: 0.02),
+          blurRadius: 1,
+          offset: const Offset(0, 1),
+        ),
+      ];
+
+  /// Hero cards and primary modules on home.
+  static List<BoxShadow> get premium => [
+        BoxShadow(
+          color: const Color(0xFF3A7D6A).withValues(alpha: 0.08),
+          blurRadius: 40,
+          spreadRadius: -8,
+          offset: const Offset(0, 16),
+        ),
+        BoxShadow(
           color: Colors.black.withValues(alpha: 0.04),
-          blurRadius: 8,
-          offset: const Offset(0, 2),
+          blurRadius: 12,
+          offset: const Offset(0, 4),
         ),
       ];
 
@@ -286,5 +315,24 @@ class AppGradients {
         colors: [Colors.transparent, Colors.transparent],
         radius: 0.8,
       );
+}
+
+// ── 2026 motion presets — use app-wide for consistent entrance choreography ──
+extension MotionPresets on Widget {
+  Widget entranceHero() => animate()
+      .fadeIn(duration: AppDurations.hero, curve: AppCurves.smooth)
+      .slideY(begin: 0.06, end: 0, duration: AppDurations.hero, curve: AppCurves.smooth);
+
+  Widget entranceCard(int index) => animate(delay: (index * 60).ms)
+      .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
+      .slideY(begin: 0.04, end: 0, duration: AppDurations.fast, curve: AppCurves.smooth);
+
+  Widget entranceCTA() => animate()
+      .fadeIn(duration: AppDurations.micro)
+      .scaleXY(begin: 0.92, end: 1.0, duration: AppDurations.hero, curve: AppCurves.liquid);
+
+  Widget entranceSlideX({double begin = 0.08}) => animate()
+      .fadeIn(duration: AppDurations.fast)
+      .slideX(begin: begin, end: 0, duration: AppDurations.hero, curve: AppCurves.smooth);
 }
 

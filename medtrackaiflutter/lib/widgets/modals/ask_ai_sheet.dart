@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../services/gemini_service.dart';
 import '../../domain/entities/entities.dart';
-
+import '../../core/utils/haptic_engine.dart';
 import '../common/app_loading_indicator.dart';
 import '../common/refined_sheet_wrapper.dart';
+import '../common/animated_pressable.dart';
 
 class AskAiSheet extends StatefulWidget {
   final List<HealthInsight> contextInsights;
@@ -24,6 +25,7 @@ class _AskAiSheetState extends State<AskAiSheet> {
     final text = _controller.text.trim();
     if (text.isEmpty || _isLoading) return;
 
+    HapticEngine.selection();
     setState(() {
       _messages.add({'role': 'user', 'content': text});
       _isLoading = true;
@@ -50,24 +52,23 @@ class _AskAiSheetState extends State<AskAiSheet> {
 
     return RefinedSheetWrapper(
       title: 'AI Health Coach',
-      icon: Container(
-        padding: const EdgeInsets.all(8),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [L.secondary.withValues(alpha: 0.2), L.primary.withValues(alpha: 0.1)],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
+      icon: Semantics(
+        label: 'AI coach icon',
+        child: Container(
+          width: MedAiA11y.minTapTarget,
+          height: MedAiA11y.minTapTarget,
+          decoration: BoxDecoration(
+            color: L.accent.withValues(alpha: 0.1),
+            shape: BoxShape.circle,
+            border: Border.all(color: L.accent.withValues(alpha: 0.25)),
           ),
-          shape: BoxShape.circle,
-          border: Border.all(color: L.secondary.withValues(alpha: 0.3)),
+          child: Icon(Icons.auto_awesome_rounded, color: L.accent, size: 20),
         ),
-        child: Icon(Icons.auto_awesome_rounded, color: L.secondary, size: 20),
       ),
-      scrollable: false, // We use ListView internally for messaging
+      scrollable: false,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Using Flexible + ListView for better responsiveness
           Flexible(
             child: Container(
               constraints: BoxConstraints(
@@ -89,7 +90,8 @@ class _AskAiSheetState extends State<AskAiSheet> {
                       ),
                     )
                   : ListView.builder(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                      keyboardDismissBehavior:
+                          ScrollViewKeyboardDismissBehavior.onDrag,
                       shrinkWrap: true,
                       physics: const BouncingScrollPhysics(),
                       padding: const EdgeInsets.only(bottom: 24),
@@ -97,50 +99,30 @@ class _AskAiSheetState extends State<AskAiSheet> {
                       itemBuilder: (context, index) {
                         final msg = _messages[index];
                         final isAi = msg['role'] == 'ai';
-                        return Align(
-                          alignment: isAi
-                              ? Alignment.centerLeft
-                              : Alignment.centerRight,
-                          child: Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
-                            decoration: BoxDecoration(
-                              color: isAi ? L.card : L.text,
-                              borderRadius: BorderRadius.circular(20).copyWith(
-                                bottomLeft:
-                                    isAi ? const Radius.circular(4) : null,
-                                bottomRight:
-                                    !isAi ? const Radius.circular(4) : null,
-                              ),
-                              border: isAi
-                                  ? Border.all(
-                                      color: L.secondary.withValues(alpha: 0.2))
-                                  : null,
-                              boxShadow: isAi
-                                  ? [
-                                      BoxShadow(
-                                        color: L.secondary.withValues(alpha: 0.05),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
-                                      )
-                                    ]
-                                  : [
-                                      BoxShadow(
-                                        color: L.text.withValues(alpha: 0.2),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 4),
-                                      )
-                                    ],
-                            ),
-                            child: Text(
-                              msg['content']!,
-                              style: AppTypography.bodyMedium.copyWith(
-                                fontFamily: isAi ? 'Courier' : null,
-                                color: isAi ? L.text : L.bg,
-                                fontSize: 14,
-                                fontWeight:
-                                    isAi ? FontWeight.w900 : FontWeight.w700,
+                        return Padding(
+                          padding: const EdgeInsets.only(bottom: 12),
+                          child: Align(
+                            alignment: isAi
+                                ? Alignment.centerLeft
+                                : Alignment.centerRight,
+                            child: Semantics(
+                              label: isAi ? 'AI response' : 'Your message',
+                              child: MedAiGlass(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
+                                radius: AppRadius.l,
+                                tint: isAi ? L.card : L.text,
+                                showBorder: isAi,
+                                child: Text(
+                                  msg['content']!,
+                                  style: AppTypography.bodyMedium.copyWith(
+                                    color: isAi ? L.text : L.bg,
+                                    fontSize: 14,
+                                    fontWeight: isAi
+                                        ? FontWeight.w600
+                                        : FontWeight.w700,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -152,61 +134,65 @@ class _AskAiSheetState extends State<AskAiSheet> {
           if (_isLoading)
             Padding(
               padding: const EdgeInsets.only(bottom: 16, top: 8),
-              child: Row(
-                children: [
-                  const AppLoadingIndicator(size: 14),
-                  const SizedBox(width: 8),
-                  Text('COACH IS THINKING...',
-                      style: AppTypography.labelLarge.copyWith(
-                          fontFamily: 'Courier',
-                          color: L.secondary,
-                          fontSize: 12,
-                          letterSpacing: 2.0,
-                          fontWeight: FontWeight.w900)),
-                ],
+              child: Semantics(
+                liveRegion: true,
+                label: 'Coach is thinking',
+                child: Row(
+                  children: [
+                    const AppLoadingIndicator(size: 14),
+                    const SizedBox(width: 8),
+                    Text('Coach is thinking…',
+                        style: AppTypography.labelLarge.copyWith(
+                            color: L.accent,
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700)),
+                  ],
+                ),
               ),
             ),
           const SizedBox(height: 8),
-          // Input Area
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: L.card.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: L.secondary.withValues(alpha: 0.3), width: 1.5),
-              boxShadow: [
-                BoxShadow(
-                  color: L.secondary.withValues(alpha: 0.05),
-                  blurRadius: 20,
-                  offset: const Offset(0, 4),
-                )
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _controller,
-                    autofocus: true,
-                    onSubmitted: (_) => _sendMessage(),
-                    style: AppTypography.bodyMedium.copyWith(
-                        color: L.text,
-                        fontSize: 14,
-                        fontWeight: FontWeight.w600),
-                    decoration: InputDecoration(
-                      hintText: 'Ask a question...',
-                      hintStyle: AppTypography.bodyMedium.copyWith(
-                          color: L.sub.withValues(alpha: 0.5), fontSize: 14),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(vertical: 16),
+          Semantics(
+            label: 'Ask a question',
+            child: MedAiGlass(
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              radius: AppRadius.xl,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: _controller,
+                      autofocus: true,
+                      onSubmitted: (_) => _sendMessage(),
+                      style: AppTypography.bodyMedium.copyWith(
+                          color: L.text,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600),
+                      decoration: InputDecoration(
+                        hintText: 'Ask a question...',
+                        hintStyle: AppTypography.bodyMedium.copyWith(
+                            color: L.sub.withValues(alpha: 0.5), fontSize: 14),
+                        border: InputBorder.none,
+                        contentPadding:
+                            const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+                      ),
                     ),
                   ),
-                ),
-                IconButton(
-                  onPressed: _sendMessage,
-                  icon: Icon(Icons.send_rounded, color: L.text, size: 20),
-                ),
-              ],
+                  Semantics(
+                    button: true,
+                    label: 'Send message',
+                    child: AnimatedPressable(
+                      onTap: _sendMessage,
+                      child: Container(
+                        width: MedAiA11y.minTapTarget,
+                        height: MedAiA11y.minTapTarget,
+                        alignment: Alignment.center,
+                        child: Icon(Icons.send_rounded,
+                            color: L.text, size: 20),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 12),

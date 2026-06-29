@@ -5,10 +5,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
 import '../../../providers/app_state.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/haptic_engine.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import '../../../widgets/shared/shared_widgets.dart';
+import '../../../widgets/common/animated_pressable.dart';
+import '../../../widgets/common/app_scaffold.dart';
 
 class EditFamilyMemberScreen extends StatefulWidget {
   final ManagedProfile member;
@@ -186,72 +186,107 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return Scaffold(
-      backgroundColor: L.meshBg,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.close_rounded, color: L.text),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'Edit Member',
-          style: AppTypography.labelLarge.copyWith(
-            fontFamily: 'Courier',
-            color: L.text,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 2.0,
+
+    return AppScaffold(
+      showAurora: true,
+      body: CustomScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: Semantics(
+              button: true,
+              label: 'Close',
+              child: AnimatedPressable(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  width: MedAiA11y.minTapTarget,
+                  height: MedAiA11y.minTapTarget,
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: L.fill.withValues(alpha: 0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.close_rounded, color: L.text, size: 20),
+                ),
+              ),
+            ),
+            title: Text(
+              'Edit Member',
+              style: AppTypography.titleLarge.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+              ),
+            ),
+            centerTitle: true,
+            actions: [
+              Semantics(
+                button: true,
+                label: 'Remove member',
+                child: AnimatedPressable(
+                  onTap: _handleDelete,
+                  child: Container(
+                    width: MedAiA11y.minTapTarget,
+                    height: MedAiA11y.minTapTarget,
+                    margin: const EdgeInsets.only(right: 8),
+                    decoration: BoxDecoration(
+                      color: L.error.withValues(alpha: 0.08),
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(Icons.delete_outline_rounded,
+                        color: L.error, size: 20),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ),
-        centerTitle: true,
-        actions: [
-          IconButton(
-            icon: Icon(Icons.delete_outline_rounded, color: L.error),
-            onPressed: _handleDelete,
-          )
-        ],
-      ),
-      body: SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        physics: const BouncingScrollPhysics(),
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
             // Avatar Preview & Role
             Center(
               child: Column(
                 children: [
-                  AnimatedPressable(
-                    onTap: _pickImage,
-                    child: Container(
-                      width: 90,
-                      height: 90,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: L.card,
-                        boxShadow: L.shadowSoft,
-                        border: Border.all(color: L.border.withValues(alpha: 0.1)),
-                      ),
-                      child: Center(
-                        child: _photoPath != null
-                            ? ClipOval(
-                                child: Image.file(
-                                  File(_photoPath!),
-                                  width: 90,
-                                  height: 90,
-                                  fit: BoxFit.cover,
+                  Semantics(
+                    button: true,
+                    label: 'Change profile photo',
+                    child: AnimatedPressable(
+                      onTap: _pickImage,
+                      child: Container(
+                        width: 90,
+                        height: 90,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: L.card,
+                          boxShadow: AppShadows.soft,
+                          border: Border.all(
+                              color: L.border.withValues(alpha: 0.1)),
+                        ),
+                        child: Center(
+                          child: _photoPath != null
+                              ? ClipOval(
+                                  child: Image.file(
+                                    File(_photoPath!),
+                                    width: 90,
+                                    height: 90,
+                                    fit: BoxFit.cover,
+                                  ),
+                                )
+                              : Icon(
+                                  _selectedIcon,
+                                  size: 42,
+                                  color: L.text,
                                 ),
-                              )
-                            : Icon(
-                                _selectedIcon,
-                                size: 42,
-                                color: L.text,
-                              ),
+                        ),
                       ),
                     ),
-                  ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
+                  ),
                   const SizedBox(height: 8),
                   Text(
                     'Tap to change photo',
@@ -384,13 +419,8 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
             const SizedBox(height: 24),
 
             // Critical Care Toggle
-            Container(
+            MedAiDepthCard(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: L.card,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: L.border.withValues(alpha: 0.1)),
-              ),
               child: Row(
                 children: [
                   Expanded(
@@ -399,63 +429,43 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
                       children: [
                         Text(
                           'Critical Care Member',
-                          style: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w900, color: L.text),
+                          style: AppTypography.labelMedium.copyWith(
+                              fontWeight: FontWeight.w900, color: L.text),
                         ),
                         const SizedBox(height: 4),
                         Text(
                           'Prioritize alerts and monitoring',
-                          style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.6)),
+                          style: AppTypography.labelSmall
+                              .copyWith(color: L.sub.withValues(alpha: 0.6)),
                         ),
                       ],
                     ),
                   ),
-                  Switch.adaptive(
-                    value: _isCritical,
-                    activeTrackColor: L.text,
-                    onChanged: (v) => setState(() => _isCritical = v),
+                  Semantics(
+                    toggled: _isCritical,
+                    label: 'Critical care member',
+                    child: Switch.adaptive(
+                      value: _isCritical,
+                      activeTrackColor: L.text,
+                      onChanged: (v) => setState(() => _isCritical = v),
+                    ),
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 40),
 
-            // Save Button
-            BouncingButton(
-              onTap: _isSaving ? () {} : _handleSave,
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.symmetric(vertical: 20),
-                decoration: BoxDecoration(
-                  color: L.text,
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [BoxShadow(color: L.text.withValues(alpha: 0.3), blurRadius: 20, offset: const Offset(0, 8))],
-                ),
-                child: Center(
-                  child: _isSaving
-                      ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: AppShimmer(
-                            width: 20,
-                            height: 20,
-                            shape: BoxShape.circle,
-                          ),
-                        )
-                      : Text(
-                          'UPDATE MEMBER',
-                          style: AppTypography.labelLarge.copyWith(
-                            fontFamily: 'Courier',
-                            fontWeight: FontWeight.w900,
-                            color: L.bg,
-                            letterSpacing: 2.0,
-                          ),
-                        ),
-                ),
-              ),
-            ).animate().slideY(begin: 0.2, end: 0),
+            MedAiCTA(
+              label: 'Update member',
+              loading: _isSaving,
+              semanticsLabel: 'Save family member changes',
+              onTap: _isSaving ? null : _handleSave,
+            ),
             const SizedBox(height: 40),
-          ],
-        ),
+              ]),
+            ),
+          ),
+        ],
       ),
     );
   }

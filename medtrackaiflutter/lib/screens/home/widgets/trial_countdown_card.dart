@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../../theme/app_theme.dart';
+import 'package:provider/provider.dart';
+
+import '../../../theme/med_ai_ui.dart';
 import '../../../providers/app_state.dart';
 import '../../../core/utils/haptic_engine.dart';
-import '../../../widgets/shared/shared_widgets.dart';
-import 'package:provider/provider.dart';
 
 class TrialCountdownCard extends StatelessWidget {
   const TrialCountdownCard({super.key});
@@ -14,44 +14,42 @@ class TrialCountdownCard extends StatelessWidget {
     final state = Provider.of<AppState>(context);
     final profile = state.profile;
 
-    // Only show for free-tier users
     if (profile == null || profile.isPremium) return const SizedBox.shrink();
 
     final scansUsed = profile.scansUsed;
     final remaining = (3 - scansUsed).clamp(0, 3);
     final isExhausted = scansUsed >= 3;
     final L = context.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
 
-    return Padding(
+    Widget card = Padding(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.screenPadding),
-      child: BouncingButton(
-        onTap: () {
-          HapticEngine.selection();
-          state.purchasePremium('annual');
-        },
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(AppRadius.squircle),
-            boxShadow: AppShadows.neumorphic,
-          ),
+      child: Semantics(
+        button: true,
+        label: isExhausted
+            ? 'Free scans used. Upgrade to unlock unlimited scanning.'
+            : '$remaining of 3 free AI scans remaining. Upgrade to Pro.',
+        child: MedAiDepthCard(
+          padding: const EdgeInsets.all(AppSpacing.p20),
+          onTap: () {
+            HapticEngine.selection();
+            state.purchasePremium('annual');
+          },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // ── Header Row ───────────────────────────────────────────
               Row(
                 children: [
                   Container(
-                    width: 48,
-                    height: 48,
+                    width: MedAiA11y.minTapTarget,
+                    height: MedAiA11y.minTapTarget,
                     decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.05),
+                      color: L.primary.withValues(alpha: 0.08),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: Center(
                       child: Icon(Icons.document_scanner_rounded,
-                          color: L.text, size: 22),
+                          color: L.primary, size: 22),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -60,14 +58,12 @@ class TrialCountdownCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isExhausted
-                              ? 'Free Scans Exhausted'
-                              : 'Free AI Scans',
+                          isExhausted ? 'Free scans used' : 'Free AI scans',
                           style: AppTypography.titleMedium.copyWith(
                             color: L.text,
                             fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: -0.5,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
                           ),
                         ),
                         const SizedBox(height: 3),
@@ -78,97 +74,68 @@ class TrialCountdownCard extends StatelessWidget {
                           style: AppTypography.bodySmall.copyWith(
                             color: L.sub,
                             fontSize: 12,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ],
                     ),
                   ),
-                  // Premium CTA pill
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 11),
+                        horizontal: 14, vertical: 10),
                     decoration: BoxDecoration(
                       color: L.text,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                          color: L.text.withValues(alpha: 0.25),
-                          blurRadius: 20,
-                          offset: const Offset(0, 8),
-                        )
-                      ],
+                      borderRadius: BorderRadius.circular(AppRadius.m),
+                      boxShadow: AppShadows.soft,
                     ),
                     child: Text(
-                      'GO PRO',
+                      'Go Pro',
                       style: AppTypography.labelMedium.copyWith(
                         color: L.bg,
                         fontSize: 12,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.2,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
-                  )
-                      .animate(onPlay: (c) => c.repeat(reverse: true))
-                      .shimmer(
-                          duration: 3.seconds,
-                          color: Colors.white.withValues(alpha: 0.1))
-                      .scale(
-                          begin: const Offset(1, 1),
-                          end: const Offset(1.03, 1.03),
-                          duration: 2.seconds,
-                          curve: Curves.easeInOut),
+                  ),
                 ],
               ),
-
               const SizedBox(height: 18),
-
-              // ── Precision Segmented Indicators ───────────────────────────
               Row(
-                children: List.generate(40, (i) {
-                  final segmentThreshold = i / 40;
-                  final scanThreshold = scansUsed / 3;
-                  final used = segmentThreshold < scanThreshold;
-
+                children: List.generate(3, (i) {
+                  final used = i < scansUsed;
                   return Expanded(
                     child: Container(
                       height: 4,
-                      margin: const EdgeInsets.symmetric(horizontal: 0.4),
+                      margin: EdgeInsets.only(right: i < 2 ? 6 : 0),
                       decoration: BoxDecoration(
                         color: used
-                            ? (isExhausted ? L.error : L.text)
-                            : L.fill.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(0.5),
+                            ? (isExhausted ? L.error : L.primary)
+                            : L.fill.withValues(alpha: 0.3),
+                        borderRadius: BorderRadius.circular(2),
                       ),
-                    ).animate(target: used ? 1 : 0).shimmer(
-                        duration: 2.seconds,
-                        color: Colors.white.withValues(alpha: 0.1)),
+                    ),
                   );
                 }),
               ),
-
               if (isExhausted) ...[
                 const SizedBox(height: 14),
-                Container(
+                MedAiGlass(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(
-                    color: L.text.withValues(alpha: 0.04),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: L.text.withValues(alpha: 0.08)),
-                  ),
+                  radius: AppRadius.s,
+                  tint: L.fill.withValues(alpha: 0.5),
                   child: Row(
                     children: [
-                      Icon(Icons.star_rounded, color: L.text, size: 16),
+                      Icon(Icons.star_rounded, color: L.primary, size: 16),
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          'Unlock unlimited scans, interaction checks & more with PRO.',
+                          'Unlock unlimited scans, interaction checks, and more with Pro.',
                           style: AppTypography.bodySmall.copyWith(
                             color: L.sub,
                             fontSize: 12,
                             height: 1.4,
-                            fontWeight: FontWeight.w600,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       ),
@@ -180,9 +147,12 @@ class TrialCountdownCard extends StatelessWidget {
           ),
         ),
       ),
-    )
+    );
+
+    if (reduceMotion) return card;
+    return card
         .animate()
-        .fadeIn(duration: 400.ms)
-        .slideY(begin: 0.08, end: 0, curve: Curves.easeOutQuart);
+        .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
+        .slideY(begin: 0.08, end: 0, curve: AppCurves.smooth);
   }
 }

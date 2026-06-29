@@ -49,18 +49,10 @@ class _AIProtectorCardState extends State<AIProtectorCard>
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.screenPadding),
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              L.primary.withValues(alpha: 0.15),
-              L.primary.withValues(alpha: 0.05),
-              L.bg.withValues(alpha: 0.0),
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
+          color: L.card,
           borderRadius: AppRadius.roundL,
-          border:
-              Border.all(color: L.primary.withValues(alpha: 0.1), width: 1.5),
+          border: Border.all(color: L.primary.withValues(alpha: 0.1), width: 0.5),
+          boxShadow: AppShadows.premium,
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -70,36 +62,27 @@ class _AIProtectorCardState extends State<AIProtectorCard>
                 Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: L.primary,
+                    color: L.primary.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: L.primary.withValues(alpha: 0.3),
-                        blurRadius: 10,
-                        offset: const Offset(0, 4),
-                      )
-                    ],
                   ),
-                  child: const Icon(Icons.psychology_rounded,
-                      color: Colors.white, size: 20),
+                  child: Icon(Icons.psychology_rounded,
+                      color: L.primary, size: 20),
                 ),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('MedAI Protector Advisor',
+                      Text('MedAI protector advisor',
                           style: AppTypography.titleLarge.copyWith(
                               fontSize: 14,
-                              fontWeight: FontWeight.w900,
-                              color: L.text,
-                              letterSpacing: 0.2)),
-                      Text('Intelligent Care Analysis',
+                              fontWeight: FontWeight.w800,
+                              color: L.text)),
+                      Text('Intelligent care analysis',
                           style: AppTypography.bodySmall.copyWith(
                               fontSize: 11,
-                              color: L.primary,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 1.0)),
+                              color: L.sub,
+                              fontWeight: FontWeight.w600)),
                     ],
                   ),
                 ),

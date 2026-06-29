@@ -14,36 +14,38 @@ class InteractiveBodyMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final L = context.L;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 24),
       decoration: BoxDecoration(
-        color: const Color(0xFF0A0A0A),
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05)),
+        color: L.card,
+        borderRadius: BorderRadius.circular(28),
+        border: Border.all(color: L.border.withValues(alpha: 0.35), width: 0.5),
+        boxShadow: AppShadows.soft,
       ),
       child: Column(
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.accessibility_new_rounded, color: AppColors.accent, size: 20),
+              Icon(Icons.accessibility_new_rounded, color: L.accent, size: 20),
               const SizedBox(width: 8),
               Text(
-                'TARGET ORGANS',
-                style: AppTypography.labelSmall.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 2.0,
+                'Target organs',
+                style: AppTypography.titleMedium.copyWith(
+                  color: L.text,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: -0.2,
                 ),
               ),
             ],
           ),
           const SizedBox(height: 8),
           Text(
-            'Visualizing how $medName affects your body',
+            'How $medName affects your body',
             style: AppTypography.bodySmall.copyWith(
-              color: Colors.white.withValues(alpha: 0.5),
+              color: L.sub,
             ),
           ),
           const SizedBox(height: 32),
@@ -219,12 +221,12 @@ class _GlowingNode extends StatelessWidget {
             border: Border.all(color: color.withValues(alpha: 0.5)),
           ),
           child: Text(
-            name.toUpperCase(),
+            name,
             style: TextStyle(
               color: Colors.white,
-              fontSize: 8,
-              fontWeight: FontWeight.bold,
-              letterSpacing: 1.0,
+              fontSize: 9,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.1,
             ),
           ),
         ),

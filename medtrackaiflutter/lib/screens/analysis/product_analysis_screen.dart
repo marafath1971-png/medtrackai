@@ -2,14 +2,15 @@ import 'dart:io';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../theme/app_theme.dart';
+import 'package:go_router/go_router.dart';
+import '../../app/app_routes.dart';
+import '../../theme/med_ai_ui.dart';
+import '../../widgets/common/app_scaffold.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
 import '../../models/product_analysis.dart';
-import '../visualizer/impact_visualizer_screen.dart';
 import 'package:provider/provider.dart';
 import '../../providers/controllers/medication_controller.dart';
-import 'product_chat_screen.dart';
 import '../../providers/app_state.dart';
 
 // ══════════════════════════════════════════════════════════
@@ -43,7 +44,21 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
     _pulseCtrl = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!MedAiA11y.reducedMotion(context)) {
+        _pulseCtrl.repeat(reverse: true);
+      }
+    });
+  }
+
+  Widget _analysisEntrance(Widget child, {Duration? delay}) {
+    if (MedAiA11y.reducedMotion(context)) return child;
+    return child
+        .animate(delay: delay)
+        .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
+        .slideY(begin: 0.08, end: 0, curve: AppCurves.smooth);
   }
 
   @override
@@ -78,26 +93,25 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
     final topPad = MediaQuery.of(context).padding.top;
     final botPad = MediaQuery.of(context).padding.bottom;
 
-    return Scaffold(
-      backgroundColor: L.bg,
+    return AppScaffold(
+      showAurora: true,
       body: Stack(
         children: [
-          // Dynamic Mesh Background
-          Positioned.fill(
-            child: AnimatedBuilder(
-              animation: _pulseCtrl,
-              builder: (context, child) {
-                return CustomPaint(
-                  painter: _MeshPainter(
-                    color: _safetyColor,
-                    pulse: _pulseCtrl.value,
-                    themeContext: L,
-                  ),
-                );
-              },
+          if (!MedAiA11y.reducedMotion(context))
+            Positioned.fill(
+              child: AnimatedBuilder(
+                animation: _pulseCtrl,
+                builder: (context, child) {
+                  return CustomPaint(
+                    painter: _MeshPainter(
+                      color: _safetyColor,
+                      pulse: _pulseCtrl.value,
+                      themeContext: L,
+                    ),
+                  );
+                },
+              ),
             ),
-          ),
-          
           // Main Content
           CustomScrollView(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -115,12 +129,10 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
                   sliver: SliverToBoxAdapter(
-                    child: _AllergyAlertCard(alerts: widget.product.allergyAlerts)
-                        .animate(onPlay: (c) => c.repeat(reverse: true))
-                        .shimmer(duration: 2.seconds, color: Colors.white.withValues(alpha: 0.2))
-                        .animate()
-                        .fadeIn(duration: 400.ms)
-                        .scaleXY(begin: 0.9, end: 1.0, curve: Curves.easeOutBack),
+                    child: _analysisEntrance(
+                      _AllergyAlertCard(
+                          alerts: widget.product.allergyAlerts),
+                    ),
                   ),
                 ),
 
@@ -128,81 +140,79 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 20, 16),
                   sliver: SliverToBoxAdapter(
-                    child: _ChildSafetyCard(alertText: widget.product.childSafetyAlert!)
-                        .animate(onPlay: (c) => c.repeat(reverse: true))
-                        .shimmer(duration: 3.seconds, color: Colors.white.withValues(alpha: 0.2))
-                        .animate()
-                        .fadeIn(duration: 400.ms)
-                        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutBack),
+                    child: _analysisEntrance(
+                      _ChildSafetyCard(
+                          alertText: widget.product.childSafetyAlert!),
+                    ),
                   ),
                 ),
 
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
                 sliver: SliverToBoxAdapter(
-                  child: _SafetyScoreCard(
-                          product: widget.product, color: _safetyColor)
-                      .animate()
-                      .fadeIn(duration: 600.ms, delay: 150.ms)
-                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutExpo),
+                  child: _analysisEntrance(
+                    _SafetyScoreCard(
+                        product: widget.product, color: _safetyColor),
+                    delay: 150.ms,
+                  ),
                 ),
               ),
 
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 sliver: SliverToBoxAdapter(
-                  child: _QuickFacts(product: widget.product)
-                      .animate()
-                      .fadeIn(duration: 600.ms, delay: 250.ms)
-                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutExpo),
+                  child: _analysisEntrance(
+                    _QuickFacts(product: widget.product),
+                    delay: 250.ms,
+                  ),
                 ),
               ),
 
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 sliver: SliverToBoxAdapter(
-                  child: _InfoSection(
-                    label: 'Overview 📖',
-                    icon: Icons.info_outline_rounded,
-                    body: widget.product.description,
-                  )
-                      .animate()
-                      .fadeIn(duration: 600.ms, delay: 350.ms)
-                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutExpo),
+                  child: _analysisEntrance(
+                    _InfoSection(
+                      label: 'Overview 📖',
+                      icon: Icons.info_outline_rounded,
+                      body: widget.product.description,
+                    ),
+                    delay: 350.ms,
+                  ),
                 ),
               ),
 
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
                 sliver: SliverToBoxAdapter(
-                  child: _InfoSection(
-                    label: 'How It Works ⚙️',
-                    icon: Icons.biotech_rounded,
-                    body: widget.product.howItWorks,
-                  )
-                      .animate()
-                      .fadeIn(duration: 600.ms, delay: 400.ms)
-                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutExpo),
+                  child: _analysisEntrance(
+                    _InfoSection(
+                      label: 'How It Works ⚙️',
+                      icon: Icons.biotech_rounded,
+                      body: widget.product.howItWorks,
+                    ),
+                    delay: 400.ms,
+                  ),
                 ),
               ),
 
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 sliver: SliverToBoxAdapter(
-                  child: _BenefitsRisksRow(product: widget.product)
-                      .animate()
-                      .fadeIn(duration: 600.ms, delay: 450.ms)
-                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutExpo),
+                  child: _analysisEntrance(
+                    _BenefitsRisksRow(product: widget.product),
+                    delay: 450.ms,
+                  ),
                 ),
               ),
 
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 sliver: SliverToBoxAdapter(
-                  child: _InteractionPanel(product: widget.product)
-                      .animate()
-                      .fadeIn(duration: 600.ms, delay: 500.ms)
-                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutExpo),
+                  child: _analysisEntrance(
+                    _InteractionPanel(product: widget.product),
+                    delay: 500.ms,
+                  ),
                 ),
               ),
 
@@ -210,24 +220,24 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
                 SliverPadding(
                   padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                   sliver: SliverToBoxAdapter(
-                    child: _ExpertSection(
-                      perspectives: widget.product.expertPerspectives,
-                      selectedIdx: _expertIdx,
-                      onSelect: (i) => setState(() => _expertIdx = i),
-                    )
-                        .animate()
-                        .fadeIn(duration: 600.ms, delay: 550.ms)
-                        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutExpo),
+                    child: _analysisEntrance(
+                      _ExpertSection(
+                        perspectives: widget.product.expertPerspectives,
+                        selectedIdx: _expertIdx,
+                        onSelect: (i) => setState(() => _expertIdx = i),
+                      ),
+                      delay: 550.ms,
+                    ),
                   ),
                 ),
 
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
                 sliver: SliverToBoxAdapter(
-                  child: _MetaRow(product: widget.product)
-                      .animate()
-                      .fadeIn(duration: 600.ms, delay: 600.ms)
-                      .slideY(begin: 0.1, end: 0, curve: Curves.easeOutExpo),
+                  child: _analysisEntrance(
+                    _MetaRow(product: widget.product),
+                    delay: 600.ms,
+                  ),
                 ),
               ),
 
@@ -281,13 +291,14 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
               },
               onImpact: () {
                 HapticEngine.heavyImpact();
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => const ImpactVisualizerScreen()));
+                context.push(AppRoutes.impactVisualizer);
               },
               onChat: () {
                 HapticEngine.selection();
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (_) => ProductChatScreen(product: widget.product)));
+                context.push(
+                  AppRoutes.analysisChat,
+                  extra: ProductChatRouteArgs(product: widget.product),
+                );
               },
             ),
           ),
@@ -305,21 +316,26 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
                   color: L.bg.withValues(alpha: 0.5),
                   alignment: Alignment.bottomLeft,
                   padding: const EdgeInsets.only(left: 16, bottom: 8),
-                  child: AnimatedPressable(
-                    onTap: () {
-                      HapticEngine.selection();
-                      Navigator.pop(context);
-                    },
-                    child: Container(
-                      width: 44,
-                      height: 44,
-                      decoration: BoxDecoration(
-                        color: L.card.withValues(alpha: 0.6),
-                        shape: BoxShape.circle,
-                        border: Border.all(color: L.border.withValues(alpha: 0.3), width: 1.0),
+                  child: Semantics(
+                    button: true,
+                    label: 'Back',
+                    child: AnimatedPressable(
+                      onTap: () {
+                        HapticEngine.selection();
+                        Navigator.pop(context);
+                      },
+                      child: Container(
+                        width: MedAiA11y.minTapTarget,
+                        height: MedAiA11y.minTapTarget,
+                        decoration: BoxDecoration(
+                          color: L.card.withValues(alpha: 0.7),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                              color: L.border.withValues(alpha: 0.3), width: 1.0),
+                        ),
+                        child: Icon(Icons.arrow_back_ios_new_rounded,
+                            color: L.text, size: 18),
                       ),
-                      child: Icon(Icons.arrow_back_ios_new_rounded,
-                          color: L.text, size: 18),
                     ),
                   ),
                 ),
@@ -441,11 +457,11 @@ class _HeroHeader extends StatelessWidget {
                       .shimmer(duration: 2.seconds, color: Colors.white),
                     const SizedBox(width: 8),
                     Text(
-                      product.category.toUpperCase(),
+                      product.category,
                       style: AppTypography.labelSmall.copyWith(
                         color: AppColors.accent,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2.0,
+                        fontWeight: FontWeight.w600,
+                        letterSpacing: 0.1,
                         fontSize: 11,
                       ),
                     ),
@@ -460,14 +476,14 @@ class _HeroHeader extends StatelessWidget {
           const SizedBox(height: 16),
           // Medicine name (hero 3D)
           Text(
-            product.name.toUpperCase(),
+            product.name,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.displaySmall.copyWith(
               color: L.text,
-              fontWeight: FontWeight.w900,
-              letterSpacing: -1.5,
-              fontSize: 38,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.8,
+              fontSize: 34,
               height: 1.05,
               shadows: [
                 Shadow(color: L.text.withValues(alpha: 0.4), blurRadius: 16),
@@ -495,12 +511,12 @@ class _HeroHeader extends StatelessWidget {
               ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(0.8, 0.8), end: const Offset(1.2, 1.2), duration: 1.seconds),
               const SizedBox(width: 12),
               Text(
-                _safetyLabel(safetyColor).toUpperCase(),
+                _safetyLabel(safetyColor),
                 style: AppTypography.bodySmall.copyWith(
                   color: safetyColor,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                   fontSize: 13,
-                  letterSpacing: 1.5,
+                  letterSpacing: 0.1,
                   shadows: [Shadow(color: safetyColor.withValues(alpha: 0.5), blurRadius: 10)],
                 ),
               ),
@@ -511,12 +527,12 @@ class _HeroHeader extends StatelessWidget {
               ),
               const SizedBox(width: 16),
               Text(
-                'AI VERIFIED',
+                'AI verified',
                 style: AppTypography.bodySmall.copyWith(
                   color: L.sub,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w600,
                   fontSize: 12,
-                  letterSpacing: 2.0,
+                  letterSpacing: 0.1,
                 ),
               ),
             ],
@@ -560,25 +576,14 @@ class _SafetyScoreCard extends StatelessWidget {
     final L = context.L;
     final score = _score(product);
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(28),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          margin: const EdgeInsets.only(top: 16),
+    return Semantics(
+      label: 'Safety rating $score percent. ${_scoreDescription(score)}',
+      child: Padding(
+        padding: const EdgeInsets.only(top: 16),
+        child: MedAiDepthCard(
+          accentGlow: true,
           padding: const EdgeInsets.all(28),
-          decoration: BoxDecoration(
-            color: L.card.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(color: color.withValues(alpha: 0.3), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: color.withValues(alpha: 0.1),
-                blurRadius: 40,
-                offset: const Offset(0, 15),
-              ),
-            ],
-          ),
+          radius: 28,
           child: Row(
             children: [
               // Glowing Animated Score Ring
@@ -587,7 +592,8 @@ class _SafetyScoreCard extends StatelessWidget {
                 height: 90,
                 child: TweenAnimationBuilder<double>(
                   tween: Tween(begin: 0.0, end: score / 100),
-                  duration: const Duration(milliseconds: 2000),
+                  duration: MedAiA11y.motion(
+                      context, const Duration(milliseconds: 2000)),
                   curve: Curves.easeOutCubic,
                   builder: (context, val, child) {
                     return Stack(
@@ -606,12 +612,14 @@ class _SafetyScoreCard extends StatelessWidget {
                           '${(val * 100).toInt()}',
                           style: AppTypography.displaySmall.copyWith(
                             color: L.text,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w800,
                             fontSize: 32,
                             letterSpacing: -1.0,
                             shadows: [
-                              Shadow(color: color.withValues(alpha: 0.6), blurRadius: 20)
-                            ]
+                              Shadow(
+                                  color: color.withValues(alpha: 0.6),
+                                  blurRadius: 20)
+                            ],
                           ),
                         ),
                       ],
@@ -629,12 +637,12 @@ class _SafetyScoreCard extends StatelessWidget {
                         Icon(Icons.shield_rounded, color: L.sub, size: 16),
                         const SizedBox(width: 6),
                         Text(
-                          'SAFETY RATING',
+                          'Safety rating',
                           style: AppTypography.labelSmall.copyWith(
                             color: L.sub,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w600,
                             fontSize: 12,
-                            letterSpacing: 2.0,
+                            letterSpacing: 0.1,
                           ),
                         ),
                       ],
@@ -650,20 +658,22 @@ class _SafetyScoreCard extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    // Score bar (micro interactions)
                     Container(
                       height: 8,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(8),
                         boxShadow: [
-                          BoxShadow(color: color.withValues(alpha: 0.5), blurRadius: 10)
-                        ]
+                          BoxShadow(
+                              color: color.withValues(alpha: 0.5),
+                              blurRadius: 10)
+                        ],
                       ),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(8),
                         child: TweenAnimationBuilder<double>(
                           tween: Tween(begin: 0, end: score / 100),
-                          duration: const Duration(milliseconds: 2000),
+                          duration: MedAiA11y.motion(
+                              context, const Duration(milliseconds: 2000)),
                           curve: Curves.easeOutExpo,
                           builder: (_, val, __) => LinearProgressIndicator(
                             value: val,
@@ -754,9 +764,9 @@ class _QuickFacts extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     final facts = [
-      (Icons.schedule_rounded, 'TIMING', product.timing.isNotEmpty ? product.timing : 'As directed'),
-      (Icons.verified_rounded, 'HALAL', product.halalStatus.isNotEmpty ? product.halalStatus : 'N/A'),
-      (Icons.science_rounded, 'EVIDENCE', product.scientificEvidence.isNotEmpty ? _shortEvidence(product.scientificEvidence) : 'N/A'),
+      (Icons.schedule_rounded, 'Timing', product.timing.isNotEmpty ? product.timing : 'As directed'),
+      (Icons.verified_rounded, 'Halal', product.halalStatus.isNotEmpty ? product.halalStatus : 'N/A'),
+      (Icons.science_rounded, 'Evidence', product.scientificEvidence.isNotEmpty ? _shortEvidence(product.scientificEvidence) : 'N/A'),
     ];
 
     return Row(
@@ -766,62 +776,48 @@ class _QuickFacts extends StatelessWidget {
         return Expanded(
           child: Padding(
             padding: EdgeInsets.only(left: idx == 0 ? 0 : 12),
-            child: BouncingButton(
+            child: MedAiGlass(
+              padding: const EdgeInsets.all(18),
+              radius: 20,
               onTap: () => HapticEngine.selection(),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(20),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                  child: Container(
-                    padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: L.card.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: L.border.withValues(alpha: 0.4), width: 1.0),
+                      color: L.sub.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
                       boxShadow: [
-                        BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 15, offset: const Offset(0, 8))
-                      ]
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: L.sub.withValues(alpha: 0.1),
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(color: L.sub.withValues(alpha: 0.2), blurRadius: 10)
-                            ]
-                          ),
-                          child: Icon(f.$1, size: 18, color: L.sub),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          f.$2,
-                          style: AppTypography.labelSmall.copyWith(
-                            color: L.sub,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.5,
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                        Text(
-                          f.$3,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: AppTypography.bodySmall.copyWith(
-                            color: L.text,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            height: 1.2,
-                          ),
-                        ),
+                        BoxShadow(
+                            color: L.sub.withValues(alpha: 0.2), blurRadius: 10)
                       ],
                     ),
+                    child: Icon(f.$1, size: 18, color: L.sub),
                   ),
-                ),
+                  const SizedBox(height: 16),
+                  Text(
+                    f.$2,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: L.sub,
+                      fontSize: 10,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    f.$3,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: L.text,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w800,
+                      height: 1.2,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -849,65 +845,49 @@ class _InfoSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: L.card.withValues(alpha: 0.4),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: L.border.withValues(alpha: 0.4), width: 1.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.08),
-                blurRadius: 20,
-                offset: const Offset(0, 10),
-              )
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return MedAiGlass(
+      padding: const EdgeInsets.all(24),
+      radius: 24,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: L.accent.withValues(alpha: 0.15),
-                      shape: BoxShape.circle,
-                      boxShadow: [
-                        BoxShadow(color: L.accent.withValues(alpha: 0.2), blurRadius: 10)
-                      ]
-                    ),
-                    child: Icon(icon, size: 18, color: L.accent),
-                  ),
-                  const SizedBox(width: 14),
-                  Text(
-                    label.toUpperCase(),
-                    style: AppTypography.labelMedium.copyWith(
-                      color: L.text,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 15,
-                      letterSpacing: 2.0,
-                    ),
-                  ),
-                ],
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: L.accent.withValues(alpha: 0.15),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                        color: L.accent.withValues(alpha: 0.2), blurRadius: 10)
+                  ],
+                ),
+                child: Icon(icon, size: 18, color: L.accent),
               ),
-              const SizedBox(height: 20),
+              const SizedBox(width: 14),
               Text(
-                body,
-                style: AppTypography.bodyMedium.copyWith(
-                  color: L.sub,
-                  height: 1.8,
-                  fontSize: 16,
-                  fontWeight: FontWeight.w500,
+                label,
+                style: AppTypography.labelMedium.copyWith(
+                  color: L.text,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 15,
+                  letterSpacing: -0.2,
                 ),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 20),
+          Text(
+            body,
+            style: AppTypography.bodyMedium.copyWith(
+              color: L.sub,
+              height: 1.8,
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -927,7 +907,7 @@ class _BenefitsRisksRow extends StatelessWidget {
       children: [
         Expanded(
           child: _ListCard(
-            title: 'BENEFITS',
+            title: 'Benefits',
             icon: Icons.thumb_up_alt_rounded,
             items: product.benefits,
             accent: AppColors.green,
@@ -936,7 +916,7 @@ class _BenefitsRisksRow extends StatelessWidget {
         const SizedBox(width: 16),
         Expanded(
           child: _ListCard(
-            title: 'SIDE EFFECTS',
+            title: 'Side effects',
             icon: Icons.warning_amber_rounded,
             items: product.sideEffects,
             accent: AppColors.red,
@@ -963,83 +943,69 @@ class _ListCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: const EdgeInsets.all(20),
-          decoration: BoxDecoration(
-            color: L.card.withValues(alpha: 0.5),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: accent.withValues(alpha: 0.25), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: accent.withValues(alpha: 0.08),
-                blurRadius: 25,
-                offset: const Offset(0, 10),
-              )
-            ],
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return MedAiGlass(
+      padding: const EdgeInsets.all(20),
+      radius: 24,
+      tint: accent.withValues(alpha: 0.06),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
             children: [
-              Row(
-                children: [
-                  Icon(icon, size: 16, color: accent),
-                  const SizedBox(width: 10),
-                  Text(
-                    title,
-                    style: AppTypography.labelSmall.copyWith(
-                      color: accent,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 13,
-                      letterSpacing: 1.5,
-                      shadows: [
-                        Shadow(color: accent.withValues(alpha: 0.4), blurRadius: 10)
-                      ]
-                    ),
-                  ),
-                ],
+              Icon(icon, size: 16, color: accent),
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: AppTypography.labelSmall.copyWith(
+                  color: accent,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  letterSpacing: 1.5,
+                  shadows: [
+                    Shadow(color: accent.withValues(alpha: 0.4), blurRadius: 10)
+                  ],
+                ),
               ),
-              const SizedBox(height: 20),
-              ...items.take(5).map((item) => Padding(
-                    padding: const EdgeInsets.only(bottom: 14),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.only(top: 6),
-                          child: Container(
-                            width: 6,
-                            height: 6,
-                            decoration: BoxDecoration(
-                              color: accent,
-                              shape: BoxShape.circle,
-                              boxShadow: [
-                                BoxShadow(color: accent.withValues(alpha: 0.8), blurRadius: 8)
-                              ]
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            item,
-                            style: AppTypography.bodySmall.copyWith(
-                              color: L.sub,
-                              height: 1.5,
-                              fontSize: 14,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  )),
             ],
           ),
-        ),
+          const SizedBox(height: 20),
+          ...items.take(5).map((item) => Padding(
+                padding: const EdgeInsets.only(bottom: 14),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 6),
+                      child: Container(
+                        width: 6,
+                        height: 6,
+                        decoration: BoxDecoration(
+                          color: accent,
+                          shape: BoxShape.circle,
+                          boxShadow: [
+                            BoxShadow(
+                                color: accent.withValues(alpha: 0.8),
+                                blurRadius: 8)
+                          ],
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        item,
+                        style: AppTypography.bodySmall.copyWith(
+                          color: L.sub,
+                          height: 1.5,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+        ],
       ),
     );
   }
@@ -1083,12 +1049,12 @@ class _InteractionPanel extends StatelessWidget {
                     .scale(begin: const Offset(0.9, 0.9), end: const Offset(1.1, 1.1), duration: 800.ms),
                   const SizedBox(width: 12),
                   Text(
-                    'INTERACTIONS',
+                    'Interactions',
                     style: AppTypography.labelMedium.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w800,
                       fontSize: 16,
-                      letterSpacing: 2.0,
+                      letterSpacing: 0.1,
                       shadows: [
                         Shadow(color: L.amber.withValues(alpha: 0.5), blurRadius: 15)
                       ]
@@ -1100,7 +1066,7 @@ class _InteractionPanel extends StatelessWidget {
               if (product.foodInteractions.isNotEmpty)
                 _InteractionGroup(
                   icon: Icons.restaurant_rounded,
-                  label: 'FOOD & LIFESTYLE',
+                  label: 'Food & lifestyle',
                   color: L.amber,
                   items: product.foodInteractions,
                 ),
@@ -1108,7 +1074,7 @@ class _InteractionPanel extends StatelessWidget {
                 const SizedBox(height: 20),
                 _InteractionGroup(
                   icon: Icons.medication_rounded,
-                  label: 'DRUG CONFLICTS',
+                  label: 'Drug conflicts',
                   color: AppColors.red,
                   items: product.medicineInteractions,
                 ),
@@ -1153,7 +1119,7 @@ class _InteractionGroup extends StatelessWidget {
                label,
               style: AppTypography.labelSmall.copyWith(
                 color: color,
-                fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w800,
                 fontSize: 13,
                 letterSpacing: 1.5,
               ),
@@ -1237,12 +1203,12 @@ class _ExpertSection extends StatelessWidget {
                   Icon(Icons.people_alt_rounded, size: 20, color: L.accent),
                   const SizedBox(width: 12),
                   Text(
-                    'EXPERT PERSPECTIVES',
+                    'Expert perspectives',
                     style: AppTypography.labelMedium.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w800,
                       fontSize: 15,
-                      letterSpacing: 2.0,
+                      letterSpacing: 0.1,
                     ),
                   ),
                 ],
@@ -1287,7 +1253,7 @@ class _ExpertSection extends StatelessWidget {
                               p.role,
                               style: AppTypography.labelSmall.copyWith(
                                 color: isSelected ? L.accent : L.sub,
-                                fontWeight: isSelected ? FontWeight.w900 : FontWeight.w600,
+                                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
                                 fontSize: 13,
                               ),
                             ),
@@ -1326,7 +1292,7 @@ class _ExpertSection extends StatelessWidget {
                         '"',
                         style: TextStyle(
                           fontSize: 48,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w800,
                           color: L.accent.withValues(alpha: 0.4),
                           height: 0.8,
                         ),
@@ -1398,12 +1364,12 @@ class _MetaRow extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        r.$2.toUpperCase(),
+                        r.$2,
                         style: AppTypography.labelSmall.copyWith(
                           color: L.sub,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w600,
                           fontSize: 12,
-                          letterSpacing: 1.0,
+                          letterSpacing: 0.1,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -1449,6 +1415,82 @@ class _BottomActionBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+    final trackLabel = added ? 'Protocol tracked' : 'Track protocol';
+
+    Widget trackButton = AnimatedContainer(
+      duration: MedAiA11y.motion(context, 400.ms),
+      curve: Curves.easeOutBack,
+      constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: added
+              ? [L.green, L.green.withValues(alpha: 0.8)]
+              : [L.text, L.text.withValues(alpha: 0.8)],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(28),
+        boxShadow: added
+            ? AppShadows.glow(L.green, intensity: 0.5)
+            : AppShadows.glow(L.text, intensity: 0.2),
+        border: Border.all(
+          color: L.bg.withValues(alpha: 0.2),
+          width: 1.5,
+        ),
+      ),
+      child: Center(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              added ? Icons.task_alt_rounded : Icons.add_circle_rounded,
+              color: L.bg,
+              size: 24,
+            ).animate(target: added ? 1 : 0).scale(
+                begin: const Offset(0.8, 0.8),
+                end: const Offset(1.2, 1.2),
+                curve: Curves.elasticOut,
+                duration: reduceMotion ? 0.ms : 800.ms),
+            const SizedBox(width: 12),
+            Text(
+              trackLabel,
+              style: AppTypography.labelMedium.copyWith(
+                color: L.bg,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.5,
+                fontSize: 13,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+    if (!reduceMotion && !added) {
+      trackButton = trackButton
+          .animate(onPlay: (c) => c.repeat())
+          .shimmer(
+              duration: 2500.ms, color: Colors.white.withValues(alpha: 0.3));
+    }
+
+    Widget impactIcon = Icon(Icons.biotech_rounded, color: L.accent, size: 26);
+    if (!reduceMotion) {
+      impactIcon = impactIcon
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scale(
+              duration: 1.5.seconds,
+              begin: const Offset(0.95, 0.95),
+              end: const Offset(1.05, 1.05));
+    }
+
+    Widget chatIcon =
+        Icon(Icons.auto_awesome_rounded, color: AppColors.accent, size: 24);
+    if (!reduceMotion) {
+      chatIcon = chatIcon
+          .animate(onPlay: (c) => c.repeat())
+          .shimmer(duration: 2000.ms, color: Colors.white);
+    }
+
     return ClipRRect(
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
@@ -1465,126 +1507,76 @@ class _BottomActionBar extends StatelessWidget {
               ],
             ),
           ),
-          child: Container(
+          child: MedAiGlass(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: L.card.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(32),
-              border: Border.all(color: L.glassBorder, width: 1.2),
-              boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.15), blurRadius: 30, offset: const Offset(0, 10))
-              ],
-            ),
+            radius: 32,
             child: Row(
               children: [
-                // ── TRACK PROTOCOL BUTTON ──
                 Expanded(
                   flex: 3,
-                  child: BouncingButton(
-                    onTap: onAdd,
-                    child: AnimatedContainer(
-                      duration: 400.ms,
-                      curve: Curves.easeOutBack,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: added
-                              ? [L.green, L.green.withValues(alpha: 0.8)]
-                              : [L.text, L.text.withValues(alpha: 0.8)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(28),
-                        boxShadow: added
-                            ? AppShadows.glow(L.green, intensity: 0.5)
-                            : AppShadows.glow(L.text, intensity: 0.2),
-                        border: Border.all(
-                          color: L.bg.withValues(alpha: 0.2),
-                          width: 1.5,
-                        ),
-                      ),
-                      child: Center(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              added ? Icons.task_alt_rounded : Icons.add_circle_rounded,
-                              color: L.bg,
-                              size: 24,
-                            ).animate(target: added ? 1 : 0).scale(
-                                begin: const Offset(0.8, 0.8),
-                                end: const Offset(1.2, 1.2),
-                                curve: Curves.elasticOut,
-                                duration: 800.ms),
-                            const SizedBox(width: 12),
-                            Text(
-                              added ? 'PROTOCOL TRACKED' : 'TRACK PROTOCOL',
-                              style: AppTypography.labelMedium.copyWith(
-                                color: L.bg,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1.5,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ).animate(onPlay: (c) => c.repeat()).shimmer(duration: 2500.ms, color: Colors.white.withValues(alpha: 0.3)),
+                  child: Semantics(
+                    button: true,
+                    label: trackLabel,
+                    child: AnimatedPressable(
+                      onTap: onAdd,
+                      child: trackButton,
+                    ),
                   ),
                 ),
                 const SizedBox(width: 12),
-
-                // ── ORGAN IMPACT BUTTON ──
-                BouncingButton(
-                  onTap: onImpact,
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [L.accent.withValues(alpha: 0.25), L.accent.withValues(alpha: 0.05)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                Semantics(
+                  button: true,
+                  label: 'Organ impact',
+                  child: AnimatedPressable(
+                    onTap: onImpact,
+                    child: Container(
+                      width: MedAiA11y.minTapTarget,
+                      height: MedAiA11y.minTapTarget,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            L.accent.withValues(alpha: 0.25),
+                            L.accent.withValues(alpha: 0.05),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: L.accent.withValues(alpha: 0.5), width: 1.5),
+                        boxShadow: AppShadows.glow(L.accent, intensity: 0.3),
                       ),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                          color: L.accent.withValues(alpha: 0.5), width: 1.5),
-                      boxShadow: AppShadows.glow(L.accent, intensity: 0.3),
+                      child: Center(child: impactIcon),
                     ),
-                    child: Icon(Icons.biotech_rounded,
-                            color: L.accent, size: 26)
-                        .animate(onPlay: (c) => c.repeat(reverse: true))
-                        .scale(
-                            duration: 1.5.seconds,
-                            begin: const Offset(0.95, 0.95),
-                            end: const Offset(1.05, 1.05)),
                   ),
                 ),
                 const SizedBox(width: 10),
-
-                // ── AI ASSISTANT BUTTON ──
-                BouncingButton(
-                  onTap: onChat,
-                  child: Container(
-                    width: 56,
-                    height: 56,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [AppColors.accent.withValues(alpha: 0.3), AppColors.accent.withValues(alpha: 0.05)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
+                Semantics(
+                  button: true,
+                  label: 'AI assistant',
+                  child: AnimatedPressable(
+                    onTap: onChat,
+                    child: Container(
+                      width: MedAiA11y.minTapTarget,
+                      height: MedAiA11y.minTapTarget,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            AppColors.accent.withValues(alpha: 0.3),
+                            AppColors.accent.withValues(alpha: 0.05),
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                            color: AppColors.accent.withValues(alpha: 0.6),
+                            width: 1.5),
+                        boxShadow:
+                            AppShadows.glow(AppColors.accent, intensity: 0.4),
                       ),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                          color: AppColors.accent.withValues(alpha: 0.6), width: 1.5),
-                      boxShadow: AppShadows.glow(AppColors.accent, intensity: 0.4),
+                      child: Center(child: chatIcon),
                     ),
-                    child: Icon(Icons.auto_awesome_rounded,
-                            color: AppColors.accent, size: 24)
-                        .animate(onPlay: (c) => c.repeat())
-                        .shimmer(
-                            duration: 2000.ms,
-                            color: Colors.white),
                   ),
                 ),
               ],
@@ -1606,83 +1598,72 @@ class _AllergyAlertCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: AppColors.red.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.red.withValues(alpha: 0.6), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.red.withValues(alpha: 0.2),
-                blurRadius: 30,
-                spreadRadius: -5,
-              )
-            ]
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.red.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.warning_amber_rounded, color: AppColors.red, size: 20),
+    return Semantics(
+      label: 'Critical allergy alert. ${alerts.length} allergens detected.',
+      child: MedAiGlass(
+        padding: const EdgeInsets.all(24),
+        radius: 24,
+        tint: AppColors.red.withValues(alpha: 0.15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.red.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'CRITICAL ALLERGY ALERT',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: AppColors.red,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2.0,
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Text(
-                'This product contains ingredients that match your known allergies. Do not consume without consulting a physician.',
-                style: AppTypography.bodySmall.copyWith(
-                  color: L.text,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                  height: 1.4,
+                  child: const Icon(Icons.warning_amber_rounded,
+                      color: AppColors.red, size: 20),
                 ),
+                const SizedBox(width: 12),
+                Text(
+                  'Critical allergy alert',
+                  style: AppTypography.labelSmall.copyWith(
+                    color: AppColors.red,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.1,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'This product contains ingredients that match your known allergies. Do not consume without consulting a physician.',
+              style: AppTypography.bodySmall.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                height: 1.4,
               ),
-              const SizedBox(height: 16),
-              ...alerts.map((a) => Padding(
-                padding: const EdgeInsets.only(bottom: 8),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Padding(
-                      padding: EdgeInsets.only(top: 4, right: 8),
-                      child: Icon(Icons.close_rounded, color: AppColors.red, size: 16),
-                    ),
-                    Expanded(
-                      child: Text(
-                        a,
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.red,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
+            ),
+            const SizedBox(height: 16),
+            ...alerts.map((a) => Padding(
+                  padding: const EdgeInsets.only(bottom: 8),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Padding(
+                        padding: EdgeInsets.only(top: 4, right: 8),
+                        child: Icon(Icons.close_rounded,
+                            color: AppColors.red, size: 16),
+                      ),
+                      Expanded(
+                        child: Text(
+                          a,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.red,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 14,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              )),
-            ],
-          ),
+                    ],
+                  ),
+                )),
+          ],
         ),
       ),
     );
@@ -1699,71 +1680,60 @@ class _ChildSafetyCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-            color: AppColors.amber.withValues(alpha: 0.15),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: AppColors.amber.withValues(alpha: 0.6), width: 1.5),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.amber.withValues(alpha: 0.1),
-                blurRadius: 20,
-                spreadRadius: -2,
-              )
-            ]
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: AppColors.amber.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(Icons.child_care_rounded, color: AppColors.amber, size: 20),
+    return Semantics(
+      label: 'Pediatric safety alert. $alertText',
+      child: MedAiGlass(
+        padding: const EdgeInsets.all(24),
+        radius: 24,
+        tint: AppColors.amber.withValues(alpha: 0.15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: AppColors.amber.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
                   ),
-                  const SizedBox(width: 12),
-                  Text(
-                    'PEDIATRIC SAFETY ALERT',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: AppColors.amber,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 2.0,
-                    ),
+                  child: const Icon(Icons.child_care_rounded,
+                      color: AppColors.amber, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  'Pediatric safety alert',
+                  style: AppTypography.labelSmall.copyWith(
+                    color: AppColors.amber,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.1,
                   ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Padding(
-                    padding: EdgeInsets.only(top: 4, right: 8),
-                    child: Icon(Icons.shield_rounded, color: AppColors.amber, size: 16),
-                  ),
-                  Expanded(
-                    child: Text(
-                      alertText,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: L.text,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                        height: 1.4,
-                      ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Padding(
+                  padding: EdgeInsets.only(top: 4, right: 8),
+                  child: Icon(Icons.shield_rounded,
+                      color: AppColors.amber, size: 16),
+                ),
+                Expanded(
+                  child: Text(
+                    alertText,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: L.text,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 14,
+                      height: 1.4,
                     ),
                   ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

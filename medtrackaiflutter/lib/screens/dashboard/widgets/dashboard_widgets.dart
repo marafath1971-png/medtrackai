@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../providers/app_state.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../widgets/shared/shared_widgets.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/smoothing_text.dart';
 
 // ══════════════════════════════════════════════════
@@ -39,8 +39,11 @@ class _TimelinePillSelectorState extends State<TimelinePillSelector> {
         margin: const EdgeInsets.only(left: 4),
         padding: const EdgeInsets.all(4),
         decoration: BoxDecoration(
-          color: L.fill.withValues(alpha: 0.5),
+          color: L.card,
           borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: L.border.withValues(alpha: context.isDark ? 0.2 : 0.5),
+          ),
         ),
         child: LayoutBuilder(
           builder: (ctx, constraints) {
@@ -48,40 +51,59 @@ class _TimelinePillSelectorState extends State<TimelinePillSelector> {
               mainAxisSize: MainAxisSize.min,
               children: List.generate(tabs.length, (index) {
                 final isSelected = widget.selectedIndex == index;
-                return AnimatedPressable(
-                  onTap: () => widget.onSelect(index),
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 260),
-                    curve: Curves.easeOutCubic,
-                    margin: const EdgeInsets.only(right: 4),
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                return Semantics(
+                  button: true,
+                  selected: isSelected,
+                  label: tabs[index],
+                  child: AnimatedPressable(
+                    onTap: () => widget.onSelect(index),
+                    child: AnimatedContainer(
+                      duration: MedAiA11y.motion(
+                          context, const Duration(milliseconds: 260)),
+                      curve: AppCurves.smooth,
+                      constraints: const BoxConstraints(
+                          minHeight: MedAiA11y.minTapTargetCompact),
+                      margin: const EdgeInsets.only(right: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 10),
                     decoration: BoxDecoration(
-                      color: isSelected ? L.card : Colors.transparent,
+                      color: isSelected
+                          ? (context.isDark ? L.card : AppColors.eatoNavy)
+                          : Colors.transparent,
                       borderRadius: BorderRadius.circular(18),
-                      boxShadow: isSelected
+                      boxShadow: isSelected && !context.isDark
                           ? [
                               BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.08),
+                                color: AppColors.eatoNavy.withValues(alpha: 0.12),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
-                                spreadRadius: -2,
                               ),
                             ]
-                          : null,
+                          : (isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: Colors.black.withValues(alpha: 0.08),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                    spreadRadius: -2,
+                                  ),
+                                ]
+                              : null),
                     ),
                     child: Text(
                       tabs[index],
                       style: AppTypography.labelLarge.copyWith(
-                        color:
-                            isSelected ? L.text : L.sub.withValues(alpha: 0.6),
+                        color: isSelected
+                            ? (context.isDark ? L.text : Colors.white)
+                            : L.sub.withValues(alpha: 0.6),
                         fontWeight:
                             isSelected ? FontWeight.w800 : FontWeight.w500,
                         fontSize: 12,
                       ),
                     ),
                   ),
-                );
+                ),
+              );
               }),
             );
           },
@@ -109,12 +131,12 @@ class LatencyHeatmap extends StatelessWidget {
             const Text('⏱️', style: TextStyle(fontSize: 16)),
             const SizedBox(width: 8),
             Text(
-              'TIMING CONSISTENCY',
-              style: AppTypography.labelSmall.copyWith(
-                fontSize: 12,
-                color: L.sub.withValues(alpha: 0.8),
-                letterSpacing: 2.0,
-                fontWeight: FontWeight.w900,
+              'Timing consistency',
+              style: AppTypography.titleMedium.copyWith(
+                fontSize: 15,
+                color: L.text,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.2,
               ),
             ),
           ],
@@ -227,20 +249,12 @@ class LatencyHeatmap extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     Text(
-                      [
-                        'SUN',
-                        'MON',
-                        'TUE',
-                        'WED',
-                        'THU',
-                        'FRI',
-                        'SAT'
-                      ][date.weekday % 7],
+                      ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+                          [date.weekday % 7],
                       style: AppTypography.labelSmall.copyWith(
                           fontSize: 10,
-                          fontFamily: 'Courier',
                           color: L.sub,
-                          fontWeight: FontWeight.w900),
+                          fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -256,12 +270,11 @@ class LatencyHeatmap extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text('TIMING_CONSISTENCY',
-            style: AppTypography.labelSmall.copyWith(
-                fontSize: 10,
-                color: L.sub,
-                letterSpacing: 1.5,
-                fontWeight: FontWeight.w900)),
+        Text('Timing consistency',
+            style: AppTypography.titleMedium.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.2)),
         const SizedBox(height: 16),
         SizedBox(
           height: 140,
@@ -308,40 +321,39 @@ class HealthCoachCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Row(
-              children: [
-                const Text('🧠', style: TextStyle(fontSize: 20)),
-                const SizedBox(width: 8),
-                Text('AI HEALTH COACH',
-                    style: AppTypography.labelSmall.copyWith(
-                        fontSize: 12,
-                        color: L.purple,
-                        letterSpacing: 2.0,
-                        fontWeight: FontWeight.w900)),
-              ],
+        MedAiSectionHeader(
+          title: 'AI health coach',
+          action: Semantics(
+            button: true,
+            label: 'Refresh AI insights',
+            child: AnimatedPressable(
+              onTap: onRetry,
+              child: Container(
+                constraints: const BoxConstraints(
+                    minHeight: MedAiA11y.minTapTargetCompact),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: L.purple.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Text('🪄', style: TextStyle(fontSize: 14)),
+                    const SizedBox(width: 4),
+                    Text('Refresh',
+                        style: AppTypography.labelSmall.copyWith(
+                            color: L.purple,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 10)),
+                  ],
+                ),
+              ),
             ),
-            BouncingButton(
-                onTap: onRetry,
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: L.purple.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Row(
-                    children: [
-                      const Text('🪄', style: TextStyle(fontSize: 14)),
-                      const SizedBox(width: 4),
-                      Text('Refresh', style: AppTypography.labelSmall.copyWith(color: L.purple, fontWeight: FontWeight.w800, fontSize: 10)),
-                    ],
-                  ),
-                )),
-          ],
+          ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         ...insights.map((ins) {
           final cat = ins.category.toLowerCase();
           final color = (cat.contains('safe') || cat.contains('warn'))
@@ -350,11 +362,8 @@ class HealthCoachCard extends StatelessWidget {
 
           return Padding(
             padding: const EdgeInsets.only(bottom: 16),
-            child: SquircleCard(
+            child: MedAiDepthCard(
               padding: const EdgeInsets.all(24),
-              color: L.card,
-              showBorder: true,
-              borderWidth: 0.5,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -366,17 +375,17 @@ class HealthCoachCard extends StatelessWidget {
                         decoration: BoxDecoration(
                             color: color.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(4)),
-                        child: Text(cat.toUpperCase(),
+                        child: Text(cat,
                             style: AppTypography.labelSmall.copyWith(
                                 color: color,
                                 fontSize: 11,
-                                fontWeight: FontWeight.w900)),
+                                fontWeight: FontWeight.w800)),
                       ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: Text(ins.title,
                             style: AppTypography.titleMedium.copyWith(
-                                color: L.text, fontWeight: FontWeight.w900)),
+                                color: L.text, fontWeight: FontWeight.w800)),
                       ),
                     ],
                   ),
@@ -395,21 +404,32 @@ class HealthCoachCard extends StatelessWidget {
                       spacing: 8,
                       runSpacing: 8,
                       children: ins.steps
-                          .map((step) => BouncingButton(
-                                onTap: () => context
-                                    .read<AppState>()
-                                    .executeStepAction(step, context),
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: 12, vertical: 6),
-                                  decoration: BoxDecoration(
-                                      color: L.text.withValues(alpha: 0.05),
-                                      borderRadius: BorderRadius.circular(8)),
-                                  child: Text(step,
-                                      style: AppTypography.labelSmall.copyWith(
-                                          color: L.text,
-                                          fontSize: 10,
-                                          fontWeight: FontWeight.w900)),
+                          .map((step) => Semantics(
+                                button: true,
+                                label: step,
+                                child: AnimatedPressable(
+                                  onTap: () => context
+                                      .read<AppState>()
+                                      .executeStepAction(step, context),
+                                  scaleFactor: 0.97,
+                                  child: Container(
+                                    constraints: const BoxConstraints(
+                                      minHeight: MedAiA11y.minTapTargetCompact,
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                        horizontal: 12, vertical: 6),
+                                    decoration: BoxDecoration(
+                                        color: L.text.withValues(alpha: 0.05),
+                                        borderRadius:
+                                            BorderRadius.circular(8)),
+                                    alignment: Alignment.center,
+                                    child: Text(step,
+                                        style:
+                                            AppTypography.labelSmall.copyWith(
+                                                color: L.text,
+                                                fontSize: 10,
+                                                fontWeight: FontWeight.w800)),
+                                  ),
                                 ),
                               ))
                           .toList(),
@@ -436,12 +456,11 @@ class HealthCoachCard extends StatelessWidget {
                 children: [
                   Icon(Icons.auto_awesome_rounded, color: L.purple, size: 14),
                   const SizedBox(width: 8),
-                  Text('AI MEDICAL BRIEFING',
-                      style: AppTypography.labelLarge.copyWith(
-                          fontSize: 10,
-                          color: L.purple,
-                          letterSpacing: 1.5,
-                          fontWeight: FontWeight.w900)),
+                  Text('AI medical briefing',
+                      style: AppTypography.titleMedium.copyWith(
+                          color: L.text,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -0.2)),
                 ],
               ),
             ),
@@ -471,7 +490,7 @@ class HealthCoachCard extends StatelessWidget {
               Text('Your AI Coach is ready',
                   style: AppTypography.titleLarge.copyWith(
                       fontSize: 18,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w800,
                       color: L.text)),
               const SizedBox(height: 12),
               Padding(
@@ -507,17 +526,10 @@ class AdherenceTrendChart extends StatelessWidget {
 
     return Container(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: L.card.withValues(alpha: 0.6),
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: L.border.withValues(alpha: 0.2)),
-        boxShadow: [
-          BoxShadow(
-            color: L.bg.withValues(alpha: 0.5),
-            blurRadius: 24,
-            offset: const Offset(0, 8),
-          )
-        ],
+      decoration: AppColors.eatoCard(
+        L,
+        isDark: context.isDark,
+        radius: 32,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -533,12 +545,12 @@ class AdherenceTrendChart extends StatelessWidget {
                         const Text('📈', style: TextStyle(fontSize: 16)),
                         const SizedBox(width: 8),
                         Text(
-                          'ADHERENCE TREND',
+                          'Adherence trend',
                           style: AppTypography.labelSmall.copyWith(
                             color: L.sub.withValues(alpha: 0.8),
                             fontSize: 11,
                             letterSpacing: 2.0,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                       ],
@@ -548,7 +560,7 @@ class AdherenceTrendChart extends StatelessWidget {
                       '30-Day Progress',
                       style: AppTypography.headlineSmall.copyWith(
                         color: L.text,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w800,
                         letterSpacing: -1.0,
                         fontSize: 22,
                       ),
@@ -646,7 +658,7 @@ class AdherenceTrendChart extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '30D AGO',
+                '30 days ago',
                 style: AppTypography.labelSmall.copyWith(
                   color: L.sub.withValues(alpha: 0.45),
                   fontSize: 9,
@@ -654,11 +666,11 @@ class AdherenceTrendChart extends StatelessWidget {
                 ),
               ),
               Text(
-                'TODAY',
+                'Today',
                 style: AppTypography.labelSmall.copyWith(
                   color: L.text,
                   fontSize: 9,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w800,
                 ),
               ),
             ],
@@ -669,11 +681,10 @@ class AdherenceTrendChart extends StatelessWidget {
   }
 
   Widget _buildEmptyState(AppThemeColors L) {
-    return SquircleCard(
-      padding: EdgeInsets.zero,
-      borderRadius: 28,
+    return MedAiDepthCard(
+      padding: const EdgeInsets.symmetric(vertical: 32),
       child: SizedBox(
-        height: 160,
+        height: 120,
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -712,12 +723,12 @@ class InventoryStatusCard extends StatelessWidget {
             const Text('💊', style: TextStyle(fontSize: 16)),
             const SizedBox(width: 8),
             Text(
-              'SUPPLY STATUS',
+              'Supply status',
               style: AppTypography.labelSmall.copyWith(
                 fontSize: 11,
                 color: L.sub.withValues(alpha: 0.8),
                 letterSpacing: 2.0,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ],
@@ -725,17 +736,10 @@ class InventoryStatusCard extends StatelessWidget {
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-          decoration: BoxDecoration(
-            color: L.card.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(32),
-            border: Border.all(color: L.border.withValues(alpha: 0.2)),
-            boxShadow: [
-              BoxShadow(
-                color: L.bg.withValues(alpha: 0.5),
-                blurRadius: 24,
-                offset: const Offset(0, 8),
-              )
-            ],
+          decoration: AppColors.eatoCard(
+            L,
+            isDark: context.isDark,
+            radius: 32,
           ),
           child: Column(
             children: trackedMeds.asMap().entries.map((entry) {
@@ -752,10 +756,10 @@ class InventoryStatusCard extends StatelessWidget {
                     Expanded(
                       flex: 3,
                       child: Text(
-                        med.name.toUpperCase(),
+                        med.name,
                         style: AppTypography.labelSmall.copyWith(
                           color: L.text,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w800,
                           fontSize: 9,
                         ),
                         maxLines: 1,
@@ -774,8 +778,7 @@ class InventoryStatusCard extends StatelessWidget {
                         '${med.count}',
                         style: AppTypography.labelSmall.copyWith(
                           color: color,
-                          fontFamily: 'Courier',
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w800,
                           fontSize: 14,
                         ),
                         textAlign: TextAlign.right,
@@ -917,22 +920,19 @@ class _SmartLoadingInsightsState extends State<SmartLoadingInsights> {
             const Text('🧠', style: TextStyle(fontSize: 16)),
             const SizedBox(width: 8),
             Text(
-              'AI COACH DEEP SYNCING',
+              'AI coach syncing',
               style: AppTypography.labelSmall.copyWith(
                 fontSize: 11,
                 color: L.purple,
                 letterSpacing: 2.0,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w800,
               ),
             ),
           ],
         ),
         const SizedBox(height: 16),
-        SquircleCard(
+        MedAiDepthCard(
           padding: const EdgeInsets.all(24),
-          color: L.card,
-          showBorder: true,
-          borderWidth: 0.5,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -976,7 +976,7 @@ class _SmartLoadingInsightsState extends State<SmartLoadingInsights> {
                           'MedAI Engine is Active',
                           style: AppTypography.titleMedium.copyWith(
                             color: L.text,
-                            fontWeight: FontWeight.w900,
+                            fontWeight: FontWeight.w800,
                           ),
                         ),
                         const SizedBox(height: 4),

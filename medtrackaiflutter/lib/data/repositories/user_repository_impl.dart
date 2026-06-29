@@ -182,8 +182,14 @@ class UserRepositoryImpl implements IUserRepository {
 
   // ── Invites ────────────────────────────────────────────────────────
   @override
-  Future<void> createInvite(String patientUid, Caregiver cg) async {
-    await firestoreDataSource.createInvite(patientUid, cg);
+  Future<void> createInvite(String patientUid, Caregiver cg,
+      {String? patientName, String? patientAvatar}) async {
+    await firestoreDataSource.createInvite(
+      patientUid,
+      cg,
+      patientName: patientName,
+      patientAvatar: patientAvatar,
+    );
   }
 
   @override
@@ -295,5 +301,23 @@ class UserRepositoryImpl implements IUserRepository {
     return firestoreDataSource
         .getRecentHistory(patientUid)
         .withHardenedTimeout();
+  }
+
+  @override
+  Future<void> addMonitoringPatient(Map<String, dynamic> patient) async {
+    if (!_hasAuth) return;
+    await firestoreDataSource
+        .addMonitoringPatient(_uid!, patient)
+        .withHardenedTimeout(taskName: 'addMonitoringPatient')
+        .catchError((_) {});
+  }
+
+  @override
+  Future<void> activatePatientCaregiver(
+      String patientUid, int cgId, String caregiverUid) async {
+    await firestoreDataSource
+        .activatePatientCaregiver(patientUid, cgId, caregiverUid)
+        .withHardenedTimeout(taskName: 'activatePatientCaregiver')
+        .catchError((_) {});
   }
 }

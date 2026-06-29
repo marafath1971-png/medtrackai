@@ -456,4 +456,93 @@ class AppLocalizationsJa extends AppLocalizations {
 
   @override
   String get retry => '再試行';
+
+  @override
+  String get onboardingSkip => 'Skip';
+
+  @override
+  String get onboardingNext => 'Next';
+
+  @override
+  String get onboardingContinue => 'Continue';
+
+  @override
+  String get onboardingGetStarted => 'Get Started';
+
+  @override
+  String get onboardingWelcomeTitle => 'Build unbreakable\nmed habits';
+
+  @override
+  String get onboardingWelcomeBody =>
+      'Streaks, smart reminders, and AI that keeps you on track — every single day.';
+
+  @override
+  String get onboardingScanTitle => 'Scan any pill\nin seconds';
+
+  @override
+  String get onboardingScanBodyDemo =>
+      'Tap below to see AI identify a sample medication instantly.';
+
+  @override
+  String get onboardingScanBodyDone =>
+      'That\'s how fast Med AI works. No typing, no guesswork.';
+
+  @override
+  String get onboardingSimulateScan => 'Simulate scan →';
+
+  @override
+  String get onboardingPermissionTitle => 'Your camera,\nyour privacy';
+
+  @override
+  String get onboardingPermissionBody =>
+      'We only use the camera to read pill labels. Images are processed securely and never sold.';
+
+  @override
+  String get onboardingPermissionLink => 'Learn how we protect your data';
+
+  @override
+  String get onboardingPersonalizeTitle => 'Personalize\nyour experience';
+
+  @override
+  String get onboardingQuizMedCount => 'How many medications?';
+
+  @override
+  String get onboardingQuizRole => 'Who are you tracking for?';
+
+  @override
+  String get onboardingQuizSchedule => 'When do you take most meds?';
+
+  @override
+  String get onboardingRoleSelf => 'Myself';
+
+  @override
+  String get onboardingRoleCaregiver => 'Someone I care for';
+
+  @override
+  String get onboardingScheduleMorning => 'Morning';
+
+  @override
+  String get onboardingScheduleEvening => 'Evening';
+
+  @override
+  String get onboardingScheduleBoth => 'Both';
+
+  @override
+  String get onboardingSocialTitle => 'Join 50,000+\nhealth champions';
+
+  @override
+  String get onboardingSocialQuote =>
+      '\"Med AI changed how my family manages medications. The scan feature alone saves us 10 minutes a day.\"';
+
+  @override
+  String get onboardingSocialAttribution => '— App Store review, 5 stars';
+
+  @override
+  String get onboardingAllowCamera => 'Allow Camera Access';
+
+  @override
+  String get onboardingTryDemoScan => 'Try Demo Scan';
+
+  @override
+  String get loadingHealthData => 'Loading your health data…';
 }

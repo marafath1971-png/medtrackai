@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/entities.dart';
 import '../../domain/repositories/user_repository.dart';
+import '../../models/onboarding_prefs.dart';
 import '../../services/auth_service.dart';
 import '../../core/utils/logger.dart';
 
@@ -12,8 +14,11 @@ class AuthController extends ChangeNotifier {
   bool _isLocked = false;
   String _language = 'en';
   bool _isPurchasing = false;
+  OnboardingPrefs _onboardingPrefs = const OnboardingPrefs();
 
   AuthController({required this.userRepo});
+
+  OnboardingPrefs get onboardingPrefs => _onboardingPrefs;
 
   AppPhase get phase => _phase;
   set phase(AppPhase p) {
@@ -46,6 +51,7 @@ class AuthController extends ChangeNotifier {
 
   Future<void> loadProfile() async {
     try {
+      await _loadOnboardingPrefs();
       _profile = await userRepo.getProfile();
       _language = await userRepo.getLanguage();
       if (_profile != null) {
@@ -60,6 +66,37 @@ class AuthController extends ChangeNotifier {
       _phase = AppPhase.onboarding;
       notifyListeners();
     }
+  }
+
+  Future<void> _loadOnboardingPrefs() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _onboardingPrefs = OnboardingPrefs.fromMap({
+        OnboardingPrefs.storageKeyMedCount:
+            prefs.getString(OnboardingPrefs.storageKeyMedCount) ?? '1-2',
+        OnboardingPrefs.storageKeyRole:
+            prefs.getString(OnboardingPrefs.storageKeyRole) ?? 'self',
+        OnboardingPrefs.storageKeySchedule:
+            prefs.getString(OnboardingPrefs.storageKeySchedule) ?? 'morning',
+        OnboardingPrefs.storageKeyReminderIntensity:
+            prefs.getString(OnboardingPrefs.storageKeyReminderIntensity) ??
+                'normal',
+      });
+    } catch (_) {}
+  }
+
+  Future<void> saveOnboardingPrefs(OnboardingPrefs prefs) async {
+    _onboardingPrefs = prefs;
+    final sp = await SharedPreferences.getInstance();
+    for (final entry in prefs.toMap().entries) {
+      await sp.setString(entry.key, entry.value);
+    }
+    notifyListeners();
+  }
+
+  Future<void> markOnboardingCompleted() async {
+    final sp = await SharedPreferences.getInstance();
+    await sp.setBool(OnboardingPrefs.storageKeyCompleted, true);
   }
 
   Future<void> updateProfileFromMap(Map<String, dynamic> data) async {
@@ -115,6 +152,14 @@ class AuthController extends ChangeNotifier {
   }
 
   void skipAuth() {
+    _phase = AppPhase.app;
+    notifyListeners();
+  }
+
+  /// DEV PREVIEW ONLY — sets a transient demo profile and jumps to the app
+  /// without persisting. Used to review redesigned screens.
+  void devPreview(UserProfile p) {
+    _profile = p;
     _phase = AppPhase.app;
     notifyListeners();
   }

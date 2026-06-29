@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../theme/app_theme.dart';
+
+import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
-import '../../widgets/shared/shared_widgets.dart';
+import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/animated_pressable.dart';
 
 class PinVerificationScreen extends StatefulWidget {
   final String correctPin;
   final String profileName;
 
-  const PinVerificationScreen({super.key, required this.correctPin, required this.profileName});
+  const PinVerificationScreen({
+    super.key,
+    required this.correctPin,
+    required this.profileName,
+  });
 
   @override
   State<PinVerificationScreen> createState() => _PinVerificationScreenState();
@@ -58,92 +64,159 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
 
-    return Scaffold(
-      backgroundColor: L.bg,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: BouncingButton(
-          onTap: () => Navigator.pop(context, false),
-          child: Icon(Icons.arrow_back_ios_new_rounded, color: L.text),
-        ),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const Spacer(),
-            Icon(Icons.lock_rounded, size: 48, color: L.primary),
-            const SizedBox(height: 24),
-            Text(
-              'Unlock ${widget.profileName}',
-              style: AppTypography.headlineMedium.copyWith(color: L.text, fontWeight: FontWeight.w900),
+    Widget body = SafeArea(
+      child: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
+            child: Align(
+              alignment: Alignment.centerLeft,
+              child: Semantics(
+                button: true,
+                label: 'Go back',
+                child: AnimatedPressable(
+                  onTap: () => Navigator.pop(context, false),
+                  child: Container(
+                    width: AppA11y.minTapTargetCompact,
+                    height: AppA11y.minTapTargetCompact,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: L.card,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: L.border.withValues(alpha: 0.4),
+                        width: 0.5,
+                      ),
+                      boxShadow: AppShadows.soft,
+                    ),
+                    child: Icon(
+                      Icons.arrow_back_ios_new_rounded,
+                      color: L.text,
+                      size: 18,
+                    ),
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(height: 8),
-            Text(
+          ),
+          const Spacer(),
+          Container(
+            width: 72,
+            height: 72,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  L.accent.withValues(alpha: 0.18),
+                  AppThemeColors2026.electric.withValues(alpha: 0.12),
+                ],
+              ),
+              boxShadow: AppShadows.glow(L.accent, intensity: 0.2),
+            ),
+            child: Icon(Icons.lock_rounded, size: 32, color: L.accent),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            'Unlock ${widget.profileName}',
+            style: AppTypography.headlineLarge.copyWith(
+              color: L.text,
+              fontWeight: FontWeight.w800,
+              letterSpacing: -0.6,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Semantics(
+            liveRegion: true,
+            child: Text(
               _isError ? 'Incorrect PIN. Try again.' : 'Enter 4-digit PIN',
-              style: AppTypography.bodyLarge.copyWith(color: _isError ? Colors.red : L.sub),
-            ).animate(target: _isError ? 1 : 0).shake(hz: 8, curve: Curves.easeInOut),
-            const SizedBox(height: 48),
-
-            // PIN Dots
-            Row(
+              style: AppTypography.bodyLarge.copyWith(
+                color: _isError ? L.error : L.sub,
+              ),
+            ),
+          ).let((w) {
+            if (reduceMotion || !_isError) return w;
+            return w.animate().shake(hz: 8, curve: Curves.easeInOut);
+          }),
+          const SizedBox(height: 48),
+          Semantics(
+            label: 'PIN entry, ${_enteredPin.length} of 4 digits entered',
+            child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(4, (i) {
                 final isFilled = i < _enteredPin.length;
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 12),
-                  width: 20,
-                  height: 20,
+                return AnimatedContainer(
+                  duration: MedAiA11y.motion(context, AppDurations.micro),
+                  curve: AppCurves.expressive,
+                  margin: const EdgeInsets.symmetric(horizontal: 10),
+                  width: 16,
+                  height: 16,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: isFilled ? L.primary : Colors.transparent,
-                    border: Border.all(color: isFilled ? L.primary : L.border, width: 2),
+                    color: isFilled
+                        ? (_isError ? L.error : L.accent)
+                        : Colors.transparent,
+                    border: Border.all(
+                      color: isFilled
+                          ? (_isError ? L.error : L.accent)
+                          : L.border.withValues(alpha: 0.6),
+                      width: 2,
+                    ),
+                    boxShadow: isFilled && !_isError
+                        ? AppShadows.glow(L.accent, intensity: 0.25)
+                        : null,
                   ),
                 );
               }),
             ),
-
-            const Spacer(),
-
-            // Keypad
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 24),
-              child: GridView.count(
-                shrinkWrap: true,
-                crossAxisCount: 3,
-                mainAxisSpacing: 24,
-                crossAxisSpacing: 24,
-                childAspectRatio: 1.2,
-                physics: const NeverScrollableScrollPhysics(),
-                children: [
-                  for (var i = 1; i <= 9; i++)
-                    _KeypadButton(
-                      label: i.toString(),
-                      onTap: () => _onDigit(i.toString()),
-                      L: L,
-                    ),
-                  
-                  // Empty space
-                  const SizedBox.shrink(),
-                  
+          ),
+          const Spacer(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(32, 0, 32, 24),
+            child: GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 3,
+              mainAxisSpacing: 16,
+              crossAxisSpacing: 16,
+              childAspectRatio: 1.15,
+              physics: const NeverScrollableScrollPhysics(),
+              children: [
+                for (var i = 1; i <= 9; i++)
                   _KeypadButton(
-                    label: '0',
-                    onTap: () => _onDigit('0'),
+                    label: i.toString(),
+                    onTap: () => _onDigit(i.toString()),
                     L: L,
                   ),
-                  
-                  _KeypadButton(
-                    icon: Icons.backspace_rounded,
-                    onTap: _onBackspace,
-                    L: L,
-                  ),
-                ],
-              ),
+                const SizedBox.shrink(),
+                _KeypadButton(
+                  label: '0',
+                  onTap: () => _onDigit('0'),
+                  L: L,
+                ),
+                _KeypadButton(
+                  icon: Icons.backspace_rounded,
+                  onTap: _onBackspace,
+                  semanticsLabel: 'Delete',
+                  L: L,
+                ),
+              ],
             ),
-          ],
-        ).animate().fadeIn().slideY(begin: 0.1, end: 0),
+          ),
+        ],
       ),
+    );
+
+    if (!reduceMotion) {
+      body = body.animate().fadeIn().slideY(begin: 0.06, end: 0, curve: AppCurves.expressive);
+    }
+
+    return AppScaffold(
+      showAurora: true,
+      body: body,
     );
   }
 }
@@ -151,29 +224,59 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
 class _KeypadButton extends StatelessWidget {
   final String? label;
   final IconData? icon;
+  final String? semanticsLabel;
   final VoidCallback onTap;
   final AppThemeColors L;
 
-  const _KeypadButton({this.label, this.icon, required this.onTap, required this.L});
+  const _KeypadButton({
+    this.label,
+    this.icon,
+    this.semanticsLabel,
+    required this.onTap,
+    required this.L,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return BouncingButton(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          color: L.card,
-          shape: BoxShape.circle,
-          border: Border.all(color: L.border.withValues(alpha: 0.1)),
+    final text = semanticsLabel ?? label ?? 'Key';
+
+    return Semantics(
+      button: true,
+      label: text,
+      child: AnimatedPressable(
+        onTap: onTap,
+        scaleFactor: 0.94,
+        child: Container(
+          constraints: const BoxConstraints(
+            minWidth: AppA11y.minTapTarget,
+            minHeight: AppA11y.minTapTarget,
+          ),
+          decoration: BoxDecoration(
+            color: L.card,
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: L.border.withValues(alpha: 0.35),
+              width: 0.5,
+            ),
+            boxShadow: AppShadows.soft,
+          ),
+          alignment: Alignment.center,
+          child: icon != null
+              ? Icon(icon, color: L.text, size: 26)
+              : Text(
+                  label!,
+                  style: AppTypography.headlineMedium.copyWith(
+                    color: L.text,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: -0.3,
+                  ),
+                ),
         ),
-        alignment: Alignment.center,
-        child: icon != null
-            ? Icon(icon, color: L.text, size: 28)
-            : Text(
-                label!,
-                style: AppTypography.headlineMedium.copyWith(color: L.text, fontWeight: FontWeight.w600),
-              ),
       ),
     );
   }
+}
+
+extension _Let<T> on T {
+  R let<R>(R Function(T) fn) => fn(this);
 }

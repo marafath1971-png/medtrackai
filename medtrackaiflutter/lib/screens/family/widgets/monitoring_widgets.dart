@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../providers/app_state.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
 import '../../../services/auth_service.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/common/paywall_sheet.dart';
@@ -83,15 +83,19 @@ class PatientCard extends StatelessWidget {
                     ? const Color(0xFFF59E0B)
                     : const Color(0xFFEF4444);
 
-            return BouncingButton(
-              onTap: onTap,
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: AppSpacing.p12),
-                child: SquircleCard(
-                  padding: const EdgeInsets.all(AppSpacing.p16),
-                  radius: 12,
-                  boxShadow: const [],
-                  child: Column(
+            return Semantics(
+              button: true,
+              label: '${patient['name'] ?? 'Patient'} adherence ${(adherence * 100).round()} percent',
+              child: AnimatedPressable(
+                onTap: onTap,
+                scaleFactor: 0.985,
+                child: Padding(
+                  padding: const EdgeInsets.only(bottom: AppSpacing.p12),
+                  child: MedAiDepthCard(
+                    padding: const EdgeInsets.all(AppSpacing.p16),
+                    radius: AppRadius.l,
+                    accentGlow: adherence < 0.65,
+                    child: Column(
                   children: [
                     Row(
                       children: [
@@ -139,32 +143,37 @@ class PatientCard extends StatelessWidget {
                                   style: AppTypography.titleLarge.copyWith(
                                       color: L.text,
                                       fontSize: 16,
-                                      fontWeight: FontWeight.w900,
+                                      fontWeight: FontWeight.w800,
                                       letterSpacing: -0.5)),
                               const SizedBox(height: 2),
-                              Text('${patient['relation']} · Progress Today',
+                              Text('${patient['relation']} · Progress today',
                                   style: AppTypography.bodySmall.copyWith(
                                       color: L.sub.withValues(alpha: 0.5),
                                       fontSize: 11,
-                                      fontWeight: FontWeight.w900,
-                                      letterSpacing: 0.5)),
+                                      fontWeight: FontWeight.w600)),
                             ],
                           ),
                         ),
-                        BouncingButton(
-                          onTap: () {
-                            HapticEngine.selection();
-                            state.nudgePatient(patient['uid']);
-                          },
-                          child: Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              color: L.fill.withValues(alpha: 0.5),
-                              shape: BoxShape.circle,
+                        Semantics(
+                          button: true,
+                          label: 'Nudge ${patient['name'] ?? 'patient'}',
+                          child: AnimatedPressable(
+                            onTap: () {
+                              HapticEngine.selection();
+                              state.nudgePatient(patient['uid']);
+                            },
+                            scaleFactor: 0.92,
+                            child: Container(
+                              width: MedAiA11y.minTapTarget,
+                              height: MedAiA11y.minTapTarget,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: L.fill.withValues(alpha: 0.5),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.notifications_active_rounded,
+                                  size: 16, color: L.text),
                             ),
-                            child: Icon(Icons.notifications_active_rounded,
-                                size: 16, color: L.text),
                           ),
                         ),
                       ],
@@ -205,7 +214,7 @@ class PatientCard extends StatelessWidget {
                         Text('${(adherence * 100).toInt()}%',
                             style: AppTypography.labelLarge.copyWith(
                                 color: color,
-                                fontWeight: FontWeight.w900,
+                                fontWeight: FontWeight.w800,
                                 fontSize: 12)),
                       ],
                     ),
@@ -213,7 +222,8 @@ class PatientCard extends StatelessWidget {
                 ),
               ),
             ),
-          );
+          ),
+            );
         },
         );
       },
@@ -387,31 +397,20 @@ class PaywallScreen extends StatelessWidget {
                         child: Icon(Icons.lock_person_rounded,
                             color: L.secondary, size: 40))),
                 const SizedBox(height: 24),
-                Text('Pro Feature',
+                Text('Pro feature',
                     style: AppTypography.displayLarge.copyWith(
                         fontSize: 24,
                         color: L.text,
-                        fontWeight: FontWeight.w900)),
+                        fontWeight: FontWeight.w800)),
                 const SizedBox(height: 12),
                 Text('Remote monitoring requires a Pro subscription.',
                     textAlign: TextAlign.center,
                     style: AppTypography.bodySmall
                         .copyWith(fontSize: 15, color: L.sub, height: 1.5)),
                 const SizedBox(height: 32),
-                BouncingButton(
+                MedAiCTA(
+                  label: 'Upgrade to Pro',
                   onTap: () => PaywallSheet.show(context),
-                  child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          color: L.primary,
-                          borderRadius: BorderRadius.circular(20)),
-                      child: Text('Upgrade to Pro',
-                          style: AppTypography.labelLarge.copyWith(
-                              color: L.onPrimary,
-                              fontSize: 15,
-                              fontWeight: FontWeight.w800))),
                 ),
               ],
             ),
@@ -475,6 +474,7 @@ class InsightsContent extends StatelessWidget {
                   SquircleCard(
                     padding: const EdgeInsets.all(24),
                     radius: 28,
+                    boxShadow: AppShadows.soft,
                     child: Column(
                       children: [
                         Row(
@@ -498,9 +498,9 @@ class InsightsContent extends StatelessWidget {
                                       style: AppTypography.headlineMedium
                                           .copyWith(
                                               fontSize: 22,
-                                              fontWeight: FontWeight.w900,
+                                              fontWeight: FontWeight.w800,
                                               color: L.text)),
-                                  Text('${cg.relation} · Monitoring Active',
+                                  Text('${cg.relation} · Monitoring active',
                                       style: AppTypography.bodySmall.copyWith(
                                           color: L.sub,
                                           fontWeight: FontWeight.w500)),
@@ -532,27 +532,10 @@ class InsightsContent extends StatelessWidget {
                   ),
                   const SizedBox(height: 20),
 
-                  BouncingButton(
+                  MedAiCTA(
+                    label: 'Nudge ${cg.name}',
+                    icon: Icons.notifications_active_rounded,
                     onTap: () => state.nudgePatient(cg.patientUid),
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                          color: L.text,
-                          borderRadius: BorderRadius.circular(16)),
-                      child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.notifications_active_rounded,
-                                color: Colors.white, size: 18),
-                            const SizedBox(width: 10),
-                            Text('Nudge ${cg.name}',
-                                style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w800)),
-                          ]),
-                    ),
                   ),
 
                   const SizedBox(height: 24),
@@ -560,6 +543,7 @@ class InsightsContent extends StatelessWidget {
                   SquircleCard(
                     padding: const EdgeInsets.all(20),
                     radius: 24,
+                    boxShadow: AppShadows.soft,
                     child: WeeklyAdherenceChart(
                         meds: meds, history: history, L: L),
                   ),
@@ -599,7 +583,7 @@ class _CompactStat extends StatelessWidget {
           const SizedBox(height: 4),
           Text(value,
               style: AppTypography.titleLarge.copyWith(
-                  color: color, fontWeight: FontWeight.w900, fontSize: 18)),
+                  color: color, fontWeight: FontWeight.w800, fontSize: 18)),
         ]),
       );
 }

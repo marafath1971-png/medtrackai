@@ -31,7 +31,11 @@ service cloud.firestore {
       match /caregivers/{cgKey} {
         allow read: if request.auth != null && (request.auth.uid == userId || request.auth.uid == cgKey);
         allow delete: if request.auth != null && (request.auth.uid == userId || request.auth.uid == cgKey);
-        // create/update is now restricted to Cloud Functions (admin SDK)
+        // Patient manages roster; caregiver may activate their own slot after joining via invite.
+        allow create, update: if request.auth != null && (
+          request.auth.uid == userId
+          || request.resource.data.get('joinedCaregiverUid', '') == request.auth.uid
+        );
       }
 
       // Monitoring List: Owned by the caregiver to track their patients
@@ -55,8 +59,11 @@ service cloud.firestore {
       allow read:   if request.auth != null && isInviteValid();
       allow create: if request.auth != null
                     && request.resource.data.patientUid == request.auth.uid;
-      allow delete: if request.auth != null
-                    && resource.data.patientUid == request.auth.uid;
+      // Patient can revoke; caregiver can consume invite after joining.
+      allow delete: if request.auth != null && (
+        resource.data.patientUid == request.auth.uid
+        || isInviteValid()
+      );
     }
 
     // ── Deny everything else ────────────────────────────────────────────

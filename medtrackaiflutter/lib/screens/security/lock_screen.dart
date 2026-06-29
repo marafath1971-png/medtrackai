@@ -1,12 +1,13 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../providers/app_state.dart';
-import '../../theme/app_theme.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+
+import '../../providers/app_state.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
-import '../../widgets/shared/shared_widgets.dart';
 import '../../services/biometric_service.dart';
+import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/app_loading_indicator.dart';
 
 class LockScreen extends StatefulWidget {
@@ -24,18 +25,9 @@ class _LockScreenState extends State<LockScreen> {
   @override
   void initState() {
     super.initState();
-    // Add small delay to ensure the UI frame is stable before the OS prompt appears
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) _authenticate();
     });
-  }
-
-  @override
-  void dispose() {
-    if (mounted) {
-       // Check if timer was initialized
-    }
-    super.dispose();
   }
 
   Future<void> _authenticate() async {
@@ -46,7 +38,6 @@ class _LockScreenState extends State<LockScreen> {
       _errorMessage = null;
     });
 
-    // Start a recovery timer. If authentication doesn't finish in 5s, show the button.
     final timer = Timer(const Duration(seconds: 5), () {
       if (mounted && _isAuthenticating) {
         setState(() => _showRecoveryButton = true);
@@ -67,7 +58,8 @@ class _LockScreenState extends State<LockScreen> {
         } else {
           HapticEngine.error();
           setState(
-              () => _errorMessage = 'Authentication failed. Please try again.');
+            () => _errorMessage = 'Authentication failed. Please try again.',
+          );
         }
       }
     } catch (e) {
@@ -85,110 +77,103 @@ class _LockScreenState extends State<LockScreen> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
 
-    return Scaffold(
-      body: Stack(
+    Widget card = MedAiGlass(
+      radius: AppRadius.squircle,
+      blur: 32,
+      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 28),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          // Background (solid)
           Container(
+            width: 88,
+            height: 88,
             decoration: BoxDecoration(
-              color: L.bg,
-            ),
-          ),
-
-          // Solid Overlay
-          Center(
-            child: Container(
-              width: MediaQuery.of(context).size.width * 0.85,
-              padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(32),
-                boxShadow: AppShadows.neumorphic,
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                      color: L.text.withValues(alpha: 0.05),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: _isAuthenticating
-                          ? const AppLoadingIndicator(size: 32)
-                          : Icon(
-                              _errorMessage != null
-                                  ? Icons.error_outline_rounded
-                                  : Icons.lock_person_rounded,
-                              color: _errorMessage != null ? L.error : L.text,
-                              size: 40,
-                            ),
-                    ),
-                  ).animate().scale(duration: 600.ms, curve: Curves.elasticOut),
-                  const SizedBox(height: 24),
-                  Text(
-                    _isAuthenticating ? 'Authenticating...' : 'App Locked',
-                    style: AppTypography.displaySmall.copyWith(
-                      fontWeight: FontWeight.w900,
-                      color: L.text,
-                      letterSpacing: -1.0,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Text(
-                    _errorMessage ??
-                        'Please authenticate to access your sensitive health data and medication history.',
-                    textAlign: TextAlign.center,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: _errorMessage != null ? L.error : L.sub,
-                      height: 1.5,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ).animate().fadeIn(delay: 200.ms),
-                  const SizedBox(height: 32),
-                  if (!_isAuthenticating || _showRecoveryButton)
-                    BouncingButton(
-                      onTap: () {
-                        HapticEngine.selection();
-                        _authenticate();
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.2),
-                              blurRadius: 20,
-                              offset: const Offset(0, 10),
-                            ),
-                          ],
-                        ),
-                        child: Center(
-                          child: Text(
-                            _isAuthenticating ? 'MANUAL RETRY' : (_errorMessage != null ? 'TRY AGAIN' : 'UNLOCK NOW'),
-                            style: AppTypography.labelLarge.copyWith(
-                              fontWeight: FontWeight.w900,
-                              color: L.bg,
-                              letterSpacing: 1.5,
-                            ),
-                          ),
-                        ),
-                      ),
-                    )
-                        .animate()
-                        .slideY(begin: 0.2, end: 0, delay: 400.ms)
-                        .fadeIn(delay: 400.ms),
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  L.accent.withValues(alpha: 0.16),
+                  AppThemeColors2026.electric.withValues(alpha: 0.10),
                 ],
               ),
+              boxShadow: AppShadows.glow(L.accent, intensity: 0.2),
             ),
-          ).animate().fadeIn(duration: 500.ms),
+            child: Center(
+              child: _isAuthenticating
+                  ? AppLoadingIndicator(size: 32, color: L.accent)
+                  : Icon(
+                      _errorMessage != null
+                          ? Icons.error_outline_rounded
+                          : Icons.lock_person_rounded,
+                      color: _errorMessage != null ? L.error : L.accent,
+                      size: 40,
+                    ),
+            ),
+          ),
+          const SizedBox(height: 24),
+          Text(
+            _isAuthenticating ? 'Authenticating…' : 'App locked',
+            style: AppTypography.headlineMedium.copyWith(
+              fontWeight: FontWeight.w800,
+              color: L.text,
+              letterSpacing: -0.4,
+            ),
+          ),
+          const SizedBox(height: 12),
+          Semantics(
+            liveRegion: true,
+            child: Text(
+              _errorMessage ??
+                  'Authenticate to access your health data and medication history.',
+              textAlign: TextAlign.center,
+              style: AppTypography.bodySmall.copyWith(
+                color: _errorMessage != null ? L.error : L.sub,
+                height: 1.5,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ),
+          const SizedBox(height: 32),
+          if (!_isAuthenticating || _showRecoveryButton)
+            MedAiCTA(
+              label: _isAuthenticating
+                  ? 'Manual retry'
+                  : (_errorMessage != null ? 'Try again' : 'Unlock now'),
+              onTap: () {
+                HapticEngine.selection();
+                _authenticate();
+              },
+              semanticsLabel: 'Unlock with biometrics',
+            ),
         ],
+      ),
+    );
+
+    if (!reduceMotion) {
+      card = card
+          .animate()
+          .scale(
+            begin: const Offset(0.96, 0.96),
+            end: const Offset(1, 1),
+            duration: 500.ms,
+            curve: AppCurves.expressive,
+          )
+          .fadeIn(duration: 400.ms);
+    }
+
+    return AppScaffold(
+      showAurora: true,
+      body: Center(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: SizedBox(
+            width: MediaQuery.of(context).size.width * 0.88,
+            child: card,
+          ),
+        ),
       ),
     );
   }

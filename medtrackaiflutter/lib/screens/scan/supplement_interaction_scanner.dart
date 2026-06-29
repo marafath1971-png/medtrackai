@@ -2,7 +2,6 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../widgets/common/permission_soft_prompt.dart';
 import 'package:medai/widgets/common/premium_shimmer.dart';
 import 'dart:io';
-import 'dart:ui';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
@@ -11,13 +10,15 @@ import 'package:flutter_image_compress/flutter_image_compress.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:path/path.dart' as p;
 
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
-import '../../widgets/shared/shared_widgets.dart';
+import '../../widgets/common/animated_pressable.dart';
 import '../../services/gemini_service.dart';
-import '../../domain/entities/scan_result.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
+import 'widgets/scan_result_detail_view.dart';
+import 'package:go_router/go_router.dart';
+import '../../app/app_routes.dart';
 
 // ══════════════════════════════════════════════
 // HOOK E: SUPPLEMENT INTERACTION SCANNER (Viral)
@@ -178,10 +179,10 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
         color: L.bg,
         child: Center(
           child: Text(
-            'CAMERA UNAVAILABLE ⚠️',
+            'Camera unavailable',
             style: AppTypography.labelSmall.copyWith(
               color: L.error,
-              letterSpacing: 2,
+              letterSpacing: 0.1,
             ),
           ),
         ),
@@ -275,16 +276,22 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
             right: 20,
             child: Row(
               children: [
-                BouncingButton(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: L.card.withValues(alpha: 0.6),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: L.border.withValues(alpha: 0.2)),
+                Semantics(
+                  button: true,
+                  label: 'Close',
+                  child: AnimatedPressable(
+                    onTap: () => Navigator.pop(context),
+                    child: Container(
+                      width: MedAiA11y.minTapTarget,
+                      height: MedAiA11y.minTapTarget,
+                      decoration: BoxDecoration(
+                        color: L.card.withValues(alpha: 0.6),
+                        shape: BoxShape.circle,
+                        border:
+                            Border.all(color: L.border.withValues(alpha: 0.2)),
+                      ),
+                      child: Icon(Icons.close_rounded, color: L.text, size: 20),
                     ),
-                    child: Icon(Icons.close_rounded, color: L.text, size: 20),
                   ),
                 ),
                 const Spacer(),
@@ -301,11 +308,11 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                       const Icon(Icons.bolt_rounded, color: AppColors.accent, size: 16),
                       const SizedBox(width: 8),
                       Text(
-                        'SYNERGY SCANNER',
+                        'Synergy scanner',
                         style: AppTypography.labelSmall.copyWith(
                           color: L.text,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.8,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.1,
                         ),
                       ),
                     ],
@@ -348,41 +355,57 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      _isScanning ? 'ANALYZING STACK 🧬...' : 'ALIGN BOTTLES IN FRAME 🎯',
+                      _isScanning ? 'Analyzing stack…' : 'Align bottles in frame',
                       style: AppTypography.labelMedium.copyWith(
                         color: context.L.text,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 1.2,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.1,
                       ),
                     ),
                   ).animate().fadeIn(),
                   
                   const SizedBox(height: 24),
                   
-                  BouncingButton(
-                    onTap: _captureAndScan,
-                    scaleFactor: 0.92,
-                    child: Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: _isScanning ? AppColors.accent : context.L.text, 
-                          width: 4
+                  Semantics(
+                    button: true,
+                    label: _isScanning ? 'Analyzing' : 'Capture scan',
+                    child: AnimatedPressable(
+                      onTap: _captureAndScan,
+                      scaleFactor: 0.92,
+                      child: Container(
+                        width: MedAiA11y.minTapTarget + 32,
+                        height: MedAiA11y.minTapTarget + 32,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: _isScanning
+                                ? AppColors.accent
+                                : context.L.text,
+                            width: 4,
+                          ),
+                          boxShadow: _isScanning
+                              ? AppShadows.glow(AppColors.accent, intensity: 0.5)
+                              : [],
+                          color: _isScanning
+                              ? AppColors.accent.withValues(alpha: 0.2)
+                              : Colors.transparent,
                         ),
-                        boxShadow: _isScanning ? AppShadows.glow(AppColors.accent, intensity: 0.5) : [],
-                        color: _isScanning ? AppColors.accent.withValues(alpha: 0.2) : Colors.transparent,
-                      ),
-                      child: Center(
-                        child: AnimatedContainer(
-                          duration: 300.ms,
-                          width: _isScanning ? 32 : 64,
-                          height: _isScanning ? 32 : 64,
-                          decoration: BoxDecoration(
-                            shape: _isScanning ? BoxShape.rectangle : BoxShape.circle,
-                            borderRadius: _isScanning ? BorderRadius.circular(8) : BorderRadius.circular(32),
-                            color: _isScanning ? AppColors.accent : context.L.text,
+                        child: Center(
+                          child: AnimatedContainer(
+                            duration: 300.ms,
+                            width: _isScanning ? 32 : 64,
+                            height: _isScanning ? 32 : 64,
+                            decoration: BoxDecoration(
+                              shape: _isScanning
+                                  ? BoxShape.rectangle
+                                  : BoxShape.circle,
+                              borderRadius: _isScanning
+                                  ? BorderRadius.circular(8)
+                                  : BorderRadius.circular(32),
+                              color: _isScanning
+                                  ? AppColors.accent
+                                  : context.L.text,
+                            ),
                           ),
                         ),
                       ),
@@ -395,161 +418,43 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
           // 5. Gen Z Premium AI Analysis Overlay
           if (_showAnalysis && _scanResult != null)
             Positioned.fill(
-              child: ClipRRect(
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-                  child: Container(
-                    color: L.bg.withValues(alpha: 0.88),
-                    padding: const EdgeInsets.symmetric(horizontal: 24),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        // Floating Header Icon with pulsing shadow glow
-                        AnimatedBuilder(
-                          animation: _pulseController,
-                          builder: (context, child) {
-                            return Container(
-                              width: 88,
-                              height: 88,
-                              decoration: BoxDecoration(
-                                color: L.card,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: AppColors.accent.withValues(alpha: 0.5), width: 2),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.accent.withValues(
-                                        alpha: 0.4 + (_pulseController.value * 0.3)),
-                                    blurRadius: 20 + (_pulseController.value * 10),
-                                    spreadRadius: 1 + (_pulseController.value * 2),
-                                  )
-                                ],
-                              ),
-                              child: const Center(
-                                child: Text('⚡️', style: TextStyle(fontSize: 40)),
-                              ),
-                            );
-                          },
-                        ).animate().scale(curve: Curves.elasticOut, duration: 900.ms),
-                        
-                        const SizedBox(height: 24),
-                        
-                        // Title
-                        Text(
-                          'SYNERGY REPORT',
-                          style: AppTypography.headlineMedium.copyWith(
-                            color: L.text,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 3.0,
-                          ),
-                        ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.1),
-                        
-                        const SizedBox(height: 32),
-                        
-                        // Glassmorphic Result Card
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(24),
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                L.card.withValues(alpha: 0.8),
-                                L.card.withValues(alpha: 0.45),
-                              ],
-                            ),
-                            borderRadius: BorderRadius.circular(28),
-                            border: Border.all(color: L.border.withValues(alpha: 0.15)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.25),
-                                blurRadius: 30,
-                                offset: const Offset(0, 10),
-                              )
-                            ],
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                _scanResult!.name.isNotEmpty ? _scanResult!.name.toUpperCase() : 'UNKNOWN STACK 🧪',
-                                textAlign: TextAlign.center,
-                                style: AppTypography.titleLarge.copyWith(
-                                  color: AppColors.accent,
-                                  fontWeight: FontWeight.w900,
-                                  letterSpacing: -0.5,
-                                  fontSize: 20,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              Container(height: 1, color: L.border.withValues(alpha: 0.15)),
-                              const SizedBox(height: 16),
-                              Text(
-                                _scanResult!.interactions.isNotEmpty 
-                                  ? _scanResult!.interactions 
-                                  : 'No specific synergy or interactions found for this combination. 🤷‍♂️',
-                                textAlign: TextAlign.center,
-                                style: AppTypography.bodyLarge.copyWith(
-                                  color: L.text.withValues(alpha: 0.8),
-                                  fontWeight: FontWeight.w600,
-                                  height: 1.6,
-                                  fontSize: 15,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ).animate().fadeIn(delay: 400.ms).slideY(begin: 0.1, end: 0),
-                        
-                        const SizedBox(height: 48),
-                        
-                        // Action Button
-                        BouncingButton(
-                          onTap: () {
-                            HapticEngine.selection();
-                            setState(() {
-                              _showAnalysis = false;
-                              _scanResult = null;
-                            });
-                          },
-                          child: Container(
-                            width: double.infinity,
-                            padding: const EdgeInsets.symmetric(vertical: 20),
-                            decoration: BoxDecoration(
-                              gradient: LinearGradient(
-                                colors: [
-                                  L.secondary,
-                                  L.secondary.withValues(alpha: 0.85),
-                                ],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
-                              borderRadius: BorderRadius.circular(100),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: L.secondary.withValues(alpha: 0.35),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 8),
-                                )
-                              ]
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Text('📸', style: TextStyle(fontSize: 18)),
-                                const SizedBox(width: 8),
-                                Text(
-                                  'SCAN ANOTHER',
-                                  style: AppTypography.labelLarge.copyWith(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.w900,
-                                    letterSpacing: 1.5,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ).animate().fadeIn(delay: 600.ms).scale(curve: Curves.easeOutBack),
-                      ],
+              child: Container(
+                color: L.bg.withValues(alpha: 0.94),
+                child: SafeArea(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+                    child: ScanResultDetailView(
+                      result: _scanResult!,
+                      onDark: false,
+                      onClose: () => setState(() {
+                        _showAnalysis = false;
+                        _scanResult = null;
+                      }),
+                      onScanAnother: () => setState(() {
+                        _showAnalysis = false;
+                        _scanResult = null;
+                      }),
+                      onAddToMedicines: () async {
+                        HapticEngine.success();
+                        final sr = _scanResult!;
+                        final newMed = Medicine(
+                          id: DateTime.now().millisecondsSinceEpoch,
+                          name: sr.name.isNotEmpty ? sr.name : 'Supplement stack',
+                          brand: sr.brand,
+                          genericName: sr.genericName,
+                          dose: sr.dose,
+                          form: sr.form,
+                          category: sr.category.isNotEmpty ? sr.category : 'Supplement',
+                          notes: sr.description,
+                          intakeInstructions: sr.howToTake,
+                          courseStartDate:
+                              DateTime.now().toIso8601String().substring(0, 10),
+                          color: '#8B5CF6',
+                        );
+                        await context.read<AppState>().addMedicine(newMed);
+                        if (!context.mounted) return;
+                        context.push(AppRoutes.medicineDetailPath(newMed.id, edit: true));
+                      },
                     ),
                   ),
                 ),

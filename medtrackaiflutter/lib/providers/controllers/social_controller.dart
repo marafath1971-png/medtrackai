@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'dart:math';
+
 import 'package:flutter/foundation.dart';
 import '../../domain/entities/entities.dart';
 import '../../domain/repositories/user_repository.dart';
@@ -25,6 +27,16 @@ class SocialController extends ChangeNotifier {
   List<MissedAlert> get missedAlerts => _missedAlerts;
   Map<String, String> get protectorInsights => _protectorInsights;
   String? get pendingJoinCode => _pendingJoinCode;
+
+  static const _codeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+  String _generateInviteCode() {
+    final r = Random.secure();
+    return List.generate(
+      6,
+      (_) => _codeChars[r.nextInt(_codeChars.length)],
+    ).join();
+  }
 
   void addMissedAlert(MissedAlert alert) {
     _missedAlerts = [alert, ..._missedAlerts].take(20).toList();
@@ -73,16 +85,31 @@ class SocialController extends ChangeNotifier {
     final uid = AuthService.uid;
     if (uid == null) return '';
     try {
-      // Circle sharing removed — return empty code stub
-      const code = '';
+      String code = _generateInviteCode();
+      for (var i = 0; i < 5; i++) {
+        final existing = await userRepo.getRawInvite(code);
+        if (existing == null) break;
+        code = _generateInviteCode();
+      }
 
-      if (code.isNotEmpty) {
+      final cgWithCode = cg.copyWith(inviteCode: code);
+      await userRepo.createInvite(
+        uid,
+        cgWithCode,
+        patientName: patientName,
+        patientAvatar: patientAvatar,
+      );
+
+      final idx = _caregivers.indexWhere((c) => c.id == cg.id);
+      if (idx != -1) {
+        _caregivers[idx] = _caregivers[idx].copyWith(inviteCode: code);
+      } else {
         _caregivers = _caregivers
             .map((c) => c.id == cg.id ? c.copyWith(inviteCode: code) : c)
             .toList();
-        await userRepo.saveCaregivers(_caregivers);
-        notifyListeners();
       }
+      await userRepo.saveCaregivers(_caregivers);
+      notifyListeners();
       return code;
     } catch (e) {
       appLogger.e('[SocialController] createInvite failed', error: e);
@@ -91,13 +118,59 @@ class SocialController extends ChangeNotifier {
   }
 
   Future<void> joinCaregiver(String code) async {
-    try {
-      // Circle join removed — stub always fails gracefully
-      appLogger.w('[SocialController] joinCaregiver: circle feature removed');
-    } catch (e) {
-      appLogger.e('[SocialController] joinCaregiver failed', error: e);
-      rethrow;
+    final caregiverUid = AuthService.uid;
+    if (caregiverUid == null) {
+      throw Exception('Sign in required');
     }
+
+    final normalized = code.trim().toUpperCase();
+    if (normalized.length < 6) {
+      throw Exception('Invalid code');
+    }
+
+    final invite = await userRepo.getRawInvite(normalized);
+    if (invite == null) {
+      throw Exception('Invalid code');
+    }
+
+    final patientUid = invite['patientUid'] as String?;
+    if (patientUid == null || patientUid.isEmpty) {
+      throw Exception('Invalid code');
+    }
+    if (patientUid == caregiverUid) {
+      throw Exception('Cannot monitor your own profile');
+    }
+
+    if (_monitoredPatients.any((p) => p['uid'] == patientUid)) {
+      HapticEngine.success();
+      return;
+    }
+
+    final patientProfile = await userRepo.getOtherProfile(patientUid);
+    final patientName =
+        patientProfile?.name ?? invite['patientName'] as String? ?? 'Member';
+    final patientAvatar =
+        patientProfile?.avatar ?? invite['patientAvatar'] as String? ?? '👤';
+    final relation = invite['relation'] as String? ?? 'Family';
+    final cgId = invite['cgId'] as int? ?? 0;
+
+    final patientEntry = {
+      'uid': patientUid,
+      'name': patientName,
+      'avatar': patientAvatar,
+      'relation': relation,
+      'addedAt': DateTime.now().toIso8601String().substring(0, 10),
+      'cgId': cgId,
+    };
+
+    await userRepo.addMonitoringPatient(patientEntry);
+    await userRepo.activatePatientCaregiver(patientUid, cgId, caregiverUid);
+    await userRepo.deleteInvite(normalized);
+
+    _monitoredPatients = [..._monitoredPatients, patientEntry];
+    notifyListeners();
+
+    HapticEngine.success();
   }
 
   Future<void> addCaregiver(Caregiver cg) async {
@@ -121,12 +194,10 @@ class SocialController extends ChangeNotifier {
   }
 
   Future<List<Medicine>> getPatientMeds(String uid) async {
-    // Bridge to user repository to fetch public meds of a monitored patient
     return await userRepo.getPatientMeds(uid);
   }
 
   Future<Map<String, List<DoseEntry>>> getPatientHistory(String uid) async {
-    // Bridge to user repository to fetch public history of a monitored patient
     return await userRepo.getPatientHistory(uid);
   }
 
@@ -155,11 +226,8 @@ class SocialController extends ChangeNotifier {
     final uid = AuthService.uid;
     if (uid == null) return;
 
-    // Simulate sending telemetry to active caregivers
     for (var cg in _caregivers.where((c) => c.status == 'active')) {
       appLogger.i('[Social] Pushing alert to caregiver: ${cg.name}');
-      // In a real app, we would send a FCM message or call a Cloud Function
-      // CircleService.sendCriticalAlert(uid, med.name, cg.id);
     }
   }
 

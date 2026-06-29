@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
 import '../../../providers/app_state.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/common/app_loading_indicator.dart';
-import '../../../widgets/shared/shared_widgets.dart';
 
 import '../../../l10n/app_localizations.dart';
 
@@ -47,71 +46,44 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
   Widget build(BuildContext context) {
     final L = context.L;
     final s = AppLocalizations.of(context)!;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
     final profile = widget.med.aiSafetyProfile;
 
     if (profile == null) {
       if (_errorMessage != null) {
-        return _buildErrorState(L, s);
+        return _buildErrorState(L, s, reduceMotion);
       }
-      return _buildScanPrompt(L, s);
+      return _buildScanPrompt(L, s, reduceMotion);
     }
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: L.border.withValues(alpha: 0.1)),
-      ),
+    Widget card = MedAiDepthCard(
+      padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Header
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 16),
-            child: Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: L.text.withValues(alpha: 0.05),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(Icons.security_rounded, color: L.text, size: 18),
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            child: MedAiSectionHeader(
+              title: s.aiSafetyProfile,
+              action: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                decoration: BoxDecoration(
+                  color: L.text,
+                  borderRadius: BorderRadius.circular(6),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    s.aiSafetyProfile,
-                    style: AppTypography.titleMedium.copyWith(
-                      color: L.text,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.5,
-                    ),
+                child: Text(
+                  s.verified.toUpperCase(),
+                  style: AppTypography.labelSmall.copyWith(
+                    color: L.bg,
+                    fontWeight: FontWeight.w900,
+                    fontSize: 10,
+                    letterSpacing: 1.0,
                   ),
                 ),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                  decoration: BoxDecoration(
-                    color: L.text,
-                    borderRadius: BorderRadius.circular(6),
-                  ),
-                  child: Text(
-                    s.verified.toUpperCase(),
-                    style: AppTypography.labelSmall.copyWith(
-                      color: L.bg,
-                      fontWeight: FontWeight.w900,
-                      fontSize: 10,
-                      letterSpacing: 1.0,
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
-
-          Container(height: 1, color: L.border.withValues(alpha: 0.5)),
+          Divider(height: 1, color: L.border.withValues(alpha: 0.5)),
 
           // Content
           Padding(
@@ -121,18 +93,18 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
               children: [
                 if (profile.warnings.isNotEmpty)
                   _buildSection(L, '🚨 ${s.criticalWarnings}', profile.warnings,
-                      isDanger: true),
+                      isDanger: true, reduceMotion: reduceMotion),
                 if (profile.interactions.isNotEmpty)
                   _buildSection(
                       L, '💊 ${s.drugInteractions}', profile.interactions,
-                      isDanger: true),
+                      isDanger: true, reduceMotion: reduceMotion),
                 if (profile.foodRules.isNotEmpty)
                   _buildSection(
                       L, '🍏 ${s.dietaryLifestyleRules}', profile.foodRules,
-                      isDanger: false),
+                      isDanger: false, reduceMotion: reduceMotion),
                 if (profile.ahaMoments.isNotEmpty)
                   _buildSection(L, '💡 ${s.ahaInsight}', profile.ahaMoments,
-                      isDanger: false, isAha: true),
+                      isDanger: false, isAha: true, reduceMotion: reduceMotion),
                 if (profile.warnings.isEmpty &&
                     profile.interactions.isEmpty &&
                     profile.foodRules.isEmpty &&
@@ -146,14 +118,20 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
           ),
         ],
       ),
-    )
-        .animate()
-        .fadeIn(duration: 400.ms)
-        .slideY(begin: 0.05, curve: Curves.easeOutQuart);
+    );
+
+    if (!reduceMotion) {
+      card = card
+          .animate()
+          .fadeIn(duration: 400.ms)
+          .slideY(begin: 0.05, curve: Curves.easeOutQuart);
+    }
+
+    return card;
   }
 
   Widget _buildSection(AppThemeColors L, String title, List<String> items,
-      {bool isDanger = false, bool isAha = false}) {
+      {bool isDanger = false, bool isAha = false, required bool reduceMotion}) {
     // 2026 Viral premium colors
     final Color colorToUse = isAha
         ? const Color(0xFFA855F7) // Purple for Aha
@@ -164,40 +142,54 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
     // Remove emoji from title if it exists to replace with pure text
     String cleanTitle = title.replaceAll(RegExp(r'[^\w\s&]'), '').trim();
 
-    final section = Container(
-      width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 24),
-      padding: const EdgeInsets.all(24),
+    Widget emojiIcon = Text(
+      isAha ? "💡" : (isDanger ? "⚠️" : "🍏"),
+      style: const TextStyle(fontSize: 22),
+    );
+    if (!reduceMotion) {
+      emojiIcon = emojiIcon
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scaleXY(
+              begin: 1.0,
+              end: 1.08,
+              duration: 1.5.seconds,
+              curve: Curves.easeInOut);
+    }
+
+    Widget dangerBadge = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
-        color: L.card,
-        gradient: isAha
-            ? LinearGradient(
-                colors: [
-                  const Color(0xFF6366F1).withValues(alpha: 0.15),
-                  const Color(0xFFA855F7).withValues(alpha: 0.05)
-                ],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              )
-            : null,
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(
-            color: colorToUse.withValues(alpha: isAha ? 0.3 : 0.15),
-            width: 1.5),
-        boxShadow: [
-          BoxShadow(
-            color: colorToUse.withValues(alpha: 0.1),
-            blurRadius: 30,
-            offset: const Offset(0, 10),
+        color: Colors.redAccent.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        children: [
+          const Text("🛑", style: TextStyle(fontSize: 12)),
+          const SizedBox(width: 6),
+          Text(
+            "DANGER",
+            style: AppTypography.labelSmall.copyWith(
+              color: Colors.redAccent,
+              fontSize: 11,
+              fontWeight: FontWeight.w900,
+              letterSpacing: 1.0,
+            ),
           ),
-          if (isDanger)
-            BoxShadow(
-              color: Colors.redAccent.withValues(alpha: 0.15),
-              blurRadius: 40,
-              spreadRadius: -5,
-            )
         ],
       ),
+    );
+    if (!reduceMotion) {
+      dangerBadge = dangerBadge
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .shimmer(duration: 1.seconds, color: Colors.white54);
+    }
+
+    Widget section = MedAiDepthCard(
+      accentGlow: isDanger || isAha,
+      padding: const EdgeInsets.all(24),
+      radius: 32,
+      color: L.card,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -214,16 +206,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                           blurRadius: 10,
                           spreadRadius: -2)
                     ]),
-                child: Text(
-                  isAha ? "💡" : (isDanger ? "⚠️" : "🍏"),
-                  style: const TextStyle(fontSize: 22),
-                )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .scaleXY(
-                        begin: 1.0,
-                        end: 1.08,
-                        duration: 1.5.seconds,
-                        curve: Curves.easeInOut),
+                child: emojiIcon,
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -236,47 +219,15 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                   ),
                 ),
               ),
-              if (isDanger)
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Colors.redAccent.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(10),
-                    border: Border.all(
-                        color: Colors.redAccent.withValues(alpha: 0.4)),
-                  ),
-                  child: Row(
-                    children: [
-                      const Text("🛑", style: TextStyle(fontSize: 12)),
-                      const SizedBox(width: 6),
-                      Text(
-                        "DANGER",
-                        style: AppTypography.labelSmall.copyWith(
-                          color: Colors.redAccent,
-                          fontSize: 11,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 1.0,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .shimmer(duration: 1.seconds, color: Colors.white54),
+              if (isDanger) dangerBadge,
             ],
           ),
           const SizedBox(height: 20),
-          Container(
+          MedAiGlass(
+            radius: 24,
             padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: isAha ? Colors.transparent : L.meshBg.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(
-                  color: isAha
-                      ? Colors.transparent
-                      : L.border.withValues(alpha: 0.08)),
-            ),
+            tint: isAha ? Colors.transparent : L.meshBg,
+            showBorder: !isAha,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: items.map((item) {
@@ -315,19 +266,43 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
       ),
     );
 
-    return section.animate().fadeIn(duration: 600.ms).slideY(
-        begin: 0.1, end: 0, curve: Curves.easeOutQuart);
-  }
+    if (isAha) {
+      section = DecoratedBox(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(32),
+          gradient: LinearGradient(
+            colors: [
+              const Color(0xFF6366F1).withValues(alpha: 0.15),
+              const Color(0xFFA855F7).withValues(alpha: 0.05)
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+        ),
+        child: section,
+      );
+    }
 
-  Widget _buildErrorState(AppThemeColors L, AppLocalizations s) {
+    if (reduceMotion) {
+      return Container(
+        width: double.infinity,
+        margin: const EdgeInsets.only(bottom: 24),
+        child: section,
+      );
+    }
+
     return Container(
       width: double.infinity,
+      margin: const EdgeInsets.only(bottom: 24),
+      child: section.animate().fadeIn(duration: 600.ms).slideY(
+          begin: 0.1, end: 0, curve: Curves.easeOutQuart),
+    );
+  }
+
+  Widget _buildErrorState(AppThemeColors L, AppLocalizations s, bool reduceMotion) {
+    Widget card = MedAiDepthCard(
       padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: L.error.withValues(alpha: 0.05),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: L.error.withValues(alpha: 0.2)),
-      ),
+      color: L.error.withValues(alpha: 0.05),
       child: Column(
         children: [
           Container(
@@ -346,7 +321,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
           ),
           const SizedBox(height: 16),
           Text(
-            s.analysisFailed, // Ensure this key exists or use fallback
+            s.analysisFailed,
             style: AppTypography.titleMedium.copyWith(
               color: L.error,
               fontWeight: FontWeight.w800,
@@ -362,56 +337,47 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
             ),
           ),
           const SizedBox(height: 20),
-          BouncingButton(
+          MedAiCTA(
+            label: s.retry,
             onTap: _runScan,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-              decoration: BoxDecoration(
-                color: L.error,
-                borderRadius: BorderRadius.circular(30),
-              ),
-              child: Text(
-                s.retry,
-                style: AppTypography.labelLarge.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
+            semanticsLabel: s.retry,
           ),
         ],
       ),
-    ).animate().fadeIn(duration: 600.ms).shake(duration: 400.ms, curve: Curves.easeInOut);
+    );
+
+    if (reduceMotion) return card;
+
+    return card
+        .animate()
+        .fadeIn(duration: 600.ms)
+        .shake(duration: 400.ms, curve: Curves.easeInOut);
   }
 
-  Widget _buildScanPrompt(AppThemeColors L, AppLocalizations s) {
-    return BouncingButton(
-      onTap: _isLoading ? null : _runScan,
-      scaleFactor: 0.95,
-      child: Container(
-        width: double.infinity,
+  Widget _buildScanPrompt(AppThemeColors L, AppLocalizations s, bool reduceMotion) {
+    Widget sparkle = _isLoading
+        ? const AppLoadingIndicator(size: 32)
+        : const Text("✨", style: TextStyle(fontSize: 32));
+
+    if (!_isLoading && !reduceMotion) {
+      sparkle = sparkle
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scaleXY(
+              begin: 1,
+              end: 1.15,
+              duration: 1.5.seconds,
+              curve: Curves.easeInOut);
+    }
+
+    Widget card = Semantics(
+      button: true,
+      enabled: !_isLoading,
+      label: s.generateSafetyProfile,
+      child: MedAiDepthCard(
+        accentGlow: true,
         padding: const EdgeInsets.all(32),
-        decoration: BoxDecoration(
-          color: L.card,
-          gradient: LinearGradient(
-            colors: [
-              const Color(0xFF6366F1).withValues(alpha: 0.1),
-              const Color(0xFFA855F7).withValues(alpha: 0.05)
-            ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-          borderRadius: BorderRadius.circular(32),
-          border: Border.all(color: const Color(0xFFA855F7).withValues(alpha: 0.3), width: 1.5),
-          boxShadow: [
-            BoxShadow(
-              color: const Color(0xFF6366F1).withValues(alpha: 0.15),
-              blurRadius: 40,
-              spreadRadius: -10,
-              offset: const Offset(0, 10)
-            )
-          ]
-        ),
+        radius: 32,
+        onTap: _isLoading ? null : _runScan,
         child: Column(
           children: [
             Container(
@@ -426,15 +392,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                       spreadRadius: -5),
                 ],
               ),
-              child: _isLoading
-                  ? const AppLoadingIndicator(size: 32)
-                  : const Text("✨", style: TextStyle(fontSize: 32))
-                      .animate(onPlay: (c) => c.repeat(reverse: true))
-                      .scaleXY(
-                          begin: 1,
-                          end: 1.15,
-                          duration: 1.5.seconds,
-                          curve: Curves.easeInOut),
+              child: sparkle,
             ),
             const SizedBox(height: 24),
             Text(
@@ -442,22 +400,46 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
               style: AppTypography.titleLarge.copyWith(
                 color: L.text,
                 fontWeight: FontWeight.w900,
-                letterSpacing: -0.5
+                letterSpacing: -0.5,
               ),
             ),
             const SizedBox(height: 12),
             Text(
-              _isLoading ? s.safetyLoadingSubtitle : "Tap to unlock deep clinical insights, potential side-effects, and AHA moments.",
+              _isLoading
+                  ? s.safetyLoadingSubtitle
+                  : "Tap to unlock deep clinical insights, potential side-effects, and AHA moments.",
               textAlign: TextAlign.center,
               style: AppTypography.bodyMedium.copyWith(
                 color: L.text.withValues(alpha: 0.8),
                 height: 1.6,
-                fontWeight: FontWeight.w600
+                fontWeight: FontWeight.w600,
               ),
             ),
           ],
         ),
       ),
-    ).animate().fadeIn(duration: 600.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuart);
+    );
+
+    card = DecoratedBox(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(32),
+        gradient: LinearGradient(
+          colors: [
+            const Color(0xFF6366F1).withValues(alpha: 0.1),
+            const Color(0xFFA855F7).withValues(alpha: 0.05)
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+      ),
+      child: card,
+    );
+
+    if (reduceMotion) return card;
+
+    return card
+        .animate()
+        .fadeIn(duration: 600.ms)
+        .slideY(begin: 0.1, end: 0, curve: Curves.easeOutQuart);
   }
 }

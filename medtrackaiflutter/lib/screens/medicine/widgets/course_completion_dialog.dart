@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../domain/entities/entities.dart';
-import '../../../theme/app_theme.dart';
-import '../../../widgets/shared/shared_widgets.dart';
+import '../../../theme/med_ai_ui.dart';
+import '../../../widgets/common/animated_pressable.dart';
 
 class CourseCompletionDialog extends StatelessWidget {
   final Medicine med;
@@ -25,20 +25,11 @@ class CourseCompletionDialog extends StatelessWidget {
     return Dialog(
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.all(20),
-      child: Container(
+      child: MedAiDepthCard(
+        accentGlow: true,
         padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(24),
-          boxShadow: [
-            BoxShadow(
-                color: Colors.black.withValues(alpha: 0.2),
-                blurRadius: 20,
-                offset: const Offset(0, 10))
-          ],
-        ),
         child: SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const BouncingScrollPhysics(),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -59,13 +50,10 @@ class CourseCompletionDialog extends StatelessWidget {
                     AppTypography.bodyMedium.copyWith(color: L.sub, height: 1.5),
               ),
               const SizedBox(height: 24),
-              Container(
+              MedAiGlass(
+                radius: AppRadius.l,
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: L.green.withValues(alpha: 0.08),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: L.green.withValues(alpha: 0.2)),
-                ),
+                tint: L.green.withValues(alpha: 0.08),
                 child: Row(
                   children: [
                     Container(
@@ -94,50 +82,31 @@ class CourseCompletionDialog extends StatelessWidget {
                 ),
               ),
               const SizedBox(height: 24),
-              Row(
-                children: [
-                  Expanded(
-                    child: BouncingButton(
-                      onTap: () {
-                        Navigator.pop(context);
-                        onArchive();
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 20),
-                        decoration: BoxDecoration(
-                          color: L.text,
-                          borderRadius: BorderRadius.circular(24),
-                          boxShadow: [
-                            BoxShadow(
-                              color: L.text.withValues(alpha: 0.3),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            )
-                          ],
-                        ),
-                        child: Center(
-                          child: Text(
-                            'ARCHIVE & FINISH',
-                            style: AppTypography.labelLarge.copyWith(
-                              fontFamily: 'Courier',
-                              fontWeight: FontWeight.w900,
-                              color: L.bg,
-                              letterSpacing: 2.0,
-                            ),
-                          ),
-                        ),
+              MedAiCTA(
+                label: 'ARCHIVE & FINISH',
+                onTap: () {
+                  Navigator.pop(context);
+                  onArchive();
+                },
+                semanticsLabel: 'Archive and finish course',
+              ),
+              const SizedBox(height: 12),
+              Semantics(
+                button: true,
+                label: 'Close',
+                child: AnimatedPressable(
+                  onTap: () => Navigator.pop(context),
+                  child: SizedBox(
+                    height: MedAiA11y.minTapTarget,
+                    child: Center(
+                      child: Text(
+                        'Close',
+                        style: AppTypography.labelLarge
+                            .copyWith(color: L.sub, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text('Close',
-                    style: AppTypography.labelLarge
-                        .copyWith(color: L.sub, fontWeight: FontWeight.w600)),
+                ),
               ),
             ],
           ),

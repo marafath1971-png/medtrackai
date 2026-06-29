@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../providers/app_state.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/color_utils.dart';
 import '../../../widgets/shared/shared_widgets.dart';
 
@@ -28,11 +28,16 @@ class _CaregiverCardState extends State<CaregiverCard> {
     final isActive = cg.status == 'active';
     final medColor = hexToColor(cg.color);
 
-    return BouncingButton(
-      onTap: widget.onDashboard,
-      child: SquircleCard(
+    return Semantics(
+      button: true,
+      label: '${cg.name}, ${cg.relation}',
+      child: AnimatedPressable(
+        onTap: widget.onDashboard,
+        scaleFactor: 0.985,
+        child: MedAiDepthCard(
         padding: const EdgeInsets.all(AppSpacing.p20),
-        boxShadow: const [],
+        radius: AppRadius.l,
+        accentGlow: isActive,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -91,7 +96,7 @@ class _CaregiverCardState extends State<CaregiverCard> {
                         style: AppTypography.titleLarge.copyWith(
                           color: L.text,
                           fontSize: 16,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w800,
                           letterSpacing: -0.5,
                         ),
                         maxLines: 1,
@@ -101,38 +106,27 @@ class _CaregiverCardState extends State<CaregiverCard> {
                       Row(
                         children: [
                           Text(
-                            cg.relation.toUpperCase(),
+                            cg.relation,
                             style: AppTypography.labelSmall.copyWith(
-                              color: L.sub.withValues(alpha: 0.5),
-                              fontWeight: FontWeight.w900,
-                              fontSize: 10,
-                              letterSpacing: 1.0,
+                              color: L.sub,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 11,
+                              letterSpacing: 0.1,
                             ),
                           ),
                           if (isActive) ...[
                             const SizedBox(width: 8),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                  horizontal: 6, vertical: 2),
-                              decoration: BoxDecoration(
-                                color: L.success.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(4),
-                                border: Border.all(
-                                    color: L.success.withValues(alpha: 0.2)),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Icon(Icons.inventory_2_rounded,
-                                      size: 8, color: L.success),
-                                  const SizedBox(width: 4),
-                                  Text('REFILL COORDINATOR',
-                                      style: AppTypography.labelSmall.copyWith(
-                                          fontSize: 10,
-                                          color: L.success,
-                                          fontWeight: FontWeight.w900)),
-                                ],
-                              ),
+                            _StatusPill(
+                              label: 'Active',
+                              color: L.success,
+                              L: L,
+                            ),
+                          ] else ...[
+                            const SizedBox(width: 8),
+                            _StatusPill(
+                              label: 'Waiting',
+                              color: L.sub,
+                              L: L,
                             ),
                           ],
                         ],
@@ -169,7 +163,9 @@ class _CaregiverCardState extends State<CaregiverCard> {
                   const SizedBox(width: 8),
                   Expanded(
                     child: Text(
-                      'Latest Activity: ${isActive ? 'Active Monitoring • Stable' : 'Invite Sent • Waiting'}',
+                      isActive
+                          ? 'Active monitoring · stable'
+                          : 'Invite sent · waiting',
                       style: AppTypography.labelSmall.copyWith(
                         color: L.text.withValues(alpha: 0.7),
                         fontSize: 10,
@@ -207,6 +203,7 @@ class _CaregiverCardState extends State<CaregiverCard> {
           ],
         ),
       ),
+      ),
     );
   }
 }
@@ -227,6 +224,7 @@ class FamStatJSX extends StatelessWidget {
     final L = context.L;
     return SquircleCard(
       padding: const EdgeInsets.all(AppSpacing.p16),
+      boxShadow: AppShadows.soft,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -245,17 +243,17 @@ class FamStatJSX extends StatelessWidget {
           Text(value.toString(),
               style: AppTypography.displayLarge.copyWith(
                 fontSize: 24,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w800,
                 color: L.text,
                 height: 1.0,
               )),
           const SizedBox(height: 2),
-          Text(label.toUpperCase(),
+          Text(label,
               style: AppTypography.labelSmall.copyWith(
                   color: L.sub,
-                  fontSize: 10,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: 0.3)),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.1)),
         ],
       ),
     );
@@ -276,21 +274,28 @@ class PivotTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BouncingButton(
-      onTap: onTap,
-      child: AnimatedContainer(
-        duration: 250.ms,
-        padding: const EdgeInsets.symmetric(vertical: 11),
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: active ? L.text : Colors.transparent,
-          borderRadius: AppRadius.roundS,
-        ),
-        child: Text(
-          label,
-          style: AppTypography.labelLarge.copyWith(
-            fontWeight: active ? FontWeight.w800 : FontWeight.w600,
-            color: active ? L.bg : L.sub,
+    return Semantics(
+      button: true,
+      selected: active,
+      label: label,
+      child: AnimatedPressable(
+        onTap: onTap,
+        scaleFactor: 0.97,
+        child: AnimatedContainer(
+          duration: MedAiA11y.motion(context, 250.ms),
+          constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+          padding: const EdgeInsets.symmetric(vertical: 11),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: active ? L.text : Colors.transparent,
+            borderRadius: AppRadius.roundS,
+          ),
+          child: Text(
+            label,
+            style: AppTypography.labelLarge.copyWith(
+              fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+              color: active ? L.bg : L.sub,
+            ),
           ),
         ),
       ),
@@ -311,19 +316,57 @@ class HeaderBtn extends StatelessWidget {
       required this.color,
       required this.bg});
   @override
-  Widget build(BuildContext context) => BouncingButton(
-        onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-          decoration:
-              BoxDecoration(color: bg, borderRadius: BorderRadius.circular(20)),
-          child: Row(children: [
-            Icon(icon, size: 14, color: color),
-            const SizedBox(width: 8),
-            Text(label,
-                style: AppTypography.labelLarge.copyWith(
-                    fontSize: 14, fontWeight: FontWeight.w700, color: color)),
-          ]),
+  Widget build(BuildContext context) => Semantics(
+        button: true,
+        label: label,
+        child: AnimatedPressable(
+          onTap: onTap,
+          scaleFactor: 0.97,
+          child: Container(
+            constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+                color: bg, borderRadius: BorderRadius.circular(20)),
+            child: Row(children: [
+              Icon(icon, size: 14, color: color),
+              const SizedBox(width: 8),
+              Text(label,
+                  style: AppTypography.labelLarge.copyWith(
+                      fontSize: 14, fontWeight: FontWeight.w700, color: color)),
+            ]),
+          ),
         ),
       );
+}
+
+class _StatusPill extends StatelessWidget {
+  final String label;
+  final Color color;
+  final AppThemeColors L;
+
+  const _StatusPill({
+    required this.label,
+    required this.color,
+    required this.L,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: 0.08),
+        borderRadius: BorderRadius.circular(99),
+        border: Border.all(color: color.withValues(alpha: 0.15)),
+      ),
+      child: Text(
+        label,
+        style: AppTypography.labelSmall.copyWith(
+          fontSize: 10,
+          color: color,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+    );
+  }
 }

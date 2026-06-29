@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart' show MedAiA11y;
 import '../../core/utils/haptic_engine.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
@@ -12,6 +13,7 @@ import '../common/app_shimmer.dart';
 import '../common/animated_pressable.dart';
 export '../common/app_shimmer.dart';
 export '../common/animated_pressable.dart';
+export '../../theme/med_ai_ui.dart' show MedAiA11y, MedAiCTA, MedAiGlass, MedAiDepthCard, MedAiSectionHeader;
 
 // ══════════════════════════════════════════════
 // RING CHART (CustomPainter — matches JSX Ring component)
@@ -295,15 +297,23 @@ class BouncingButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedPressable(
-      onTap: onTap,
-      onLongPress: onLongPress,
-      scaleFactor: scaleFactor,
-      hapticEnabled: hapticEnabled,
-      child: Container(
-        constraints: const BoxConstraints(minHeight: 44, minWidth: 44),
-        alignment: Alignment.center,
-        child: child,
+    return Semantics(
+      button: onTap != null,
+      enabled: onTap != null,
+      child: AnimatedPressable(
+        onTap: onTap,
+        onLongPress: onLongPress,
+        scaleFactor: scaleFactor,
+        hapticEnabled: hapticEnabled,
+        disabled: onTap == null && onLongPress == null,
+        child: Container(
+          constraints: const BoxConstraints(
+            minHeight: MedAiA11y.minTapTarget,
+            minWidth: MedAiA11y.minTapTarget,
+          ),
+          alignment: Alignment.center,
+          child: child,
+        ),
       ),
     );
   }
@@ -927,11 +937,8 @@ class DoseCard extends StatefulWidget {
 
 class _DoseCardState extends State<DoseCard>
     with TickerProviderStateMixin {
-  bool _pressed = false;
   bool _showBurst = false;
   late AnimationController _burstCtrl;
-  late AnimationController _breathCtrl;
-  late Animation<double> _breathAnim;
 
   @override
   void initState() {
@@ -944,27 +951,21 @@ class _DoseCardState extends State<DoseCard>
           if (mounted) setState(() => _showBurst = false);
         }
       });
-      
-    _breathCtrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 2000),
-    )..repeat(reverse: true);
-    
-    _breathAnim = Tween<double>(begin: 0.08, end: 0.32).animate(
-      CurvedAnimation(parent: _breathCtrl, curve: Curves.easeInOutSine),
-    );
   }
 
   @override
   void dispose() {
     _burstCtrl.dispose();
-    _breathCtrl.dispose();
     super.dispose();
   }
 
   void _triggerDopamineBurst() {
     if (widget.taken) return;
     HapticEngine.doseTaken();
+    if (MedAiA11y.reducedMotion(context)) {
+      widget.onTake();
+      return;
+    }
     setState(() => _showBurst = true);
     _burstCtrl.forward(from: 0);
     Future.delayed(const Duration(milliseconds: 250), widget.onTake);
@@ -973,6 +974,7 @@ class _DoseCardState extends State<DoseCard>
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
     final medColor = hexToColor(widget.med.color);
     final isDone = widget.taken;
 
@@ -980,8 +982,8 @@ class _DoseCardState extends State<DoseCard>
         ? KeyedSubtree(
             key: const ValueKey('checked'),
             child: Container(
-              width: 44,
-              height: 44,
+              width: MedAiA11y.minTapTarget,
+              height: MedAiA11y.minTapTarget,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
@@ -999,8 +1001,8 @@ class _DoseCardState extends State<DoseCard>
         : KeyedSubtree(
             key: const ValueKey('unchecked'),
             child: Container(
-              width: 44,
-              height: 44,
+              width: MedAiA11y.minTapTarget,
+              height: MedAiA11y.minTapTarget,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 color: medColor.withValues(alpha: 0.08),
@@ -1023,14 +1025,10 @@ class _DoseCardState extends State<DoseCard>
             ),
           );
 
-    return AnimatedBuilder(
-      animation: _breathAnim,
-      builder: (context, child) {
-        final double currentBreath = _breathAnim.value;
-        return Stack(
-          clipBehavior: Clip.none,
-          children: [
-            Dismissible(
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Dismissible(
               key: ValueKey('dose_${widget.sched.id}_${widget.taken}'),
               direction: isDone ? DismissDirection.none : DismissDirection.startToEnd,
               confirmDismiss: (dir) async {
@@ -1073,61 +1071,39 @@ class _DoseCardState extends State<DoseCard>
                   ],
                 ),
               ),
-              child: GestureDetector(
-                onTapDown: (_) {
-                  setState(() => _pressed = true);
-                  HapticEngine.selection();
-                },
-                onTapUp: (_) => setState(() => _pressed = false),
-                onTapCancel: () => setState(() => _pressed = false),
-                onTap: widget.onTap,
-                child: AnimatedScale(
-                  scale: _pressed ? 0.97 : 1.0,
-                  duration: const Duration(milliseconds: 100),
-                  curve: Curves.easeOutCubic,
+              child: Semantics(
+                button: true,
+                label: '${widget.med.name}, ${fmtTime(widget.sched.h, widget.sched.m, context)}',
+                child: AnimatedPressable(
+                  onTap: widget.onTap,
+                  scaleFactor: 0.97,
+                  lightHaptic: false,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 14),
                     decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: isDone
-                            ? [L.card.withValues(alpha: 0.55), L.card.withValues(alpha: 0.45)]
-                            : [L.card, L.card.withValues(alpha: 0.9)],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(24),
+                      color: isDone
+                          ? L.card.withValues(alpha: 0.72)
+                          : L.card,
+                      borderRadius: BorderRadius.circular(AppRadius.l),
                       border: Border.all(
                         color: isDone
-                            ? L.border.withValues(alpha: 0.05)
+                            ? L.border.withValues(alpha: 0.25)
                             : widget.overdue
-                                ? L.error.withValues(alpha: 0.3)
+                                ? L.error.withValues(alpha: 0.35)
                                 : widget.isNext
-                                    ? L.accent.withValues(alpha: currentBreath)
-                                    : L.border.withValues(alpha: 0.08),
-                        width: widget.isNext && !isDone ? 1.8 : 1.0,
+                                    ? L.accent.withValues(alpha: 0.45)
+                                    : L.border.withValues(alpha: 0.35),
+                        width: widget.isNext && !isDone ? 1.2 : 0.5,
                       ),
-                      boxShadow: isDone
-                          ? null
-                          : [
-                              ...AppShadows.neumorphic,
-                              if (widget.isNext)
-                                BoxShadow(
-                                  color: L.accent.withValues(alpha: currentBreath * 0.45),
-                                  blurRadius: 18,
-                                  spreadRadius: 1.5,
-                                ),
-                              if (widget.overdue)
-                                BoxShadow(
-                                  color: L.error.withValues(alpha: 0.04),
-                                  blurRadius: 12,
-                                  spreadRadius: 0.5,
-                                ),
-                            ],
+                      boxShadow: isDone ? null : AppShadows.premium,
                     ),
                     child: Row(
                       children: [
                         AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 500),
+                          duration: reduceMotion
+                              ? Duration.zero
+                              : const Duration(milliseconds: 500),
                           transitionBuilder: (child, anim) {
                             final scale = Tween<double>(begin: 0.72, end: 1.0).animate(
                               CurvedAnimation(parent: anim, curve: Curves.elasticOut),
@@ -1193,16 +1169,22 @@ class _DoseCardState extends State<DoseCard>
                                   ],
                                   if (widget.isNext && !isDone) ...[
                                     const SizedBox(width: 8),
-                                    Text(
-                                      '· swipe →',
-                                      style: AppTypography.labelSmall.copyWith(
-                                        fontSize: 10,
-                                        fontWeight: FontWeight.w800,
-                                        color: L.accent.withValues(alpha: 0.75),
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 6, vertical: 2),
+                                      decoration: BoxDecoration(
+                                        color: L.accent.withValues(alpha: 0.12),
+                                        borderRadius: BorderRadius.circular(6),
                                       ),
-                                    )
-                                        .animate(onPlay: (c) => c.repeat(reverse: true))
-                                        .fade(begin: 0.4, end: 1.0, duration: 900.ms),
+                                      child: Text(
+                                        'Next',
+                                        style: AppTypography.labelSmall.copyWith(
+                                          fontSize: 10,
+                                          fontWeight: FontWeight.w700,
+                                          color: L.accent,
+                                        ),
+                                      ),
+                                    ),
                                   ],
                                 ],
                               ),
@@ -1217,7 +1199,7 @@ class _DoseCardState extends State<DoseCard>
                 ),
               ),
             ),
-            if (_showBurst)
+            if (_showBurst && !reduceMotion)
               Positioned.fill(
                 child: IgnorePointer(
                   child: DopamineBurstOverlay(controller: _burstCtrl, medColor: medColor),
@@ -1225,8 +1207,6 @@ class _DoseCardState extends State<DoseCard>
               ),
           ],
         );
-      },
-    );
   }
 
   Widget _buildCta(AppThemeColors L, Color medColor) {
@@ -1234,77 +1214,88 @@ class _DoseCardState extends State<DoseCard>
       return const SizedBox.shrink();
     }
     if (widget.overdue) {
-      return GestureDetector(
-        onTap: () {
-          HapticEngine.medium();
-          widget.onTake();
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
-          decoration: BoxDecoration(
-            color: L.error.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(color: L.error.withValues(alpha: 0.3), width: 0.8),
-          ),
-          child: Text(
-            'LATE',
-            style: AppTypography.labelSmall.copyWith(
-              color: L.error,
-              fontWeight: FontWeight.w900,
-              fontSize: 10,
-              letterSpacing: 0.8,
+      return Semantics(
+        button: true,
+        label: 'Mark ${widget.med.name} as taken, late',
+        child: AnimatedPressable(
+          onTap: () {
+            HapticEngine.medium();
+            widget.onTake();
+          },
+          child: Container(
+            constraints: BoxConstraints(minHeight: MedAiA11y.minTapTargetCompact),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              color: L.error.withValues(alpha: 0.12),
+              borderRadius: BorderRadius.circular(AppRadius.s),
+              border: Border.all(
+                  color: L.error.withValues(alpha: 0.3), width: 0.8),
+            ),
+            child: Text(
+              'Late',
+              style: AppTypography.labelSmall.copyWith(
+                color: L.error,
+                fontWeight: FontWeight.w700,
+                fontSize: 11,
+                letterSpacing: 0.1,
+              ),
             ),
           ),
         ),
       );
     }
     if (widget.isNext) {
-      return GestureDetector(
-        onTap: () {
-          HapticEngine.selection();
-          _triggerDopamineBurst();
-        },
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              colors: [L.accent, Color.lerp(L.accent, Colors.teal, 0.35)!],
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
+      return Semantics(
+        button: true,
+        label: 'Log ${widget.med.name}',
+        child: AnimatedPressable(
+          onTap: () {
+            HapticEngine.selection();
+            _triggerDopamineBurst();
+          },
+          child: Container(
+            constraints: BoxConstraints(minHeight: MedAiA11y.minTapTargetCompact),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+            decoration: BoxDecoration(
+              color: L.text,
+              borderRadius: BorderRadius.circular(AppRadius.s),
+              boxShadow: AppShadows.glow(L.accent, intensity: 0.2),
             ),
-            borderRadius: BorderRadius.circular(14),
-            boxShadow: AppShadows.glow(L.accent, intensity: 0.3),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 0.8),
-          ),
-          child: Text(
-            'Log',
-            style: AppTypography.labelMedium.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-              fontSize: 13,
-              letterSpacing: 0.2,
+            child: Text(
+              'Log',
+              style: AppTypography.labelMedium.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w800,
+                fontSize: 13,
+                letterSpacing: 0.2,
+              ),
             ),
           ),
         ),
       );
     }
-    return GestureDetector(
-      onTap: () {
-        HapticEngine.light();
-        widget.onTake();
-      },
-      child: Container(
-        width: 38,
-        height: 38,
-        decoration: BoxDecoration(
-          color: L.fill.withValues(alpha: 0.4),
-          shape: BoxShape.circle,
-          border: Border.all(color: L.border.withValues(alpha: 0.15), width: 1.0),
-        ),
-        child: Icon(
-          Icons.add_rounded,
-          size: 20,
-          color: L.text.withValues(alpha: 0.7),
+    return Semantics(
+      button: true,
+      label: 'Log ${widget.med.name}',
+      child: AnimatedPressable(
+        onTap: () {
+          HapticEngine.light();
+          widget.onTake();
+        },
+        child: Container(
+          width: MedAiA11y.minTapTarget,
+          height: MedAiA11y.minTapTarget,
+          decoration: BoxDecoration(
+            color: L.fill.withValues(alpha: 0.4),
+            shape: BoxShape.circle,
+            border: Border.all(
+                color: L.border.withValues(alpha: 0.15), width: 1.0),
+          ),
+          child: Icon(
+            Icons.add_rounded,
+            size: 20,
+            color: L.text.withValues(alpha: 0.7),
+          ),
         ),
       ),
     );

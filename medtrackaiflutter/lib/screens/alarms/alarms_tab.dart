@@ -4,16 +4,17 @@ import 'dart:async';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
 import '../../providers/controllers/medication_controller.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/modern_time_picker.dart';
 import '../../core/utils/date_formatter.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../widgets/common/refined_sheet_wrapper.dart';
 import '../../widgets/shared/shared_widgets.dart';
 import '../../core/utils/haptic_engine.dart';
+import '../../widgets/common/app_scaffold.dart';
 
 // ══════════════════════════════════════════════════════════════════════
-// ALARMS TAB — Cal AI Industrial Authority
+// ALARMS TAB — Premium Reminders & Schedules
 // ══════════════════════════════════════════════════════════════════════
 
 class AlarmsTab extends StatefulWidget {
@@ -43,6 +44,20 @@ class _AlarmsTabState extends State<AlarmsTab> {
   void _onScroll() {
     final scrolled = _scrollController.offset > 10;
     if (scrolled != _isScrolled) setState(() => _isScrolled = scrolled);
+  }
+
+  Widget _entrance(Widget child, {int index = 0, bool slideX = false}) {
+    if (MedAiA11y.reducedMotion(context)) return child;
+    if (slideX) {
+      return child
+          .animate(delay: (index * 50).ms)
+          .fadeIn(duration: AppDurations.fast, curve: AppCurves.expressive)
+          .slideX(begin: 0.04, end: 0, curve: AppCurves.expressive);
+    }
+    return child
+        .animate(delay: (index * 50).ms)
+        .fadeIn(duration: AppDurations.fast, curve: AppCurves.expressive)
+        .slideY(begin: 0.04, end: 0, curve: AppCurves.expressive);
   }
 
   void _showAddAlarmSheet(BuildContext context, Medicine med, {int? idx}) {
@@ -99,8 +114,8 @@ class _AlarmsTabState extends State<AlarmsTab> {
             .firstOrNull ??
         (activeSchedules.isNotEmpty ? activeSchedules.first : null);
 
-    return Scaffold(
-      backgroundColor: L.bg,
+    return AppScaffold(
+      showAurora: context.isDark,
       body: Stack(
         children: [
           // ── MAIN SCROLL CONTENT ──
@@ -120,7 +135,7 @@ class _AlarmsTabState extends State<AlarmsTab> {
               slivers: [
                 SliverToBoxAdapter(
                   child: SizedBox(
-                      height: 110 + MediaQuery.of(context).padding.top),
+                      height: 100 + MediaQuery.of(context).padding.top),
                 ),
 
                 // ── NEXT DOSE HERO ──
@@ -128,11 +143,10 @@ class _AlarmsTabState extends State<AlarmsTab> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 0),
-                      child: _NextDoseHero(sch: nextDose, L: L)
-                          .animate()
-                          .fadeIn(duration: 700.ms)
-                          .slideY(
-                              begin: 0.08, end: 0, curve: Curves.easeOutCubic),
+                      child: _entrance(
+                        _NextDoseHero(sch: nextDose, L: L),
+                        index: 0,
+                      ),
                     ),
                   ),
 
@@ -143,20 +157,12 @@ class _AlarmsTabState extends State<AlarmsTab> {
                       padding: const EdgeInsets.fromLTRB(24, 36, 24, 16),
                       child: Row(
                         children: [
-                          Text(
-                            'Reminders',
-                            style: AppTypography.labelMedium.copyWith(color: L.sub.withValues(alpha: 0.6),
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0,
-                              fontSize: 13,
+                          Expanded(
+                            child: MedAiSectionHeader(
+                              title: 'Reminders',
+                              subtitle: '$activeCount active',
                             ),
                           ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                              child: Container(
-                                  height: 0.5,
-                                  color: L.border.withValues(alpha: 0.1))),
-                          const SizedBox(width: 12),
                           _CountPill(count: activeCount, L: L),
                         ],
                       ),
@@ -174,48 +180,48 @@ class _AlarmsTabState extends State<AlarmsTab> {
                           final isNext = nextDose != null &&
                               sch.med.id == nextDose.med.id &&
                               sch.idx == nextDose.idx;
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 12),
-                            child: _AlarmCard(
-                              sch: sch,
-                              L: L,
-                              isNext: isNext,
-                              onToggle: () => context
-                                  .read<AppState>()
-                                  .toggleSchedule(sch.med.id, sch.idx),
-                              onRemove: () {
-                                HapticEngine.heavyImpact();
-                                final state = context.read<AppState>();
-                                final removedSch = sch;
+                          return _entrance(
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 12),
+                              child: _AlarmCard(
+                                sch: sch,
+                                L: L,
+                                isNext: isNext,
+                                onToggle: () => context
+                                    .read<AppState>()
+                                    .toggleSchedule(sch.med.id, sch.idx),
+                                onRemove: () {
+                                  HapticEngine.heavyImpact();
+                                  final state = context.read<AppState>();
+                                  final removedSch = sch;
 
-                                state.removeSchedule(sch.med.id, sch.idx);
+                                  state.removeSchedule(sch.med.id, sch.idx);
 
-                                ScaffoldMessenger.of(context).clearSnackBars();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        'Alarm for ${sch.med.name} removed'),
-                                    duration: const Duration(seconds: 3),
-                                    action: SnackBarAction(
-                                      label: 'UNDO',
-                                      textColor: L.primary,
-                                      onPressed: () {
-                                        state.addSchedule(removedSch.med.id,
-                                            removedSch.sched);
-                                      },
+                                  ScaffoldMessenger.of(context)
+                                      .clearSnackBars();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'Alarm for ${sch.med.name} removed'),
+                                      duration: const Duration(seconds: 3),
+                                      action: SnackBarAction(
+                                        label: 'Undo',
+                                        textColor: L.primary,
+                                        onPressed: () {
+                                          state.addSchedule(removedSch.med.id,
+                                              removedSch.sched);
+                                        },
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                              onEdit: () => _showAddAlarmSheet(context, sch.med,
-                                  idx: sch.idx),
-                            )
-                                .animate(delay: (idx * 60).ms)
-                                .fadeIn(duration: 500.ms)
-                                .slideX(
-                                    begin: 0.04,
-                                    end: 0,
-                                    curve: Curves.easeOutCubic),
+                                  );
+                                },
+                                onEdit: () => _showAddAlarmSheet(
+                                    context, sch.med,
+                                    idx: sch.idx),
+                              ),
+                            ),
+                            index: idx,
+                            slideX: true,
                           );
                         },
                         childCount: activeSchedules.length,
@@ -228,13 +234,15 @@ class _AlarmsTabState extends State<AlarmsTab> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(20, 32, 20, 0),
-                      child: _EmptyAlarmsState(
-                        L: L,
-                        hasMeds: meds.isNotEmpty,
-                        onSetFirst: meds.isNotEmpty
-                            ? () => _showMedPicker(context, meds, L)
-                            : null,
-                      ).animate().fadeIn(duration: 600.ms),
+                      child: _entrance(
+                        _EmptyAlarmsState(
+                          L: L,
+                          hasMeds: meds.isNotEmpty,
+                          onSetFirst: meds.isNotEmpty
+                              ? () => _showMedPicker(context, meds, L)
+                              : null,
+                        ),
+                      ),
                     ),
                   ),
 
@@ -243,22 +251,9 @@ class _AlarmsTabState extends State<AlarmsTab> {
                   SliverToBoxAdapter(
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(24, 40, 24, 16),
-                      child: Row(
-                        children: [
-                          Text(
-                            'Paused',
-                            style: AppTypography.labelMedium.copyWith(color: L.sub.withValues(alpha: 0.45),
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 0,
-                              fontSize: 13,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                              child: Container(
-                                  height: 0.5,
-                                  color: L.border.withValues(alpha: 0.1))),
-                        ],
+                      child: MedAiSectionHeader(
+                        title: 'Paused',
+                        subtitle: '${inactiveSchedules.length} off',
                       ),
                     ),
                   ),
@@ -268,42 +263,47 @@ class _AlarmsTabState extends State<AlarmsTab> {
                       delegate: SliverChildBuilderDelegate(
                         (context, idx) {
                           final sch = inactiveSchedules[idx];
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 10),
-                            child: _AlarmCard(
-                              sch: sch,
-                              L: L,
-                              isNext: false,
-                              onToggle: () => context
-                                  .read<AppState>()
-                                  .toggleSchedule(sch.med.id, sch.idx),
-                              onRemove: () {
-                                HapticEngine.heavyImpact();
-                                final state = context.read<AppState>();
-                                final removedSch = sch;
+                          return _entrance(
+                            Padding(
+                              padding: const EdgeInsets.only(bottom: 10),
+                              child: _AlarmCard(
+                                sch: sch,
+                                L: L,
+                                isNext: false,
+                                onToggle: () => context
+                                    .read<AppState>()
+                                    .toggleSchedule(sch.med.id, sch.idx),
+                                onRemove: () {
+                                  HapticEngine.heavyImpact();
+                                  final state = context.read<AppState>();
+                                  final removedSch = sch;
 
-                                state.removeSchedule(sch.med.id, sch.idx);
+                                  state.removeSchedule(sch.med.id, sch.idx);
 
-                                ScaffoldMessenger.of(context).clearSnackBars();
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        'Alarm for ${sch.med.name} removed'),
-                                    duration: const Duration(seconds: 3),
-                                    action: SnackBarAction(
-                                      label: 'UNDO',
-                                      textColor: L.primary,
-                                      onPressed: () {
-                                        state.addSchedule(removedSch.med.id,
-                                            removedSch.sched);
-                                      },
+                                  ScaffoldMessenger.of(context)
+                                      .clearSnackBars();
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                          'Alarm for ${sch.med.name} removed'),
+                                      duration: const Duration(seconds: 3),
+                                      action: SnackBarAction(
+                                        label: 'Undo',
+                                        textColor: L.primary,
+                                        onPressed: () {
+                                          state.addSchedule(removedSch.med.id,
+                                              removedSch.sched);
+                                        },
+                                      ),
                                     ),
-                                  ),
-                                );
-                              },
-                              onEdit: () => _showAddAlarmSheet(context, sch.med,
-                                  idx: sch.idx),
-                            ).animate(delay: (idx * 50).ms).fadeIn(),
+                                  );
+                                },
+                                onEdit: () => _showAddAlarmSheet(
+                                    context, sch.med,
+                                    idx: sch.idx),
+                              ),
+                            ),
+                            index: idx,
                           );
                         },
                         childCount: inactiveSchedules.length,
@@ -375,21 +375,21 @@ class _AlarmsHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final topPad = MediaQuery.of(context).padding.top;
+    final subtitle = activeCount > 0
+        ? '$activeCount active · stay on schedule'
+        : 'Stay on schedule';
+
     return ClipRRect(
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
+        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
         child: AnimatedContainer(
-          duration: 300.ms,
-          padding: EdgeInsets.fromLTRB(28, topPad + 18, 20, 18),
+          duration: const Duration(milliseconds: 250),
+          padding: EdgeInsets.fromLTRB(24, topPad + 12, 24, 16),
           decoration: BoxDecoration(
-            color: isScrolled
-                ? L.bg.withValues(alpha: 0.85)
-                : Colors.transparent,
+            color: L.bg.withValues(alpha: isScrolled ? 0.92 : 0.0),
             border: Border(
               bottom: BorderSide(
-                color: isScrolled
-                    ? L.border.withValues(alpha: 0.08)
-                    : Colors.transparent,
+                color: L.border.withValues(alpha: isScrolled ? 0.1 : 0.0),
                 width: 0.5,
               ),
             ),
@@ -403,43 +403,55 @@ class _AlarmsHeader extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'LOGISTICS',
-                      style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.5),
-                        letterSpacing: 2.0,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 9,
+                      'REMINDERS',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: L.sub,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 11,
+                        letterSpacing: 0.8,
                       ),
                     ),
                     Text(
                       'Reminders',
-                      style: AppTypography.headlineMedium.copyWith(color: L.text,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 28,
-                        height: 1.1,
-                        letterSpacing: -1.2,
+                      style: AppTypography.headlineLarge.copyWith(
+                        color: L.text,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.6,
                       ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      style: AppTypography.bodySmall.copyWith(color: L.sub),
                     ),
                   ],
                 ),
               ),
               if (onAdd != null)
-                BouncingButton(
-                  onTap: onAdd!,
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: BoxDecoration(
-                      color: L.text,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: [
-                        BoxShadow(
-                            color: L.text.withValues(alpha: 0.2),
-                            blurRadius: 20,
-                            offset: const Offset(0, 6))
-                      ],
+                Semantics(
+                  button: true,
+                  label: 'Add reminder',
+                  child: AnimatedPressable(
+                    onTap: onAdd!,
+                    scaleFactor: 0.92,
+                    child: Container(
+                      width: AppA11y.minTapTargetCompact,
+                      height: AppA11y.minTapTargetCompact,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [L.text, L.text.withValues(alpha: 0.88)],
+                        ),
+                        shape: BoxShape.circle,
+                        boxShadow: AppShadows.glow(L.accent, intensity: 0.25),
+                      ),
+                      child: Center(
+                        child: Icon(
+                          Icons.add_rounded,
+                          color: L.bg,
+                          size: 22,
+                        ),
+                      ),
                     ),
-                    child: const Center(
-                        child: Text('➕', style: TextStyle(fontSize: 22))),
                   ),
                 ),
             ],
@@ -469,7 +481,7 @@ class _CountPill extends StatelessWidget {
       child: Text(
         '$count',
         style: AppTypography.labelSmall.copyWith(color: L.bg,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w700,
           fontSize: 11,
         ),
       ),
@@ -527,14 +539,10 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
     final s = widget.sch.sched as ScheduleEntry;
     final L = widget.L;
 
-    return Container(
+    return MedAiDepthCard(
+      accentGlow: context.isDark,
       padding: const EdgeInsets.all(28),
-      decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: L.border.withValues(alpha: 0.08), width: 1.2),
-        boxShadow: AppShadows.neumorphic,
-      ),
+      radius: AppRadius.squircle,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -551,32 +559,29 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        width: 6,
-                        height: 6,
-                        decoration: BoxDecoration(
-                            color: L.text, shape: BoxShape.circle),
-                      ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
-                          duration: 1500.ms,
-                          begin: const Offset(0.8, 0.8),
-                          end: const Offset(1.4, 1.4)),
+                      const LiveStatusDot(
+                        color: AppThemeColors2026.electric,
+                        size: 6,
+                      ),
                       const SizedBox(width: 8),
                       Text(
-                        'UPCOMING DOSE',
-                        style: AppTypography.labelSmall.copyWith(color: L.text,
-                          fontWeight: FontWeight.w900,
-                          fontSize: 10,
-                          letterSpacing: 1.5,
+                        'Upcoming dose',
+                        style: AppTypography.labelSmall.copyWith(
+                          color: L.text,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 11,
+                          letterSpacing: 0.1,
                         ),
                       ),
                     ],
                   ),
                 ),
                 Text(
-                  fmtTime(s.h, s.m, context).toUpperCase(),
-                  style: AppTypography.labelSmall.copyWith(color: L.text.withValues(alpha: 0.6),
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.0,
+                  fmtTime(s.h, s.m, context),
+                  style: AppTypography.labelSmall.copyWith(
+                    color: L.sub,
+                    fontWeight: FontWeight.w600,
+                    letterSpacing: 0.1,
                   ),
                 ),
               ],
@@ -606,10 +611,11 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                         ),
                     const SizedBox(height: 12),
                     Text(
-                      'LOGGED SUCCESSFULLY',
-                      style: AppTypography.labelSmall.copyWith(color: L.success,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: 2.0,
+                      'Logged successfully',
+                      style: AppTypography.labelMedium.copyWith(
+                        color: L.success,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.1,
                       ),
                     ),
                   ],
@@ -628,29 +634,30 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                           alignment: Alignment.centerLeft,
                           child: Text(
                             med.name,
-                            style: AppTypography.headlineMedium.copyWith(color: L.text,
-                              fontWeight: FontWeight.w900,
-                              fontSize: 32,
-                              letterSpacing: -1.0,
+                            style: AppTypography.headlineMedium.copyWith(
+                              color: L.text,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 28,
+                              letterSpacing: -0.6,
                               height: 1.0,
                             ),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          '${med.dose} · ${s.label.toUpperCase()}',
-                          style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.5),
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.0,
+                          '${med.dose} · ${s.label}',
+                          style: AppTypography.bodySmall.copyWith(
+                            color: L.sub,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                         const SizedBox(height: 20),
                         Text(
-                          _diffStr.toUpperCase(),
-                          style: AppTypography.displaySmall.copyWith(color: L.text,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.0,
+                          _diffStr,
+                          style: AppTypography.titleMedium.copyWith(
+                            color: L.accent,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.2,
                           ),
                         ),
                       ],
@@ -692,9 +699,9 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                 L: L,
               ),
           ],
-      ),
-    );
-    }
+        ),
+      );
+  }
 }
 
 // ══════════════════════════════════════════════════════════════════════
@@ -747,51 +754,64 @@ class _AlarmCard extends StatelessWidget {
         ),
         child: const Text('🗑️', style: TextStyle(fontSize: 18)),
       ),
-      child: BouncingButton(
-        onTap: onEdit,
-        scaleFactor: 0.97,
-        child: Container(
-          padding: const EdgeInsets.all(16),
+      child: Semantics(
+        button: true,
+        label: '${med.name} reminder at ${fmtTime(s.h, s.m, context)}',
+        child: AnimatedPressable(
+          onTap: onEdit,
+          scaleFactor: 0.985,
+          child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: isEnabled ? L.card : L.card.withValues(alpha: 0.55),
-            borderRadius: BorderRadius.circular(24),
+            color: isEnabled ? L.card : L.card.withValues(alpha: 0.72),
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
               color: isEnabled
-                  ? (isNext ? L.accent.withValues(alpha: 0.3) : L.border.withValues(alpha: 0.08))
-                  : L.border.withValues(alpha: 0.05),
-              width: isNext ? 1.5 : 1.0,
+                  ? (isNext
+                      ? L.accent.withValues(alpha: 0.45)
+                      : L.border.withValues(alpha: 0.35))
+                  : L.border.withValues(alpha: 0.25),
+              width: isNext && isEnabled ? 1.2 : 0.5,
             ),
-            boxShadow: isEnabled ? AppShadows.neumorphic : null,
+            boxShadow: isEnabled ? AppShadows.soft : null,
           ),
           child: Row(
             children: [
               Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                 decoration: BoxDecoration(
-                  color: isEnabled ? L.text : L.fill,
-                  borderRadius: BorderRadius.circular(16),
+                  color: L.fill.withValues(alpha: isEnabled ? 0.5 : 0.35),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: L.border.withValues(alpha: 0.2),
+                    width: 0.5,
+                  ),
                 ),
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
                       fmtTime(s.h, s.m, context).split(' ')[0],
-                      style: AppTypography.displayLarge.copyWith(fontSize: 28,
-                        fontWeight: FontWeight.w900,
-                        color: isEnabled ? L.bg : L.sub.withValues(alpha: 0.5),
+                      style: AppTypography.displayLarge.copyWith(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w800,
+                        color: isEnabled
+                            ? L.text
+                            : L.sub.withValues(alpha: 0.45),
                         height: 1.0,
-                        letterSpacing: -1.5,
+                        letterSpacing: -0.6,
                       ),
                     ),
                     Text(
-                      fmtTime(s.h, s.m, context).split(' ').last.toUpperCase(),
-                      style: AppTypography.labelSmall.copyWith(fontSize: 10,
-                        fontWeight: FontWeight.w900,
+                      fmtTime(s.h, s.m, context).split(' ').last,
+                      style: AppTypography.labelSmall.copyWith(
+                        fontSize: 10,
+                        fontWeight: FontWeight.w600,
                         color: isEnabled
-                            ? L.bg.withValues(alpha: 0.6)
-                            : L.sub.withValues(alpha: 0.3),
-                        letterSpacing: 0.5,
+                            ? L.sub.withValues(alpha: 0.6)
+                            : L.sub.withValues(alpha: 0.35),
+                        letterSpacing: 0,
                       ),
                     ),
                   ],
@@ -807,12 +827,13 @@ class _AlarmCard extends StatelessWidget {
                         Expanded(
                           child: Text(
                             med.name,
-                            style: AppTypography.titleMedium.copyWith(fontSize: 17,
-                              fontWeight: FontWeight.w900,
+                            style: AppTypography.titleMedium.copyWith(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
                               color: isEnabled
                                   ? L.text
                                   : L.sub.withValues(alpha: 0.5),
-                              letterSpacing: -0.5,
+                              letterSpacing: -0.3,
                             ),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
@@ -835,11 +856,11 @@ class _AlarmCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      '${med.dose} · ${s.label.toUpperCase()}',
-                      style: AppTypography.labelSmall.copyWith(fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        color: L.sub.withValues(alpha: 0.4),
-                        letterSpacing: 0.5,
+                      '${med.dose} · ${s.label}',
+                      style: AppTypography.bodySmall.copyWith(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                        color: L.sub,
                       ),
                     ),
                   ],
@@ -851,6 +872,7 @@ class _AlarmCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
         ),
       ),
     );
@@ -882,11 +904,18 @@ class _SwipeToConfirmState extends State<_SwipeToConfirm> {
         final maxOffset = constraints.maxWidth - _knobSize - _trackPad * 2;
         final progress = (_offset / maxOffset).clamp(0.0, 1.0);
 
-        return Container(
+        return Semantics(
+          label: 'Slide to record dose',
+          slider: true,
+          child: Container(
           height: 60,
           decoration: BoxDecoration(
             color: widget.L.text.withValues(alpha: 0.05),
             borderRadius: BorderRadius.circular(100),
+            border: Border.all(
+              color: widget.L.border.withValues(alpha: 0.25),
+              width: 0.5,
+            ),
           ),
           child: Stack(
             children: [
@@ -917,10 +946,10 @@ class _SwipeToConfirmState extends State<_SwipeToConfirm> {
                 Center(
                   child: Text(
                     '✓ Dose Recorded',
-                    style: AppTypography.labelMedium.copyWith(color: widget.L.text,
-                      fontWeight: FontWeight.w900,
+                    style: AppTypography.labelMedium.copyWith(
+                      color: widget.L.text,
+                      fontWeight: FontWeight.w700,
                       fontSize: 13,
-                      letterSpacing: 0.5,
                     ),
                   ).animate().fadeIn(duration: 300.ms).scale(
                       begin: const Offset(0.95, 0.95), end: const Offset(1, 1)),
@@ -966,13 +995,14 @@ class _SwipeToConfirmState extends State<_SwipeToConfirm> {
                                 style: TextStyle(
                                     fontSize: 24,
                                     color: Colors.white,
-                                    fontWeight: FontWeight.w900))),
+                                    fontWeight: FontWeight.w700))),
                       ),
                     ),
                   ),
                 ),
             ],
           ),
+        ),
         );
       },
     );
@@ -995,9 +1025,10 @@ class _EmptyAlarmsState extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 32),
       decoration: BoxDecoration(
-        color: L.fill.withValues(alpha: 0.08),
+        color: L.card,
         borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: L.border.withValues(alpha: 0.06), width: 1.5),
+        border: Border.all(color: L.border.withValues(alpha: 0.35), width: 0.5),
+        boxShadow: AppShadows.soft,
       ),
       child: Column(
         children: [
@@ -1019,10 +1050,11 @@ class _EmptyAlarmsState extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             'No reminders yet',
-            style: AppTypography.titleMedium.copyWith(color: L.text,
-              fontWeight: FontWeight.w900,
+            style: AppTypography.titleMedium.copyWith(
+              color: L.text,
+              fontWeight: FontWeight.w800,
               fontSize: 20,
-              letterSpacing: -0.5,
+              letterSpacing: -0.4,
             ),
           ),
           const SizedBox(height: 10),
@@ -1038,22 +1070,10 @@ class _EmptyAlarmsState extends StatelessWidget {
           ),
           if (onSetFirst != null) ...[
             const SizedBox(height: 32),
-            BouncingButton(
-              onTap: onSetFirst!,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-                decoration: BoxDecoration(
-                  color: L.text,
-                  borderRadius: BorderRadius.circular(100),
-                ),
-                child: Text(
-                  'Set first reminder',
-                  style: AppTypography.labelLarge.copyWith(color: L.bg,
-                    fontWeight: FontWeight.w900,
-                  ),
-                ),
-              ),
+            MedAiCTA(
+              label: 'Set first reminder',
+              onTap: onSetFirst,
+              semanticsLabel: 'Set first reminder',
             ),
           ],
         ],
@@ -1078,11 +1098,13 @@ class _QuickAddSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          Text('YOUR MEDICINES',
-              style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.5),
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 2.0,
-                  fontSize: 10)),
+          Text('Your medicines',
+              style: AppTypography.titleMedium.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+                fontSize: 16,
+              )),
           const SizedBox(width: 12),
           Expanded(
               child: Container(
@@ -1113,9 +1135,10 @@ class _MedAlarmTile extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        color: L.card.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: L.border.withValues(alpha: 0.08)),
+        color: L.card,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: L.border.withValues(alpha: 0.35), width: 0.5),
+        boxShadow: AppShadows.soft,
       ),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
@@ -1131,14 +1154,15 @@ class _MedAlarmTile extends StatelessWidget {
           ),
         ),
         title: Text(med.name,
-            style: AppTypography.titleMedium.copyWith(fontSize: 16,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.5)),
-        subtitle: Text('Needs schedule'.toUpperCase(),
-            style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.4),
-                fontSize: 9,
-                fontWeight: FontWeight.w800,
-                letterSpacing: 1.0)),
+            style: AppTypography.titleMedium.copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                letterSpacing: -0.3)),
+        subtitle: Text('Needs schedule',
+            style: AppTypography.bodySmall.copyWith(
+                color: L.sub,
+                fontSize: 12,
+                fontWeight: FontWeight.w500)),
         trailing: Icon(Icons.add_circle_outline_rounded,
             color: L.text.withValues(alpha: 0.3), size: 24),
       ),
@@ -1162,11 +1186,12 @@ class _StatusChip extends StatelessWidget {
         borderRadius: BorderRadius.circular(8),
       ),
       child: Text(
-        label.toUpperCase(),
-        style: AppTypography.labelSmall.copyWith(color: color,
-          fontSize: 8.5,
-          fontWeight: FontWeight.w900,
-          letterSpacing: 0.8,
+        label,
+        style: AppTypography.labelSmall.copyWith(
+          color: color,
+          fontSize: 10,
+          fontWeight: FontWeight.w600,
+          letterSpacing: 0.1,
         ),
       ),
     );
@@ -1186,7 +1211,7 @@ class _MedPickerSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RefinedSheetWrapper(
-      title: 'SET REMINDER FOR',
+      title: 'Set reminder for',
       child: ConstrainedBox(
         constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.55),
@@ -1198,16 +1223,16 @@ class _MedPickerSheet extends StatelessWidget {
           separatorBuilder: (_, __) => const SizedBox(height: 8),
           itemBuilder: (_, i) {
             final med = meds[i];
-            return BouncingButton(
-              onTap: () => onPick(med),
-              child: Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: L.card.withValues(alpha: 0.5),
-                  borderRadius: BorderRadius.circular(24),
-                  border: Border.all(color: L.border.withValues(alpha: 0.08)),
-                ),
-                child: Row(children: [
+            return Semantics(
+              button: true,
+              label: 'Set reminder for ${med.name}',
+              child: AnimatedPressable(
+                onTap: () => onPick(med),
+                scaleFactor: 0.985,
+                child: MedAiGlass(
+                  radius: AppRadius.l,
+                  padding: const EdgeInsets.all(16),
+                  child: Row(children: [
                   Container(
                     width: 48,
                     height: 48,
@@ -1224,17 +1249,19 @@ class _MedPickerSheet extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(med.name,
-                          style: AppTypography.labelLarge.copyWith(color: L.text, fontWeight: FontWeight.w900)),
+                          style: AppTypography.labelLarge.copyWith(
+                              color: L.text, fontWeight: FontWeight.w700)),
                       const SizedBox(height: 2),
-                      Text(med.dose.toUpperCase(),
-                          style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.5),
-                              fontSize: 11,
-                              letterSpacing: 0.5)),
+                      Text(med.dose,
+                          style: AppTypography.bodySmall.copyWith(
+                              color: L.sub,
+                              fontSize: 12)),
                     ],
                   )),
                   Icon(Icons.chevron_right_rounded,
                       color: L.sub.withValues(alpha: 0.3), size: 24),
                 ]),
+                ),
               ),
             );
           },
@@ -1298,9 +1325,11 @@ class _AddAlarmSheetState extends State<_AddAlarmSheet> {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             decoration: BoxDecoration(
-              color: L.card.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: L.border.withValues(alpha: 0.08)),
+              color: L.card,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                  color: L.border.withValues(alpha: 0.35), width: 0.5),
+              boxShadow: AppShadows.soft,
             ),
             child: Row(children: [
               Container(
@@ -1319,9 +1348,11 @@ class _AddAlarmSheetState extends State<_AddAlarmSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                     Text(widget.med.name,
-                        style: AppTypography.labelLarge.copyWith(color: L.text, fontWeight: FontWeight.w900)),
-                    Text(widget.med.dose.toUpperCase(),
-                        style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.5), fontSize: 11)),
+                        style: AppTypography.labelLarge.copyWith(
+                            color: L.text, fontWeight: FontWeight.w700)),
+                    Text(widget.med.dose,
+                        style: AppTypography.bodySmall.copyWith(
+                            color: L.sub, fontSize: 12)),
                   ])),
             ]),
           ),
@@ -1337,39 +1368,54 @@ class _AddAlarmSheetState extends State<_AddAlarmSheet> {
           const SizedBox(height: 24),
 
           // ── Quick label chips ──
-          Text('LABEL',
-              style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.5),
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.5,
-                  fontSize: 10)),
+          Text(
+            'Label',
+            style: AppTypography.titleMedium.copyWith(
+              color: L.text,
+              fontWeight: FontWeight.w700,
+              fontSize: 15,
+              letterSpacing: -0.2,
+            ),
+          ),
           const SizedBox(height: 10),
           Wrap(
             spacing: 8,
             runSpacing: 8,
             children: _quickLabels.map((label) {
               final selected = _label == label;
-              return BouncingButton(
-                onTap: () {
-                  HapticEngine.selection();
-                  setState(() => _label = label);
-                },
-                child: AnimatedContainer(
-                  duration: 200.ms,
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: selected ? L.text : L.fill.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(100),
-                    border: Border.all(
-                      color:
-                          selected ? L.text : L.border.withValues(alpha: 0.1),
+              return Semantics(
+                button: true,
+                selected: selected,
+                label: label,
+                child: AnimatedPressable(
+                  onTap: () {
+                    HapticEngine.selection();
+                    setState(() => _label = label);
+                  },
+                  scaleFactor: 0.97,
+                  child: AnimatedContainer(
+                    duration: MedAiA11y.motion(context, 200.ms),
+                    constraints: const BoxConstraints(
+                      minHeight: MedAiA11y.minTapTargetCompact,
                     ),
-                  ),
-                  child: Text(
-                    label,
-                    style: AppTypography.labelSmall.copyWith(color: selected ? L.bg : L.sub,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: selected ? L.text : L.fill.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(100),
+                      border: Border.all(
+                        color:
+                            selected ? L.text : L.border.withValues(alpha: 0.1),
+                      ),
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      label,
+                      style: AppTypography.labelSmall.copyWith(
+                        color: selected ? L.bg : L.sub,
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                      ),
                     ),
                   ),
                 ),
@@ -1379,8 +1425,10 @@ class _AddAlarmSheetState extends State<_AddAlarmSheet> {
 
           const SizedBox(height: 32),
 
-          // ── Save button ──
-          BouncingButton(
+          MedAiCTA(
+            label: widget.scheduleIndex != null
+                ? 'Save changes'
+                : 'Add reminder',
             onTap: () {
               HapticEngine.success();
               if (widget.scheduleIndex != null) {
@@ -1412,25 +1460,9 @@ class _AddAlarmSheetState extends State<_AddAlarmSheet> {
               }
               widget.onClose();
             },
-            child: Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              decoration: BoxDecoration(
-                color: L.text,
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Center(
-                child: Text(
-                  widget.scheduleIndex != null
-                      ? 'SAVE CHANGES'
-                      : 'ADD REMINDER',
-                  style: AppTypography.titleMedium.copyWith(color: L.bg,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 0.8,
-                  ),
-                ),
-              ),
-            ),
+            semanticsLabel: widget.scheduleIndex != null
+                ? 'Save reminder changes'
+                : 'Add reminder',
           ),
         ],
       ),

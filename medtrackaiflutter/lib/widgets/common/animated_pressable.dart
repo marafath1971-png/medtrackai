@@ -86,6 +86,10 @@ class _AnimatedPressableState extends State<AnimatedPressable>
  
   void _animateTo(double target) {
     if (!mounted) return;
+    if (MediaQuery.disableAnimationsOf(context)) {
+      _controller.value = target;
+      return;
+    }
     final springSim = SpringSimulation(_springDesc, _controller.value, target, _controller.velocity);
     _controller.animateWith(springSim);
   }

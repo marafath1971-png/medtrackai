@@ -1,9 +1,9 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
-import '../shared/shared_widgets.dart';
+import '../common/animated_pressable.dart';
 
 class InteractiveProgressRing extends StatelessWidget {
   final double progress; // 0.0 to 1.0
@@ -22,82 +22,98 @@ class InteractiveProgressRing extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final reducedMotion = MedAiA11y.reducedMotion(context);
 
-    return BouncingButton(
-      onTap: () {
-        if (onTap != null) onTap!();
-      },
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: BoxDecoration(
-          color: L.card.withValues(alpha: 0.5),
-          borderRadius: AppRadius.roundSquircle,
-          border: Border.all(color: L.border.withValues(alpha: 0.1)),
-        ),
-        child: Row(
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                SizedBox(
-                  width: 80,
-                  height: 80,
-                  child: RepaintBoundary(
-                    child: CustomPaint(
-                      painter: _RingPainter(
-                        progress: progress,
-                        backgroundColor: L.border.withValues(alpha: 0.1),
-                        progressColor: _getStatusColor(L),
-                      ),
-                    ),
-                  ),
-                ).animate().scale(duration: 600.ms, curve: Curves.easeOutBack),
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      '${(progress * 100).round()}%',
-                      style: AppTypography.titleLarge.copyWith(
-                        fontWeight: FontWeight.w900,
-                        fontSize: 18,
-                        color: L.text,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            const SizedBox(width: 24),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    Widget content = Semantics(
+      button: onTap != null,
+      enabled: onTap != null,
+      label: label,
+      child: AnimatedPressable(
+        onTap: onTap,
+        scaleFactor: 0.97,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: L.card.withValues(alpha: 0.5),
+            borderRadius: AppRadius.roundSquircle,
+            border: Border.all(color: L.border.withValues(alpha: 0.1)),
+          ),
+          child: Row(
+            children: [
+              Stack(
+                alignment: Alignment.center,
                 children: [
-                  Text(
-                    label,
-                    style: AppTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.w900,
-                      color: L.text,
-                      fontSize: 20,
-                      letterSpacing: -0.5,
-                    ),
+                  _buildRing(context, L, reducedMotion),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '${(progress * 100).round()}%',
+                        style: AppTypography.titleLarge.copyWith(
+                          fontWeight: FontWeight.w900,
+                          fontSize: 18,
+                          color: L.text,
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 4),
-                  Text(
-                    valueText,
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: L.sub,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildQuickLogBtn(L),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(width: 24),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      label,
+                      style: AppTypography.titleMedium.copyWith(
+                        fontWeight: FontWeight.w900,
+                        color: L.text,
+                        fontSize: 20,
+                        letterSpacing: -0.5,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      valueText,
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: L.sub,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    _buildQuickLogBtn(context, L),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, end: 0);
+    );
+
+    if (reducedMotion) return content;
+    return content.animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, end: 0);
+  }
+
+  Widget _buildRing(
+      BuildContext context, AppThemeColors L, bool reducedMotion) {
+    final ring = SizedBox(
+      width: 80,
+      height: 80,
+      child: RepaintBoundary(
+        child: CustomPaint(
+          painter: _RingPainter(
+            progress: progress,
+            backgroundColor: L.border.withValues(alpha: 0.1),
+            progressColor: _getStatusColor(L),
+          ),
+        ),
+      ),
+    );
+    if (reducedMotion) return ring;
+    return ring.animate().scale(duration: 600.ms, curve: Curves.easeOutBack);
   }
 
   Color _getStatusColor(AppThemeColors L) {
@@ -106,37 +122,45 @@ class InteractiveProgressRing extends StatelessWidget {
     return L.error;
   }
 
-  Widget _buildQuickLogBtn(AppThemeColors L) {
-    return BouncingButton(
-      hapticEnabled: false,
-      onTap: () {
-        HapticEngine.heavyImpact();
-        if (onTap != null) onTap!();
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: L.primary.withValues(alpha: 0.1),
-          borderRadius: BorderRadius.circular(AppRadius.max),
-          border:
-              Border.all(color: L.primary.withValues(alpha: 0.1), width: 1.5),
-          boxShadow: AppShadows.subtle,
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.bolt_rounded, color: L.primary, size: 14),
-            const SizedBox(width: 6),
-            Text(
-              'QUICK LOG',
-              style: AppTypography.labelSmall.copyWith(
-                color: L.primary,
-                fontWeight: FontWeight.w900,
-                fontSize: 10,
-                letterSpacing: 0.8,
+  Widget _buildQuickLogBtn(BuildContext context, AppThemeColors L) {
+    return Semantics(
+      button: true,
+      label: 'Quick log',
+      child: AnimatedPressable(
+        hapticEnabled: false,
+        onTap: () {
+          HapticEngine.heavyImpact();
+          if (onTap != null) onTap!();
+        },
+        scaleFactor: 0.97,
+        child: Container(
+          constraints: const BoxConstraints(
+            minHeight: MedAiA11y.minTapTargetCompact,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          decoration: BoxDecoration(
+            color: L.primary.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(AppRadius.max),
+            border:
+                Border.all(color: L.primary.withValues(alpha: 0.1), width: 1.5),
+            boxShadow: AppShadows.subtle,
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.bolt_rounded, color: L.primary, size: 14),
+              const SizedBox(width: 6),
+              Text(
+                'QUICK LOG',
+                style: AppTypography.labelSmall.copyWith(
+                  color: L.primary,
+                  fontWeight: FontWeight.w900,
+                  fontSize: 10,
+                  letterSpacing: 0.8,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

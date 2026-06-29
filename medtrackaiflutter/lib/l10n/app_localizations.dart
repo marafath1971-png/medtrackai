@@ -953,6 +953,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Retry'**
   String get retry;
+
+  /// No description provided for @onboardingSkip.
+  ///
+  /// In en, this message translates to:
+  /// **'Skip'**
+  String get onboardingSkip;
+
+  /// No description provided for @onboardingNext.
+  ///
+  /// In en, this message translates to:
+  /// **'Next'**
+  String get onboardingNext;
+
+  /// No description provided for @onboardingContinue.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue'**
+  String get onboardingContinue;
+
+  /// No description provided for @onboardingGetStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get Started'**
+  String get onboardingGetStarted;
+
+  /// No description provided for @onboardingWelcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Build unbreakable\nmed habits'**
+  String get onboardingWelcomeTitle;
+
+  /// No description provided for @onboardingWelcomeBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Streaks, smart reminders, and AI that keeps you on track — every single day.'**
+  String get onboardingWelcomeBody;
+
+  /// No description provided for @onboardingScanTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Scan any pill\nin seconds'**
+  String get onboardingScanTitle;
+
+  /// No description provided for @onboardingScanBodyDemo.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap below to see AI identify a sample medication instantly.'**
+  String get onboardingScanBodyDemo;
+
+  /// No description provided for @onboardingScanBodyDone.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s how fast Med AI works. No typing, no guesswork.'**
+  String get onboardingScanBodyDone;
+
+  /// No description provided for @onboardingSimulateScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Simulate scan →'**
+  String get onboardingSimulateScan;
+
+  /// No description provided for @onboardingPermissionTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your camera,\nyour privacy'**
+  String get onboardingPermissionTitle;
+
+  /// No description provided for @onboardingPermissionBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We only use the camera to read pill labels. Images are processed securely and never sold.'**
+  String get onboardingPermissionBody;
+
+  /// No description provided for @onboardingPermissionLink.
+  ///
+  /// In en, this message translates to:
+  /// **'Learn how we protect your data'**
+  String get onboardingPermissionLink;
+
+  /// No description provided for @onboardingPersonalizeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Personalize\nyour experience'**
+  String get onboardingPersonalizeTitle;
+
+  /// No description provided for @onboardingQuizMedCount.
+  ///
+  /// In en, this message translates to:
+  /// **'How many medications?'**
+  String get onboardingQuizMedCount;
+
+  /// No description provided for @onboardingQuizRole.
+  ///
+  /// In en, this message translates to:
+  /// **'Who are you tracking for?'**
+  String get onboardingQuizRole;
+
+  /// No description provided for @onboardingQuizSchedule.
+  ///
+  /// In en, this message translates to:
+  /// **'When do you take most meds?'**
+  String get onboardingQuizSchedule;
+
+  /// No description provided for @onboardingRoleSelf.
+  ///
+  /// In en, this message translates to:
+  /// **'Myself'**
+  String get onboardingRoleSelf;
+
+  /// No description provided for @onboardingRoleCaregiver.
+  ///
+  /// In en, this message translates to:
+  /// **'Someone I care for'**
+  String get onboardingRoleCaregiver;
+
+  /// No description provided for @onboardingScheduleMorning.
+  ///
+  /// In en, this message translates to:
+  /// **'Morning'**
+  String get onboardingScheduleMorning;
+
+  /// No description provided for @onboardingScheduleEvening.
+  ///
+  /// In en, this message translates to:
+  /// **'Evening'**
+  String get onboardingScheduleEvening;
+
+  /// No description provided for @onboardingScheduleBoth.
+  ///
+  /// In en, this message translates to:
+  /// **'Both'**
+  String get onboardingScheduleBoth;
+
+  /// No description provided for @onboardingSocialTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Join 50,000+\nhealth champions'**
+  String get onboardingSocialTitle;
+
+  /// No description provided for @onboardingSocialQuote.
+  ///
+  /// In en, this message translates to:
+  /// **'\"Med AI changed how my family manages medications. The scan feature alone saves us 10 minutes a day.\"'**
+  String get onboardingSocialQuote;
+
+  /// No description provided for @onboardingSocialAttribution.
+  ///
+  /// In en, this message translates to:
+  /// **'— App Store review, 5 stars'**
+  String get onboardingSocialAttribution;
+
+  /// No description provided for @onboardingAllowCamera.
+  ///
+  /// In en, this message translates to:
+  /// **'Allow Camera Access'**
+  String get onboardingAllowCamera;
+
+  /// No description provided for @onboardingTryDemoScan.
+  ///
+  /// In en, this message translates to:
+  /// **'Try Demo Scan'**
+  String get onboardingTryDemoScan;
+
+  /// No description provided for @loadingHealthData.
+  ///
+  /// In en, this message translates to:
+  /// **'Loading your health data…'**
+  String get loadingHealthData;
 }
 
 class _AppLocalizationsDelegate

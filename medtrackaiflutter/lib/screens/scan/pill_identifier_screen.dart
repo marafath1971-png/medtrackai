@@ -2,7 +2,6 @@ import 'package:permission_handler/permission_handler.dart';
 import '../../widgets/common/permission_soft_prompt.dart';
 import '../../widgets/common/premium_shimmer.dart';
 import 'dart:io';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -11,12 +10,14 @@ import 'package:path_provider/path_provider.dart' as path_provider;
 import 'package:path/path.dart' as p;
 import 'package:provider/provider.dart';
 
-import '../../theme/app_theme.dart';
+import 'package:go_router/go_router.dart';
+import '../../app/app_routes.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
-import '../../widgets/shared/shared_widgets.dart';
+import '../../widgets/common/animated_pressable.dart';
 import '../../services/gemini_service.dart';
 import '../../providers/app_state.dart';
-import '../medicine/medicine_detail_screen.dart';
+import 'widgets/scan_result_detail_view.dart';
 
 // ══════════════════════════════════════════════
 // PILL IDENTIFIER SCANNER — Cal AI Style
@@ -41,6 +42,7 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
   bool _showAnalysis = false;
 
   ScanResult? _scanResult;
+  File? _capturedImage;
   String _errorMessage = '';
 
   late AnimationController _beamCtrl;
@@ -134,7 +136,9 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
       _isScanning = true;
       _errorMessage = '';
     });
-    _beamCtrl.repeat();
+    if (!MedAiA11y.reducedMotion(context)) {
+      _beamCtrl.repeat();
+    }
 
     try {
       final XFile image = await _controller!.takePicture();
@@ -143,6 +147,7 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
       
       if (!mounted) return;
       final state = context.read<AppState>();
+      setState(() => _capturedImage = compressedFile);
       final result = await GeminiService.scanMedicine(
         compressedFile,
         hint:
@@ -192,10 +197,10 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
                   color: Colors.white.withValues(alpha: 0.3), size: 48),
               const SizedBox(height: 16),
               Text(
-                'Camera unavailable',
-                style: AppTypography.labelSmall.copyWith(
-                  color: Colors.white.withValues(alpha: 0.5),
-                  letterSpacing: 1,
+                'Camera Unavailable',
+                style: AppTypography.labelMedium.copyWith(
+                  color: Colors.white.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -236,16 +241,16 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
           // ── Live Camera Feed
           Positioned.fill(child: _buildCameraFeed()),
 
-          // ── Dark vignette overlay
+          // ── Minimal vignette
           Positioned.fill(
             child: DecoratedBox(
               decoration: BoxDecoration(
                 gradient: RadialGradient(
                   center: Alignment.center,
-                  radius: 0.8,
+                  radius: 0.85,
                   colors: [
                     Colors.transparent,
-                    Colors.black.withValues(alpha: 0.6),
+                    Colors.black.withValues(alpha: 0.45),
                   ],
                 ),
               ),
@@ -265,60 +270,37 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
               right: 20,
               child: Row(
                 children: [
-                  BouncingButton(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: Colors.black.withValues(alpha: 0.55),
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.1),
-                            width: 0.8),
+                  Semantics(
+                    button: true,
+                    label: 'Close',
+                    child: AnimatedPressable(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: MedAiA11y.minTapTarget,
+                        height: MedAiA11y.minTapTarget,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.35),
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white.withValues(alpha: 0.12),
+                            width: 0.5,
+                          ),
+                        ),
+                        child: const Icon(Icons.close_rounded,
+                            color: Colors.white, size: 20),
                       ),
-                      child: const Icon(Icons.close_rounded,
-                          color: Colors.white, size: 22),
                     ),
                   ),
                   const Spacer(),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.55),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                          color: Colors.white.withValues(alpha: 0.1),
-                          width: 0.8),
-                    ),
-                    child: Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: AppColors.accent,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                  color: AppColors.accent.withValues(alpha: 0.6),
-                                  blurRadius: 6)
-                            ],
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          'PILL IDENTIFIER',
-                          style: AppTypography.labelSmall.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 1.2,
-                            fontSize: 11,
-                          ),
-                        ),
-                      ],
+                  Text(
+                    'Pill Identifier',
+                    style: AppTypography.titleMedium.copyWith(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
+                  const Spacer(),
+                  const SizedBox(width: 40),
                 ],
               ),
             ),
@@ -359,22 +341,20 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
                     ).animate().fadeIn().slideY(begin: 0.3, end: 0),
                   Text(
                     _isScanning
-                        ? 'Analyzing pill...'
-                        : 'Place a single pill in the frame',
+                        ? 'Analyzing Pill…'
+                        : 'Place a Single Pill in the Frame',
                     style: AppTypography.titleMedium.copyWith(
                       color: Colors.white.withValues(alpha: 0.9),
                       fontWeight: FontWeight.w700,
-                      fontSize: 16,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 6),
                   Text(
-                    'Shape • Color • Imprint',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: Colors.white.withValues(alpha: 0.4),
-                      letterSpacing: 1.5,
-                      fontSize: 11,
+                    'Shape · Color · Imprint',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: Colors.white.withValues(alpha: 0.5),
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
                   const SizedBox(height: 32),
@@ -389,16 +369,16 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: _isScanning
-                              ? AppColors.accent
+                              ? AppColors.sageGreen
                               : Colors.white.withValues(alpha: 0.8),
-                          width: 3.5,
+                          width: 3,
                         ),
                       ),
                       child: Center(
                         child: AnimatedContainer(
                           duration: 200.ms,
-                          width: _isScanning ? 32 : 62,
-                          height: _isScanning ? 32 : 62,
+                          width: _isScanning ? 32 : 58,
+                          height: _isScanning ? 32 : 58,
                           decoration: BoxDecoration(
                             shape: _isScanning
                                 ? BoxShape.rectangle
@@ -406,7 +386,7 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
                             borderRadius: _isScanning
                                 ? BorderRadius.circular(8)
                                 : null,
-                            color: _isScanning ? AppColors.accent : Colors.white,
+                            color: _isScanning ? AppColors.sageGreen : Colors.white,
                           ),
                         ),
                       ),
@@ -421,10 +401,12 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
           if (_showAnalysis && _scanResult != null)
             _PillResultOverlay(
               scanResult: _scanResult!,
+              capturedImage: _capturedImage,
               onScanAnother: () async {
                 setState(() {
                   _showAnalysis = false;
                   _scanResult = null;
+                  _capturedImage = null;
                 });
                 await _resetCamera();
               },
@@ -448,8 +430,10 @@ class _ScanReticle extends StatelessWidget {
   Widget build(BuildContext context) {
     const size = 220.0;
     const cornerLen = 28.0;
-    const strokeW = 2.5;
-    final col = isScanning ? AppColors.accent : Colors.white.withValues(alpha: 0.7);
+    const strokeW = 2.0;
+    final col = isScanning
+        ? AppColors.sageGreen
+        : Colors.white.withValues(alpha: 0.65);
 
     return SizedBox(
       width: size,
@@ -475,18 +459,11 @@ class _ScanReticle extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: LinearGradient(
                         colors: [
-                          AppColors.accent.withValues(alpha: 0.0),
-                          AppColors.accent.withValues(alpha: 0.9),
-                          AppColors.accent.withValues(alpha: 0.0),
+                          AppColors.sageGreen.withValues(alpha: 0.0),
+                          AppColors.sageGreen.withValues(alpha: 0.85),
+                          AppColors.sageGreen.withValues(alpha: 0.0),
                         ],
                       ),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.accent.withValues(alpha: 0.5),
-                          blurRadius: 10,
-                          spreadRadius: 2,
-                        ),
-                      ],
                     ),
                   ),
                 ),
@@ -537,306 +514,35 @@ class _CornerPainter extends CustomPainter {
 }
 
 // ──────────────────────────────────────────────
-// Pill Result Overlay — Professional Cal AI style
+// Pill Result Overlay — full detail sheet
 // ──────────────────────────────────────────────
-class _PillResultOverlay extends StatefulWidget {
+class _PillResultOverlay extends StatelessWidget {
   final ScanResult scanResult;
+  final File? capturedImage;
   final VoidCallback onScanAnother;
 
   const _PillResultOverlay({
     required this.scanResult,
     required this.onScanAnother,
+    this.capturedImage,
   });
 
   @override
-  State<_PillResultOverlay> createState() => _PillResultOverlayState();
-}
-
-class _PillResultOverlayState extends State<_PillResultOverlay> with SingleTickerProviderStateMixin {
-  late AnimationController _scanAnimationController;
-
-  @override
-  void initState() {
-    super.initState();
-    _scanAnimationController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 3),
-    )..repeat(reverse: true);
-  }
-
-  @override
-  void dispose() {
-    _scanAnimationController.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final name =
-        widget.scanResult.name.isNotEmpty ? widget.scanResult.name : 'Unknown Pill';
-
     return Positioned.fill(
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-          child: Container(
-            color: Colors.black.withValues(alpha: 0.88),
-            child: SafeArea(
-              child: SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.fromLTRB(24, 24, 24, 32),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // ── Success badge
-                    Center(
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          color: AppColors.accent.withValues(alpha: 0.15),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                              color: AppColors.accent.withValues(alpha: 0.4),
-                              width: 0.8),
-                        ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: AppColors.accent,
-                                shape: BoxShape.circle,
-                                boxShadow: [
-                                  BoxShadow(
-                                      color: AppColors.accent
-                                          .withValues(alpha: 0.6),
-                                      blurRadius: 6)
-                                ],
-                              ),
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              'PILL IDENTIFIED',
-                              style: AppTypography.labelSmall.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                letterSpacing: 1.5,
-                                fontSize: 11,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ).animate().fadeIn(duration: 400.ms),
-                    ),
-
-                    const SizedBox(height: 28),
-
-                    // Pill Image with sweeping scanner animation
-                    if (widget.scanResult.imageUrl != null && widget.scanResult.imageUrl!.isNotEmpty) ...[
-                      Center(
-                        child: Container(
-                          height: 180,
-                          width: 240,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(24),
-                            border: Border.all(
-                                color: Colors.white.withValues(alpha: 0.15), width: 1),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                blurRadius: 15,
-                              )
-                            ],
-                          ),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(23),
-                            child: Stack(
-                              children: [
-                                Positioned.fill(
-                                  child: MedImage(
-                                    imageUrl: widget.scanResult.imageUrl!,
-                                    borderRadius: 0,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                Positioned.fill(
-                                  child: Container(
-                                    decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: [
-                                          Colors.black.withValues(alpha: 0.1),
-                                          Colors.transparent,
-                                          Colors.black.withValues(alpha: 0.4),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                // Sweeping laser line
-                                Positioned.fill(
-                                  child: AnimatedBuilder(
-                                    animation: _scanAnimationController,
-                                    builder: (context, child) {
-                                      return FractionalTranslation(
-                                        translation:
-                                            Offset(0, _scanAnimationController.value - 0.5),
-                                        child: Container(
-                                          height: 3,
-                                          width: double.infinity,
-                                          decoration: BoxDecoration(
-                                            gradient: LinearGradient(
-                                              colors: [
-                                                AppColors.accent.withValues(alpha: 0.0),
-                                                AppColors.accent,
-                                                AppColors.accent.withValues(alpha: 0.0),
-                                              ],
-                                            ),
-                                            boxShadow: [
-                                              BoxShadow(
-                                                color: AppColors.accent.withValues(alpha: 0.8),
-                                                blurRadius: 10,
-                                                spreadRadius: 2,
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                    ],
-
-                    // ── Medicine name
-                    Text(
-                      name,
-                      style: AppTypography.displaySmall.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 32,
-                        letterSpacing: -1.0,
-                        height: 1.1,
-                      ),
-                    ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.1, end: 0),
-
-                    const SizedBox(height: 8),
-
-                    // ── Interactions / category
-                    if (widget.scanResult.interactions.isNotEmpty)
-                      Text(
-                        widget.scanResult.interactions,
-                        style: AppTypography.bodyMedium.copyWith(
-                          color: Colors.white.withValues(alpha: 0.55),
-                          fontSize: 14,
-                          height: 1.5,
-                        ),
-                      ).animate().fadeIn(delay: 150.ms),
-
-                    const SizedBox(height: 28),
-
-                    // ── Info grid
-                    _InfoGrid(scanResult: widget.scanResult),
-
-                    const SizedBox(height: 32),
-
-                    // ── Side effects (if any)
-                    if (widget.scanResult.sideEffects.isNotEmpty) ...[
-                      _SectionLabel('Common Side Effects'),
-                      const SizedBox(height: 10),
-                      Text(
-                        widget.scanResult.sideEffects,
-                        style: AppTypography.bodySmall.copyWith(
-                          color: Colors.white.withValues(alpha: 0.7),
-                          height: 1.6,
-                        ),
-                      ),
-                      const SizedBox(height: 28),
-                    ],
-
-                    // ── Actions
-                    BouncingButton(
-                      onTap: () => _addToMedicines(context),
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 18),
-                        decoration: BoxDecoration(
-                          gradient: AppGradients.accentOrange,
-                          borderRadius: BorderRadius.circular(20),
-                          boxShadow: AppShadows.glow(AppColors.accent,
-                              intensity: 0.3),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(Icons.add_rounded,
-                                color: Colors.white, size: 20),
-                            const SizedBox(width: 10),
-                            Text(
-                              'Add to My Medicines',
-                              style: AppTypography.labelLarge.copyWith(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 15,
-                                letterSpacing: 0.2,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ).animate().fadeIn(delay: 300.ms).slideY(begin: 0.1, end: 0),
-
-                    const SizedBox(height: 12),
-
-                    BouncingButton(
-                      onTap: widget.onScanAnother,
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.08),
-                          borderRadius: BorderRadius.circular(20),
-                          border: Border.all(
-                              color: Colors.white.withValues(alpha: 0.15),
-                              width: 0.8),
-                        ),
-                        child: Center(
-                          child: Text(
-                            'Scan Another Pill',
-                            style: AppTypography.labelLarge.copyWith(
-                              color: Colors.white.withValues(alpha: 0.8),
-                              fontWeight: FontWeight.w700,
-                              fontSize: 15,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ).animate().fadeIn(delay: 400.ms),
-
-                    const SizedBox(height: 16),
-
-                    // Disclaimer
-                    Text(
-                      '⚠️  AI identification. Always verify with a pharmacist.',
-                      textAlign: TextAlign.center,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: Colors.white.withValues(alpha: 0.3),
-                        fontSize: 11,
-                        height: 1.5,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+      child: Container(
+        color: Colors.black.withValues(alpha: 0.88),
+        child: SafeArea(
+          child: SingleChildScrollView(
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
+            child: ScanResultDetailView(
+              result: scanResult,
+              capturedImage: capturedImage,
+              onDark: true,
+              onClose: onScanAnother,
+              onScanAnother: onScanAnother,
+              onAddToMedicines: () => _addToMedicines(context),
             ),
           ),
         ),
@@ -847,133 +553,59 @@ class _PillResultOverlayState extends State<_PillResultOverlay> with SingleTicke
   Future<void> _addToMedicines(BuildContext context) async {
     HapticEngine.selection();
     final appState = context.read<AppState>();
-    final name =
-        widget.scanResult.name.isNotEmpty ? widget.scanResult.name : 'Identified Pill';
+    final sr = scanResult;
+    final name = sr.name.isNotEmpty ? sr.name : 'Identified Pill';
+
+    final schedule = sr.scheduleSlots.map((slot) {
+      return ScheduleEntry(
+        id: DateTime.now().millisecondsSinceEpoch.toString() +
+            slot['label'].toString(),
+        h: (slot['h'] as num?)?.toInt() ?? 8,
+        m: (slot['m'] as num?)?.toInt() ?? 0,
+        label: slot['label']?.toString() ?? 'Dose',
+        days: const [0, 1, 2, 3, 4, 5, 6],
+        enabled: true,
+        ritual: sr.withFood ? Ritual.withBreakfast : Ritual.none,
+      );
+    }).toList();
+
+    final halalSafe = sr.halalStatus == 'halal' ||
+        sr.halalStatus == 'unknown' ||
+        sr.halalStatus.isEmpty;
+
     final newMed = Medicine(
       id: DateTime.now().millisecondsSinceEpoch,
       name: name,
-      brand: '',
-      dose: '',
-      form: 'Tablet',
-      category: 'General',
-      notes: 'Identified by AI Pill Scanner',
-      schedule: const [],
+      brand: sr.brand,
+      genericName: sr.genericName,
+      din: sr.din,
+      dose: sr.dose.isNotEmpty ? sr.dose : sr.dosePerTake,
+      form: sr.form.isNotEmpty ? sr.form : 'tablet',
+      category: sr.category.isNotEmpty ? sr.category : 'General',
+      notes: sr.description.isNotEmpty
+          ? sr.description
+          : 'Identified by AI Pill Scanner',
+      intakeInstructions: [
+        if (sr.howToTake.isNotEmpty) sr.howToTake,
+        if (sr.whenToTake.isNotEmpty) sr.whenToTake,
+        if (sr.storage.isNotEmpty) 'Storage: ${sr.storage}',
+      ].join('\n'),
+      schedule: schedule,
       courseStartDate: DateTime.now().toIso8601String().substring(0, 10),
-      color: '#FF6B35',
-      count: 0,
-      totalCount: 0,
-      refillAt: 0,
+      courseDurationDays: sr.courseDurationDays,
+      count: sr.pillCount > 0 ? sr.pillCount : 30,
+      totalCount: sr.packSize > 0 ? sr.packSize : 30,
+      refillAt: sr.refillAlert > 0 ? sr.refillAlert : 7,
+      unit: sr.unit,
+      isSachet: sr.isSachet,
+      isHalalSafe: halalSafe,
+      isHalalCertified: sr.halalStatus == 'halal' ? true : null,
+      imageUrl: capturedImage?.path ?? sr.imageUrl,
+      color: '#10B981',
     );
+
     await appState.addMedicine(newMed);
     if (!context.mounted) return;
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => MedicineDetailScreen(
-          medId: newMed.id,
-          initialEditMode: true,
-          onBack: () => Navigator.of(context).pop(),
-        ),
-      ),
-    );
-  }
-}
-
-class _InfoGrid extends StatelessWidget {
-  final ScanResult scanResult;
-  const _InfoGrid({required this.scanResult});
-
-  @override
-  Widget build(BuildContext context) {
-    final items = <(IconData, String, String)>[
-      if (scanResult.dose.isNotEmpty)
-        (Icons.medication_rounded, 'Dosage', scanResult.dose),
-      if (scanResult.form.isNotEmpty)
-        (Icons.category_rounded, 'Form', scanResult.form),
-      if (scanResult.category.isNotEmpty)
-        (Icons.class_rounded, 'Category', scanResult.category),
-      if (scanResult.confidence.isNotEmpty)
-        (Icons.verified_rounded, 'Confidence', scanResult.confidence),
-    ];
-
-    if (items.isEmpty) return const SizedBox.shrink();
-
-    return Wrap(
-      spacing: 12,
-      runSpacing: 12,
-      children: items.map((item) {
-        return Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Colors.white.withValues(alpha: 0.08),
-                Colors.white.withValues(alpha: 0.02),
-              ],
-            ),
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-                color: Colors.white.withValues(alpha: 0.12), width: 1.0),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.15),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              )
-            ],
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(item.$1, size: 16, color: AppColors.accent),
-              const SizedBox(width: 10),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    item.$2.toUpperCase(),
-                    style: AppTypography.labelSmall.copyWith(
-                      color: Colors.white.withValues(alpha: 0.45),
-                      fontSize: 9.5,
-                      letterSpacing: 1.0,
-                      fontWeight: FontWeight.w900,
-                    ),
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    item.$3,
-                    style: AppTypography.labelMedium.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 14,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        );
-      }).toList(),
-    ).animate().fadeIn(delay: 200.ms).slideY(begin: 0.06, end: 0);
-  }
-}
-
-class _SectionLabel extends StatelessWidget {
-  final String label;
-  const _SectionLabel(this.label);
-
-  @override
-  Widget build(BuildContext context) {
-    return Text(
-      label.toUpperCase(),
-      style: AppTypography.labelSmall.copyWith(
-        color: Colors.white.withValues(alpha: 0.4),
-        fontSize: 10,
-        letterSpacing: 1.5,
-        fontWeight: FontWeight.w900,
-      ),
-    );
+    context.push(AppRoutes.medicineDetailPath(newMed.id, edit: true));
   }
 }

@@ -9,6 +9,7 @@ import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:audioplayers/audioplayers.dart';
 
 import '../domain/entities/entities.dart';
+import '../models/onboarding_prefs.dart';
 export '../domain/entities/entities.dart';
 import '../domain/repositories/medication_repository.dart';
 import '../domain/repositories/user_repository.dart';
@@ -139,6 +140,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   // ── Modular Accessors ──────────────────────────────────────────────
   AppPhase get phase => auth.phase;
   UserProfile? get profile => auth.profile;
+  OnboardingPrefs get onboardingPrefs => auth.onboardingPrefs;
+  Future<void> saveOnboardingPrefs(OnboardingPrefs prefs) =>
+      auth.saveOnboardingPrefs(prefs);
+  Future<void> markOnboardingCompleted() => auth.markOnboardingCompleted();
   Future<void> saveProfile(UserProfile p) => auth.saveProfile(p);
 
   void setActiveProfile(ManagedProfile? p) {
@@ -292,6 +297,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         // Success: Trigger delighter and increment growth counter
         await auth.incrementDosesMarked();
         await GrowthTracker.trackFirstDoseLogged();
+        unawaited(_playDoseChime());
 
         // Sync to OS Health / Native Widgets
         OSHealthService.logDose(
@@ -422,9 +428,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> addFamilyMember(ManagedProfile member) async {
     var p = profile;
-    if (p == null) {
-      p = UserProfile(name: 'Guest');
-    }
+    p ??= UserProfile(name: 'Guest');
     final updatedMembers = List<ManagedProfile>.from(p.familyMembers)
       ..add(member);
     await auth.saveProfile(p.copyWith(familyMembers: updatedMembers));
@@ -553,6 +557,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     return auth.completeOnboarding(profile);
   }
   void skipAuth() => auth.skipAuth();
+
+  /// DEV PREVIEW ONLY — seed demo data and jump straight into the app.
+  void devPreviewJump() {
+    med.devSeed();
+    auth.devPreview(UserProfile(name: 'Alex', isPremium: true));
+  }
 
   void toggleDarkMode() => auth.toggleDarkMode();
   void setLanguage(String lang) => auth.setLanguage(lang);
@@ -1248,6 +1258,13 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     voiceStatus = 'idle';
     VoiceService.stop();
     safeNotifyListeners();
+  }
+
+  Future<void> _playDoseChime() async {
+    try {
+      await _audioPlayer.stop();
+      await _audioPlayer.play(AssetSource('audio/chime.mp3'));
+    } catch (_) {}
   }
 
   @override

@@ -22,6 +22,7 @@ import '../medicine/medicine_detail_screen.dart';
 import '../../widgets/common/mesh_gradient.dart';
 import 'widgets/recovery_course_tracker.dart';
 import 'widgets/home_mascot_card.dart';
+import 'widgets/duolingo_path_feed.dart';
 
 class HomeTab extends StatefulWidget {
   final VoidCallback onScan;
@@ -97,6 +98,14 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
     final hasSevereSymptom = severeSymptoms.isNotEmpty;
 
     final activeCourses = meds.where((m) => m.isCourseActive).toList();
+    
+    String? globalNextEntryKey;
+    for (final d in doses) {
+      if (takenMap[d.key] != true) {
+        globalNextEntryKey = d.key;
+        break;
+      }
+    }
 
     // Pre-calculate time groups for timeline to avoid redundant computations and ensure correct childCount
     final groups = [
@@ -131,10 +140,10 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
               opacity: 0.15,
               child: MeshGradient(
                 colors: [
-                  L.accent.withValues(alpha: 0.6),
-                  L.purple.withValues(alpha: 0.6),
                   L.bg,
-                  Colors.blue.withValues(alpha: 0.6),
+                  L.bg,
+                  L.bg,
+                  L.accent.withValues(alpha: 0.1),
                 ],
               ),
             ).animate(onPlay: (controller) => controller.repeat(reverse: true))
@@ -230,19 +239,7 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
                     ),
                   ),
 
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-                    sliver: SliverToBoxAdapter(
-                      child: const HomeMascotCard()
-                          .animate()
-                          .fadeIn(duration: 600.ms, delay: 150.ms)
-                          .slideY(
-                              begin: 0.06,
-                              end: 0,
-                              curve: Curves.easeOutExpo),
-                    ),
-                  ),
-
+                  // ── SHARE CTA ──
                   if (streak >= 7)
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
@@ -259,83 +256,21 @@ class _HomeTabState extends State<HomeTab> with SingleTickerProviderStateMixin {
                       ),
                     ),
 
-                  // ── UPCOMING DOSES CAROUSEL (Moved directly below Hero Progress Card) ──
+                  // ── DUOLINGO STYLE WINDING PATH ──
                   if (doses.isNotEmpty)
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-                      sliver: SliverToBoxAdapter(
-                        child: _NextDoseCarousel(
-                          doses: doses,
-                          takenToday: takenMap,
-                          state: context.read<AppState>(),
-                          onView: (med) => setState(() {
-                            _viewingMed = med;
-                            _startInEditMode = false;
-                          }),
-                        )
-                            .animate()
-                            .fadeIn(duration: 800.ms, delay: 100.ms)
-                            .slideY(
-                                begin: 0.08, end: 0, curve: Curves.easeOutExpo),
-                      ),
-                    ),
-
-                  // ── DAILY SCHEDULE SECTION HEADER ──
-                  if (doses.isNotEmpty)
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(20, 8, 20, 12),
-                      sliver: SliverToBoxAdapter(
-                        child: Row(
-                          children: [
-                            const Text('📅', style: TextStyle(fontSize: 16)),
-                            const SizedBox(width: 8),
-                            Text(
-                              'DAILY SCHEDULE',
-                              style: AppTypography.labelSmall.copyWith(
-                                color: L.sub.withValues(alpha: 0.8),
-                                fontSize: 11,
-                                letterSpacing: 2.0,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-
-                  // ── DAILY SCHEDULE GROUPS LIST ──
-                  if (doses.isNotEmpty)
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(20, 0, 20, 24),
-                      sliver: SliverList(
-                        delegate: SliverChildBuilderDelegate(
-                          (context, index) {
-                            final group = groups[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 24),
-                              child: HomeDoseGroup(
-                                title: group.title,
-                                doses: group.items,
-                                takenToday: takenMap,
-                                state: context.read<AppState>(),
-                                selectedDate: _selectedDate,
-                                onView: (med) => setState(() {
-                                  _viewingMed = med;
-                                  _startInEditMode = false;
-                                }),
-                                onEdit: (med) => setState(() {
-                                  _viewingMed = med;
-                                  _startInEditMode = true;
-                                }),
-                                onTakeDose: () {
-                                  // HapticEngine.success() or similar can go here
-                                },
-                              ),
-                            );
-                          },
-                          childCount: groups.length,
-                        ),
-                      ),
+                    DuolingoPathFeed(
+                      doses: doses,
+                      takenMap: takenMap,
+                      globalNextEntryKey: globalNextEntryKey,
+                      state: context.read<AppState>(),
+                      selectedDate: _selectedDate,
+                      onView: (med) => setState(() {
+                        _viewingMed = med;
+                        _startInEditMode = false;
+                      }),
+                      onTakeDose: () {
+                        // handled inside node
+                      },
                     ),
 
                   // ── MEDICINE CABINET SECTION HEADER ──

@@ -82,7 +82,7 @@ class _ModernTimePickerState extends State<ModernTimePicker> {
             widget.title,
             style: AppTypography.headlineLarge.copyWith(
               fontSize: 24,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w800,
               color: L.text,
               letterSpacing: -0.5,
             ),
@@ -219,7 +219,7 @@ class _ModernTimePickerState extends State<ModernTimePicker> {
                   style: AppTypography.labelLarge.copyWith(
                     fontSize: 15,
                     color: Colors.white,
-                    fontWeight: FontWeight.w900,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
               ),

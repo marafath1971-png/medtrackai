@@ -1,3 +1,4 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import '../core/utils/color_utils.dart';
@@ -16,11 +17,13 @@ class AppColors {
   static const Color white = Color(0xFFFFFFFF);
   
   // ── Card Surfaces ──────────────────────────────
-  static const Color bgLight  = Color(0xFFF5F5F0);  // Light mode BG (Cal AI Light-Olive)
+  static const Color bgLight  = Color(0xFFFFF8F2);  // Eato cream canvas
+  static const Color eatoNavy = Color(0xFF1A2238); // PDF / onboarding CTA ink
+  static const Color eatoGold = Color(0xFFE8943A); // PDF selection accent
   static const Color bgDark   = Color(0xFF0B132B);  // Deep Slate Blue
   static const Color cardLight  = Color(0xFFFFFFFF);
   static const Color cardDark   = Color(0xFF1C2541); // Midnight Navy
-  static const Color cardLight2 = Color(0xFFEBEBE5); // Light mode fill/container card
+  static const Color cardLight2 = Color(0xFFF1F3F5); // Light mode fill/container card
   static const Color cardDark2  = Color(0xFF283353); // Lighter Midnight Navy
 
   // ── Greyscale (2026 Premium Slate / Alpha) ──────
@@ -39,6 +42,9 @@ class AppColors {
   // This is the ONLY accent color in the entire app
   static const Color accent      = Color(0xFF4A9E86); // Premium Vibrant Sage Green
   static const Color accentLight = Color(0xFF8EDABF); // Lighter variant
+  static const Color sageGreen   = accent;
+  static const Color oceanBlue   = Color(0xFF0C2D48); // Deep Luxury Blue
+  static const Color coralRed    = Color(0xFFFF5E5B); // Premium Soft Red
 
   // ── Semantic: Success / Error ──────────────────
   static const Color green      = Color(0xFF00C853); // Vibrant iOS-style green
@@ -79,6 +85,36 @@ class AppColors {
   static const Color oFill   = grey900;
   static const Color oLime   = accent;
   static const Color oLimeDark = accent;
+
+  /// Cream-card surface matching onboarding / home (light mode).
+  static BoxDecoration eatoCard(
+    AppThemeColors L, {
+    bool isDark = false,
+    double radius = 28,
+    bool goldBorder = true,
+  }) {
+    return BoxDecoration(
+      color: L.card,
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(
+        color: isDark
+            ? L.border.withValues(alpha: 0.35)
+            : (goldBorder
+                ? eatoGold.withValues(alpha: 0.14)
+                : L.border.withValues(alpha: 0.55)),
+        width: isDark ? 0.5 : 1,
+      ),
+      boxShadow: isDark
+          ? AppShadows.premium
+          : [
+              BoxShadow(
+                color: eatoNavy.withValues(alpha: 0.06),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+    );
+  }
 }
 
 class AppTheme {
@@ -86,23 +122,27 @@ class AppTheme {
 
   static ThemeData light({String? accentHex}) {
     final acc = accentHex != null ? hexToColor(accentHex) : const Color(0xFF3A7D6A);
+    final scheme = ColorScheme.light(
+      primary: AppColors.eatoNavy,
+      onPrimary: AppColors.white,
+      secondary: acc,
+      onSecondary: AppColors.white,
+      surface: AppColors.cardLight,
+      onSurface: AppColors.eatoNavy,
+      error: AppColors.red,
+      outline: const Color(0xFFE8E0D6),
+      surfaceContainer: AppColors.cardLight2,
+      surfaceContainerHighest: AppColors.cardLight2,
+    );
     return ThemeData(
       useMaterial3: true,
       fontFamily: _fontFamily,
       brightness: Brightness.light,
       scaffoldBackgroundColor: AppColors.bgLight,
-      colorScheme: ColorScheme.light(
-        primary: const Color(0xFF1A2621),
-        onPrimary: AppColors.white,
-        secondary: acc,
-        onSecondary: AppColors.white,
-        surface: AppColors.cardLight,
-        onSurface: const Color(0xFF1A2621),
-        error: AppColors.red,
-        outline: const Color(0xFFE2E8E4),
-        surfaceContainer: AppColors.cardLight2,
-      ),
-      textTheme: _buildTextTheme(const Color(0xFF1A2621)),
+      colorScheme: scheme,
+      textTheme: _buildTextTheme(AppColors.eatoNavy),
+      visualDensity: VisualDensity.standard,
+      splashFactory: InkSparkle.splashFactory,
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((_) => AppColors.white),
         trackColor: WidgetStateProperty.resolveWith((states) =>
@@ -120,6 +160,69 @@ class AppTheme {
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        showDragHandle: true,
+        dragHandleColor: Color(0xFFD1D5DB),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: 72,
+        backgroundColor: AppColors.cardLight.withValues(alpha: 0.92),
+        indicatorColor: acc.withValues(alpha: 0.12),
+        labelTextStyle: WidgetStatePropertyAll(
+          AppTypography.labelSmall.copyWith(fontWeight: FontWeight.w600),
+        ),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return IconThemeData(
+            color: selected ? AppColors.eatoNavy : AppColors.grey500,
+            size: 22,
+          );
+        }),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.cardLight2,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: AppRadius.roundXL,
+          borderSide: BorderSide(color: scheme.outline.withValues(alpha: 0.6)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: AppRadius.roundXL,
+          borderSide: BorderSide(color: scheme.outline.withValues(alpha: 0.5)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppRadius.roundXL,
+          borderSide: BorderSide(color: acc, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: AppRadius.roundXL,
+          borderSide: const BorderSide(color: AppColors.red),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(double.infinity, AppA11y.minTapTarget),
+          backgroundColor: AppColors.eatoNavy,
+          foregroundColor: AppColors.white,
+          textStyle: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w700),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.roundXL),
+          elevation: 0,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(0, AppA11y.minTapTarget),
+          foregroundColor: const Color(0xFF1A2621),
+          side: BorderSide(color: scheme.outline.withValues(alpha: 0.7)),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.roundXL),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          minimumSize: const Size(0, AppA11y.minTapTarget),
+          foregroundColor: acc,
+          textStyle: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w600),
+        ),
       ),
       cardTheme: CardThemeData(
         color: AppColors.cardLight,
@@ -135,40 +238,41 @@ class AppTheme {
           backgroundColor: const Color(0xFF1A2621),
           foregroundColor: AppColors.white,
           textStyle: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w700),
-          minimumSize: const Size(double.infinity, 60),
+          minimumSize: const Size(double.infinity, AppA11y.minTapTarget),
           shape: RoundedRectangleBorder(borderRadius: AppRadius.roundXL),
           elevation: 0,
         ),
       ),
     ).copyWith(
       extensions: [
-        AppThemeColors.fromColorScheme(
-          ColorScheme.light(primary: const Color(0xFF1A2621), secondary: acc),
-          Brightness.light,
-        ),
+        AppThemeColors.fromColorScheme(scheme, Brightness.light),
       ],
     );
   }
 
   static ThemeData dark({bool isAmoled = true, String? accentHex}) {
     final acc = accentHex != null ? hexToColor(accentHex) : AppColors.accent;
+    final scheme = ColorScheme.dark(
+      primary: AppColors.white,
+      onPrimary: AppColors.black,
+      secondary: acc,
+      onSecondary: AppColors.black,
+      surface: AppColors.cardDark,
+      onSurface: AppColors.white,
+      error: AppColors.redDark,
+      outline: AppColors.grey800,
+      surfaceContainer: AppColors.cardDark,
+      surfaceContainerHighest: AppColors.cardDark2,
+    );
     return ThemeData(
       useMaterial3: true,
       fontFamily: _fontFamily,
       brightness: Brightness.dark,
-      scaffoldBackgroundColor: AppColors.bgDark, // True OLED black
-      colorScheme: ColorScheme.dark(
-        primary: AppColors.white,
-        onPrimary: AppColors.black,
-        secondary: acc,
-        onSecondary: AppColors.black,
-        surface: AppColors.cardDark,
-        onSurface: AppColors.white,
-        error: AppColors.redDark,
-        outline: AppColors.grey800,
-        surfaceContainer: AppColors.cardDark,
-      ),
+      scaffoldBackgroundColor: AppColors.bgDark,
+      colorScheme: scheme,
       textTheme: _buildTextTheme(AppColors.white),
+      visualDensity: VisualDensity.standard,
+      splashFactory: InkSparkle.splashFactory,
       switchTheme: SwitchThemeData(
         thumbColor: WidgetStateProperty.resolveWith((_) => AppColors.white),
         trackColor: WidgetStateProperty.resolveWith((states) =>
@@ -186,6 +290,69 @@ class AppTheme {
       bottomSheetTheme: const BottomSheetThemeData(
         backgroundColor: Colors.transparent,
         elevation: 0,
+        showDragHandle: true,
+        dragHandleColor: Color(0xFF475569),
+      ),
+      navigationBarTheme: NavigationBarThemeData(
+        height: 72,
+        backgroundColor: AppColors.cardDark.withValues(alpha: 0.88),
+        indicatorColor: acc.withValues(alpha: 0.18),
+        labelTextStyle: WidgetStatePropertyAll(
+          AppTypography.labelSmall.copyWith(fontWeight: FontWeight.w600),
+        ),
+        iconTheme: WidgetStateProperty.resolveWith((states) {
+          final selected = states.contains(WidgetState.selected);
+          return IconThemeData(
+            color: selected ? AppColors.white : AppColors.grey400,
+            size: 22,
+          );
+        }),
+      ),
+      inputDecorationTheme: InputDecorationTheme(
+        filled: true,
+        fillColor: AppColors.cardDark2,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        border: OutlineInputBorder(
+          borderRadius: AppRadius.roundXL,
+          borderSide: BorderSide(color: scheme.outline.withValues(alpha: 0.5)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: AppRadius.roundXL,
+          borderSide: BorderSide(color: scheme.outline.withValues(alpha: 0.4)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: AppRadius.roundXL,
+          borderSide: BorderSide(color: acc, width: 1.5),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: AppRadius.roundXL,
+          borderSide: const BorderSide(color: AppColors.redDark),
+        ),
+      ),
+      filledButtonTheme: FilledButtonThemeData(
+        style: FilledButton.styleFrom(
+          minimumSize: const Size(double.infinity, AppA11y.minTapTarget),
+          backgroundColor: AppColors.white,
+          foregroundColor: AppColors.black,
+          textStyle: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w700),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.roundXL),
+          elevation: 0,
+        ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size(0, AppA11y.minTapTarget),
+          foregroundColor: AppColors.white,
+          side: BorderSide(color: Colors.white.withValues(alpha: 0.18)),
+          shape: RoundedRectangleBorder(borderRadius: AppRadius.roundXL),
+        ),
+      ),
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(
+          minimumSize: const Size(0, AppA11y.minTapTarget),
+          foregroundColor: acc,
+          textStyle: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w600),
+        ),
       ),
       cardTheme: CardThemeData(
         color: AppColors.cardDark,
@@ -201,18 +368,14 @@ class AppTheme {
           backgroundColor: AppColors.white,
           foregroundColor: AppColors.black,
           textStyle: AppTypography.labelLarge.copyWith(fontWeight: FontWeight.w700),
-          minimumSize: const Size(double.infinity, 60),
+          minimumSize: const Size(double.infinity, AppA11y.minTapTarget),
           shape: RoundedRectangleBorder(borderRadius: AppRadius.roundXL),
           elevation: 0,
         ),
       ),
     ).copyWith(
       extensions: [
-        AppThemeColors.fromColorScheme(
-          ColorScheme.dark(primary: AppColors.white, secondary: acc),
-          Brightness.dark,
-          isAmoled: isAmoled,
-        ),
+        AppThemeColors.fromColorScheme(scheme, Brightness.dark, isAmoled: isAmoled),
       ],
     );
   }
@@ -312,21 +475,21 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
 
     return AppThemeColors(
       bg:     bg,
-      onBg:   isDark ? AppColors.white : const Color(0xFF1A2621),
+      onBg:   isDark ? AppColors.white : AppColors.eatoNavy,
       card:   card,
-      onCard: isDark ? AppColors.white : const Color(0xFF1A2621),
+      onCard: isDark ? AppColors.white : AppColors.eatoNavy,
       card2:  card2,
-      onCard2:isDark ? AppColors.white : const Color(0xFF1A2621),
+      onCard2:isDark ? AppColors.white : AppColors.eatoNavy,
       border: isDark
           ? Colors.white.withValues(alpha: 0.08)
-          : const Color(0xFFE2E8E4),
-      text: isDark ? AppColors.white : const Color(0xFF1A2621),
+          : const Color(0xFFE8E0D6),
+      text: isDark ? AppColors.white : AppColors.eatoNavy,
       sub:  isDark
           ? Colors.white.withValues(alpha: 0.65) // 2026 pure alpha blending instead of muddy grey
-          : const Color(0xFF64736D),
+          : const Color(0xFF5C6B64),
       fill: isDark
           ? Colors.white.withValues(alpha: 0.07)
-          : const Color(0xFFEBEBE5),
+          : const Color(0xFFF1F3F5),
       onFill:    isDark ? AppColors.white : const Color(0xFF1A2621),
       primary:   colorScheme.primary,
       onPrimary: colorScheme.onPrimary,
@@ -355,7 +518,12 @@ class AppThemeColors extends ThemeExtension<AppThemeColors> {
           : const Color(0xFF3A7D6A).withValues(alpha: 0.1),
       shadowSoft:  [], // Cal AI: zero shadows everywhere
       mainGradient: LinearGradient(
-          colors: [colorScheme.primary, colorScheme.primary]),
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+        colors: isDark
+            ? [colorScheme.secondary.withValues(alpha: 0.35), colorScheme.primary]
+            : [colorScheme.secondary.withValues(alpha: 0.25), colorScheme.primary],
+      ),
       // Cal AI signature orange — always constant regardless of mode
       accent:      isDark ? AppColors.accent : const Color(0xFF3A7D6A),
       accentLight: (isDark ? AppColors.accent : const Color(0xFF3A7D6A)).withValues(alpha: 0.15),
@@ -426,6 +594,19 @@ extension ThemeContextExtension on BuildContext {
       Theme.of(this).extension<AppThemeColors>() ??
       AppThemeColors.fromColorScheme(Theme.of(this).colorScheme, Theme.of(this).brightness);
   bool get isDark => Theme.of(this).brightness == Brightness.dark;
+}
+
+/// 2026 unified accent tokens — electric CTA on sage wellness base.
+extension AppThemeColors2026 on AppThemeColors {
+  static const Color electric = Color(0xFF6CF2D2);
+  static const Color wellness = Color(0xFF4A9E86);
+
+  Color get accentElectric => electric;
+  Color get accentWellness => wellness;
+  Color get accentGlowColor => electric.withValues(alpha: 0.35);
+
+  List<BoxShadow> accentGlow({double intensity = 0.4}) =>
+      AppShadows.glow(electric, intensity: intensity);
 }
 
 /// A high-performance 2D shared-axis transition (slight vertical translation + cross-fade)

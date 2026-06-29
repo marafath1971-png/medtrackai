@@ -32,7 +32,12 @@ enum ScanMode { camera, barcode, search, voice }
 // ══════════════════════════════════════════════════════════
 class ScannerHubScreen extends StatefulWidget {
   final VoidCallback onClose;
-  const ScannerHubScreen({super.key, required this.onClose});
+  final ScanMode initialMode;
+  const ScannerHubScreen({
+    super.key,
+    required this.onClose,
+    this.initialMode = ScanMode.camera,
+  });
 
   @override
   State<ScannerHubScreen> createState() => _ScannerHubScreenState();
@@ -64,6 +69,7 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
   @override
   void initState() {
     super.initState();
+    _mode = widget.initialMode;
     _scanLineCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1600))
       ..repeat(reverse: true);

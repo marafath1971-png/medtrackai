@@ -1,7 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
+import '../../widgets/common/app_scaffold.dart';
 import '../../models/product_analysis.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
@@ -14,7 +15,7 @@ import '../../providers/app_state.dart';
 class ChatMessage {
   final String text;
   final bool isUser;
-  
+
   ChatMessage({required this.text, required this.isUser});
 }
 
@@ -34,19 +35,27 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
   bool _isTyping = false;
 
   final List<String> _suggestions = [
-    "Can I take this with coffee?",
-    "Can I take this during Ramadan?",
-    "Will this affect my kidneys?",
-    "Can I take this with protein powder?",
+    'Can I take this with coffee?',
+    'Can I take this during Ramadan?',
+    'Will this affect my kidneys?',
+    'Can I take this with protein powder?',
   ];
 
   @override
   void initState() {
     super.initState();
     _messages.add(ChatMessage(
-      text: "Hi! I'm your medical AI. Ask me anything about ${widget.product.name}.",
+      text:
+          "Hi! I'm your medical AI. Ask me anything about ${widget.product.name}.",
       isUser: false,
     ));
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _scrollController.dispose();
+    super.dispose();
   }
 
   void _sendMessage(String text) async {
@@ -60,27 +69,26 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
     _controller.clear();
     _scrollToBottom();
 
-    // Prepare history
     final history = _messages.take(_messages.length - 1).map((m) => {
-      'role': m.isUser ? 'User' : 'AI',
-      'content': m.text,
-    }).toList();
+          'role': m.isUser ? 'User' : 'AI',
+          'content': m.text,
+        }).toList();
 
-    // Extract User Context
     final meds = context.read<MedicationController>().meds;
-    final activeMedsStr = meds.isNotEmpty 
-        ? meds.map((m) => '${m.name} (${m.dose})').join(', ') 
+    final activeMedsStr = meds.isNotEmpty
+        ? meds.map((m) => '${m.name} (${m.dose})').join(', ')
         : 'None';
-    
+
     final appState = context.read<AppState>();
     final streak = appState.getStreak();
-    
-    final userContext = "Active Medications: $activeMedsStr. Current Adherence Streak: $streak days.";
 
-    // Call Gemini
+    final userContext =
+        'Active Medications: $activeMedsStr. Current Adherence Streak: $streak days.';
+
     final result = await GeminiService.chatWithProduct(
       productName: widget.product.name,
-      productDetails: "Category: ${widget.product.category}, Description: ${widget.product.description}, Timing: ${widget.product.timing}",
+      productDetails:
+          'Category: ${widget.product.category}, Description: ${widget.product.description}, Timing: ${widget.product.timing}',
       query: text,
       chatHistory: history,
       userContext: userContext,
@@ -103,66 +111,43 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
-        _scrollController.animateTo(
-          _scrollController.position.maxScrollExtent,
-          duration: const Duration(milliseconds: 300),
-          curve: Curves.easeOut,
-        );
+        final duration = MedAiA11y.motion(context, const Duration(milliseconds: 300));
+        if (duration == Duration.zero) {
+          _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
+        } else {
+          _scrollController.animateTo(
+            _scrollController.position.maxScrollExtent,
+            duration: duration,
+            curve: Curves.easeOut,
+          );
+        }
       }
     });
+  }
+
+  Widget _messageEntrance(Widget child) {
+    if (MedAiA11y.reducedMotion(context)) return child;
+    return child
+        .animate()
+        .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
+        .slideY(begin: 0.06, end: 0, curve: AppCurves.smooth);
   }
 
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final topPad = MediaQuery.of(context).padding.top;
 
-    return Scaffold(
-      backgroundColor: L.bg,
-      appBar: AppBar(
-        backgroundColor: L.bg.withValues(alpha: 0.8),
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        centerTitle: true,
-        flexibleSpace: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(color: Colors.transparent),
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back_ios_new_rounded, color: L.text, size: 20),
-          onPressed: () {
-            HapticEngine.selection();
-            Navigator.pop(context);
-          },
-        ),
-        title: Column(
-          children: [
-            Text(
-              'AI Assistant',
-              style: AppTypography.titleMedium.copyWith(
-                color: L.text,
-                fontWeight: FontWeight.w900,
-                letterSpacing: -0.5,
-              ),
-            ),
-            Text(
-              widget.product.name,
-              style: AppTypography.labelSmall.copyWith(
-                color: L.sub,
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
-      ),
+    return AppScaffold(
+      showAurora: true,
       body: Column(
         children: [
+          SizedBox(height: topPad + 56),
           Expanded(
             child: ListView.builder(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
               itemCount: _messages.length + (_isTyping ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == _messages.length && _isTyping) {
@@ -176,176 +161,262 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
           _buildInputArea(L),
         ],
       ),
+      extendBodyBehindAppBar: true,
+      appBar: PreferredSize(
+        preferredSize: Size.fromHeight(topPad + 56),
+        child: ClipRect(
+          child: BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+            child: Container(
+              color: L.bg.withValues(alpha: 0.75),
+              padding: EdgeInsets.only(top: topPad),
+              child: SizedBox(
+                height: 56,
+                child: Row(
+                  children: [
+                    Semantics(
+                      button: true,
+                      label: 'Back',
+                      child: AnimatedPressable(
+                        onTap: () {
+                          HapticEngine.selection();
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          width: MedAiA11y.minTapTarget,
+                          height: MedAiA11y.minTapTarget,
+                          margin: const EdgeInsets.only(left: 8),
+                          decoration: BoxDecoration(
+                            color: L.card.withValues(alpha: 0.7),
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: L.border.withValues(alpha: 0.3),
+                              width: 0.5,
+                            ),
+                          ),
+                          child: Icon(Icons.arrow_back_ios_new_rounded,
+                              color: L.text, size: 18),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'AI Assistant',
+                            style: AppTypography.titleMedium.copyWith(
+                              color: L.text,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.5,
+                            ),
+                          ),
+                          Text(
+                            widget.product.name,
+                            style: AppTypography.labelSmall.copyWith(
+                              color: L.sub,
+                              fontWeight: FontWeight.w600,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: MedAiA11y.minTapTarget + 8),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
   Widget _buildMessageBubble(AppThemeColors L, ChatMessage msg) {
-    return Align(
-      alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        constraints: BoxConstraints(maxWidth: MediaQuery.of(context).size.width * 0.8),
-        margin: const EdgeInsets.only(bottom: 24),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          color: msg.isUser 
-              ? L.text 
-              : L.card.withValues(alpha: 0.6),
-          borderRadius: BorderRadius.only(
-            topLeft: const Radius.circular(24),
-            topRight: const Radius.circular(24),
-            bottomLeft: Radius.circular(msg.isUser ? 24 : 8),
-            bottomRight: Radius.circular(msg.isUser ? 8 : 24),
+    final maxW = MediaQuery.of(context).size.width * 0.8;
+
+    Widget bubble = msg.isUser
+        ? MedAiDepthCard(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            radius: AppRadius.xl,
+            color: L.text,
+            child: Text(
+              msg.text,
+              style: AppTypography.bodyMedium.copyWith(
+                color: L.bg,
+                height: 1.6,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          )
+        : MedAiGlass(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            radius: AppRadius.xl,
+            tint: L.card,
+            child: Text(
+              msg.text,
+              style: AppTypography.bodyMedium.copyWith(
+                color: L.text,
+                height: 1.6,
+              ),
+            ),
+          );
+
+    return _messageEntrance(
+      Align(
+        alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
+        child: Semantics(
+          label: msg.isUser ? 'You said' : 'AI assistant said',
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: maxW),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: bubble,
+            ),
           ),
-          border: Border.all(
-            color: msg.isUser 
-                ? Colors.transparent 
-                : L.accent.withValues(alpha: 0.4),
-            width: msg.isUser ? 0 : 1.2,
-          ),
-          boxShadow: msg.isUser 
-              ? [BoxShadow(color: L.text.withValues(alpha: 0.3), blurRadius: 16, offset: const Offset(0, 4))]
-              : AppShadows.glow(L.accent, intensity: 0.1),
         ),
-        child: Text(
-          msg.text,
-          style: AppTypography.bodyMedium.copyWith(
-            color: msg.isUser ? L.bg : L.text,
-            height: 1.6,
-            fontWeight: msg.isUser ? FontWeight.w500 : FontWeight.w400,
-          ),
-        ),
-      ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.1, end: 0, curve: Curves.easeOutBack),
+      ),
     );
   }
 
   Widget _buildTypingIndicator(AppThemeColors L) {
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+
+    Widget indicator = MedAiGlass(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      radius: AppRadius.xl,
+      tint: L.card,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildDot(L, 0, reduceMotion),
+          const SizedBox(width: 4),
+          _buildDot(L, 200, reduceMotion),
+          const SizedBox(width: 4),
+          _buildDot(L, 400, reduceMotion),
+        ],
+      ),
+    );
+
+    if (!reduceMotion) {
+      indicator = indicator.animate().fadeIn(duration: AppDurations.fast);
+    }
+
     return Align(
       alignment: Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 16),
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-        decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: const BorderRadius.only(
-            topLeft: Radius.circular(24),
-            topRight: Radius.circular(24),
-            bottomLeft: Radius.circular(8),
-            bottomRight: Radius.circular(24),
-          ),
-          border: Border.all(color: L.border),
-          boxShadow: L.shadowSoft,
+      child: Semantics(
+        label: 'AI is typing',
+        liveRegion: true,
+        child: Padding(
+          padding: const EdgeInsets.only(bottom: 16),
+          child: indicator,
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            _buildDot(L, 0),
-            const SizedBox(width: 4),
-            _buildDot(L, 200),
-            const SizedBox(width: 4),
-            _buildDot(L, 400),
-          ],
-        ),
-      ).animate().fadeIn(duration: 300.ms),
+      ),
     );
   }
 
-  Widget _buildDot(AppThemeColors L, int delay) {
-    return Container(
+  Widget _buildDot(AppThemeColors L, int delay, bool reduceMotion) {
+    final dot = Container(
       width: 6,
       height: 6,
-      decoration: BoxDecoration(
-        color: L.sub,
-        shape: BoxShape.circle,
-      ),
-    ).animate(onPlay: (c) => c.repeat()).fade(duration: 600.ms, delay: delay.ms).scale(begin: const Offset(0.8, 0.8), end: const Offset(1.2, 1.2), duration: 600.ms);
+      decoration: BoxDecoration(color: L.sub, shape: BoxShape.circle),
+    );
+    if (reduceMotion) return dot;
+    return dot
+        .animate(onPlay: (c) => c.repeat())
+        .fade(duration: 600.ms, delay: delay.ms)
+        .scale(
+          begin: const Offset(0.8, 0.8),
+          end: const Offset(1.2, 1.2),
+          duration: 600.ms,
+        );
   }
 
   Widget _buildInputArea(AppThemeColors L) {
-    return Container(
-      padding: EdgeInsets.fromLTRB(16, 12, 16, MediaQuery.of(context).padding.bottom + 16),
-      decoration: BoxDecoration(
-        color: L.bg.withValues(alpha: 0.8),
+    return MedAiGlass(
+      radius: 0,
+      padding: EdgeInsets.fromLTRB(
+        16,
+        12,
+        16,
+        MediaQuery.of(context).padding.bottom + 16,
       ),
-      child: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+      showBorder: false,
+      tint: L.bg,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (_messages.length == 1)
+            SingleChildScrollView(
+              keyboardDismissBehavior:
+                  ScrollViewKeyboardDismissBehavior.onDrag,
+              scrollDirection: Axis.horizontal,
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.only(bottom: 12),
+              child: Row(
+                children:
+                    _suggestions.map((s) => _buildSuggestionChip(L, s)).toList(),
+              ),
+            ),
+          Row(
             children: [
-              if (_messages.length == 1) // Only show suggestions at the start
-                SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: Row(
-                    children: _suggestions.map((s) => _buildSuggestionChip(L, s)).toList(),
+              Expanded(
+                child: MedAiDepthCard(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  radius: AppRadius.max,
+                  child: TextField(
+                    autofocus: true,
+                    controller: _controller,
+                    style: AppTypography.bodyMedium.copyWith(color: L.text),
+                    decoration: InputDecoration(
+                      hintText: 'Ask AI a question...',
+                      hintStyle: AppTypography.bodyMedium
+                          .copyWith(color: L.sub.withValues(alpha: 0.6)),
+                      border: InputBorder.none,
+                      contentPadding:
+                          const EdgeInsets.symmetric(vertical: 14),
+                    ),
+                    onSubmitted: _sendMessage,
                   ),
                 ),
-              Row(
-                children: [
-                  Expanded(
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      decoration: BoxDecoration(
-                        color: L.card.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(32),
-                        border: Border.all(color: L.glassBorder, width: 1.2),
-                        boxShadow: AppShadows.subtle,
-                      ),
-                      child: TextField(
-  autofocus: true,
-                        controller: _controller,
-                        style: AppTypography.bodyMedium.copyWith(color: L.text),
-                        decoration: InputDecoration(
-                          hintText: "Ask AI a question...",
-                          hintStyle: AppTypography.bodyMedium.copyWith(color: L.text.withValues(alpha: 0.4)),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(vertical: 18),
-                        ),
-                        onSubmitted: _sendMessage,
-                      ),
+              ),
+              const SizedBox(width: 12),
+              Semantics(
+                button: true,
+                label: 'Send message',
+                child: AnimatedPressable(
+                  onTap: () => _sendMessage(_controller.text),
+                  child: Container(
+                    width: MedAiA11y.minTapTarget,
+                    height: MedAiA11y.minTapTarget,
+                    decoration: BoxDecoration(
+                      color: L.text,
+                      shape: BoxShape.circle,
+                      boxShadow: AppShadows.glow(L.text, intensity: 0.25),
                     ),
+                    child: Icon(Icons.arrow_upward_rounded,
+                        color: L.bg, size: 22),
                   ),
-                  const SizedBox(width: 12),
-                  BouncingButton(
-                    onTap: () => _sendMessage(_controller.text),
-                    child: Container(
-                      width: 56,
-                      height: 56,
-                      decoration: BoxDecoration(
-                        gradient: LinearGradient(
-                          colors: [L.text, L.text.withValues(alpha: 0.8)],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        shape: BoxShape.circle,
-                        boxShadow: AppShadows.glow(L.text, intensity: 0.3),
-                      ),
-                      child: Icon(Icons.arrow_upward_rounded, color: L.bg, size: 24),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ],
           ),
-        ),
+        ],
       ),
     );
   }
 
   Widget _buildSuggestionChip(AppThemeColors L, String text) {
-    return AnimatedPressable(
-      onTap: () => _sendMessage(text),
-      child: Container(
-        margin: const EdgeInsets.only(right: 8),
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: L.border),
-        ),
+    return Semantics(
+      button: true,
+      label: text,
+      child: MedAiDepthCard(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        radius: AppRadius.max,
+        onTap: () => _sendMessage(text),
         child: Text(
           text,
           style: AppTypography.labelSmall.copyWith(

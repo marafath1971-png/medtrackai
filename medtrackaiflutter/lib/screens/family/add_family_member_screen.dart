@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:io';
-import 'dart:ui';
 import 'package:image_picker/image_picker.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' as p;
+import 'package:go_router/go_router.dart';
+
 import '../../../providers/app_state.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/haptic_engine.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import '../../../widgets/common/app_shimmer.dart';
-import 'package:medai/widgets/common/animated_pressable.dart';
+import '../../../widgets/common/animated_pressable.dart';
+import '../../../widgets/common/app_scaffold.dart';
 
 class AddFamilyMemberScreen extends StatefulWidget {
   const AddFamilyMemberScreen({super.key});
@@ -32,20 +32,6 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
   bool _isCritical = false;
   bool _isSaving = false;
 
-  Future<void> _pickImage() async {
-    HapticEngine.selection();
-    final picker = ImagePicker();
-    final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      final appDir = await getApplicationDocumentsDirectory();
-      final fileName = 'profile_${DateTime.now().millisecondsSinceEpoch}${p.extension(picked.path)}';
-      final savedFile = await File(picked.path).copy(p.join(appDir.path, fileName));
-      setState(() {
-        _photoPath = savedFile.path;
-      });
-    }
-  }
-
   final List<Map<String, dynamic>> _roles = [
     {'label': 'Child', 'icon': Icons.child_care_rounded},
     {'label': 'Spouse', 'icon': Icons.favorite_rounded},
@@ -65,6 +51,28 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
     super.dispose();
   }
 
+  void _popOrGoCircle() {
+    if (context.canPop()) {
+      context.pop();
+    } else {
+      context.go('/circle');
+    }
+  }
+
+  Future<void> _pickImage() async {
+    HapticEngine.selection();
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(source: ImageSource.gallery);
+    if (picked != null) {
+      final appDir = await getApplicationDocumentsDirectory();
+      final fileName =
+          'profile_${DateTime.now().millisecondsSinceEpoch}${p.extension(picked.path)}';
+      final savedFile =
+          await File(picked.path).copy(p.join(appDir.path, fileName));
+      setState(() => _photoPath = savedFile.path);
+    }
+  }
+
   Future<void> _selectDate() async {
     final now = DateTime.now();
     final picked = await showDatePicker(
@@ -73,12 +81,13 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
       firstDate: DateTime(1900),
       lastDate: now,
       builder: (context, child) {
+        final L = context.L;
         return Theme(
           data: ThemeData.light().copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Colors.black,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
+            colorScheme: ColorScheme.light(
+              primary: L.text,
+              onPrimary: L.bg,
+              onSurface: L.text,
             ),
           ),
           child: child!,
@@ -98,7 +107,9 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
     }
 
     if (_dob == null) {
-      context.read<AppState>().showToast('Please select a date of birth', type: 'error');
+      context
+          .read<AppState>()
+          .showToast('Please select a date of birth', type: 'error');
       return;
     }
 
@@ -109,7 +120,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
     }
 
     setState(() => _isSaving = true);
-    HapticEngine.selection();
+    HapticEngine.success();
 
     try {
       final newMember = ManagedProfile(
@@ -126,363 +137,277 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
       );
 
       await context.read<AppState>().addFamilyMember(newMember);
-      
-      if (mounted) {
-        Navigator.of(context).pop();
-      }
+
+      if (mounted) _popOrGoCircle();
     } catch (e) {
       if (mounted) {
-        context.read<AppState>().showToast('Failed to save. Try again.', type: 'error');
+        context
+            .read<AppState>()
+            .showToast('Failed to save. Try again.', type: 'error');
       }
     } finally {
-      if (mounted) {
-        setState(() => _isSaving = false);
-      }
+      if (mounted) setState(() => _isSaving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return Scaffold(
-      backgroundColor: L.meshBg,
-      extendBodyBehindAppBar: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        flexibleSpace: ClipRRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              color: L.meshBg.withValues(alpha: 0.5),
-            ),
-          ),
-        ),
-        leading: IconButton(
-          icon: Icon(Icons.close_rounded, color: L.text),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'Add Member',
-          style: AppTypography.labelLarge.copyWith(
-            color: L.text,
-            fontWeight: FontWeight.w900,
-            letterSpacing: -0.5,
-          ),
-        ),
-        centerTitle: true,
-      ),
-      body: Stack(
-        children: [
-          // Background subtle glowing orb for premium feel
-          Positioned(
-            top: -100,
-            right: -100,
-            child: Container(
-              width: 300,
-              height: 300,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: L.text.withValues(alpha: 0.05),
+
+    return AppScaffold(
+      showAurora: true,
+      body: CustomScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics()),
+        slivers: [
+          SliverAppBar(
+            pinned: true,
+            backgroundColor: Colors.transparent,
+            elevation: 0,
+            leading: Semantics(
+              button: true,
+              label: 'Go back',
+              child: AnimatedPressable(
+                onTap: _popOrGoCircle,
+                child: Container(
+                  width: MedAiA11y.minTapTarget,
+                  height: MedAiA11y.minTapTarget,
+                  margin: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: L.fill.withValues(alpha: 0.5),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(Icons.arrow_back_ios_new_rounded,
+                      color: L.text, size: 18),
+                ),
               ),
-            ).animate(onPlay: (c) => c.repeat(reverse: true)).scaleXY(begin: 0.9, end: 1.1, duration: 4.seconds),
+            ),
+            title: Text(
+              'Add Member',
+              style: AppTypography.titleLarge.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w800,
+                letterSpacing: -0.3,
+              ),
+            ),
+            centerTitle: true,
           ),
-          SafeArea(
-            child: SingleChildScrollView(
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.only(left: 24, right: 24, top: 24, bottom: 120),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Avatar Preview & Role
-                  Center(
-                    child: Column(
-                      children: [
-                        AnimatedPressable(
+          SliverPadding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
+                Center(
+                  child: Column(
+                    children: [
+                      Semantics(
+                        button: true,
+                        label: 'Add profile photo',
+                        child: AnimatedPressable(
                           onTap: _pickImage,
                           child: Container(
-                            width: 100,
-                            height: 100,
-                            padding: const EdgeInsets.all(4),
+                            width: 90,
+                            height: 90,
                             decoration: BoxDecoration(
                               shape: BoxShape.circle,
-                              gradient: LinearGradient(
-                                colors: [L.text.withValues(alpha: 0.3), L.text.withValues(alpha: 0.05)],
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                              ),
+                              color: L.card,
+                              boxShadow: AppShadows.soft,
+                              border: Border.all(
+                                  color: L.border.withValues(alpha: 0.1)),
                             ),
-                            child: Container(
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: L.card,
-                                border: Border.all(color: L.border.withValues(alpha: 0.1)),
-                              ),
-                              child: Center(
-                                child: _photoPath != null
-                                    ? ClipOval(
-                                        child: Image.file(
-                                          File(_photoPath!),
-                                          width: 100,
-                                          height: 100,
-                                          fit: BoxFit.cover,
-                                        ),
-                                      )
-                                    : Icon(
-                                        _selectedIcon,
-                                        size: 46,
-                                        color: L.text,
+                            child: Center(
+                              child: _photoPath != null
+                                  ? ClipOval(
+                                      child: Image.file(
+                                        File(_photoPath!),
+                                        width: 90,
+                                        height: 90,
+                                        fit: BoxFit.cover,
                                       ),
-                              ),
+                                    )
+                                  : Icon(
+                                      _selectedIcon,
+                                      size: 42,
+                                      color: L.text,
+                                    ),
                             ),
                           ),
-                        ).animate().scale(duration: 400.ms, curve: Curves.easeOutBack),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                          decoration: BoxDecoration(
-                            color: L.text.withValues(alpha: 0.05),
-                            borderRadius: BorderRadius.circular(99),
-                          ),
-                          child: Text(
-                            'Tap to add photo',
-                            style: AppTypography.labelSmall.copyWith(
-                              color: L.text.withValues(alpha: 0.7),
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          _selectedRole.toUpperCase(),
-                          style: AppTypography.labelSmall.copyWith(
-                            fontFamily: 'Courier',
-                            color: L.sub.withValues(alpha: 0.5),
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 2,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 40),
-
-                  // Basic Info Section
-                  _buildSectionHeader('BASIC INFORMATION', L),
-                  const SizedBox(height: 16),
-                  _buildInputField(
-                    controller: _nameController,
-                    hint: 'Full Name',
-                    L: L,
-                  ),
-                  const SizedBox(height: 16),
-                  
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildSelectorField(
-                          label: _dob == null ? 'Date of Birth' : '${_dob!.day}/${_dob!.month}/${_dob!.year}',
-                          icon: Icons.calendar_today_rounded,
-                          onTap: _selectDate,
-                          L: L,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildGenderPicker(L),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Tap to add photo',
+                        style: TextStyle(
+                            color: L.sub.withValues(alpha: 0.4), fontSize: 11),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 40),
-
-                  // Role Selector Grid
-                  _buildSectionHeader('RELATIONSHIP', L),
-                  const SizedBox(height: 16),
-                  GridView.count(
-                    shrinkWrap: true,
-                    physics: const NeverScrollableScrollPhysics(),
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 2.2,
-                    children: _roles.map((role) {
-                      final isSelected = _selectedRole == role['label'];
-                      return AnimatedPressable(
-                        onTap: () {
-                          HapticEngine.selection();
-                          setState(() {
-                            _selectedRole = role['label']!;
-                            _selectedIcon = role['icon'];
-                          });
-                        },
-                        child: ClipRRect(
+                ),
+                const SizedBox(height: 32),
+                _buildSectionHeader('BASIC DETAILS', L),
+                const SizedBox(height: 12),
+                _buildInputField(
+                  controller: _nameController,
+                  hint: 'Full Name',
+                  L: L,
+                ),
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildSelectorField(
+                        label: _dob == null
+                            ? 'Date of Birth'
+                            : '${_dob!.day}/${_dob!.month}/${_dob!.year}',
+                        icon: Icons.calendar_today_rounded,
+                        onTap: _selectDate,
+                        L: L,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(child: _buildGenderPicker(L)),
+                  ],
+                ),
+                const SizedBox(height: 32),
+                _buildSectionHeader('RELATIONSHIP', L),
+                const SizedBox(height: 12),
+                GridView.count(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  crossAxisCount: 2,
+                  mainAxisSpacing: 10,
+                  crossAxisSpacing: 10,
+                  childAspectRatio: 2.4,
+                  children: _roles.map((role) {
+                    final isSelected = _selectedRole == role['label'];
+                    return AnimatedPressable(
+                      onTap: () {
+                        HapticEngine.selection();
+                        setState(() {
+                          _selectedRole = role['label'];
+                          _selectedIcon = role['icon'];
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration:
+                            MedAiA11y.motion(context, AppDurations.micro),
+                        decoration: BoxDecoration(
+                          color: isSelected ? L.text : L.card,
                           borderRadius: BorderRadius.circular(20),
-                          child: BackdropFilter(
-                            filter: ImageFilter.blur(sigmaX: isSelected ? 0 : 20, sigmaY: isSelected ? 0 : 20),
-                            child: AnimatedContainer(
-                              duration: const Duration(milliseconds: 250),
-                              curve: Curves.easeOutCubic,
-                              decoration: BoxDecoration(
-                                color: isSelected ? L.text : L.card.withValues(alpha: 0.6),
-                                borderRadius: BorderRadius.circular(20),
-                                border: Border.all(
-                                  color: isSelected ? L.text : L.border.withValues(alpha: 0.1),
-                                ),
-                                boxShadow: isSelected ? [
-                                  BoxShadow(color: L.text.withValues(alpha: 0.2), blurRadius: 16, offset: const Offset(0, 6))
-                                ] : [],
+                          border: Border.all(
+                            color: isSelected
+                                ? L.text
+                                : L.border.withValues(alpha: 0.1),
+                          ),
+                          boxShadow: isSelected
+                              ? [
+                                  BoxShadow(
+                                    color: L.text.withValues(alpha: 0.2),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 6),
+                                  )
+                                ]
+                              : null,
+                        ),
+                        child: Center(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Icon(
+                                role['icon'],
+                                size: 16,
+                                color: isSelected ? L.bg : L.text,
                               ),
-                              child: Center(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      role['icon'],
-                                      size: 18,
-                                      color: isSelected ? L.bg : L.text,
-                                    ),
-                                    const SizedBox(width: 10),
-                                    Text(
-                                      role['label']!,
-                                      style: AppTypography.labelSmall.copyWith(
-                                        fontFamily: 'Courier',
-                                        color: isSelected ? L.bg : L.text,
-                                        fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
-                                      ),
-                                    ),
-                                  ],
+                              const SizedBox(width: 8),
+                              Text(
+                                role['label'],
+                                style: AppTypography.labelSmall.copyWith(
+                                  fontFamily: 'Courier',
+                                  color: isSelected ? L.bg : L.text,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w900
+                                      : FontWeight.w700,
                                 ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
-                      );
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 40),
-
-                  // Medical Notes
-                  _buildSectionHeader('MEDICAL NOTES / ALLERGIES', L),
-                  const SizedBox(height: 16),
-                  _buildInputField(
-                    controller: _notesController,
-                    hint: 'e.g. Penicillin allergy, diabetic...',
-                    maxLines: 3,
-                    L: L,
-                  ),
-                  const SizedBox(height: 40),
-
-                  // PIN Code
-                  _buildSectionHeader('PIN CODE (OPTIONAL)', L),
-                  const SizedBox(height: 16),
-                  _buildInputField(
-                    controller: _pinController,
-                    hint: '4-digit PIN (e.g. 1234)',
-                    maxLines: 1,
-                    keyboardType: TextInputType.number,
-                    maxLength: 4,
-                    L: L,
-                  ),
-                  const SizedBox(height: 40),
-
-                  // Critical Care Toggle
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-                      child: Container(
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          color: L.card.withValues(alpha: 0.6),
-                          borderRadius: BorderRadius.circular(24),
-                          border: Border.all(color: L.border.withValues(alpha: 0.1)),
-                        ),
-                        child: Row(
+                      ),
+                    );
+                  }).toList(),
+                ),
+                const SizedBox(height: 32),
+                _buildSectionHeader('SECURITY & PREFERENCES', L),
+                const SizedBox(height: 12),
+                _buildInputField(
+                  controller: _pinController,
+                  hint: '4-Digit PIN (Optional)',
+                  keyboardType: TextInputType.number,
+                  maxLength: 4,
+                  L: L,
+                ),
+                const SizedBox(height: 16),
+                MedAiDepthCard(
+                  padding: const EdgeInsets.all(20),
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Critical Care Member',
-                                    style: AppTypography.labelMedium.copyWith(fontWeight: FontWeight.w900, color: L.text),
-                                  ),
-                                  const SizedBox(height: 6),
-                                  Text(
-                                    'Prioritize alerts and monitoring',
-                                    style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.6)),
-                                  ),
-                                ],
+                            Text(
+                              'Critical Care Member',
+                              style: AppTypography.labelMedium.copyWith(
+                                fontWeight: FontWeight.w900,
+                                color: L.text,
                               ),
                             ),
-                            Switch.adaptive(
-                              value: _isCritical,
-                              activeTrackColor: L.text,
-                              onChanged: (v) => setState(() => _isCritical = v),
+                            const SizedBox(height: 4),
+                            Text(
+                              'Prioritize alerts and monitoring',
+                              style: AppTypography.labelSmall.copyWith(
+                                color: L.sub.withValues(alpha: 0.6),
+                              ),
                             ),
                           ],
                         ),
                       ),
-                    ),
+                      Semantics(
+                        toggled: _isCritical,
+                        label: 'Critical care member',
+                        child: Switch.adaptive(
+                          value: _isCritical,
+                          activeTrackColor: L.text,
+                          onChanged: (v) {
+                            HapticEngine.selection();
+                            setState(() => _isCritical = v);
+                          },
+                        ),
+                      ),
+                    ],
                   ),
-                  const SizedBox(height: 120),
-                ],
-              ),
+                ),
+                const SizedBox(height: 24),
+                _buildSectionHeader('MEDICAL NOTES / ALLERGIES', L),
+                const SizedBox(height: 12),
+                _buildInputField(
+                  controller: _notesController,
+                  hint: 'e.g. Penicillin allergy, diabetic...',
+                  maxLines: 3,
+                  L: L,
+                ),
+                const SizedBox(height: 40),
+                MedAiCTA(
+                  label: 'Save Profile',
+                  loading: _isSaving,
+                  semanticsLabel: 'Save family member profile',
+                  onTap: _isSaving ? null : _handleSave,
+                ),
+                SizedBox(height: MediaQuery.of(context).padding.bottom + 32),
+              ]),
             ),
           ),
         ],
-      ),
-      bottomNavigationBar: ClipRRect(
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-          child: Container(
-            padding: EdgeInsets.only(
-              left: 24, 
-              right: 24, 
-              top: 16, 
-              bottom: MediaQuery.of(context).padding.bottom + 16,
-            ),
-            decoration: BoxDecoration(
-              color: L.meshBg.withValues(alpha: 0.6),
-              border: Border(
-                top: BorderSide(color: L.border.withValues(alpha: 0.1)),
-              )
-            ),
-            child: SizedBox(
-              width: double.infinity,
-              height: 64,
-              child: ElevatedButton(
-                onPressed: _isSaving ? null : _handleSave,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: L.text,
-                  foregroundColor: L.bg,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(32)),
-                  elevation: 0,
-                  shadowColor: Colors.transparent,
-                ),
-                child: _isSaving
-                    ? const SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: AppShimmer(
-                          width: 24,
-                          height: 24,
-                          shape: BoxShape.circle,
-                        ),
-                      )
-                    : Text(
-                        'Confirm Member',
-                        style: AppTypography.labelLarge.copyWith(
-                          fontFamily: 'Courier',
-                          fontWeight: FontWeight.w900,
-                          color: L.bg,
-                          letterSpacing: 1.5,
-                        ),
-                      ),
-              ),
-            ).animate().slideY(begin: 1.0, end: 0, duration: 400.ms, curve: Curves.easeOutCubic),
-          ),
-        ),
       ),
     );
   }
@@ -492,7 +417,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
       title,
       style: AppTypography.labelSmall.copyWith(
         fontFamily: 'Courier',
-        color: L.sub.withValues(alpha: 0.5),
+        color: L.sub.withValues(alpha: 0.6),
         fontWeight: FontWeight.w900,
         letterSpacing: 2.0,
       ),
@@ -503,35 +428,35 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
     required TextEditingController controller,
     required String hint,
     int maxLines = 1,
-    TextInputType? keyboardType,
     int? maxLength,
+    TextInputType? keyboardType,
     required dynamic L,
   }) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          decoration: BoxDecoration(
-            color: L.card.withValues(alpha: 0.6),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: L.border.withValues(alpha: 0.1)),
-          ),
-          child: TextField(
-            controller: controller,
-            maxLines: maxLines,
-            keyboardType: keyboardType,
-            maxLength: maxLength,
-            buildCounter: (context, {required currentLength, required isFocused, maxLength}) => null,
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: TextStyle(color: L.sub.withValues(alpha: 0.3)),
-              border: InputBorder.none,
-              contentPadding: const EdgeInsets.all(20),
-              counterText: '',
-            ),
-            style: AppTypography.labelMedium.copyWith(color: L.text, fontWeight: FontWeight.w600),
-          ),
+    return Container(
+      decoration: BoxDecoration(
+        color: L.card.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: L.border.withValues(alpha: 0.08)),
+      ),
+      child: TextField(
+        controller: controller,
+        maxLines: maxLines,
+        maxLength: maxLength,
+        keyboardType: keyboardType,
+        obscureText: maxLength == 4,
+        buildCounter: (context,
+                {required currentLength, required isFocused, maxLength}) =>
+            null,
+        decoration: InputDecoration(
+          hintText: hint,
+          hintStyle: TextStyle(color: L.sub.withValues(alpha: 0.3)),
+          border: InputBorder.none,
+          contentPadding: const EdgeInsets.all(20),
+          counterText: '',
+        ),
+        style: AppTypography.labelMedium.copyWith(
+          color: L.text,
+          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -545,35 +470,32 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
   }) {
     return AnimatedPressable(
       onTap: onTap,
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            height: 64,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            decoration: BoxDecoration(
-              color: L.card.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: L.border.withValues(alpha: 0.1)),
-            ),
-            child: Row(
-              children: [
-                Icon(icon, size: 20, color: L.sub.withValues(alpha: 0.6)),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Text(
-                    label,
-                    style: AppTypography.labelSmall.copyWith(
-                      color: label.contains('/') ? L.text : L.sub.withValues(alpha: 0.5),
-                      fontWeight: label.contains('/') ? FontWeight.w800 : FontWeight.w600,
-                    ),
-                    overflow: TextOverflow.ellipsis,
-                  ),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        decoration: BoxDecoration(
+          color: L.card.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: L.border.withValues(alpha: 0.08)),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, size: 20, color: L.sub.withValues(alpha: 0.6)),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                label,
+                style: AppTypography.labelSmall.copyWith(
+                  color: label.contains('/')
+                      ? L.text
+                      : L.sub.withValues(alpha: 0.5),
+                  fontWeight:
+                      label.contains('/') ? FontWeight.w800 : FontWeight.w600,
                 ),
-              ],
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
-          ),
+          ],
         ),
       ),
     );
@@ -585,29 +507,30 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
         HapticEngine.selection();
         setState(() => _gender = _gender == 'Male' ? 'Female' : 'Male');
       },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(24),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            height: 64,
-            decoration: BoxDecoration(
-              color: L.card.withValues(alpha: 0.6),
-              borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: L.border.withValues(alpha: 0.1)),
+      child: Container(
+        constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+        decoration: BoxDecoration(
+          color: L.card.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: L.border.withValues(alpha: 0.08)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              _gender == 'Male' ? Icons.male_rounded : Icons.female_rounded,
+              color: L.sub.withValues(alpha: 0.6),
+              size: 20,
             ),
-            child: Center(
-              child: Text(
-                _gender.toUpperCase(),
-                style: AppTypography.labelSmall.copyWith(
-                  fontFamily: 'Courier',
-                  color: L.text,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.5,
-                ),
+            const SizedBox(width: 8),
+            Text(
+              _gender,
+              style: AppTypography.labelMedium.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w600,
               ),
             ),
-          ),
+          ],
         ),
       ),
     );

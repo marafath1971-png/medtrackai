@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../../../../providers/app_state.dart';
-import '../../../../theme/app_theme.dart';
+import '../../../../theme/med_ai_ui.dart';
+import '../../../../widgets/common/animated_pressable.dart';
 import '../../../../core/utils/refill_helper.dart';
 import 'settings_shared.dart';
-import '../../../../widgets/shared/shared_widgets.dart';
 import '../../../stats/widgets/weekly_wellness_ring.dart';
 import '../../../stats/widgets/predictive_insight_card.dart';
 import '../../../../providers/controllers/wellness_controller.dart';
@@ -89,25 +89,20 @@ class StatsTab extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),
       child: Column(children: [
         // Adherence Hero
-        Container(
+        MedAiDepthCard(
+          accentGlow: true,
           padding: const EdgeInsets.all(24),
-          decoration: BoxDecoration(
-              color: L.card,
-              borderRadius: BorderRadius.circular(28),
-              border: Border.all(
-                  color: L.border.withValues(alpha: 0.1), width: 0.5),
-              boxShadow: AppShadows.neumorphic),
+          radius: 28,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('HEALTH SCORE',
-                    style: AppTypography.labelLarge.copyWith(
-                        fontSize: 10,
-                        fontWeight: FontWeight.w900,
-                        color: L.sub.withValues(alpha: 0.5),
-                        letterSpacing: 2.0)),
+                Text('Health score',
+                    style: AppTypography.titleMedium.copyWith(
+                        fontWeight: FontWeight.w800,
+                        color: L.text,
+                        letterSpacing: -0.2)),
                 Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
@@ -116,11 +111,11 @@ class StatsTab extends StatelessWidget {
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
-                    "OPTIMIZED",
+                    "Optimized",
                     style: AppTypography.labelSmall.copyWith(
-                      color: L.text.withValues(alpha: 0.6),
+                      color: L.sub,
                       fontSize: 10,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -130,11 +125,10 @@ class StatsTab extends StatelessWidget {
             Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Text('$overallAdh%',
                   style: AppTypography.displayLarge.copyWith(
-                      fontFamily: 'Courier',
-                      fontSize: 64,
-                      fontWeight: FontWeight.w900,
+                      fontSize: 56,
+                      fontWeight: FontWeight.w800,
                       color: L.text,
-                      letterSpacing: -4,
+                      letterSpacing: -2,
                       height: 0.9)),
               const SizedBox(width: 12),
               Expanded(
@@ -146,14 +140,14 @@ class StatsTab extends StatelessWidget {
                     children: [
                       Text(
                           overallAdh >= 80
-                              ? 'EXCELLENT'
+                              ? 'Excellent'
                               : (overallAdh >= 60
-                                  ? 'STABLE'
-                                  : 'ACTION REQUIRED'),
+                                  ? 'Stable'
+                                  : 'Needs attention'),
                           style: AppTypography.labelLarge.copyWith(
-                              fontSize: 11,
-                              fontWeight: FontWeight.w900,
-                              letterSpacing: 1.2,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 0.1,
                               color: overallAdh >= 80
                                   ? const Color(0xFF34C759)
                                   : (overallAdh >= 60
@@ -161,11 +155,11 @@ class StatsTab extends StatelessWidget {
                                       : const Color(0xFFFF453A)))),
                       const SizedBox(height: 2),
                       Text(
-                        "ADHERENCE PRECISION",
-                        style: AppTypography.labelSmall.copyWith(
-                          color: L.sub.withValues(alpha: 0.5),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
+                        "Adherence",
+                        style: AppTypography.bodySmall.copyWith(
+                          color: L.sub,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                     ],
@@ -216,12 +210,11 @@ class StatsTab extends StatelessWidget {
 
         // 🧠 AI PREDICTIVE INSIGHTS (Phase 5.0)
         if (wellness.predictions.isNotEmpty) ...[
-          Text('SMART PATTERNS',
-              style: AppTypography.labelLarge.copyWith(
-                  fontSize: 10,
-                  fontWeight: FontWeight.w900,
-                  color: L.sub.withValues(alpha: 0.5),
-                  letterSpacing: 2.0)),
+          Text('Smart patterns',
+              style: AppTypography.titleMedium.copyWith(
+                  fontWeight: FontWeight.w800,
+                  color: L.text,
+                  letterSpacing: -0.2)),
           const SizedBox(height: 12),
           ...wellness.predictions.map((p) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
@@ -239,7 +232,7 @@ class StatsTab extends StatelessWidget {
                 color: L.card,
                 borderRadius: BorderRadius.circular(28),
                 border: Border.all(color: L.border.withValues(alpha: 0.1), width: 0.5),
-                boxShadow: AppShadows.neumorphic,
+                boxShadow: AppShadows.soft,
               ),
               child: Center(
                 child: WeeklyWellnessRing(
@@ -309,7 +302,7 @@ class StatsTab extends StatelessWidget {
                 borderRadius: BorderRadius.circular(24),
                 border: Border.all(
                     color: L.border.withValues(alpha: 0.08), width: 0.5),
-                boxShadow: AppShadows.neumorphic,
+                boxShadow: AppShadows.soft,
               ),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
@@ -351,7 +344,7 @@ class StatsTab extends StatelessWidget {
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                           color: L.border.withValues(alpha: 0.08), width: 0.5),
-                      boxShadow: AppShadows.neumorphic,
+                      boxShadow: AppShadows.soft,
                     ),
                     child: Center(
                       child: Text('No symptoms recorded',
@@ -371,7 +364,7 @@ class StatsTab extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: L.card,
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: AppShadows.neumorphic,
+                          boxShadow: AppShadows.soft,
                           border: Border.all(
                               color: L.border.withValues(alpha: 0.08),
                               width: 0.5),
@@ -387,7 +380,7 @@ class StatsTab extends StatelessWidget {
                               child: Center(
                                 child: Text('${s.severity}',
                                     style: AppTypography.labelSmall.copyWith(
-                                        fontWeight: FontWeight.w900,
+                                        fontWeight: FontWeight.w800,
                                         color: color)),
                               ),
                             ),
@@ -432,7 +425,7 @@ class StatsTab extends StatelessWidget {
                       borderRadius: BorderRadius.circular(24),
                       border: Border.all(
                           color: L.border.withValues(alpha: 0.08), width: 0.5),
-                      boxShadow: AppShadows.neumorphic,
+                      boxShadow: AppShadows.soft,
                     ),
                     child: Center(
                       child: Text('No medications tracked',
@@ -450,7 +443,7 @@ class StatsTab extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: L.card,
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow: AppShadows.neumorphic,
+                          boxShadow: AppShadows.soft,
                           border: Border.all(
                               color: L.border.withValues(alpha: 0.08),
                               width: 0.5),
@@ -502,7 +495,7 @@ class StatsTab extends StatelessWidget {
                                         Text('${m.count}',
                                             style: AppTypography.labelLarge
                                                 .copyWith(
-                                                    fontWeight: FontWeight.w900,
+                                                    fontWeight: FontWeight.w800,
                                                     color: L.text)),
                                         Text('left',
                                             style: AppTypography.labelSmall
@@ -512,27 +505,36 @@ class StatsTab extends StatelessWidget {
                                       ],
                                     ),
                                     const SizedBox(width: 16),
-                                    BouncingButton(
-                                      onTap: () => state.refillMedication(m.id),
-                                      child: Container(
-                                        padding: const EdgeInsets.symmetric(
-                                            horizontal: 10, vertical: 6),
-                                        decoration: BoxDecoration(
-                                          color: L.text.withValues(alpha: 0.05),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                          border: Border.all(
-                                              color: L.text
-                                                  .withValues(alpha: 0.1)),
-                                        ),
-                                        child: Text(
-                                          'REFILL',
-                                          style:
-                                              AppTypography.labelSmall.copyWith(
-                                            color: L.text,
-                                            fontWeight: FontWeight.w900,
-                                            fontSize: 10,
-                                            letterSpacing: 0.5,
+                                    Semantics(
+                                      button: true,
+                                      label: 'Refill ${m.name}',
+                                      child: AnimatedPressable(
+                                        onTap: () =>
+                                            state.refillMedication(m.id),
+                                        child: Container(
+                                          constraints: const BoxConstraints(
+                                              minHeight:
+                                                  MedAiA11y.minTapTarget),
+                                          padding: const EdgeInsets.symmetric(
+                                              horizontal: 12, vertical: 8),
+                                          decoration: BoxDecoration(
+                                            color:
+                                                L.text.withValues(alpha: 0.05),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            border: Border.all(
+                                                color: L.text
+                                                    .withValues(alpha: 0.1)),
+                                          ),
+                                          child: Text(
+                                            'Refill',
+                                            style: AppTypography.labelSmall
+                                                .copyWith(
+                                              color: L.text,
+                                              fontWeight: FontWeight.w800,
+                                              fontSize: 10,
+                                              letterSpacing: 0.5,
+                                            ),
                                           ),
                                         ),
                                       ),

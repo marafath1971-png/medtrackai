@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../providers/app_state.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
+import '../../../widgets/common/animated_pressable.dart';
+import 'package:go_router/go_router.dart';
+import '../../../app/app_routes.dart';
 import '../../../core/utils/haptic_engine.dart';
-import '../../stats/analytics_dashboard_screen.dart';
-import 'package:medai/widgets/common/animated_pressable.dart';
 
 class HomeStatsGrid extends StatelessWidget {
   final AppState state;
@@ -27,6 +28,7 @@ class HomeStatsGrid extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
     final adherence = (state.getAdherenceScore() * 100).round();
     final streak = state.getStreak();
     final now = DateTime.now();
@@ -51,21 +53,24 @@ class HomeStatsGrid extends StatelessWidget {
               // Main Progress Card (Bento Style)
               Expanded(
                 flex: 6,
-                child: _BentoMetricCard(
-                  emoji: '📈',
-                  iconColor: L.primary,
-                  label: 'Daily Progress',
-                  value: '${(dosePct * 100).round()}%',
-                  unit: 'complete',
-                  sublabel: '$takenCount of ${doses.length} doses taken',
-                  sparklineData: _buildWeeklyData(state),
-                  sparklineColor: L.primary,
-                  L: L,
-                  onTap: () {
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => const AnalyticsDashboardScreen()));
-                  },
-                ).animate().fadeIn(duration: 600.ms).scale(
-                    begin: const Offset(0.98, 0.98), curve: Curves.easeOutBack),
+                child: _entrance(
+                  reduceMotion,
+                  _BentoMetricCard(
+                    emoji: '📈',
+                    iconColor: L.primary,
+                    label: 'Daily Progress',
+                    value: '${(dosePct * 100).round()}%',
+                    unit: 'complete',
+                    sublabel: '$takenCount of ${doses.length} doses taken',
+                    sparklineData: _buildWeeklyData(state),
+                    sparklineColor: L.primary,
+                    L: L,
+                    reduceMotion: reduceMotion,
+                    onTap: () {
+                      context.push(AppRoutes.statsAnalytics);
+                    },
+                  ),
+                ),
               ),
               const SizedBox(width: AppSpacing.p12),
               // Secondary Stats Stacked
@@ -74,32 +79,36 @@ class HomeStatsGrid extends StatelessWidget {
                 child: Column(
                   children: [
                     Expanded(
-                      child: _BentoSmallCard(
-                        emoji: streak > 0 ? '⚡' : '🛡️',
-                        label: 'Streak',
-                        value: '$streak days',
-                        valueColor: L.warning,
-                        L: L,
-                      )
-                          .animate(delay: 100.ms)
-                          .fadeIn(duration: 600.ms)
-                          .slideX(begin: 0.1, end: 0),
+                      child: _entrance(
+                        reduceMotion,
+                        _BentoSmallCard(
+                          emoji: streak > 0 ? '⚡' : '🛡️',
+                          label: 'Streak',
+                          value: '$streak days',
+                          valueColor: L.warning,
+                          L: L,
+                          reduceMotion: reduceMotion,
+                        ),
+                        delay: 100.ms,
+                      ),
                     ),
                     const SizedBox(height: AppSpacing.p12),
                     Expanded(
-                      child: _BentoSmallCard(
-                        emoji: '📈',
-                        label: 'Adherence',
-                        value: '$adherence%',
-                        valueColor: L.success,
-                        L: L,
-                        onTap: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (_) => const AnalyticsDashboardScreen()));
-                        },
-                      )
-                          .animate(delay: 200.ms)
-                          .fadeIn(duration: 600.ms)
-                          .slideX(begin: 0.1, end: 0),
+                      child: _entrance(
+                        reduceMotion,
+                        _BentoSmallCard(
+                          emoji: '📈',
+                          label: 'Adherence',
+                          value: '$adherence%',
+                          valueColor: L.success,
+                          L: L,
+                          reduceMotion: reduceMotion,
+                          onTap: () {
+                            context.push(AppRoutes.statsAnalytics);
+                          },
+                        ),
+                        delay: 200.ms,
+                      ),
                     ),
                   ],
                 ),
@@ -112,10 +121,11 @@ class HomeStatsGrid extends StatelessWidget {
 
         // ── MIDDLE ROW: Next Dose (Full Width Premium) ──
         if (nextDose != null)
-          _NextDoseCard(dose: nextDose, nowM: nowM, L: L)
-              .animate(delay: 300.ms)
-              .fadeIn(duration: 800.ms)
-              .slideY(begin: 0.1, end: 0),
+          _entrance(
+            reduceMotion,
+            _NextDoseCard(dose: nextDose, nowM: nowM, L: L, reduceMotion: reduceMotion),
+            delay: 300.ms,
+          ),
 
         const SizedBox(height: AppSpacing.p12),
 
@@ -125,54 +135,58 @@ class HomeStatsGrid extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Expanded(
-                child: _BentoMetricCard(
-                  emoji: '📦',
-                  iconColor: const Color(0xFFEF5350),
-                  label: 'Inventory',
-                  value: '${state.getLowStockCount()}',
-                  unit: 'low',
-                  sublabel: state.getLowStockCount() == 0
-                      ? 'Stocks healthy'
-                      : '${state.getLowStockCount()} refill needed',
-                  sparklineData: _buildStockData(state),
-                  sparklineColor: const Color(0xFFEF5350),
-                  L: L,
-                )
-                    .animate(delay: 400.ms)
-                    .fadeIn(duration: 600.ms)
-                    .slideY(begin: 0.1, end: 0),
+                child: _entrance(
+                  reduceMotion,
+                  _BentoMetricCard(
+                    emoji: '📦',
+                    iconColor: const Color(0xFFEF5350),
+                    label: 'Inventory',
+                    value: '${state.getLowStockCount()}',
+                    unit: 'low',
+                    sublabel: state.getLowStockCount() == 0
+                        ? 'Stocks healthy'
+                        : '${state.getLowStockCount()} refill needed',
+                    sparklineData: _buildStockData(state),
+                    sparklineColor: const Color(0xFFEF5350),
+                    L: L,
+                    reduceMotion: reduceMotion,
+                  ),
+                  delay: 400.ms,
+                ),
               ),
               const SizedBox(width: AppSpacing.p12),
               Expanded(
-                child: _BentoMetricCard(
-                  emoji: '✨',
-                  iconColor: const Color(0xFFF59E0B),
-                  label: 'Mood',
-                  value: state.getMoodSummary(
-                    good: 'Good',
-                    stable: 'Stable',
-                    severe: 'Severe',
-                    empty: '-',
-                  )['value']!,
-                  unit: state.getMoodSummary(
-                    good: 'Good',
-                    stable: 'Stable',
-                    severe: 'Severe',
-                    empty: '-',
-                  )['unit']!,
-                  sublabel: state.getMoodSummary(
-                    good: 'Good',
-                    stable: 'Stable',
-                    severe: 'Severe',
-                    empty: 'No logs',
-                  )['sublabel']!,
-                  sparklineData: state.getRecentSymptomStats(),
-                  sparklineColor: const Color(0xFFF59E0B),
-                  L: L,
-                )
-                    .animate(delay: 500.ms)
-                    .fadeIn(duration: 600.ms)
-                    .slideY(begin: 0.1, end: 0),
+                child: _entrance(
+                  reduceMotion,
+                  _BentoMetricCard(
+                    emoji: '✨',
+                    iconColor: const Color(0xFFF59E0B),
+                    label: 'Mood',
+                    value: state.getMoodSummary(
+                      good: 'Good',
+                      stable: 'Stable',
+                      severe: 'Severe',
+                      empty: '-',
+                    )['value']!,
+                    unit: state.getMoodSummary(
+                      good: 'Good',
+                      stable: 'Stable',
+                      severe: 'Severe',
+                      empty: '-',
+                    )['unit']!,
+                    sublabel: state.getMoodSummary(
+                      good: 'Good',
+                      stable: 'Stable',
+                      severe: 'Severe',
+                      empty: 'No logs',
+                    )['sublabel']!,
+                    sparklineData: state.getRecentSymptomStats(),
+                    sparklineColor: const Color(0xFFF59E0B),
+                    L: L,
+                    reduceMotion: reduceMotion,
+                  ),
+                  delay: 500.ms,
+                ),
               ),
             ],
           ),
@@ -194,6 +208,14 @@ class HomeStatsGrid extends StatelessWidget {
   List<double> _buildStockData(AppState state) {
     return state.inventoryHistory;
   }
+
+  static Widget _entrance(bool reduceMotion, Widget child, {Duration? delay}) {
+    if (reduceMotion) return child;
+    return child
+        .animate(delay: delay)
+        .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
+        .slideY(begin: 0.08, end: 0, curve: AppCurves.smooth);
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -209,6 +231,7 @@ class _BentoMetricCard extends StatelessWidget {
   final List<double> sparklineData;
   final Color sparklineColor;
   final AppThemeColors L;
+  final bool reduceMotion;
 
   const _BentoMetricCard({
     required this.emoji,
@@ -221,23 +244,41 @@ class _BentoMetricCard extends StatelessWidget {
     required this.sparklineColor,
     required this.L,
     this.onTap,
+    this.reduceMotion = false,
   });
 
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return _PressableCard(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.p16),
-        decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(AppRadius.squircle),
-          border:
-              Border.all(color: L.border.withValues(alpha: 0.07), width: 0.5),
-          boxShadow: AppShadows.neumorphic,
+    Widget sparkline = SizedBox(
+      height: 32,
+      child: CustomPaint(
+        size: const Size(double.infinity, 32),
+        painter: _SparklinePainter(
+          data: sparklineData,
+          color: sparklineColor,
         ),
+      ),
+    );
+    if (!reduceMotion) {
+      sparkline = sparkline
+          .animate(onPlay: (c) => c.repeat())
+          .shimmer(duration: 2500.ms, color: Colors.white.withValues(alpha: 0.3));
+    }
+
+    return Semantics(
+      button: onTap != null,
+      label: onTap != null ? '$label, $value $unit' : null,
+      child: MedAiDepthCard(
+        padding: const EdgeInsets.all(AppSpacing.p16),
+        radius: AppRadius.squircle,
+        onTap: onTap != null
+            ? () {
+                HapticEngine.selection();
+                onTap!();
+              }
+            : null,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -257,13 +298,14 @@ class _BentoMetricCard extends StatelessWidget {
                 const SizedBox(width: AppSpacing.p8),
                 Expanded(
                   child: Text(
-                    label.toUpperCase(),
+                    label,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.6),
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.0,
-                      fontSize: 10,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: L.sub,
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.1,
+                      fontSize: 11,
                     ),
                   ),
                 ),
@@ -276,8 +318,9 @@ class _BentoMetricCard extends StatelessWidget {
               children: [
                 Text(
                   value,
-                  style: AppTypography.displaySmall.copyWith(color: L.text,
-                    fontWeight: FontWeight.w900,
+                  style: AppTypography.displaySmall.copyWith(
+                    color: L.text,
+                    fontWeight: FontWeight.w800,
                     letterSpacing: -1.0,
                     height: 1.0,
                   ),
@@ -286,7 +329,8 @@ class _BentoMetricCard extends StatelessWidget {
                   const SizedBox(width: 4),
                   Text(
                     unit,
-                    style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.8),
+                    style: AppTypography.labelSmall.copyWith(
+                      color: L.sub.withValues(alpha: 0.8),
                       fontWeight: FontWeight.w700,
                     ),
                   ),
@@ -298,23 +342,14 @@ class _BentoMetricCard extends StatelessWidget {
               sublabel,
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
-              style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.5),
+              style: AppTypography.labelSmall.copyWith(
+                color: L.sub.withValues(alpha: 0.5),
                 fontSize: 10,
                 fontWeight: FontWeight.w600,
               ),
             ),
             const SizedBox(height: AppSpacing.p16),
-            SizedBox(
-              height: 32,
-              child: CustomPaint(
-                size: const Size(double.infinity, 32),
-                painter: _SparklinePainter(
-                  data: sparklineData,
-                  color: sparklineColor,
-                ),
-              ).animate(onPlay: (c) => c.repeat())
-               .shimmer(duration: 2500.ms, color: Colors.white.withValues(alpha: 0.3)),
-            ),
+            sparkline,
           ],
         ),
       ),
@@ -331,6 +366,7 @@ class _BentoSmallCard extends StatelessWidget {
   final String value;
   final Color valueColor;
   final AppThemeColors L;
+  final bool reduceMotion;
 
   const _BentoSmallCard({
     required this.emoji,
@@ -339,51 +375,60 @@ class _BentoSmallCard extends StatelessWidget {
     required this.valueColor,
     required this.L,
     this.onTap,
+    this.reduceMotion = false,
   });
 
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return _PressableCard(
-      onTap: onTap,
-      child: Container(
+    Widget emojiWidget = Text(emoji, style: const TextStyle(fontSize: 22));
+    if (!reduceMotion) {
+      emojiWidget = emojiWidget
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scale(
+            begin: const Offset(1.0, 1.0),
+            end: const Offset(1.22, 1.22),
+            duration: 1600.ms,
+            curve: Curves.easeInOut,
+          );
+    }
+
+    return Semantics(
+      button: onTap != null,
+      label: '$label, $value',
+      child: MedAiDepthCard(
         padding: const EdgeInsets.all(AppSpacing.p12),
-        decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(AppRadius.squircle),
-          border:
-              Border.all(color: L.border.withValues(alpha: 0.07), width: 0.5),
-          boxShadow: AppShadows.neumorphic,
-        ),
+        radius: AppRadius.squircle,
+        onTap: onTap != null
+            ? () {
+                HapticEngine.selection();
+                onTap!();
+              }
+            : null,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(emoji, style: const TextStyle(fontSize: 22))
-                .animate(onPlay: (c) => c.repeat(reverse: true))
-                .scale(
-                  begin: const Offset(1.0, 1.0),
-                  end: const Offset(1.22, 1.22),
-                  duration: 1600.ms,
-                  curve: Curves.easeInOut,
-                ),
+            emojiWidget,
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   value,
-                  style: AppTypography.titleLarge.copyWith(color: valueColor,
-                    fontWeight: FontWeight.w900,
+                  style: AppTypography.titleLarge.copyWith(
+                    color: valueColor,
+                    fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
                   ),
                 ),
                 Text(
-                  label.toUpperCase(),
-                  style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.6),
-                    fontWeight: FontWeight.w900,
-                    fontSize: 10,
-                    letterSpacing: 1.0,
+                  label,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: L.sub,
+                    fontWeight: FontWeight.w600,
+                    fontSize: 11,
+                    letterSpacing: 0.1,
                   ),
                 ),
               ],
@@ -402,8 +447,14 @@ class _NextDoseCard extends StatelessWidget {
   final DoseItem dose;
   final int nowM;
   final AppThemeColors L;
-  const _NextDoseCard(
-      {required this.dose, required this.nowM, required this.L});
+  final bool reduceMotion;
+
+  const _NextDoseCard({
+    required this.dose,
+    required this.nowM,
+    required this.L,
+    this.reduceMotion = false,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -412,28 +463,30 @@ class _NextDoseCard extends StatelessWidget {
     final timeLabel = diff <= 60
         ? 'in $diff min'
         : 'at ${dose.sched.h}:${dose.sched.m.toString().padLeft(2, '0')}';
-    // Contextual emoji: urgent ⚡, soon ⏰, scheduled 💊
     final doseEmoji = diff <= 15 ? '⚡' : (diff <= 60 ? '⏱️' : '🛡️');
     final pulseMs = diff <= 15 ? 700 : (diff <= 60 ? 1000 : 1600);
 
-    return _PressableCard(
-      child: Container(
+    Widget emojiInner = Text(doseEmoji, style: const TextStyle(fontSize: 26));
+    if (!reduceMotion) {
+      emojiInner = emojiInner
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scale(
+            begin: const Offset(1.0, 1.0),
+            end: const Offset(1.25, 1.25),
+            duration: Duration(milliseconds: pulseMs),
+            curve: Curves.easeInOut,
+          );
+    }
+
+    return Semantics(
+      label: 'Next dose: ${dose.med.name}, $timeLabel',
+      child: MedAiDepthCard(
+        color: Colors.black,
         padding: const EdgeInsets.all(AppSpacing.p16),
-        decoration: BoxDecoration(
-          color: Colors.black,
-          borderRadius: BorderRadius.circular(AppRadius.squircle),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.22),
-              blurRadius: 32,
-              offset: const Offset(0, 16),
-              spreadRadius: -8,
-            ),
-          ],
-        ),
+        radius: AppRadius.squircle,
+        accentGlow: !reduceMotion,
         child: Row(
           children: [
-            // Animated emoji pill
             Container(
               width: 52,
               height: 52,
@@ -441,17 +494,7 @@ class _NextDoseCard extends StatelessWidget {
                 color: L.onPrimary.withValues(alpha: 0.12),
                 borderRadius: BorderRadius.circular(AppRadius.m),
               ),
-              child: Center(
-                child: Text(
-                  doseEmoji,
-                  style: const TextStyle(fontSize: 26),
-                ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
-                      begin: const Offset(1.0, 1.0),
-                      end: const Offset(1.25, 1.25),
-                      duration: Duration(milliseconds: pulseMs),
-                      curve: Curves.easeInOut,
-                    ),
-              ),
+              child: Center(child: emojiInner),
             ),
             const SizedBox(width: AppSpacing.p16),
             Expanded(
@@ -459,16 +502,18 @@ class _NextDoseCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'NEXT DOSE',
-                    style: AppTypography.labelSmall.copyWith(fontFamily: 'Courier', color: L.onPrimary.withValues(alpha: 0.65),
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 1.0,
+                    'Next dose',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: L.onPrimary.withValues(alpha: 0.75),
+                      fontWeight: FontWeight.w600,
+                      letterSpacing: 0.1,
                     ),
                   ),
                   Text(
                     dose.med.name,
-                    style: AppTypography.headlineSmall.copyWith(fontFamily: 'Courier', color: L.onPrimary,
-                      fontWeight: FontWeight.w900,
+                    style: AppTypography.headlineSmall.copyWith(
+                      color: L.onPrimary,
+                      fontWeight: FontWeight.w800,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
@@ -484,10 +529,11 @@ class _NextDoseCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(AppRadius.max),
               ),
               child: Text(
-                timeLabel.toUpperCase(),
-                style: AppTypography.labelMedium.copyWith(fontFamily: 'Courier', color: L.primary,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 1.0,
+                timeLabel,
+                style: AppTypography.labelMedium.copyWith(
+                  color: L.primary,
+                  fontWeight: FontWeight.w700,
+                  letterSpacing: 0.1,
                 ),
               ),
             ),
@@ -564,68 +610,43 @@ class _SparklinePainter extends CustomPainter {
 }
 
 // ─────────────────────────────────────────────────────────────
-// PRESSABLE CARD WRAPPER
-// ─────────────────────────────────────────────────────────────
-class _PressableCard extends StatefulWidget {
-  final Widget child;
-  final VoidCallback? onTap;
-  const _PressableCard({required this.child, this.onTap});
-
-  @override
-  State<_PressableCard> createState() => _PressableCardState();
-}
-
-class _PressableCardState extends State<_PressableCard> {
-  bool _pressed = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return AnimatedPressable(
-      onTapDown: (_) => setState(() => _pressed = true),
-      onTapUp: (_) => setState(() => _pressed = false),
-      onTapCancel: () => setState(() => _pressed = false),
-      onTap: () {
-        HapticEngine.selection();
-        if (widget.onTap != null) widget.onTap!();
-      },
-      child: AnimatedScale(
-        scale: _pressed ? 0.97 : 1.0,
-        duration: 150.ms,
-        curve: Curves.easeOutQuart,
-        child: widget.child,
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────
 // SHARED HEADER ACTION BTN
 // ─────────────────────────────────────────────────────────────
 class HeaderActionBtn extends StatelessWidget {
   final Widget child;
   final VoidCallback onTap;
   final Color? backgroundColor;
+  final String? semanticsLabel;
 
-  const HeaderActionBtn(
-      {super.key,
-      required this.child,
-      required this.onTap,
-      this.backgroundColor});
+  const HeaderActionBtn({
+    super.key,
+    required this.child,
+    required this.onTap,
+    this.backgroundColor,
+    this.semanticsLabel,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedPressable(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        width: 44,
-        height: 44,
-        decoration: BoxDecoration(
-          color: backgroundColor ?? Colors.white,
-          borderRadius: BorderRadius.circular(AppRadius.max),
-          boxShadow: AppShadows.neumorphic,
+    return Semantics(
+      button: true,
+      label: semanticsLabel,
+      child: AnimatedPressable(
+        onTap: () {
+          HapticEngine.selection();
+          onTap();
+        },
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          width: MedAiA11y.minTapTarget,
+          height: MedAiA11y.minTapTarget,
+          decoration: BoxDecoration(
+            color: backgroundColor ?? Colors.white,
+            borderRadius: BorderRadius.circular(AppRadius.max),
+            boxShadow: AppShadows.soft,
+          ),
+          child: Center(child: child),
         ),
-        child: Center(child: child),
       ),
     );
   }

@@ -1,17 +1,20 @@
 import 'dart:math' as math;
-import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import '../../../theme/app_theme.dart';
-import '../../../core/utils/haptic_engine.dart';
-import '../../../services/gemini_service.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:medai/providers/app_state.dart';
 import 'package:medai/screens/paywall/premium_paywall_overlay.dart';
+
+import '../../app/app_routes.dart';
+import '../../core/utils/haptic_engine.dart';
+import '../../services/gemini_service.dart';
 import '../../services/growth_tracker.dart';
-import '../../screens/medicine/medicine_detail_screen.dart';
-import 'package:medai/widgets/shared/shared_widgets.dart';
+import '../../theme/med_ai_ui.dart';
+import '../common/animated_pressable.dart';
+import '../shared/shared_widgets.dart' show DopamineBurstOverlay;
 
 // ══════════════════════════════════════════════
 // AI QUICK LOG SHEET
@@ -63,12 +66,15 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
     _pulseCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 1200),
-    )..repeat(reverse: true);
+    );
     _burstCtrl = AnimationController(
       vsync: this,
       duration: const Duration(milliseconds: 800),
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && !MedAiA11y.reducedMotion(context)) {
+        _pulseCtrl.repeat(reverse: true);
+      }
       _initSpeech();
       GrowthTracker.trackVoiceLog(success: false, fallback: false);
       Future.delayed(const Duration(milliseconds: 300), () {
@@ -265,92 +271,77 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
   Widget build(BuildContext context) {
     final L = context.L;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+
+    Widget headerIcon = Container(
+      width: MedAiA11y.minTapTargetCompact,
+      height: MedAiA11y.minTapTargetCompact,
+      decoration: BoxDecoration(
+        gradient: AppGradients.accentOrange,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: AppShadows.glow(L.accent, intensity: 0.3),
+      ),
+      child: const Center(
+        child: Icon(Icons.auto_awesome_rounded, color: Colors.black, size: 22),
+      ),
+    );
+    if (!reduceMotion) {
+      headerIcon = headerIcon
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scaleXY(
+            begin: 1.0,
+            end: 1.05,
+            duration: 1500.ms,
+            curve: Curves.easeInOutSine,
+          );
+    }
 
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-        child: Container(
-          padding: EdgeInsets.fromLTRB(24, 12, 24, 24 + bottom),
-          decoration: BoxDecoration(
-            color: L.bg.withValues(alpha: 0.7),
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(40)),
-            border: Border(
-              top: BorderSide(
-                color: AppColors.accent.withValues(alpha: 0.3),
-                width: 1.5,
+      borderRadius: const BorderRadius.vertical(
+          top: Radius.circular(AppRadius.squircle)),
+      child: MedAiGlass(
+        radius: AppRadius.squircle,
+        showBorder: false,
+        padding: EdgeInsets.fromLTRB(24, 12, 24, 24 + bottom),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: L.border.withValues(alpha: 0.3),
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.accent.withValues(alpha: 0.08),
-                blurRadius: 60,
-                spreadRadius: 20,
-              ),
-            ],
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              // Handle
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: L.border.withValues(alpha: 0.3),
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 24),
-
-              // Header
-              Row(
-                children: [
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      gradient: AppGradients.accentOrange,
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: AppShadows.glow(AppColors.accent,
-                          intensity: 0.3),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.auto_awesome_rounded,
-                          color: Colors.black, size: 22),
-                    ),
-                  )
-                      .animate(onPlay: (c) => c.repeat(reverse: true))
-                      .scaleXY(
-                          begin: 1.0,
-                          end: 1.05,
-                          duration: 1500.ms,
-                          curve: Curves.easeInOutSine),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'AI Quick Log',
-                          style: AppTypography.titleLarge.copyWith(
-                            color: L.text,
-                            fontWeight: FontWeight.w900,
-                          ),
+            const SizedBox(height: 24),
+            Row(
+              children: [
+                headerIcon,
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'AI Quick Log',
+                        style: AppTypography.titleLarge.copyWith(
+                          color: L.text,
+                          fontWeight: FontWeight.w900,
                         ),
-                        Text(
-                          'Just tell me what you took',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: L.sub.withValues(alpha: 0.6),
-                            fontSize: 13,
-                          ),
+                      ),
+                      Text(
+                        'Just tell me what you took',
+                        style: AppTypography.bodySmall.copyWith(
+                          color: L.sub.withValues(alpha: 0.6),
+                          fontSize: 13,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
+            ),
 
               const SizedBox(height: 24),
 
@@ -428,25 +419,52 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
             ],
           ),
         ),
-      ),
     );
   }
 
   Widget _buildVoiceModePhase(AppThemeColors L) {
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+
+    Widget listeningLabel = Text(
+      'LISTENING...',
+      style: AppTypography.labelSmall.copyWith(
+        color: L.error,
+        letterSpacing: 2.0,
+        fontWeight: FontWeight.w900,
+        fontSize: 11,
+      ),
+    );
+    if (!reduceMotion) {
+      listeningLabel = listeningLabel
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .fade(begin: 0.5, end: 1.0, duration: 600.ms);
+    }
+
+    Widget stopButton = Container(
+      width: 76,
+      height: 76,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: L.error.withValues(alpha: 0.15),
+        border:
+            Border.all(color: L.error.withValues(alpha: 0.4), width: 2),
+        boxShadow: AppShadows.glow(L.error, intensity: 0.5),
+      ),
+      child: const Center(
+        child: Icon(Icons.stop_rounded, color: Colors.red, size: 36),
+      ),
+    );
+    if (!reduceMotion) {
+      stopButton = stopButton
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scaleXY(begin: 0.95, end: 1.05, duration: 800.ms);
+    }
+
     return Column(
       key: const ValueKey('voice'),
       children: [
         const SizedBox(height: 16),
-        Text(
-          'LISTENING...',
-          style: AppTypography.labelSmall.copyWith(
-            color: L.error,
-            letterSpacing: 2.0,
-            fontWeight: FontWeight.w900,
-            fontSize: 11,
-          ),
-        ).animate(onPlay: (c) => c.repeat(reverse: true))
-         .fade(begin: 0.5, end: 1.0, duration: 600.ms),
+        listeningLabel,
         const SizedBox(height: 16),
         
         // Siri-like Animated Soundwave
@@ -490,28 +508,19 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            GestureDetector(
-              onTap: () {
-                HapticEngine.selection();
-                setState(() {
-                  _isListening = false;
-                  _speech.stop();
-                });
-              },
-              child: Container(
-                width: 76,
-                height: 76,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: L.error.withValues(alpha: 0.15),
-                  border: Border.all(color: L.error.withValues(alpha: 0.4), width: 2),
-                  boxShadow: AppShadows.glow(L.error, intensity: 0.5),
-                ),
-                child: const Center(
-                  child: Icon(Icons.stop_rounded, color: Colors.red, size: 36),
-                ),
-              ).animate(onPlay: (c) => c.repeat(reverse: true))
-               .scaleXY(begin: 0.95, end: 1.05, duration: 800.ms),
+            Semantics(
+              button: true,
+              label: 'Stop recording',
+              child: AnimatedPressable(
+                onTap: () {
+                  HapticEngine.selection();
+                  setState(() {
+                    _isListening = false;
+                    _speech.stop();
+                  });
+                },
+                child: stopButton,
+              ),
             ),
           ],
         ),
@@ -537,25 +546,8 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
     return Column(
       key: const ValueKey('input'),
       children: [
-        Container(
-          decoration: BoxDecoration(
-            color: L.card.withValues(alpha: 0.8),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: _focus.hasFocus
-                  ? L.accent.withValues(alpha: 0.5)
-                  : L.border.withValues(alpha: 0.12),
-              width: 1.2,
-            ),
-            boxShadow: [
-              if (_focus.hasFocus)
-                BoxShadow(
-                  color: L.accent.withValues(alpha: 0.08),
-                  blurRadius: 16,
-                  spreadRadius: 1,
-                ),
-            ],
-          ),
+        MedAiDepthCard(
+          padding: EdgeInsets.zero,
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -584,71 +576,43 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
                   ),
                 ),
               ),
-              // Microphone button
-              GestureDetector(
-                onTap: _listen,
-                child: AnimatedContainer(
-                  duration: 250.ms,
-                  margin: const EdgeInsets.only(right: 12),
-                  padding: const EdgeInsets.all(12),
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _isListening 
-                        ? L.error.withValues(alpha: 0.2)
-                        : L.border.withValues(alpha: 0.1),
-                    boxShadow: _isListening
-                        ? AppShadows.glow(L.error, intensity: 0.4)
-                        : null,
+              Semantics(
+                button: true,
+                label: _isListening ? 'Stop listening' : 'Start voice input',
+                child: AnimatedPressable(
+                  onTap: _listen,
+                  child: AnimatedContainer(
+                    duration: MedAiA11y.motion(context, AppDurations.fast),
+                    margin: const EdgeInsets.only(right: 12),
+                    width: MedAiA11y.minTapTargetCompact,
+                    height: MedAiA11y.minTapTargetCompact,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: _isListening
+                          ? L.error.withValues(alpha: 0.2)
+                          : L.border.withValues(alpha: 0.1),
+                      boxShadow: _isListening
+                          ? AppShadows.glow(L.error, intensity: 0.4)
+                          : null,
+                    ),
+                    child: Icon(
+                      _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+                      color:
+                          _isListening ? L.error : L.sub.withValues(alpha: 0.7),
+                      size: 24,
+                    ),
                   ),
-                  child: Icon(
-                    _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
-                    color: _isListening ? L.error : L.sub.withValues(alpha: 0.7),
-                    size: 24,
-                  ),
-                ).animate(target: _isListening ? 1 : 0)
-                  .scaleXY(end: 1.1)
-                  .shimmer(duration: 800.ms, color: L.error.withValues(alpha: 0.5)),
+                ),
               ),
             ],
           ),
         ),
         const SizedBox(height: 16),
-        GestureDetector(
+        MedAiCTA(
+          label: 'Log with AI',
+          icon: Icons.auto_awesome_rounded,
+          semanticsLabel: 'Submit AI quick log',
           onTap: _submit,
-          child: Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 18),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [L.accent, Color.lerp(L.accent, Colors.teal, 0.45)!],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: AppShadows.glow(L.accent, intensity: 0.3),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.15),
-                width: 0.8,
-              ),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Icon(Icons.auto_awesome_rounded,
-                    color: Colors.white, size: 18),
-                const SizedBox(width: 10),
-                Text(
-                  'LOG WITH AI',
-                  style: AppTypography.labelLarge.copyWith(
-                    color: Colors.white,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 1.5,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
       ],
     );
@@ -805,42 +769,21 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
           ),
         ),
         const SizedBox(height: 24),
-        GestureDetector(
+        MedAiCTA(
+          label: 'Try again',
+          secondary: true,
+          icon: Icons.refresh_rounded,
+          fullWidth: false,
           onTap: () => setState(() {
             _phase = _SheetPhase.input;
             _ctrl.clear();
           }),
-          child: Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                colors: [L.fill, L.fill.withValues(alpha: 0.7)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: L.border.withValues(alpha: 0.15)),
-              boxShadow: AppShadows.neumorphic,
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(Icons.refresh_rounded, size: 18, color: L.text),
-                const SizedBox(width: 8),
-                Text(
-                  'Try again',
-                  style: AppTypography.labelLarge.copyWith(
-                    color: L.text,
-                    fontWeight: FontWeight.w800,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
         const SizedBox(height: 12),
-        GestureDetector(
+        MedAiCTA(
+          label: 'Add Medicine Manually',
+          secondary: true,
+          fullWidth: false,
           onTap: () async {
             HapticEngine.selection();
             await GrowthTracker.trackVoiceLog(success: false, fallback: true);
@@ -855,43 +798,20 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
                 category: 'General',
                 notes: '',
                 schedule: const [],
-                courseStartDate: DateTime.now().toIso8601String().substring(0, 10),
+                courseStartDate:
+                    DateTime.now().toIso8601String().substring(0, 10),
                 color: '#10B981',
                 count: 0,
                 totalCount: 0,
                 refillAt: 0,
               );
               await appState.addMedicine(newMed);
-              // Give state a small window to propagate before opening DetailScreen
               await Future.delayed(const Duration(milliseconds: 250));
               if (!mounted) return;
-              Navigator.of(context).pop();
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                    builder: (_) => MedicineDetailScreen(
-                      medId: newMed.id,
-                      initialEditMode: true,
-                      onBack: () => Navigator.of(context).pop(),
-                    ),
-                  ),
-                );
+              context.pop();
+              context.push(AppRoutes.medicineDetailPath(newMed.id, edit: true));
             }
           },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.transparent,
-              borderRadius: BorderRadius.circular(14),
-              border: Border.all(color: L.border.withValues(alpha: 0.2)),
-            ),
-            child: Text(
-              'Add Medicine Manually',
-              style: AppTypography.labelLarge.copyWith(
-                color: L.text,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
         ),
         const SizedBox(height: 20),
       ],
@@ -1083,44 +1003,43 @@ class _ExampleChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return BouncingButton(
-      onTap: () {
-        HapticEngine.selection();
-        onTap();
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-        decoration: BoxDecoration(
-          color: L.card.withValues(alpha: 0.65),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: L.border.withValues(alpha: 0.12),
-            width: 1.0,
+    return Semantics(
+      button: true,
+      label: text,
+      child: AnimatedPressable(
+        onTap: () {
+          HapticEngine.selection();
+          onTap();
+        },
+        child: Container(
+          constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTargetCompact),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+          decoration: BoxDecoration(
+            color: L.card.withValues(alpha: 0.65),
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: L.border.withValues(alpha: 0.12),
+              width: 1.0,
+            ),
+            boxShadow: AppShadows.soft,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.03),
-              blurRadius: 4,
-              offset: const Offset(0, 2),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.add_rounded,
-                size: 14, color: L.sub.withValues(alpha: 0.6)),
-            const SizedBox(width: 6),
-            Text(
-              text,
-              style: AppTypography.bodySmall.copyWith(
-                color: L.text.withValues(alpha: 0.8),
-                fontWeight: FontWeight.w700,
-                fontSize: 12,
-                letterSpacing: 0.1,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.add_rounded,
+                  size: 14, color: L.sub.withValues(alpha: 0.6)),
+              const SizedBox(width: 6),
+              Text(
+                text,
+                style: AppTypography.bodySmall.copyWith(
+                  color: L.text.withValues(alpha: 0.8),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12,
+                  letterSpacing: 0.1,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1137,40 +1056,39 @@ class _MealChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return BouncingButton(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
-        decoration: BoxDecoration(
-          color: L.card.withValues(alpha: 0.8),
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: L.border.withValues(alpha: 0.12),
-            width: 1.0,
+    return Semantics(
+      button: true,
+      label: 'Log $text',
+      child: AnimatedPressable(
+        onTap: onTap,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTargetCompact),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
+          decoration: BoxDecoration(
+            color: L.card.withValues(alpha: 0.8),
+            borderRadius: BorderRadius.circular(18),
+            border: Border.all(
+              color: L.border.withValues(alpha: 0.12),
+              width: 1.0,
+            ),
+            boxShadow: AppShadows.soft,
           ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 6,
-              offset: const Offset(0, 3),
-            ),
-          ],
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(icon, style: const TextStyle(fontSize: 16)),
-            const SizedBox(width: 8),
-            Text(
-              text,
-              style: AppTypography.labelLarge.copyWith(
-                color: L.text,
-                fontWeight: FontWeight.w800,
-                fontSize: 13,
-                letterSpacing: 0.2,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(icon, style: const TextStyle(fontSize: 16)),
+              const SizedBox(width: 8),
+              Text(
+                text,
+                style: AppTypography.labelLarge.copyWith(
+                  color: L.text,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  letterSpacing: 0.2,
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );

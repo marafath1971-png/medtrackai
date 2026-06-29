@@ -49,6 +49,51 @@ class MedicationController extends ChangeNotifier {
   MedicationController({required this.medRepo});
 
   List<Medicine> get meds => _meds;
+
+  /// DEV PREVIEW ONLY — seeds in-memory demo medications so screens can be
+  /// reviewed without going through onboarding/auth. Not persisted.
+  void devSeed() {
+    Medicine mk(int id, String name, String dose, String color,
+        List<List<dynamic>> times) {
+      return Medicine(
+        id: id,
+        name: name,
+        dose: dose,
+        color: color,
+        count: 24,
+        totalCount: 30,
+        category: 'Tablet',
+        courseStartDate: DateTime.now().toIso8601String(),
+        schedule: [
+          for (final t in times)
+            ScheduleEntry(
+              id: '$id-${t[2]}',
+              h: t[0] as int,
+              m: t[1] as int,
+              label: t[2] as String,
+              days: const [0, 1, 2, 3, 4, 5, 6],
+            ),
+        ],
+      );
+    }
+
+    _meds = [
+      mk(1, 'Metformin', '500 mg', '#4A9E86', [
+        [8, 0, 'Morning'],
+        [20, 0, 'Evening'],
+      ]),
+      mk(2, 'Vitamin D', '1000 IU', '#F5A623', [
+        [8, 0, 'Morning'],
+      ]),
+      mk(3, 'Lisinopril', '10 mg', '#4ABFE2', [
+        [9, 0, 'Morning'],
+      ]),
+      mk(4, 'Atorvastatin', '20 mg', '#8B7BF2', [
+        [21, 0, 'Night'],
+      ]),
+    ];
+    notifyListeners();
+  }
   Map<String, List<DoseEntry>> get history => _history;
   Map<String, bool> get takenToday => _takenToday;
   StreakData get streakData => _streakData;

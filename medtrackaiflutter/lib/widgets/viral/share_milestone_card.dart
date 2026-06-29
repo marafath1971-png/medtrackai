@@ -10,10 +10,10 @@ import '../mascot_widget.dart';
 
 // ══════════════════════════════════════════════
 // RARITY STREAK PLAYER CARDS
-// Bronze · Silver · Gold · Holo
+// Shield · Star · Flame · Crown · Diamond
 // ══════════════════════════════════════════════
 
-enum ShareCardTier { bronze, silver, gold, holo }
+enum ShareCardTier { shield, star, flame, crown, diamond }
 
 class ShareCardData {
   final ShareCardTier tier;
@@ -45,21 +45,25 @@ class ShareCardData {
     Color color;
 
     if (streak >= 365) {
-      tier = ShareCardTier.holo;
-      label = 'Holo · 365 Days';
-      color = const Color(0xFFBF5AF2); // Soft neon purple
+      tier = ShareCardTier.diamond;
+      label = 'Diamond · 365 Days';
+      color = const Color(0xFFE0F7FA); // Ice blue / Diamond
     } else if (streak >= 100) {
-      tier = ShareCardTier.gold;
-      label = 'Gold · 100 Days';
-      color = const Color(0xFFFFCC00); // Bright gold
+      tier = ShareCardTier.crown;
+      label = 'Crown · 100 Days';
+      color = const Color(0xFFFFD700); // Royal Gold
     } else if (streak >= 30) {
-      tier = ShareCardTier.silver;
-      label = 'Silver · 30 Days';
-      color = const Color(0xFF00F2FE); // Shimmering cyan
+      tier = ShareCardTier.flame;
+      label = 'Flame · 30 Days';
+      color = const Color(0xFFFF5722); // Flame Orange
+    } else if (streak >= 14) {
+      tier = ShareCardTier.star;
+      label = 'Star · 14 Days';
+      color = const Color(0xFF64B5F6); // Star Blue
     } else {
-      tier = ShareCardTier.bronze;
-      label = 'Bronze · 7 Days';
-      color = const Color(0xFFF97316); // Coral orange
+      tier = ShareCardTier.shield;
+      label = 'Shield · 7 Days';
+      color = const Color(0xFF4DB6AC); // Shield Green
     }
 
     return ShareCardData(
@@ -197,25 +201,34 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
     Color glowColor;
 
     switch (data.tier) {
-      case ShareCardTier.bronze:
+      case ShareCardTier.shield:
         bgGradient = const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF0F0E0D), Color(0xFF1F120E)],
+          colors: [Color(0xFF0D1413), Color(0xFF1E2F2D)],
         );
-        cardBorder = Border.all(color: const Color(0xFFF97316).withValues(alpha: 0.3), width: 1.2);
-        glowColor = const Color(0xFFF97316).withValues(alpha: 0.08);
+        cardBorder = Border.all(color: const Color(0xFF4DB6AC).withValues(alpha: 0.3), width: 1.2);
+        glowColor = const Color(0xFF4DB6AC).withValues(alpha: 0.08);
         break;
-      case ShareCardTier.silver:
+      case ShareCardTier.star:
         bgGradient = const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: [Color(0xFF0F1418), Color(0xFF1D262F)],
         );
-        cardBorder = Border.all(color: const Color(0xFF00F2FE).withValues(alpha: 0.3), width: 1.2);
-        glowColor = const Color(0xFF00F2FE).withValues(alpha: 0.08);
+        cardBorder = Border.all(color: const Color(0xFF64B5F6).withValues(alpha: 0.3), width: 1.2);
+        glowColor = const Color(0xFF64B5F6).withValues(alpha: 0.08);
         break;
-      case ShareCardTier.gold:
+      case ShareCardTier.flame:
+        bgGradient = const LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [Color(0xFF1A0F0A), Color(0xFF33160D)],
+        );
+        cardBorder = Border.all(color: const Color(0xFFFF5722).withValues(alpha: 0.3), width: 1.4);
+        glowColor = const Color(0xFFFF5722).withValues(alpha: 0.10);
+        break;
+      case ShareCardTier.crown:
         bgGradient = const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -224,14 +237,14 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
         cardBorder = Border.all(color: const Color(0xFFFFCC00).withValues(alpha: 0.4), width: 1.5);
         glowColor = const Color(0xFFFFCC00).withValues(alpha: 0.12);
         break;
-      case ShareCardTier.holo:
+      case ShareCardTier.diamond:
         bgGradient = const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
-          colors: [Color(0xFF140F20), Color(0xFF2B163B)],
+          colors: [Color(0xFF11171A), Color(0xFF1A262E)],
         );
-        cardBorder = Border.all(color: const Color(0xFFBF5AF2).withValues(alpha: 0.5), width: 1.8);
-        glowColor = const Color(0xFFBF5AF2).withValues(alpha: 0.15);
+        cardBorder = Border.all(color: const Color(0xFFE0F7FA).withValues(alpha: 0.5), width: 1.8);
+        glowColor = const Color(0xFFE0F7FA).withValues(alpha: 0.15);
         break;
     }
 
@@ -256,7 +269,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
         child: Stack(
           children: [
             // ── Background Ambient Light Blobs ──
-            if (data.tier == ShareCardTier.holo) ...[
+            if (data.tier == ShareCardTier.diamond) ...[
               Positioned(
                 top: -50,
                 right: -50,
@@ -495,7 +508,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
     );
 
     // Apply shifting linear gradient overlay to whole card for Holo tier
-    if (data.tier == ShareCardTier.holo) {
+    if (data.tier == ShareCardTier.diamond) {
       return AnimatedBuilder(
         animation: _shimmerCtrl,
         builder: (context, child) {

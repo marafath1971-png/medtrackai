@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
 import 'dart:io';
-import 'dart:ui';
+import '../../../app/app_routes.dart';
 import '../../../providers/app_state.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
+import '../../../widgets/common/animated_pressable.dart';
 import '../../../core/utils/haptic_engine.dart';
-import '../../../widgets/shared/shared_widgets.dart';
-import '../../family/add_family_member_screen.dart';
 
 class ProfileSelectorRibbon extends StatelessWidget {
   const ProfileSelectorRibbon({super.key});
@@ -20,28 +20,23 @@ class ProfileSelectorRibbon extends StatelessWidget {
     final L = context.L;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: GlassCard(
-        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-        borderRadius: BorderRadius.circular(24),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      child: MedAiGlass(
+        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        radius: 20,
         child: SizedBox(
           height: 42,
           child: Row(
             children: [
-              // Subtle dynamic indicator or title icon
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 8),
-                child: Text(
-                  '🫂',
-                  style: TextStyle(fontSize: 16),
+                padding: const EdgeInsets.only(left: 12),
+                child: Icon(
+                  Icons.people_alt_rounded,
+                  size: 16,
+                  color: L.sub.withValues(alpha: 0.5),
                 ),
               ),
-              VerticalDivider(
-                color: L.border.withValues(alpha: 0.15),
-                thickness: 1,
-                width: 12,
-              ),
-              const SizedBox(width: 4),
+              const SizedBox(width: 8),
               Expanded(
                 child: ListView.builder(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -64,6 +59,7 @@ class ProfileSelectorRibbon extends StatelessWidget {
                     if (index <= familyMembers.length) {
                       final member = familyMembers[index - 1];
                       final isSelected = activeProfile?.id == member.id;
+
                       return _ProfileAvatar(
                         name: member.name,
                         avatar: member.avatar,
@@ -85,12 +81,7 @@ class ProfileSelectorRibbon extends StatelessWidget {
                     return _AddProfileButton(
                       onTap: () {
                         HapticEngine.selection();
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => const AddFamilyMemberScreen(),
-                            fullscreenDialog: true,
-                          ),
-                        );
+                        context.push(AppRoutes.familyAddMemberPath(dialog: true));
                       },
                     );
                   },
@@ -112,30 +103,17 @@ class ProfileSelectorRibbon extends StatelessWidget {
       builder: (context) {
         return Dialog(
           backgroundColor: Colors.transparent,
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: L.bg.withValues(alpha: 0.85),
-                borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: L.border.withValues(alpha: 0.15)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.3),
-                    blurRadius: 32,
-                    offset: const Offset(0, 16),
-                  )
-                ],
-              ),
-              child: Column(
+          child: MedAiGlass(
+            padding: const EdgeInsets.all(24),
+            radius: 28,
+            child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    'Security Gate 🚨',
-                    style: AppTypography.labelLarge.copyWith(
+                    'Enter PIN',
+                    style: AppTypography.titleMedium.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
                   const SizedBox(height: 8),
@@ -191,8 +169,7 @@ class ProfileSelectorRibbon extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-        );
+          );
       },
     );
   }
@@ -231,48 +208,50 @@ class _ProfileAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return AnimatedPressable(
-      onTap: () {
-        HapticEngine.selection();
-        onTap();
-      },
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 250),
-        curve: Curves.easeOutQuart,
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    return Semantics(
+      button: true,
+      selected: isSelected,
+      label: 'Switch to $name profile',
+      child: AnimatedPressable(
+        onTap: () {
+          HapticEngine.selection();
+          onTap();
+        },
+        child: AnimatedContainer(
+          duration: MedAiA11y.motion(context, const Duration(milliseconds: 250)),
+          curve: Curves.easeOutQuart,
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          gradient: isSelected
-              ? LinearGradient(
-                  colors: [color, color.withValues(alpha: 0.85)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                )
-              : null,
-          color: isSelected ? null : L.fill.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(14),
+          color: isSelected ? L.accent : Colors.transparent,
           border: Border.all(
             color: isSelected
-                ? color.withValues(alpha: 0.3)
-                : (isCritical ? Colors.red.withValues(alpha: 0.4) : L.border.withValues(alpha: 0.1)),
-            width: isSelected ? 1.5 : 1,
+                ? L.accent
+                : (isCritical
+                    ? L.error.withValues(alpha: 0.35)
+                    : L.border.withValues(alpha: 0.35)),
+            width: 0.5,
           ),
-          boxShadow: null,
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
             Stack(
               clipBehavior: Clip.none,
+              alignment: Alignment.center,
               children: [
                 Container(
-                  width: 24,
-                  height: 24,
+                  width: 28,
+                  height: 28,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isSelected ? Colors.white.withValues(alpha: 0.2) : L.card,
                     border: Border.all(
-                      color: isSelected ? Colors.white.withValues(alpha: 0.3) : L.border.withValues(alpha: 0.1),
+                      color: isSelected 
+                          ? Colors.white.withValues(alpha: 0.3) 
+                          : L.border.withValues(alpha: 0.1),
                       width: 0.5,
                     ),
                   ),
@@ -281,8 +260,8 @@ class _ProfileAvatar extends StatelessWidget {
                         ? ClipOval(
                             child: Image.file(
                               File(photoPath!),
-                              width: 24,
-                              height: 24,
+                              width: 28,
+                              height: 28,
                               fit: BoxFit.cover,
                             ),
                           )
@@ -290,19 +269,19 @@ class _ProfileAvatar extends StatelessWidget {
                             ? (int.tryParse(avatar!) != null
                                 ? Icon(
                                     Icons.person_rounded,
-                                    size: 14,
+                                    size: 16,
                                     color: isSelected ? Colors.white : L.text,
                                   )
                                 : Text(
                                     avatar!,
-                                    style: const TextStyle(fontSize: 14),
+                                    style: const TextStyle(fontSize: 16),
                                   ))
                             : Text(
                                 name.isNotEmpty ? name[0].toUpperCase() : '?',
                                 style: TextStyle(
                                   color: isSelected ? Colors.white : L.text,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 11,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 13,
                                 ),
                               )),
                   ),
@@ -334,6 +313,7 @@ class _ProfileAvatar extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }
@@ -346,11 +326,16 @@ class _AddProfileButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return AnimatedPressable(
-      onTap: onTap,
-      child: Container(
-        margin: const EdgeInsets.symmetric(horizontal: 4),
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+    return Semantics(
+      button: true,
+      label: 'Add family profile',
+      child: AnimatedPressable(
+        onTap: onTap,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 4),
+          constraints:
+              const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18),
           color: L.fill.withValues(alpha: 0.15),
@@ -383,6 +368,7 @@ class _AddProfileButton extends StatelessWidget {
           ],
         ),
       ),
+    ),
     );
   }
 }

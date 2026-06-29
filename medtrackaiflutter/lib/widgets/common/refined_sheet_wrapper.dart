@@ -1,6 +1,7 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+
+import '../../theme/med_ai_ui.dart';
+import 'animated_pressable.dart';
 
 class RefinedSheetWrapper extends StatelessWidget {
   final Widget child;
@@ -34,7 +35,7 @@ class RefinedSheetWrapper extends StatelessWidget {
     if (scrollable) {
       content = Flexible(
         child: SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const ClampingScrollPhysics(),
           child: content,
         ),
@@ -42,82 +43,76 @@ class RefinedSheetWrapper extends StatelessWidget {
     }
 
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-        child: Container(
-          padding: EdgeInsets.only(
-              bottom: bottomInset > 0 ? bottomInset : bottomPadding),
-          decoration: BoxDecoration(
-            color: L.card.withValues(alpha: 0.85),
-            borderRadius:
-                const BorderRadius.vertical(top: Radius.circular(AppRadius.xl)),
-            border: Border(
-              top: BorderSide(color: L.glassBorder, width: 1.0),
-              left: BorderSide(color: L.glassBorder, width: 1.0),
-              right: BorderSide(color: L.glassBorder, width: 1.0),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: L.text.withValues(alpha: 0.05),
-                blurRadius: 40,
-                offset: const Offset(0, -10),
-              )
-            ],
-          ),
-          child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 12),
-          // Drag Handle
-          Center(
-            child: Container(
-              width: 40,
-              height: 4,
-              decoration: BoxDecoration(
-                color: L.border.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(10),
+      borderRadius:
+          const BorderRadius.vertical(top: Radius.circular(AppRadius.squircle)),
+      child: MedAiGlass(
+        radius: AppRadius.squircle,
+        padding: EdgeInsets.only(
+          bottom: bottomInset > 0 ? bottomInset : bottomPadding,
+        ),
+        showBorder: false,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 12),
+            Center(
+              child: Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: L.border.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
-          ),
-          if (title != null) ...[
-            const SizedBox(height: AppSpacing.l),
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.screenPadding),
-              child: Row(
-                children: [
-                  if (icon != null) ...[
-                    icon!,
-                    const SizedBox(width: 12),
-                  ],
-                  Expanded(
-                    child: Text(
-                      title!,
-                      style: AppTypography.headlineMedium.copyWith(
-                        fontSize: 20,
-                        fontWeight: FontWeight.w900,
-                        color: L.text,
-                        letterSpacing: -0.5,
+            if (title != null) ...[
+              const SizedBox(height: AppSpacing.l),
+              Padding(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.screenPadding),
+                child: Row(
+                  children: [
+                    if (icon != null) ...[
+                      icon!,
+                      const SizedBox(width: 12),
+                    ],
+                    Expanded(
+                      child: Text(
+                        title!,
+                        style: AppTypography.titleLarge.copyWith(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w800,
+                          color: L.text,
+                          letterSpacing: -0.3,
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(width: AppSpacing.s),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: Icon(Icons.close_rounded, color: L.sub, size: 24),
-                    padding: EdgeInsets.zero,
-                    constraints: const BoxConstraints(),
-                  ),
-                ],
+                    Semantics(
+                      button: true,
+                      label: 'Close',
+                      child: AnimatedPressable(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          width: MedAiA11y.minTapTarget,
+                          height: MedAiA11y.minTapTarget,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: L.fill.withValues(alpha: 0.4),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.close_rounded,
+                              color: L.sub, size: 22),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
+              const SizedBox(height: 20),
+            ],
+            Flexible(child: content),
           ],
-          Flexible(child: content),
-        ],
-      ),
         ),
       ),
     );

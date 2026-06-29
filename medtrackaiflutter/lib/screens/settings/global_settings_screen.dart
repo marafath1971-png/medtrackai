@@ -1,23 +1,26 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:go_router/go_router.dart';
+import '../../app/app_routes.dart';
 import '../../services/smart_alert_service.dart';
 import '../../providers/app_state.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/shared/shared_widgets.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../models/constants.dart';
-import 'privacy_policy_screen.dart';
-import 'terms_of_service_screen.dart';
 import '../../widgets/common/refined_sheet_wrapper.dart';
+import '../../widgets/common/app_scaffold.dart';
 // ══════════════════════════════════════════════════════════════════════
 // GLOBAL SETTINGS SCREEN (Cal AI Industrial Authority Refined)
 // ══════════════════════════════════════════════════════════════════════
 
 class GlobalSettingsScreen extends StatefulWidget {
-  const GlobalSettingsScreen({super.key});
+  /// When true, hides the floating glass header (shown inside settings modal).
+  final bool embedded;
+
+  const GlobalSettingsScreen({super.key, this.embedded = false});
 
   @override
   State<GlobalSettingsScreen> createState() => _GlobalSettingsScreenState();
@@ -56,17 +59,20 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
     final L = context.L;
     final topPad = MediaQuery.of(context).padding.top;
 
-    return Scaffold(
+    final headerPad = widget.embedded ? 8.0 : topPad + 110.0;
+
+    return AppScaffold(
+      showAurora: true,
       backgroundColor: _profile.amoledMode && isDark ? Colors.black : L.bg,
       body: Stack(
         children: [
           ListView(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: EdgeInsets.fromLTRB(20, topPad + 110, 20, 120),
+            padding: EdgeInsets.fromLTRB(20, headerPad, 20, 120),
             children: [
               // ── LOCALIZATION BLOCK ───────────────────────
               _IndustrialSection(
-                label: 'LOCALIZATION',
+                label: 'Localization',
                 icon: Icons.language_rounded,
                 L: L,
                 children: [
@@ -130,7 +136,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
 
               // ── CLINICAL MODES BLOCK ─────────────────────
               _IndustrialSection(
-                label: 'CLINICAL MODES',
+                label: 'Clinical modes',
                 icon: Icons.science_rounded,
                 L: L,
                 children: [
@@ -172,7 +178,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
 
               // ── VITAL CONNECTIVITY BLOCK ─────────────────
               _IndustrialSection(
-                label: 'VITAL CONNECTIVITY',
+                label: 'Vital connectivity',
                 icon: Icons.favorite_rounded,
                 L: L,
                 children: [
@@ -192,7 +198,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
 
               // ── ACCOUNT ARCHITECTURE BLOCK ───────────────
               _IndustrialSection(
-                label: 'ACCOUNT ARCHITECTURE',
+                label: 'Account',
                 icon: Icons.manage_accounts_rounded,
                 L: L,
                 children: [
@@ -229,7 +235,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
 
               // ── SYSTEM BLOCK ─────────────────────────────
               _IndustrialSection(
-                label: 'SYSTEM',
+                label: 'System',
                 icon: Icons.settings_rounded,
                 L: L,
                 children: [
@@ -238,7 +244,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                     title: 'Privacy Policy',
                     onTap: () {
                       HapticEngine.selection();
-                      Navigator.of(context).push(MaterialPageRoute(builder: (_) => const PrivacyPolicyScreen()));
+                      context.push(AppRoutes.settingsPrivacy);
                     },
                     L: L,
                   ),
@@ -247,12 +253,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                     title: 'Terms of Service',
                     onTap: () {
                       HapticEngine.selection();
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const TermsOfServiceScreen(),
-                        ),
-                      );
+                      context.push(AppRoutes.settingsTerms);
                     },
                     L: L,
                   ),
@@ -314,69 +315,64 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
             ],
           ),
 
-          // ── PREMIUM GLASS HEADER ──
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: ClipRRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-                child: Container(
-                  padding: EdgeInsets.fromLTRB(24, topPad + 12, 20, 16),
-                  decoration: BoxDecoration(
-                    color: L.bg.withValues(alpha: 0.8),
-                    border: Border(
-                        bottom: BorderSide(
-                            color: L.border.withValues(alpha: 0.08),
-                            width: 0.5)),
-                  ),
-                  child: Row(
-                    children: [
-                      if (Navigator.canPop(context)) ...[
-                        BouncingButton(
+          if (!widget.embedded)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: MedAiGlass(
+                radius: 0,
+                padding: EdgeInsets.fromLTRB(20, topPad + 12, 20, 16),
+                showBorder: false,
+                child: Row(
+                  children: [
+                    if (Navigator.canPop(context)) ...[
+                      Semantics(
+                        button: true,
+                        label: 'Back',
+                        child: AnimatedPressable(
                           onTap: () => Navigator.pop(context),
-                          child: Icon(
-                            Icons.arrow_back_ios_new_rounded,
-                            color: L.text,
-                            size: 20,
+                          child: SizedBox(
+                            width: MedAiA11y.minTapTarget,
+                            height: MedAiA11y.minTapTarget,
+                            child: Center(
+                              child: Icon(
+                                Icons.arrow_back_ios_new_rounded,
+                                color: L.text,
+                                size: 20,
+                              ),
+                            ),
                           ),
                         ),
-                        const SizedBox(width: 20),
-                      ],
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text(
-                              'PREFERENCES',
-                              style: AppTypography.labelSmall.copyWith(
-                                color: L.sub.withValues(alpha: 0.4),
-                                letterSpacing: 2.0,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 10,
-                              ),
-                            ),
-                            Text(
-                              'Settings',
-                              style: AppTypography.headlineMedium.copyWith(
-                                color: L.text,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 26,
-                                height: 1.1,
-                                letterSpacing: -1.0,
-                              ),
-                            ),
-                          ],
-                        ),
                       ),
+                      const SizedBox(width: 8),
                     ],
-                  ),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Settings',
+                            style: AppTypography.headlineLarge.copyWith(
+                              color: L.text,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: -0.6,
+                            ),
+                          ),
+                          const SizedBox(height: 2),
+                          Text(
+                            'Preferences & account',
+                            style:
+                                AppTypography.bodySmall.copyWith(color: L.sub),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
-          ),
         ],
       ),
     );
@@ -389,9 +385,9 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
       builder: (ctx) => AlertDialog(
         backgroundColor: L.bg,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('RESET CACHE?',
+        title: Text('Reset cache?',
             style: AppTypography.titleLarge
-                .copyWith(fontWeight: FontWeight.w900, color: L.text)),
+                .copyWith(fontWeight: FontWeight.w800, color: L.text)),
         content: Text(
             'This will clear local temporary files. Your medications and health records will remain safe.',
             style: AppTypography.bodySmall
@@ -399,7 +395,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: Text('CANCEL',
+            child: Text('Cancel',
                 style: AppTypography.labelLarge.copyWith(color: L.sub)),
           ),
           TextButton(
@@ -407,9 +403,9 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
               Navigator.pop(ctx);
               context.read<AppState>().showToast('Cache cleared successfully');
             },
-            child: Text('RESET',
+            child: Text('Reset',
                 style: AppTypography.labelLarge
-                    .copyWith(color: L.text, fontWeight: FontWeight.w900)),
+                    .copyWith(color: L.text, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -500,50 +496,55 @@ class _AccountActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final tileColor = color ?? L.text;
-    return Container(
-      decoration: BoxDecoration(
-          border: isLast
-              ? null
-              : Border(
-                  bottom: BorderSide(
-                      color: L.border.withValues(alpha: 0.05), width: 0.5))),
-      child: ListTile(
+    return Semantics(
+      button: true,
+      label: subtitle != null ? '$title. $subtitle' : title,
+      child: AnimatedPressable(
         onTap: onTap,
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        leading: Container(
-          width: 40,
-          height: 40,
+        child: Container(
+          constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
           decoration: BoxDecoration(
-            color: tileColor.withValues(alpha: 0.06),
-            borderRadius: BorderRadius.circular(10),
+              border: isLast
+                  ? null
+                  : Border(
+                      bottom: BorderSide(
+                          color: L.border.withValues(alpha: 0.08),
+                          width: 0.5))),
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            leading: Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                color: tileColor.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Center(
+                  child: Text(icon, style: const TextStyle(fontSize: 18))),
+            ),
+            title: Text(
+              title,
+              style: AppTypography.labelLarge.copyWith(
+                  color: tileColor,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 14,
+                  letterSpacing: -0.1),
+            ),
+            subtitle: subtitle != null
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 2),
+                    child: Text(subtitle!,
+                        style: AppTypography.bodySmall.copyWith(
+                            color: L.text.withValues(alpha: 0.5),
+                            fontWeight: FontWeight.w500,
+                            fontSize: 11)),
+                  )
+                : null,
+            trailing: Icon(Icons.chevron_right_rounded,
+                color: L.sub.withValues(alpha: 0.4), size: 22),
           ),
-          child: Center(
-              child: Text(icon, style: const TextStyle(fontSize: 18))),
         ),
-        title: Text(
-          title,
-          style: AppTypography.labelLarge.copyWith(
-              color: tileColor,
-              fontWeight: FontWeight.w900,
-              fontSize: 13,
-              letterSpacing: 0.2),
-        ),
-        subtitle: subtitle != null
-            ? Padding(
-                padding: const EdgeInsets.only(top: 2),
-                child: Text(subtitle!,
-                    style: AppTypography.bodySmall.copyWith(
-                        color: L.text.withValues(alpha: 0.45),
-                        fontWeight: FontWeight.w500,
-                        fontSize: 11)),
-              )
-            : null,
-        trailing: Text('→',
-            style: TextStyle(
-                color: L.sub.withValues(alpha: 0.3),
-                fontSize: 18,
-                fontWeight: FontWeight.w900)),
       ),
     );
   }
@@ -565,22 +566,13 @@ class _IndustrialSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Padding(
-          padding: const EdgeInsets.only(left: 12, bottom: 12),
-          child: Row(children: [
-            Icon(icon, size: 16, color: L.text.withValues(alpha: 0.5)),
-            const SizedBox(width: 10),
-            Text(label,
-                style: AppTypography.labelSmall.copyWith(
-                    color: L.text.withValues(alpha: 0.4),
-                    fontWeight: FontWeight.w900,
-                    letterSpacing: 2.0,
-                    fontSize: 10)),
-          ]),
-        ),
-        SquircleCard(
+        MedAiSectionHeader(title: label),
+        MedAiDepthCard(
           padding: EdgeInsets.zero,
-          child: Column(children: children),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(AppRadius.xl),
+            child: Column(children: children),
+          ),
         ),
       ],
     );
@@ -603,38 +595,43 @@ class _ToggleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          border: isLast
-              ? null
-              : Border(
-                  bottom: BorderSide(
-                      color: L.border.withValues(alpha: 0.05), width: 0.5))),
-      child: ListTile(
-        contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-        title: Text(title,
-            style: AppTypography.labelLarge.copyWith(
-              color: L.text,
-              fontWeight: FontWeight.w700,
-              fontSize: 15,
-              letterSpacing: -0.2,
-            )),
-        subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4),
-          child: Text(subtitle,
-              style: AppTypography.bodySmall.copyWith(
-                  color: L.text.withValues(alpha: 0.5),
-                  fontWeight: FontWeight.w500,
-                  height: 1.4,
-                  fontSize: 12)),
-        ),
-        trailing: AppToggle(
-          value: value,
-          onChanged: (v) {
-            HapticEngine.selection();
-            onChanged(v);
-          },
+    return Semantics(
+      label: '$title. $subtitle',
+      toggled: value,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+        decoration: BoxDecoration(
+            border: isLast
+                ? null
+                : Border(
+                    bottom: BorderSide(
+                        color: L.border.withValues(alpha: 0.08), width: 0.5))),
+        child: ListTile(
+          contentPadding:
+              const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          title: Text(title,
+              style: AppTypography.labelLarge.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w700,
+                fontSize: 15,
+                letterSpacing: -0.2,
+              )),
+          subtitle: Padding(
+            padding: const EdgeInsets.only(top: 4),
+            child: Text(subtitle,
+                style: AppTypography.bodySmall.copyWith(
+                    color: L.text.withValues(alpha: 0.5),
+                    fontWeight: FontWeight.w500,
+                    height: 1.4,
+                    fontSize: 12)),
+          ),
+          trailing: AppToggle(
+            value: value,
+            onChanged: (v) {
+              HapticEngine.selection();
+              onChanged(v);
+            },
+          ),
         ),
       ),
     );
@@ -656,35 +653,41 @@ class _PickerTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          border: isLast
-              ? null
-              : Border(
-                  bottom: BorderSide(
-                      color: L.border.withValues(alpha: 0.05), width: 0.5))),
-      child: ListTile(
+    return Semantics(
+      button: true,
+      label: '$label: $value',
+      child: AnimatedPressable(
         onTap: onTap,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-        title: Text(label,
-            style: AppTypography.labelLarge.copyWith(
-                color: L.text, fontWeight: FontWeight.w900, fontSize: 15)),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('$flag $value',
-                style: AppTypography.bodySmall.copyWith(
-                    color: L.text.withValues(alpha: 0.8),
-                    fontWeight: FontWeight.w900,
-                    fontSize: 13,
-                    letterSpacing: -0.2)),
-            const SizedBox(width: 10),
-            Text('→',
-                style: TextStyle(
-                    color: L.sub.withValues(alpha: 0.3),
-                    fontSize: 18,
-                    fontWeight: FontWeight.w900)),
-          ],
+        child: Container(
+          constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+          decoration: BoxDecoration(
+              border: isLast
+                  ? null
+                  : Border(
+                      bottom: BorderSide(
+                          color: L.border.withValues(alpha: 0.08),
+                          width: 0.5))),
+          child: ListTile(
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            title: Text(label,
+                style: AppTypography.labelLarge.copyWith(
+                    color: L.text, fontWeight: FontWeight.w800, fontSize: 15)),
+            trailing: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text('$flag $value',
+                    style: AppTypography.bodySmall.copyWith(
+                        color: L.text.withValues(alpha: 0.8),
+                        fontWeight: FontWeight.w700,
+                        fontSize: 13,
+                        letterSpacing: -0.2)),
+                const SizedBox(width: 8),
+                Icon(Icons.chevron_right_rounded,
+                    color: L.sub.withValues(alpha: 0.4), size: 22),
+              ],
+            ),
+          ),
         ),
       ),
     );
