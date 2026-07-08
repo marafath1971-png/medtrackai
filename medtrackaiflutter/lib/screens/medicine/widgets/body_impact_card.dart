@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../theme/med_ai_ui.dart';
 import '../../../../domain/entities/body_impact.dart';
 import '../../../widgets/biohacking/pharma_timeline_widget.dart';
+import '../../../widgets/biohacking/interactive_body_map.dart';
 
 class BodyImpactCard extends StatelessWidget {
   final BodyImpactSummary impact;
@@ -78,6 +79,11 @@ class BodyImpactCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 24),
+                InteractiveBodyMap(
+                  activeSystems: impact.bodySystems,
+                  medName: medName ?? 'Medicine',
+                ),
+                const SizedBox(height: 24),
                 PharmaTimelineWidget(
                   medName: medName ?? 'Medicine',
                   onsetMinutes: impact.onsetMinutes.toDouble(),
@@ -85,6 +91,38 @@ class BodyImpactCard extends StatelessWidget {
                   durationHours: impact.durationHours,
                   targetOrgans: impact.bodySystems,
                 ),
+                if (impact.bodySystems.isNotEmpty) ...[
+                  const SizedBox(height: 16),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: impact.bodySystems
+                        .map(
+                          (s) => Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: L.accent.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(AppRadius.max),
+                              border: Border.all(
+                                color: L.accent.withValues(alpha: 0.26),
+                                width: 0.7,
+                              ),
+                            ),
+                            child: Text(
+                              s,
+                              style: AppTypography.labelSmall.copyWith(
+                                color: L.text,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                        )
+                        .toList(),
+                  ),
+                ],
                 const SizedBox(height: 24),
                 if (impact.ahaFacts.isNotEmpty) ...[
                   _buildAhaCarousel(L, impact.ahaFacts),
@@ -92,7 +130,7 @@ class BodyImpactCard extends StatelessWidget {
                 ],
                 if (onAskAIPressed != null)
                   MedAiCTA(
-                    label: 'Ask AI Coach about this',
+                    label: 'Ask AI Assistant About This',
                     icon: Icons.chat_bubble_outline_rounded,
                     secondary: true,
                     onTap: onAskAIPressed,

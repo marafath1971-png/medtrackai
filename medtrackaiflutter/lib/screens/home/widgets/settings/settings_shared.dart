@@ -52,6 +52,12 @@ class SettingsModalRow extends StatelessWidget {
     final L = context.L;
     final Color bg = iconBg ?? L.text;
     final isInteractive = onClick != null;
+    IconData? resolvedIcon;
+    if (icon is IconData) {
+      resolvedIcon = icon as IconData;
+    } else if (icon is String) {
+      resolvedIcon = _mapLegacyIcon(icon as String);
+    }
 
     Widget row = Container(
       constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
@@ -80,10 +86,10 @@ class SettingsModalRow extends StatelessWidget {
               border:
                   Border.all(color: bg.withValues(alpha: 0.12), width: 0.5)),
           child: Center(
-              child: icon is String
-                  ? Text(icon as String,
-                      style: AppTypography.titleLarge.copyWith(fontSize: 16))
-                  : Icon(icon as IconData, size: 18, color: bg)),
+              child: resolvedIcon != null
+                  ? Icon(resolvedIcon, size: 18, color: bg)
+                  : Text(icon.toString(),
+                      style: AppTypography.titleLarge.copyWith(fontSize: 16))),
         ),
         const SizedBox(width: 16),
         Expanded(
@@ -131,6 +137,40 @@ class SettingsModalRow extends StatelessWidget {
     }
 
     return row;
+  }
+
+  IconData? _mapLegacyIcon(String token) {
+    return switch (token) {
+      '🌐' => Icons.language_rounded,
+      '🎯' => Icons.flag_rounded,
+      '🩺' => Icons.monitor_heart_rounded,
+      '🎂' => Icons.cake_rounded,
+      '🧬' => Icons.biotech_rounded,
+      '💳' => Icons.credit_card_rounded,
+      '🔄' => Icons.autorenew_rounded,
+      '🎬' => Icons.rocket_launch_rounded,
+      '📊' => Icons.insert_chart_rounded,
+      '🚪' => Icons.logout_rounded,
+      '🗑️' => Icons.delete_forever_rounded,
+      '💬' => Icons.support_agent_rounded,
+      '⭐' => Icons.star_rounded,
+      '🔐' => Icons.lock_rounded,
+      '📜' => Icons.description_rounded,
+      'ℹ️' => Icons.info_outline_rounded,
+      '🚀' => Icons.rocket_launch_rounded,
+      '🔔' => Icons.notifications_active_rounded,
+      '⚡' => Icons.bolt_rounded,
+      '⏰' => Icons.alarm_rounded,
+      '👨‍👩‍👧' => Icons.family_restroom_rounded,
+      '✨' => Icons.palette_rounded,
+      '❤️' => Icons.favorite_rounded,
+      '💊' => Icons.medication_rounded,
+      '🛡️' => Icons.shield_outlined,
+      '📄' => Icons.picture_as_pdf_rounded,
+      '📥' => Icons.download_rounded,
+      '⚖️' => Icons.gavel_rounded,
+      _ => null,
+    };
   }
 }
 
@@ -277,6 +317,7 @@ class SettingsStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final icon = _mapStatIcon(emoji);
     return Semantics(
       label: '$label: $val. $sub',
       child: MedAiDepthCard(
@@ -291,7 +332,7 @@ class SettingsStatCard extends StatelessWidget {
                   color: L.accent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Text(emoji, style: const TextStyle(fontSize: 14)),
+                child: Icon(icon, size: 14, color: L.accent),
               ),
               const SizedBox(width: 8),
               Expanded(
@@ -321,5 +362,15 @@ class SettingsStatCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  IconData _mapStatIcon(String token) {
+    return switch (token) {
+      '✅' => Icons.check_circle_rounded,
+      '📈' => Icons.show_chart_rounded,
+      '🔥' => Icons.local_fire_department_rounded,
+      '📅' => Icons.calendar_month_rounded,
+      _ => Icons.insights_rounded,
+    };
   }
 }

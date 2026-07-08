@@ -28,6 +28,7 @@ class RefBentoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final mappedIcon = _mapEmojiIcon(emoji);
     return Semantics(
       button: onTap != null,
       label: '$label: $value $unit',
@@ -72,7 +73,11 @@ class RefBentoTile extends StatelessWidget {
                       color: tint,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Text(emoji, style: const TextStyle(fontSize: 16)),
+                    child: Icon(
+                      mappedIcon,
+                      size: 16,
+                      color: L.text.withValues(alpha: 0.75),
+                    ),
                   ),
                 ],
               ),
@@ -113,5 +118,15 @@ class RefBentoTile extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  IconData _mapEmojiIcon(String token) {
+    return switch (token) {
+      '🔥' => Icons.local_fire_department_rounded,
+      '💊' => Icons.medication_rounded,
+      '👟' => Icons.directions_walk_rounded,
+      '❤️' => Icons.favorite_rounded,
+      _ => Icons.auto_awesome_rounded,
+    };
   }
 }

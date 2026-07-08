@@ -69,8 +69,6 @@ class _ProfileTabState extends State<ProfileTab> {
 
   Widget _upgradeCard(
       AppThemeColors L, bool reduceMotion, BuildContext context) {
-    const rocket = Text('🚀', style: TextStyle(fontSize: 24));
-
     final card = Semantics(
       button: true,
       label: 'Upgrade to MedAI Pro',
@@ -89,21 +87,27 @@ class _ProfileTabState extends State<ProfileTab> {
               color: AppColors.accent.withValues(alpha: 0.10),
               shape: BoxShape.circle,
             ),
-            child: Center(child: rocket),
+            child: const Center(
+              child: Icon(
+                Icons.rocket_launch_rounded,
+                size: 22,
+                color: AppColors.accent,
+              ),
+            ),
           ),
           const SizedBox(width: 16),
           Expanded(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                Text('Upgrade to MedAI Pro ✨',
+                Text('Upgrade to MedAI Pro',
                     style: AppTypography.titleLarge.copyWith(
                         color: L.text,
                         fontSize: 18,
                         letterSpacing: -0.5,
                         fontWeight: FontWeight.w900)),
                 const SizedBox(height: 4),
-                Text('Unlock AI insights, Family Sharing & more 🚀',
+                Text('Unlock AI insights, Family Sharing and more.',
                     style: AppTypography.labelSmall.copyWith(
                         color: L.sub,
                         fontWeight: FontWeight.w600,
@@ -615,7 +619,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Made with ❤️ by the MedAI team',
+                    'Made by the MedAI team',
                     style: AppTypography.labelSmall.copyWith(
                       color: L.sub.withValues(alpha: 0.3),
                       fontWeight: FontWeight.w600,

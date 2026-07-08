@@ -69,7 +69,7 @@ class _DataTabState extends State<DataTab> {
                     fontWeight: FontWeight.w800,
                     color: L.text,
                     letterSpacing: -0.2)),
-            const Text('📊', style: TextStyle(fontSize: 14)),
+            Icon(Icons.analytics_rounded, color: L.text, size: 16),
           ],
         ),
         const SizedBox(height: 20),

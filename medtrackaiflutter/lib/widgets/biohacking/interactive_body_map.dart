@@ -15,14 +15,22 @@ class InteractiveBodyMap extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final reduceMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(vertical: 24),
+      padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 12),
       decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(28),
-        border: Border.all(color: L.border.withValues(alpha: 0.35), width: 0.5),
-        boxShadow: AppShadows.soft,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            L.card,
+            L.card.withValues(alpha: 0.9),
+          ],
+        ),
+        borderRadius: BorderRadius.circular(26),
+        border: Border.all(color: L.border.withValues(alpha: 0.42), width: 0.7),
+        boxShadow: AppShadows.premium,
       ),
       child: Column(
         children: [
@@ -62,10 +70,10 @@ class InteractiveBodyMap extends StatelessWidget {
                 ),
                 // Scanning Laser Effect
                 Positioned.fill(
-                  child: const _LaserScanner(),
+                  child: _LaserScanner(enabled: !reduceMotion),
                 ),
                 // Glowing Nodes based on active systems
-                ..._buildNodes(),
+                ..._buildNodes(reduceMotion),
               ],
             ),
           ),
@@ -74,7 +82,7 @@ class InteractiveBodyMap extends StatelessWidget {
     );
   }
 
-  List<Widget> _buildNodes() {
+  List<Widget> _buildNodes(bool reduceMotion) {
     final List<Widget> nodes = [];
     final sys = activeSystems.map((e) => e.toLowerCase()).toList();
 
@@ -84,7 +92,7 @@ class InteractiveBodyMap extends StatelessWidget {
         Positioned(
           left: 200 * x - 15,
           top: 300 * y - 15,
-          child: _GlowingNode(name: name, color: color),
+          child: _GlowingNode(name: name, color: color, animate: !reduceMotion),
         ),
       );
     }
@@ -121,49 +129,53 @@ class InteractiveBodyMap extends StatelessWidget {
 }
 
 class _LaserScanner extends StatelessWidget {
-  const _LaserScanner();
+  final bool enabled;
+  const _LaserScanner({required this.enabled});
 
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        return Stack(
-          children: [
-            Positioned(
-              left: 0,
-              right: 0,
-              top: 0,
-              height: 4,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.accent.withValues(alpha: 0.0),
-                      AppColors.accent.withValues(alpha: 0.8),
-                      AppColors.accent.withValues(alpha: 0.0),
-                    ],
-                    stops: const [0.1, 0.5, 0.9],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.accent.withValues(alpha: 0.5),
-                      blurRadius: 12,
-                      spreadRadius: 2,
-                    )
-                  ],
-                ),
+        Widget bar = Positioned(
+          left: 0,
+          right: 0,
+          top: 0,
+          height: 3,
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  AppColors.accent.withValues(alpha: 0.0),
+                  AppColors.accent.withValues(alpha: 0.55),
+                  AppColors.accent.withValues(alpha: 0.0),
+                ],
+                stops: const [0.1, 0.5, 0.9],
               ),
-            ).animate(
-              key: const ValueKey('body_map_laser_scanner_anim'),
-              onPlay: (c) => c.repeat(reverse: true),
-            ).moveY(
-              begin: 0,
-              end: constraints.maxHeight - 4,
-              duration: 3.seconds,
-              curve: Curves.easeInOutSine,
+              boxShadow: [
+                BoxShadow(
+                  color: AppColors.accent.withValues(alpha: 0.28),
+                  blurRadius: 8,
+                  spreadRadius: 1,
+                ),
+              ],
             ),
-          ],
+          ),
         );
+
+        if (enabled) {
+          bar = bar
+              .animate(
+                key: const ValueKey('body_map_laser_scanner_anim'),
+                onPlay: (c) => c.repeat(reverse: true),
+              )
+              .moveY(
+                begin: 0,
+                end: constraints.maxHeight - 4,
+                duration: 3.seconds,
+                curve: Curves.easeInOutSine,
+              );
+        }
+        return Stack(children: [bar]);
       },
     );
   }
@@ -172,46 +184,58 @@ class _LaserScanner extends StatelessWidget {
 class _GlowingNode extends StatelessWidget {
   final String name;
   final Color color;
+  final bool animate;
 
-  const _GlowingNode({required this.name, required this.color});
+  const _GlowingNode({
+    required this.name,
+    required this.color,
+    this.animate = true,
+  });
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: [
-        Container(
-          width: 30,
-          height: 30,
+    Widget node = Container(
+      width: 30,
+      height: 30,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: color.withValues(alpha: 0.3),
+        boxShadow: [
+          BoxShadow(
+            color: color.withValues(alpha: 0.8),
+            blurRadius: 15,
+            spreadRadius: 2,
+          ),
+        ],
+      ),
+      child: Center(
+        child: Container(
+          width: 10,
+          height: 10,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: color.withValues(alpha: 0.3),
-            boxShadow: [
+            color: Colors.white,
+            boxShadow: const [
               BoxShadow(
-                color: color.withValues(alpha: 0.8),
-                blurRadius: 15,
-                spreadRadius: 2,
+                color: Colors.white,
+                blurRadius: 5,
+                spreadRadius: 1,
               ),
             ],
           ),
-          child: Center(
-            child: Container(
-              width: 10,
-              height: 10,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.white,
-                    blurRadius: 5,
-                    spreadRadius: 1,
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ).animate(onPlay: (c) => c.repeat(reverse: true)).scaleXY(begin: 0.8, end: 1.2, duration: 1.seconds),
+        ),
+      ),
+    );
+    if (animate) {
+      node = node
+          .animate(onPlay: (c) => c.repeat(reverse: true))
+          .scaleXY(begin: 0.86, end: 1.1, duration: 1200.ms);
+    }
+
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        node,
         const SizedBox(height: 4),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),

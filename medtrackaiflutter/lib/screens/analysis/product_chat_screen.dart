@@ -149,6 +149,38 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
               Navigator.pop(context);
             },
           ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(20, 2, 20, 8),
+            child: MedAiGlass(
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+              radius: AppRadius.l,
+              tint: L.card,
+              child: Row(
+                children: [
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: L.accent.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Icon(Icons.auto_awesome_rounded, color: L.accent, size: 18),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Text(
+                      'Smart medication guidance with context from your current regimen.',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: L.sub,
+                        height: 1.35,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
           Expanded(
             child: ListView.builder(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -172,33 +204,31 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
 
   Widget _buildMessageBubble(AppThemeColors L, ChatMessage msg) {
     final maxW = MediaQuery.of(context).size.width * 0.8;
-
-    Widget bubble = msg.isUser
-        ? MedAiDepthCard(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            radius: AppRadius.xl,
-            color: L.text,
-            child: Text(
-              msg.text,
-              style: AppTypography.bodyMedium.copyWith(
-                color: L.bg,
-                height: 1.6,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-          )
-        : MedAiGlass(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            radius: AppRadius.xl,
-            tint: L.card,
-            child: Text(
-              msg.text,
-              style: AppTypography.bodyMedium.copyWith(
-                color: L.text,
-                height: 1.6,
-              ),
-            ),
-          );
+    final aiBubble = MedAiGlass(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      radius: AppRadius.xl,
+      tint: L.card,
+      child: Text(
+        msg.text,
+        style: AppTypography.bodyMedium.copyWith(
+          color: L.text,
+          height: 1.6,
+        ),
+      ),
+    );
+    final userBubble = MedAiDepthCard(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+      radius: AppRadius.xl,
+      color: L.text,
+      child: Text(
+        msg.text,
+        style: AppTypography.bodyMedium.copyWith(
+          color: L.bg,
+          height: 1.6,
+          fontWeight: FontWeight.w500,
+        ),
+      ),
+    );
 
     return _messageEntrance(
       Align(
@@ -209,7 +239,37 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
             constraints: BoxConstraints(maxWidth: maxW),
             child: Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: bubble,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  if (!msg.isUser) ...[
+                    Container(
+                      width: 26,
+                      height: 26,
+                      decoration: BoxDecoration(
+                        color: L.accent.withValues(alpha: 0.14),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.smart_toy_rounded, color: L.accent, size: 15),
+                    ),
+                    const SizedBox(width: 8),
+                  ],
+                  Flexible(child: msg.isUser ? userBubble : aiBubble),
+                  if (msg.isUser) ...[
+                    const SizedBox(width: 8),
+                    Container(
+                      width: 24,
+                      height: 24,
+                      decoration: BoxDecoration(
+                        color: L.text.withValues(alpha: 0.12),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.person_rounded, color: L.text, size: 14),
+                    ),
+                  ],
+                ],
+              ),
             ),
           ),
         ),
@@ -301,14 +361,14 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
             children: [
               Expanded(
                 child: MedAiDepthCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  radius: AppRadius.max,
+                  padding: const EdgeInsets.symmetric(horizontal: 18),
+                  radius: 22,
                   child: TextField(
                     autofocus: true,
                     controller: _controller,
                     style: AppTypography.bodyMedium.copyWith(color: L.text),
                     decoration: InputDecoration(
-                      hintText: 'Ask AI a question...',
+                      hintText: 'Ask about interactions, timing, organs...',
                       hintStyle: AppTypography.bodyMedium
                           .copyWith(color: L.sub.withValues(alpha: 0.6)),
                       border: InputBorder.none,
@@ -329,7 +389,11 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
                     width: MedAiA11y.minTapTarget,
                     height: MedAiA11y.minTapTarget,
                     decoration: BoxDecoration(
-                      color: L.text,
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [L.text, L.text.withValues(alpha: 0.88)],
+                      ),
                       shape: BoxShape.circle,
                       boxShadow: AppShadows.glow(L.text, intensity: 0.25),
                     ),

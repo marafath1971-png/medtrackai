@@ -15,7 +15,6 @@ import 'widgets/monitoring_widgets.dart';
 import 'widgets/add_cg_flow.dart';
 import 'widgets/join_as_cg_view.dart';
 import 'widgets/alert_log_widgets.dart';
-import 'widgets/demo_widgets.dart';
 import '../../widgets/common/premium_empty_state.dart';
 import '../../widgets/common/paywall_sheet.dart';
 import '../../widgets/common/app_scaffold.dart';
@@ -27,7 +26,6 @@ enum FamilyView {
   addStep3,
   dashboard,
   join,
-  escalation
 }
 
 class FamilyTab extends StatefulWidget {
@@ -47,7 +45,7 @@ class _FamilyTabState extends State<FamilyTab> {
   final _nameCtrl = TextEditingController();
   final _contactCtrl = TextEditingController();
   String _relation = 'Spouse';
-  String _avatar = '👨‍⚕️';
+  String _avatar = 'P';
   int _pivot = 1; // Default to Family Circle as per reference style
   int _alertDelay = 30;
   bool _isScrolled = false;
@@ -174,12 +172,6 @@ class _FamilyTabState extends State<FamilyTab> {
                 });
               });
           break;
-        case FamilyView.escalation:
-          child = EscalationDemoView(
-              key: const ValueKey('esc'),
-              L: L,
-              onBack: () => setState(() => _view = FamilyView.hub));
-          break;
         default:
           child = HubView(
               key: const ValueKey('hub'),
@@ -205,14 +197,7 @@ class _FamilyTabState extends State<FamilyTab> {
               },
               onDashboard: (cg) => setState(() => _dashboardCg = cg),
               onAlertDetail: (a) => setState(() => _alertDetail = a),
-              onMarkSeen: () => state.markAlertsAsSeen(),
-              onEscalationDemo: () {
-                if (state.isPremium) {
-                  setState(() => _view = FamilyView.escalation);
-                } else {
-                  PaywallSheet.show(context);
-                }
-              });
+              onMarkSeen: () => state.markAlertsAsSeen());
       }
     }
 
@@ -247,7 +232,7 @@ class HubView extends StatelessWidget {
   final bool isScrolled;
   final ScrollController scrollController;
   final ValueChanged<int> onPivotChanged;
-  final VoidCallback onAddCg, onJoin, onMarkSeen, onEscalationDemo;
+  final VoidCallback onAddCg, onJoin, onMarkSeen;
   final void Function(Caregiver) onDashboard;
   final void Function(MissedAlert) onAlertDetail;
 
@@ -264,7 +249,6 @@ class HubView extends StatelessWidget {
     required this.onDashboard,
     required this.onAlertDetail,
     required this.onMarkSeen,
-    required this.onEscalationDemo,
   });
 
   @override
@@ -330,7 +314,7 @@ class HubView extends StatelessWidget {
                               child: _CircleStatBento(
                                 label: 'Protectors',
                                 value: '$activeCount',
-                                emoji: '🛡️',
+                                icon: Icons.shield_outlined,
                                 L: L,
                               ),
                             ),
@@ -339,7 +323,9 @@ class HubView extends StatelessWidget {
                               child: _CircleStatBento(
                                 label: 'Monitoring',
                                 value: unseenCount > 0 ? 'Urgent' : 'Secure',
-                                emoji: unseenCount > 0 ? '🚨' : '🛡️',
+                                icon: unseenCount > 0
+                                    ? Icons.warning_amber_rounded
+                                    : Icons.verified_user_outlined,
                                 iconColor:
                                     unseenCount > 0 ? L.error : L.success,
                                 L: L,
@@ -376,14 +362,14 @@ class HubView extends StatelessWidget {
                             child: Row(
                               children: [
                                 _CompactPivotPill(
-                                  label: 'Family 🫂',
+                                  label: 'Family',
                                   active: pivot == 1,
                                   onTap: () => onPivotChanged(1),
                                   L: L,
                                 ),
                                 const SizedBox(width: 4),
                                 _CompactPivotPill(
-                                  label: 'Care 🏥',
+                                  label: 'Care',
                                   active: pivot == 0,
                                   onTap: () => onPivotChanged(0),
                                   L: L,
@@ -418,12 +404,8 @@ class HubView extends StatelessWidget {
                               ),
                               child: Row(
                                 children: [
-                                  if (!MedAiA11y.reducedMotion(context))
-                                    const Text('🚨',
-                                        style: TextStyle(fontSize: 24))
-                                  else
-                                    const Text('🚨',
-                                        style: TextStyle(fontSize: 24)),
+                                  const Icon(Icons.warning_amber_rounded,
+                                      color: Colors.white, size: 26),
                                   const SizedBox(width: 16),
                                   Expanded(
                                     child: Column(
@@ -486,7 +468,7 @@ class HubView extends StatelessWidget {
                                     relation: p['relation'] ?? 'Family',
                                     patientUid: p['uid'],
                                     addedAt: p['addedAt'] ?? 'just now',
-                                    avatar: p['avatar'] ?? '👤',
+                                    avatar: p['avatar'] ?? 'P',
                                   ));
                                 },
                               ).animate().fadeIn(
@@ -719,8 +701,6 @@ class HubView extends StatelessWidget {
                         ),
                       ],
 
-                      const SizedBox(height: 24),
-                      SimulateMissCard(L: L, onSimulate: onEscalationDemo),
                       const SizedBox(height: 140),
                     ],
                   ),
@@ -781,7 +761,7 @@ class HubView extends StatelessWidget {
       title: 'No guardians found',
       subtitle:
           'Invite family or medical professionals to monitor your medication safety.',
-      emoji: '🛡️',
+      icon: Icons.shield_outlined,
       illustrationAsset: PremiumGraphics.familyCare,
       actionLabel: 'Invite Guardian',
       onAction: onAddCg,
@@ -793,7 +773,7 @@ class HubView extends StatelessWidget {
       title: 'Protect your family',
       subtitle:
           'Join as a caregiver to see real-time health updates for your loved ones.',
-      emoji: '🫂',
+      icon: Icons.groups_rounded,
       illustrationAsset: PremiumGraphics.familyCare,
       actionLabel: 'Join Circle',
       onAction: onJoin,
@@ -964,7 +944,7 @@ class _CircleIconBtn extends StatelessWidget {
 
 class _CircleStatBento extends StatelessWidget {
   final String label, value;
-  final String emoji;
+  final IconData icon;
   final Color? iconColor;
   final AppThemeColors L;
   final bool glow;
@@ -972,7 +952,7 @@ class _CircleStatBento extends StatelessWidget {
   const _CircleStatBento({
     required this.label,
     required this.value,
-    required this.emoji,
+    required this.icon,
     this.iconColor,
     required this.L,
     this.glow = false,
@@ -981,9 +961,10 @@ class _CircleStatBento extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final emojiWidget = Text(
-      emoji,
-      style: TextStyle(fontSize: 12, color: iconColor ?? L.primary),
+    final iconWidget = Icon(
+      icon,
+      size: 14,
+      color: iconColor ?? L.primary,
     );
 
     return Container(
@@ -1015,7 +996,7 @@ class _CircleStatBento extends StatelessWidget {
                   color: (iconColor ?? L.primary).withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
-                child: emojiWidget,
+                child: iconWidget,
               ),
               const SizedBox(width: 10),
               Text(

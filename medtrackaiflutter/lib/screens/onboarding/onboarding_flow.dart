@@ -245,10 +245,10 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
                 final o = options[idx];
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 12),
-                  child:                   ObOptionCard(
+                  child: ObOptionCard(
                     label: o.label,
                     subtitle: o.sub,
-                    emoji: o.emoji,
+                    emoji: null,
                     multiSelect: multi,
                     selected: _c.isSelected(id, o.id, multiSelect: multi),
                     onTap: () {

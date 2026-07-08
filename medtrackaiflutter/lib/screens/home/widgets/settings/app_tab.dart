@@ -213,7 +213,7 @@ class _AppTabState extends State<AppTab> {
                   label: 'Share with friends',
                   semanticsLabel: 'Share MedAI with friends',
                   onTap: () => ShareService.shareText(
-                      'I\'m using MedAI to stay on top of my medications! 💊'),
+                      'I\'m using MedAI to stay on top of my medications.'),
                 ),
               ]),
             )),

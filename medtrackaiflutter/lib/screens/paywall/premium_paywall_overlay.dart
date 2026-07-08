@@ -89,12 +89,12 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   bool _exitOfferShown = false;
 
   static const _features = [
-    _Feature(icon: '🔬', label: 'Unlimited AI Scans', sub: 'No daily limit on pill recognition'),
-    _Feature(icon: '📊', label: 'Doctor Reports (PDF)', sub: 'Export clinical summaries anytime'),
-    _Feature(icon: '💊', label: 'Unlimited Medications', sub: 'Track every med without limits'),
-    _Feature(icon: '🔥', label: 'Streak Freeze Protection', sub: 'Never lose your streak'),
-    _Feature(icon: '🔒', label: 'Priority Biometric Lock', sub: 'Advanced HIPAA privacy mode'),
-    _Feature(icon: '🤖', label: 'AI Drug Interactions', sub: 'Full Gemini-powered analysis'),
+    _Feature(icon: Icons.document_scanner_rounded, label: 'Unlimited AI Scans', sub: 'No daily limit on pill recognition'),
+    _Feature(icon: Icons.summarize_rounded, label: 'Doctor Reports (PDF)', sub: 'Export clinical summaries anytime'),
+    _Feature(icon: Icons.medication_rounded, label: 'Unlimited Medications', sub: 'Track every med without limits'),
+    _Feature(icon: Icons.local_fire_department_rounded, label: 'Streak Freeze Protection', sub: 'Never lose your streak'),
+    _Feature(icon: Icons.lock_rounded, label: 'Priority Biometric Lock', sub: 'Advanced HIPAA privacy mode'),
+    _Feature(icon: Icons.psychology_alt_rounded, label: 'AI Drug Interactions', sub: 'Full Gemini-powered analysis'),
   ];
 
   @override
@@ -1028,7 +1028,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
 // ── Shared paywall primitives ─────────────────────────────────
 
 class _Feature {
-  final String icon;
+  final IconData icon;
   final String label;
   final String sub;
   const _Feature({required this.icon, required this.label, required this.sub});
@@ -1220,7 +1220,11 @@ class _FeatureRow extends StatelessWidget {
               ),
             ),
             child: Center(
-              child: Text(feature.icon, style: const TextStyle(fontSize: 18)),
+              child: Icon(
+                feature.icon,
+                size: 18,
+                color: Colors.white.withValues(alpha: 0.9),
+              ),
             ),
           ),
           const SizedBox(width: 14),

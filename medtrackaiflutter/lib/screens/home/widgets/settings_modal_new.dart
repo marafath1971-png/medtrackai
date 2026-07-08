@@ -45,11 +45,11 @@ class _SettingsModalState extends State<SettingsModal> {
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
     final tabs = [
-      {'id': 'profile', 'label': s.settingsProfile, 'icon': '👤'},
-      {'id': 'stats', 'label': s.settingsStats, 'icon': '📈'},
-      {'id': 'app', 'label': s.settingsApp, 'icon': '📱'},
-      {'id': 'data', 'label': s.settingsData, 'icon': '💾'},
-      {'id': 'global', 'label': s.settingsGlobal, 'icon': '🌐'},
+      {'id': 'profile', 'label': s.settingsProfile, 'icon': Icons.person_rounded},
+      {'id': 'stats', 'label': s.settingsStats, 'icon': Icons.bar_chart_rounded},
+      {'id': 'app', 'label': s.settingsApp, 'icon': Icons.phone_iphone_rounded},
+      {'id': 'data', 'label': s.settingsData, 'icon': Icons.storage_rounded},
+      {'id': 'global', 'label': s.settingsGlobal, 'icon': Icons.tune_rounded},
     ];
 
     return PopScope(
@@ -243,9 +243,13 @@ class _SettingsModalState extends State<SettingsModal> {
                                             ? L.accentGlow(intensity: 0.15)
                                             : null),
                                     child: Row(children: [
-                                      Text(t['icon'] as String,
-                                          style:
-                                              const TextStyle(fontSize: 14)),
+                                      Icon(
+                                        t['icon'] as IconData,
+                                        size: 15,
+                                        color: isAct
+                                            ? Colors.white
+                                            : L.text.withValues(alpha: 0.65),
+                                      ),
                                       const SizedBox(width: 8),
                                       Text(tabLabel,
                                           style: AppTypography.labelSmall

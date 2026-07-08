@@ -1,6 +1,5 @@
 import 'dart:ui';
 
-import 'package:confetti/confetti.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
@@ -35,27 +34,23 @@ class _AuthScreenState extends State<AuthScreen> {
   String? _error;
   bool _showPass = false;
   bool _loadingApple = false;
-  late final ConfettiController _confetti;
 
   @override
   void initState() {
     super.initState();
-    _confetti = ConfettiController(duration: const Duration(seconds: 2));
   }
 
   @override
   void dispose() {
     _emailCtrl.dispose();
     _passCtrl.dispose();
-    _confetti.dispose();
     super.dispose();
   }
 
   Future<void> _onAuthSuccess() async {
     HapticEngine.success();
     if (!MedAiA11y.reducedMotion(context)) {
-      _confetti.play();
-      await Future.delayed(const Duration(milliseconds: 800));
+      await Future.delayed(const Duration(milliseconds: 250));
     }
   }
 
@@ -189,7 +184,6 @@ class _AuthScreenState extends State<AuthScreen> {
     final L = context.L;
     final prefs = context.watch<AppState>().onboardingPrefs;
     final topPad = MediaQuery.of(context).padding.top;
-    final reduceMotion = MedAiA11y.reducedMotion(context);
 
     return AppScaffold(
       showAurora: true,
@@ -274,7 +268,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                         _LegalLink(
                           label: 'Terms',
-                          url: 'https://example.com/terms-of-service-2026',
+                          url: 'https://medtrackai.app/terms',
                         ),
                         Text(
                           ' and ',
@@ -285,7 +279,7 @@ class _AuthScreenState extends State<AuthScreen> {
                         ),
                         _LegalLink(
                           label: 'Privacy Policy',
-                          url: 'https://example.com/privacy-policy-2026',
+                          url: 'https://medtrackai.app/privacy',
                         ),
                       ],
                     ),
@@ -320,19 +314,6 @@ class _AuthScreenState extends State<AuthScreen> {
               ),
             ),
           ),
-          if (!reduceMotion)
-            Align(
-              alignment: Alignment.topCenter,
-              child: ConfettiWidget(
-                confettiController: _confetti,
-                blastDirectionality: BlastDirectionality.explosive,
-                colors: const [
-                  AppThemeColors2026.electric,
-                  AppThemeColors2026.wellness,
-                  Color(0xFFFF9F0A),
-                ],
-              ),
-            ),
         ],
       ),
     );

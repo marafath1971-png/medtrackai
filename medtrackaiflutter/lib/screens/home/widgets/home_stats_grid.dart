@@ -251,6 +251,7 @@ class _BentoMetricCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final iconData = _mapMetricIcon(emoji);
     Widget sparkline = SizedBox(
       height: 32,
       child: CustomPaint(
@@ -287,7 +288,11 @@ class _BentoMetricCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(AppRadius.s),
                   ),
                   child: Center(
-                    child: Text(emoji, style: const TextStyle(fontSize: 14)),
+                    child: Icon(
+                      iconData,
+                      size: 14,
+                      color: iconColor,
+                    ),
                   ),
                 ),
                 const SizedBox(width: AppSpacing.p8),
@@ -350,6 +355,15 @@ class _BentoMetricCard extends StatelessWidget {
       ),
     );
   }
+
+  IconData _mapMetricIcon(String token) {
+    return switch (token) {
+      '📈' => Icons.insights_rounded,
+      '📦' => Icons.inventory_2_rounded,
+      '✨' => Icons.mood_rounded,
+      _ => Icons.auto_awesome_rounded,
+    };
+  }
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -377,7 +391,8 @@ class _BentoSmallCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final emojiWidget = Text(emoji, style: const TextStyle(fontSize: 22));
+    final iconData = _mapSmallIcon(emoji);
+    final emojiWidget = Icon(iconData, size: 22, color: valueColor);
 
     return Semantics(
       button: onTap != null,
@@ -422,6 +437,15 @@ class _BentoSmallCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  IconData _mapSmallIcon(String token) {
+    return switch (token) {
+      '⚡' => Icons.bolt_rounded,
+      '🛡️' => Icons.shield_outlined,
+      '📈' => Icons.show_chart_rounded,
+      _ => Icons.insights_rounded,
+    };
   }
 }
 

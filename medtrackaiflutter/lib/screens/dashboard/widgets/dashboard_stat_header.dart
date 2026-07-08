@@ -26,7 +26,7 @@ class DashboardStatHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Statistic',
+                    'Analytics',
                     style: AppTypography.headlineMedium.copyWith(
                       color: L.text,
                       fontWeight: FontWeight.w800,

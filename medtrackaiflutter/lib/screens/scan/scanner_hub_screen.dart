@@ -72,10 +72,10 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
     _mode = widget.initialMode;
     _scanLineCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1600))
-      ..repeat(reverse: true);
+      ..forward();
     _breathCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 2400))
-      ..repeat(reverse: true);
+      ..forward();
     _cornerCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 800));
     _cornerCtrl.forward();
@@ -614,8 +614,27 @@ class _TopBar extends StatelessWidget {
             ),
           ),
           
-          // 3D Interactive App Icon
-          const _Animated3DIcon(),
+          // Premium title block
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'Scanner',
+                style: AppTypography.titleLarge.copyWith(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.3,
+                ),
+              ),
+              Text(
+                'AI medicine recognition',
+                style: AppTypography.labelSmall.copyWith(
+                  color: Colors.white.withValues(alpha: 0.72),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
           
           // Menu Button
           AnimatedPressable(
@@ -1353,8 +1372,8 @@ class _ScanningRow extends StatelessWidget {
                 color: AppColors.accent,
               ),
             ),
-          ).animate(onPlay: (controller) => controller.repeat())
-           .shimmer(duration: 1000.ms, color: Colors.white)
+          ).animate()
+           .shimmer(duration: 900.ms, color: Colors.white.withValues(alpha: 0.5))
         else
           Container(
             width: 22,
@@ -1463,7 +1482,8 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
   @override
   void initState() {
     super.initState();
-    _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))..repeat(reverse: true);
+    _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))
+      ..forward();
     _playStages();
   }
 

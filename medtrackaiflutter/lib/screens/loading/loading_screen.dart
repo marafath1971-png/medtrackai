@@ -1,49 +1,54 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../core/constants/premium_graphics.dart';
 import '../../theme/med_ai_ui.dart';
+import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/app_loading_indicator.dart';
+import '../../widgets/common/premium_illustration_banner.dart';
 
 class LoadingScreen extends StatelessWidget {
   const LoadingScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.oBg,
+    return AppScaffold(
+      showAurora: true,
       body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Image.asset('assets/images/app_logo.png', width: 120, height: 120)
-                .animate()
-                .fadeIn(duration: 800.ms, curve: Curves.easeOut)
-                .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.0, 1.0)),
-            const SizedBox(height: 24),
-            Text(
-              'MedAI',
-              style: AppTypography.displayLarge.copyWith(
-                fontSize: 32,
-                fontWeight: FontWeight.w900,
-                color: AppColors.oText,
-                letterSpacing: -1.0,
-              ),
-            )
-                .animate()
-                .fadeIn(delay: 400.ms, duration: 800.ms)
-                .slideY(begin: 0.5, end: 0, curve: Curves.easeOutCubic),
-            const SizedBox(height: 48),
-            const SizedBox(
-              width: 28,
-              height: 2,
-              child: LinearProgressIndicator(
-                backgroundColor: Colors.transparent,
-                valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-              ),
-            )
-                .animate()
-                .fadeIn(delay: 800.ms)
-                .shimmer(duration: 1500.ms, color: Colors.white24),
-          ],
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 340),
+          child: MedAiDepthCard(
+            padding: const EdgeInsets.all(22),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const PremiumIllustrationBanner(
+                  asset: PremiumGraphics.onboardingDiagnose,
+                  height: 120,
+                  padding: EdgeInsets.all(10),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'MedTrack AI',
+                  style: AppTypography.displaySmall.copyWith(
+                    fontWeight: FontWeight.w900,
+                    letterSpacing: -0.8,
+                    color: context.L.text,
+                  ),
+                ).animate().fadeIn(duration: 450.ms),
+                const SizedBox(height: 8),
+                Text(
+                  'Preparing your health workspace',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: context.L.sub,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 18),
+                const AppLoadingIndicator(size: 18),
+              ],
+            ),
+          ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.05, end: 0),
         ),
       ),
     );

@@ -86,68 +86,31 @@ class ScanResultDetailView extends StatelessWidget {
             ),
           ),
           
-        const SizedBox(height: 12),
+        const SizedBox(height: 8),
+
+        Text(
+          'Scan Result',
+          style: AppTypography.labelMedium.copyWith(
+            color: sub.withValues(alpha: 0.9),
+            fontWeight: FontWeight.w700,
+            letterSpacing: 0.4,
+          ),
+        ),
+
+        const SizedBox(height: 10),
 
         // Header Card
         _entrance(
           reduceMotion,
-          Container(
-            padding: const EdgeInsets.all(24),
-            decoration: BoxDecoration(
-              color: onDark ? Colors.white.withValues(alpha: 0.04) : L.card,
-              borderRadius: BorderRadius.circular(AppRadius.xl),
-              border: Border.all(
-                color: onDark ? Colors.white.withValues(alpha: 0.08) : L.border,
-                width: 1,
-              ),
-              boxShadow: AppShadows.soft,
-            ),
-            child: Column(
-              children: [
-                if (capturedImage != null || (result.imageUrl != null && result.imageUrl!.isNotEmpty)) ...[
-                  _HeroImage(
-                    capturedImage: capturedImage,
-                    imageUrl: result.imageUrl,
-                    onDark: onDark,
-                  ),
-                  const SizedBox(height: 20),
-                ],
-                _StatusBadge(identified: result.identified, onDark: onDark),
-                const SizedBox(height: 16),
-                Text(
-                  name,
-                  textAlign: TextAlign.center,
-                  style: AppTypography.displaySmall.copyWith(
-                    color: fg,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 28,
-                    letterSpacing: -0.6,
-                    height: 1.1,
-                  ),
-                ),
-                if (result.brand.isNotEmpty) ...[
-                  const SizedBox(height: 8),
-                  Text(
-                    result.brand,
-                    textAlign: TextAlign.center,
-                    style: AppTypography.titleMedium.copyWith(
-                      color: sub,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-                if (result.genericName.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    'Generic: ${result.genericName}',
-                    textAlign: TextAlign.center,
-                    style: AppTypography.bodySmall.copyWith(color: sub, height: 1.4),
-                  ),
-                ],
-                const SizedBox(height: 24),
-                ConfidenceMeter(confidence: confidence, onDark: onDark),
-              ],
-            ),
+          _PrimaryHeroCard(
+            name: name,
+            brand: result.brand,
+            genericName: result.genericName,
+            identified: result.identified,
+            confidence: confidence,
+            capturedImage: capturedImage,
+            imageUrl: result.imageUrl,
+            onDark: onDark,
           ),
           delay: 50.ms,
         ),
@@ -198,6 +161,12 @@ class ScanResultDetailView extends StatelessWidget {
               accent: AppColors.amber,
               onDark: onDark,
               children: [
+                _SafetySnapshot(
+                  warningCount: _estimatedBulletCount(result.warnings),
+                  interactionCount: _estimatedBulletCount(result.interactions),
+                  sideEffectCount: _estimatedBulletCount(result.sideEffects),
+                  onDark: onDark,
+                ),
                 if (result.warnings.isNotEmpty) _GroupedItem(icon: Icons.warning_amber_rounded, label: 'Warnings', text: result.warnings, accent: AppColors.amber, onDark: onDark),
                 if (result.sideEffects.isNotEmpty) _GroupedItem(icon: Icons.healing_outlined, label: 'Side effects', text: result.sideEffects, onDark: onDark),
                 if (result.interactions.isNotEmpty) _GroupedItem(icon: Icons.link_off_rounded, label: 'Interactions', text: result.interactions, accent: AppColors.red, onDark: onDark),
@@ -246,21 +215,33 @@ class ScanResultDetailView extends StatelessWidget {
 
         const SizedBox(height: 40),
 
-        // CTAs in a subtle floating-like container
+        // CTAs in a premium action panel
         _entrance(
           reduceMotion,
           Container(
             padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: onDark ? Colors.black.withValues(alpha: 0.2) : L.card,
+              color: onDark ? Colors.white.withValues(alpha: 0.04) : L.card,
               borderRadius: BorderRadius.circular(AppRadius.xl),
               border: Border.all(
-                color: onDark ? Colors.white.withValues(alpha: 0.1) : L.border.withValues(alpha: 0.5),
+                color: onDark
+                    ? Colors.white.withValues(alpha: 0.12)
+                    : L.border.withValues(alpha: 0.5),
               ),
-              boxShadow: AppShadows.soft,
+              boxShadow: AppShadows.premium,
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Text(
+                  'What would you like to do next?',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.labelLarge.copyWith(
+                    color: fg.withValues(alpha: 0.95),
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 14),
                 MedAiCTA(
                   label: 'Add to My Medicines',
                   icon: Icons.add_rounded,
@@ -284,7 +265,7 @@ class ScanResultDetailView extends StatelessWidget {
           'AI identification — always verify with your pharmacist or prescriber.',
           textAlign: TextAlign.center,
           style: AppTypography.bodySmall.copyWith(
-            color: sub.withValues(alpha: 0.85),
+            color: sub.withValues(alpha: 0.9),
             height: 1.5,
           ),
         ),
@@ -351,12 +332,125 @@ class ScanResultDetailView extends StatelessWidget {
       result.halalStatus != 'unknown' ||
       result.halalNote.isNotEmpty;
 
+  int _estimatedBulletCount(String raw) {
+    if (raw.trim().isEmpty) return 0;
+    final lines = raw
+        .split('\n')
+        .map((e) => e.trim())
+        .where((e) => e.isNotEmpty)
+        .toList();
+    final bullets = lines.where((e) => e.startsWith('•') || e.startsWith('-')).length;
+    if (bullets > 0) return bullets;
+    return lines.length.clamp(1, 8);
+  }
+
   static Widget _entrance(bool reduceMotion, Widget child, {Duration? delay}) {
     if (reduceMotion) return child;
     return child
         .animate(delay: delay)
         .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
         .slideY(begin: 0.06, end: 0, curve: AppCurves.smooth);
+  }
+}
+
+class _PrimaryHeroCard extends StatelessWidget {
+  final String name;
+  final String brand;
+  final String genericName;
+  final bool identified;
+  final double confidence;
+  final File? capturedImage;
+  final String? imageUrl;
+  final bool onDark;
+
+  const _PrimaryHeroCard({
+    required this.name,
+    required this.brand,
+    required this.genericName,
+    required this.identified,
+    required this.confidence,
+    required this.capturedImage,
+    required this.imageUrl,
+    required this.onDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    final fg = onDark ? Colors.white : L.text;
+    final sub = onDark ? Colors.white.withValues(alpha: 0.62) : L.sub;
+    final hasImage = capturedImage != null || (imageUrl != null && imageUrl!.isNotEmpty);
+
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: onDark
+              ? [
+                  Colors.white.withValues(alpha: 0.06),
+                  Colors.white.withValues(alpha: 0.02),
+                ]
+              : [
+                  L.card,
+                  L.card.withValues(alpha: 0.92),
+                ],
+        ),
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        border: Border.all(
+          color: onDark ? Colors.white.withValues(alpha: 0.12) : L.border,
+          width: 1,
+        ),
+        boxShadow: AppShadows.premium,
+      ),
+      child: Column(
+        children: [
+          if (hasImage) ...[
+            _HeroImage(
+              capturedImage: capturedImage,
+              imageUrl: imageUrl,
+              onDark: onDark,
+            ),
+            const SizedBox(height: 18),
+          ],
+          _StatusBadge(identified: identified, onDark: onDark),
+          const SizedBox(height: 14),
+          Text(
+            name,
+            textAlign: TextAlign.center,
+            style: AppTypography.displaySmall.copyWith(
+              color: fg,
+              fontWeight: FontWeight.w800,
+              fontSize: 28,
+              letterSpacing: -0.6,
+              height: 1.1,
+            ),
+          ),
+          if (brand.isNotEmpty) ...[
+            const SizedBox(height: 8),
+            Text(
+              brand,
+              textAlign: TextAlign.center,
+              style: AppTypography.titleMedium.copyWith(
+                color: sub,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
+          if (genericName.isNotEmpty) ...[
+            const SizedBox(height: 4),
+            Text(
+              'Generic: $genericName',
+              textAlign: TextAlign.center,
+              style: AppTypography.bodySmall.copyWith(color: sub, height: 1.4),
+            ),
+          ],
+          const SizedBox(height: 20),
+          ConfidenceMeter(confidence: confidence, onDark: onDark),
+        ],
+      ),
+    );
   }
 }
 
@@ -414,19 +508,20 @@ class _HeroImage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: 180,
-      width: 180,
+      height: 184,
+      width: double.infinity,
       decoration: BoxDecoration(
-        shape: BoxShape.circle,
+        borderRadius: BorderRadius.circular(22),
         border: Border.all(
           color: onDark
               ? Colors.white.withValues(alpha: 0.15)
               : context.L.border.withValues(alpha: 0.3),
-          width: 3,
+          width: 1.4,
         ),
         boxShadow: AppShadows.premium,
       ),
-      child: ClipOval(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
         child: capturedImage != null
             ? Image.file(capturedImage!, fit: BoxFit.cover)
             : MedImage(
@@ -655,38 +750,134 @@ class _GroupedItem extends StatelessWidget {
     final L = context.L;
     final sub = onDark ? Colors.white.withValues(alpha: 0.7) : L.sub;
     final fg = onDark ? Colors.white : L.text;
-    final accentColor = accent ?? (onDark ? Colors.white.withValues(alpha: 0.5) : L.sub.withValues(alpha: 0.5));
+    final accentColor =
+        accent ?? (onDark ? Colors.white.withValues(alpha: 0.5) : L.sub.withValues(alpha: 0.5));
+    final bg = accentColor.withValues(alpha: onDark ? 0.12 : 0.08);
+    final border = accentColor.withValues(alpha: onDark ? 0.38 : 0.24);
 
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Icon(icon, size: 18, color: accentColor),
-        const SizedBox(width: 14),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: AppTypography.labelMedium.copyWith(
-                  color: fg,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                ),
-              ),
-              const SizedBox(height: 6),
-              Text(
-                text,
-                style: AppTypography.bodySmall.copyWith(
-                  color: sub,
-                  height: 1.5,
-                  fontSize: 14,
-                ),
-              ),
-            ],
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: bg,
+        borderRadius: BorderRadius.circular(AppRadius.m),
+        border: Border.all(color: border, width: 0.7),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 30,
+            height: 30,
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.18),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 16, color: accentColor),
           ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: AppTypography.labelMedium.copyWith(
+                    color: fg,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  text,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: sub,
+                    height: 1.5,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SafetySnapshot extends StatelessWidget {
+  final int warningCount;
+  final int interactionCount;
+  final int sideEffectCount;
+  final bool onDark;
+
+  const _SafetySnapshot({
+    required this.warningCount,
+    required this.interactionCount,
+    required this.sideEffectCount,
+    required this.onDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: [
+        _SafetyCountChip(
+          label: 'Warnings',
+          value: warningCount,
+          color: AppColors.amber,
+          onDark: onDark,
+        ),
+        _SafetyCountChip(
+          label: 'Interactions',
+          value: interactionCount,
+          color: AppColors.red,
+          onDark: onDark,
+        ),
+        _SafetyCountChip(
+          label: 'Side effects',
+          value: sideEffectCount,
+          color: AppColors.purple,
+          onDark: onDark,
         ),
       ],
+    );
+  }
+}
+
+class _SafetyCountChip extends StatelessWidget {
+  final String label;
+  final int value;
+  final Color color;
+  final bool onDark;
+
+  const _SafetyCountChip({
+    required this.label,
+    required this.value,
+    required this.color,
+    required this.onDark,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    final textColor = onDark ? Colors.white : L.text;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: color.withValues(alpha: onDark ? 0.16 : 0.12),
+        borderRadius: BorderRadius.circular(AppRadius.max),
+        border: Border.all(color: color.withValues(alpha: 0.35), width: 0.7),
+      ),
+      child: Text(
+        '$label: $value',
+        style: AppTypography.labelSmall.copyWith(
+          color: textColor,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
     );
   }
 }
