@@ -19,6 +19,10 @@ class MedAiAssets {
   static const illustrationAppLogo = 'assets/images/app_logo.png';
   static const illustrationAppIcon = 'assets/images/app_icon.png';
   static const illustrationAppIconBlue = 'assets/images/app_icon_blue.png';
+  // Pill-less ghost mascot for the home/dashboard fuel-gauge hero. Must be a
+  // transparent-background silhouette so the liquid fill traces the ghost
+  // shape. Falls back to an icon via errorBuilder if the file is absent.
+  static const illustrationMascot = 'assets/images/mascot.png';
 
   // SVG icons
   static const iconScan = 'assets/icons/scan.svg';

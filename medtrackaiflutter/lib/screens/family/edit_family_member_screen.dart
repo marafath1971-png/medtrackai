@@ -9,6 +9,7 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/app_scaffold.dart';
+import '../../../widgets/common/premium_page_header.dart';
 
 class EditFamilyMemberScreen extends StatefulWidget {
   final ManagedProfile member;
@@ -194,56 +195,38 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
         physics: const BouncingScrollPhysics(
             parent: AlwaysScrollableScrollPhysics()),
         slivers: [
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: Semantics(
-              button: true,
-              label: 'Close',
-              child: AnimatedPressable(
-                onTap: () => Navigator.of(context).pop(),
-                child: Container(
-                  width: MedAiA11y.minTapTarget,
-                  height: MedAiA11y.minTapTarget,
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: L.fill.withValues(alpha: 0.5),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.close_rounded, color: L.text, size: 20),
-                ),
-              ),
-            ),
-            title: Text(
-              'Edit Member',
-              style: AppTypography.titleLarge.copyWith(
-                color: L.text,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.3,
-              ),
-            ),
-            centerTitle: true,
-            actions: [
-              Semantics(
+          SliverToBoxAdapter(
+            child: PremiumPageHeader(
+              title: 'Edit Member',
+              subtitle: widget.member.name,
+              onBack: () {
+                HapticEngine.selection();
+                Navigator.of(context).pop();
+              },
+              trailing: Semantics(
                 button: true,
                 label: 'Remove member',
                 child: AnimatedPressable(
                   onTap: _handleDelete,
                   child: Container(
-                    width: MedAiA11y.minTapTarget,
-                    height: MedAiA11y.minTapTarget,
-                    margin: const EdgeInsets.only(right: 8),
+                    width: 42,
+                    height: 42,
                     decoration: BoxDecoration(
                       color: L.error.withValues(alpha: 0.08),
                       shape: BoxShape.circle,
+                      border: Border.all(
+                        color: L.error.withValues(alpha: 0.25),
+                      ),
                     ),
-                    child: Icon(Icons.delete_outline_rounded,
-                        color: L.error, size: 20),
+                    child: Icon(
+                      Icons.delete_outline_rounded,
+                      color: L.error,
+                      size: 18,
+                    ),
                   ),
                 ),
               ),
-            ],
+            ),
           ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),

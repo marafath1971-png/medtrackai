@@ -14,12 +14,14 @@ class TimelinePillSelector extends StatefulWidget {
   final int selectedIndex;
   final ValueChanged<int> onSelect;
   final AppThemeColors L;
+  final List<String> tabs;
 
   const TimelinePillSelector({
     super.key,
     required this.selectedIndex,
     required this.onSelect,
     required this.L,
+    required this.tabs,
   });
 
   @override
@@ -30,7 +32,6 @@ class _TimelinePillSelectorState extends State<TimelinePillSelector> {
   @override
   Widget build(BuildContext context) {
     final L = widget.L;
-    final tabs = ['This week', 'Last week', '2w ago', '3w ago'];
     return SingleChildScrollView(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       scrollDirection: Axis.horizontal,
@@ -49,12 +50,12 @@ class _TimelinePillSelectorState extends State<TimelinePillSelector> {
           builder: (ctx, constraints) {
             return Row(
               mainAxisSize: MainAxisSize.min,
-              children: List.generate(tabs.length, (index) {
+              children: List.generate(widget.tabs.length, (index) {
                 final isSelected = widget.selectedIndex == index;
                 return Semantics(
                   button: true,
                   selected: isSelected,
-                  label: tabs[index],
+                  label: widget.tabs[index],
                   child: AnimatedPressable(
                     onTap: () => widget.onSelect(index),
                     child: AnimatedContainer(
@@ -91,7 +92,7 @@ class _TimelinePillSelectorState extends State<TimelinePillSelector> {
                               : null),
                     ),
                     child: Text(
-                      tabs[index],
+                      widget.tabs[index],
                       style: AppTypography.labelLarge.copyWith(
                         color: isSelected
                             ? (context.isDark ? L.text : Colors.white)
@@ -212,17 +213,7 @@ class LatencyHeatmap extends StatelessWidget {
                                         spreadRadius: 2),
                                   ],
                                 ),
-                              )
-                                  .animate(
-                                      key: ValueKey('latency_pulse_${d['date']}_$i'),
-                                      onPlay: (c) => c.repeat(reverse: true))
-                                  .scale(
-                                    begin: const Offset(1, 1),
-                                    end: const Offset(1.3, 1.3),
-                                    duration: 1500.ms,
-                                    curve: Curves.easeInOutSine,
-                                    delay: (i * 100).ms,
-                                  ),
+                              ),
                             );
                           }),
                           // Viral Laser Line Scan
@@ -319,196 +310,150 @@ class HealthCoachCard extends StatelessWidget {
     if (insights.isEmpty) return _buildEmptyState(L);
 
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        MedAiSectionHeader(
-          title: 'AI health coach',
-          action: Semantics(
-            button: true,
-            label: 'Refresh AI insights',
-            child: AnimatedPressable(
-              onTap: onRetry,
-              child: Container(
-                constraints: const BoxConstraints(
-                    minHeight: MedAiA11y.minTapTargetCompact),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: L.purple.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    const Text('🪄', style: TextStyle(fontSize: 14)),
-                    const SizedBox(width: 4),
-                    Text('Refresh',
-                        style: AppTypography.labelSmall.copyWith(
-                            color: L.purple,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 10)),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-        const SizedBox(height: 8),
-        ...insights.map((ins) {
-          final cat = ins.category.toLowerCase();
-          final color = (cat.contains('safe') || cat.contains('warn'))
-              ? L.error
-              : (cat.contains('adh') ? L.text : L.purple);
+      children: insights.map((ins) {
+        final cat = ins.category.toLowerCase();
+        final color = (cat.contains('safe') || cat.contains('warn'))
+            ? L.error
+            : (cat.contains('adh') ? AppColors.limeDeep : L.purple);
 
-          return Padding(
-            padding: const EdgeInsets.only(bottom: 16),
-            child: MedAiDepthCard(
-              padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 8, vertical: 4),
-                        decoration: BoxDecoration(
-                            color: color.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(4)),
-                        child: Text(cat,
-                            style: AppTypography.labelSmall.copyWith(
-                                color: color,
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800)),
+        return Padding(
+          padding: const EdgeInsets.only(bottom: 12),
+          child: Container(
+            padding: const EdgeInsets.all(18),
+            decoration: BoxDecoration(
+              color: L.card,
+              borderRadius: BorderRadius.circular(22),
+              border: Border.all(color: L.border.withValues(alpha: 0.35)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 8, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.12),
+                        borderRadius: BorderRadius.circular(8),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Text(ins.title,
-                            style: AppTypography.titleMedium.copyWith(
-                                color: L.text, fontWeight: FontWeight.w800)),
+                      child: Text(
+                        cat,
+                        style: AppTypography.labelSmall.copyWith(
+                          color: color,
+                          fontSize: 10,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  SmoothingText(
-                    text: ins.body,
-                    style: AppTypography.bodySmall.copyWith(
-                        color: L.sub,
-                        fontSize: 13,
-                        height: 1.5,
-                        fontWeight: FontWeight.w500),
-                  ),
-                  if (ins.steps.isNotEmpty) ...[
-                    const SizedBox(height: 20),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: ins.steps
-                          .map((step) => Semantics(
-                                button: true,
-                                label: step,
-                                child: AnimatedPressable(
-                                  onTap: () => context
-                                      .read<AppState>()
-                                      .executeStepAction(step, context),
-                                  scaleFactor: 0.97,
-                                  child: Container(
-                                    constraints: const BoxConstraints(
-                                      minHeight: MedAiA11y.minTapTargetCompact,
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 12, vertical: 6),
-                                    decoration: BoxDecoration(
-                                        color: L.text.withValues(alpha: 0.05),
-                                        borderRadius:
-                                            BorderRadius.circular(8)),
-                                    alignment: Alignment.center,
-                                    child: Text(step,
-                                        style:
-                                            AppTypography.labelSmall.copyWith(
-                                                color: L.text,
-                                                fontSize: 10,
-                                                fontWeight: FontWeight.w800)),
-                                  ),
-                                ),
-                              ))
-                          .toList(),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        ins.title,
+                        style: AppTypography.titleMedium.copyWith(
+                          color: L.text,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                    Semantics(
+                      button: true,
+                      label: 'Refresh AI insights',
+                      child: AnimatedPressable(
+                        onTap: onRetry,
+                        child: Icon(Icons.refresh_rounded,
+                            size: 20, color: L.sub.withValues(alpha: 0.6)),
+                      ),
                     ),
                   ],
+                ),
+                const SizedBox(height: 12),
+                SmoothingText(
+                  text: ins.body,
+                  style: AppTypography.bodySmall.copyWith(
+                    color: L.sub,
+                    fontSize: 13,
+                    height: 1.5,
+                  ),
+                ),
+                if (ins.steps.isNotEmpty) ...[
+                  const SizedBox(height: 14),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: ins.steps
+                        .map((step) => AnimatedPressable(
+                              onTap: () => context
+                                  .read<AppState>()
+                                  .executeStepAction(step, context),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 12, vertical: 6),
+                                decoration: BoxDecoration(
+                                  color: L.fill.withValues(alpha: 0.6),
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: Text(
+                                  step,
+                                  style: AppTypography.labelSmall.copyWith(
+                                    color: L.text,
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 11,
+                                  ),
+                                ),
+                              ),
+                            ))
+                        .toList(),
+                  ),
                 ],
-              ),
+              ],
             ),
-          ).animate(key: ValueKey('health_coach_item_${ins.title}')).fadeIn(duration: 600.ms).slideY(begin: 0.05, end: 0);
-        }),
-      ],
+          ),
+        );
+      }).toList(),
     );
   }
 
   Widget _buildEmptyState(AppThemeColors L) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Expanded(
-              child: Row(
-                children: [
-                  Icon(Icons.auto_awesome_rounded, color: L.purple, size: 14),
-                  const SizedBox(width: 8),
-                  Text('AI medical briefing',
-                      style: AppTypography.titleMedium.copyWith(
-                          color: L.text,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.2)),
-                ],
-              ),
+    return Container(
+      padding: const EdgeInsets.all(24),
+      width: double.infinity,
+      decoration: BoxDecoration(
+        color: L.card,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: L.border.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        children: [
+          Container(
+            width: 52,
+            height: 52,
+            decoration: BoxDecoration(
+              color: AppColors.pastelLilac,
+              shape: BoxShape.circle,
             ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.all(32),
-          width: double.infinity,
-          decoration: BoxDecoration(
-            color: L.card,
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(color: L.border.withValues(alpha: 0.1)),
+            child: Icon(Icons.auto_awesome_rounded,
+                color: L.purple, size: 26),
           ),
-          child: Column(
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: L.purple.withValues(alpha: 0.1),
-                  shape: BoxShape.circle,
-                ),
-                child:
-                    Icon(Icons.auto_awesome_rounded, color: L.purple, size: 28),
-              ),
-              const SizedBox(height: 24),
-              Text('Your AI Coach is ready',
-                  style: AppTypography.titleLarge.copyWith(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w800,
-                      color: L.text)),
-              const SizedBox(height: 12),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Text(
-                  'Add your medications and log doses to receive personalized health insights and adherence tips.',
-                  textAlign: TextAlign.center,
-                  style: AppTypography.bodySmall.copyWith(
-                      color: L.sub,
-                      height: 1.5,
-                      fontWeight: FontWeight.w500,
-                      fontSize: 13),
-                ),
-              ),
-            ],
+          const SizedBox(height: 16),
+          Text(
+            'AI insights will appear here',
+            style: AppTypography.titleMedium.copyWith(
+              fontWeight: FontWeight.w700,
+              color: L.text,
+            ),
           ),
-        ).animate(key: const ValueKey('health_coach_empty_state_anim')).fadeIn(duration: 800.ms).slideY(begin: 0.05, end: 0),
-      ],
+          const SizedBox(height: 8),
+          Text(
+            'Log doses and add medicines to get personalized tips.',
+            textAlign: TextAlign.center,
+            style: AppTypography.bodySmall.copyWith(
+              color: L.sub,
+              height: 1.4,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -715,155 +660,76 @@ class InventoryStatusCard extends StatelessWidget {
     final trackedMeds = meds.where((m) => m.count > 0).toList();
     if (trackedMeds.isEmpty) return const SizedBox.shrink();
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Text('💊', style: TextStyle(fontSize: 16)),
-            const SizedBox(width: 8),
-            Text(
-              'Supply status',
-              style: AppTypography.labelSmall.copyWith(
-                fontSize: 11,
-                color: L.sub.withValues(alpha: 0.8),
-                letterSpacing: 2.0,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-          decoration: AppColors.eatoCard(
-            L,
-            isDark: context.isDark,
-            radius: 32,
-          ),
-          child: Column(
-            children: trackedMeds.asMap().entries.map((entry) {
-              final i = entry.key;
-              final med = entry.value;
-              final isLow = med.count <= med.refillAt;
-              final color = isLow ? L.error : L.text;
-              final pct = (med.count / 30).clamp(0.01, 1.0);
-              return Padding(
-                padding: EdgeInsets.only(
-                    bottom: i == trackedMeds.length - 1 ? 0 : 16),
-                child: Row(
-                  children: [
-                    Expanded(
-                      flex: 3,
-                      child: Text(
-                        med.name,
-                        style: AppTypography.labelSmall.copyWith(
-                          color: L.text,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 9,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                    Expanded(
-                      flex: 4,
-                      child: _HighFidelityBar(
-                          pct: pct, color: color, L: L, isLow: isLow),
-                    ),
-                    const SizedBox(width: 16),
-                    SizedBox(
-                      width: 28,
-                      child: Text(
-                        '${med.count}',
-                        style: AppTypography.labelSmall.copyWith(
-                          color: color,
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
-                        ),
-                        textAlign: TextAlign.right,
-                      ).animate(
-                        key: ValueKey('inventory_text_${med.name}'),
-                        target: isLow ? 1 : 0,
-                        onPlay: (c) => c.repeat(reverse: true),
-                      ).shimmer(
-                        duration: 1500.ms,
-                        color: L.error.withValues(alpha: 0.4),
-                        angle: 0.8,
-                      ).shake(
-                        hz: 2,
-                        duration: 1500.ms,
-                        curve: Curves.easeInOut,
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            }).toList(),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-class _HighFidelityBar extends StatelessWidget {
-  final double pct;
-  final Color color;
-  final AppThemeColors L;
-  final bool isLow;
-  const _HighFidelityBar(
-      {required this.pct,
-      required this.color,
-      required this.L,
-      this.isLow = false});
-
-  @override
-  Widget build(BuildContext context) {
     return Container(
-      height: 6,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
       decoration: BoxDecoration(
-        color: L.fill.withValues(alpha: 0.4),
-        borderRadius: BorderRadius.circular(100),
+        color: L.card,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: L.border.withValues(alpha: 0.35)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
-      child: LayoutBuilder(
-        builder: (ctx, constraints) {
-          return Stack(
-            children: [
-              AnimatedContainer(
-                duration: const Duration(milliseconds: 800),
-                curve: Curves.easeOutCubic,
-                width: constraints.maxWidth * pct,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      color.withValues(alpha: 0.7),
-                      color,
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(100),
-                  boxShadow: [
-                    BoxShadow(
-                      color: color.withValues(alpha: 0.25),
-                      blurRadius: 6,
-                      offset: const Offset(0, 2),
+      child: Column(
+        children: trackedMeds.asMap().entries.map((entry) {
+          final i = entry.key;
+          final med = entry.value;
+          final isLow = med.count <= med.refillAt;
+          final color = isLow ? L.error : AppColors.limeDeep;
+          final pct = (med.count / (med.totalCount > 0 ? med.totalCount : 30))
+              .clamp(0.01, 1.0);
+
+          return Padding(
+            padding:
+                EdgeInsets.only(bottom: i == trackedMeds.length - 1 ? 0 : 14),
+            child: Row(
+              children: [
+                Expanded(
+                  flex: 3,
+                  child: Text(
+                    med.name,
+                    style: AppTypography.labelMedium.copyWith(
+                      color: L.text,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
                     ),
-                  ],
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
                 ),
-              ).animate(
-                key: ValueKey('inventory_bar_${pct}_$isLow'),
-                target: isLow ? 1 : 0,
-                onPlay: (c) => c.repeat(reverse: true),
-              ).shimmer(
-                duration: 2.seconds,
-                color: Colors.white.withValues(alpha: 0.3),
-              ).tint(
-                color: Colors.white.withValues(alpha: 0.1),
-                duration: 2.seconds,
-              ),
-            ],
+                Expanded(
+                  flex: 4,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(100),
+                    child: LinearProgressIndicator(
+                      value: pct,
+                      minHeight: 6,
+                      backgroundColor: L.fill.withValues(alpha: 0.5),
+                      color: color,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                SizedBox(
+                  width: 28,
+                  child: Text(
+                    '${med.count}',
+                    style: AppTypography.labelMedium.copyWith(
+                      color: color,
+                      fontWeight: FontWeight.w800,
+                      fontSize: 14,
+                    ),
+                    textAlign: TextAlign.right,
+                  ),
+                ),
+              ],
+            ),
           );
-        },
+        }).toList(),
       ),
     );
   }
@@ -912,177 +778,52 @@ class _SmartLoadingInsightsState extends State<SmartLoadingInsights> {
   @override
   Widget build(BuildContext context) {
     final L = widget.L;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            const Text('🧠', style: TextStyle(fontSize: 16)),
-            const SizedBox(width: 8),
-            Text(
-              'AI coach syncing',
-              style: AppTypography.labelSmall.copyWith(
-                fontSize: 11,
-                color: L.purple,
-                letterSpacing: 2.0,
-                fontWeight: FontWeight.w800,
-              ),
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: L.card,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: L.border.withValues(alpha: 0.35)),
+      ),
+      child: Row(
+        children: [
+          SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(
+              strokeWidth: 2.5,
+              color: L.purple,
             ),
-          ],
-        ),
-        const SizedBox(height: 16),
-        MedAiDepthCard(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Premium Header
-              Row(
-                children: [
-                  // Spinning AI glow circle
-                  Container(
-                    width: 42,
-                    height: 42,
-                    decoration: BoxDecoration(
-                      color: L.purple.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: L.purple.withValues(alpha: 0.2),
-                        width: 1.5,
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(
-                        Icons.auto_awesome_rounded,
-                        color: Colors.purple,
-                        size: 20,
-                      ),
-                    ),
-                  ).animate(
-                    key: const ValueKey('ai_spinning_glow_loader'),
-                    onPlay: (c) => c.repeat(),
-                  ).rotate(duration: 3.seconds).scaleXY(
-                    begin: 0.95,
-                    end: 1.05,
-                    duration: 1.5.seconds,
-                    curve: Curves.easeInOut,
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'MedAI Engine is Active',
-                          style: AppTypography.titleMedium.copyWith(
-                            color: L.text,
-                            fontWeight: FontWeight.w800,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        // Smart rotating status message
-                        AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 400),
-                          transitionBuilder: (child, animation) {
-                            return FadeTransition(
-                              opacity: animation,
-                              child: SlideTransition(
-                                position: Tween<Offset>(
-                                  begin: const Offset(0.0, 0.2),
-                                  end: Offset.zero,
-                                ).animate(animation),
-                                child: child,
-                              ),
-                            );
-                          },
-                          child: Text(
-                            _smartLoadingMessages[_messageIndex],
-                            key: ValueKey<int>(_messageIndex),
-                            style: AppTypography.bodySmall.copyWith(
-                              color: L.purple,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 24),
-              // High fidelity loading bar
-              Container(
-                height: 4,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: L.purple.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: FractionallySizedBox(
-                  alignment: Alignment.centerLeft,
-                  widthFactor: 0.7,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: L.purple,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: L.purple.withValues(alpha: 0.3),
-                          blurRadius: 8,
-                          offset: const Offset(0, 1),
-                        )
-                      ],
-                    ),
-                  ),
-                ).animate(
-                  key: const ValueKey('ai_insights_bar_shimmer'),
-                  onPlay: (c) => c.repeat(),
-                ).shimmer(
-                  duration: 1.5.seconds,
-                  color: Colors.white.withValues(alpha: 0.4),
-                ),
-              ),
-              const SizedBox(height: 24),
-              // Shimmer details that mimic coach card lines
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 10,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: L.fill.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    height: 10,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: L.fill.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Container(
-                    height: 10,
-                    width: 160,
-                    decoration: BoxDecoration(
-                      color: L.fill.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                  ),
-                ],
-              ).animate().shimmer(
-                duration: 1.8.seconds,
-                color: L.fill.withValues(alpha: 0.1),
-              ),
-            ],
           ),
-        ),
-      ],
-    ).animate(key: const ValueKey('smart_loading_insights_fade_anim')).fadeIn(duration: 400.ms);
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Analyzing your data',
+                  style: AppTypography.titleMedium.copyWith(
+                    color: L.text,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 350),
+                  child: Text(
+                    _smartLoadingMessages[_messageIndex],
+                    key: ValueKey<int>(_messageIndex),
+                    style: AppTypography.bodySmall.copyWith(
+                      color: L.sub,
+                      height: 1.3,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

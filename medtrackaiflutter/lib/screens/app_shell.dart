@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'dart:ui';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../app/app_routes.dart';
 import '../providers/app_state.dart';
 import '../theme/med_ai_ui.dart';
@@ -14,6 +15,7 @@ import '../widgets/common/app_svg_icon.dart';
 import 'home/widgets/streak_modal.dart';
 import 'package:go_router/go_router.dart';
 import 'security/lock_screen.dart';
+import '../l10n/app_localizations.dart';
 
 import '../services/analytics_service.dart';
 import '../widgets/modals/dose_celebration_modal.dart';
@@ -46,7 +48,27 @@ class _AppShellState extends State<AppShell>
       if (mounted) await AIConsentSheet.checkAndShow(context);
       if (mounted) MedicalDisclaimerModal.showIfNeeded(context);
       _checkReentry();
+      _checkFirstMedActivation();
     });
+  }
+
+  /// Session-1 activation (blueprint §6 step 48): if onboarding captured how
+  /// the user wants to add their first med, deep-link straight there on the
+  /// first home load. Users who activate in session 1 are 2–3x more likely
+  /// to subscribe. One-shot: the flag is cleared before navigating.
+  Future<void> _checkFirstMedActivation() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      final method = prefs.getString('pending_first_med_method');
+      if (method == null) return;
+      await prefs.remove('pending_first_med_method');
+      if (!mounted) return;
+      if (context.read<AppState>().meds.isNotEmpty) return;
+      // Let the shell settle before pushing the add flow.
+      await Future.delayed(const Duration(milliseconds: 600));
+      if (!mounted) return;
+      context.push(method == 'scan' ? AppRoutes.scanPill : AppRoutes.scan);
+    } catch (_) {/* activation nudge is best-effort */}
   }
 
   @override
@@ -290,7 +312,10 @@ class _AppShellState extends State<AppShell>
   }
 
   Widget _buildBottomIsland(AppThemeColors L, int unseenAlerts) {
-    const labels = ['Home', 'Analytics', 'Alarms', 'Circle'];
+    final s = AppLocalizations.of(context);
+    final labels = s == null
+        ? const ['Home', 'Analytics', 'Alarms', 'Circle']
+        : [s.homeTab, s.dashboardTab, s.alarmsTab, s.familyTab];
     const iconPaths = [
       MedAiAssets.iconHome,
       MedAiAssets.iconAnalytics,
@@ -315,7 +340,7 @@ class _AppShellState extends State<AppShell>
             border: Border.all(
               color: context.isDark
                   ? L.glassBorder.withValues(alpha: 0.35)
-                  : AppColors.eatoGold.withValues(alpha: 0.12),
+                  : L.border.withValues(alpha: 0.5),
               width: context.isDark ? 0.5 : 1,
             ),
             boxShadow: context.isDark
@@ -366,13 +391,13 @@ class _AppShellState extends State<AppShell>
                     colors: context.isDark
                         ? [L.text, L.text.withValues(alpha: 0.85)]
                         : [
-                            AppColors.eatoGold,
-                            AppColors.eatoGold.withValues(alpha: 0.88),
+                            L.accent,
+                            L.accent.withValues(alpha: 0.88),
                           ],
                   ),
                   shape: BoxShape.circle,
                   boxShadow: AppShadows.glow(
-                    context.isDark ? L.accent : AppColors.eatoGold,
+                    context.isDark ? L.accent : L.accent,
                     intensity: 0.35,
                   ),
                 ),

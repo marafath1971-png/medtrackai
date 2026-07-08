@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../providers/app_state.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../services/remote_config_service.dart';
 
 class TrialCountdownCard extends StatelessWidget {
   const TrialCountdownCard({super.key});
@@ -17,8 +18,9 @@ class TrialCountdownCard extends StatelessWidget {
     if (profile == null || profile.isPremium) return const SizedBox.shrink();
 
     final scansUsed = profile.scansUsed;
-    final remaining = (3 - scansUsed).clamp(0, 3);
-    final isExhausted = scansUsed >= 3;
+    final scanLimit = RemoteConfigService.freeTierScanLimit;
+    final remaining = (scanLimit - scansUsed).clamp(0, scanLimit);
+    final isExhausted = scansUsed >= scanLimit;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
@@ -28,7 +30,7 @@ class TrialCountdownCard extends StatelessWidget {
         button: true,
         label: isExhausted
             ? 'Free scans used. Upgrade to unlock unlimited scanning.'
-            : '$remaining of 3 free AI scans remaining. Upgrade to Pro.',
+            : '$remaining of $scanLimit free AI scans remaining. Upgrade to Pro.',
         child: MedAiDepthCard(
           padding: const EdgeInsets.all(AppSpacing.p20),
           onTap: () {
@@ -70,7 +72,7 @@ class TrialCountdownCard extends StatelessWidget {
                         Text(
                           isExhausted
                               ? 'Upgrade to unlock unlimited scanning'
-                              : '$remaining of 3 free scans remaining',
+                              : '$remaining of $scanLimit free scans remaining',
                           style: AppTypography.bodySmall.copyWith(
                             color: L.sub,
                             fontSize: 12,
@@ -101,12 +103,12 @@ class TrialCountdownCard extends StatelessWidget {
               ),
               const SizedBox(height: 18),
               Row(
-                children: List.generate(3, (i) {
+                children: List.generate(scanLimit, (i) {
                   final used = i < scansUsed;
                   return Expanded(
                     child: Container(
                       height: 4,
-                      margin: EdgeInsets.only(right: i < 2 ? 6 : 0),
+                      margin: EdgeInsets.only(right: i < scanLimit - 1 ? 6 : 0),
                       decoration: BoxDecoration(
                         color: used
                             ? (isExhausted ? L.error : L.primary)

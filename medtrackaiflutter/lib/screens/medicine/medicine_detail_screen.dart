@@ -6,10 +6,10 @@ import '../../app/app_routes.dart';
 import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/premium_page_header.dart';
 import '../../core/utils/color_utils.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
-import '../../widgets/common/unified_header.dart';
 import '../../widgets/common/modern_time_picker.dart';
 import '../../widgets/common/refined_sheet_wrapper.dart';
 import 'widgets/body_impact_card.dart';
@@ -121,7 +121,26 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
         physics: const BouncingScrollPhysics(
             parent: AlwaysScrollableScrollPhysics()),
         slivers: [
-          _buildSliverHeader(med, medColor, L),
+          SliverToBoxAdapter(
+            child: PremiumPageHeader(
+              title: med.name,
+              subtitle: med.brand.isNotEmpty ? med.brand : 'Generic',
+              onBack: widget.onBack,
+              trailing: _headerIconButton(
+                L: L,
+                icon: Icons.edit_rounded,
+                label: 'Edit medicine',
+                onTap: () {
+                  HapticEngine.selection();
+                  setState(() {
+                    _resetEdit();
+                    _editMode = true;
+                  });
+                },
+              ),
+            ),
+          ),
+          SliverToBoxAdapter(child: _buildHeroSection(med, medColor, L)),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
@@ -186,59 +205,20 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
   Widget _buildEditMode(Medicine med, AppThemeColors L) {
     return Column(
       children: [
-        // ── SYSTEM BREADCRUMB HEADER ──
-        Container(
-          padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top + 8),
-          decoration: BoxDecoration(
-            color: L.bg,
-            border: Border(
-                bottom: BorderSide(
-                    color: L.text.withValues(alpha: 0.05), width: 0.5)),
-          ),
-          child: Column(
-            children: [
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                child: Row(children: [
-                  Text('Medicine',
-                      style: AppTypography.labelSmall.copyWith(
-                          color: L.text.withValues(alpha: 0.6),
-                          letterSpacing: 0.1,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 11)),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8),
-                    child: Text('/',
-                        style: TextStyle(
-                            color: L.sub.withValues(alpha: 0.3),
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600)),
-                  ),
-                  Text('Edit details',
-                      style: AppTypography.labelSmall.copyWith(
-                          color: L.accent,
-                          letterSpacing: 0.1,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 11)),
-                ]),
-              ),
-              UnifiedHeader(
-                title: med.name,
-                showBack: false,
-                actions: [
-                  HeaderActionBtn(
-                    child: const Text('✕', style: TextStyle(fontSize: 18)),
-                    onTap: () {
-                      HapticEngine.selection();
-                      setState(() {
-                        _resetEdit();
-                        _editMode = false;
-                      });
-                    },
-                  ),
-                ],
-              ),
-            ],
+        PremiumPageHeader(
+          title: med.name,
+          subtitle: 'Edit details',
+          trailing: _headerIconButton(
+            L: L,
+            icon: Icons.close_rounded,
+            label: 'Cancel editing',
+            onTap: () {
+              HapticEngine.selection();
+              setState(() {
+                _resetEdit();
+                _editMode = false;
+              });
+            },
           ),
         ),
 
@@ -323,163 +303,125 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
     return '💊';
   }
 
-  Widget _buildSliverHeader(Medicine med, Color medColor, AppThemeColors L) {
-    return SliverAppBar(
-      expandedHeight: 360,
-      backgroundColor: L.bg,
-      elevation: 0,
-      pinned: true,
-      stretch: true,
-      automaticallyImplyLeading: false,
-      title: _scrollController.hasClients && _scrollController.offset > 240
-          ? Text(med.name,
-              style: AppTypography.titleLarge
-                  .copyWith(fontWeight: FontWeight.w600, letterSpacing: 0.5))
-          : null,
-      centerTitle: true,
-      flexibleSpace: FlexibleSpaceBar(
-        stretchModes: const [
-          StretchMode.zoomBackground,
-          StretchMode.blurBackground
-        ],
-        background: Stack(
-          children: [
-            // Premium Soft Gradient Background
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      medColor.withValues(alpha: 0.15),
-                      L.bg,
-                    ],
-                  ),
-                ),
-              ),
-            ),
+  Widget _headerIconButton({
+    required AppThemeColors L,
+    required IconData icon,
+    required String label,
+    required VoidCallback onTap,
+  }) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: AnimatedPressable(
+        onTap: onTap,
+        child: Container(
+          width: 42,
+          height: 42,
+          decoration: BoxDecoration(
+            color: L.card,
+            shape: BoxShape.circle,
+            border: Border.all(color: L.border.withValues(alpha: 0.45)),
+          ),
+          child: Icon(icon, color: L.text, size: 18),
+        ),
+      ),
+    );
+  }
 
-            // Hero Content
-            Align(
-              alignment: Alignment.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const SizedBox(height: 40),
-                  Hero(
-                    tag: 'med_${med.id}',
-                    child: Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: medColor.withValues(alpha: 0.2),
-                          width: 1.0,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: medColor.withValues(alpha: 0.15),
-                            blurRadius: 40,
-                            spreadRadius: 4,
-                          ),
-                        ],
-                      ),
-                      child: Container(
-                        width: 110,
-                        height: 110,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: L.card,
-                        ),
-                        alignment: Alignment.center,
-                        child: (med.imageUrl?.isNotEmpty ?? false) &&
-                                med.imageUrl != ' '
-                            ? ClipOval(
-                                child: Image.network(med.imageUrl!,
-                                    width: 110,
-                                    height: 110,
-                                    fit: BoxFit.cover,
-                                    errorBuilder: (_, __, ___) => Text(
-                                          _getCategoryEmoji(med.category),
-                                          style: const TextStyle(fontSize: 48),
-                                        )))
-                            : Text(
-                                _getCategoryEmoji(med.category),
-                                style: const TextStyle(fontSize: 48),
-                              ),
-                      ),
-                    ),
-                  ).let((w) => MedAiA11y.reducedMotion(context)
-                      ? w
-                      : w.animate().scale(
-                          duration: 600.ms, curve: Curves.easeOutBack)),
-                  const SizedBox(height: 20),
-                  Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: medColor.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(100),
-                    ),
-                    child: Text(
-                      med.brand.isNotEmpty
-                          ? med.brand
-                          : 'Generic',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: medColor,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.5,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 40),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        med.name,
-                        textAlign: TextAlign.center,
-                        style: AppTypography.displayMedium.copyWith(
-                          color: L.text,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -1.0,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+  Widget _buildHeroSection(Medicine med, Color medColor, AppThemeColors L) {
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+
+    Widget avatar = Hero(
+      tag: 'med_${med.id}',
+      child: Container(
+        padding: const EdgeInsets.all(8),
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: medColor.withValues(alpha: 0.2),
+            width: 1.0,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: medColor.withValues(alpha: 0.15),
+              blurRadius: 40,
+              spreadRadius: 4,
             ),
           ],
         ),
-      ),
-      leading: Container(
-        margin: const EdgeInsets.only(left: 16),
-        alignment: Alignment.centerLeft,
-        child: HeaderActionBtn(
-          onTap: widget.onBack,
-          child: const Text('←', style: TextStyle(fontSize: 20)),
-        ),
-      ),
-      actions: [
-        Container(
-          margin: const EdgeInsets.only(right: 16),
-          alignment: Alignment.centerRight,
-          child: HeaderActionBtn(
-            onTap: () {
-              HapticEngine.selection();
-              setState(() {
-                _resetEdit();
-                _editMode = true;
-              });
-            },
-            child: const Text('🖊️', style: TextStyle(fontSize: 16)),
+        child: Container(
+          width: 110,
+          height: 110,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: L.card,
           ),
+          alignment: Alignment.center,
+          child: (med.imageUrl?.isNotEmpty ?? false) && med.imageUrl != ' '
+              ? ClipOval(
+                  child: Image.network(
+                    med.imageUrl!,
+                    width: 110,
+                    height: 110,
+                    fit: BoxFit.cover,
+                    errorBuilder: (_, __, ___) => Text(
+                      _getCategoryEmoji(med.category),
+                      style: const TextStyle(fontSize: 48),
+                    ),
+                  ),
+                )
+              : Text(
+                  _getCategoryEmoji(med.category),
+                  style: const TextStyle(fontSize: 48),
+                ),
         ),
-      ],
+      ),
+    );
+
+    if (!reduceMotion) {
+      avatar = avatar
+          .animate()
+          .scale(duration: 600.ms, curve: Curves.easeOutBack);
+    }
+
+    return Container(
+      width: double.infinity,
+      margin: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+      padding: const EdgeInsets.symmetric(vertical: 28),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(28),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            medColor.withValues(alpha: 0.15),
+            L.card,
+          ],
+        ),
+        border: Border.all(color: L.border.withValues(alpha: 0.35)),
+      ),
+      child: Column(
+        children: [
+          avatar,
+          const SizedBox(height: 16),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: medColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(100),
+            ),
+            child: Text(
+              '${med.dose} · ${med.form}',
+              style: AppTypography.labelSmall.copyWith(
+                color: medColor,
+                fontWeight: FontWeight.w700,
+                letterSpacing: 0.5,
+                fontSize: 11,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -1340,10 +1282,6 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       )),
     );
   }
-}
-
-extension _MedDetailLet<T> on T {
-  R let<R>(R Function(T) block) => block(this);
 }
 
 // ── MODERN UI COMPONENTS ──────────────────────────────────────────

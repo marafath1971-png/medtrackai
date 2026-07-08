@@ -30,14 +30,22 @@ class BiometricService {
       );
       
       return authenticated;
+    } on PlatformException catch (e) {
+      if (e.code == 'auth_in_progress' || e.code == 'authInProgress') {
+        appLogger.w('Biometric auth already in progress; skipping duplicate request.');
+        return false;
+      }
+      appLogger.e('Error during biometric authentication: ${e.message}');
+      bool isDebug = false;
+      assert(() { isDebug = true; return true; }());
+      return isDebug;
     } catch (e, stack) {
       appLogger.e('Error during biometric authentication: $e\n$stack');
       bool isDebug = false;
       assert(() { isDebug = true; return true; }());
       
-      // If we are on a real device and it fails, we shouldn't completely lock the user out if they just want to test.
-      // We'll return true if they are in debug, or if they just want to bypass it right now.
-      return true; // Bypass for now so user can test the UI
+      // If we are on a real device and it fails, do not hard-lock in debug builds.
+      return isDebug;
     }
   }
 }

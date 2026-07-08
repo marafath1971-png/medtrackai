@@ -12,16 +12,16 @@ class AppLocalizationsKo extends AppLocalizations {
   String get appTitle => 'MedAI';
 
   @override
-  String get greetingHero => '히어로';
+  String get greetingHero => '홈';
 
   @override
   String get homeTab => '홈';
 
   @override
-  String get alarmsTab => '알림';
+  String get alarmsTab => '알람';
 
   @override
-  String get dashboardTab => '트렌드';
+  String get dashboardTab => '추세';
 
   @override
   String get familyTab => '서클';
@@ -30,28 +30,28 @@ class AppLocalizationsKo extends AppLocalizations {
   String get scanTab => '스캔';
 
   @override
-  String get countrySelectionTitle => '어느 국가에 거주하시나요?';
+  String get countrySelectionTitle => '어디에 계신가요?';
 
   @override
-  String get countrySelectionSubtitle => '지역 의약품 브랜드를 식별하는 데 도움이 됩니다';
+  String get countrySelectionSubtitle => '현지 의약품 브랜드를 파악하는 데 도움이 됩니다';
 
   @override
   String get prnLabel => '필요시 복용';
 
   @override
-  String get prnUndoToast => '복용 기록이 삭제되었습니다';
+  String get prnUndoToast => '필요시 복용 기록이 삭제되었습니다';
 
   @override
-  String get dailyLogTitle => '오늘의 기록';
+  String get dailyLogTitle => '일일 기록';
 
   @override
-  String get noMedicinesScheduled => '오늘 예정된 약이 없습니다.';
+  String get noMedicinesScheduled => '이 날에 예정된 약이 없습니다.';
 
   @override
   String get remaining => '남음';
 
   @override
-  String get refillRequired => '남은 약 부족';
+  String get refillRequired => '재조제 필요';
 
   @override
   String get settings => '설정';
@@ -72,13 +72,13 @@ class AppLocalizationsKo extends AppLocalizations {
   String get inventory => '재고';
 
   @override
-  String get noMedicines => '약 없음';
+  String get noMedicines => '약이 없습니다';
 
   @override
-  String get takeNow => '복용하기';
+  String get takeNow => '지금 복용';
 
   @override
-  String get snooze => '미루기';
+  String get snooze => '다시 알림';
 
   @override
   String get skip => '건너뛰기';
@@ -90,25 +90,25 @@ class AppLocalizationsKo extends AppLocalizations {
   String get pharmacyPhoneLabel => '약국 전화번호';
 
   @override
-  String get rxNumberLabel => '처방 번호';
+  String get rxNumberLabel => '처방전 번호';
 
   @override
   String get globalSettings => '글로벌 설정';
 
   @override
-  String get religiousObservance => '종교적 고려사항';
+  String get religiousObservance => '종교적 배려';
 
   @override
-  String get shabbatMode => '샤밧 모드';
+  String get shabbatMode => '안식일 모드';
 
   @override
-  String get prayerAwareReminders => '기도 시간 고려 알림';
+  String get prayerAwareReminders => '기도 시간 배려 알림';
 
   @override
   String get halalDetection => '할랄 및 젤라틴 감지';
 
   @override
-  String get amoledMode => 'AMOLED 모드 (절전)';
+  String get amoledMode => 'AMOLED 모드(절전)';
 
   @override
   String get diabetesMode => '당뇨 모드';
@@ -117,66 +117,66 @@ class AppLocalizationsKo extends AppLocalizations {
   String get hypertensionMode => '고혈압 모드';
 
   @override
-  String get supportedMarkets => '지원 국가';
+  String get supportedMarkets => '지원 시장';
 
   @override
-  String get halalSafe => '할랄 안전';
+  String get halalSafe => '할랄 적합';
 
   @override
-  String get gelatinWarning => '젤라틴 포함';
+  String get gelatinWarning => '젤라틴 함유';
 
   @override
-  String get halalUncertain => '확인 필요';
+  String get halalUncertain => '할랄 불확실';
 
   @override
-  String get edit => 'Edit';
+  String get edit => '편집';
 
   @override
-  String get editProfile => 'Edit Profile';
+  String get editProfile => '프로필 편집';
 
   @override
-  String get cancel => 'Cancel';
+  String get cancel => '취소';
 
   @override
-  String get globalSettingsSubtitle => '국제 마켓 설정을 관리합니다';
+  String get globalSettingsSubtitle => '국제 시장 설정 관리';
 
   @override
-  String get medicationDisplay => '의약품 표시';
+  String get medicationDisplay => '약 표시';
 
   @override
-  String get showGenericNames => '성분명(INN) 표시';
+  String get showGenericNames => '일반명(INN) 표시';
 
   @override
-  String get showGenericNamesSubtitle => '상표명 대신 국제 성분명을 표시합니다';
+  String get showGenericNamesSubtitle => '상품명 대신 국제 일반명을 표시합니다';
 
   @override
-  String get pbsSafetyNet => 'PBS 세이프티 넷 추적';
+  String get pbsSafetyNet => 'PBS 세이프티넷 추적';
 
   @override
-  String get pbsSafetyNetSubtitle => '호주 — 연간 본인부담금을 추적합니다';
+  String get pbsSafetyNetSubtitle => '호주 — 연간 본인부담금 추적';
 
   @override
-  String get pbsThreshold => '연간 한도: \$1,622.90';
+  String get pbsThreshold => '연간 기준액: \$1,622.90';
 
   @override
   String pbsSpent(Object amount) {
-    return '지출액: \$$amount';
+    return '지출: \$$amount';
   }
 
   @override
   String pbsRemaining(Object amount) {
-    return '남은 금액: \$$amount';
+    return '\$$amount 남음';
   }
 
   @override
   String get reached => '달성!';
 
   @override
-  String get medsSubsidised => '이제 약값을 보조받을 수 있습니다!';
+  String get medsSubsidised => '이제 약이 지원 대상입니다!';
 
   @override
   String get spentAmountSubtitle =>
-      '슬라이더를 움직여 이번 해의 PBS 조제 본인부담금 총 누적액을 업데이트하세요';
+      '드래그하여 올해 지출액을 업데이트하세요(올해 모든 PBS 처방의 본인부담금)';
 
   @override
   String get clinicalModes => '임상 모드';
@@ -185,20 +185,20 @@ class AppLocalizationsKo extends AppLocalizations {
   String get clinicalModesSubtitle => '미국 · 영국 · UAE · 말레이시아';
 
   @override
-  String get diabetesModeSubtitle => '인슐린/당뇨 약과 함께 혈당을 기록합니다';
+  String get diabetesModeSubtitle => '인슐린/당뇨병 약과 함께 혈당을 기록';
 
   @override
-  String get hypertensionModeSubtitle => '혈압약과 함께 혈압을 기록합니다';
+  String get hypertensionModeSubtitle => '항고혈압제와 함께 혈압을 기록';
 
   @override
   String get displaySettings => '디스플레이';
 
   @override
   String get amoledModeSubtitle =>
-      '배경을 완전한 블랙(#000000)으로 설정하여 AMOLED 디스플레이를 최적화하고 배터리를 절약합니다';
+      '실제 #000000 배경을 사용해 AMOLED 디스플레이를 최적화하고 배터리를 절약합니다';
 
   @override
-  String get shabbatModeSubtitle => '금요일 일몰부터 토요일 밤까지 알림을 진동으로만 설정합니다';
+  String get shabbatModeSubtitle => '금요일 일몰부터 토요일 밤까지 진동으로만 알리는 부드러운 알림';
 
   @override
   String get selectCountry => '국가 선택';
@@ -207,244 +207,240 @@ class AppLocalizationsKo extends AppLocalizations {
   String get selectLanguage => '언어 선택';
 
   @override
-  String get aiSafetyProfile => 'AI Safety Profile';
+  String get aiSafetyProfile => 'AI 안전 프로필';
 
   @override
-  String get verified => 'Verified';
+  String get verified => '확인됨';
 
   @override
-  String get criticalWarnings => 'Critical Warnings';
+  String get criticalWarnings => '중대 경고';
 
   @override
-  String get drugInteractions => 'Drug Interactions';
+  String get drugInteractions => '약물 상호작용';
 
   @override
-  String get dietaryLifestyleRules => 'Dietary & Lifestyle Rules';
+  String get dietaryLifestyleRules => '식이 및 생활 습관 규칙';
 
   @override
-  String get ahaInsight => 'Aha! Insight';
+  String get ahaInsight => '발견!';
 
   @override
-  String get generateSafetyProfile => 'Generate Safety Profile';
+  String get generateSafetyProfile => '안전 프로필 생성';
 
   @override
-  String get analyzingClinicalLimits => 'Analyzing Clinical Limits...';
+  String get analyzingClinicalLimits => '임상 한계 분석 중...';
 
   @override
-  String get safetyLoadingSubtitle =>
-      'Please wait while AI verifies interactions, dangers, and food rules.';
+  String get safetyLoadingSubtitle => 'AI가 상호작용, 위험, 식이 규칙을 확인하는 동안 기다려 주세요.';
 
   @override
   String get safetyPromptSubtitle =>
-      'Tap to instantly analyze this medication for dangers, drug interactions, and lifestyle rules.';
+      '탭하면 이 약의 위험, 약물 상호작용, 생활 습관 규칙을 즉시 분석합니다.';
 
   @override
-  String get goodMorning => 'Good morning';
+  String get goodMorning => '좋은 아침입니다';
 
   @override
-  String get goodAfternoon => 'Good afternoon';
+  String get goodAfternoon => '안녕하세요';
 
   @override
-  String get goodEvening => 'Good evening';
+  String get goodEvening => '좋은 저녁입니다';
 
   @override
   String hiUser(String name) {
-    return 'Hi, $name 👋';
+    return '안녕하세요, $name님 👋';
   }
 
   @override
-  String get startJourney => 'Let\'s start your health journey ✨';
+  String get startJourney => '건강 여정을 시작해 볼까요 ✨';
 
   @override
-  String get allDosesTaken => 'All doses taken today! 🌟';
+  String get allDosesTaken => '오늘 복용을 모두 마쳤어요! 🌟';
 
   @override
   String dosesOverdue(int count) {
-    return '$count doses overdue — take them now ⚠️';
+    return '복용이 $count회 지연되었습니다 — 지금 복용하세요 ⚠️';
   }
 
   @override
   String dosesLeft(int count) {
-    return '$count doses left today';
+    return '오늘 $count회 남음';
   }
 
   @override
-  String get healthReportTitle => 'MedAI Health Report';
+  String get healthReportTitle => 'MedAI 건강 리포트';
 
   @override
-  String get medicalSummarySubtitle =>
-      'Personal Medical Summary & Adherence Trends';
+  String get medicalSummarySubtitle => '개인 의료 요약 및 복약 순응도 추세';
 
   @override
   String patientLabel(String name) {
-    return 'Patient: $name';
+    return '환자: $name';
   }
 
   @override
   String reportDate(String date) {
-    return 'Date: $date';
+    return '날짜: $date';
   }
 
   @override
-  String get overallAdherence => 'Overall Adherence';
+  String get overallAdherence => '전체 복약 순응도';
 
   @override
-  String get activeMedications => 'Active Medications';
+  String get activeMedications => '복용 중인 약';
 
   @override
-  String get reportPeriod => 'Report Period';
+  String get reportPeriod => '리포트 기간';
 
   @override
-  String get last30Days => 'Last 30 Days';
+  String get last30Days => '최근 30일';
 
   @override
-  String get currentMedications => 'Current Medications';
+  String get currentMedications => '현재 복용 약';
 
   @override
-  String get medicineCol => 'Medicine';
+  String get medicineCol => '약';
 
   @override
-  String get doseCol => 'Dose';
+  String get doseCol => '용량';
 
   @override
-  String get frequencyCol => 'Frequency';
+  String get frequencyCol => '빈도';
 
   @override
-  String get stockRemainingCol => 'Stock Remaining';
+  String get stockRemainingCol => '남은 재고';
 
   @override
-  String get recentSymptoms => 'Recent Symptoms & Well-being';
+  String get recentSymptoms => '최근 증상 및 컨디션';
 
   @override
-  String get symptomDateCol => 'Date';
+  String get symptomDateCol => '날짜';
 
   @override
-  String get symptomNameCol => 'Symptom';
+  String get symptomNameCol => '증상';
 
   @override
-  String get severityCol => 'Severity';
+  String get severityCol => '심각도';
 
   @override
-  String get notesCol => 'Notes';
+  String get notesCol => '메모';
 
   @override
-  String get noSymptomsLogged => 'No symptoms logged in this period.';
+  String get noSymptomsLogged => '이 기간에 기록된 증상이 없습니다.';
 
   @override
   String get reportFooter =>
-      'Generated by MedAI Pro. This report is for informational purposes only and should be reviewed by a qualified healthcare professional.';
+      'MedAI Pro로 생성됨. 이 리포트는 정보 제공용이며 자격을 갖춘 의료 전문가의 검토가 필요합니다.';
 
   @override
-  String get settingsStats => 'Stats';
+  String get settingsStats => '통계';
 
   @override
-  String get settingsApp => 'App Settings';
+  String get settingsApp => '앱 설정';
 
   @override
-  String get settingsData => 'Data & Privacy';
+  String get settingsData => '데이터 및 개인정보';
 
   @override
-  String get settingsGlobal => 'Global Settings';
+  String get settingsGlobal => '글로벌 설정';
 
   @override
-  String get settingsProfile => 'My Profile';
+  String get settingsProfile => '내 프로필';
 
   @override
-  String get adherenceLabel => 'ADHERENCE';
+  String get adherenceLabel => '순응도';
 
   @override
-  String get streakLabel => 'STREAK';
+  String get streakLabel => '연속 기록';
 
   @override
   String streakDays(int count) {
-    return '$count Days';
+    return '$count일';
   }
 
   @override
-  String get generateClinicalReport => 'GENERATE CLINICAL REPORT';
+  String get generateClinicalReport => '임상 리포트 생성';
 
   @override
-  String get fetchingAiInsights => 'FETCHING AI INSIGHTS...';
+  String get fetchingAiInsights => 'AI 분석 가져오는 중...';
 
   @override
   String get aiCoachDisclaimer =>
-      'This dashboard uses AI to analyze patterns. Always consult your doctor for medical advice.';
+      '이 대시보드는 AI로 패턴을 분석합니다. 의학적 조언은 항상 의사와 상담하세요.';
 
   @override
-  String get insightsTitle => 'Insights';
+  String get insightsTitle => '인사이트';
 
   @override
-  String get insightsSubtitle => 'Analytics & health patterns';
+  String get insightsSubtitle => '분석 및 건강 패턴';
 
   @override
-  String get dataSummaryTitle => 'YOUR DATA SUMMARY';
+  String get dataSummaryTitle => '내 데이터 요약';
 
   @override
-  String get dataMedicinesLabel => 'Medicines';
+  String get dataMedicinesLabel => '약';
 
   @override
-  String get dataAlarmsLabel => 'Alarms set';
+  String get dataAlarmsLabel => '설정된 알람';
 
   @override
-  String get dataDaysTrackedLabel => 'Days tracked';
+  String get dataDaysTrackedLabel => '기록한 일수';
 
   @override
-  String get dataDosesLoggedLabel => 'Doses logged';
+  String get dataDosesLoggedLabel => '기록한 복용';
 
   @override
-  String get exportAndBackup => 'Export & Backup';
+  String get exportAndBackup => '내보내기 및 백업';
 
   @override
-  String get exportPdfReport => 'Export PDF Report';
+  String get exportPdfReport => 'PDF 리포트 내보내기';
 
   @override
-  String get exportPdfSubtitle => 'For doctors and caregivers';
+  String get exportPdfSubtitle => '의사 및 보호자용';
 
   @override
-  String get exportCsv => 'Export History as CSV';
+  String get exportCsv => '기록을 CSV로 내보내기';
 
   @override
   String exportCsvSubtitle(int count) {
-    return '$count dose records';
+    return '$count건의 복용 기록';
   }
 
   @override
-  String get resetSection => 'Reset';
+  String get resetSection => '초기화';
 
   @override
-  String get deleteAllData => 'Delete All Data';
+  String get deleteAllData => '모든 데이터 삭제';
 
   @override
-  String get deleteAllDataSubtitle =>
-      'Removes all medicines, history & settings';
+  String get deleteAllDataSubtitle => '모든 약, 기록, 설정을 삭제합니다';
 
   @override
-  String get deleteConfirmTitle => 'Delete All Data?';
+  String get deleteConfirmTitle => '모든 데이터를 삭제할까요?';
 
   @override
-  String get deleteConfirmBody =>
-      'This will permanently delete all your data. This cannot be undone.';
+  String get deleteConfirmBody => '모든 데이터가 영구적으로 삭제됩니다. 이 작업은 되돌릴 수 없습니다.';
 
   @override
-  String get deleteButton => 'Delete Everything';
+  String get deleteButton => '모두 삭제';
 
   @override
-  String get legalSection => 'Legal';
+  String get legalSection => '법적 고지';
 
   @override
-  String get privacyPolicy => 'Privacy Policy';
+  String get privacyPolicy => '개인정보 처리방침';
 
   @override
-  String get privacyPolicySubtitle => 'How we protect your health data';
+  String get privacyPolicySubtitle => '건강 데이터를 보호하는 방법';
 
   @override
-  String get termsOfService => 'Terms of Service';
+  String get termsOfService => '서비스 약관';
 
   @override
-  String get termsOfServiceSubtitle => 'Rules for using MedAI';
+  String get termsOfServiceSubtitle => 'MedAI 이용 규칙';
 
   @override
-  String get appVersionLabel => 'App Version';
+  String get appVersionLabel => '앱 버전';
 
   @override
   String get appVersionValue => '1.0.0+1';
@@ -456,94 +452,92 @@ class AppLocalizationsKo extends AppLocalizations {
   String get somethingWentWrong => '문제가 발생했습니다. 다시 시도해 주세요.';
 
   @override
-  String get retry => '재시도';
+  String get retry => '다시 시도';
 
   @override
-  String get onboardingSkip => 'Skip';
+  String get onboardingSkip => '건너뛰기';
 
   @override
-  String get onboardingNext => 'Next';
+  String get onboardingNext => '다음';
 
   @override
-  String get onboardingContinue => 'Continue';
+  String get onboardingContinue => '계속';
 
   @override
-  String get onboardingGetStarted => 'Get Started';
+  String get onboardingGetStarted => '시작하기';
 
   @override
-  String get onboardingWelcomeTitle => 'Build unbreakable\nmed habits';
+  String get onboardingWelcomeTitle => '무너지지 않는\n복약 습관 만들기';
 
   @override
-  String get onboardingWelcomeBody =>
-      'Streaks, smart reminders, and AI that keeps you on track — every single day.';
+  String get onboardingWelcomeBody => '연속 기록, 스마트 알림, 그리고 매일 당신을 챙기는 AI.';
 
   @override
-  String get onboardingScanTitle => 'Scan any pill\nin seconds';
+  String get onboardingScanTitle => '어떤 알약도\n몇 초 만에 스캔';
 
   @override
   String get onboardingScanBodyDemo =>
-      'Tap below to see AI identify a sample medication instantly.';
+      '아래를 탭하면 AI가 샘플 약을 즉시 식별하는 모습을 볼 수 있습니다.';
 
   @override
-  String get onboardingScanBodyDone =>
-      'That\'s how fast Med AI works. No typing, no guesswork.';
+  String get onboardingScanBodyDone => '이것이 Med AI의 속도입니다. 입력도, 추측도 필요 없습니다.';
 
   @override
-  String get onboardingSimulateScan => 'Simulate scan →';
+  String get onboardingSimulateScan => '스캔 체험하기 →';
 
   @override
-  String get onboardingPermissionTitle => 'Your camera,\nyour privacy';
+  String get onboardingPermissionTitle => '당신의 카메라,\n당신의 개인정보';
 
   @override
   String get onboardingPermissionBody =>
-      'We only use the camera to read pill labels. Images are processed securely and never sold.';
+      '카메라는 알약 라벨을 읽는 데만 사용됩니다. 이미지는 안전하게 처리되며 절대 판매되지 않습니다.';
 
   @override
-  String get onboardingPermissionLink => 'Learn how we protect your data';
+  String get onboardingPermissionLink => '데이터 보호 방법 알아보기';
 
   @override
-  String get onboardingPersonalizeTitle => 'Personalize\nyour experience';
+  String get onboardingPersonalizeTitle => '경험을\n맞춤 설정하기';
 
   @override
-  String get onboardingQuizMedCount => 'How many medications?';
+  String get onboardingQuizMedCount => '약이 몇 가지인가요?';
 
   @override
-  String get onboardingQuizRole => 'Who are you tracking for?';
+  String get onboardingQuizRole => '누구를 위해 기록하나요?';
 
   @override
-  String get onboardingQuizSchedule => 'When do you take most meds?';
+  String get onboardingQuizSchedule => '대부분의 약을 언제 복용하나요?';
 
   @override
-  String get onboardingRoleSelf => 'Myself';
+  String get onboardingRoleSelf => '나 자신';
 
   @override
-  String get onboardingRoleCaregiver => 'Someone I care for';
+  String get onboardingRoleCaregiver => '내가 돌보는 사람';
 
   @override
-  String get onboardingScheduleMorning => 'Morning';
+  String get onboardingScheduleMorning => '아침';
 
   @override
-  String get onboardingScheduleEvening => 'Evening';
+  String get onboardingScheduleEvening => '저녁';
 
   @override
-  String get onboardingScheduleBoth => 'Both';
+  String get onboardingScheduleBoth => '둘 다';
 
   @override
-  String get onboardingSocialTitle => 'Join 50,000+\nhealth champions';
+  String get onboardingSocialTitle => '5만 명 이상의\n건강 챔피언과 함께하세요';
 
   @override
   String get onboardingSocialQuote =>
-      '\"Med AI changed how my family manages medications. The scan feature alone saves us 10 minutes a day.\"';
+      '“Med AI는 우리 가족의 복약 관리 방식을 바꿔놨어요. 스캔 기능만으로도 하루 10분을 절약합니다.”';
 
   @override
-  String get onboardingSocialAttribution => '— App Store review, 5 stars';
+  String get onboardingSocialAttribution => '— App Store 리뷰, 별 5개';
 
   @override
-  String get onboardingAllowCamera => 'Allow Camera Access';
+  String get onboardingAllowCamera => '카메라 접근 허용';
 
   @override
-  String get onboardingTryDemoScan => 'Try Demo Scan';
+  String get onboardingTryDemoScan => '데모 스캔 체험';
 
   @override
-  String get loadingHealthData => 'Loading your health data…';
+  String get loadingHealthData => '건강 데이터를 불러오는 중…';
 }

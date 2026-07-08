@@ -27,6 +27,7 @@ import '../services/native_widget_service.dart';
 import '../services/voice_service.dart';
 import '../services/gemini_service.dart';
 import '../services/growth_tracker.dart';
+import '../services/remote_config_service.dart';
 import '../core/utils/logger.dart';
 import '../core/utils/haptic_engine.dart';
 import '../core/utils/result.dart';
@@ -318,6 +319,14 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         final milestones = [3, 7, 14, 30, 60, 100, 365];
         if (newStreak > oldStreak && milestones.contains(newStreak)) {
           pendingMilestoneAnimation = newStreak;
+          // Forgiveness-first (blueprint §7.7, Duolingo +10% retention):
+          // grant a streak freeze AT the milestone, before it's ever needed,
+          // so a future slip protects the streak instead of erasing it.
+          final p = profile;
+          if (newStreak >= 7 && p != null && p.streakFreezes < 5) {
+            await auth
+                .saveProfile(p.copyWith(streakFreezes: p.streakFreezes + 1));
+          }
         } else {
           pendingCelebrationMedName = dose.med.name;
         }
@@ -363,6 +372,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     safeNotifyListeners();
     await _rescheduleNotifications();
   }
+
+  /// Free-tier fence for the medicine cabinet (blueprint §5). UI call sites
+  /// must check this before [addMedicine] and show the paywall with
+  /// triggerSource 'unlimited_meds' when false.
+  bool get canAddMedicine =>
+      isPremium || meds.length < RemoteConfigService.freeTierMedLimit;
 
   Future<void> addMedicine(Medicine m) async {
     await med.addMedicine(m);
@@ -889,7 +904,15 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<String?> uploadImage(File file) => med.uploadMedicineImage(file);
-  Future<void> incrementScanCount() => med.incrementScanCount(1);
+
+  Future<void> incrementScanCount() async {
+    // Lifetime counter (review prompts etc.) + free-tier gate counter.
+    // profile.scansUsed was previously never incremented, which silently
+    // disabled the scan-limit paywall fence.
+    auth.incrementScanCount();
+    await med.incrementScanCount(1);
+  }
+
   void incrementVoiceLogCount() => auth.incrementVoiceLogCount();
 
   List<ScheduledMed> getAllSchedules() => med.getAllSchedules();
@@ -1261,10 +1284,15 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> _playDoseChime() async {
+    if (_lifecycleState != AppLifecycleState.resumed) {
+      return;
+    }
     try {
       await _audioPlayer.stop();
       await _audioPlayer.play(AssetSource('audio/chime.mp3'));
-    } catch (_) {}
+    } catch (e) {
+      appLogger.w('[AppState] Dose chime playback failed: $e');
+    }
   }
 
   @override

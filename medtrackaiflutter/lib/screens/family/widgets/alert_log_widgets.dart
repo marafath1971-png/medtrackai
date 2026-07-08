@@ -4,8 +4,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../models/models.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/haptic_engine.dart';
-import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/app_scaffold.dart';
+import '../../../widgets/common/premium_page_header.dart';
 
 class AlertLogCard extends StatelessWidget {
   final MissedAlert alert;
@@ -106,33 +106,19 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
     final L = widget.L;
     return AppScaffold(
       showAurora: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Semantics(
-          button: true,
-          label: 'Go back',
-          child: AnimatedPressable(
-            onTap: widget.onBack,
-            child: Container(
-              width: MedAiA11y.minTapTarget,
-              height: MedAiA11y.minTapTarget,
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: L.fill.withValues(alpha: 0.5),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.arrow_back_ios_new_rounded,
-                  color: L.text, size: 18),
-            ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PremiumPageHeader(
+            title: 'Escalation protocol',
+            subtitle: 'Missed dose safety simulation',
+            onBack: () {
+              HapticEngine.selection();
+              widget.onBack();
+            },
           ),
-        ),
-        title: Text('Escalation protocol',
-            style: AppTypography.titleLarge.copyWith(
-                fontWeight: FontWeight.w800, color: L.text, fontSize: 18)),
-      ),
-      body: SafeArea(
-          child: SingleChildScrollView(
+          Expanded(
+            child: SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               padding: const EdgeInsets.all(24),
               child: Column(
@@ -177,7 +163,12 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
                       const SizedBox(height: 24),
                       _buildCriticalAlertCard(L),
                     ],
-                  ]))),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
     );
   }
 
@@ -320,36 +311,24 @@ class AlertDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppScaffold(
       showAurora: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: Semantics(
-          button: true,
-          label: 'Close',
-          child: AnimatedPressable(
-            onTap: onBack,
-            child: Container(
-              width: MedAiA11y.minTapTarget,
-              height: MedAiA11y.minTapTarget,
-              margin: const EdgeInsets.all(8),
-              decoration: BoxDecoration(
-                color: L.fill.withValues(alpha: 0.5),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(Icons.close_rounded, color: L.text, size: 20),
-            ),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PremiumPageHeader(
+            title: 'Critical alert',
+            subtitle: alert.medName,
+            onBack: () {
+              HapticEngine.selection();
+              onBack();
+            },
           ),
-        ),
-        title: Text('Critical alert',
-            style: AppTypography.titleLarge
-                .copyWith(fontSize: 18, fontWeight: FontWeight.w800)),
-      ),
-      body: SingleChildScrollView(
-        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-        padding: const EdgeInsets.all(24),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+          Expanded(
+            child: SingleChildScrollView(
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
             MedAiDepthCard(
               padding: const EdgeInsets.all(24),
               accentGlow: true,
@@ -391,8 +370,11 @@ class AlertDetailView extends StatelessWidget {
             const MedAiSectionHeader(title: 'Safety protocol'),
             const SizedBox(height: 16),
             EscalationTimeline(activeStep: 4, L: L),
-          ],
-        ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

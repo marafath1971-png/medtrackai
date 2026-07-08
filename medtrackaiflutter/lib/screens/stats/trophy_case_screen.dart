@@ -5,7 +5,7 @@ import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_scaffold.dart';
-import '../../widgets/common/animated_pressable.dart';
+import '../../widgets/common/premium_page_header.dart';
 import '../../widgets/viral/share_milestone_card.dart';
 
 class TrophyCaseScreen extends StatelessWidget {
@@ -59,67 +59,15 @@ class TrophyCaseScreen extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.screenPadding, vertical: 12),
-              child: Row(
-                children: [
-                  Semantics(
-                    button: true,
-                    label: 'Back',
-                    child: AnimatedPressable(
-                      onTap: () {
-                        HapticEngine.selection();
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        width: MedAiA11y.minTapTarget,
-                        height: MedAiA11y.minTapTarget,
-                        decoration: BoxDecoration(
-                          color: L.card,
-                          borderRadius: BorderRadius.circular(14),
-                          border: Border.all(
-                              color: L.border.withValues(alpha: 0.12)),
-                          boxShadow: AppShadows.soft,
-                        ),
-                        child: Icon(Icons.arrow_back_ios_new_rounded,
-                            color: L.text, size: 18),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Milestones',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: L.amber,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                        Text(
-                          'Trophy case',
-                          style: AppTypography.headlineLarge.copyWith(
-                            color: L.text,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.6,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            PremiumPageHeader(
+              title: 'Trophy case',
+              subtitle: '$streak day current streak',
+              onBack: () => Navigator.pop(context),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.screenPadding),
-              child: MedAiSectionHeader(
-                title: 'Your badges',
-                subtitle: '$streak day current streak',
-              ),
+              child: const MedAiSectionHeader(title: 'Your badges'),
             ),
             Expanded(
               child: GridView.builder(
@@ -242,9 +190,7 @@ class _BadgeCard extends StatelessWidget {
     );
 
     if (isUnlocked && !reduceMotion) {
-      coin = coin
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .moveY(begin: -4, end: 4, duration: 1500.ms, curve: Curves.easeInOut);
+      coin = coin.animate().fadeIn(duration: AppDurations.fast);
     }
 
     return Semantics(

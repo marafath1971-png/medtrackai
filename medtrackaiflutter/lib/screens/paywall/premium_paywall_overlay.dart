@@ -13,9 +13,12 @@ import '../../widgets/common/animated_pressable.dart';
 import '../../widgets/common/med_ai_animation.dart';
 import '../../core/constants/med_ai_assets.dart';
 import '../../models/constants.dart';
+import '../../services/analytics_service.dart';
 import '../../services/growth_tracker.dart';
 import '../../providers/app_state.dart';
+import '../../services/notification_service.dart';
 import '../../services/purchases_service.dart';
+import '../../services/remote_config_service.dart';
 import '../../screens/onboarding/widgets/ob_video_style_widgets.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -31,12 +34,17 @@ class PremiumPaywallOverlay extends StatefulWidget {
   final VoidCallback? onSuccess;
   final VoidCallback? onDismiss;
 
+  /// Optional headline personalized from onboarding answers, e.g.
+  /// "Your plan to never miss a dose is ready".
+  final String? personalizedHeadline;
+
   const PremiumPaywallOverlay({
     super.key,
     this.triggerSource = 'generic',
     this.variant = PaywallVariant.featureGate,
     this.onSuccess,
     this.onDismiss,
+    this.personalizedHeadline,
   });
 
   static Future<void> show(
@@ -44,6 +52,7 @@ class PremiumPaywallOverlay extends StatefulWidget {
     String triggerSource = 'generic',
     PaywallVariant variant = PaywallVariant.featureGate,
     VoidCallback? onSuccess,
+    String? personalizedHeadline,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -55,6 +64,7 @@ class PremiumPaywallOverlay extends StatefulWidget {
         variant: variant,
         onSuccess: onSuccess,
         onDismiss: () => Navigator.of(ctx).pop(),
+        personalizedHeadline: personalizedHeadline,
       ),
     );
   }
@@ -70,7 +80,11 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   List<Package> _packages = [];
   String? _errorMsg;
   bool _purchaseSuccess = false;
-  bool _trialReminder = false;
+  // Default ON: the promised reminder is the #1 objection-handler for trials
+  // (Blinkist pattern) — and it must actually fire (see _scheduleTrialReminder).
+  bool _trialReminder = true;
+  // Exit downsell (weekly plan) shown at most once per paywall presentation.
+  bool _exitOfferShown = false;
 
   static const _features = [
     _Feature(icon: '🔬', label: 'Unlimited AI Scans', sub: 'No daily limit on pill recognition'),
@@ -88,18 +102,55 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
     _loadPackages();
   }
 
+  /// Health & Fitness is the one category where annual dominates revenue
+  /// (60.6% — RevenueCat/Adapty 2026), so plans are ordered and pre-selected
+  /// annual-first. Weekly stays available as the price-sensitive fallback.
+  static int _planRank(Package p) => switch (p.packageType) {
+        PackageType.annual => 0,
+        PackageType.monthly => 1,
+        PackageType.weekly => 2,
+        _ => 3,
+      };
+
   Future<void> _loadPackages() async {
     final packages = await PurchasesService.getAvailablePackages();
     if (mounted) {
       setState(() {
-        _packages = packages;
+        _packages = List.of(packages)
+          ..sort((a, b) => _planRank(a).compareTo(_planRank(b)));
+        // Remote Config: hide weekly in geos/experiments where it cannibalizes
+        // annual (weekly stays available as price-sensitive fallback default).
+        if (!RemoteConfigService.showWeeklyPlan) {
+          _packages = _packages
+              .where((p) => p.packageType != PackageType.weekly)
+              .toList();
+        }
         _isLoadingPackages = false;
-        final initial = _packages.indexWhere((p) =>
-            p.packageType == PackageType.monthly ||
-            p.packageType == PackageType.annual);
-        _selectedPlan = initial != -1 ? initial : 0;
+        // Remote Config: which plan is pre-selected (annual by default —
+        // health is the one category where annual dominates revenue).
+        final preferred = switch (RemoteConfigService.defaultPlan) {
+          'monthly' => PackageType.monthly,
+          'weekly' => PackageType.weekly,
+          _ => PackageType.annual,
+        };
+        final idx = _packages.indexWhere((p) => p.packageType == preferred);
+        _selectedPlan = idx != -1 ? idx : 0;
       });
     }
+  }
+
+  /// Days in the selected package's introductory free trial, if any.
+  int? _trialDays(Package p) {
+    final intro = p.storeProduct.introductoryPrice;
+    if (intro == null || intro.price != 0) return null;
+    final units = intro.periodNumberOfUnits;
+    return switch (intro.periodUnit) {
+      PeriodUnit.day => units,
+      PeriodUnit.week => units * 7,
+      PeriodUnit.month => units * 30,
+      PeriodUnit.year => units * 365,
+      _ => null,
+    };
   }
 
   @override
@@ -133,6 +184,10 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
         HapticEngine.success();
         _purchaseSuccess = true;
         await GrowthTracker.trackPaywall('success');
+        // Conversion event for Firebase A/B tests & funnels (was never
+        // called anywhere — experiments need this as their goal metric).
+        await AnalyticsService.logSubscriptionStart(packageId);
+        await _scheduleTrialReminder(_packages[_selectedPlan]);
         widget.onSuccess?.call();
         if (!mounted) return;
         Navigator.of(context).pop();
@@ -151,6 +206,24 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
     }
   }
 
+  /// Schedule the promised "before your trial ends" push. Fires the day
+  /// before billing; cuts refund complaints and builds trust (Blinkist -55%).
+  Future<void> _scheduleTrialReminder(Package package) async {
+    if (!_trialReminder || !RemoteConfigService.trialReminderEnabled) return;
+    final days = _trialDays(package);
+    if (days == null || days < 2) return;
+    try {
+      await NotificationService.scheduleOneOffReminder(
+        id: 990021,
+        title: 'Your Med AI Pro trial ends tomorrow',
+        body:
+            'You\'re on day ${days - 1} of $days. Keep Pro or cancel anytime in your store settings — no surprises.',
+        scheduledDate: DateTime.now().add(Duration(days: days - 1)),
+        payload: 'trial_reminder',
+      );
+    } catch (_) {/* never block a successful purchase on a reminder */}
+  }
+
   Future<void> _handleRestore() async {
     HapticEngine.light();
     setState(() => _isLoading = true);
@@ -162,6 +235,24 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
 
   void _dismiss() {
     HapticEngine.light();
+    // Exit offer (Remote Config, default OFF): instead of closing, downsell
+    // to the weekly plan once. Uses only real store SKUs — no fake discounts,
+    // so it stays App Review-safe. Test on Android first (see blueprint §5).
+    if (!_exitOfferShown &&
+        !_purchaseSuccess &&
+        widget.variant == PaywallVariant.onboarding &&
+        RemoteConfigService.getBool('paywall_exit_offer_enabled')) {
+      final weekly = _packages
+          .indexWhere((p) => p.packageType == PackageType.weekly);
+      if (weekly != -1) {
+        setState(() {
+          _exitOfferShown = true;
+          _selectedPlan = weekly;
+        });
+        GrowthTracker.trackPaywall('exit_offer_shown');
+        return;
+      }
+    }
     widget.onDismiss?.call();
     Navigator.of(context).pop();
   }
@@ -264,11 +355,37 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                           const ObPaywallFeatureGrid(),
                         if (widget.variant == PaywallVariant.onboarding)
                           const SizedBox(height: 12),
+                        if (_exitOfferShown) ...[
+                          _PaywallGlassCard(
+                            tint: AppColors.eatoGold.withValues(alpha: 0.10),
+                            child: Row(
+                              children: [
+                                const Text('👋',
+                                    style: TextStyle(fontSize: 22)),
+                                const SizedBox(width: 12),
+                                Expanded(
+                                  child: Text(
+                                    'Wait — not ready for a year? Try Med AI Pro by the week. Cancel anytime.',
+                                    style: AppTypography.bodySmall.copyWith(
+                                      color: Colors.white
+                                          .withValues(alpha: 0.9),
+                                      fontWeight: FontWeight.w600,
+                                      height: 1.4,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                        ],
                         _buildHeader(L),
                         const SizedBox(height: 20),
                         if (widget.variant == PaywallVariant.onboarding) ...[
-                          _buildTrialTimeline(L),
-                          const SizedBox(height: 20),
+                          if (RemoteConfigService.showTrialTimeline) ...[
+                            _buildTrialTimeline(L),
+                            const SizedBox(height: 20),
+                          ],
                           _buildComparisonTable(L),
                           const SizedBox(height: 20),
                           _buildSocialProofRow(),
@@ -389,9 +506,15 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
         ),
         const SizedBox(height: 6),
         Text(
-          widget.variant == PaywallVariant.onboarding
-              ? 'Start your free trial — cancel anytime.'
-              : 'Your complete medication intelligence.',
+          // A/B: 'personalized' uses the onboarding-goal headline;
+          // 'generic' forces the default copy for comparison.
+          (RemoteConfigService.getString('paywall_headline_variant') ==
+                      'generic'
+                  ? null
+                  : widget.personalizedHeadline) ??
+              (widget.variant == PaywallVariant.onboarding
+                  ? 'Start your free trial — cancel anytime.'
+                  : 'Your complete medication intelligence.'),
           style: AppTypography.bodyMedium.copyWith(
             color: Colors.white.withValues(alpha: 0.55),
             fontWeight: FontWeight.w500,
@@ -581,13 +704,13 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   Widget _buildTriggerBanner() {
     final messages = {
       'scan_limit':
-          'You\'ve used your 3 free AI scans today.\nUpgrade for unlimited pill recognition.',
+          'You\'ve used your ${RemoteConfigService.freeTierScanLimit} free AI scans.\nUpgrade for unlimited pill recognition.',
       'voice_limit':
-          'You\'ve used your 3 free AI voice logs today.\nUpgrade for unlimited voice logging.',
+          'You\'ve used your ${RemoteConfigService.freeTierVoiceLimit} free AI voice logs.\nUpgrade for unlimited voice logging.',
       'report_export':
           'Doctor reports are a Pro feature.\nUnlock PDF exports for your physician.',
       'unlimited_meds':
-          'Free plan is limited to 3 active meds.\nPro gives you unlimited tracking.',
+          'Free plan is limited to ${RemoteConfigService.freeTierMedLimit} active meds.\nPro gives you unlimited tracking.',
       'streak_freeze':
           'Save your streak with a Streak Freeze.\nAvailable on Pro plans.',
       'onboarding':
@@ -673,12 +796,25 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
         final package = e.value;
         final isSelected = i == _selectedPlan;
 
-        final isPopular = package.packageType == PackageType.annual;
-        final isBestValue = package.packageType == PackageType.annual ||
-            package.packageType == PackageType.lifetime;
-        final badge = isBestValue
-            ? 'Save 58%'
-            : (isPopular ? 'Most popular' : null);
+        final isAnnual = package.packageType == PackageType.annual;
+        final trialDays = _trialDays(package);
+        // Apple bans trial-enable toggles (Guideline 3.1.2); the compliant
+        // pattern is a plan that inherently includes a trial, badged.
+        final badge = trialDays != null
+            ? '$trialDays-day free trial'
+            : isAnnual
+                ? 'Save 58%'
+                : (package.packageType == PackageType.lifetime
+                    ? 'Best value'
+                    : null);
+
+        // Daily/weekly breakdown reduces sticker shock (the Lily pattern).
+        String? equivalentText;
+        if (isAnnual) {
+          final perWeek = package.storeProduct.price / 52;
+          equivalentText =
+              '≈ ${package.storeProduct.currencyCode} ${perWeek.toStringAsFixed(2)}/week';
+        }
 
         String periodText = '';
         if (package.packageType == PackageType.weekly) {
@@ -793,6 +929,20 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                         fontSize: 10,
                       ),
                     ),
+                    if (equivalentText != null) ...[
+                      const SizedBox(height: 2),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: Text(
+                          equivalentText,
+                          style: AppTypography.labelSmall.copyWith(
+                            color: AppColors.eatoGold.withValues(alpha: 0.8),
+                            fontSize: 9,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ),
+                    ],
                   ],
                 ),
               ),

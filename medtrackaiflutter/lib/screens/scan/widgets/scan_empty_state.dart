@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import '../../../core/constants/premium_graphics.dart';
 import '../../../theme/med_ai_ui.dart';
-import '../../../widgets/common/med_ai_mascot.dart';
 
 /// Premium empty/error state for scanner flows.
 class ScanEmptyState extends StatelessWidget {
@@ -24,7 +25,12 @@ class ScanEmptyState extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          const MedAiMascot(size: 88, showGlow: false),
+          SvgPicture.asset(
+            PremiumGraphics.scan,
+            width: 120,
+            height: 90,
+            fit: BoxFit.contain,
+          ),
           const SizedBox(height: 20),
           Text(
             title,

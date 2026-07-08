@@ -64,26 +64,14 @@ class _ProfileTabState extends State<ProfileTab> {
 
   Widget _maybeShimmerRow(
       bool reduceMotion, Widget row, AppThemeColors L) {
-    if (reduceMotion) return row;
-    return row
-        .animate(onPlay: (c) => c.repeat(reverse: true))
-        .shimmer(duration: 3000.ms, color: L.primary.withValues(alpha: 0.05));
+    return row;
   }
 
   Widget _upgradeCard(
       AppThemeColors L, bool reduceMotion, BuildContext context) {
-    Widget rocket = const Text('🚀', style: TextStyle(fontSize: 24));
-    if (!reduceMotion) {
-      rocket = rocket
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .scale(
-              begin: const Offset(1.0, 1.0),
-              end: const Offset(1.2, 1.2),
-              duration: 1500.ms,
-              curve: Curves.easeInOut);
-    }
+    const rocket = Text('🚀', style: TextStyle(fontSize: 24));
 
-    Widget card = Semantics(
+    final card = Semantics(
       button: true,
       label: 'Upgrade to MedAI Pro',
       child: MedAiDepthCard(
@@ -126,13 +114,7 @@ class _ProfileTabState extends State<ProfileTab> {
       ),
     );
 
-    if (reduceMotion) return card;
-    return card
-        .animate(onPlay: (c) => c.repeat())
-        .shimmer(
-            delay: 3.seconds,
-            duration: 2.seconds,
-            color: L.primary.withValues(alpha: 0.1));
+    return card;
   }
 
   void _confirmDeleteAccount(BuildContext context) {
@@ -173,17 +155,8 @@ class _ProfileTabState extends State<ProfileTab> {
     final s = AppLocalizations.of(context)!;
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
-    Widget avatarEmoji = Text(p?.avatar ?? '😊',
+    final avatarEmoji = Text(p?.avatar ?? '😊',
         style: AppTypography.displaySmall.copyWith(fontSize: 36));
-    if (!reduceMotion && p?.photoUrl == null) {
-      avatarEmoji = avatarEmoji
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .scale(
-              begin: const Offset(1.0, 1.0),
-              end: const Offset(1.1, 1.1),
-              duration: 2000.ms,
-              curve: Curves.easeInOut);
-    }
 
     Widget heroCard = MedAiDepthCard(
       padding: const EdgeInsets.all(24),

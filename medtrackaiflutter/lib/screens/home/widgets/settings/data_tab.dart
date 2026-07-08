@@ -81,10 +81,10 @@ class _DataTabState extends State<DataTab> {
           crossAxisSpacing: 12,
           childAspectRatio: 1.8,
           children: [
-            _SummaryBox(l: 'Medicines', v: '$medsCount', L: L),
+            _SummaryBox(l: s.dataMedicinesLabel, v: '$medsCount', L: L),
             _SummaryBox(l: 'Symptoms', v: '$symptomsCount', L: L),
-            _SummaryBox(l: 'Days tracked', v: '$daysTracked', L: L),
-            _SummaryBox(l: 'Doses logged', v: '$totalDoses', L: L),
+            _SummaryBox(l: s.dataDaysTrackedLabel, v: '$daysTracked', L: L),
+            _SummaryBox(l: s.dataDosesLoggedLabel, v: '$totalDoses', L: L),
           ],
         ),
       ]),

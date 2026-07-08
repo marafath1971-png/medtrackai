@@ -6,7 +6,7 @@ import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/common/app_scaffold.dart';
-import '../../../widgets/common/animated_pressable.dart';
+import '../../../widgets/common/premium_page_header.dart';
 
 class MonthlyWrappedScreen extends StatefulWidget {
   const MonthlyWrappedScreen({super.key});
@@ -56,8 +56,19 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
 
     final adherence = (state.getAdherenceScore() * 100).round();
     final streak = state.getStreak();
-    final totalDoses = state.history.values
-        .fold<int>(0, (sum, list) => sum + list.length);
+    // Count only doses actually taken (was summing every history entry,
+    // inflating the number with skipped/missed doses).
+    final totalDoses = state.history.values.fold<int>(
+        0, (sum, list) => sum + list.where((e) => e.taken).length);
+
+    // Honest, tiered copy — never a fabricated "top 5%" claim, and
+    // forgiveness-first at the low end (blueprint §4 tone).
+    final (scoreTag, scoreNote) = adherence >= 90
+        ? ('Elite consistency 🚀', 'Keep protecting your peace and health.')
+        : adherence >= 70
+            ? ('Strong month 💪', 'A little tighter next month — you\'ve got this.')
+            : ('Building momentum 🌱',
+                'Every dose counts. Next month starts fresh.');
 
     return AppScaffold(
       showAurora: true,
@@ -72,9 +83,13 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
           SafeArea(
             child: Column(
               children: [
+                PremiumPageHeader(
+                  title: 'Monthly wrapped',
+                  subtitle: 'Slide ${_currentPage + 1} of 3',
+                  onBack: () => Navigator.pop(context),
+                ),
                 Padding(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+                  padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Semantics(
                     label: 'Slide ${_currentPage + 1} of 3',
                     child: Row(
@@ -88,7 +103,10 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
                             decoration: BoxDecoration(
                               gradient: _currentPage >= index
                                   ? LinearGradient(
-                                      colors: [L.accent, L.accent.withValues(alpha: 0.7)],
+                                      colors: [
+                                        L.accent,
+                                        L.accent.withValues(alpha: 0.7)
+                                      ],
                                     )
                                   : null,
                               color: _currentPage >= index
@@ -102,31 +120,7 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
                     ),
                   ),
                 ),
-                Align(
-                  alignment: Alignment.topRight,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    child: Semantics(
-                      button: true,
-                      label: 'Close monthly wrapped',
-                      child: AnimatedPressable(
-                        onTap: () => Navigator.pop(context),
-                        child: Container(
-                          width: MedAiA11y.minTapTarget,
-                          height: MedAiA11y.minTapTarget,
-                          decoration: BoxDecoration(
-                            color: L.card.withValues(alpha: 0.7),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                                color: L.border.withValues(alpha: 0.2)),
-                          ),
-                          child: Icon(Icons.close_rounded,
-                              color: L.text, size: 22),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
+                const SizedBox(height: 8),
                 Expanded(
                   child: Semantics(
                     label: 'Tap right to go forward, left to go back',
@@ -174,9 +168,8 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
                             L: L,
                             title: 'Longevity Score',
                             value: '$adherence%',
-                            subtitle: 'Top 5% of Medai Users 🚀',
-                            bottomText:
-                                'Keep protecting your peace and health.',
+                            subtitle: scoreTag,
+                            bottomText: scoreNote,
                             icon: Icons.bolt_rounded,
                             isLast: true,
                             onShare: () => _shareWrapped(state),

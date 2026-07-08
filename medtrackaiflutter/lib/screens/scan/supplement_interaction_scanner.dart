@@ -16,6 +16,8 @@ import '../../widgets/common/animated_pressable.dart';
 import '../../services/gemini_service.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
+import '../../screens/paywall/premium_paywall_overlay.dart';
+import '../../services/remote_config_service.dart';
 import 'widgets/scan_result_detail_view.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/app_routes.dart';
@@ -126,6 +128,17 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
     if (_isScanning) return;
     if (_controller == null || !_controller!.value.isInitialized) return;
 
+    // Same free-tier scan fence as the pill scanner — without this, the
+    // supplement scanner was an unmetered bypass around the scan limit.
+    final gateState = context.read<AppState>();
+    if (!gateState.isPremium &&
+        (gateState.profile?.scansUsed ?? 0) >=
+            RemoteConfigService.freeTierScanLimit) {
+      HapticEngine.light();
+      await PremiumPaywallOverlay.show(context, triggerSource: 'scan_limit');
+      return;
+    }
+
     HapticEngine.selection();
     setState(() {
       _isScanning = true;
@@ -148,6 +161,8 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
       result.fold(
         (success) {
           if (!mounted) return;
+          // Count against the free-tier scan allowance.
+          state.incrementScanCount();
           HapticEngine.successScan();
           setState(() {
             _scanResult = success;
@@ -451,7 +466,13 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                               DateTime.now().toIso8601String().substring(0, 10),
                           color: '#8B5CF6',
                         );
-                        await context.read<AppState>().addMedicine(newMed);
+                        final appState = context.read<AppState>();
+                        if (!appState.canAddMedicine) {
+                          await PremiumPaywallOverlay.show(context,
+                              triggerSource: 'unlimited_meds');
+                          return;
+                        }
+                        await appState.addMedicine(newMed);
                         if (!context.mounted) return;
                         context.push(AppRoutes.medicineDetailPath(newMed.id, edit: true));
                       },

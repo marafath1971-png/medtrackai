@@ -9,16 +9,16 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'ميد أي';
+  String get appTitle => 'MedAI';
 
   @override
-  String get greetingHero => 'بطل';
+  String get greetingHero => 'الرئيسية';
 
   @override
   String get homeTab => 'الرئيسية';
 
   @override
-  String get alarmsTab => 'التنبيهات';
+  String get alarmsTab => 'المنبّهات';
 
   @override
   String get dashboardTab => 'الاتجاهات';
@@ -30,11 +30,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scanTab => 'مسح';
 
   @override
-  String get countrySelectionTitle => 'أين تقع؟';
+  String get countrySelectionTitle => 'أين موقعك؟';
 
   @override
   String get countrySelectionSubtitle =>
-      'يساعدنا في التعرف على العلامات التجارية للأدوية المحلية';
+      'يساعدنا في تحديد ماركات الأدوية المحلية';
 
   @override
   String get prnLabel => 'عند الحاجة';
@@ -49,10 +49,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noMedicinesScheduled => 'لا توجد أدوية مجدولة لهذا اليوم.';
 
   @override
-  String get remaining => 'متبقي';
+  String get remaining => 'متبقٍ';
 
   @override
-  String get refillRequired => 'مطلوب إعادة التعبئة';
+  String get refillRequired => 'يلزم إعادة التعبئة';
 
   @override
   String get settings => 'الإعدادات';
@@ -64,7 +64,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get language => 'اللغة';
 
   @override
-  String get country => 'البلد';
+  String get country => 'الدولة';
 
   @override
   String get saveChanges => 'حفظ التغييرات';
@@ -76,13 +76,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get noMedicines => 'لا توجد أدوية';
 
   @override
-  String get takeNow => 'خذ الآن';
+  String get takeNow => 'تناول الآن';
 
   @override
   String get snooze => 'غفوة';
 
   @override
-  String get skip => 'تخطي';
+  String get skip => 'تخطٍّ';
 
   @override
   String get pharmacyLabel => 'الصيدلية';
@@ -94,22 +94,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get rxNumberLabel => 'رقم الوصفة';
 
   @override
-  String get globalSettings => 'الإعدادات العالمية';
+  String get globalSettings => 'الإعدادات العامة';
 
   @override
-  String get religiousObservance => 'الالتزام الديني';
+  String get religiousObservance => 'المراعاة الدينية';
 
   @override
   String get shabbatMode => 'وضع السبت';
 
   @override
-  String get prayerAwareReminders => 'تذكيرات مراعية للصلاة';
+  String get prayerAwareReminders => 'تذكيرات تراعي أوقات الصلاة';
 
   @override
   String get halalDetection => 'كشف الحلال والجيلاتين';
 
   @override
-  String get amoledMode => 'وضع AMOLED (توفير البطارية)';
+  String get amoledMode => 'وضع AMOLED (توفير البكسل)';
 
   @override
   String get diabetesMode => 'وضع السكري';
@@ -130,327 +130,324 @@ class AppLocalizationsAr extends AppLocalizations {
   String get halalUncertain => 'حلال غير مؤكد';
 
   @override
-  String get edit => 'Edit';
+  String get edit => 'تعديل';
 
   @override
-  String get editProfile => 'Edit Profile';
+  String get editProfile => 'تعديل الملف الشخصي';
 
   @override
-  String get cancel => 'Cancel';
+  String get cancel => 'إلغاء';
 
   @override
-  String get globalSettingsSubtitle => 'Manage international market settings';
+  String get globalSettingsSubtitle => 'إدارة إعدادات الأسواق الدولية';
 
   @override
-  String get medicationDisplay => 'Medication Display';
+  String get medicationDisplay => 'عرض الأدوية';
 
   @override
-  String get showGenericNames => 'Show Generic (INN) Names';
+  String get showGenericNames => 'إظهار الأسماء العلمية (INN)';
 
   @override
   String get showGenericNamesSubtitle =>
-      'Display international non-proprietary names instead of brand names';
+      'عرض الأسماء الدولية غير المسجّلة بدلاً من الأسماء التجارية';
 
   @override
-  String get pbsSafetyNet => 'PBS Safety Net Tracker';
+  String get pbsSafetyNet => 'متتبّع PBS Safety Net';
 
   @override
-  String get pbsSafetyNetSubtitle =>
-      'Australia — track annual co-payment spend';
+  String get pbsSafetyNetSubtitle => 'أستراليا — تتبّع المساهمة السنوية';
 
   @override
-  String get pbsThreshold => 'Annual threshold: \$1,622.90';
+  String get pbsThreshold => 'الحد السنوي: \$1,622.90';
 
   @override
   String pbsSpent(Object amount) {
-    return 'Spent: \$$amount';
+    return 'المصروف: \$$amount';
   }
 
   @override
   String pbsRemaining(Object amount) {
-    return '\$$amount to go';
+    return 'يتبقى \$$amount';
   }
 
   @override
-  String get reached => 'Reached!';
+  String get reached => 'تم الوصول!';
 
   @override
-  String get medsSubsidised => 'Meds now subsidised!';
+  String get medsSubsidised => 'الأدوية مدعومة الآن!';
 
   @override
   String get spentAmountSubtitle =>
-      'Drag to update your annual spent amount (co-payments for all PBS prescriptions this calendar year)';
+      'اسحب لتحديث مبلغ إنفاقك السنوي (المساهمات لكل وصفات PBS خلال هذه السنة الميلادية)';
 
   @override
-  String get clinicalModes => 'Clinical Modes';
+  String get clinicalModes => 'الأوضاع السريرية';
 
   @override
-  String get clinicalModesSubtitle => 'USA · UK · UAE · Malaysia';
+  String get clinicalModesSubtitle =>
+      'الولايات المتحدة · المملكة المتحدة · الإمارات · ماليزيا';
 
   @override
   String get diabetesModeSubtitle =>
-      'Log blood glucose alongside insulin / diabetes medications';
+      'سجّل سكر الدم مع الإنسولين / أدوية السكري';
 
   @override
-  String get hypertensionModeSubtitle =>
-      'Log blood pressure alongside antihypertensive medications';
+  String get hypertensionModeSubtitle => 'سجّل ضغط الدم مع أدوية ارتفاع الضغط';
 
   @override
-  String get displaySettings => 'Display';
+  String get displaySettings => 'العرض';
 
   @override
   String get amoledModeSubtitle =>
-      'Use true #000000 background to optimise AMOLED displays and save battery';
+      'استخدم خلفية #000000 حقيقية لتحسين شاشات AMOLED وتوفير البطارية';
 
   @override
   String get shabbatModeSubtitle =>
-      'Gentle vibrate-only reminders from Friday sunset to Saturday night';
+      'تذكيرات لطيفة بالاهتزاز فقط من غروب الجمعة حتى ليلة السبت';
 
   @override
-  String get selectCountry => 'Select Country';
+  String get selectCountry => 'اختر الدولة';
 
   @override
-  String get selectLanguage => 'Select Language';
+  String get selectLanguage => 'اختر اللغة';
 
   @override
-  String get aiSafetyProfile => 'AI Safety Profile';
+  String get aiSafetyProfile => 'ملف السلامة بالذكاء الاصطناعي';
 
   @override
-  String get verified => 'Verified';
+  String get verified => 'مُتحقَّق';
 
   @override
-  String get criticalWarnings => 'Critical Warnings';
+  String get criticalWarnings => 'تحذيرات حرجة';
 
   @override
-  String get drugInteractions => 'Drug Interactions';
+  String get drugInteractions => 'التفاعلات الدوائية';
 
   @override
-  String get dietaryLifestyleRules => 'Dietary & Lifestyle Rules';
+  String get dietaryLifestyleRules => 'قواعد الغذاء ونمط الحياة';
 
   @override
-  String get ahaInsight => 'Aha! Insight';
+  String get ahaInsight => 'استنتاج مهم!';
 
   @override
-  String get generateSafetyProfile => 'Generate Safety Profile';
+  String get generateSafetyProfile => 'إنشاء ملف السلامة';
 
   @override
-  String get analyzingClinicalLimits => 'Analyzing Clinical Limits...';
+  String get analyzingClinicalLimits => 'جارٍ تحليل الحدود السريرية...';
 
   @override
   String get safetyLoadingSubtitle =>
-      'Please wait while AI verifies interactions, dangers, and food rules.';
+      'يرجى الانتظار بينما يتحقق الذكاء الاصطناعي من التفاعلات والمخاطر وقواعد الطعام.';
 
   @override
   String get safetyPromptSubtitle =>
-      'Tap to instantly analyze this medication for dangers, drug interactions, and lifestyle rules.';
+      'اضغط لتحليل هذا الدواء فورًا بحثًا عن المخاطر والتفاعلات الدوائية وقواعد نمط الحياة.';
 
   @override
-  String get goodMorning => 'Good morning';
+  String get goodMorning => 'صباح الخير';
 
   @override
-  String get goodAfternoon => 'Good afternoon';
+  String get goodAfternoon => 'مساء الخير';
 
   @override
-  String get goodEvening => 'Good evening';
+  String get goodEvening => 'مساء الخير';
 
   @override
   String hiUser(String name) {
-    return 'Hi, $name 👋';
+    return 'مرحبًا، $name 👋';
   }
 
   @override
-  String get startJourney => 'Let\'s start your health journey ✨';
+  String get startJourney => 'لنبدأ رحلتك الصحية ✨';
 
   @override
-  String get allDosesTaken => 'All doses taken today! 🌟';
+  String get allDosesTaken => 'تم تناول كل الجرعات اليوم! 🌟';
 
   @override
   String dosesOverdue(int count) {
-    return '$count doses overdue — take them now ⚠️';
+    return '$count جرعات متأخرة — تناولها الآن ⚠️';
   }
 
   @override
   String dosesLeft(int count) {
-    return '$count doses left today';
+    return 'يتبقى $count جرعات اليوم';
   }
 
   @override
-  String get healthReportTitle => 'MedAI Health Report';
+  String get healthReportTitle => 'تقرير MedAI الصحي';
 
   @override
-  String get medicalSummarySubtitle =>
-      'Personal Medical Summary & Adherence Trends';
+  String get medicalSummarySubtitle => 'ملخص طبي شخصي واتجاهات الالتزام';
 
   @override
   String patientLabel(String name) {
-    return 'Patient: $name';
+    return 'المريض: $name';
   }
 
   @override
   String reportDate(String date) {
-    return 'Date: $date';
+    return 'التاريخ: $date';
   }
 
   @override
-  String get overallAdherence => 'Overall Adherence';
+  String get overallAdherence => 'الالتزام الإجمالي';
 
   @override
-  String get activeMedications => 'Active Medications';
+  String get activeMedications => 'الأدوية النشطة';
 
   @override
-  String get reportPeriod => 'Report Period';
+  String get reportPeriod => 'فترة التقرير';
 
   @override
-  String get last30Days => 'Last 30 Days';
+  String get last30Days => 'آخر 30 يومًا';
 
   @override
-  String get currentMedications => 'Current Medications';
+  String get currentMedications => 'الأدوية الحالية';
 
   @override
-  String get medicineCol => 'Medicine';
+  String get medicineCol => 'الدواء';
 
   @override
-  String get doseCol => 'Dose';
+  String get doseCol => 'الجرعة';
 
   @override
-  String get frequencyCol => 'Frequency';
+  String get frequencyCol => 'التكرار';
 
   @override
-  String get stockRemainingCol => 'Stock Remaining';
+  String get stockRemainingCol => 'المخزون المتبقي';
 
   @override
-  String get recentSymptoms => 'Recent Symptoms & Well-being';
+  String get recentSymptoms => 'الأعراض والحالة الصحية الأخيرة';
 
   @override
-  String get symptomDateCol => 'Date';
+  String get symptomDateCol => 'التاريخ';
 
   @override
-  String get symptomNameCol => 'Symptom';
+  String get symptomNameCol => 'العرض';
 
   @override
-  String get severityCol => 'Severity';
+  String get severityCol => 'الشدة';
 
   @override
-  String get notesCol => 'Notes';
+  String get notesCol => 'ملاحظات';
 
   @override
-  String get noSymptomsLogged => 'No symptoms logged in this period.';
+  String get noSymptomsLogged => 'لم تُسجَّل أعراض في هذه الفترة.';
 
   @override
   String get reportFooter =>
-      'Generated by MedAI Pro. This report is for informational purposes only and should be reviewed by a qualified healthcare professional.';
+      'تم الإنشاء بواسطة MedAI Pro. هذا التقرير لأغراض إعلامية فقط ويجب مراجعته من قبل أخصائي رعاية صحية مؤهل.';
 
   @override
-  String get settingsStats => 'Stats';
+  String get settingsStats => 'الإحصائيات';
 
   @override
-  String get settingsApp => 'App Settings';
+  String get settingsApp => 'إعدادات التطبيق';
 
   @override
-  String get settingsData => 'Data & Privacy';
+  String get settingsData => 'البيانات والخصوصية';
 
   @override
-  String get settingsGlobal => 'Global Settings';
+  String get settingsGlobal => 'الإعدادات العامة';
 
   @override
-  String get settingsProfile => 'My Profile';
+  String get settingsProfile => 'ملفي الشخصي';
 
   @override
-  String get adherenceLabel => 'ADHERENCE';
+  String get adherenceLabel => 'الالتزام';
 
   @override
-  String get streakLabel => 'STREAK';
+  String get streakLabel => 'التتابع';
 
   @override
   String streakDays(int count) {
-    return '$count Days';
+    return '$count يومًا';
   }
 
   @override
-  String get generateClinicalReport => 'GENERATE CLINICAL REPORT';
+  String get generateClinicalReport => 'إنشاء تقرير سريري';
 
   @override
-  String get fetchingAiInsights => 'FETCHING AI INSIGHTS...';
+  String get fetchingAiInsights => 'جارٍ جلب تحليلات الذكاء الاصطناعي...';
 
   @override
   String get aiCoachDisclaimer =>
-      'This dashboard uses AI to analyze patterns. Always consult your doctor for medical advice.';
+      'تستخدم هذه اللوحة الذكاء الاصطناعي لتحليل الأنماط. استشر طبيبك دائمًا للحصول على المشورة الطبية.';
 
   @override
-  String get insightsTitle => 'Insights';
+  String get insightsTitle => 'التحليلات';
 
   @override
-  String get insightsSubtitle => 'Analytics & health patterns';
+  String get insightsSubtitle => 'التحليلات وأنماط الصحة';
 
   @override
-  String get dataSummaryTitle => 'YOUR DATA SUMMARY';
+  String get dataSummaryTitle => 'ملخص بياناتك';
 
   @override
-  String get dataMedicinesLabel => 'Medicines';
+  String get dataMedicinesLabel => 'الأدوية';
 
   @override
-  String get dataAlarmsLabel => 'Alarms set';
+  String get dataAlarmsLabel => 'المنبّهات المضبوطة';
 
   @override
-  String get dataDaysTrackedLabel => 'Days tracked';
+  String get dataDaysTrackedLabel => 'أيام التتبّع';
 
   @override
-  String get dataDosesLoggedLabel => 'Doses logged';
+  String get dataDosesLoggedLabel => 'الجرعات المسجّلة';
 
   @override
-  String get exportAndBackup => 'Export & Backup';
+  String get exportAndBackup => 'التصدير والنسخ الاحتياطي';
 
   @override
-  String get exportPdfReport => 'Export PDF Report';
+  String get exportPdfReport => 'تصدير تقرير PDF';
 
   @override
-  String get exportPdfSubtitle => 'For doctors and caregivers';
+  String get exportPdfSubtitle => 'للأطباء ومقدّمي الرعاية';
 
   @override
-  String get exportCsv => 'Export History as CSV';
+  String get exportCsv => 'تصدير السجل كملف CSV';
 
   @override
   String exportCsvSubtitle(int count) {
-    return '$count dose records';
+    return '$count سجل جرعات';
   }
 
   @override
-  String get resetSection => 'Reset';
+  String get resetSection => 'إعادة تعيين';
 
   @override
-  String get deleteAllData => 'Delete All Data';
+  String get deleteAllData => 'حذف كل البيانات';
 
   @override
-  String get deleteAllDataSubtitle =>
-      'Removes all medicines, history & settings';
+  String get deleteAllDataSubtitle => 'يزيل كل الأدوية والسجل والإعدادات';
 
   @override
-  String get deleteConfirmTitle => 'Delete All Data?';
+  String get deleteConfirmTitle => 'حذف كل البيانات؟';
 
   @override
   String get deleteConfirmBody =>
-      'This will permanently delete all your data. This cannot be undone.';
+      'سيؤدي هذا إلى حذف كل بياناتك نهائيًا. لا يمكن التراجع عن ذلك.';
 
   @override
-  String get deleteButton => 'Delete Everything';
+  String get deleteButton => 'حذف كل شيء';
 
   @override
-  String get legalSection => 'Legal';
+  String get legalSection => 'قانوني';
 
   @override
-  String get privacyPolicy => 'Privacy Policy';
+  String get privacyPolicy => 'سياسة الخصوصية';
 
   @override
-  String get privacyPolicySubtitle => 'How we protect your health data';
+  String get privacyPolicySubtitle => 'كيف نحمي بياناتك الصحية';
 
   @override
-  String get termsOfService => 'Terms of Service';
+  String get termsOfService => 'شروط الخدمة';
 
   @override
-  String get termsOfServiceSubtitle => 'Rules for using MedAI';
+  String get termsOfServiceSubtitle => 'قواعد استخدام MedAI';
 
   @override
-  String get appVersionLabel => 'App Version';
+  String get appVersionLabel => 'إصدار التطبيق';
 
   @override
   String get appVersionValue => '1.0.0+1';
@@ -465,91 +462,91 @@ class AppLocalizationsAr extends AppLocalizations {
   String get retry => 'إعادة المحاولة';
 
   @override
-  String get onboardingSkip => 'Skip';
+  String get onboardingSkip => 'تخطٍّ';
 
   @override
-  String get onboardingNext => 'Next';
+  String get onboardingNext => 'التالي';
 
   @override
-  String get onboardingContinue => 'Continue';
+  String get onboardingContinue => 'متابعة';
 
   @override
-  String get onboardingGetStarted => 'Get Started';
+  String get onboardingGetStarted => 'ابدأ';
 
   @override
-  String get onboardingWelcomeTitle => 'Build unbreakable\nmed habits';
+  String get onboardingWelcomeTitle => 'ابنِ عادات دواء\nلا تنكسر';
 
   @override
   String get onboardingWelcomeBody =>
-      'Streaks, smart reminders, and AI that keeps you on track — every single day.';
+      'سلاسل التتابع وتذكيرات ذكية وذكاء اصطناعي يبقيك على المسار — كل يوم.';
 
   @override
-  String get onboardingScanTitle => 'Scan any pill\nin seconds';
+  String get onboardingScanTitle => 'امسح أي حبة\nفي ثوانٍ';
 
   @override
   String get onboardingScanBodyDemo =>
-      'Tap below to see AI identify a sample medication instantly.';
+      'اضغط بالأسفل لترى الذكاء الاصطناعي يتعرّف على دواء تجريبي فورًا.';
 
   @override
   String get onboardingScanBodyDone =>
-      'That\'s how fast Med AI works. No typing, no guesswork.';
+      'هكذا تكون سرعة Med AI. بلا كتابة ولا تخمين.';
 
   @override
-  String get onboardingSimulateScan => 'Simulate scan →';
+  String get onboardingSimulateScan => 'محاكاة المسح ←';
 
   @override
-  String get onboardingPermissionTitle => 'Your camera,\nyour privacy';
+  String get onboardingPermissionTitle => 'كاميرتك،\nخصوصيتك';
 
   @override
   String get onboardingPermissionBody =>
-      'We only use the camera to read pill labels. Images are processed securely and never sold.';
+      'نستخدم الكاميرا فقط لقراءة ملصقات الحبوب. تُعالَج الصور بأمان ولا تُباع أبدًا.';
 
   @override
-  String get onboardingPermissionLink => 'Learn how we protect your data';
+  String get onboardingPermissionLink => 'تعرّف على كيفية حماية بياناتك';
 
   @override
-  String get onboardingPersonalizeTitle => 'Personalize\nyour experience';
+  String get onboardingPersonalizeTitle => 'خصّص\nتجربتك';
 
   @override
-  String get onboardingQuizMedCount => 'How many medications?';
+  String get onboardingQuizMedCount => 'كم عدد الأدوية؟';
 
   @override
-  String get onboardingQuizRole => 'Who are you tracking for?';
+  String get onboardingQuizRole => 'لمن تتابع الأدوية؟';
 
   @override
-  String get onboardingQuizSchedule => 'When do you take most meds?';
+  String get onboardingQuizSchedule => 'متى تتناول معظم الأدوية؟';
 
   @override
-  String get onboardingRoleSelf => 'Myself';
+  String get onboardingRoleSelf => 'لنفسي';
 
   @override
-  String get onboardingRoleCaregiver => 'Someone I care for';
+  String get onboardingRoleCaregiver => 'شخص أرعاه';
 
   @override
-  String get onboardingScheduleMorning => 'Morning';
+  String get onboardingScheduleMorning => 'صباحًا';
 
   @override
-  String get onboardingScheduleEvening => 'Evening';
+  String get onboardingScheduleEvening => 'مساءً';
 
   @override
-  String get onboardingScheduleBoth => 'Both';
+  String get onboardingScheduleBoth => 'كلاهما';
 
   @override
-  String get onboardingSocialTitle => 'Join 50,000+\nhealth champions';
+  String get onboardingSocialTitle => 'انضم إلى أكثر من 50,000\nبطل صحي';
 
   @override
   String get onboardingSocialQuote =>
-      '\"Med AI changed how my family manages medications. The scan feature alone saves us 10 minutes a day.\"';
+      '«غيّر Med AI طريقة إدارة عائلتي للأدوية. ميزة المسح وحدها توفّر لنا 10 دقائق يوميًا.»';
 
   @override
-  String get onboardingSocialAttribution => '— App Store review, 5 stars';
+  String get onboardingSocialAttribution => '— مراجعة App Store، 5 نجوم';
 
   @override
-  String get onboardingAllowCamera => 'Allow Camera Access';
+  String get onboardingAllowCamera => 'السماح بالوصول إلى الكاميرا';
 
   @override
-  String get onboardingTryDemoScan => 'Try Demo Scan';
+  String get onboardingTryDemoScan => 'جرّب مسحًا تجريبيًا';
 
   @override
-  String get loadingHealthData => 'Loading your health data…';
+  String get loadingHealthData => 'جارٍ تحميل بياناتك الصحية…';
 }

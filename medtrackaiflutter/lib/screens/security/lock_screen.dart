@@ -31,7 +31,7 @@ class _LockScreenState extends State<LockScreen> {
   }
 
   Future<void> _authenticate() async {
-    if (!mounted) return;
+    if (!mounted || _isAuthenticating) return;
     setState(() {
       _isAuthenticating = true;
       _showRecoveryButton = false;

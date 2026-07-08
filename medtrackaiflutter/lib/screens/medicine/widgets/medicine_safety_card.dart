@@ -142,21 +142,12 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
     // Remove emoji from title if it exists to replace with pure text
     String cleanTitle = title.replaceAll(RegExp(r'[^\w\s&]'), '').trim();
 
-    Widget emojiIcon = Text(
+    final emojiIcon = Text(
       isAha ? "💡" : (isDanger ? "⚠️" : "🍏"),
       style: const TextStyle(fontSize: 22),
     );
-    if (!reduceMotion) {
-      emojiIcon = emojiIcon
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .scaleXY(
-              begin: 1.0,
-              end: 1.08,
-              duration: 1.5.seconds,
-              curve: Curves.easeInOut);
-    }
 
-    Widget dangerBadge = Container(
+    final dangerBadge = Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
       decoration: BoxDecoration(
         color: Colors.redAccent.withValues(alpha: 0.1),
@@ -179,11 +170,6 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
         ],
       ),
     );
-    if (!reduceMotion) {
-      dangerBadge = dangerBadge
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .shimmer(duration: 1.seconds, color: Colors.white54);
-    }
 
     Widget section = MedAiDepthCard(
       accentGlow: isDanger || isAha,
@@ -355,19 +341,9 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
   }
 
   Widget _buildScanPrompt(AppThemeColors L, AppLocalizations s, bool reduceMotion) {
-    Widget sparkle = _isLoading
+    final sparkle = _isLoading
         ? const AppLoadingIndicator(size: 32)
         : const Text("✨", style: TextStyle(fontSize: 32));
-
-    if (!_isLoading && !reduceMotion) {
-      sparkle = sparkle
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .scaleXY(
-              begin: 1,
-              end: 1.15,
-              duration: 1.5.seconds,
-              curve: Curves.easeInOut);
-    }
 
     Widget card = Semantics(
       button: true,

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/app_routes.dart';
@@ -12,9 +11,7 @@ class FocusModeCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    final reduceMotion = MedAiA11y.reducedMotion(context);
-
-    Widget icon = Container(
+    final icon = Container(
       width: MedAiA11y.minTapTarget,
       height: MedAiA11y.minTapTarget,
       decoration: BoxDecoration(
@@ -26,23 +23,6 @@ class FocusModeCard extends StatelessWidget {
             color: AppColors.cyanAccent, size: 24),
       ),
     );
-    if (!reduceMotion) {
-      icon = icon
-          .animate(onPlay: (controller) => controller.repeat(reverse: true))
-          .scale(
-              begin: const Offset(1.0, 1.0),
-              end: const Offset(1.15, 1.15),
-              duration: 2.seconds,
-              curve: Curves.easeInOut)
-          .boxShadow(
-            begin: BoxShadow(
-                color: AppColors.cyanAccent.withValues(alpha: 0.1),
-                blurRadius: 10),
-            end: BoxShadow(
-                color: AppColors.cyanAccent.withValues(alpha: 0.4),
-                blurRadius: 20),
-          );
-    }
 
     return Semantics(
       button: true,

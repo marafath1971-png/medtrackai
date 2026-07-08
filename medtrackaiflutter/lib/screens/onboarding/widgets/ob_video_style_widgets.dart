@@ -62,10 +62,11 @@ class _Bar extends StatelessWidget {
   Widget build(BuildContext context) {
     final h = MediaQuery.sizeOf(context).height * height;
     Widget bar = Container(width: 3, height: h, color: color);
-    if (animate) {
+    if (animate && !MedAiA11y.reducedMotion(context)) {
       bar = bar
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .scaleY(begin: 0.85, end: 1.0, duration: 1800.ms, curve: Curves.easeInOut);
+          .animate()
+          .fadeIn(duration: 500.ms)
+          .scaleY(begin: 0.9, end: 1.0, duration: 500.ms, curve: AppCurves.smooth);
     }
     return bar;
   }
@@ -92,23 +93,27 @@ class ObCinematicSplash extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 if (!reduceMotion)
-                  Animate(
-                    onPlay: (c) => c.repeat(reverse: true),
-                    effects: [
-                      ScaleEffect(
-                        begin: const Offset(0.96, 0.96),
-                        end: const Offset(1.04, 1.04),
-                        duration: 2200.ms,
-                        curve: Curves.easeInOut,
-                      ),
-                    ],
+                  SizedBox(
                     child: const MedAiMascot(
                       size: 100,
+                      animate: false,
                       semanticLabel: 'Med AI',
                     ),
                   )
+                      .animate()
+                      .fadeIn(duration: 600.ms)
+                      .scale(
+                        begin: const Offset(0.96, 0.96),
+                        end: const Offset(1, 1),
+                        duration: 600.ms,
+                        curve: AppCurves.smooth,
+                      )
                 else
-                  const MedAiMascot(size: 100, semanticLabel: 'Med AI'),
+                  const MedAiMascot(
+                    size: 100,
+                    animate: false,
+                    semanticLabel: 'Med AI',
+                  ),
                 const SizedBox(height: 28),
                 Text(
                   'Med AI',
@@ -167,7 +172,7 @@ class _ObMasonryGalleryState extends State<ObMasonryGallery>
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       if (!MedAiA11y.reducedMotion(context)) {
-        _ctrl.repeat();
+        _ctrl.forward();
       }
     });
   }

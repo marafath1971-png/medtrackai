@@ -12,6 +12,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../../models/constants.dart';
 import '../../widgets/common/refined_sheet_wrapper.dart';
 import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/premium_page_header.dart';
 // ══════════════════════════════════════════════════════════════════════
 // GLOBAL SETTINGS SCREEN (Cal AI Industrial Authority Refined)
 // ══════════════════════════════════════════════════════════════════════
@@ -57,19 +58,35 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
     final isDark = theme.brightness == Brightness.dark;
     final s = AppLocalizations.of(context)!;
     final L = context.L;
-    final topPad = MediaQuery.of(context).padding.top;
-
-    final headerPad = widget.embedded ? 8.0 : topPad + 110.0;
 
     return AppScaffold(
       showAurora: true,
       backgroundColor: _profile.amoledMode && isDark ? Colors.black : L.bg,
-      body: Stack(
-        children: [
-          ListView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: EdgeInsets.fromLTRB(20, headerPad, 20, 120),
-            children: [
+      body: CustomScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        physics: const BouncingScrollPhysics(
+          parent: AlwaysScrollableScrollPhysics(),
+        ),
+        slivers: [
+          if (!widget.embedded)
+            SliverToBoxAdapter(
+              child: PremiumPageHeader(
+                title: 'Settings',
+                subtitle: 'Preferences & account',
+                onBack: Navigator.canPop(context)
+                    ? () => Navigator.pop(context)
+                    : null,
+              ),
+            ),
+          SliverPadding(
+            padding: EdgeInsets.fromLTRB(
+              20,
+              widget.embedded ? 8 : 0,
+              20,
+              120,
+            ),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate([
               // ── LOCALIZATION BLOCK ───────────────────────
               _IndustrialSection(
                 label: 'Localization',
@@ -77,7 +94,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                 L: L,
                 children: [
                   _PickerTile(
-                    label: 'Country',
+                    label: s.country,
                     value: kCountries.firstWhere(
                         (c) => c['c'] == _profile.country,
                         orElse: () => kCountries[0])['v']!,
@@ -90,7 +107,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
                         builder: (_) => _PickerSheet(
-                            title: 'Select Country',
+                            title: s.selectCountry,
                             items: kCountries
                                 .map((c) => {
                                       'code': c['c']!,
@@ -106,7 +123,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                     L: L,
                   ),
                   _PickerTile(
-                    label: 'Language',
+                    label: s.language,
                     value: _languages.firstWhere(
                         (l) => l['code'] == _profile.preferredLanguage,
                         orElse: () => _languages[0])['label']!,
@@ -119,7 +136,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                         isScrollControlled: true,
                         backgroundColor: Colors.transparent,
                         builder: (_) => _PickerSheet(
-                            title: 'Select Language',
+                            title: s.selectLanguage,
                             items: _languages,
                             selectedCode: _profile.preferredLanguage),
                       );
@@ -203,7 +220,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                 L: L,
                 children: [
                   _AccountActionTile(
-                    icon: '📤',
+                    icon: Icons.upload_rounded,
                     title: 'Export Health Data (CSV)',
                     subtitle: 'Generate a clinical report of your vitals',
                     onTap: () {
@@ -213,14 +230,14 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                     L: L,
                   ),
                   _AccountActionTile(
-                    icon: '🧹',
+                    icon: Icons.cleaning_services_rounded,
                     title: 'Clear Local Cache',
                     subtitle: 'Free up space and refresh local state',
                     onTap: () => _confirmReset(context, L),
                     L: L,
                   ),
                   _AccountActionTile(
-                    icon: '⚠️',
+                    icon: Icons.delete_forever_rounded,
                     title: 'Delete Account Permanently',
                     subtitle: 'Erase all personal health records',
                     color: L.error,
@@ -240,7 +257,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                 L: L,
                 children: [
                   _AccountActionTile(
-                    icon: '📜',
+                    icon: Icons.privacy_tip_outlined,
                     title: 'Privacy Policy',
                     onTap: () {
                       HapticEngine.selection();
@@ -249,7 +266,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                     L: L,
                   ),
                   _AccountActionTile(
-                    icon: '⚖️',
+                    icon: Icons.gavel_rounded,
                     title: 'Terms of Service',
                     onTap: () {
                       HapticEngine.selection();
@@ -258,7 +275,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                     L: L,
                   ),
                   _AccountActionTile(
-                    icon: '💬',
+                    icon: Icons.support_agent_rounded,
                     title: 'Support & Feedback',
                     subtitle: 'Get help or send us feedback',
                     isLast: true,
@@ -312,67 +329,9 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                 ),
               ),
               const SizedBox(height: 120),
-            ],
-          ),
-
-          if (!widget.embedded)
-            Positioned(
-              top: 0,
-              left: 0,
-              right: 0,
-              child: MedAiGlass(
-                radius: 0,
-                padding: EdgeInsets.fromLTRB(20, topPad + 12, 20, 16),
-                showBorder: false,
-                child: Row(
-                  children: [
-                    if (Navigator.canPop(context)) ...[
-                      Semantics(
-                        button: true,
-                        label: 'Back',
-                        child: AnimatedPressable(
-                          onTap: () => Navigator.pop(context),
-                          child: SizedBox(
-                            width: MedAiA11y.minTapTarget,
-                            height: MedAiA11y.minTapTarget,
-                            child: Center(
-                              child: Icon(
-                                Icons.arrow_back_ios_new_rounded,
-                                color: L.text,
-                                size: 20,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                    ],
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Text(
-                            'Settings',
-                            style: AppTypography.headlineLarge.copyWith(
-                              color: L.text,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.6,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            'Preferences & account',
-                            style:
-                                AppTypography.bodySmall.copyWith(color: L.sub),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              ]),
             ),
+          ),
         ],
       ),
     );
@@ -478,7 +437,8 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
 
 // ── Account Action Tile ───────────────────────────────────────────────
 class _AccountActionTile extends StatelessWidget {
-  final String icon, title;
+  final IconData icon;
+  final String title;
   final String? subtitle;
   final Color? color;
   final VoidCallback onTap;
@@ -520,8 +480,7 @@ class _AccountActionTile extends StatelessWidget {
                 color: tileColor.withValues(alpha: 0.08),
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Center(
-                  child: Text(icon, style: const TextStyle(fontSize: 18))),
+              child: Icon(icon, color: tileColor, size: 20),
             ),
             title: Text(
               title,

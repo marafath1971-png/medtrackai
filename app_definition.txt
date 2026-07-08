@@ -4,19 +4,20 @@ MEDAI — APP DEFINITION AND TARGET AUDIENCE
 
 1. WHAT IS MEDAI?
 -----------------
-Medai is a premium, consumer-facing AI-powered Medication Management & 
+Medai is a premium, consumer-facing AI-powered Medication Insight & 
 Habit-building application (inspired by premium consumer apps like Medisafe, 
-Cal AI, and Duolingo). It turns the daily routine of tracking medications 
-and supplements into a sleek, engaging, and personalized habit loop.
+Cal AI, and Duolingo). At its core, it empowers users to instantly understand 
+their medications, pills, and supplements through smart scanning, while also 
+turning the daily routine of tracking them into a sleek, engaging habit loop.
 
 2. CORE FEATURES & VALUE PROPOSITIONS
 -------------------------------------
-* AI-Powered Scanner Hub:
-  - Pill Identifier: Computer vision identifies pills from camera scans.
-  - Supplement Interaction Scanner: Scans and flags risky interactions 
-    between medications and vitamins/supplements.
-  - AI Quick-Log: Uses natural language processing to log doses or query
-    schedule details.
+* AI-Powered Scanner & Insight Hub (Primary Focus):
+  - Pill & Supplement Identifier: Scan any medicine, pill, or supplement to instantly know what it is.
+  - Deep Health Insights: Understand exactly how the medication affects the body, how to take it, when to take it, and why.
+  - Risk & Side-Effect Analysis: Get detailed breakdowns on side effects (including severity levels) and highly personalized allergy risk assessments.
+  - Supplement Interaction Scanner: Scans and flags risky interactions between medications and vitamins/supplements.
+  - AI Quick-Log: Uses natural language processing to log doses or query schedule details.
 * Gamification & Motivation:
   - Streaks & Milestones: Employs streak metrics (e.g. 3-day shield, 100-day 
     crown) and smooth haptic feedback to reward regular adherence.
@@ -46,6 +47,7 @@ and supplements into a sleek, engaging, and personalized habit loop.
     health subscription models).
 
 * PSYCHOGRAPHICS:
+  - The "Information Seeker": Users who want to deeply understand what they are putting in their body, concerned about side effects, interactions, and allergies.
   - The "Habit Builder": Wellness-focused users tracking vitamins, supplements, 
     and lifestyle health. Driven by streaks and progress visuals.
   - The "Anxious Manager": Users with conditions like Diabetes, Heart Disease, 
@@ -54,7 +56,8 @@ and supplements into a sleek, engaging, and personalized habit loop.
     for spouses, parents, or children.
 
 * PAIN POINTS SOLVED:
+  - Lack of accessible, easy-to-understand information about medications and supplements (what it is, how it works, side effects, allergies).
+  - Fear of adverse side effects, allergic reactions, or dangerous supplement interactions.
   - Forgetting doses due to busy schedules.
   - Running out of medication (low-stock warning card).
-  - Lack of compiled adherence logs for doctor consultations.
-  - Confusion over complex schedule setups.
+  - Confusion over complex schedule setups and lack of compiled adherence logs for doctor consultations.

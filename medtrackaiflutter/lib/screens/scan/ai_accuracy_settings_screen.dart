@@ -6,8 +6,8 @@ import 'package:provider/provider.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
-import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/app_scaffold.dart';
+import '../../../widgets/common/premium_page_header.dart';
 
 class AiAccuracySettingsScreen extends StatefulWidget {
   const AiAccuracySettingsScreen({super.key});
@@ -32,42 +32,14 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
         physics:
             const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         slivers: [
-          SliverAppBar(
-            expandedHeight: 120,
-            pinned: true,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: Semantics(
-              button: true,
-              label: 'Back',
-              child: AnimatedPressable(
-                onTap: () {
-                  HapticEngine.selection();
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  width: MedAiA11y.minTapTarget,
-                  height: MedAiA11y.minTapTarget,
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: L.fill.withValues(alpha: 0.5),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded,
-                      color: L.text, size: 18),
-                ),
-              ),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 24, bottom: 16),
-              title: Text(
-                'AI Accuracy',
-                style: AppTypography.titleLarge.copyWith(
-                  color: L.text,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                ),
-              ),
+          SliverToBoxAdapter(
+            child: PremiumPageHeader(
+              title: 'AI Accuracy',
+              subtitle: 'Fine-tune scan recognition',
+              onBack: () {
+                HapticEngine.selection();
+                Navigator.pop(context);
+              },
             ),
           ),
           SliverPadding(

@@ -1096,7 +1096,9 @@ class _DoseCardState extends State<DoseCard>
                                     : L.border.withValues(alpha: 0.35),
                         width: widget.isNext && !isDone ? 1.2 : 0.5,
                       ),
-                      boxShadow: isDone ? null : AppShadows.premium,
+                      boxShadow: (widget.isNext && !isDone)
+                          ? AppShadows.glow(L.accent, intensity: 0.12)
+                          : null,
                     ),
                     child: Row(
                       children: [

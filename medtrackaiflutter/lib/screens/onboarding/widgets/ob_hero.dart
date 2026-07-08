@@ -14,7 +14,7 @@ import '../onboarding_theme.dart';
 class ObMascotHero extends StatelessWidget {
   final double size;
   final bool animate;
-  const ObMascotHero({super.key, this.size = 132, this.animate = true});
+  const ObMascotHero({super.key, this.size = 132, this.animate = false});
 
   @override
   Widget build(BuildContext context) {
@@ -30,7 +30,7 @@ class ObMascotHero extends StatelessWidget {
               height: size + 80,
               child: AuroraBackground(
                 colors: p.aurora,
-                opacity: 0.45,
+                opacity: 0.28,
               ),
             ),
           Container(

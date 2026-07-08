@@ -17,6 +17,15 @@ import '../../services/gemini_service.dart';
 // Firestore in the background when user is logged in.
 // ══════════════════════════════════════════════
 
+/// Background Firestore writes must never crash the offline-first flow, but
+/// they must also never fail SILENTLY — for a medication app a lost sync is
+/// a safety issue (blueprint §3.3). Local data stays authoritative and the
+/// merge in [MedicationRepositoryImpl.getMedicines] re-pushes unsynced
+/// records on the next load; this logs the failure so it is visible in
+/// debug logs and Crashlytics breadcrumbs instead of vanishing.
+void _logSyncError(Object e) => appLogger.w(
+    '[Sync] Firestore write failed (local saved; will re-push on next merge): $e');
+
 class MedicationRepositoryImpl implements IMedicationRepository {
   final LocalDataSource localDataSource;
   final FirestoreDataSource firestoreDataSource;
@@ -58,7 +67,7 @@ class MedicationRepositoryImpl implements IMedicationRepository {
           firestoreDataSource
               .saveMedicine(_uid!, m, profileId: profileId)
               .withHardenedTimeout(taskName: 'saveMedicine')
-              .catchError((_) {});
+              .catchError(_logSyncError);
           cloudMeds.add(m);
         }
 
@@ -87,7 +96,7 @@ class MedicationRepositoryImpl implements IMedicationRepository {
       firestoreDataSource
           .saveMedicine(_uid!, med, profileId: profileId)
           .withHardenedTimeout(taskName: 'saveMedicine')
-          .catchError((_) {});
+          .catchError(_logSyncError);
     }
   }
 
@@ -104,7 +113,7 @@ class MedicationRepositoryImpl implements IMedicationRepository {
         firestoreDataSource
             .saveMedicine(_uid!, med, profileId: profileId)
             .withHardenedTimeout(taskName: 'updateMedicine')
-            .catchError((_) {});
+            .catchError(_logSyncError);
       }
     }
   }
@@ -117,7 +126,7 @@ class MedicationRepositoryImpl implements IMedicationRepository {
     await localDataSource.setJson(key, meds.map((m) => m.toJson()).toList(),
         encrypt: true);
     if (_hasAuth) {
-      firestoreDataSource.deleteMedicine(_uid!, id, profileId: profileId).catchError((_) {});
+      firestoreDataSource.deleteMedicine(_uid!, id, profileId: profileId).catchError(_logSyncError);
     }
   }
 
@@ -139,7 +148,7 @@ class MedicationRepositoryImpl implements IMedicationRepository {
             merged[entry.key] = entry.value;
             firestoreDataSource
                 .saveDayHistory(_uid!, entry.key, entry.value, profileId: profileId)
-                .catchError((_) {});
+                .catchError(_logSyncError);
           }
         }
 
@@ -178,12 +187,12 @@ class MedicationRepositoryImpl implements IMedicationRepository {
         final dayEntries = history[onlyDateKey] ?? [];
         firestoreDataSource
             .saveDayHistory(_uid!, onlyDateKey, dayEntries, profileId: profileId)
-            .catchError((_) {});
+            .catchError(_logSyncError);
       } else {
         for (final entry in history.entries) {
           firestoreDataSource
               .saveDayHistory(_uid!, entry.key, entry.value, profileId: profileId)
-              .catchError((_) {});
+              .catchError(_logSyncError);
         }
       }
     }
@@ -220,7 +229,7 @@ class MedicationRepositoryImpl implements IMedicationRepository {
     if (_hasAuth) {
       firestoreDataSource
           .saveTakenToday(_uid!, takenToday, profileId: profileId)
-          .catchError((_) {});
+          .catchError(_logSyncError);
     }
   }
 
@@ -245,23 +254,25 @@ class MedicationRepositoryImpl implements IMedicationRepository {
       // Medicines
       final localMeds = _loadLocalMeds();
       for (final med in localMeds) {
-        firestoreDataSource.saveMedicine(_uid!, med).catchError((_) {});
+        firestoreDataSource.saveMedicine(_uid!, med).catchError(_logSyncError);
       }
       // History
       final localHistory = _loadLocalHistory(null);
       for (final entry in localHistory.entries) {
         firestoreDataSource
             .saveDayHistory(_uid!, entry.key, entry.value)
-            .catchError((_) {});
+            .catchError(_logSyncError);
       }
       // TakenToday
       final tt = localDataSource.getJson('takenToday');
       if (tt != null) {
         firestoreDataSource
             .saveTakenToday(_uid!, Map<String, bool>.from(tt))
-            .catchError((_) {});
+            .catchError(_logSyncError);
       }
-    } catch (_) {}
+    } catch (e) {
+      appLogger.w('[MedRepo] Local→cloud migration failed: $e');
+    }
   }
 
   List<Medicine> _loadLocalMeds() {

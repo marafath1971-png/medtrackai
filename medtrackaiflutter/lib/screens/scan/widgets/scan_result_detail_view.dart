@@ -406,7 +406,6 @@ class _HeroImage extends StatelessWidget {
   final bool onDark;
 
   const _HeroImage({
-    super.key,
     this.capturedImage,
     this.imageUrl,
     required this.onDark,

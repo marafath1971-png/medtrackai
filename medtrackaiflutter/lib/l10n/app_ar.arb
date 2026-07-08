@@ -1,46 +1,224 @@
 {
   "@@locale": "ar",
-  "appTitle": "ميد أي",
-  "greetingHero": "بطل",
+  "appTitle": "MedAI",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "greetingHero": "الرئيسية",
   "homeTab": "الرئيسية",
-  "alarmsTab": "التنبيهات",
+  "alarmsTab": "المنبّهات",
   "dashboardTab": "الاتجاهات",
   "familyTab": "الدائرة",
   "scanTab": "مسح",
-  "countrySelectionTitle": "أين تقع؟",
-  "countrySelectionSubtitle": "يساعدنا في التعرف على العلامات التجارية للأدوية المحلية",
+  "countrySelectionTitle": "أين موقعك؟",
+  "countrySelectionSubtitle": "يساعدنا في تحديد ماركات الأدوية المحلية",
   "prnLabel": "عند الحاجة",
   "prnUndoToast": "تمت إزالة جرعة عند الحاجة",
   "dailyLogTitle": "السجل اليومي",
   "noMedicinesScheduled": "لا توجد أدوية مجدولة لهذا اليوم.",
-  "remaining": "متبقي",
-  "refillRequired": "مطلوب إعادة التعبئة",
+  "remaining": "متبقٍ",
+  "refillRequired": "يلزم إعادة التعبئة",
   "settings": "الإعدادات",
   "profile": "الملف الشخصي",
   "language": "اللغة",
-  "country": "البلد",
+  "country": "الدولة",
   "saveChanges": "حفظ التغييرات",
   "inventory": "المخزون",
   "noMedicines": "لا توجد أدوية",
-  "takeNow": "خذ الآن",
+  "takeNow": "تناول الآن",
   "snooze": "غفوة",
-  "skip": "تخطي",
+  "skip": "تخطٍّ",
   "pharmacyLabel": "الصيدلية",
   "pharmacyPhoneLabel": "هاتف الصيدلية",
   "rxNumberLabel": "رقم الوصفة",
-  "globalSettings": "الإعدادات العالمية",
-  "religiousObservance": "الالتزام الديني",
+  "globalSettings": "الإعدادات العامة",
+  "religiousObservance": "المراعاة الدينية",
   "shabbatMode": "وضع السبت",
-  "prayerAwareReminders": "تذكيرات مراعية للصلاة",
+  "prayerAwareReminders": "تذكيرات تراعي أوقات الصلاة",
   "halalDetection": "كشف الحلال والجيلاتين",
-  "amoledMode": "وضع AMOLED (توفير البطارية)",
+  "amoledMode": "وضع AMOLED (توفير البكسل)",
   "diabetesMode": "وضع السكري",
   "hypertensionMode": "وضع ارتفاع ضغط الدم",
   "supportedMarkets": "الأسواق المدعومة",
   "halalSafe": "حلال آمن",
   "gelatinWarning": "يحتوي على جيلاتين",
   "halalUncertain": "حلال غير مؤكد",
+  "edit": "تعديل",
+  "editProfile": "تعديل الملف الشخصي",
+  "cancel": "إلغاء",
+  "globalSettingsSubtitle": "إدارة إعدادات الأسواق الدولية",
+  "medicationDisplay": "عرض الأدوية",
+  "showGenericNames": "إظهار الأسماء العلمية (INN)",
+  "showGenericNamesSubtitle": "عرض الأسماء الدولية غير المسجّلة بدلاً من الأسماء التجارية",
+  "pbsSafetyNet": "متتبّع PBS Safety Net",
+  "pbsSafetyNetSubtitle": "أستراليا — تتبّع المساهمة السنوية",
+  "pbsThreshold": "الحد السنوي: $1,622.90",
+  "pbsSpent": "المصروف: ${amount}",
+  "pbsRemaining": "يتبقى ${amount}",
+  "reached": "تم الوصول!",
+  "medsSubsidised": "الأدوية مدعومة الآن!",
+  "spentAmountSubtitle": "اسحب لتحديث مبلغ إنفاقك السنوي (المساهمات لكل وصفات PBS خلال هذه السنة الميلادية)",
+  "clinicalModes": "الأوضاع السريرية",
+  "clinicalModesSubtitle": "الولايات المتحدة · المملكة المتحدة · الإمارات · ماليزيا",
+  "diabetesModeSubtitle": "سجّل سكر الدم مع الإنسولين / أدوية السكري",
+  "hypertensionModeSubtitle": "سجّل ضغط الدم مع أدوية ارتفاع الضغط",
+  "displaySettings": "العرض",
+  "amoledModeSubtitle": "استخدم خلفية #000000 حقيقية لتحسين شاشات AMOLED وتوفير البطارية",
+  "shabbatModeSubtitle": "تذكيرات لطيفة بالاهتزاز فقط من غروب الجمعة حتى ليلة السبت",
+  "selectCountry": "اختر الدولة",
+  "selectLanguage": "اختر اللغة",
+  "aiSafetyProfile": "ملف السلامة بالذكاء الاصطناعي",
+  "verified": "مُتحقَّق",
+  "criticalWarnings": "تحذيرات حرجة",
+  "drugInteractions": "التفاعلات الدوائية",
+  "dietaryLifestyleRules": "قواعد الغذاء ونمط الحياة",
+  "ahaInsight": "استنتاج مهم!",
+  "generateSafetyProfile": "إنشاء ملف السلامة",
+  "analyzingClinicalLimits": "جارٍ تحليل الحدود السريرية...",
+  "safetyLoadingSubtitle": "يرجى الانتظار بينما يتحقق الذكاء الاصطناعي من التفاعلات والمخاطر وقواعد الطعام.",
+  "safetyPromptSubtitle": "اضغط لتحليل هذا الدواء فورًا بحثًا عن المخاطر والتفاعلات الدوائية وقواعد نمط الحياة.",
+  "goodMorning": "صباح الخير",
+  "goodAfternoon": "مساء الخير",
+  "goodEvening": "مساء الخير",
+  "hiUser": "مرحبًا، {name} 👋",
+  "@hiUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "startJourney": "لنبدأ رحلتك الصحية ✨",
+  "allDosesTaken": "تم تناول كل الجرعات اليوم! 🌟",
+  "dosesOverdue": "{count} جرعات متأخرة — تناولها الآن ⚠️",
+  "@dosesOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dosesLeft": "يتبقى {count} جرعات اليوم",
+  "@dosesLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "healthReportTitle": "تقرير MedAI الصحي",
+  "medicalSummarySubtitle": "ملخص طبي شخصي واتجاهات الالتزام",
+  "patientLabel": "المريض: {name}",
+  "@patientLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reportDate": "التاريخ: {date}",
+  "@reportDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "overallAdherence": "الالتزام الإجمالي",
+  "activeMedications": "الأدوية النشطة",
+  "reportPeriod": "فترة التقرير",
+  "last30Days": "آخر 30 يومًا",
+  "currentMedications": "الأدوية الحالية",
+  "medicineCol": "الدواء",
+  "doseCol": "الجرعة",
+  "frequencyCol": "التكرار",
+  "stockRemainingCol": "المخزون المتبقي",
+  "recentSymptoms": "الأعراض والحالة الصحية الأخيرة",
+  "symptomDateCol": "التاريخ",
+  "symptomNameCol": "العرض",
+  "severityCol": "الشدة",
+  "notesCol": "ملاحظات",
+  "noSymptomsLogged": "لم تُسجَّل أعراض في هذه الفترة.",
+  "reportFooter": "تم الإنشاء بواسطة MedAI Pro. هذا التقرير لأغراض إعلامية فقط ويجب مراجعته من قبل أخصائي رعاية صحية مؤهل.",
+  "settingsStats": "الإحصائيات",
+  "settingsApp": "إعدادات التطبيق",
+  "settingsData": "البيانات والخصوصية",
+  "settingsGlobal": "الإعدادات العامة",
+  "settingsProfile": "ملفي الشخصي",
+  "adherenceLabel": "الالتزام",
+  "streakLabel": "التتابع",
+  "streakDays": "{count} يومًا",
+  "@streakDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "generateClinicalReport": "إنشاء تقرير سريري",
+  "fetchingAiInsights": "جارٍ جلب تحليلات الذكاء الاصطناعي...",
+  "aiCoachDisclaimer": "تستخدم هذه اللوحة الذكاء الاصطناعي لتحليل الأنماط. استشر طبيبك دائمًا للحصول على المشورة الطبية.",
+  "insightsTitle": "التحليلات",
+  "insightsSubtitle": "التحليلات وأنماط الصحة",
+  "dataSummaryTitle": "ملخص بياناتك",
+  "dataMedicinesLabel": "الأدوية",
+  "dataAlarmsLabel": "المنبّهات المضبوطة",
+  "dataDaysTrackedLabel": "أيام التتبّع",
+  "dataDosesLoggedLabel": "الجرعات المسجّلة",
+  "exportAndBackup": "التصدير والنسخ الاحتياطي",
+  "exportPdfReport": "تصدير تقرير PDF",
+  "exportPdfSubtitle": "للأطباء ومقدّمي الرعاية",
+  "exportCsv": "تصدير السجل كملف CSV",
+  "exportCsvSubtitle": "{count} سجل جرعات",
+  "@exportCsvSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "resetSection": "إعادة تعيين",
+  "deleteAllData": "حذف كل البيانات",
+  "deleteAllDataSubtitle": "يزيل كل الأدوية والسجل والإعدادات",
+  "deleteConfirmTitle": "حذف كل البيانات؟",
+  "deleteConfirmBody": "سيؤدي هذا إلى حذف كل بياناتك نهائيًا. لا يمكن التراجع عن ذلك.",
+  "deleteButton": "حذف كل شيء",
+  "legalSection": "قانوني",
+  "privacyPolicy": "سياسة الخصوصية",
+  "privacyPolicySubtitle": "كيف نحمي بياناتك الصحية",
+  "termsOfService": "شروط الخدمة",
+  "termsOfServiceSubtitle": "قواعد استخدام MedAI",
+  "appVersionLabel": "إصدار التطبيق",
+  "appVersionValue": "1.0.0+1",
   "analysisFailed": "فشل التحليل",
   "somethingWentWrong": "حدث خطأ ما. يرجى المحاولة مرة أخرى.",
-  "retry": "إعادة المحاولة"
+  "retry": "إعادة المحاولة",
+  "onboardingSkip": "تخطٍّ",
+  "onboardingNext": "التالي",
+  "onboardingContinue": "متابعة",
+  "onboardingGetStarted": "ابدأ",
+  "onboardingWelcomeTitle": "ابنِ عادات دواء\nلا تنكسر",
+  "onboardingWelcomeBody": "سلاسل التتابع وتذكيرات ذكية وذكاء اصطناعي يبقيك على المسار — كل يوم.",
+  "onboardingScanTitle": "امسح أي حبة\nفي ثوانٍ",
+  "onboardingScanBodyDemo": "اضغط بالأسفل لترى الذكاء الاصطناعي يتعرّف على دواء تجريبي فورًا.",
+  "onboardingScanBodyDone": "هكذا تكون سرعة Med AI. بلا كتابة ولا تخمين.",
+  "onboardingSimulateScan": "محاكاة المسح ←",
+  "onboardingPermissionTitle": "كاميرتك،\nخصوصيتك",
+  "onboardingPermissionBody": "نستخدم الكاميرا فقط لقراءة ملصقات الحبوب. تُعالَج الصور بأمان ولا تُباع أبدًا.",
+  "onboardingPermissionLink": "تعرّف على كيفية حماية بياناتك",
+  "onboardingPersonalizeTitle": "خصّص\nتجربتك",
+  "onboardingQuizMedCount": "كم عدد الأدوية؟",
+  "onboardingQuizRole": "لمن تتابع الأدوية؟",
+  "onboardingQuizSchedule": "متى تتناول معظم الأدوية؟",
+  "onboardingRoleSelf": "لنفسي",
+  "onboardingRoleCaregiver": "شخص أرعاه",
+  "onboardingScheduleMorning": "صباحًا",
+  "onboardingScheduleEvening": "مساءً",
+  "onboardingScheduleBoth": "كلاهما",
+  "onboardingSocialTitle": "انضم إلى أكثر من 50,000\nبطل صحي",
+  "onboardingSocialQuote": "«غيّر Med AI طريقة إدارة عائلتي للأدوية. ميزة المسح وحدها توفّر لنا 10 دقائق يوميًا.»",
+  "onboardingSocialAttribution": "— مراجعة App Store، 5 نجوم",
+  "onboardingAllowCamera": "السماح بالوصول إلى الكاميرا",
+  "onboardingTryDemoScan": "جرّب مسحًا تجريبيًا",
+  "loadingHealthData": "جارٍ تحميل بياناتك الصحية…"
 }

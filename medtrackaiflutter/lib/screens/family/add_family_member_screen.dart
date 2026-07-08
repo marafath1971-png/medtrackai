@@ -12,6 +12,7 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/app_scaffold.dart';
+import '../../../widgets/common/premium_page_header.dart';
 
 class AddFamilyMemberScreen extends StatefulWidget {
   const AddFamilyMemberScreen({super.key});
@@ -161,37 +162,15 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
         physics: const BouncingScrollPhysics(
             parent: AlwaysScrollableScrollPhysics()),
         slivers: [
-          SliverAppBar(
-            pinned: true,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: Semantics(
-              button: true,
-              label: 'Go back',
-              child: AnimatedPressable(
-                onTap: _popOrGoCircle,
-                child: Container(
-                  width: MedAiA11y.minTapTarget,
-                  height: MedAiA11y.minTapTarget,
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: L.fill.withValues(alpha: 0.5),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded,
-                      color: L.text, size: 18),
-                ),
-              ),
+          SliverToBoxAdapter(
+            child: PremiumPageHeader(
+              title: 'Add Member',
+              subtitle: 'Build your care circle',
+              onBack: () {
+                HapticEngine.selection();
+                _popOrGoCircle();
+              },
             ),
-            title: Text(
-              'Add Member',
-              style: AppTypography.titleLarge.copyWith(
-                color: L.text,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.3,
-              ),
-            ),
-            centerTitle: true,
           ),
           SliverPadding(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),

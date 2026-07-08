@@ -7,6 +7,7 @@ import '../../../providers/app_state.dart';
 import '../../../models/constants.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/app_scaffold.dart';
+import '../../../widgets/common/premium_page_header.dart';
 import '../../../widgets/common/app_shimmer.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../core/utils/haptic_engine.dart';
@@ -26,44 +27,15 @@ class AddHeader extends StatelessWidget {
             ? 'Share QR code'
             : 'Caregiver active';
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-      Row(children: [
-        Semantics(
-          button: true,
-          label: 'Back',
-          child: AnimatedPressable(
-            onTap: onBack,
-            child: Container(
-              width: MedAiA11y.minTapTarget,
-              height: MedAiA11y.minTapTarget,
-              alignment: Alignment.center,
-              decoration: BoxDecoration(
-                color: L.card,
-                shape: BoxShape.circle,
-                border: Border.all(color: L.border.withValues(alpha: 0.12)),
-              ),
-              child: Icon(Icons.arrow_back_ios_new_rounded,
-                  color: L.text, size: 18),
-            ),
-          ),
-        ),
-        const SizedBox(width: 12),
-        Expanded(
-          child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text(title,
-                style: AppTypography.titleLarge.copyWith(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w800,
-                    color: L.text,
-                    letterSpacing: -0.5)),
-            Text('Step $step of 3',
-                style: AppTypography.labelLarge.copyWith(
-                    fontSize: 12,
-                    color: L.sub.withValues(alpha: 0.6),
-                    fontWeight: FontWeight.w600)),
-          ]),
-        ),
-      ]),
-      const SizedBox(height: 24),
+      PremiumPageHeader(
+        title: title,
+        subtitle: 'Step $step of 3',
+        onBack: () {
+          HapticEngine.selection();
+          onBack();
+        },
+      ),
+      const SizedBox(height: 16),
       Semantics(
         label: 'Step $step of 3',
         child: Row(

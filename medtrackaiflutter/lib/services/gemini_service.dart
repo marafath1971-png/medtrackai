@@ -259,8 +259,8 @@ class GeminiService {
       String lastError = '';
 
       final allergyInstruction = allergies.isNotEmpty 
-          ? 'CRITICAL: The user has the following known allergies: ${allergies.join(", ")}. You MUST cross-reference the product active and inactive ingredients against these allergies. If there is a match or high risk of cross-reactivity, list them in the "allergyAlerts" array. If safe, return an empty array.' 
-          : 'Return an empty array for "allergyAlerts".';
+          ? 'CRITICAL: The user has the following known allergies: ${allergies.join(", ")}. You MUST cross-reference the product active and inactive ingredients against these allergies. If there is a match or high risk of cross-reactivity, list them in the "allergyAlerts" array. Also, determine the overall "allergyRiskLevel" as "None", "Low", "Medium", or "High". If safe, return an empty array and "None" for the risk level.' 
+          : 'Return an empty array for "allergyAlerts" and "None" for "allergyRiskLevel".';
 
       const childSafetyInstruction = 'CRITICAL PEDIATRIC CHECK: You must explicitly evaluate if this product is safe for children. If it requires strict weight-based dosing, is contraindicated for pediatrics, or has severe age restrictions, provide a highly specific warning in the "childSafetyAlert" field. If it is generally safe or not applicable, return null for "childSafetyAlert".';
 
@@ -280,13 +280,16 @@ Return ONLY valid JSON matching this exact structure:
   "whyTakeIt": "Why do people take it?",
   "howItWorks": "How it works in the body (simple but scientific).",
   "benefits": ["Benefit 1", "Benefit 2"],
-  "sideEffects": ["Side effect 1"],
+  "sideEffects": [
+    {"effect": "Nausea", "severity": "Low|Medium|High"}
+  ],
   "foodInteractions": ["Food interaction 1"],
   "medicineInteractions": ["Med interaction 1"],
   "timing": "Best time to take it (e.g. 'Morning with food')",
   "halalStatus": "Halal|Haram|Doubtful|Unknown",
   "scientificEvidence": "Short summary of scientific backing",
   "allergyAlerts": ["Alert 1", "Alert 2"],
+  "allergyRiskLevel": "None|Low|Medium|High",
   "childSafetyAlert": "Warning text if applicable, otherwise null",
   "expertPerspectives": [
     {"role": "Doctor", "explanation": "Medical perspective", "icon": "👩‍⚕️"},

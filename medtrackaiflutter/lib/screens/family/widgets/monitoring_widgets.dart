@@ -5,6 +5,7 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../services/auth_service.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/common/paywall_sheet.dart';
+import '../../../widgets/common/premium_page_header.dart';
 import '../../../widgets/shared/shared_widgets.dart';
 import 'ai_protector_card.dart';
 
@@ -451,18 +452,15 @@ class InsightsContent extends StatelessWidget {
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const BouncingScrollPhysics(),
         slivers: [
-          SliverAppBar(
-            backgroundColor: L.meshBg,
-            elevation: 0,
-            pinned: true,
-            leading: IconButton(
-                icon: Icon(Icons.arrow_back_ios_new_rounded,
-                    color: L.text, size: 18),
-                onPressed: onBack),
-            centerTitle: true,
-            title: Text(cg.name,
-                style: AppTypography.titleLarge.copyWith(
-                    fontSize: 18, fontWeight: FontWeight.w800, color: L.text)),
+          SliverToBoxAdapter(
+            child: PremiumPageHeader(
+              title: cg.name,
+              subtitle: '${cg.relation} · Monitoring',
+              onBack: () {
+                HapticEngine.selection();
+                onBack();
+              },
+            ),
           ),
           SliverToBoxAdapter(
             child: Padding(

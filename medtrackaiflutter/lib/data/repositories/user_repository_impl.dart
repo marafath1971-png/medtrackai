@@ -10,6 +10,11 @@ import '../../core/utils/repository_ext.dart';
 // USER REPOSITORY — Offline-First
 // ══════════════════════════════════════════════
 
+/// See medication_repository_impl.dart: background sync failures are
+/// non-fatal (local is authoritative) but must be logged, never swallowed.
+void _logSyncError(Object e) => appLogger.w(
+    '[Sync] Firestore write failed (local saved; will re-push on next merge): $e');
+
 class UserRepositoryImpl implements IUserRepository {
   final LocalDataSource localDataSource;
   final FirestoreDataSource firestoreDataSource;
@@ -56,7 +61,7 @@ class UserRepositoryImpl implements IUserRepository {
       firestoreDataSource
           .saveProfile(_uid!, profile)
           .withHardenedTimeout(taskName: 'saveProfile')
-          .catchError((_) {});
+          .catchError(_logSyncError);
     }
   }
 
@@ -94,7 +99,7 @@ class UserRepositoryImpl implements IUserRepository {
       firestoreDataSource
           .saveCaregivers(_uid!, caregivers)
           .withHardenedTimeout(taskName: 'saveCaregivers')
-          .catchError((_) {});
+          .catchError(_logSyncError);
     }
   }
 
@@ -121,7 +126,7 @@ class UserRepositoryImpl implements IUserRepository {
       firestoreDataSource
           .saveStreakData(_uid!, data)
           .withHardenedTimeout(taskName: 'saveStreakData')
-          .catchError((_) {});
+          .catchError(_logSyncError);
     }
   }
 
@@ -143,7 +148,7 @@ class UserRepositoryImpl implements IUserRepository {
       firestoreDataSource
           .saveDarkMode(_uid!, darkMode)
           .withHardenedTimeout(taskName: 'saveDarkMode')
-          .catchError((_) {});
+          .catchError(_logSyncError);
     }
   }
 
@@ -168,7 +173,7 @@ class UserRepositoryImpl implements IUserRepository {
       firestoreDataSource
           .saveLanguage(_uid!, language)
           .withHardenedTimeout(taskName: 'saveLanguage')
-          .catchError((_) {});
+          .catchError(_logSyncError);
     }
   }
 
@@ -176,7 +181,7 @@ class UserRepositoryImpl implements IUserRepository {
   @override
   Future<void> saveFcmToken(String token) async {
     if (_hasAuth) {
-      await firestoreDataSource.saveFcmToken(_uid!, token).catchError((_) {});
+      await firestoreDataSource.saveFcmToken(_uid!, token).catchError(_logSyncError);
     }
   }
 
@@ -244,7 +249,7 @@ class UserRepositoryImpl implements IUserRepository {
       await firestoreDataSource
           .nudgePatient(patientUid)
           .withHardenedTimeout(taskName: 'nudgePatient')
-          .catchError((_) {});
+          .catchError(_logSyncError);
     }
   }
 
@@ -265,7 +270,7 @@ class UserRepositoryImpl implements IUserRepository {
       if (localCgs != null) {
         for (final j in (localCgs as List)) {
           final cg = Caregiver.fromJson(j);
-          firestoreDataSource.upsertCaregiver(_uid!, cg).catchError((_) {});
+          firestoreDataSource.upsertCaregiver(_uid!, cg).catchError(_logSyncError);
         }
       }
       // Streak
@@ -273,17 +278,17 @@ class UserRepositoryImpl implements IUserRepository {
       if (localStreak != null) {
         firestoreDataSource
             .saveStreakData(_uid!, StreakData.fromJson(localStreak))
-            .catchError((_) {});
+            .catchError(_logSyncError);
       }
       // Dark mode
       final dm = localDataSource.getBool('darkMode');
       if (dm != null) {
-        firestoreDataSource.saveDarkMode(_uid!, dm).catchError((_) {});
+        firestoreDataSource.saveDarkMode(_uid!, dm).catchError(_logSyncError);
       }
       // Language
       final lang = localDataSource.getString('language');
       if (lang != null) {
-        firestoreDataSource.saveLanguage(_uid!, lang).catchError((_) {});
+        firestoreDataSource.saveLanguage(_uid!, lang).catchError(_logSyncError);
       }
     } catch (e) {
       appLogger.e('[UserRepositoryImpl] Cloud sync failed: $e');
@@ -309,7 +314,7 @@ class UserRepositoryImpl implements IUserRepository {
     await firestoreDataSource
         .addMonitoringPatient(_uid!, patient)
         .withHardenedTimeout(taskName: 'addMonitoringPatient')
-        .catchError((_) {});
+        .catchError(_logSyncError);
   }
 
   @override
@@ -318,6 +323,6 @@ class UserRepositoryImpl implements IUserRepository {
     await firestoreDataSource
         .activatePatientCaregiver(patientUid, cgId, caregiverUid)
         .withHardenedTimeout(taskName: 'activatePatientCaregiver')
-        .catchError((_) {});
+        .catchError(_logSyncError);
   }
 }

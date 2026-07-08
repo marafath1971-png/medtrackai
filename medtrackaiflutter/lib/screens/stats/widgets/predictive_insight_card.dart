@@ -89,11 +89,6 @@ class PredictiveInsightCard extends StatelessWidget {
       ),
     )
     .animate(
-      key: ValueKey('predictive_shimmer_${insight.title}'),
-      onPlay: (c) => c.repeat(reverse: true),
-    )
-    .shimmer(duration: 3.seconds, color: color.withValues(alpha: 0.1))
-    .animate(
       key: ValueKey('predictive_entrance_${insight.title}'),
     )
     .fadeIn(duration: 600.ms)

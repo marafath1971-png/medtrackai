@@ -33,12 +33,10 @@ class RefinedSheetWrapper extends StatelessWidget {
     );
 
     if (scrollable) {
-      content = Flexible(
-        child: SingleChildScrollView(
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          physics: const ClampingScrollPhysics(),
-          child: content,
-        ),
+      content = SingleChildScrollView(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        physics: const ClampingScrollPhysics(),
+        child: content,
       );
     }
 

@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
@@ -52,8 +50,8 @@ class ObScaffold extends StatelessWidget {
         body: Stack(
           fit: StackFit.expand,
           children: [
-            if (!reduceMotion && context.isDark)
-              AuroraBackground(colors: p.aurora, opacity: 0.38),
+            if (!reduceMotion)
+              AuroraBackground(colors: p.aurora, opacity: context.isDark ? 0.38 : 0.22),
             SafeArea(
               child: Column(
                 children: [
@@ -68,31 +66,29 @@ class ObScaffold extends StatelessWidget {
                     ),
                   ),
                   ClipRect(
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          color: p.bg.withValues(alpha: 0.82),
-                          border: Border(
-                            top: BorderSide(color: p.border.withValues(alpha: 0.5)),
-                          ),
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        color: p.surface,
+                        border: Border(
+                          top: BorderSide(color: p.border.withValues(alpha: 0.65)),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsets.fromLTRB(22, 12, 22, 16),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (secondaryCta != null) ...[
-                                secondaryCta!,
-                                const SizedBox(height: 10),
-                              ],
-                              ObPrimaryButton(
-                                label: ctaLabel,
-                                enabled: ctaEnabled,
-                                onTap: onCta,
-                              ),
+                        boxShadow: AppShadows.soft,
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(22, 12, 22, 16),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            if (secondaryCta != null) ...[
+                              secondaryCta!,
+                              const SizedBox(height: 10),
                             ],
-                          ),
+                            ObPrimaryButton(
+                              label: ctaLabel,
+                              enabled: ctaEnabled,
+                              onTap: onCta,
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -637,8 +633,8 @@ extension ObEntrance on Widget {
     return Builder(builder: (context) {
       if (MedAiA11y.reducedMotion(context)) return this;
       return animate(delay: delayMs.ms)
-          .fadeIn(duration: 420.ms, curve: AppCurves.expressive)
-          .slideY(begin: 0.06, end: 0, duration: 420.ms, curve: AppCurves.expressive);
+          .fadeIn(duration: 350.ms, curve: AppCurves.smooth)
+          .slideY(begin: 0.04, end: 0, duration: 350.ms, curve: AppCurves.smooth);
     });
   }
 }

@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../core/constants/premium_graphics.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/app_scaffold.dart';
-import '../../../widgets/common/animated_pressable.dart';
+import '../../../widgets/common/premium_page_header.dart';
 import '../../../core/utils/haptic_engine.dart';
 
 class ScannerHelpScreen extends StatelessWidget {
@@ -20,40 +22,30 @@ class ScannerHelpScreen extends StatelessWidget {
         physics:
             const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         slivers: [
-          SliverAppBar(
-            expandedHeight: 120,
-            pinned: true,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: Semantics(
-              button: true,
-              label: 'Back',
-              child: AnimatedPressable(
-                onTap: () {
-                  HapticEngine.selection();
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  width: MedAiA11y.minTapTarget,
-                  height: MedAiA11y.minTapTarget,
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: L.fill.withValues(alpha: 0.5),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded,
-                      color: L.text, size: 18),
-                ),
-              ),
+          SliverToBoxAdapter(
+            child: PremiumPageHeader(
+              title: 'Scanning Tips',
+              subtitle: 'Get better results in every scan',
+              onBack: () {
+                HapticEngine.selection();
+                Navigator.pop(context);
+              },
             ),
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 24, bottom: 16),
-              title: Text(
-                'Scanning Tips',
-                style: AppTypography.titleLarge.copyWith(
-                  color: L.text,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 8),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: L.card,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: L.border.withValues(alpha: 0.35)),
+                ),
+                child: SvgPicture.asset(
+                  PremiumGraphics.scan,
+                  height: 120,
+                  fit: BoxFit.contain,
                 ),
               ),
             ),

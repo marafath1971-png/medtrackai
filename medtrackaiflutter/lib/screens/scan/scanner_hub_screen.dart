@@ -1224,7 +1224,7 @@ class _Animated3DIconState extends State<_Animated3DIcon> {
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.asset(
-                      'assets/images/app_icon.png',
+                      'assets/images/app_logo.png',
                       fit: BoxFit.cover,
                     ),
                   ),

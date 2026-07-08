@@ -1,9 +1,9 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/app_routes.dart';
+import '../../core/constants/premium_graphics.dart';
 import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/date_formatter.dart';
@@ -420,13 +420,7 @@ class HubView extends StatelessWidget {
                                 children: [
                                   if (!MedAiA11y.reducedMotion(context))
                                     const Text('🚨',
-                                            style: TextStyle(fontSize: 24))
-                                        .animate(
-                                            onPlay: (c) => c.repeat(reverse: true))
-                                        .scale(
-                                            begin: const Offset(1.0, 1.0),
-                                            end: const Offset(1.15, 1.15),
-                                            duration: 600.ms)
+                                        style: TextStyle(fontSize: 24))
                                   else
                                     const Text('🚨',
                                         style: TextStyle(fontSize: 24)),
@@ -652,10 +646,6 @@ class HubView extends StatelessWidget {
                                                     color: Colors.red,
                                                     shape: BoxShape.circle,
                                                   ),
-                                                ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
-                                                  begin: const Offset(1, 1),
-                                                  end: const Offset(1.2, 1.2),
-                                                  duration: 1.seconds,
                                                 ),
                                               ),
                                           ],
@@ -792,6 +782,7 @@ class HubView extends StatelessWidget {
       subtitle:
           'Invite family or medical professionals to monitor your medication safety.',
       emoji: '🛡️',
+      illustrationAsset: PremiumGraphics.familyCare,
       actionLabel: 'Invite Guardian',
       onAction: onAddCg,
     );
@@ -803,6 +794,7 @@ class HubView extends StatelessWidget {
       subtitle:
           'Join as a caregiver to see real-time health updates for your loved ones.',
       emoji: '🫂',
+      illustrationAsset: PremiumGraphics.familyCare,
       actionLabel: 'Join Circle',
       onAction: onJoin,
     );
@@ -839,24 +831,24 @@ class _CompactPivotPill extends StatelessWidget {
           curve: AppCurves.expressive,
           constraints: const BoxConstraints(minHeight: AppA11y.minTapTargetCompact),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-        decoration: BoxDecoration(
-          color: active ? L.accent : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: active
-                ? L.accent
-                : L.border.withValues(alpha: 0.35),
-            width: 0.5,
+          decoration: BoxDecoration(
+            color: active ? AppColors.limeDeep : Colors.transparent,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: active
+                  ? AppColors.limeDeep
+                  : L.border.withValues(alpha: 0.35),
+              width: 0.8,
+            ),
           ),
-        ),
-        child: Text(
-          label,
-          style: AppTypography.labelSmall.copyWith(
-            color: active ? Colors.white : L.text.withValues(alpha: 0.6),
-            fontSize: 12,
-            fontWeight: active ? FontWeight.w800 : FontWeight.w600,
+          child: Text(
+            label,
+            style: AppTypography.labelSmall.copyWith(
+              color: active ? Colors.white : L.text.withValues(alpha: 0.65),
+              fontSize: 12,
+              fontWeight: active ? FontWeight.w700 : FontWeight.w600,
+            ),
           ),
-        ),
         ),
       ),
     );
@@ -879,102 +871,91 @@ class _FamilyHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final double opacity = (scrollOffset / 60).clamp(0.0, 1.0);
     final topPad = MediaQuery.of(context).padding.top;
 
-    return ClipRRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: AnimatedContainer(
-          duration: 200.ms,
-          padding: EdgeInsets.fromLTRB(20, topPad + 12, 20, 16),
+    return AnimatedContainer(
+      duration: const Duration(milliseconds: 220),
+      padding: EdgeInsets.fromLTRB(20, topPad + 12, 20, 10),
+      decoration: BoxDecoration(
+        color: scrollOffset > 18
+            ? L.bg.withValues(alpha: 0.96)
+            : Colors.transparent,
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Circle',
+                  style: AppTypography.headlineMedium.copyWith(
+                    color: L.text,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
+                    fontSize: 24,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  isActive ? 'Monitoring active' : 'Care for loved ones',
+                  style: AppTypography.bodySmall.copyWith(
+                    color: L.sub,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          _CircleIconBtn(
+            icon: Icons.link_rounded,
+            label: 'Join family circle',
+            onTap: onJoin,
+            L: L,
+          ),
+          const SizedBox(width: 8),
+          _CircleIconBtn(
+            icon: Icons.person_add_rounded,
+            label: 'Invite guardian',
+            onTap: onAdd,
+            L: L,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _CircleIconBtn extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final AppThemeColors L;
+
+  const _CircleIconBtn({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    required this.L,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: label,
+      child: AnimatedPressable(
+        onTap: onTap,
+        child: Container(
+          width: 42,
+          height: 42,
           decoration: BoxDecoration(
-            color: L.bg.withValues(alpha: opacity * 0.92),
-            border: Border(
-                bottom: BorderSide(
-                    color: L.border.withValues(alpha: opacity * 0.08),
-                    width: 0.5)),
+            color: L.card,
+            shape: BoxShape.circle,
+            border: Border.all(color: L.border.withValues(alpha: 0.45)),
           ),
-          child: Row(
-            children: [
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'YOUR CIRCLE',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: L.sub,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 11,
-                        letterSpacing: 0.8,
-                      ),
-                    ),
-                    Text(
-                      'Family circle',
-                      style: AppTypography.headlineLarge.copyWith(
-                        color: L.text,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.6,
-                      ),
-                    ),
-                    const SizedBox(height: 2),
-                    Text(
-                      isActive ? 'Monitoring active' : 'Care for loved ones',
-                      style: AppTypography.bodySmall.copyWith(color: L.sub),
-                    ),
-                  ],
-                ),
-              ),
-              Semantics(
-                button: true,
-                label: 'Join family circle',
-                child: AnimatedPressable(
-                  onTap: onJoin,
-                  scaleFactor: 0.92,
-                  child: Container(
-                    width: AppA11y.minTapTargetCompact,
-                    height: AppA11y.minTapTargetCompact,
-                    decoration: BoxDecoration(
-                      color: L.fill.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: L.border.withValues(alpha: 0.2),
-                        width: 0.5,
-                      ),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.link_rounded, size: 20),
-                    ),
-                  ),
-                ),
-              ),
-              const SizedBox(width: 10),
-              Semantics(
-                button: true,
-                label: 'Invite guardian',
-                child: AnimatedPressable(
-                  onTap: onAdd,
-                  scaleFactor: 0.92,
-                  child: Container(
-                    width: AppA11y.minTapTargetCompact,
-                    height: AppA11y.minTapTargetCompact,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [L.text, L.text.withValues(alpha: 0.88)],
-                      ),
-                      borderRadius: BorderRadius.circular(14),
-                      boxShadow: AppShadows.glow(L.accent, intensity: 0.25),
-                    ),
-                    child: Center(
-                      child: Icon(Icons.person_add_rounded, color: L.bg, size: 20),
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+          child: Icon(icon, size: 20, color: L.text.withValues(alpha: 0.9)),
         ),
       ),
     );
@@ -1000,25 +981,29 @@ class _CircleStatBento extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reduceMotion = MedAiA11y.reducedMotion(context);
-    Widget emojiWidget = Text(
+    final emojiWidget = Text(
       emoji,
       style: TextStyle(fontSize: 12, color: iconColor ?? L.primary),
     );
-    if (glow && !reduceMotion) {
-      emojiWidget = emojiWidget
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .scale(
-            begin: const Offset(1.0, 1.0),
-            end: const Offset(1.15, 1.15),
-            curve: Curves.easeInOut,
-          );
-    }
 
-    return MedAiDepthCard(
-      accentGlow: accentGlow && context.isDark,
-      padding: const EdgeInsets.all(20),
-      radius: AppRadius.l,
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: L.card,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(
+          color: glow
+              ? L.accent.withValues(alpha: 0.45)
+              : L.border.withValues(alpha: 0.35),
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1035,22 +1020,22 @@ class _CircleStatBento extends StatelessWidget {
               const SizedBox(width: 10),
               Text(
                 label,
-                style: AppTypography.labelSmall.copyWith(
+                style: AppTypography.labelMedium.copyWith(
                   color: L.sub,
                   fontWeight: FontWeight.w600,
-                  fontSize: 12,
+                  fontSize: 12.5,
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: 14),
           Text(
             value,
-            style: AppTypography.displaySmall.copyWith(
+            style: AppTypography.titleLarge.copyWith(
               color: L.text,
               fontWeight: FontWeight.w800,
-              fontSize: 24,
-              letterSpacing: -0.6,
+              fontSize: 26,
+              letterSpacing: -0.4,
               height: 1.0,
             ),
           ),

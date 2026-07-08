@@ -5,7 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/app_scaffold.dart';
-import '../../../widgets/common/animated_pressable.dart';
+import '../../../widgets/common/premium_page_header.dart';
 import '../../../core/utils/haptic_engine.dart';
 
 class MedBuddiesScreen extends StatefulWidget {
@@ -29,7 +29,6 @@ class _MedBuddiesScreenState extends State<MedBuddiesScreen> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    final reduceMotion = MedAiA11y.reducedMotion(context);
     final state = context.watch<AppState>();
     final myStreak = state.getStreak();
 
@@ -38,13 +37,8 @@ class _MedBuddiesScreenState extends State<MedBuddiesScreen> {
     final combinedStreak = myStreak + buddyStreak;
 
     Widget linkIcon = Icon(Icons.link_rounded, color: L.onPrimary, size: 32);
-    if (!reduceMotion) {
-      linkIcon = linkIcon
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .scale(begin: const Offset(1, 1), end: const Offset(1.2, 1.2));
-    }
 
-    Widget streakNumber = Text(
+    final streakNumber = Text(
       '$combinedStreak',
       style: AppTypography.displayLarge.copyWith(
         color: L.onPrimary,
@@ -54,99 +48,20 @@ class _MedBuddiesScreenState extends State<MedBuddiesScreen> {
         height: 1.0,
       ),
     );
-    if (!reduceMotion) {
-      streakNumber = streakNumber.animate().shimmer(
-          duration: 2.seconds,
-          delay: 1.seconds,
-          color: L.onPrimary.withValues(alpha: 0.5));
-    }
 
     return AppScaffold(
       showAurora: true,
-      body: Stack(
-        children: [
-          if (!reduceMotion)
-            Positioned(
-              top: -100,
-              left: -100,
-              child: Container(
-                width: 300,
-                height: 300,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: L.secondary.withValues(alpha: 0.15),
-                  boxShadow: [
-                    BoxShadow(
-                        color: L.secondary.withValues(alpha: 0.2),
-                        blurRadius: 100)
-                  ],
-                ),
-              )
-                  .animate(onPlay: (c) => c.repeat(reverse: true))
-                  .scale(
-                      begin: const Offset(1, 1),
-                      end: const Offset(1.2, 1.2),
-                      duration: 4.seconds),
+      body: SafeArea(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            PremiumPageHeader(
+              title: 'Med buddies',
+              subtitle: 'Social accountability',
+              onBack: () => Navigator.pop(context),
             ),
-          SafeArea(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.screenPadding, vertical: 16),
-                  child: Row(
-                    children: [
-                      Semantics(
-                        button: true,
-                        label: 'Back',
-                        child: AnimatedPressable(
-                          onTap: () {
-                            HapticEngine.selection();
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            width: MedAiA11y.minTapTarget,
-                            height: MedAiA11y.minTapTarget,
-                            decoration: BoxDecoration(
-                              color: L.card,
-                              borderRadius: BorderRadius.circular(16),
-                              border: Border.all(
-                                  color: L.border.withValues(alpha: 0.1)),
-                            ),
-                            child: Icon(Icons.arrow_back_ios_new_rounded,
-                                color: L.text, size: 18),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Social accountability',
-                              style: AppTypography.bodySmall.copyWith(
-                                color: L.secondary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                            Text(
-                              'Med buddies',
-                              style: AppTypography.headlineLarge.copyWith(
-                                color: L.text,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.6,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Expanded(
-                  child: ListView(
+            Expanded(
+              child: ListView(
                     padding: const EdgeInsets.all(AppSpacing.screenPadding),
                     children: [
                       _entrance(
@@ -281,10 +196,8 @@ class _MedBuddiesScreenState extends State<MedBuddiesScreen> {
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

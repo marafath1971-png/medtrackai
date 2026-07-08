@@ -1,25 +1,28 @@
 {
   "@@locale": "he",
   "appTitle": "MedAI",
-  "greetingHero": "גיבור",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "greetingHero": "בית",
   "homeTab": "בית",
-  "alarmsTab": "תזכורות",
+  "alarmsTab": "התראות",
   "dashboardTab": "מגמות",
   "familyTab": "מעגל",
   "scanTab": "סריקה",
-  "countrySelectionTitle": "היכן אתה נמצא?",
+  "countrySelectionTitle": "היכן אתם נמצאים?",
   "countrySelectionSubtitle": "עוזר לנו לזהות מותגי תרופות מקומיים",
   "prnLabel": "לפי הצורך",
-  "prnUndoToast": "מנת ה-PRN הוסרה",
+  "prnUndoToast": "מנת \"לפי הצורך\" הוסרה",
   "dailyLogTitle": "יומן יומי",
   "noMedicinesScheduled": "אין תרופות מתוזמנות ליום זה.",
   "remaining": "נותרו",
-  "refillRequired": "נדרש מילוי",
+  "refillRequired": "נדרש חידוש",
   "settings": "הגדרות",
   "profile": "פרופיל",
   "language": "שפה",
   "country": "מדינה",
-  "saveChanges": "שמור שינויים",
+  "saveChanges": "שמירת שינויים",
   "inventory": "מלאי",
   "noMedicines": "אין תרופות",
   "takeNow": "קח עכשיו",
@@ -29,18 +32,193 @@
   "pharmacyPhoneLabel": "טלפון בית מרקחת",
   "rxNumberLabel": "מספר מרשם",
   "globalSettings": "הגדרות גלובליות",
-  "religiousObservance": "שמירה דתית",
+  "religiousObservance": "התחשבות דתית",
   "shabbatMode": "מצב שבת",
-  "prayerAwareReminders": "תזכורות מודעות לתפילה",
+  "prayerAwareReminders": "תזכורות מותאמות לזמני תפילה",
   "halalDetection": "זיהוי חלאל וג'לטין",
-  "amoledMode": "מצב AMOLED (חיסכון בסוללה)",
+  "amoledMode": "מצב AMOLED (חיסכון בפיקסלים)",
   "diabetesMode": "מצב סוכרת",
   "hypertensionMode": "מצב יתר לחץ דם",
   "supportedMarkets": "שווקים נתמכים",
-  "halalSafe": "בטוח לחלאל",
+  "halalSafe": "כשר לחלאל",
   "gelatinWarning": "מכיל ג'לטין",
   "halalUncertain": "חלאל לא ודאי",
+  "edit": "עריכה",
+  "editProfile": "עריכת פרופיל",
+  "cancel": "ביטול",
+  "globalSettingsSubtitle": "ניהול הגדרות שוק בינלאומיות",
+  "medicationDisplay": "תצוגת תרופות",
+  "showGenericNames": "הצגת שמות גנריים (INN)",
+  "showGenericNamesSubtitle": "הצגת שמות בינלאומיים גנריים במקום שמות מסחריים",
+  "pbsSafetyNet": "מעקב PBS Safety Net",
+  "pbsSafetyNetSubtitle": "אוסטרליה — מעקב אחר השתתפות עצמית שנתית",
+  "pbsThreshold": "סף שנתי: $1,622.90",
+  "pbsSpent": "הוצא: ${amount}",
+  "pbsRemaining": "נותרו ${amount}",
+  "reached": "הושג!",
+  "medsSubsidised": "התרופות מסובסדות כעת!",
+  "spentAmountSubtitle": "החליקו כדי לעדכן את סכום ההוצאה השנתי (השתתפות עצמית עבור כל מרשמי PBS בשנה קלנדרית זו)",
+  "clinicalModes": "מצבים קליניים",
+  "clinicalModesSubtitle": "ארה\"ב · בריטניה · איחוד האמירויות · מלזיה",
+  "diabetesModeSubtitle": "תיעוד רמת סוכר בדם לצד אינסולין / תרופות לסוכרת",
+  "hypertensionModeSubtitle": "תיעוד לחץ דם לצד תרופות ליתר לחץ דם",
+  "displaySettings": "תצוגה",
+  "amoledModeSubtitle": "שימוש ברקע #000000 אמיתי לאופטימיזציה של מסכי AMOLED וחיסכון בסוללה",
+  "shabbatModeSubtitle": "תזכורות עדינות ברטט בלבד מכניסת שבת ועד מוצאי שבת",
+  "selectCountry": "בחר מדינה",
+  "selectLanguage": "בחר שפה",
+  "aiSafetyProfile": "פרופיל בטיחות AI",
+  "verified": "מאומת",
+  "criticalWarnings": "אזהרות קריטיות",
+  "drugInteractions": "אינטראקציות בין תרופות",
+  "dietaryLifestyleRules": "כללי תזונה ואורח חיים",
+  "ahaInsight": "תובנה!",
+  "generateSafetyProfile": "יצירת פרופיל בטיחות",
+  "analyzingClinicalLimits": "מנתח מגבלות קליניות...",
+  "safetyLoadingSubtitle": "אנא המתינו בזמן ש-AI מאמת אינטראקציות, סכנות וכללי תזונה.",
+  "safetyPromptSubtitle": "הקישו כדי לנתח מיד את התרופה הזו לאיתור סכנות, אינטראקציות בין תרופות וכללי אורח חיים.",
+  "goodMorning": "בוקר טוב",
+  "goodAfternoon": "צהריים טובים",
+  "goodEvening": "ערב טוב",
+  "hiUser": "היי, {name} 👋",
+  "@hiUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "startJourney": "בואו נתחיל את מסע הבריאות שלכם ✨",
+  "allDosesTaken": "כל המנות נלקחו היום! 🌟",
+  "dosesOverdue": "{count} מנות באיחור — קחו אותן עכשיו ⚠️",
+  "@dosesOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dosesLeft": "נותרו {count} מנות היום",
+  "@dosesLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "healthReportTitle": "דוח בריאות MedAI",
+  "medicalSummarySubtitle": "סיכום רפואי אישי ומגמות היענות",
+  "patientLabel": "מטופל: {name}",
+  "@patientLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reportDate": "תאריך: {date}",
+  "@reportDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "overallAdherence": "היענות כוללת",
+  "activeMedications": "תרופות פעילות",
+  "reportPeriod": "תקופת הדוח",
+  "last30Days": "30 הימים האחרונים",
+  "currentMedications": "תרופות נוכחיות",
+  "medicineCol": "תרופה",
+  "doseCol": "מנה",
+  "frequencyCol": "תדירות",
+  "stockRemainingCol": "מלאי שנותר",
+  "recentSymptoms": "תסמינים ורווחה לאחרונה",
+  "symptomDateCol": "תאריך",
+  "symptomNameCol": "תסמין",
+  "severityCol": "חומרה",
+  "notesCol": "הערות",
+  "noSymptomsLogged": "לא תועדו תסמינים בתקופה זו.",
+  "reportFooter": "הופק על ידי MedAI Pro. דוח זה נועד למטרות מידע בלבד ויש לבדוק אותו על ידי איש מקצוע רפואי מוסמך.",
+  "settingsStats": "סטטיסטיקה",
+  "settingsApp": "הגדרות אפליקציה",
+  "settingsData": "נתונים ופרטיות",
+  "settingsGlobal": "הגדרות גלובליות",
+  "settingsProfile": "הפרופיל שלי",
+  "adherenceLabel": "היענות",
+  "streakLabel": "רצף",
+  "streakDays": "{count} ימים",
+  "@streakDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "generateClinicalReport": "הפקת דוח קליני",
+  "fetchingAiInsights": "מאחזר תובנות AI...",
+  "aiCoachDisclaimer": "לוח מחוונים זה משתמש ב-AI לניתוח דפוסים. התייעצו תמיד עם הרופא לקבלת ייעוץ רפואי.",
+  "insightsTitle": "תובנות",
+  "insightsSubtitle": "אנליטיקה ודפוסי בריאות",
+  "dataSummaryTitle": "סיכום הנתונים שלך",
+  "dataMedicinesLabel": "תרופות",
+  "dataAlarmsLabel": "התראות שהוגדרו",
+  "dataDaysTrackedLabel": "ימים שתועדו",
+  "dataDosesLoggedLabel": "מנות שתועדו",
+  "exportAndBackup": "ייצוא וגיבוי",
+  "exportPdfReport": "ייצוא דוח PDF",
+  "exportPdfSubtitle": "לרופאים ולמטפלים",
+  "exportCsv": "ייצוא היסטוריה כ-CSV",
+  "exportCsvSubtitle": "{count} רשומות מנות",
+  "@exportCsvSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "resetSection": "איפוס",
+  "deleteAllData": "מחיקת כל הנתונים",
+  "deleteAllDataSubtitle": "מסיר את כל התרופות, ההיסטוריה וההגדרות",
+  "deleteConfirmTitle": "למחוק את כל הנתונים?",
+  "deleteConfirmBody": "פעולה זו תמחק לצמיתות את כל הנתונים שלך. לא ניתן לבטל אותה.",
+  "deleteButton": "מחק הכול",
+  "legalSection": "משפטי",
+  "privacyPolicy": "מדיניות פרטיות",
+  "privacyPolicySubtitle": "כיצד אנו מגנים על נתוני הבריאות שלך",
+  "termsOfService": "תנאי שימוש",
+  "termsOfServiceSubtitle": "כללים לשימוש ב-MedAI",
+  "appVersionLabel": "גרסת אפליקציה",
+  "appVersionValue": "1.0.0+1",
   "analysisFailed": "הניתוח נכשל",
-  "somethingWentWrong": "משהו השתבש. אנא נסה שוב.",
-  "retry": "נסה שוב"
+  "somethingWentWrong": "משהו השתבש. אנא נסו שוב.",
+  "retry": "נסה שוב",
+  "onboardingSkip": "דלג",
+  "onboardingNext": "הבא",
+  "onboardingContinue": "המשך",
+  "onboardingGetStarted": "בואו נתחיל",
+  "onboardingWelcomeTitle": "בנו הרגלי תרופות\nבלתי שבירים",
+  "onboardingWelcomeBody": "רצפים, תזכורות חכמות ו-AI ששומר עליכם במסלול — כל יום.",
+  "onboardingScanTitle": "סרקו כל כדור\nתוך שניות",
+  "onboardingScanBodyDemo": "הקישו למטה כדי לראות את ה-AI מזהה תרופה לדוגמה באופן מיידי.",
+  "onboardingScanBodyDone": "ככה מהיר Med AI. בלי הקלדה, בלי ניחושים.",
+  "onboardingSimulateScan": "הדמיית סריקה ←",
+  "onboardingPermissionTitle": "המצלמה שלכם,\nהפרטיות שלכם",
+  "onboardingPermissionBody": "אנו משתמשים במצלמה רק כדי לקרוא תוויות של כדורים. התמונות מעובדות באופן מאובטח ולעולם אינן נמכרות.",
+  "onboardingPermissionLink": "למדו כיצד אנו מגנים על הנתונים שלכם",
+  "onboardingPersonalizeTitle": "התאימו אישית\nאת החוויה שלכם",
+  "onboardingQuizMedCount": "כמה תרופות?",
+  "onboardingQuizRole": "עבור מי אתם עוקבים?",
+  "onboardingQuizSchedule": "מתי אתם נוטלים את רוב התרופות?",
+  "onboardingRoleSelf": "עבור עצמי",
+  "onboardingRoleCaregiver": "מישהו שאני מטפל בו",
+  "onboardingScheduleMorning": "בוקר",
+  "onboardingScheduleEvening": "ערב",
+  "onboardingScheduleBoth": "שניהם",
+  "onboardingSocialTitle": "הצטרפו ל-50,000+\nאלופי בריאות",
+  "onboardingSocialQuote": "\"Med AI שינה את האופן שבו המשפחה שלי מנהלת תרופות. תכונת הסריקה לבדה חוסכת לנו 10 דקות ביום.\"",
+  "onboardingSocialAttribution": "— ביקורת App Store, 5 כוכבים",
+  "onboardingAllowCamera": "אפשר גישה למצלמה",
+  "onboardingTryDemoScan": "נסו סריקת הדגמה",
+  "loadingHealthData": "טוען את נתוני הבריאות שלך…"
 }

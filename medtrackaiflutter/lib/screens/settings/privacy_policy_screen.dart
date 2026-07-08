@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:url_launcher/url_launcher.dart';
+
+import '../../../core/constants/premium_graphics.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../models/constants.dart';
 import '../../../widgets/common/app_scaffold.dart';
-import '../../../widgets/common/animated_pressable.dart';
+import '../../../widgets/common/premium_page_header.dart';
 import '../../../core/utils/haptic_engine.dart';
 
 class PrivacyPolicyScreen extends StatefulWidget {
@@ -34,69 +37,26 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(
-            child: SafeArea(
-              bottom: false,
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(
-                    AppSpacing.screenPadding, 12, AppSpacing.screenPadding, 24),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Semantics(
-                      button: true,
-                      label: 'Back',
-                      child: AnimatedPressable(
-                        onTap: () {
-                          HapticEngine.selection();
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          width: MedAiA11y.minTapTarget,
-                          height: MedAiA11y.minTapTarget,
-                          decoration: BoxDecoration(
-                            color: L.card,
-                            borderRadius: BorderRadius.circular(14),
-                            border: Border.all(
-                                color: L.border.withValues(alpha: 0.12)),
-                            boxShadow: AppShadows.soft,
-                          ),
-                          child: Icon(Icons.arrow_back_ios_new_rounded,
-                              color: L.text, size: 18),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    MedAiGlass(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 6),
-                      radius: AppRadius.l,
-                      child: Text(
-                        'LEGAL & COMPLIANCE',
-                        style: AppTypography.labelSmall.copyWith(
-                          color: L.accent,
-                          fontWeight: FontWeight.w900,
-                          letterSpacing: 2,
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'Privacy Policy',
-                      style: AppTypography.displaySmall.copyWith(
-                        color: L.text,
-                        fontWeight: FontWeight.w900,
-                        letterSpacing: -1,
-                      ),
-                    ),
-                    const SizedBox(height: 6),
-                    Text(
-                      'Last Updated: June 2026',
-                      style: AppTypography.bodySmall.copyWith(
-                        color: L.sub,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+            child: PremiumPageHeader(
+              title: 'Privacy Policy',
+              subtitle: 'Last updated: June 2026',
+              onBack: () => Navigator.pop(context),
+            ),
+          ),
+          SliverToBoxAdapter(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 0, 24, 12),
+              child: Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: L.card,
+                  borderRadius: BorderRadius.circular(22),
+                  border: Border.all(color: L.border.withValues(alpha: 0.35)),
+                ),
+                child: SvgPicture.asset(
+                  PremiumGraphics.healthInsights,
+                  height: 120,
+                  fit: BoxFit.contain,
                 ),
               ),
             ),

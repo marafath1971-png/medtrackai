@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -30,6 +31,7 @@ import 'data/repositories/user_repository_impl.dart';
 import 'data/repositories/symptom_repository_impl.dart';
 import 'widgets/common/global_error_boundary.dart';
 import 'services/purchases_service.dart';
+import 'services/remote_config_service.dart';
 
 /// DEV PREVIEW ONLY — when true, seeds demo data and jumps straight into the
 /// app (bypassing onboarding/auth) so redesigned screens can be reviewed.
@@ -62,6 +64,10 @@ void main() async {
   } catch (e) {
     debugPrint('Firebase/AppCheck initialization failure: $e');
   }
+
+  // Remote Config: experiment switchboard (non-blocking — defaults ship in
+  // code, so a failed fetch never delays or breaks launch).
+  unawaited(RemoteConfigService.init());
 
   // Initialize Performance Monitoring
   try {

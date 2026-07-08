@@ -82,7 +82,9 @@ class AuthController extends ChangeNotifier {
             prefs.getString(OnboardingPrefs.storageKeyReminderIntensity) ??
                 'normal',
       });
-    } catch (_) {}
+    } catch (e) {
+      appLogger.w('[AuthController] Failed to hydrate onboarding prefs: $e');
+    }
   }
 
   Future<void> saveOnboardingPrefs(OnboardingPrefs prefs) async {

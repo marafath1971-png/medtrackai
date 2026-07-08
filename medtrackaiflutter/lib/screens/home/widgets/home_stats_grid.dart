@@ -261,11 +261,6 @@ class _BentoMetricCard extends StatelessWidget {
         ),
       ),
     );
-    if (!reduceMotion) {
-      sparkline = sparkline
-          .animate(onPlay: (c) => c.repeat())
-          .shimmer(duration: 2500.ms, color: Colors.white.withValues(alpha: 0.3));
-    }
 
     return Semantics(
       button: onTap != null,
@@ -382,17 +377,7 @@ class _BentoSmallCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget emojiWidget = Text(emoji, style: const TextStyle(fontSize: 22));
-    if (!reduceMotion) {
-      emojiWidget = emojiWidget
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .scale(
-            begin: const Offset(1.0, 1.0),
-            end: const Offset(1.22, 1.22),
-            duration: 1600.ms,
-            curve: Curves.easeInOut,
-          );
-    }
+    final emojiWidget = Text(emoji, style: const TextStyle(fontSize: 22));
 
     return Semantics(
       button: onTap != null,
@@ -464,19 +449,7 @@ class _NextDoseCard extends StatelessWidget {
         ? 'in $diff min'
         : 'at ${dose.sched.h}:${dose.sched.m.toString().padLeft(2, '0')}';
     final doseEmoji = diff <= 15 ? '⚡' : (diff <= 60 ? '⏱️' : '🛡️');
-    final pulseMs = diff <= 15 ? 700 : (diff <= 60 ? 1000 : 1600);
-
-    Widget emojiInner = Text(doseEmoji, style: const TextStyle(fontSize: 26));
-    if (!reduceMotion) {
-      emojiInner = emojiInner
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .scale(
-            begin: const Offset(1.0, 1.0),
-            end: const Offset(1.25, 1.25),
-            duration: Duration(milliseconds: pulseMs),
-            curve: Curves.easeInOut,
-          );
-    }
+    final emojiInner = Text(doseEmoji, style: const TextStyle(fontSize: 26));
 
     return Semantics(
       label: 'Next dose: ${dose.med.name}, $timeLabel',

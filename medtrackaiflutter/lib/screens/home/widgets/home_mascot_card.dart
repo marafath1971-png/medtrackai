@@ -276,33 +276,17 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                               ),
                               const SizedBox(width: 8),
                               ...List.generate(3, (index) {
-                                Widget dot = Container(
+                                return Container(
                                   margin:
                                       const EdgeInsets.symmetric(horizontal: 1.5),
                                   width: 5,
                                   height: 5,
                                   decoration: BoxDecoration(
-                                    color: L.accent.withValues(alpha: 0.8),
+                                    color: L.accent
+                                        .withValues(alpha: 0.45 + (index * 0.15)),
                                     shape: BoxShape.circle,
                                   ),
                                 );
-                                if (!reduceMotion) {
-                                  dot = dot
-                                      .animate(onPlay: (c) => c.repeat())
-                                      .scale(
-                                        begin: const Offset(0.6, 0.6),
-                                        end: const Offset(1.2, 1.2),
-                                        duration: 600.ms,
-                                        delay: (index * 150).ms,
-                                        curve: Curves.easeInOut,
-                                      )
-                                      .fadeIn(
-                                        begin: 0.4,
-                                        duration: 600.ms,
-                                        delay: (index * 150).ms,
-                                      );
-                                }
-                                return dot;
                               }),
                             ],
                           ),

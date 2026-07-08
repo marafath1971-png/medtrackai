@@ -17,6 +17,8 @@ import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/animated_pressable.dart';
 import '../../services/gemini_service.dart';
 import '../../providers/app_state.dart';
+import '../../screens/paywall/premium_paywall_overlay.dart';
+import '../../services/remote_config_service.dart';
 import 'widgets/scan_result_detail_view.dart';
 
 // ══════════════════════════════════════════════
@@ -131,6 +133,17 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
     if (_isScanning) return;
     if (_controller == null || !_controller!.value.isInitialized) return;
 
+    // Free-tier gate (blueprint §5): the scan limit is the primary paywall
+    // fence. Limit is Remote-Config-driven so it can be experimented on.
+    final gateState = context.read<AppState>();
+    if (!gateState.isPremium &&
+        (gateState.profile?.scansUsed ?? 0) >=
+            RemoteConfigService.freeTierScanLimit) {
+      HapticEngine.light();
+      await PremiumPaywallOverlay.show(context, triggerSource: 'scan_limit');
+      return;
+    }
+
     HapticEngine.selection();
     setState(() {
       _isScanning = true;
@@ -158,6 +171,8 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
       result.fold(
         (success) {
           if (!mounted) return;
+          // Count the successful scan against the free-tier allowance.
+          state.incrementScanCount();
           HapticEngine.successScan();
           _beamCtrl.stop();
           setState(() {
@@ -265,43 +280,66 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
 
             // ── Header
             Positioned(
-              top: MediaQuery.of(context).padding.top + 16,
-              left: 20,
-              right: 20,
-              child: Row(
-                children: [
-                  Semantics(
-                    button: true,
-                    label: 'Close',
-                    child: AnimatedPressable(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: MedAiA11y.minTapTarget,
-                        height: MedAiA11y.minTapTarget,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.35),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Colors.white.withValues(alpha: 0.12),
-                            width: 0.5,
+              top: 0,
+              left: 0,
+              right: 0,
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(20, 12, 20, 0),
+                  child: Row(
+                    children: [
+                      Semantics(
+                        button: true,
+                        label: 'Close',
+                        child: AnimatedPressable(
+                          onTap: () => Navigator.pop(context),
+                          child: Container(
+                            width: 42,
+                            height: 42,
+                            decoration: BoxDecoration(
+                              color: Colors.black.withValues(alpha: 0.35),
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.white.withValues(alpha: 0.12),
+                                width: 0.5,
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.close_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
                           ),
                         ),
-                        child: const Icon(Icons.close_rounded,
-                            color: Colors.white, size: 20),
                       ),
-                    ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Pill Identifier',
+                              style: AppTypography.headlineMedium.copyWith(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w800,
+                                letterSpacing: -0.5,
+                                fontSize: 24,
+                              ),
+                            ),
+                            Text(
+                              'Shape, color & imprint',
+                              style: AppTypography.bodySmall.copyWith(
+                                color: Colors.white.withValues(alpha: 0.72),
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
-                  const Spacer(),
-                  Text(
-                    'Pill Identifier',
-                    style: AppTypography.titleMedium.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const Spacer(),
-                  const SizedBox(width: 40),
-                ],
+                ),
               ),
             ),
 
@@ -604,6 +642,11 @@ class _PillResultOverlay extends StatelessWidget {
       color: '#10B981',
     );
 
+    if (!appState.canAddMedicine) {
+      await PremiumPaywallOverlay.show(context,
+          triggerSource: 'unlimited_meds');
+      return;
+    }
     await appState.addMedicine(newMed);
     if (!context.mounted) return;
     context.push(AppRoutes.medicineDetailPath(newMed.id, edit: true));

@@ -46,6 +46,20 @@ class AppColors {
   static const Color oceanBlue   = Color(0xFF0C2D48); // Deep Luxury Blue
   static const Color coralRed    = Color(0xFFFF5E5B); // Premium Soft Red
 
+  // ── ⭐ REFERENCE PALETTE (2026 fresh health-tracker look) ─────────
+  // Lime-green signature + soft pastel category tints on pure white,
+  // from the reference design set. Used by the redesigned home surface.
+  static const Color lime        = Color(0xFFB4E869); // signature hero card
+  static const Color limeDeep    = Color(0xFF8FD14F); // lime, higher contrast
+  static const Color limeInk     = Color(0xFF2E3D1B); // text on lime
+  static const Color pastelMint  = Color(0xFFE4F5E7);
+  static const Color pastelSky   = Color(0xFFD9ECF7);
+  static const Color pastelPink  = Color(0xFFFCE4E6);
+  static const Color pastelSun   = Color(0xFFFFF3D1);
+  static const Color pastelLilac = Color(0xFFEDE7F9);
+  static const Color inkStrong   = Color(0xFF1A1D26); // near-black headings
+  static const Color inkSoft     = Color(0xFF9AA0A6); // muted captions
+
   // ── Semantic: Success / Error ──────────────────
   static const Color green      = Color(0xFF00C853); // Vibrant iOS-style green
   static const Color greenDark  = Color(0xFF00E676);

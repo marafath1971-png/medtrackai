@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/premium_page_header.dart';
 import '../../widgets/common/animated_pressable.dart';
 
 class PinVerificationScreen extends StatefulWidget {
@@ -66,42 +67,14 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
-    Widget body = SafeArea(
-      child: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(8, 8, 16, 0),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Semantics(
-                button: true,
-                label: 'Go back',
-                child: AnimatedPressable(
-                  onTap: () => Navigator.pop(context, false),
-                  child: Container(
-                    width: AppA11y.minTapTargetCompact,
-                    height: AppA11y.minTapTargetCompact,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      color: L.card,
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: L.border.withValues(alpha: 0.4),
-                        width: 0.5,
-                      ),
-                      boxShadow: AppShadows.soft,
-                    ),
-                    child: Icon(
-                      Icons.arrow_back_ios_new_rounded,
-                      color: L.text,
-                      size: 18,
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          const Spacer(),
+    Widget body = Column(
+      children: [
+        PremiumPageHeader(
+          title: 'Enter PIN',
+          subtitle: widget.profileName,
+          onBack: () => Navigator.pop(context, false),
+        ),
+        const Spacer(),
           Container(
             width: 72,
             height: 72,
@@ -207,7 +180,6 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
             ),
           ),
         ],
-      ),
     );
 
     if (!reduceMotion) {

@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/premium_page_header.dart';
 import '../../core/utils/haptic_engine.dart';
-import '../../widgets/shared/shared_widgets.dart';
 
 class OrganCluster {
   final String name;
@@ -105,11 +105,7 @@ class _ImpactVisualizerScreenState extends State<ImpactVisualizerScreen>
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (!MedAiA11y.reducedMotion(context)) {
-        _pulseController.repeat(reverse: true);
-      } else {
-        _pulseController.value = 0.5;
-      }
+      _pulseController.value = 0.5;
     });
   }
 
@@ -270,52 +266,10 @@ class _ImpactVisualizerScreenState extends State<ImpactVisualizerScreen>
           SafeArea(
             child: Column(
               children: [
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: AppSpacing.screenPadding, vertical: 16),
-                  child: Row(
-                    children: [
-                      Semantics(
-                        button: true,
-                        label: 'Back',
-                        child: AnimatedPressable(
-                          onTap: () {
-                            HapticEngine.selection();
-                            Navigator.pop(context);
-                          },
-                          child: Container(
-                            width: MedAiA11y.minTapTarget,
-                            height: MedAiA11y.minTapTarget,
-                            decoration: BoxDecoration(
-                              color: L.card.withValues(alpha: 0.7),
-                              shape: BoxShape.circle,
-                              border: Border.all(
-                                color: L.border.withValues(alpha: 0.3),
-                                width: 0.5,
-                              ),
-                              boxShadow: AppShadows.subtle,
-                            ),
-                            child: Icon(Icons.arrow_back_ios_new_rounded,
-                                color: L.text, size: 18),
-                          ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Center(
-                          child: Text(
-                            'Organ impact map',
-                            style: AppTypography.titleMedium.copyWith(
-                              color: L.text,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.3,
-                              fontSize: 16,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: MedAiA11y.minTapTarget),
-                    ],
-                  ),
+                PremiumPageHeader(
+                  title: 'Organ impact map',
+                  subtitle: 'See how meds affect your body over time',
+                  onBack: () => Navigator.pop(context),
                 ),
                 const Spacer(),
                 Padding(
@@ -397,6 +351,15 @@ class _ImpactVisualizerScreenState extends State<ImpactVisualizerScreen>
                                 ),
                               ),
                             ],
+                          ),
+                          const SizedBox(height: 10),
+                          Text(
+                            'For illustration only — not medical advice',
+                            style: AppTypography.bodySmall.copyWith(
+                              color: L.sub.withValues(alpha: 0.5),
+                              fontSize: 10,
+                              fontWeight: FontWeight.w500,
+                            ),
                           ),
                         ],
                       ),

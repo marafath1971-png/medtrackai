@@ -3,8 +3,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
-import '../../widgets/common/animated_pressable.dart';
 import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/premium_page_header.dart';
 import '../../services/dynamic_icon_service.dart';
 
 class ThemeCustomizationScreen extends StatefulWidget {
@@ -54,55 +54,21 @@ class _ThemeCustomizationScreenState extends State<ThemeCustomizationScreen> {
 
     return AppScaffold(
       showAurora: true,
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: AppSpacing.screenPadding, vertical: 16),
-              child: Row(
-                children: [
-                  Semantics(
-                    button: true,
-                    label: 'Go back',
-                    child: AnimatedPressable(
-                      onTap: () {
-                        HapticEngine.selection();
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        width: MedAiA11y.minTapTarget,
-                        height: MedAiA11y.minTapTarget,
-                        decoration: BoxDecoration(
-                          color: L.fill.withValues(alpha: 0.5),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                              color: L.border.withValues(alpha: 0.1)),
-                        ),
-                        child: Icon(Icons.arrow_back_ios_new_rounded,
-                            color: L.text, size: 18),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Text(
-                      'App Appearance',
-                      style: AppTypography.headlineMedium.copyWith(
-                        color: L.text,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: -0.5,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: ListView(
-                padding: const EdgeInsets.all(AppSpacing.screenPadding),
-                children: [
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          PremiumPageHeader(
+            title: 'App Appearance',
+            subtitle: 'Icons and visual style',
+            onBack: () {
+              HapticEngine.selection();
+              Navigator.pop(context);
+            },
+          ),
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.all(AppSpacing.screenPadding),
+              children: [
                   const MedAiSectionHeader(title: 'App Icons'),
                   const SizedBox(height: 16),
                   Wrap(
@@ -211,7 +177,6 @@ class _ThemeCustomizationScreenState extends State<ThemeCustomizationScreen> {
             ),
           ],
         ),
-      ),
     );
   }
 }

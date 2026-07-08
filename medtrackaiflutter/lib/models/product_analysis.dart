@@ -6,7 +6,7 @@ class ProductAnalysis {
   final String whyTakeIt;
   final String howItWorks;
   final List<String> benefits;
-  final List<String> sideEffects;
+  final List<SideEffect> sideEffects;
   final List<String> foodInteractions;
   final List<String> medicineInteractions;
   final String timing; // e.g. "Take with food, morning"
@@ -14,6 +14,7 @@ class ProductAnalysis {
   final String scientificEvidence; // e.g. "Strong evidence for sleep"
   final String? childSafetyAlert;
   final List<String> allergyAlerts;
+  final String allergyRiskLevel; // "None", "Low", "Medium", "High"
   final List<ExpertPerspective> expertPerspectives;
 
   ProductAnalysis({
@@ -32,6 +33,7 @@ class ProductAnalysis {
     required this.scientificEvidence,
     this.childSafetyAlert,
     required this.allergyAlerts,
+    required this.allergyRiskLevel,
     required this.expertPerspectives,
   });
 
@@ -43,7 +45,7 @@ class ProductAnalysis {
         'whyTakeIt': whyTakeIt,
         'howItWorks': howItWorks,
         'benefits': benefits,
-        'sideEffects': sideEffects,
+        'sideEffects': sideEffects.map((e) => e.toJson()).toList(),
         'foodInteractions': foodInteractions,
         'medicineInteractions': medicineInteractions,
         'timing': timing,
@@ -51,6 +53,7 @@ class ProductAnalysis {
         'scientificEvidence': scientificEvidence,
         'childSafetyAlert': childSafetyAlert,
         'allergyAlerts': allergyAlerts,
+        'allergyRiskLevel': allergyRiskLevel,
         'expertPerspectives': expertPerspectives.map((e) => e.toJson()).toList(),
       };
 
@@ -63,7 +66,10 @@ class ProductAnalysis {
       whyTakeIt: json['whyTakeIt'] ?? '',
       howItWorks: json['howItWorks'] ?? '',
       benefits: List<String>.from(json['benefits'] ?? []),
-      sideEffects: List<String>.from(json['sideEffects'] ?? []),
+      sideEffects: (json['sideEffects'] as List<dynamic>?)
+              ?.map((e) => SideEffect.fromJson(Map<String, dynamic>.from(e as Map)))
+              .toList() ??
+          [],
       foodInteractions: List<String>.from(json['foodInteractions'] ?? []),
       medicineInteractions: List<String>.from(json['medicineInteractions'] ?? []),
       timing: json['timing'] ?? '',
@@ -71,6 +77,7 @@ class ProductAnalysis {
       scientificEvidence: json['scientificEvidence'] ?? '',
       childSafetyAlert: json['childSafetyAlert'],
       allergyAlerts: List<String>.from(json['allergyAlerts'] ?? []),
+      allergyRiskLevel: json['allergyRiskLevel'] ?? 'None',
       expertPerspectives: (json['expertPerspectives'] as List<dynamic>?)
               ?.map((e) => ExpertPerspective.fromJson(Map<String, dynamic>.from(e as Map)))
               .toList() ??
@@ -87,13 +94,17 @@ class ProductAnalysis {
         whyTakeIt: 'People take it to improve sleep quality, reduce anxiety, and support muscle recovery.',
         howItWorks: 'Glycine acts as a calming neurotransmitter in the brain, while magnesium relaxes muscles and regulates the nervous system.',
         benefits: ['Better Sleep', 'Muscle Relaxation', 'Anxiety Relief', 'Bone Health'],
-        sideEffects: ['Mild stomach upset (rare)', 'Drowsiness if taken during the day'],
+        sideEffects: [
+          SideEffect(effect: 'Mild stomach upset (rare)', severity: 'Low'),
+          SideEffect(effect: 'Drowsiness if taken during the day', severity: 'Low'),
+        ],
         foodInteractions: ['Avoid taking with high-calcium meals (reduces absorption).'],
         medicineInteractions: ['Antibiotics (take 2 hours apart)', 'Bisphosphonates'],
         timing: 'Best taken 30-60 minutes before bed.',
         halalStatus: 'Halal Certified',
         scientificEvidence: 'Strong clinical backing for sleep improvement and anxiety reduction.',
         allergyAlerts: [],
+        allergyRiskLevel: 'None',
         expertPerspectives: [
           ExpertPerspective(
             role: 'Doctor',
@@ -117,6 +128,28 @@ class ProductAnalysis {
           ),
         ],
       );
+}
+
+class SideEffect {
+  final String effect;
+  final String severity; // "Low", "Medium", "High"
+
+  SideEffect({
+    required this.effect,
+    required this.severity,
+  });
+
+  Map<String, dynamic> toJson() => {
+        'effect': effect,
+        'severity': severity,
+      };
+
+  factory SideEffect.fromJson(Map<String, dynamic> json) {
+    return SideEffect(
+      effect: json['effect'] ?? '',
+      severity: json['severity'] ?? 'Low',
+    );
+  }
 }
 
 class ExpertPerspective {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../theme/med_ai_ui.dart';
 
@@ -11,6 +12,7 @@ class PremiumEmptyState extends StatelessWidget {
   final VoidCallback? onAction;
   final IconData? icon;
   final Widget? visual;
+  final String? illustrationAsset;
 
   const PremiumEmptyState({
     super.key,
@@ -21,6 +23,7 @@ class PremiumEmptyState extends StatelessWidget {
     this.onAction,
     this.icon,
     this.visual,
+    this.illustrationAsset,
   });
 
   @override
@@ -37,10 +40,17 @@ class PremiumEmptyState extends StatelessWidget {
         height: 110,
         child: Center(
           child: visual ??
-              (icon != null
-                  ? Icon(icon, size: 44, color: L.accent)
-                  : Text(emoji,
-                      style: AppTypography.displayLarge.copyWith(fontSize: 44))),
+              (illustrationAsset != null
+                  ? SvgPicture.asset(
+                      illustrationAsset!,
+                      width: 86,
+                      height: 86,
+                      fit: BoxFit.contain,
+                    )
+                  : (icon != null
+                      ? Icon(icon, size: 44, color: L.accent)
+                      : Text(emoji,
+                          style: AppTypography.displayLarge.copyWith(fontSize: 44)))),
         ),
       ),
     );

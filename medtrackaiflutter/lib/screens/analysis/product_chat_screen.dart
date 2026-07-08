@@ -1,8 +1,8 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/premium_page_header.dart';
 import '../../models/product_analysis.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
@@ -136,13 +136,19 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    final topPad = MediaQuery.of(context).padding.top;
 
     return AppScaffold(
       showAurora: true,
       body: Column(
         children: [
-          SizedBox(height: topPad + 56),
+          PremiumPageHeader(
+            title: 'AI Assistant',
+            subtitle: widget.product.name,
+            onBack: () {
+              HapticEngine.selection();
+              Navigator.pop(context);
+            },
+          ),
           Expanded(
             child: ListView.builder(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -160,76 +166,6 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
           ),
           _buildInputArea(L),
         ],
-      ),
-      extendBodyBehindAppBar: true,
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(topPad + 56),
-        child: ClipRect(
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-            child: Container(
-              color: L.bg.withValues(alpha: 0.75),
-              padding: EdgeInsets.only(top: topPad),
-              child: SizedBox(
-                height: 56,
-                child: Row(
-                  children: [
-                    Semantics(
-                      button: true,
-                      label: 'Back',
-                      child: AnimatedPressable(
-                        onTap: () {
-                          HapticEngine.selection();
-                          Navigator.pop(context);
-                        },
-                        child: Container(
-                          width: MedAiA11y.minTapTarget,
-                          height: MedAiA11y.minTapTarget,
-                          margin: const EdgeInsets.only(left: 8),
-                          decoration: BoxDecoration(
-                            color: L.card.withValues(alpha: 0.7),
-                            shape: BoxShape.circle,
-                            border: Border.all(
-                              color: L.border.withValues(alpha: 0.3),
-                              width: 0.5,
-                            ),
-                          ),
-                          child: Icon(Icons.arrow_back_ios_new_rounded,
-                              color: L.text, size: 18),
-                        ),
-                      ),
-                    ),
-                    Expanded(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            'AI Assistant',
-                            style: AppTypography.titleMedium.copyWith(
-                              color: L.text,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.5,
-                            ),
-                          ),
-                          Text(
-                            widget.product.name,
-                            style: AppTypography.labelSmall.copyWith(
-                              color: L.sub,
-                              fontWeight: FontWeight.w600,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(width: MedAiA11y.minTapTarget + 8),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
       ),
     );
   }

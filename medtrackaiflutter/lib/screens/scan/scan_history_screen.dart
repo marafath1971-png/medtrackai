@@ -4,10 +4,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
 
 import '../../../providers/app_state.dart';
+import '../../../core/constants/premium_graphics.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/app_scaffold.dart';
-import '../../../widgets/common/animated_pressable.dart';
-import '../../../core/utils/haptic_engine.dart';
+import '../../../widgets/common/premium_empty_state.dart';
+import '../../../widgets/common/premium_page_header.dart';
 
 class ScanHistoryScreen extends StatelessWidget {
   const ScanHistoryScreen({super.key});
@@ -33,42 +34,11 @@ class ScanHistoryScreen extends StatelessWidget {
         physics:
             const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
         slivers: [
-          SliverAppBar(
-            expandedHeight: 120,
-            pinned: true,
-            backgroundColor: Colors.transparent,
-            elevation: 0,
-            leading: Semantics(
-              button: true,
-              label: 'Back',
-              child: AnimatedPressable(
-                onTap: () {
-                  HapticEngine.selection();
-                  Navigator.pop(context);
-                },
-                child: Container(
-                  width: MedAiA11y.minTapTarget,
-                  height: MedAiA11y.minTapTarget,
-                  margin: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: L.fill.withValues(alpha: 0.5),
-                    shape: BoxShape.circle,
-                  ),
-                  child: Icon(Icons.arrow_back_ios_new_rounded,
-                      color: L.text, size: 18),
-                ),
-              ),
-            ),
-            flexibleSpace: FlexibleSpaceBar(
-              titlePadding: const EdgeInsets.only(left: 24, bottom: 16),
-              title: Text(
-                'Scan History',
-                style: AppTypography.titleLarge.copyWith(
-                  color: L.text,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: -0.5,
-                ),
-              ),
+          SliverToBoxAdapter(
+            child: PremiumPageHeader(
+              title: 'Scan History',
+              subtitle: 'Your recent medication scans',
+              onBack: () => Navigator.pop(context),
             ),
           ),
           if (history.isEmpty)
@@ -76,33 +46,10 @@ class ScanHistoryScreen extends StatelessWidget {
               child: Center(
                 child: _entrance(
                   reduceMotion,
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 96,
-                        height: 96,
-                        decoration: BoxDecoration(
-                          color: AppColors.accent.withValues(alpha: 0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.history_rounded,
-                            size: 48, color: AppColors.accent),
-                      ),
-                      const SizedBox(height: 24),
-                      Text(
-                        'No history yet',
-                        style: AppTypography.titleMedium.copyWith(
-                          color: L.text,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Medications you scan will appear here',
-                        style: AppTypography.bodyMedium.copyWith(color: L.sub),
-                      ),
-                    ],
+                  PremiumEmptyState(
+                    title: 'No history yet',
+                    subtitle: 'Medications you scan will appear here.',
+                    illustrationAsset: PremiumGraphics.scan,
                   ),
                 ),
               ),

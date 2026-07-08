@@ -1,0 +1,161 @@
+{
+  "project_name": "Med AI",
+  "system_initialization": {
+    "role": "You are a collaborative intelligence team consisting of an Apple Human Interface Designer, a TikTok Product Designer, a Cal AI Designer, an Accessibility Expert, and a Staff Motion Engineer.",
+    "objective": "Generate a complete, production-ready frontend interface for Med AI, the world's most premium, delightful, and frictionless medication tracking app.",
+    "quality_benchmark": ["Apple Health", "Cal AI", "Notion", "Headspace", "Duolingo", "TikTok"],
+    "strict_directive": "You must not output 'developer-looking' UI. Every screen, empty state, and error message must feel like a $100M consumer product. Use glassmorphism, soft continuous shadows, gorgeous typography scales, and HSL-based dynamic gradients. Include CSS instructions for micro-interactions (staggered lists, button presses, morphing checkmarks)."
+  },
+  "modules": [
+    {
+      "module_id": 1,
+      "name": "Onboarding & Authentication",
+      "screens": [
+        {
+          "name": "Splash & Value Prop Carousel",
+          "ui": "Full-screen immersive layout. A soft, breathing background gradient.",
+          "elements": "3 swipeable cards highlighting features ('Never forget a pill', 'AI Interactions', 'Share with Doctor').",
+          "micro_interaction": "Pagination dots that stretch and morph as you swipe."
+        },
+        {
+          "name": "Smart Authentication",
+          "ui": "Bottom sheet or clean centered card.",
+          "elements": "Large, premium 'Continue with Apple' (sleek black) and 'Continue with Google' buttons.",
+          "details": "No password fields. Frictionless auth."
+        },
+        {
+          "name": "Notification Permissions (Crucial Step)",
+          "ui": "A friendly, illustrated modal.",
+          "copy": "We need to wake you up! Allow notifications so Med AI can remind you when it's time.",
+          "elements": "'Allow' (Primary gradient button), 'Maybe Later' (Subtle text link)."
+        }
+      ]
+    },
+    {
+      "module_id": 2,
+      "name": "Home Dashboard (Today)",
+      "screens": [
+        {
+          "name": "The Main Dashboard (Default State)",
+          "header": "Frosted glass, personalized greeting ('Good morning, Sarah 👋'), and a streak fire icon.",
+          "hero_visual": "An animated, glowing circular progress ring ('3 of 5 taken today').",
+          "timeline": "Grouped lists ('Morning', 'Afternoon', 'As Needed').",
+          "med_cards": "High-quality pill icon, Med Name, Dose, and a massive pill-shaped 'Take' button."
+        },
+        {
+          "name": "Med Card Micro-States",
+          "taken_state": "Card collapses slightly, opacity drops to 60%, 'Take' button morphs into a green checkmark.",
+          "missed_late_state": "Subtle warm amber outline, button pulses gently to grab attention.",
+          "snooze_skip_options": "Swipe left on a card to reveal beautiful 'Snooze (1h)' or 'Skip' actions."
+        },
+        {
+          "name": "Empty State (All Done / No Meds)",
+          "ui": "A beautiful, satisfying illustration of a clean desk or a checkmark.",
+          "copy": "You're all caught up! Have a fantastic day."
+        }
+      ]
+    },
+    {
+      "module_id": 3,
+      "name": "AI Scanner & Medication Entry",
+      "screens": [
+        {
+          "name": "The AI Camera Viewfinder",
+          "ui": "Full-screen blurred background simulating a camera feed.",
+          "overlay": "A dark translucent mask with a clear, rounded-rectangle cut-out in the center. A glowing 'laser' scanner line moving vertically.",
+          "text": "Smoothly crossfading text ('Scanning label...' -> 'Extracting dosage...')."
+        },
+        {
+          "name": "Manual Add Form (Autocomplete)",
+          "ui": "A clean, bottom-sheet style form.",
+          "fields": "Large, borderless input field for Medication Name. As the user types, show a sleek dropdown with autocomplete suggestions and tiny pill icons."
+        },
+        {
+          "name": "Schedule & Dose Configuration",
+          "ui": "Apple Alarm-style scroll wheels or large, chunky selectable chips ('Every day', 'Specific days', 'As needed').",
+          "visuals": "Custom CSS toggle switches for 'Remind me'."
+        },
+        {
+          "name": "Interaction Warning (Safety Alert)",
+          "ui": "A premium, non-scary bottom sheet.",
+          "visuals": "Soft amber/warning color scheme.",
+          "copy": "Wait! Taking this with Vitamin C reduces absorption. Space them out by 2 hours."
+        }
+      ]
+    },
+    {
+      "module_id": 4,
+      "name": "The Cabinet (Medication Details)",
+      "screens": [
+        {
+          "name": "The Virtual Pillbox (List View)",
+          "ui": "A masonry or grid layout of all active and inactive medications.",
+          "elements": "Progress bars on each card indicating pill supply (e.g., '12 pills left')."
+        },
+        {
+          "name": "Medication Detail View",
+          "hero": "Massive 3D-like icon of the specific pill shape/color.",
+          "stats": "Adherence rate for this specific drug (e.g., '94% taken on time').",
+          "action": "'Log Refill' button (shimmering if supply is under 10%)."
+        },
+        {
+          "name": "Side Effect Logger",
+          "ui": "A quick, tap-based mood/symptom tracker.",
+          "elements": "Emojis or beautiful minimalist icons for 'Nausea', 'Headache', 'Dizzy'."
+        }
+      ]
+    },
+    {
+      "module_id": 5,
+      "name": "Insights, Analytics & Social",
+      "screens": [
+        {
+          "name": "Weekly/Monthly Charts",
+          "ui": "Spline/curved area charts with gradient fills. No jagged lines.",
+          "interactivity": "Tapping the graph shows a floating tooltip with exact data."
+        },
+        {
+          "name": "TikTok-Style 'Weekly Wrapped' / Recaps",
+          "ui": "Full-screen, story-style interface with progress bars at the top.",
+          "content": "'You had a 7-day streak!' with animated confetti. 'You took 21 pills this week.'",
+          "action": "A prominent 'Share to IG/TikTok' button."
+        },
+        {
+          "name": "Badges & Gamification",
+          "ui": "A display case of unlocked achievements (e.g., 'Early Bird', 'Perfect Week').",
+          "visuals": "Locked badges are frosted glass; unlocked badges are vibrant, glowing 3D icons."
+        }
+      ]
+    },
+    {
+      "module_id": 6,
+      "name": "Settings, Profile & Monetization",
+      "screens": [
+        {
+          "name": "Profile & Preferences",
+          "ui": "Grouped list sections (Apple Settings style) on a light gray/dark background.",
+          "features": "Change theme, notification sounds, export PDF report for Doctor."
+        },
+        {
+          "name": "The Paywall (Med AI Pro)",
+          "ui": "A breathtaking, high-conversion screen.",
+          "visuals": "A slow-moving, iridescent gradient background.",
+          "content": "Large price typography, checkmarks for Pro features ('AI Interaction Checks', 'Unlimited Meds', 'Family Sharing').",
+          "action_button": "A massive, pulsing button with an inner glow."
+        },
+        {
+          "name": "Caregiver / Family Sharing",
+          "ui": "A simple invite screen.",
+          "graphic": "Two overlapping profile avatars.",
+          "copy": "Invite a loved one to help you stay on track."
+        }
+      ]
+    }
+  ],
+  "generation_rules": [
+    "NO LOREM IPSUM: Populate all UI with completely realistic medical data (e.g., 'Lisinopril 10mg', 'Dr. Smith').",
+    "COMPLETE CSS: All styles (animations, gradients, glassmorphism) must be fully implemented in the code provided.",
+    "RESPONSIVE: The layout must scale perfectly for a mobile phone viewport (e.g., 390px width).",
+    "ACCESSIBILITY: Ensure high contrast text where necessary, but maintain the soft aesthetic. Use aria-labels."
+  ]
+}

@@ -3,7 +3,6 @@ import '../../../../app/app_routes.dart';
 import '../../../../widgets/common/permission_soft_prompt.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import '../../../../providers/app_state.dart';
 import '../../../../theme/med_ai_ui.dart';
@@ -42,7 +41,6 @@ class _AppTabState extends State<AppTab> {
   @override
   Widget build(BuildContext context) {
     final L = widget.L;
-    final reduceMotion = MedAiA11y.reducedMotion(context);
     final profile = context.select<AppState, UserProfile?>((s) => s.profile);
 
     return SingleChildScrollView(
@@ -203,26 +201,10 @@ class _AppTabState extends State<AppTab> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(5, (i) {
-                    Widget star = Icon(Icons.star_rounded,
-                        color: L.text, size: 32);
-                    if (!reduceMotion) {
-                      star = star
-                          .animate(
-                              onPlay: (controller) =>
-                                  controller.repeat(reverse: true))
-                          .shimmer(
-                              delay: (i * 200).ms,
-                              duration: 2.seconds,
-                              color: L.bg.withValues(alpha: 0.5))
-                          .scale(
-                              begin: const Offset(1, 1),
-                              end: const Offset(1.1, 1.1),
-                              duration: 2.seconds,
-                              curve: Curves.easeInOut);
-                    }
                     return Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
-                      child: star,
+                      child: Icon(Icons.star_rounded,
+                          color: L.text, size: 32),
                     );
                   }),
                 ),

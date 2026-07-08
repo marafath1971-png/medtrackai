@@ -12,6 +12,7 @@ import '../../app/app_routes.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../services/gemini_service.dart';
 import '../../services/growth_tracker.dart';
+import '../../services/remote_config_service.dart';
 import '../../theme/med_ai_ui.dart';
 import '../common/animated_pressable.dart';
 import '../shared/shared_widgets.dart' show DopamineBurstOverlay;
@@ -27,7 +28,8 @@ class AiQuickLogSheet extends StatefulWidget {
 
   static Future<void> show(BuildContext context) {
     final state = Provider.of<AppState>(context, listen: false);
-    if ((state.profile?.voiceLogsUsed ?? 0) >= 3 &&
+    if ((state.profile?.voiceLogsUsed ?? 0) >=
+            RemoteConfigService.freeTierVoiceLimit &&
         !state.isPremium) {
       return PremiumPaywallOverlay.show(context, triggerSource: 'voice_limit');
     }
@@ -101,7 +103,8 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
 
   void _listen() async {
     final state = Provider.of<AppState>(context, listen: false);
-    if ((state.profile?.voiceLogsUsed ?? 0) >= 3 &&
+    if ((state.profile?.voiceLogsUsed ?? 0) >=
+            RemoteConfigService.freeTierVoiceLimit &&
         !state.isPremium) {
       Navigator.of(context).pop();
       PremiumPaywallOverlay.show(context, triggerSource: 'voice_limit');
@@ -158,7 +161,8 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
     if (input.isEmpty) return;
 
     final state = Provider.of<AppState>(context, listen: false);
-    if ((state.profile?.voiceLogsUsed ?? 0) >= 3 &&
+    if ((state.profile?.voiceLogsUsed ?? 0) >=
+            RemoteConfigService.freeTierVoiceLimit &&
         !state.isPremium) {
       Navigator.of(context).pop();
       PremiumPaywallOverlay.show(context, triggerSource: 'voice_limit');
@@ -222,7 +226,13 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
               courseStartDate: DateTime.now().toIso8601String(),
               schedule: schedule,
             );
-            
+
+            if (!state.canAddMedicine) {
+              if (mounted) Navigator.of(context).pop();
+              PremiumPaywallOverlay.show(context,
+                  triggerSource: 'unlimited_meds');
+              return;
+            }
             state.addMedicine(newMed);
           } else if (medId != null || action == 'log_dose') {
             if (medId != null) {
@@ -789,6 +799,12 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
             await GrowthTracker.trackVoiceLog(success: false, fallback: true);
             if (mounted) {
               final appState = Provider.of<AppState>(context, listen: false);
+              if (!appState.canAddMedicine) {
+                context.pop();
+                PremiumPaywallOverlay.show(context,
+                    triggerSource: 'unlimited_meds');
+                return;
+              }
               final newMed = Medicine(
                 id: DateTime.now().millisecondsSinceEpoch,
                 name: '',

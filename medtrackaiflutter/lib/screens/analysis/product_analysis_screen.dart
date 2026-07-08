@@ -6,12 +6,14 @@ import 'package:go_router/go_router.dart';
 import '../../app/app_routes.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/premium_page_header.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
 import '../../models/product_analysis.dart';
 import 'package:provider/provider.dart';
 import '../../providers/controllers/medication_controller.dart';
 import '../../providers/app_state.dart';
+import '../paywall/premium_paywall_overlay.dart';
 
 // ══════════════════════════════════════════════════════════
 // PRODUCT ANALYSIS SCREEN — Cal AI 2026 Professional
@@ -47,9 +49,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
     );
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      if (!MedAiA11y.reducedMotion(context)) {
-        _pulseCtrl.repeat(reverse: true);
-      }
+      _pulseCtrl.value = 0.5;
     });
   }
 
@@ -71,8 +71,14 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
 
   int _computeSafetyScore(ProductAnalysis p) {
     int score = 80;
-    score -= (p.sideEffects.length * 4).clamp(0, 30);
+    for (final se in p.sideEffects) {
+      if (se.severity == 'High') score -= 10;
+      else if (se.severity == 'Medium') score -= 4;
+      else score -= 1;
+    }
     score -= (p.medicineInteractions.length * 3).clamp(0, 20);
+    if (p.allergyRiskLevel == 'High') score -= 20;
+    else if (p.allergyRiskLevel == 'Medium') score -= 10;
     final ev = p.scientificEvidence.toLowerCase();
     if (ev.contains('strong') || ev.contains('well-established')) score += 10;
     if (ev.contains('limited') || ev.contains('insufficient')) score -= 10;
@@ -90,7 +96,6 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    final topPad = MediaQuery.of(context).padding.top;
     final botPad = MediaQuery.of(context).padding.bottom;
 
     return AppScaffold(
@@ -119,9 +124,15 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
             physics: const BouncingScrollPhysics(),
             slivers: [
               SliverToBoxAdapter(
+                child: PremiumPageHeader(
+                  title: 'Scan result',
+                  subtitle: widget.product.category,
+                  onBack: () => Navigator.pop(context),
+                ),
+              ),
+              SliverToBoxAdapter(
                   child: _HeroHeader(
                       product: widget.product,
-                      topPad: topPad,
                       safetyColor: _safetyColor,
                       imageFile: widget.imageFile)),
 
@@ -157,6 +168,17 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
                   ),
                 ),
               ),
+
+              if (widget.product.allergyRiskLevel != 'None')
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+                  sliver: SliverToBoxAdapter(
+                    child: _analysisEntrance(
+                      _AllergyRiskCard(product: widget.product),
+                      delay: 200.ms,
+                    ),
+                  ),
+                ),
 
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
@@ -278,6 +300,11 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
                   imageUrl: widget.imageFile?.path,
                   productAnalysis: widget.product,
                 );
+                if (!context.read<AppState>().canAddMedicine) {
+                  PremiumPaywallOverlay.show(context,
+                      triggerSource: 'unlimited_meds');
+                  return;
+                }
                 context.read<MedicationController>().addMedicine(newMed);
                 setState(() => _added = true);
 
@@ -302,46 +329,6 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
               },
             ),
           ),
-
-          // Frosted Top Bar
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            child: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  height: topPad + 56,
-                  color: L.bg.withValues(alpha: 0.5),
-                  alignment: Alignment.bottomLeft,
-                  padding: const EdgeInsets.only(left: 16, bottom: 8),
-                  child: Semantics(
-                    button: true,
-                    label: 'Back',
-                    child: AnimatedPressable(
-                      onTap: () {
-                        HapticEngine.selection();
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        width: MedAiA11y.minTapTarget,
-                        height: MedAiA11y.minTapTarget,
-                        decoration: BoxDecoration(
-                          color: L.card.withValues(alpha: 0.7),
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                              color: L.border.withValues(alpha: 0.3), width: 1.0),
-                        ),
-                        child: Icon(Icons.arrow_back_ios_new_rounded,
-                            color: L.text, size: 18),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ).animate().fadeIn(duration: 400.ms),
         ],
       ),
     );
@@ -377,13 +364,11 @@ class _MeshPainter extends CustomPainter {
 // ══════════════════════════════════════════════
 class _HeroHeader extends StatelessWidget {
   final ProductAnalysis product;
-  final double topPad;
   final Color safetyColor;
   final File? imageFile;
 
   const _HeroHeader({
     required this.product,
-    required this.topPad,
     required this.safetyColor,
     this.imageFile,
   });
@@ -392,7 +377,7 @@ class _HeroHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     return Container(
-      padding: EdgeInsets.fromLTRB(24, topPad + 76, 24, 32),
+      padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
       decoration: BoxDecoration(
         border: Border(bottom: BorderSide(color: L.border.withValues(alpha: 0.3), width: 1.0)),
       ),
@@ -430,44 +415,33 @@ class _HeroHeader extends StatelessWidget {
                 ),
               ).animate().fadeIn(duration: 800.ms).scale(curve: Curves.easeOutBack, begin: const Offset(0.9, 0.9)),
             ),
-          // Glass Category Pill
-          ClipRRect(
-            borderRadius: BorderRadius.circular(16),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-              child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
-                decoration: BoxDecoration(
-                  color: AppColors.accent.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                      color: AppColors.accent.withValues(alpha: 0.3), width: 1.0),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.accent.withValues(alpha: 0.2),
-                      blurRadius: 16,
-                    )
-                  ]
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.auto_awesome_rounded, size: 14, color: AppColors.accent)
-                      .animate(onPlay: (c) => c.repeat())
-                      .shimmer(duration: 2.seconds, color: Colors.white),
-                    const SizedBox(width: 8),
-                    Text(
-                      product.category,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: AppColors.accent,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.1,
-                        fontSize: 11,
-                      ),
-                    ),
-                  ],
-                ),
+          // Category pill
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              color: AppColors.accent.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: AppColors.accent.withValues(alpha: 0.25),
+                width: 1.0,
               ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(Icons.auto_awesome_rounded,
+                    size: 14, color: AppColors.accent),
+                const SizedBox(width: 8),
+                Text(
+                  product.category,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: AppColors.accent,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.1,
+                    fontSize: 11,
+                  ),
+                ),
+              ],
             ),
           )
               .animate()
@@ -508,7 +482,7 @@ class _HeroHeader extends StatelessWidget {
                     BoxShadow(color: safetyColor.withValues(alpha: 0.6), blurRadius: 8, spreadRadius: 2)
                   ]
                 ),
-              ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(begin: const Offset(0.8, 0.8), end: const Offset(1.2, 1.2), duration: 1.seconds),
+              ),
               const SizedBox(width: 12),
               Text(
                 _safetyLabel(safetyColor),
@@ -562,8 +536,14 @@ class _SafetyScoreCard extends StatelessWidget {
 
   int _score(ProductAnalysis p) {
     int s = 80;
-    s -= (p.sideEffects.length * 4).clamp(0, 30);
+    for (final se in p.sideEffects) {
+      if (se.severity == 'High') s -= 10;
+      else if (se.severity == 'Medium') s -= 4;
+      else s -= 1;
+    }
     s -= (p.medicineInteractions.length * 3).clamp(0, 20);
+    if (p.allergyRiskLevel == 'High') s -= 20;
+    else if (p.allergyRiskLevel == 'Medium') s -= 10;
     final ev = p.scientificEvidence.toLowerCase();
     if (ev.contains('strong') || ev.contains('well-established')) s += 10;
     if (ev.contains('limited') || ev.contains('insufficient')) s -= 10;
@@ -915,7 +895,7 @@ class _BenefitsRisksRow extends StatelessWidget {
         ),
         const SizedBox(width: 16),
         Expanded(
-          child: _ListCard(
+          child: _SideEffectsCard(
             title: 'Side effects',
             icon: Icons.warning_amber_rounded,
             items: product.sideEffects,
@@ -1044,9 +1024,7 @@ class _InteractionPanel extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Icon(Icons.warning_amber_rounded, size: 20, color: L.amber)
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .scale(begin: const Offset(0.9, 0.9), end: const Offset(1.1, 1.1), duration: 800.ms),
+                  Icon(Icons.warning_amber_rounded, size: 20, color: L.amber),
                   const SizedBox(width: 12),
                   Text(
                     'Interactions',
@@ -1466,30 +1444,9 @@ class _BottomActionBar extends StatelessWidget {
         ),
       ),
     );
-    if (!reduceMotion && !added) {
-      trackButton = trackButton
-          .animate(onPlay: (c) => c.repeat())
-          .shimmer(
-              duration: 2500.ms, color: Colors.white.withValues(alpha: 0.3));
-    }
-
-    Widget impactIcon = Icon(Icons.biotech_rounded, color: L.accent, size: 26);
-    if (!reduceMotion) {
-      impactIcon = impactIcon
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .scale(
-              duration: 1.5.seconds,
-              begin: const Offset(0.95, 0.95),
-              end: const Offset(1.05, 1.05));
-    }
-
-    Widget chatIcon =
+    final impactIcon = Icon(Icons.biotech_rounded, color: L.accent, size: 26);
+    final chatIcon =
         Icon(Icons.auto_awesome_rounded, color: AppColors.accent, size: 24);
-    if (!reduceMotion) {
-      chatIcon = chatIcon
-          .animate(onPlay: (c) => c.repeat())
-          .shimmer(duration: 2000.ms, color: Colors.white);
-    }
 
     return ClipRRect(
       child: BackdropFilter(
@@ -1733,6 +1690,185 @@ class _ChildSafetyCard extends StatelessWidget {
                 ),
               ],
             ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════
+// SIDE EFFECTS CARD
+// ══════════════════════════════════════════════
+class _SideEffectsCard extends StatelessWidget {
+  final String title;
+  final IconData icon;
+  final List<SideEffect> items;
+  final Color accent;
+
+  const _SideEffectsCard({
+    required this.title,
+    required this.icon,
+    required this.items,
+    required this.accent,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    return MedAiGlass(
+      padding: const EdgeInsets.all(20),
+      radius: 24,
+      tint: accent.withValues(alpha: 0.06),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: accent),
+              const SizedBox(width: 10),
+              Text(
+                title,
+                style: AppTypography.labelSmall.copyWith(
+                  color: accent,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13,
+                  letterSpacing: 1.5,
+                  shadows: [
+                    Shadow(color: accent.withValues(alpha: 0.4), blurRadius: 10)
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          ...items.take(5).map((item) {
+            Color sevColor = AppColors.green;
+            if (item.severity == 'Medium') sevColor = AppColors.amber;
+            if (item.severity == 'High') sevColor = AppColors.red;
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 14),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Container(
+                      width: 8,
+                      height: 8,
+                      decoration: BoxDecoration(
+                        color: sevColor,
+                        shape: BoxShape.circle,
+                        boxShadow: [
+                          BoxShadow(
+                              color: sevColor.withValues(alpha: 0.8),
+                              blurRadius: 8)
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      item.effect,
+                      style: AppTypography.bodySmall.copyWith(
+                        color: L.sub,
+                        height: 1.5,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+        ],
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════
+// ALLERGY RISK CARD
+// ══════════════════════════════════════════════
+class _AllergyRiskCard extends StatelessWidget {
+  final ProductAnalysis product;
+  const _AllergyRiskCard({required this.product});
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    
+    Color alertColor = AppColors.green;
+    IconData alertIcon = Icons.check_circle_outline;
+    String alertLabel = 'Allergy Safe';
+    
+    if (product.allergyRiskLevel == 'Medium') {
+      alertColor = AppColors.amber;
+      alertIcon = Icons.warning_amber_rounded;
+      alertLabel = 'Moderate Allergy Risk';
+    } else if (product.allergyRiskLevel == 'High') {
+      alertColor = AppColors.red;
+      alertIcon = Icons.error_outline_rounded;
+      alertLabel = 'High Allergy Risk';
+    }
+    
+    return Semantics(
+      label: 'Allergy risk alert. $alertLabel',
+      child: MedAiGlass(
+        padding: const EdgeInsets.all(24),
+        radius: 24,
+        tint: alertColor.withValues(alpha: 0.15),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: alertColor.withValues(alpha: 0.2),
+                    shape: BoxShape.circle,
+                  ),
+                  child: Icon(alertIcon, color: alertColor, size: 20),
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  alertLabel,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: alertColor,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 0.1,
+                  ),
+                ),
+              ],
+            ),
+            if (product.allergyAlerts.isNotEmpty) ...[
+              const SizedBox(height: 16),
+              ...product.allergyAlerts.map((alert) => Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.only(top: 4, right: 8),
+                      child: Icon(Icons.shield_rounded, color: alertColor, size: 16),
+                    ),
+                    Expanded(
+                      child: Text(
+                        alert,
+                        style: AppTypography.bodySmall.copyWith(
+                          color: L.text,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 14,
+                          height: 1.4,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              )),
+            ],
           ],
         ),
       ),

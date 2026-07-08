@@ -55,7 +55,9 @@ class SymptomRepositoryImpl implements SymptomRepository {
       try {
         final List decoded = jsonDecode(local);
         return decoded.map((s) => Symptom.fromJson(s)).toList();
-      } catch (_) {}
+      } catch (e) {
+        appLogger.w('[SymptomRepo] Corrupt local symptom data: $e');
+      }
     }
     return [];
   }

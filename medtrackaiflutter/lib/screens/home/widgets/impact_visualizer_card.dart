@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../app/app_routes.dart';
@@ -12,34 +11,24 @@ class ImpactVisualizerCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    final reduceMotion = MedAiA11y.reducedMotion(context);
 
-    Widget icon = Container(
+    final icon = Container(
       width: MedAiA11y.minTapTarget,
       height: MedAiA11y.minTapTarget,
       decoration: BoxDecoration(
         color: L.secondary.withValues(alpha: 0.1),
         shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: L.secondary.withValues(alpha: 0.2),
+            blurRadius: 16,
+          ),
+        ],
       ),
       child: Center(
         child: Icon(Icons.hub_rounded, color: L.secondary, size: 24),
       ),
     );
-    if (!reduceMotion) {
-      icon = icon
-          .animate(onPlay: (controller) => controller.repeat(reverse: true))
-          .scale(
-              begin: const Offset(1.0, 1.0),
-              end: const Offset(1.15, 1.15),
-              duration: 2.seconds,
-              curve: Curves.easeInOut)
-          .boxShadow(
-            begin: BoxShadow(
-                color: L.secondary.withValues(alpha: 0.1), blurRadius: 10),
-            end: BoxShadow(
-                color: L.secondary.withValues(alpha: 0.4), blurRadius: 20),
-          );
-    }
 
     return Semantics(
       button: true,

@@ -71,28 +71,23 @@ class ObPalette {
     }
 
     return ObPalette(
-      bg: const Color(0xFFFFF8F2),
-      bgTop: const Color(0xFFFFFBF7),
+      bg: const Color(0xFFF7F9F6),
+      bgTop: const Color(0xFFFAFCF8),
       surface: Colors.white,
-      surfaceSel: const Color(0xFFFFF3E0),
-      border: const Color(0xFFE8E0D6),
-      borderSel: const Color(0xFFE8943A),
+      surfaceSel: accent.withValues(alpha: 0.12),
+      border: const Color(0xFFE2E8E4),
+      borderSel: accent,
       text: const Color(0xFF1A2238),
       sub: const Color(0xFF6B7280),
-      accent: const Color(0xFFE8943A),
+      accent: accent,
       accentInk: Colors.white,
       cta: const Color(0xFF1A2238),
       ctaInk: Colors.white,
       good: const Color(0xFF1FAE72),
       bad: const Color(0xFFE5573F),
-      warmTint: const Color(0xFFFFF3E0),
-      electric: const Color(0xFFF0A04B),
-      aurora: [
-        const Color(0xFFFFF3E0),
-        const Color(0xFFFFE8CC),
-        const Color(0xFFF5E6D8),
-        const Color(0xFFE8F4F0),
-      ],
+      warmTint: AppColors.lime.withValues(alpha: 0.22),
+      electric: Design2026.electric,
+      aurora: Design2026.aurora,
     );
   }
 }

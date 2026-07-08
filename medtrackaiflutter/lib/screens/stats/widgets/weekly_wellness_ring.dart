@@ -24,7 +24,7 @@ class WeeklyWellnessRing extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          // Background Glow with Pulse
+          // Background Glow
           Container(
             width: 140,
             height: 140,
@@ -32,16 +32,13 @@ class WeeklyWellnessRing extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: ringColor.withValues(alpha: 0.3),
+                  color: ringColor.withValues(alpha: 0.35),
                   blurRadius: 48,
                   spreadRadius: 8,
                 )
               ],
             ),
-          )
-          .animate(key: const ValueKey('weekly_wellness_pulse_anim'), onPlay: (controller) => controller.repeat(reverse: true))
-          .scale(begin: const Offset(1, 1), end: const Offset(1.1, 1.1), duration: 2.seconds, curve: Curves.easeInOutSine)
-          .fade(begin: 0.8, end: 1.0, duration: 2.seconds),
+          ),
 
           // Main Ring Painter
           CustomPaint(

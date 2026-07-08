@@ -9,6 +9,7 @@ import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/common/animated_ring_hero.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/animated_pressable.dart';
+import '../../../widgets/common/premium_page_header.dart';
 
 class AnalyticsDashboardScreen extends StatefulWidget {
   const AnalyticsDashboardScreen({super.key});
@@ -37,43 +38,23 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
     final totalSymptoms = state.symptoms.length;
     final canPop = Navigator.of(context).canPop();
 
+    // Real today counts for the ring (was adherence×10 fake math).
+    final todayDoses = state.getDoses();
+    final takenMap = state.getTakenMapForDate(DateTime.now());
+    final takenToday =
+        todayDoses.where((d) => takenMap[d.key] ?? false).length;
+
     return AppScaffold(
       showAurora: true,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16, 12, 20, 8),
-              child: Row(
-                children: [
-                  if (canPop) ...[
-                    _CircleBack(L: L),
-                    const SizedBox(width: 10),
-                  ],
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Analytics',
-                          style: AppTypography.headlineLarge.copyWith(
-                            color: L.text,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.6,
-                          ),
-                        ),
-                        Text(
-                          'Your medication insights',
-                          style: AppTypography.bodySmall.copyWith(color: L.sub),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
+            PremiumPageHeader(
+              title: 'Analytics',
+              subtitle: 'Your medication insights',
+              onBack: canPop ? () => Navigator.pop(context) : null,
             ),
-
             Expanded(
               child: ListView(
                 keyboardDismissBehavior:
@@ -83,11 +64,13 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                 children: [
                   _analyticsEntrance(
                     CalAiRingHero(
-                      takenCount: (adherence * 10).round(),
-                      total: 10,
-                      dosePct: adherence,
+                      takenCount: takenToday,
+                      total: todayDoses.length,
+                      dosePct: todayDoses.isEmpty
+                          ? 1.0
+                          : takenToday / todayDoses.length,
                       streak: streak,
-                      remaining: 10 - (adherence * 10).round(),
+                      remaining: todayDoses.length - takenToday,
                     ),
                   ),
 
@@ -127,7 +110,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                   const MedAiSectionHeader(title: 'Trend analysis'),
                   const SizedBox(height: 4),
                   _analyticsEntrance(
-                    _TrendGraph(L: L),
+                    _TrendGraph(L: L, trend: state.getTrendData()),
                     delay: 160.ms,
                   ),
 
@@ -199,37 +182,6 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
               ),
             ),
           ],
-        ),
-      ),
-    );
-  }
-}
-
-class _CircleBack extends StatelessWidget {
-  final AppThemeColors L;
-  const _CircleBack({required this.L});
-
-  @override
-  Widget build(BuildContext context) {
-    return Semantics(
-      button: true,
-      label: 'Back',
-      child: AnimatedPressable(
-        onTap: () {
-          HapticEngine.selection();
-          Navigator.pop(context);
-        },
-        child: Container(
-          width: MedAiA11y.minTapTarget,
-          height: MedAiA11y.minTapTarget,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: L.card,
-            shape: BoxShape.circle,
-            border: Border.all(color: L.border.withValues(alpha: 0.5)),
-            boxShadow: AppShadows.soft,
-          ),
-          child: Icon(Icons.arrow_back_ios_new_rounded, color: L.text, size: 18),
         ),
       ),
     );
@@ -435,7 +387,12 @@ class _StatMiniCard extends StatelessWidget {
 class _TrendGraph extends StatefulWidget {
   final AppThemeColors L;
 
-  const _TrendGraph({required this.L});
+  /// Last-30-day adherence trend from AppState.getTrendData():
+  /// [{'date': 'yyyy-MM-dd', 'value': 0..1}, ...]. The graph shows the
+  /// final 7 days — real data, not the demo bars this screen used to ship.
+  final List<Map<String, dynamic>> trend;
+
+  const _TrendGraph({required this.L, required this.trend});
 
   @override
   State<_TrendGraph> createState() => _TrendGraphState();
@@ -455,7 +412,15 @@ class _TrendGraphState extends State<_TrendGraph> {
   @override
   Widget build(BuildContext context) {
     final L = widget.L;
-    final data = [0.4, 0.6, 0.5, 0.8, 0.7, 0.9, 1.0];
+    final week = widget.trend.length > 7
+        ? widget.trend.sublist(widget.trend.length - 7)
+        : widget.trend;
+    final data = week.isEmpty
+        ? List<double>.filled(7, 0)
+        : week
+            .map((d) =>
+                ((d['value'] as num?) ?? 0).toDouble().clamp(0.0, 1.0))
+            .toList();
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
     return Semantics(
@@ -485,7 +450,9 @@ class _TrendGraphState extends State<_TrendGraph> {
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: List.generate(data.length, (index) {
-                  final targetHeight = 100.0 * data[index];
+                  // Min height 6 so zero-adherence days still render a stub.
+                  final targetHeight =
+                      (100.0 * data[index]).clamp(6.0, 100.0);
                   return Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),

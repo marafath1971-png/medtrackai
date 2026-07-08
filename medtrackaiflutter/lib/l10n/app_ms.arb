@@ -1,20 +1,23 @@
 {
   "@@locale": "ms",
   "appTitle": "MedAI",
-  "greetingHero": "Wira",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "greetingHero": "Utama",
   "homeTab": "Utama",
   "alarmsTab": "Penggera",
   "dashboardTab": "Trend",
-  "familyTab": "Bulatan",
+  "familyTab": "Kalangan",
   "scanTab": "Imbas",
-  "countrySelectionTitle": "Di manakah anda berada?",
+  "countrySelectionTitle": "Di mana lokasi anda?",
   "countrySelectionSubtitle": "Membantu kami mengenal pasti jenama ubat tempatan",
   "prnLabel": "Bila Perlu",
-  "prnUndoToast": "Dos PRN dikeluarkan",
+  "prnUndoToast": "Dos PRN dialih keluar",
   "dailyLogTitle": "Log Harian",
   "noMedicinesScheduled": "Tiada ubat dijadualkan untuk hari ini.",
   "remaining": "berbaki",
-  "refillRequired": "Isi Semula Diperlukan",
+  "refillRequired": "Perlu Isi Semula",
   "settings": "Tetapan",
   "profile": "Profil",
   "language": "Bahasa",
@@ -26,21 +29,196 @@
   "snooze": "Tunda",
   "skip": "Langkau",
   "pharmacyLabel": "Farmasi",
-  "pharmacyPhoneLabel": "No. Telefon Farmasi",
-  "rxNumberLabel": "No. Preskripsi",
+  "pharmacyPhoneLabel": "Telefon Farmasi",
+  "rxNumberLabel": "Nombor Preskripsi",
   "globalSettings": "Tetapan Global",
   "religiousObservance": "Pematuhan Agama",
   "shabbatMode": "Mod Shabbat",
-  "prayerAwareReminders": "Peringatan Waktu Solat",
+  "prayerAwareReminders": "Peringatan Mengikut Waktu Solat",
   "halalDetection": "Pengesanan Halal & Gelatin",
-  "amoledMode": "Mod AMOLED (Jimat Bateri)",
+  "amoledMode": "Mod AMOLED (Jimat Piksel)",
   "diabetesMode": "Mod Diabetes",
   "hypertensionMode": "Mod Hipertensi",
   "supportedMarkets": "Pasaran Disokong",
-  "halalSafe": "Halal Selamat",
+  "halalSafe": "Selamat Halal",
   "gelatinWarning": "Mengandungi Gelatin",
   "halalUncertain": "Halal Tidak Pasti",
+  "edit": "Edit",
+  "editProfile": "Edit Profil",
+  "cancel": "Batal",
+  "globalSettingsSubtitle": "Urus tetapan pasaran antarabangsa",
+  "medicationDisplay": "Paparan Ubat",
+  "showGenericNames": "Tunjuk Nama Generik (INN)",
+  "showGenericNamesSubtitle": "Paparkan nama generik antarabangsa dan bukan nama jenama",
+  "pbsSafetyNet": "Penjejak PBS Safety Net",
+  "pbsSafetyNetSubtitle": "Australia — jejak bayaran bersama tahunan",
+  "pbsThreshold": "Ambang tahunan: $1,622.90",
+  "pbsSpent": "Dibelanjakan: ${amount}",
+  "pbsRemaining": "${amount} lagi",
+  "reached": "Tercapai!",
+  "medsSubsidised": "Ubat kini disubsidi!",
+  "spentAmountSubtitle": "Seret untuk kemas kini jumlah perbelanjaan tahunan anda (bayaran bersama untuk semua preskripsi PBS tahun kalendar ini)",
+  "clinicalModes": "Mod Klinikal",
+  "clinicalModesSubtitle": "AS · UK · UAE · Malaysia",
+  "diabetesModeSubtitle": "Log glukosa darah bersama insulin / ubat diabetes",
+  "hypertensionModeSubtitle": "Log tekanan darah bersama ubat antihipertensi",
+  "displaySettings": "Paparan",
+  "amoledModeSubtitle": "Guna latar #000000 sebenar untuk mengoptimumkan paparan AMOLED dan menjimatkan bateri",
+  "shabbatModeSubtitle": "Peringatan getaran sahaja yang lembut dari matahari terbenam Jumaat hingga malam Sabtu",
+  "selectCountry": "Pilih Negara",
+  "selectLanguage": "Pilih Bahasa",
+  "aiSafetyProfile": "Profil Keselamatan AI",
+  "verified": "Disahkan",
+  "criticalWarnings": "Amaran Kritikal",
+  "drugInteractions": "Interaksi Ubat",
+  "dietaryLifestyleRules": "Peraturan Pemakanan & Gaya Hidup",
+  "ahaInsight": "Aha! Cerapan",
+  "generateSafetyProfile": "Jana Profil Keselamatan",
+  "analyzingClinicalLimits": "Menganalisis Had Klinikal...",
+  "safetyLoadingSubtitle": "Sila tunggu sementara AI mengesahkan interaksi, bahaya dan peraturan makanan.",
+  "safetyPromptSubtitle": "Ketik untuk menganalisis ubat ini dengan serta-merta bagi bahaya, interaksi ubat dan peraturan gaya hidup.",
+  "goodMorning": "Selamat pagi",
+  "goodAfternoon": "Selamat tengah hari",
+  "goodEvening": "Selamat petang",
+  "hiUser": "Hai, {name} 👋",
+  "@hiUser": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "startJourney": "Mari mulakan perjalanan kesihatan anda ✨",
+  "allDosesTaken": "Semua dos diambil hari ini! 🌟",
+  "dosesOverdue": "{count} dos tertunggak — ambil sekarang ⚠️",
+  "@dosesOverdue": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "dosesLeft": "{count} dos lagi hari ini",
+  "@dosesLeft": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "healthReportTitle": "Laporan Kesihatan MedAI",
+  "medicalSummarySubtitle": "Ringkasan Perubatan Peribadi & Trend Pematuhan",
+  "patientLabel": "Pesakit: {name}",
+  "@patientLabel": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reportDate": "Tarikh: {date}",
+  "@reportDate": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "overallAdherence": "Pematuhan Keseluruhan",
+  "activeMedications": "Ubat Aktif",
+  "reportPeriod": "Tempoh Laporan",
+  "last30Days": "30 Hari Lepas",
+  "currentMedications": "Ubat Semasa",
+  "medicineCol": "Ubat",
+  "doseCol": "Dos",
+  "frequencyCol": "Kekerapan",
+  "stockRemainingCol": "Stok Berbaki",
+  "recentSymptoms": "Simptom & Kesihatan Terkini",
+  "symptomDateCol": "Tarikh",
+  "symptomNameCol": "Simptom",
+  "severityCol": "Keterukan",
+  "notesCol": "Nota",
+  "noSymptomsLogged": "Tiada simptom direkod dalam tempoh ini.",
+  "reportFooter": "Dijana oleh MedAI Pro. Laporan ini adalah untuk tujuan maklumat sahaja dan perlu disemak oleh profesional penjagaan kesihatan yang berkelayakan.",
+  "settingsStats": "Statistik",
+  "settingsApp": "Tetapan Apl",
+  "settingsData": "Data & Privasi",
+  "settingsGlobal": "Tetapan Global",
+  "settingsProfile": "Profil Saya",
+  "adherenceLabel": "PEMATUHAN",
+  "streakLabel": "RENTETAN",
+  "streakDays": "{count} Hari",
+  "@streakDays": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "generateClinicalReport": "JANA LAPORAN KLINIKAL",
+  "fetchingAiInsights": "MENDAPATKAN CERAPAN AI...",
+  "aiCoachDisclaimer": "Papan pemuka ini menggunakan AI untuk menganalisis corak. Sentiasa rujuk doktor anda untuk nasihat perubatan.",
+  "insightsTitle": "Cerapan",
+  "insightsSubtitle": "Analitik & corak kesihatan",
+  "dataSummaryTitle": "RINGKASAN DATA ANDA",
+  "dataMedicinesLabel": "Ubat",
+  "dataAlarmsLabel": "Penggera ditetapkan",
+  "dataDaysTrackedLabel": "Hari dijejak",
+  "dataDosesLoggedLabel": "Dos direkod",
+  "exportAndBackup": "Eksport & Sandaran",
+  "exportPdfReport": "Eksport Laporan PDF",
+  "exportPdfSubtitle": "Untuk doktor dan penjaga",
+  "exportCsv": "Eksport Sejarah sebagai CSV",
+  "exportCsvSubtitle": "{count} rekod dos",
+  "@exportCsvSubtitle": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "resetSection": "Set Semula",
+  "deleteAllData": "Padam Semua Data",
+  "deleteAllDataSubtitle": "Mengalih keluar semua ubat, sejarah & tetapan",
+  "deleteConfirmTitle": "Padam Semua Data?",
+  "deleteConfirmBody": "Ini akan memadamkan semua data anda secara kekal. Tindakan ini tidak boleh dibatalkan.",
+  "deleteButton": "Padam Semua",
+  "legalSection": "Undang-undang",
+  "privacyPolicy": "Dasar Privasi",
+  "privacyPolicySubtitle": "Cara kami melindungi data kesihatan anda",
+  "termsOfService": "Terma Perkhidmatan",
+  "termsOfServiceSubtitle": "Peraturan menggunakan MedAI",
+  "appVersionLabel": "Versi Apl",
+  "appVersionValue": "1.0.0+1",
   "analysisFailed": "Analisis Gagal",
-  "somethingWentWrong": "Sesuatu telah berlaku. Sila cuba lagi.",
-  "retry": "Cuba Semula"
+  "somethingWentWrong": "Sesuatu tidak kena. Sila cuba lagi.",
+  "retry": "Cuba Lagi",
+  "onboardingSkip": "Langkau",
+  "onboardingNext": "Seterusnya",
+  "onboardingContinue": "Teruskan",
+  "onboardingGetStarted": "Mula",
+  "onboardingWelcomeTitle": "Bina tabiat ubat\nyang tak tergoyah",
+  "onboardingWelcomeBody": "Rentetan, peringatan pintar dan AI yang memastikan anda kekal di landasan — setiap hari.",
+  "onboardingScanTitle": "Imbas apa-apa pil\ndalam beberapa saat",
+  "onboardingScanBodyDemo": "Ketik di bawah untuk melihat AI mengenal pasti ubat sampel serta-merta.",
+  "onboardingScanBodyDone": "Begitulah pantasnya Med AI. Tiada menaip, tiada tekaan.",
+  "onboardingSimulateScan": "Simulasi imbasan →",
+  "onboardingPermissionTitle": "Kamera anda,\nprivasi anda",
+  "onboardingPermissionBody": "Kami hanya menggunakan kamera untuk membaca label pil. Imej diproses dengan selamat dan tidak pernah dijual.",
+  "onboardingPermissionLink": "Ketahui cara kami melindungi data anda",
+  "onboardingPersonalizeTitle": "Peribadikan\npengalaman anda",
+  "onboardingQuizMedCount": "Berapa banyak ubat?",
+  "onboardingQuizRole": "Untuk siapa anda menjejak?",
+  "onboardingQuizSchedule": "Bila anda ambil kebanyakan ubat?",
+  "onboardingRoleSelf": "Diri sendiri",
+  "onboardingRoleCaregiver": "Seseorang yang saya jaga",
+  "onboardingScheduleMorning": "Pagi",
+  "onboardingScheduleEvening": "Malam",
+  "onboardingScheduleBoth": "Kedua-duanya",
+  "onboardingSocialTitle": "Sertai 50,000+\njuara kesihatan",
+  "onboardingSocialQuote": "“Med AI mengubah cara keluarga saya menguruskan ubat. Ciri imbasan sahaja menjimatkan 10 minit sehari.”",
+  "onboardingSocialAttribution": "— Ulasan App Store, 5 bintang",
+  "onboardingAllowCamera": "Benarkan Akses Kamera",
+  "onboardingTryDemoScan": "Cuba Imbasan Demo",
+  "loadingHealthData": "Memuatkan data kesihatan anda…"
 }
