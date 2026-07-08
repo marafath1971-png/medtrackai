@@ -1,0 +1,41 @@
+<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg2" x1="120" y1="120" x2="1480" y2="1120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#E8FFF6"/>
+      <stop offset="1" stop-color="#E9F2FF"/>
+    </linearGradient>
+    <linearGradient id="phone" x1="520" y1="220" x2="1100" y2="1040" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EAF7FF"/>
+    </linearGradient>
+    <linearGradient id="ring" x1="640" y1="380" x2="980" y2="780" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#43C89D"/>
+      <stop offset="1" stop-color="#5A8DFF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="1200" rx="52" fill="url(#bg2)"/>
+  <circle cx="220" cy="1020" r="170" fill="#CCF5E6" fill-opacity="0.7"/>
+  <circle cx="1400" cy="180" r="150" fill="#CEE4FF" fill-opacity="0.7"/>
+
+  <rect x="500" y="180" width="600" height="900" rx="64" fill="url(#phone)"/>
+  <rect x="548" y="260" width="504" height="740" rx="40" fill="#FFFFFF"/>
+
+  <circle cx="800" cy="560" r="170" fill="#F2FCF7" stroke="url(#ring)" stroke-width="16"/>
+  <circle cx="800" cy="560" r="122" fill="#FFFFFF" stroke="#D8F4E8" stroke-width="10"/>
+  <path d="M744 562L784 602L862 518" stroke="#38C78F" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <rect x="648" y="780" width="304" height="30" rx="15" fill="#E5F3FB"/>
+  <rect x="648" y="780" width="236" height="30" rx="15" fill="#58C5A5"/>
+  <rect x="680" y="840" width="240" height="22" rx="11" fill="#E8F1FA"/>
+  <rect x="680" y="880" width="180" height="22" rx="11" fill="#E8F1FA"/>
+
+  <g>
+    <circle cx="1170" cy="470" r="70" fill="#FFFFFF" stroke="#BFE7D8" stroke-width="8"/>
+    <path d="M1142 470L1160 488L1198 450" stroke="#39C48E" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <g>
+    <circle cx="420" cy="420" r="62" fill="#FFFFFF" stroke="#C8DBF8" stroke-width="8"/>
+    <path d="M420 390C430 412 450 418 458 430C468 446 458 470 420 482C382 470 372 446 382 430C390 418 410 412 420 390Z" fill="#6C9DDA"/>
+  </g>
+</svg>

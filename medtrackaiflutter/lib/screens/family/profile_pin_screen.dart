@@ -3,6 +3,7 @@ import '../../domain/entities/managed_profile.dart';
 import '../../theme/app_theme.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/premium_page_header.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:medai/widgets/common/animated_pressable.dart';
 
@@ -57,65 +58,74 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
     final L = context.L;
 
     return AppScaffold(
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        iconTheme: IconThemeData(color: L.text),
-      ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            const Spacer(),
-            Text(widget.profile.avatar, style: const TextStyle(fontSize: 64))
-                .animate()
-                .scaleXY(begin: 0.8, duration: 500.ms, curve: AppCurves.liquid),
-            const SizedBox(height: 16),
-            Text(
-              'Unlock ${widget.profile.name}',
-              style: AppTypography.headlineLarge.copyWith(
-                color: L.text,
-                fontWeight: FontWeight.w800,
-                letterSpacing: -0.6,
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Enter profile PIN to switch',
-              style: AppTypography.bodyMedium.copyWith(
-                color: L.sub,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            const SizedBox(height: 32),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(4, (index) {
-                return Container(
-                  margin: const EdgeInsets.symmetric(horizontal: 12),
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: _enteredPin.length > index
-                        ? L.primary
-                        : Colors.transparent,
-                    border: Border.all(
-                      color: _error ? L.error : (_enteredPin.length > index ? L.primary : L.border),
-                      width: 2,
+      body: Column(
+        children: [
+          PremiumPageHeader(
+            title: 'Enter PIN',
+            subtitle: widget.profile.name,
+            onBack: () => Navigator.pop(context, false),
+          ),
+          Expanded(
+            child: SafeArea(
+              top: false,
+              child: Column(
+                children: [
+                  const Spacer(),
+                  Text(widget.profile.avatar, style: const TextStyle(fontSize: 64))
+                      .animate()
+                      .scaleXY(begin: 0.8, duration: 500.ms, curve: AppCurves.liquid),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Unlock ${widget.profile.name}',
+                    style: AppTypography.headlineLarge.copyWith(
+                      color: L.text,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.6,
                     ),
                   ),
-                );
-              }),
+                  const SizedBox(height: 8),
+                  Text(
+                    'Enter profile PIN to switch',
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: L.sub,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                  const SizedBox(height: 32),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(4, (index) {
+                      return Container(
+                        margin: const EdgeInsets.symmetric(horizontal: 12),
+                        width: 20,
+                        height: 20,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: _enteredPin.length > index
+                              ? L.primary
+                              : Colors.transparent,
+                          border: Border.all(
+                            color: _error
+                                ? L.error
+                                : (_enteredPin.length > index ? L.primary : L.border),
+                            width: 2,
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                  if (_error) ...[
+                    const SizedBox(height: 16),
+                    Text('Incorrect PIN', style: TextStyle(color: L.error)),
+                  ],
+                  const Spacer(),
+                  _buildNumpad(L),
+                  const SizedBox(height: 32),
+                ],
+              ),
             ),
-            if (_error) ...[
-              const SizedBox(height: 16),
-              Text('Incorrect PIN', style: TextStyle(color: L.error)),
-            ],
-            const Spacer(),
-            _buildNumpad(L),
-            const SizedBox(height: 32),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

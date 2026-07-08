@@ -43,8 +43,8 @@ class PremiumEmptyState extends StatelessWidget {
               (illustrationAsset != null
                   ? SvgPicture.asset(
                       illustrationAsset!,
-                      width: 86,
-                      height: 86,
+                      width: 96,
+                      height: 96,
                       fit: BoxFit.contain,
                     )
                   : (icon != null

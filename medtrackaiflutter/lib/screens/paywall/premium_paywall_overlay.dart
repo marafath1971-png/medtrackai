@@ -2,10 +2,12 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:purchases_flutter/purchases_flutter.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../core/constants/premium_graphics.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_shimmer.dart';
@@ -467,26 +469,23 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   Widget _buildHeader(AppThemeColors L) {
     return Column(
       children: [
-        SizedBox(
-          width: 100,
-          height: 100,
-          child: Stack(
-            alignment: Alignment.center,
-            children: [
-              Container(
-                width: 90,
-                height: 90,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  boxShadow: AppShadows.glow(AppColors.eatoGold, intensity: 0.45),
-                ),
-              ),
-              const MedAiAnimation(
-                kind: MedAiAnimationKind.paywallHero,
-                width: 100,
-                height: 100,
-              ),
-            ],
+        Container(
+          width: double.infinity,
+          height: 150,
+          padding: const EdgeInsets.all(12),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
+            color: Colors.white.withValues(alpha: 0.03),
+          ),
+          child: SvgPicture.asset(
+            PremiumGraphics.paywallPro,
+            fit: BoxFit.contain,
+            placeholderBuilder: (_) => const MedAiAnimation(
+              kind: MedAiAnimationKind.paywallHero,
+              width: 100,
+              height: 100,
+            ),
           ),
         ).entranceHero(),
         const SizedBox(height: 16),

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import '../../../providers/app_state.dart';
+import '../../../core/constants/premium_graphics.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../services/auth_service.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/paywall_sheet.dart';
 import '../../../widgets/common/premium_page_header.dart';
 import '../../../widgets/shared/shared_widgets.dart';
@@ -373,49 +376,61 @@ class PaywallScreen extends StatelessWidget {
   final AppThemeColors L;
   const PaywallScreen({super.key, required this.onBack, required this.L});
   @override
-  Widget build(BuildContext context) => Scaffold(
+  Widget build(BuildContext context) => AppScaffold(
         backgroundColor: L.bg,
-        appBar: AppBar(
-          backgroundColor: L.bg,
-          elevation: 0,
-          leading: IconButton(
-              icon: Icon(Icons.arrow_back_ios_new_rounded, color: L.text),
-              onPressed: onBack),
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Container(
-                    width: 80,
-                    height: 80,
-                    decoration: BoxDecoration(
-                        color: L.secondary.withValues(alpha: 0.1),
-                        shape: BoxShape.circle),
-                    child: Center(
-                        child: Icon(Icons.lock_person_rounded,
-                            color: L.secondary, size: 40))),
-                const SizedBox(height: 24),
-                Text('Pro feature',
-                    style: AppTypography.displayLarge.copyWith(
-                        fontSize: 24,
-                        color: L.text,
-                        fontWeight: FontWeight.w800)),
-                const SizedBox(height: 12),
-                Text('Remote monitoring requires a Pro subscription.',
-                    textAlign: TextAlign.center,
-                    style: AppTypography.bodySmall
-                        .copyWith(fontSize: 15, color: L.sub, height: 1.5)),
-                const SizedBox(height: 32),
-                MedAiCTA(
-                  label: 'Upgrade to Pro',
-                  onTap: () => PaywallSheet.show(context),
-                ),
-              ],
+        body: Column(
+          children: [
+            PremiumPageHeader(
+              title: 'Pro feature',
+              subtitle: 'Remote monitoring access',
+              onBack: () {
+                HapticEngine.selection();
+                onBack();
+              },
             ),
-          ),
+            Expanded(
+              child: Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 140,
+                        height: 120,
+                        padding: const EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: L.card,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: L.border.withValues(alpha: 0.35)),
+                        ),
+                        child: SvgPicture.asset(
+                          PremiumGraphics.onboardingFamily,
+                          fit: BoxFit.contain,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      Text('Pro feature',
+                          style: AppTypography.displayLarge.copyWith(
+                              fontSize: 24,
+                              color: L.text,
+                              fontWeight: FontWeight.w800)),
+                      const SizedBox(height: 12),
+                      Text('Remote monitoring requires a Pro subscription.',
+                          textAlign: TextAlign.center,
+                          style: AppTypography.bodySmall
+                              .copyWith(fontSize: 15, color: L.sub, height: 1.5)),
+                      const SizedBox(height: 32),
+                      MedAiCTA(
+                        label: 'Upgrade to Pro',
+                        onTap: () => PaywallSheet.show(context),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       );
 }

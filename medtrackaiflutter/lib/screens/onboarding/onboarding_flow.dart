@@ -707,7 +707,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 13:
         return _info(
-          hero: const SizedBox.shrink(),
+          hero: const ObHeroIllustration(scene: ObHeroScene.thriving, height: 200),
           title: "You're in the *right place*",
           extra: const [
             ObSocialProofBanner(
@@ -736,7 +736,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 15:
         return _info(
-          hero: const _BigIconHero(icon: Icons.warning_amber_rounded),
+          hero: const ObHeroIllustration(scene: ObHeroScene.diagnose, height: 200),
           title: _obt('ob_hiddenInteractionRisks'),
           subtitle:
               _obt('ob_4In10SupplementUsersHaveAtLeastO'),
@@ -957,7 +957,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 37:
         return _info(
-          hero: const _BigIconHero(icon: Icons.favorite_rounded),
+          hero: const ObHeroIllustration(scene: ObHeroScene.family),
           title: _obt('ob_keepLovedOnesSafeFromAnywhere'),
           subtitle:
               _obt('ob_getNotifiedIfSomeoneYouCareForMi'),
@@ -1037,7 +1037,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 45:
         return _info(
-          hero: const SizedBox.shrink(),
+          hero: const ObHeroIllustration(scene: ObHeroScene.thriving, height: 200),
           title: _obt('ob_personalSummaryFromYourAnswers'),
           subtitle: _obt('ob_yourBaselineBeforeMedAiStartsHel'),
           extra: [ObPersonalAdherenceSummary(controller: _c)],
@@ -1067,7 +1067,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 49:
         return _info(
-          hero: const _BigIconHero(icon: Icons.notifications_active_rounded),
+          hero: const ObHeroIllustration(scene: ObHeroScene.family, height: 200),
           title: _obt('ob_turnOnReminders'),
           subtitle:
               _obt('ob_thisIsHowMedAiMakesSureYouNeverM'),
@@ -1076,7 +1076,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 50:
         return _info(
-          hero: const _BigIconHero(icon: Icons.lock_person_rounded),
+          hero: const ObHeroIllustration(scene: ObHeroScene.diagnose, height: 200),
           title: _obt('ob_oneLastPermission'),
           subtitle:
               _obt('ob_allowingTrackingHelpsUsKeepMedAi'),
@@ -1271,36 +1271,6 @@ class _WelcomeScreen extends StatelessWidget {
 // ════════════════════════════════════════════════════════════════════════
 // SMALL HERO HELPERS
 // ════════════════════════════════════════════════════════════════════════
-class _BigIconHero extends StatelessWidget {
-  final IconData icon;
-  const _BigIconHero({required this.icon});
-
-  @override
-  Widget build(BuildContext context) {
-    final p = ObPalette.of(context);
-    return Center(
-      child: Container(
-        width: 110,
-        height: 110,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [
-              p.accent.withValues(alpha: 0.18),
-              p.electric.withValues(alpha: 0.10),
-            ],
-          ),
-          boxShadow: AppShadows.glow(p.accent, intensity: 0.2),
-        ),
-        child: Icon(icon, size: 52, color: p.accent),
-      ),
-    );
-  }
-}
-
 class _Testimonial extends StatelessWidget {
   final String quote;
   final String author;

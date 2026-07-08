@@ -1,0 +1,43 @@
+<svg width="1600" height="1200" viewBox="0 0 1600 1200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg3" x1="160" y1="100" x2="1450" y2="1100" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EAF8FF"/>
+      <stop offset="1" stop-color="#E8FFF3"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="520" y1="260" x2="1080" y2="980" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EFF9FF"/>
+    </linearGradient>
+    <linearGradient id="heart" x1="760" y1="320" x2="840" y2="460" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#5AD1A9"/>
+      <stop offset="1" stop-color="#66A7FF"/>
+    </linearGradient>
+  </defs>
+
+  <rect width="1600" height="1200" rx="52" fill="url(#bg3)"/>
+  <circle cx="280" cy="180" r="120" fill="#D4EBFF" fill-opacity="0.75"/>
+  <circle cx="1320" cy="980" r="200" fill="#D0F7E8" fill-opacity="0.7"/>
+
+  <rect x="520" y="240" width="560" height="820" rx="48" fill="url(#panel)"/>
+  <rect x="570" y="320" width="460" height="650" rx="32" fill="#FFFFFF"/>
+
+  <path d="M800 456C738 402 690 366 690 314C690 272 724 242 766 242C790 242 812 252 826 270C840 252 862 242 886 242C928 242 962 272 962 314C962 366 914 402 852 456L826 478L800 456Z" fill="url(#heart)"/>
+
+  <circle cx="700" cy="610" r="62" fill="#FFE3CC"/>
+  <rect x="640" y="672" width="120" height="140" rx="28" fill="#5FA0E6"/>
+  <circle cx="900" cy="598" r="58" fill="#FADBC5"/>
+  <rect x="846" y="654" width="108" height="132" rx="24" fill="#5BC9A5"/>
+  <circle cx="806" cy="760" r="46" fill="#FFE8CF"/>
+  <rect x="766" y="804" width="80" height="98" rx="18" fill="#8E9CFF"/>
+
+  <rect x="670" y="860" width="260" height="26" rx="13" fill="#E8F3FB"/>
+  <rect x="670" y="860" width="198" height="26" rx="13" fill="#62C9AA"/>
+  <rect x="710" y="906" width="180" height="20" rx="10" fill="#EDF4FB"/>
+
+  <circle cx="430" cy="720" r="64" fill="#FFFFFF" stroke="#CFE5F7" stroke-width="8"/>
+  <path d="M404 720H456" stroke="#6C9EDB" stroke-width="10" stroke-linecap="round"/>
+  <path d="M430 694V746" stroke="#6C9EDB" stroke-width="10" stroke-linecap="round"/>
+
+  <circle cx="1180" cy="470" r="70" fill="#FFFFFF" stroke="#C9EBDD" stroke-width="8"/>
+  <path d="M1152 470L1170 488L1208 450" stroke="#38C58F" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

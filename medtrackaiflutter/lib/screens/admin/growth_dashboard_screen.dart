@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../core/utils/haptic_engine.dart';
 import '../../services/growth_tracker.dart';
+import '../../core/constants/premium_graphics.dart';
 import '../../theme/design_2026.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/med_ai_mascot.dart';
@@ -760,9 +762,11 @@ class _EmptyAnalyticsCard extends StatelessWidget {
     return _DashboardCard(
       child: Column(
         children: [
-          const MedAiMascot(
-            size: 78,
-            semanticLabel: 'Med AI growth assistant waiting for data',
+          SvgPicture.asset(
+            PremiumGraphics.healthInsights,
+            width: 110,
+            height: 86,
+            fit: BoxFit.contain,
           ),
           const SizedBox(height: 14),
           Text(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../theme/med_ai_ui.dart';
-import '../../../widgets/common/med_ai_mascot.dart';
+import '../../../core/constants/premium_graphics.dart';
 import '../../../widgets/common/premium_empty_state.dart';
 
 
@@ -35,10 +35,7 @@ class HomeMedsEmptyState extends StatelessWidget {
     return PremiumEmptyState(
       title: 'No medications',
       subtitle: 'Add your first medicine to start tracking your daily precision log.',
-      visual: const MedAiMascot(
-        size: 84,
-        semanticLabel: 'Med AI assistant ready to help add a medicine',
-      ),
+      illustrationAsset: PremiumGraphics.onboardingThriving,
       actionLabel: 'Add medicine',
       onAction: onAdd,
     );

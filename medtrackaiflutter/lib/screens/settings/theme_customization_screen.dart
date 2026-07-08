@@ -5,6 +5,8 @@ import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_page_header.dart';
+import '../../widgets/common/premium_illustration_banner.dart';
+import '../../core/constants/premium_graphics.dart';
 import '../../services/dynamic_icon_service.dart';
 
 class ThemeCustomizationScreen extends StatefulWidget {
@@ -69,6 +71,12 @@ class _ThemeCustomizationScreenState extends State<ThemeCustomizationScreen> {
             child: ListView(
               padding: const EdgeInsets.all(AppSpacing.screenPadding),
               children: [
+                const PremiumIllustrationBanner(
+                  asset: PremiumGraphics.paywallPro,
+                  height: 110,
+                  padding: EdgeInsets.all(14),
+                ),
+                const SizedBox(height: 16),
                   const MedAiSectionHeader(title: 'App Icons'),
                   const SizedBox(height: 16),
                   Wrap(

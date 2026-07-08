@@ -2,7 +2,9 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
+import '../../../core/constants/premium_graphics.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
@@ -223,6 +225,14 @@ class _Column extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    const assets = <String>[
+      PremiumGraphics.onboardingDiagnose,
+      PremiumGraphics.onboardingThriving,
+      PremiumGraphics.onboardingFamily,
+      PremiumGraphics.healthInsights,
+      PremiumGraphics.familyCare,
+      PremiumGraphics.scan,
+    ];
     return Expanded(
       child: Transform.translate(
         offset: Offset(0, offset),
@@ -232,7 +242,10 @@ class _Column extends StatelessWidget {
             return Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 6),
-                child: _PillTile(color: tints[idx % tints.length]),
+                child: _PillTile(
+                  color: tints[idx % tints.length],
+                  asset: assets[(idx + (reverse ? 2 : 0)) % assets.length],
+                ),
               ),
             );
           }),
@@ -244,7 +257,8 @@ class _Column extends StatelessWidget {
 
 class _PillTile extends StatelessWidget {
   final Color color;
-  const _PillTile({required this.color});
+  final String asset;
+  const _PillTile({required this.color, required this.asset});
 
   @override
   Widget build(BuildContext context) {
@@ -261,11 +275,15 @@ class _PillTile extends StatelessWidget {
         borderRadius: BorderRadius.circular(12),
         border: Border.all(color: color.withValues(alpha: 0.25)),
       ),
-      child: Center(
-        child: Icon(
-          Icons.medication_rounded,
-          color: color.withValues(alpha: 0.7),
-          size: 28,
+      child: Padding(
+        padding: const EdgeInsets.all(10),
+        child: SvgPicture.asset(
+          asset,
+          fit: BoxFit.contain,
+          colorFilter: ColorFilter.mode(
+            Colors.white.withValues(alpha: 0.02),
+            BlendMode.srcATop,
+          ),
         ),
       ),
     );
@@ -377,7 +395,7 @@ class ObRankInterstitial extends StatelessWidget {
 }
 
 /// Illustrated hero scenes — flat vector style for onboarding.
-enum ObHeroScene { thriving, diagnose, scan }
+enum ObHeroScene { thriving, diagnose, scan, family }
 
 class ObHeroIllustration extends StatelessWidget {
   final ObHeroScene scene;
@@ -391,11 +409,22 @@ class ObHeroIllustration extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final assetPath = switch (scene) {
+      ObHeroScene.diagnose => PremiumGraphics.onboardingDiagnose,
+      ObHeroScene.thriving => PremiumGraphics.onboardingThriving,
+      ObHeroScene.family => PremiumGraphics.onboardingFamily,
+      ObHeroScene.scan => PremiumGraphics.scan,
+    };
+
     return SizedBox(
       height: height,
       width: double.infinity,
-      child: CustomPaint(
-        painter: _HeroScenePainter(scene: scene),
+      child: SvgPicture.asset(
+        assetPath,
+        fit: BoxFit.contain,
+        placeholderBuilder: (_) => CustomPaint(
+          painter: _HeroScenePainter(scene: scene),
+        ),
       ),
     );
   }
@@ -414,6 +443,8 @@ class _HeroScenePainter extends CustomPainter {
         _paintDiagnose(canvas, size);
       case ObHeroScene.scan:
         _paintScan(canvas, size);
+      case ObHeroScene.family:
+        _paintThriving(canvas, size);
     }
   }
 

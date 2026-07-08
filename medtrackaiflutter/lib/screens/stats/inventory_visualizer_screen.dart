@@ -41,7 +41,7 @@ class InventoryVisualizerScreen extends StatelessWidget {
                       child: PremiumEmptyState(
                         title: 'No medications to track',
                         subtitle: 'Add meds from Home to see inventory levels.',
-                        illustrationAsset: PremiumGraphics.scan,
+                        illustrationAsset: PremiumGraphics.onboardingDiagnose,
                       ),
                     )
                   : GridView.builder(

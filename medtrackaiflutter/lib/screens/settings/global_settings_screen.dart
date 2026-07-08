@@ -13,6 +13,8 @@ import '../../models/constants.dart';
 import '../../widgets/common/refined_sheet_wrapper.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_page_header.dart';
+import '../../core/constants/premium_graphics.dart';
+import '../../widgets/common/premium_illustration_banner.dart';
 // ══════════════════════════════════════════════════════════════════════
 // GLOBAL SETTINGS SCREEN (Cal AI Industrial Authority Refined)
 // ══════════════════════════════════════════════════════════════════════
@@ -76,6 +78,17 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                 onBack: Navigator.canPop(context)
                     ? () => Navigator.pop(context)
                     : null,
+              ),
+            ),
+          if (!widget.embedded)
+            const SliverToBoxAdapter(
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(20, 0, 20, 8),
+                child: PremiumIllustrationBanner(
+                  asset: PremiumGraphics.paywallPro,
+                  height: 110,
+                  padding: EdgeInsets.all(14),
+                ),
               ),
             ),
           SliverPadding(

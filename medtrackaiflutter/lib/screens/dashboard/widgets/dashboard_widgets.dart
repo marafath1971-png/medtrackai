@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:provider/provider.dart';
 import '../../../providers/app_state.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../../core/constants/premium_graphics.dart';
+import '../../../widgets/common/premium_illustration_banner.dart';
 import '../../../widgets/shared/shared_widgets.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/smoothing_text.dart';
@@ -279,8 +281,11 @@ class LatencyHeatmap extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(Icons.history_rounded,
-                    color: L.sub.withValues(alpha: 0.2), size: 28),
+                PremiumIllustrationBanner(
+                  asset: PremiumGraphics.healthInsights,
+                  height: 88,
+                  padding: const EdgeInsets.all(12),
+                ),
                 const SizedBox(height: 16),
                 Text('Log doses to see timing patterns',
                     style: AppTypography.bodySmall
@@ -425,17 +430,12 @@ class HealthCoachCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Container(
-            width: 52,
-            height: 52,
-            decoration: BoxDecoration(
-              color: AppColors.pastelLilac,
-              shape: BoxShape.circle,
-            ),
-            child: Icon(Icons.auto_awesome_rounded,
-                color: L.purple, size: 26),
+          PremiumIllustrationBanner(
+            asset: PremiumGraphics.healthInsights,
+            height: 100,
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(12),
           ),
-          const SizedBox(height: 16),
           Text(
             'AI insights will appear here',
             style: AppTypography.titleMedium.copyWith(
@@ -633,8 +633,11 @@ class AdherenceTrendChart extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.stacked_bar_chart_rounded,
-                color: L.sub.withValues(alpha: 0.2), size: 32),
+            PremiumIllustrationBanner(
+              asset: PremiumGraphics.onboardingThriving,
+              height: 88,
+              padding: const EdgeInsets.all(12),
+            ),
             const SizedBox(height: 16),
             Text(
               'Trend data generating...',

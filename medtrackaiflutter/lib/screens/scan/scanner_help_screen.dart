@@ -43,7 +43,7 @@ class ScannerHelpScreen extends StatelessWidget {
                   border: Border.all(color: L.border.withValues(alpha: 0.35)),
                 ),
                 child: SvgPicture.asset(
-                  PremiumGraphics.scan,
+                  PremiumGraphics.onboardingDiagnose,
                   height: 120,
                   fit: BoxFit.contain,
                 ),

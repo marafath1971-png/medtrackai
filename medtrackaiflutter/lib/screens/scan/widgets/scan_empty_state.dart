@@ -26,7 +26,7 @@ class ScanEmptyState extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           SvgPicture.asset(
-            PremiumGraphics.scan,
+            PremiumGraphics.onboardingDiagnose,
             width: 120,
             height: 90,
             fit: BoxFit.contain,

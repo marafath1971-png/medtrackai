@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/constants/premium_graphics.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
+import '../../../widgets/common/premium_illustration_banner.dart';
 
 class HomeScheduleEmpty extends StatelessWidget {
   final bool hasMeds;
@@ -34,6 +36,14 @@ class HomeScheduleEmpty extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          PremiumIllustrationBanner(
+            asset: hasMeds
+                ? PremiumGraphics.healthInsights
+                : PremiumGraphics.onboardingDiagnose,
+            height: 100,
+            margin: const EdgeInsets.only(bottom: 16),
+            padding: const EdgeInsets.all(12),
+          ),
           Text(
             title,
             style: AppTypography.titleMedium.copyWith(

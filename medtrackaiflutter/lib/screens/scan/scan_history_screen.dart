@@ -49,7 +49,7 @@ class ScanHistoryScreen extends StatelessWidget {
                   PremiumEmptyState(
                     title: 'No history yet',
                     subtitle: 'Medications you scan will appear here.',
-                    illustrationAsset: PremiumGraphics.scan,
+                    illustrationAsset: PremiumGraphics.onboardingDiagnose,
                   ),
                 ),
               ),

@@ -4,6 +4,8 @@ import 'package:provider/provider.dart';
 import '../../../../providers/app_state.dart';
 import '../../../../theme/med_ai_ui.dart';
 import '../../../../widgets/common/animated_pressable.dart';
+import '../../../../widgets/common/premium_empty_state.dart';
+import '../../../../core/constants/premium_graphics.dart';
 import '../../../../core/utils/refill_helper.dart';
 import 'settings_shared.dart';
 import '../../../stats/widgets/weekly_wellness_ring.dart';
@@ -417,21 +419,11 @@ class StatsTab extends StatelessWidget {
         SettingsSection(
             title: 'Inventory Forecast',
             child: state.meds.isEmpty
-                ? Container(
-                    height: 100,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: L.card,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                          color: L.border.withValues(alpha: 0.08), width: 0.5),
-                      boxShadow: AppShadows.soft,
-                    ),
-                    child: Center(
-                      child: Text('No medications tracked',
-                          style:
-                              AppTypography.labelMedium.copyWith(color: L.sub)),
-                    ),
+                ? PremiumEmptyState(
+                    title: 'No medications tracked',
+                    subtitle:
+                        'Add your first medicine to start building your daily precision log.',
+                    illustrationAsset: PremiumGraphics.onboardingThriving,
                   )
                 : Column(
                     children: state.getRefillForecast().take(3).map((m) {
