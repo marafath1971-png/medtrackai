@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
@@ -141,6 +142,24 @@ class AppToggle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final platform = Theme.of(context).platform;
+    if (platform == TargetPlatform.iOS || platform == TargetPlatform.macOS) {
+      return Semantics(
+        toggled: value,
+        child: CupertinoSwitch(
+          value: value,
+          activeTrackColor: const Color(0xFF34C759),
+          onChanged: (v) {
+            if (v) {
+              HapticEngine.success();
+            } else {
+              HapticEngine.lightTap();
+            }
+            onChanged(v);
+          },
+        ),
+      );
+    }
     return AnimatedPressable(
       scaleFactor: 0.95, // Nice subtle squish for toggle press state
       hapticEnabled: false, // We handle custom haptics in onTap

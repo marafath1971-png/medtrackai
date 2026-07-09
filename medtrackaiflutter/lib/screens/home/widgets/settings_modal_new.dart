@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
@@ -10,6 +11,7 @@ import 'settings/profile_tab.dart';
 import 'settings/stats_tab.dart';
 import 'settings/app_tab.dart';
 import 'settings/data_tab.dart';
+import 'settings/ios_settings_style.dart';
 import '../../../screens/settings/global_settings_screen.dart';
 import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/haptic_engine.dart';
@@ -23,7 +25,7 @@ class SettingsModal extends StatefulWidget {
 }
 
 class _SettingsModalState extends State<SettingsModal> {
-  String _activeTab = 'profile'; // profile | stats | app | data | global
+  String _activeTab = 'profile';
 
   final GlobalKey<NavigatorState> _nestedNavKey = GlobalKey<NavigatorState>();
 
@@ -34,6 +36,14 @@ class _SettingsModalState extends State<SettingsModal> {
       return false;
     }
     return true;
+  }
+
+  void _selectTab(String id) {
+    HapticEngine.selection();
+    while (_nestedNavKey.currentState?.canPop() == true) {
+      _nestedNavKey.currentState!.pop();
+    }
+    setState(() => _activeTab = id);
   }
 
   @override
@@ -51,6 +61,8 @@ class _SettingsModalState extends State<SettingsModal> {
       {'id': 'data', 'label': s.settingsData, 'icon': Icons.storage_rounded},
       {'id': 'global', 'label': s.settingsGlobal, 'icon': Icons.tune_rounded},
     ];
+    final activeIndex =
+        tabs.indexWhere((t) => t['id'] == _activeTab).clamp(0, tabs.length - 1);
 
     return PopScope(
       canPop: false,
@@ -62,7 +74,6 @@ class _SettingsModalState extends State<SettingsModal> {
       child: Stack(
         alignment: Alignment.bottomCenter,
         children: [
-          // Dimmed backdrop — tap outside to dismiss
           Positioned.fill(
             child: Semantics(
               button: true,
@@ -70,219 +81,104 @@ class _SettingsModalState extends State<SettingsModal> {
               child: GestureDetector(
                 onTap: widget.onClose,
                 child: Container(
-                  color: Colors.black.withValues(alpha: 0.45),
+                  color: Colors.black.withValues(alpha: 0.4),
                 ),
               ),
             ),
           ),
-          // Glass sheet
           GestureDetector(
             onTap: () {},
             child: ClipRRect(
               borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(32)),
+                  const BorderRadius.vertical(top: Radius.circular(20)),
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
                 child: Container(
                   height: size.height * 0.9,
                   width: size.width,
                   constraints: const BoxConstraints(maxWidth: 430),
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        L.meshBg.withValues(alpha: 0.92),
-                        L.bg.withValues(alpha: 0.96),
-                      ],
-                    ),
+                    color: L.bg.withValues(alpha: 0.97),
                     borderRadius: const BorderRadius.vertical(
-                        top: Radius.circular(32)),
-                    border: Border(
-                      top: BorderSide(
-                          color: L.glassBorder.withValues(alpha: 0.3),
-                          width: 0.5),
+                      top: Radius.circular(20),
                     ),
-                    boxShadow: AppShadows.premium,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.18),
+                        blurRadius: 24,
+                        offset: const Offset(0, -4),
+                      ),
+                    ],
                   ),
-                  child: Stack(
-                    fit: StackFit.expand,
+                  child: Column(
                     children: [
-                      if (!reduceMotion)
-                        Positioned(
-                          top: -80,
-                          left: -40,
-                          right: -40,
-                          height: 220,
-                          child: IgnorePointer(
-                            child: AuroraBackground(
-                              opacity: context.isDark ? 0.35 : 0.22,
+                      const SizedBox(height: 8),
+                      Container(
+                        width: 36,
+                        height: 5,
+                        decoration: BoxDecoration(
+                          color: L.sub.withValues(alpha: 0.35),
+                          borderRadius: BorderRadius.circular(2.5),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 16, 8, 4),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                s.settings,
+                                style: AppTypography.headlineLarge.copyWith(
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 34,
+                                  color: L.text,
+                                  letterSpacing: 0.37,
+                                  height: 1.1,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                      Column(children: [
-                        const SizedBox(height: 12),
-                        Container(
-                            width: 40,
-                            height: 5,
-                            decoration: BoxDecoration(
-                                color: L.text.withValues(alpha: 0.12),
-                                borderRadius: BorderRadius.circular(10))),
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(24, 20, 16, 8),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(s.settings,
-                                        style: AppTypography.headlineLarge
-                                            .copyWith(
-                                                fontWeight: FontWeight.w800,
-                                                color: L.text,
-                                                letterSpacing: -0.6)),
-                                    const SizedBox(height: 2),
-                                    Text('Your preferences',
-                                        style: AppTypography.bodySmall
-                                            .copyWith(color: L.sub)),
-                                  ],
-                                ),
-                              ),
-                              Semantics(
-                                button: true,
-                                label: 'Close settings',
-                                child: AnimatedPressable(
-                                  onTap: widget.onClose,
-                                  child: Container(
-                                    width: MedAiA11y.minTapTarget,
-                                    height: MedAiA11y.minTapTarget,
-                                    decoration: BoxDecoration(
-                                        color: L.text.withValues(alpha: 0.06),
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                            color: L.border
-                                                .withValues(alpha: 0.12),
-                                            width: 0.5)),
-                                    child: Center(
-                                        child: Icon(Icons.close_rounded,
-                                            color: L.text, size: 22)),
+                            Semantics(
+                              button: true,
+                              label: 'Close settings',
+                              child: AnimatedPressable(
+                                onTap: widget.onClose,
+                                child: SizedBox(
+                                  width: MedAiA11y.minTapTarget,
+                                  height: MedAiA11y.minTapTarget,
+                                  child: Icon(
+                                    CupertinoIcons.xmark_circle_fill,
+                                    color: L.sub.withValues(alpha: 0.45),
+                                    size: 28,
                                   ),
                                 ),
                               ),
-                            ],
-                          ).let((w) => reduceMotion
-                              ? w
-                              : w
-                                  .animate()
-                                  .fade(duration: 400.ms)
-                                  .slideY(begin: -0.1, end: 0)),
+                            ),
+                          ],
+                        ).let((w) => reduceMotion
+                            ? w
+                            : w
+                                .animate()
+                                .fade(duration: 400.ms)
+                                .slideY(begin: -0.06, end: 0)),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                        child: IosSettingsSegmentedBar(
+                          scrollable: true,
+                          labels: tabs
+                              .map((t) => t['label'] as String)
+                              .toList(),
+                          icons: tabs
+                              .map((t) => t['icon'] as IconData)
+                              .toList(),
+                          selectedIndex: activeIndex,
+                          onSelected: (index) =>
+                              _selectTab(tabs[index]['id'] as String),
                         ),
-                        SizedBox(
-                          height: MedAiA11y.minTapTarget,
-                          child: SingleChildScrollView(
-                            keyboardDismissBehavior:
-                                ScrollViewKeyboardDismissBehavior.onDrag,
-                            physics: const BouncingScrollPhysics(),
-                            scrollDirection: Axis.horizontal,
-                            padding: const EdgeInsets.symmetric(horizontal: 20),
-                            child: Row(
-                                children: tabs.map((t) {
-                              final isAct = _activeTab == t['id'];
-                              final idx = tabs.indexOf(t);
-                              final tabLabel = t['label'] as String;
-
-                              Widget pill = Semantics(
-                                button: true,
-                                selected: isAct,
-                                label: tabLabel,
-                                child: AnimatedPressable(
-                                  onTap: () {
-                                    HapticEngine.selection();
-                                    while (_nestedNavKey
-                                            .currentState?.canPop() ==
-                                        true) {
-                                      _nestedNavKey.currentState!.pop();
-                                    }
-                                    setState(
-                                        () => _activeTab = t['id'] as String);
-                                  },
-                                  child: AnimatedContainer(
-                                    duration: reduceMotion
-                                        ? Duration.zero
-                                        : const Duration(milliseconds: 280),
-                                    curve: AppCurves.smooth,
-                                    constraints: const BoxConstraints(
-                                        minHeight: MedAiA11y.minTapTargetCompact),
-                                    padding: const EdgeInsets.symmetric(
-                                        horizontal: 16, vertical: 10),
-                                    decoration: BoxDecoration(
-                                        gradient: isAct
-                                            ? LinearGradient(
-                                                colors: [
-                                                  L.accent,
-                                                  L.accent
-                                                      .withValues(alpha: 0.85),
-                                                ],
-                                              )
-                                            : null,
-                                        color: isAct
-                                            ? null
-                                            : L.card.withValues(alpha: 0.6),
-                                        borderRadius:
-                                            BorderRadius.circular(14),
-                                        border: Border.all(
-                                            color: isAct
-                                                ? L.accent
-                                                    .withValues(alpha: 0.4)
-                                                : L.border
-                                                    .withValues(alpha: 0.1),
-                                            width: 0.5),
-                                        boxShadow: isAct
-                                            ? L.accentGlow(intensity: 0.15)
-                                            : null),
-                                    child: Row(children: [
-                                      Icon(
-                                        t['icon'] as IconData,
-                                        size: 15,
-                                        color: isAct
-                                            ? Colors.white
-                                            : L.text.withValues(alpha: 0.65),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Text(tabLabel,
-                                          style: AppTypography.labelSmall
-                                              .copyWith(
-                                                  fontWeight: FontWeight.w700,
-                                                  color: isAct
-                                                      ? Colors.white
-                                                      : L.text.withValues(
-                                                          alpha: 0.55),
-                                                  letterSpacing: 0.1,
-                                                  fontSize: 12)),
-                                    ]),
-                                  ),
-                                ),
-                              );
-
-                              if (!reduceMotion) {
-                                pill = pill
-                                    .animate()
-                                    .fade(delay: (idx * 30).ms)
-                                    .scale(begin: const Offset(0.95, 0.95));
-                              }
-
-                              return Padding(
-                                padding: const EdgeInsets.only(right: 8),
-                                child: pill,
-                              );
-                            }).toList()),
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Divider(height: 1, color: L.border.withValues(alpha: 0.1)),
-                        Expanded(
+                      ),
+                      Expanded(
+                        child: ColoredBox(
+                          color: L.bg,
                           child: Navigator(
                             key: _nestedNavKey,
                             onGenerateRoute: (settings) {
@@ -293,7 +189,7 @@ class _SettingsModalState extends State<SettingsModal> {
                             },
                           ),
                         ),
-                      ]),
+                      ),
                     ],
                   ),
                 ),

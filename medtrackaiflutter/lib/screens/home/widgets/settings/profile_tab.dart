@@ -275,11 +275,13 @@ class _ProfileTabState extends State<ProfileTab> {
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),
+      padding: const EdgeInsets.fromLTRB(0, 4, 0, 40),
       child: Column(
         children: [
-          // Avatar + Name Hero
-          heroCard,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: heroCard,
+          ),
           const SizedBox(height: 20),
 
           // ── APP SETTINGS (GLOBAL AUTHORITY) ──────────
@@ -434,7 +436,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 ])),
             if (!widget.state.isPremium)
               Padding(
-                padding: const EdgeInsets.only(bottom: 24),
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
                 child: _upgradeCard(L, reduceMotion, context),
               ),
             SettingsSection(

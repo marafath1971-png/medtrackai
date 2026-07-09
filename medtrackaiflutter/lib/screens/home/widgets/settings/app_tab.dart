@@ -47,7 +47,7 @@ class _AppTabState extends State<AppTab> {
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),
+      padding: const EdgeInsets.fromLTRB(0, 4, 0, 40),
       child: Column(children: [
         SettingsSection(
             title: 'Notifications',

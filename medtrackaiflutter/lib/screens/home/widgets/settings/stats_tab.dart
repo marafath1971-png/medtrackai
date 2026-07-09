@@ -88,10 +88,11 @@ class StatsTab extends StatelessWidget {
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 40),
+      padding: const EdgeInsets.fromLTRB(0, 4, 0, 40),
       child: Column(children: [
-        // Adherence Hero
-        MedAiDepthCard(
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: MedAiDepthCard(
           accentGlow: true,
           padding: const EdgeInsets.all(24),
           radius: 28,
@@ -207,6 +208,7 @@ class StatsTab extends StatelessWidget {
               ],
             ),
             ]),
+        ),
         ),
         const SizedBox(height: 24),
 
