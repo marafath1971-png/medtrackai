@@ -469,12 +469,15 @@ class _AppShellState extends State<AppShell>
                 ),
               ),
               const SizedBox(height: 2),
-              Text(
-                'Scan',
-                style: AppTypography.labelSmall.copyWith(
-                  color: L.sub.withValues(alpha: 0.6),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w600,
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text(
+                  'Scan',
+                  style: AppTypography.labelSmall.copyWith(
+                    color: L.sub.withValues(alpha: 0.6),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -548,21 +551,26 @@ class _AppShellState extends State<AppShell>
                   ),
                 ),
                 const SizedBox(height: 2),
-                Text(
-                  label,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: selected
-                      ? AppTypography.labelSmall.copyWith(
-                          color: L.text,
-                          fontSize: 10,
-                          fontWeight: FontWeight.w700,
-                        )
-                      : AppTypography.labelSmall.copyWith(
-                          color: L.sub.withValues(alpha: 0.45),
-                          fontSize: 10,
-                          fontWeight: FontWeight.w500,
-                        ),
+                // scaleDown keeps the tiny nav label inside the fixed-height
+                // island at large Dynamic Type instead of overflowing/clipping.
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: selected
+                        ? AppTypography.labelSmall.copyWith(
+                            color: L.text,
+                            fontSize: 10,
+                            fontWeight: FontWeight.w700,
+                          )
+                        : AppTypography.labelSmall.copyWith(
+                            color: L.sub.withValues(alpha: 0.45),
+                            fontSize: 10,
+                            fontWeight: FontWeight.w500,
+                          ),
+                  ),
                 ),
               ],
             ),
@@ -642,15 +650,19 @@ class LowStockBanner extends StatelessWidget {
               ],
             ),
           ),
-          AnimatedPressable(
-            onTap: onDismiss,
-            behavior: HitTestBehavior.opaque,
-            child: Container(
-              width: 36,
-              height: 36,
-              alignment: Alignment.center,
-              child: Icon(Icons.close_rounded,
-                  size: 18, color: Colors.grey.withValues(alpha: 0.7)),
+          Semantics(
+            button: true,
+            label: 'Dismiss',
+            child: AnimatedPressable(
+              onTap: onDismiss,
+              behavior: HitTestBehavior.opaque,
+              child: Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                child: Icon(Icons.close_rounded,
+                    size: 18, color: L.sub.withValues(alpha: 0.8)),
+              ),
             ),
           ),
         ],

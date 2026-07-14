@@ -612,22 +612,26 @@ class _TopBar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           // Back Button
-          AnimatedPressable(
-            onTap: onClose,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1.0),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+          Semantics(
+            button: true,
+            label: 'Close scanner',
+            child: AnimatedPressable(
+              onTap: onClose,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1.0),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
+                    ),
                   ),
                 ),
               ),
@@ -657,25 +661,29 @@ class _TopBar extends StatelessWidget {
           ),
           
           // Menu Button
-          AnimatedPressable(
-            onTap: () {
-              HapticEngine.selection();
-              _showScannerMenu(context);
-            },
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(24),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                child: Container(
-                  width: 44,
-                  height: 44,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.1),
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1.0),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.more_vert_rounded, color: Colors.white, size: 20),
+          Semantics(
+            button: true,
+            label: 'Scanner options',
+            child: AnimatedPressable(
+              onTap: () {
+                HapticEngine.selection();
+                _showScannerMenu(context);
+              },
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                  child: Container(
+                    width: 44,
+                    height: 44,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1.0),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.more_vert_rounded, color: Colors.white, size: 20),
+                    ),
                   ),
                 ),
               ),
@@ -774,24 +782,29 @@ class _BottomControls extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 // Flash button
-                AnimatedPressable(
-                  onTap: onFlashToggle,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: isFlashOn ? Colors.white : Colors.black.withValues(alpha: 0.25),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Center(
-                          child: Icon(
-                            isFlashOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
-                            color: isFlashOn ? Colors.black : Colors.white,
-                            size: 22,
+                Semantics(
+                  button: true,
+                  toggled: isFlashOn,
+                  label: isFlashOn ? 'Turn flash off' : 'Turn flash on',
+                  child: AnimatedPressable(
+                    onTap: onFlashToggle,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: isFlashOn ? Colors.white : Colors.black.withValues(alpha: 0.25),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Icon(
+                              isFlashOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
+                              color: isFlashOn ? Colors.black : Colors.white,
+                              size: 22,
+                            ),
                           ),
                         ),
                       ),
@@ -809,21 +822,25 @@ class _BottomControls extends StatelessWidget {
                 ),
 
                 // Gallery Button
-                AnimatedPressable(
-                  onTap: onGalleryTap,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(30),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                      child: Container(
-                        width: 52,
-                        height: 52,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.25),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Center(
-                          child: Icon(Icons.photo_library_outlined, color: Colors.white, size: 22),
+                Semantics(
+                  button: true,
+                  label: 'Choose from library',
+                  child: AnimatedPressable(
+                    onTap: onGalleryTap,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(30),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
+                        child: Container(
+                          width: 52,
+                          height: 52,
+                          decoration: BoxDecoration(
+                            color: Colors.black.withValues(alpha: 0.25),
+                            shape: BoxShape.circle,
+                          ),
+                          child: const Center(
+                            child: Icon(Icons.photo_library_outlined, color: Colors.white, size: 22),
+                          ),
                         ),
                       ),
                     ),
@@ -855,39 +872,49 @@ class _ModePill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final on = current == mode;
-    return BouncingButton(
-      scaleFactor: 0.95,
-      onTap: () {
-        HapticEngine.selection();
-        onTap(mode);
-      },
-      child: AnimatedContainer(
-        duration: 250.ms,
-        padding: on 
-            ? const EdgeInsets.symmetric(horizontal: 16, vertical: 10)
-            : const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        decoration: BoxDecoration(
-          color: on ? Colors.white : Colors.transparent,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon,
-                size: 18,
-                color: on ? Colors.black : Colors.white.withValues(alpha: 0.8)),
-            if (on) ...[
-              const SizedBox(width: 6),
-              Text(
-                label,
-                style: AppTypography.labelSmall.copyWith(
-                  color: Colors.black,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 13,
+    return Semantics(
+      button: true,
+      selected: on,
+      label: '$label mode',
+      child: BouncingButton(
+        scaleFactor: 0.95,
+        onTap: () {
+          HapticEngine.selection();
+          onTap(mode);
+        },
+        child: AnimatedContainer(
+          duration: 250.ms,
+          // Keep every pill at/above the 44x44 HIG minimum tap target even when
+          // collapsed to icon-only (unselected).
+          constraints: const BoxConstraints(minWidth: 44, minHeight: 44),
+          alignment: Alignment.center,
+          padding: on
+              ? const EdgeInsets.symmetric(horizontal: 16, vertical: 10)
+              : const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            color: on ? Colors.white : Colors.transparent,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(icon,
+                  size: 18,
+                  color:
+                      on ? Colors.black : Colors.white.withValues(alpha: 0.8)),
+              if (on) ...[
+                const SizedBox(width: 6),
+                Text(
+                  label,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 13,
+                  ),
                 ),
-              ),
+              ],
             ],
-          ],
+          ),
         ),
       ),
     );
@@ -1316,10 +1343,13 @@ class _SmartScanningOverlayState extends State<_SmartScanningOverlay> {
 
   @override
   Widget build(BuildContext context) {
+    // Offset from the device safe area so the readout never crowds the top bar
+    // (notch / Dynamic Island) or the bottom controls (home indicator).
+    final padding = MediaQuery.of(context).padding;
     return Positioned(
       right: 24,
-      top: 140,
-      bottom: 240,
+      top: padding.top + 84,
+      bottom: padding.bottom + 200,
       width: 260,
       child: ShaderMask(
         shaderCallback: (rect) {

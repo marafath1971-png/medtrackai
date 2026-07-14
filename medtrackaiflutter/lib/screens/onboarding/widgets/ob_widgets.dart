@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../../../core/constants/med_ai_assets.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
+import '../../../widgets/common/ghost_mascot.dart';
 import '../onboarding_theme.dart';
 
 // ════════════════════════════════════════════════════════════════════════
@@ -398,7 +398,6 @@ class ObMascot extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = ObPalette.of(context);
     final reduceMotion = MedAiA11y.reducedMotion(context);
-    final asset = MedAiAssets.mascotFor(feature);
 
     final halo = Container(
       width: size + 44,
@@ -413,21 +412,12 @@ class ObMascot extends StatelessWidget {
           ],
         ),
       ),
-      child: Image.asset(
-        asset,
-        width: size,
-        height: size,
-        fit: BoxFit.contain,
-        filterQuality: FilterQuality.high,
-        errorBuilder: (_, __, ___) => Container(
-          width: size * 0.7,
-          height: size * 0.7,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: p.surfaceSel,
-            border: Border.all(color: p.borderSel.withValues(alpha: 0.4)),
-          ),
-        ),
+      child: GhostMascot.feature(
+        feature,
+        size: size,
+        // Idle float gives the hero life; the outer one-shot entrance below
+        // handles the reveal. Both are suppressed under reduced-motion.
+        idle: !reduceMotion,
       ),
     );
 

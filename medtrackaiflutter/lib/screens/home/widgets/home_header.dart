@@ -129,7 +129,7 @@ class HomeHeader extends StatelessWidget {
               ),
             ),
             _IconCircleBtn(
-              icon: Icons.notifications_outlined,
+              icon: Icons.settings_outlined,
               onTap: onOpenSettings,
               semanticLabel: 'Open settings',
               showBadge: true,
@@ -177,16 +177,16 @@ class _IconCircleBtn extends StatelessWidget {
             ),
           ],
           child: SizedBox(
-            width: 42,
-            height: 42,
+            width: 44,
+            height: 44,
             child: Stack(
               alignment: Alignment.center,
               children: [
                 Icon(icon, size: 20, color: L.text.withValues(alpha: 0.9)),
                 if (showBadge)
                   Positioned(
-                    top: 9,
-                    right: 9,
+                    top: 10,
+                    right: 10,
                     child: Container(
                       width: 8,
                       height: 8,

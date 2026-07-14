@@ -64,7 +64,7 @@ class InteractionWarningSheet extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: warningColor.withOpacity(0.15),
+                  color: warningColor.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.warning_amber_rounded, color: warningColor, size: 28),
@@ -100,7 +100,7 @@ class InteractionWarningSheet extends StatelessWidget {
           
           // Details
           MedAiDepthCard(
-            color: warningColor.withOpacity(0.05),
+            color: warningColor.withValues(alpha: 0.05),
             padding: const EdgeInsets.all(20),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,

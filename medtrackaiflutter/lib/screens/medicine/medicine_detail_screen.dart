@@ -8,6 +8,7 @@ import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_page_header.dart';
 import '../../core/utils/color_utils.dart';
+import '../../core/utils/date_formatter.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
 import '../../widgets/common/modern_time_picker.dart';
@@ -315,8 +316,8 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       child: AnimatedPressable(
         onTap: onTap,
         child: Container(
-          width: 42,
-          height: 42,
+          width: 44,
+          height: 44,
           decoration: BoxDecoration(
             color: L.card,
             shape: BoxShape.circle,
@@ -576,7 +577,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
           label: 'Inventory Reserve',
           value: '${med.count} Units',
           icon: '📦',
-          color: const Color(0xFF007AFF), // iOS Blue
+          color: L.info,
           L: L,
           height: 138,
           child: Column(
@@ -768,10 +769,10 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
 
     for (var s in sorted) {
       if (s.h * 60 + s.m > nowMins) {
-        return '${s.h.toString().padLeft(2, '0')}:${s.m.toString().padLeft(2, '0')}';
+        return fmtTime(s.h, s.m, context);
       }
     }
-    return '${sorted.first.h.toString().padLeft(2, '0')}:${sorted.first.m.toString().padLeft(2, '0')}';
+    return fmtTime(sorted.first.h, sorted.first.m, context);
   }
 
   Widget _buildIntakeChip(String intake, AppThemeColors L) {
@@ -905,7 +906,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
         title: Row(
           children: [
             Text(
-                '${s.h.toString().padLeft(2, '0')}:${s.m.toString().padLeft(2, '0')}',
+                fmtTime(s.h, s.m, context),
                 style: AppTypography.titleLarge.copyWith(
                     fontWeight: FontWeight.w600,
                     color: s.enabled ? L.text : L.sub)),

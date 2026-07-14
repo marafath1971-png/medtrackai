@@ -16,6 +16,7 @@ import 'widgets/add_cg_flow.dart';
 import 'widgets/join_as_cg_view.dart';
 import 'widgets/alert_log_widgets.dart';
 import '../../widgets/common/premium_empty_state.dart';
+import '../../widgets/common/ghost_mascot.dart';
 
 import '../../widgets/common/premium_texture.dart';
 
@@ -755,14 +756,13 @@ class HubView extends StatelessWidget {
   /// isn't bundled yet.
   Widget _mascotVisual(
       BuildContext context, String asset, IconData fallback, AppThemeColors L) {
-    final img = Image.asset(
-      asset,
-      width: 56,
-      height: 56,
-      fit: BoxFit.contain,
-      errorBuilder: (_, __, ___) => Icon(fallback, size: 44, color: L.accent),
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+    final img = GhostMascot(
+      asset: asset,
+      size: 64,
+      idle: !reduceMotion,
     );
-    if (MedAiA11y.reducedMotion(context)) return img;
+    if (reduceMotion) return img;
     // Subtle one-shot fade + scale-in; no loop (garnish, not billboard).
     return img
         .animate()

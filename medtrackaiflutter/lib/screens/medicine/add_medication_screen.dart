@@ -169,7 +169,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                   ),
                   Switch.adaptive(
                     value: _remindMe,
-                    activeColor: L.accent,
+                    activeThumbColor: L.accent,
                     onChanged: (val) {
                       setState(() => _remindMe = val);
                     },

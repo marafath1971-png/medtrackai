@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../../../core/constants/premium_graphics.dart';
 import '../../../core/constants/med_ai_assets.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../core/utils/manual_add_medicine.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
-import '../../../widgets/common/premium_illustration_banner.dart';
+import '../../../widgets/common/ghost_mascot.dart';
 import '../../../widgets/common/premium_texture.dart';
 
 class HomeScheduleEmpty extends StatelessWidget {
@@ -44,20 +43,17 @@ class HomeScheduleEmpty extends StatelessWidget {
           Center(
             child: _MascotEntrance(
               reduceMotion: reduceMotion,
-              child: Image.asset(
-                hasMeds
+              child: GhostMascot(
+                asset: hasMeds
                     ? MedAiAssets.mascotHappyPill
                     : MedAiAssets.mascotHomeHeart,
-                height: 72,
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) => PremiumIllustrationBanner(
-                  asset: hasMeds
-                      ? PremiumGraphics.healthInsights
-                      : PremiumGraphics.onboardingDiagnose,
-                  height: 100,
-                  margin: const EdgeInsets.only(bottom: 16),
-                  padding: const EdgeInsets.all(12),
-                ),
+                size: 76,
+                // The entrance wrapper handles the reveal; a gentle idle float
+                // keeps the empty state feeling alive without looping bounce.
+                idle: !reduceMotion,
+                semanticLabel: hasMeds
+                    ? 'Nothing scheduled mascot'
+                    : 'Add your first medicine mascot',
               ),
             ),
           ),
