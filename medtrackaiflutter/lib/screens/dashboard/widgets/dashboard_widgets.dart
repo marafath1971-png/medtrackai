@@ -317,9 +317,12 @@ class HealthCoachCard extends StatelessWidget {
     return Column(
       children: insights.map((ins) {
         final cat = ins.category.toLowerCase();
-        final color = (cat.contains('safe') || cat.contains('warn'))
-            ? L.error
-            : (cat.contains('adh') ? AppColors.limeDeep : L.purple);
+        // Cal AI de-noise: keep a real status color ONLY for safety/warnings;
+        // everything else (adherence, optimization, etc.) uses one neutral tone
+        // so the insight list reads calm instead of rainbow-tagged. (Was:
+        // lime-green for adherence, purple for optimization.)
+        final isWarning = cat.contains('safe') || cat.contains('warn');
+        final color = isWarning ? L.error : L.sub;
 
         return Padding(
           padding: const EdgeInsets.only(bottom: 12),
@@ -656,28 +659,21 @@ class AdherenceTrendChart extends StatelessWidget {
 class InventoryStatusCard extends StatelessWidget {
   final List<Medicine> meds;
   final AppThemeColors L;
-  const InventoryStatusCard({super.key, required this.meds, required this.L});
+  final bool embedded;
+
+  const InventoryStatusCard({
+    super.key,
+    required this.meds,
+    required this.L,
+    this.embedded = false,
+  });
 
   @override
   Widget build(BuildContext context) {
     final trackedMeds = meds.where((m) => m.count > 0).toList();
     if (trackedMeds.isEmpty) return const SizedBox.shrink();
 
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-      decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(color: L.border.withValues(alpha: 0.35)),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
-      child: Column(
+    final content = Column(
         children: trackedMeds.asMap().entries.map((entry) {
           final i = entry.key;
           final med = entry.value;
@@ -733,7 +729,25 @@ class InventoryStatusCard extends StatelessWidget {
             ),
           );
         }).toList(),
+    );
+
+    if (embedded) return content;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+      decoration: BoxDecoration(
+        color: L.card,
+        borderRadius: BorderRadius.circular(22),
+        border: Border.all(color: L.border.withValues(alpha: 0.35)),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
+      child: content,
     );
   }
 }

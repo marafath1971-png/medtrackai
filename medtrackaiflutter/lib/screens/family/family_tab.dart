@@ -3,7 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/app_routes.dart';
-import '../../core/constants/premium_graphics.dart';
+import '../../core/constants/med_ai_assets.dart';
 import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/date_formatter.dart';
@@ -16,8 +16,8 @@ import 'widgets/add_cg_flow.dart';
 import 'widgets/join_as_cg_view.dart';
 import 'widgets/alert_log_widgets.dart';
 import '../../widgets/common/premium_empty_state.dart';
-import '../../widgets/common/paywall_sheet.dart';
-import '../../widgets/common/app_scaffold.dart';
+
+import '../../widgets/common/premium_texture.dart';
 
 enum FamilyView {
   hub,
@@ -181,20 +181,13 @@ class _FamilyTabState extends State<FamilyTab> {
               isScrolled: _isScrolled,
               scrollController: _scrollController,
               onPivotChanged: (v) => setState(() => _pivot = v),
-              onAddCg: () {
-                if (state.isPremium) {
-                  setState(() => _view = FamilyView.addStep1);
-                } else {
-                  PaywallSheet.show(context);
-                }
-              },
-              onJoin: () {
-                if (state.isPremium) {
-                  setState(() => _view = FamilyView.join);
-                } else {
-                  PaywallSheet.show(context);
-                }
-              },
+              // Inviting/joining is FREE — it's the viral growth loop, never
+              // paywall it (premium gates the advanced monitoring insights
+              // instead, in monitoring_widgets). Gating the invite here was
+              // masked while isPremium was hardcoded true; now it's real, so an
+              // un-gate is required or non-premium users can't add anyone.
+              onAddCg: () => setState(() => _view = FamilyView.addStep1),
+              onJoin: () => setState(() => _view = FamilyView.join),
               onDashboard: (cg) => setState(() => _dashboardCg = cg),
               onAlertDetail: (a) => setState(() => _alertDetail = a),
               onMarkSeen: () => state.markAlertsAsSeen());
@@ -205,17 +198,17 @@ class _FamilyTabState extends State<FamilyTab> {
 
     return AnimatedSwitcher(
       duration: reduceMotion ? Duration.zero : AppDurations.fast,
-      switchInCurve: AppCurves.expressive,
-      switchOutCurve: Curves.easeInCubic,
+      switchInCurve: AppCurves.emilOut,
+      switchOutCurve: AppCurves.emilOut,
       transitionBuilder: (w, anim) {
         if (reduceMotion) return w;
         return FadeTransition(
           opacity: anim,
           child: SlideTransition(
             position: Tween<Offset>(
-              begin: const Offset(0.04, 0),
+              begin: const Offset(0.03, 0),
               end: Offset.zero,
-            ).animate(CurvedAnimation(parent: anim, curve: AppCurves.expressive)),
+            ).animate(CurvedAnimation(parent: anim, curve: AppCurves.emilOut)),
             child: w,
           ),
         );
@@ -257,12 +250,41 @@ class HubView extends StatelessWidget {
         state.caregivers.where((c) => c.status == "active").length;
     final unseenCount = state.missedAlerts.where((a) => !a.seen).length;
 
-    return AppScaffold(
-      showAurora: context.isDark,
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      floatingActionButton: pivot == 1
+          ? null
+          : Padding(
+              padding: const EdgeInsets.only(bottom: 90),
+              child: Semantics(
+                button: true,
+                label: 'Add guardian',
+                child: FloatingActionButton.extended(
+                  onPressed: onAddCg,
+                  backgroundColor: L.text,
+                  elevation: 0,
+                  extendedIconLabelSpacing: 8,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: AppRadius.roundL,
+                  ),
+                  icon: Icon(Icons.person_add_rounded,
+                      color: L.bg, size: 20),
+                  label: Text(
+                    'Add guardian',
+                    style: AppTypography.labelLarge.copyWith(
+                      color: L.bg,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 13,
+                    ),
+                  ),
+                ),
+              ),
+            ),
       body: Stack(
+        fit: StackFit.expand,
         children: [
-          // ── SCROLLABLE CONTENT ──
-          SingleChildScrollView(
+          PremiumHomeSurface(
+            child: SingleChildScrollView(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             controller: scrollController,
             physics: const BouncingScrollPhysics(
@@ -274,38 +296,10 @@ class HubView extends StatelessWidget {
 
                 // ── HUB CONTENT ──
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.symmetric(horizontal: 22),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _familyEntrance(
-                        context,
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'YOUR CIRCLE',
-                              style: AppTypography.labelSmall.copyWith(
-                                color: L.sub,
-                                fontWeight: FontWeight.w600,
-                                fontSize: 11,
-                                letterSpacing: 0.8,
-                              ),
-                            ),
-                            Text(
-                              'Family circle',
-                              style: AppTypography.headlineLarge.copyWith(
-                                color: L.text,
-                                fontWeight: FontWeight.w800,
-                                letterSpacing: -0.6,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      const SizedBox(height: 20),
-
                       _familyEntrance(
                         context,
                         Row(
@@ -445,7 +439,7 @@ class HubView extends StatelessWidget {
                       if (pivot == 1) ...[
                         // FAMILY CIRCLE (Monitoring others)
                         if (state.monitoredPatients.isEmpty)
-                          _buildEmptyMonitoringState(L, onJoin)
+                          _buildEmptyMonitoringState(context, L, onJoin)
                               .animate()
                               .fadeIn(duration: 600.ms)
                         else ...[
@@ -655,7 +649,7 @@ class HubView extends StatelessWidget {
                         ],
 
                         if (state.caregivers.isEmpty)
-                          _buildEmptyState(L, onAddCg)
+                          _buildEmptyState(context, L, onAddCg)
                               .animate()
                               .fadeIn(duration: 600.ms)
                         else ...[
@@ -708,6 +702,7 @@ class HubView extends StatelessWidget {
               ],
             ),
           ),
+          ),
 
           // ── PREMIUM HEADER ──
           Positioned(
@@ -725,59 +720,59 @@ class HubView extends StatelessWidget {
           ),
         ],
       ),
-      floatingActionButton: pivot == 1
-          ? null
-          : Padding(
-              padding: const EdgeInsets.only(bottom: 90),
-              child: Semantics(
-                button: true,
-                label: 'Add guardian',
-                child: FloatingActionButton.extended(
-                  onPressed: onAddCg,
-                  backgroundColor: L.text,
-                  elevation: 0,
-                  extendedIconLabelSpacing: 8,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: AppRadius.roundL,
-                  ),
-                  icon: Icon(Icons.person_add_rounded,
-                      color: L.bg, size: 20),
-                  label: Text(
-                    'Add guardian',
-                    style: AppTypography.labelLarge.copyWith(
-                      color: L.bg,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
-                  ),
-                ),
-              ),
-            ),
     );
   }
 
-  Widget _buildEmptyState(AppThemeColors L, VoidCallback onAddCg) {
+  Widget _buildEmptyState(
+      BuildContext context, AppThemeColors L, VoidCallback onAddCg) {
     return PremiumEmptyState(
       title: 'No guardians found',
       subtitle:
           'Invite family or medical professionals to monitor your medication safety.',
       icon: Icons.shield_outlined,
-      illustrationAsset: PremiumGraphics.familyCare,
+      visual: _mascotVisual(
+          context, MedAiAssets.mascotCaregiverElder, Icons.shield_outlined, L),
       actionLabel: 'Invite Guardian',
       onAction: onAddCg,
     );
   }
 
-  Widget _buildEmptyMonitoringState(AppThemeColors L, VoidCallback onJoin) {
+  Widget _buildEmptyMonitoringState(
+      BuildContext context, AppThemeColors L, VoidCallback onJoin) {
     return PremiumEmptyState(
       title: 'Protect your family',
       subtitle:
           'Join as a caregiver to see real-time health updates for your loved ones.',
       icon: Icons.groups_rounded,
-      illustrationAsset: PremiumGraphics.familyCare,
+      visual: _mascotVisual(
+          context, MedAiAssets.mascotCaregiverElder, Icons.groups_rounded, L),
       actionLabel: 'Join Circle',
       onAction: onJoin,
     );
+  }
+
+  /// Ghost mascot for empty states, with a graceful icon fallback if the PNG
+  /// isn't bundled yet.
+  Widget _mascotVisual(
+      BuildContext context, String asset, IconData fallback, AppThemeColors L) {
+    final img = Image.asset(
+      asset,
+      width: 56,
+      height: 56,
+      fit: BoxFit.contain,
+      errorBuilder: (_, __, ___) => Icon(fallback, size: 44, color: L.accent),
+    );
+    if (MedAiA11y.reducedMotion(context)) return img;
+    // Subtle one-shot fade + scale-in; no loop (garnish, not billboard).
+    return img
+        .animate()
+        .fadeIn(duration: 400.ms, curve: Curves.easeOut)
+        .scale(
+          begin: const Offset(0.85, 0.85),
+          end: const Offset(1, 1),
+          duration: 500.ms,
+          curve: Curves.easeOutBack,
+        );
   }
 }
 
@@ -808,7 +803,7 @@ class _CompactPivotPill extends StatelessWidget {
         scaleFactor: 0.97,
         child: AnimatedContainer(
           duration: MedAiA11y.motion(context, AppDurations.fast),
-          curve: AppCurves.expressive,
+          curve: AppCurves.emilOut,
           constraints: const BoxConstraints(minHeight: AppA11y.minTapTargetCompact),
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
           decoration: BoxDecoration(
@@ -927,15 +922,15 @@ class _CircleIconBtn extends StatelessWidget {
       label: label,
       child: AnimatedPressable(
         onTap: onTap,
-        child: Container(
-          width: 42,
-          height: 42,
-          decoration: BoxDecoration(
-            color: L.card,
-            shape: BoxShape.circle,
-            border: Border.all(color: L.border.withValues(alpha: 0.45)),
+        child: PremiumTextureCard(
+          padding: EdgeInsets.zero,
+          radius: 999,
+          texture: PremiumTextureStyle.none,
+          child: SizedBox(
+            width: 42,
+            height: 42,
+            child: Icon(icon, size: 20, color: L.text.withValues(alpha: 0.9)),
           ),
-          child: Icon(icon, size: 20, color: L.text.withValues(alpha: 0.9)),
         ),
       ),
     );
@@ -967,24 +962,10 @@ class _CircleStatBento extends StatelessWidget {
       color: iconColor ?? L.primary,
     );
 
-    return Container(
+    return PremiumTextureCard(
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(22),
-        border: Border.all(
-          color: glow
-              ? L.accent.withValues(alpha: 0.45)
-              : L.border.withValues(alpha: 0.35),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
-          ),
-        ],
-      ),
+      radius: 22,
+      texture: PremiumTextureStyle.dots,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1030,6 +1011,6 @@ Widget _familyEntrance(BuildContext context, Widget child, {int delayMs = 0}) {
   if (MedAiA11y.reducedMotion(context)) return child;
   return child
       .animate(delay: delayMs.ms)
-      .fadeIn(duration: AppDurations.fast, curve: AppCurves.expressive)
-      .slideY(begin: 0.04, end: 0, curve: AppCurves.expressive);
+      .fadeIn(duration: AppDurations.fast, curve: AppCurves.emilOut)
+      .slideY(begin: 0.03, end: 0, curve: AppCurves.emilOut);
 }

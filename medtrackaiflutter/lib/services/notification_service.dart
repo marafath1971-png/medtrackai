@@ -107,6 +107,7 @@ class NotificationService {
     String? profileName,
     bool showMedicationNames = true,
     required int currentStreak,
+    bool persistent = false,
   }) async {
     bool useSound = enableSound;
     bool useVibration = enableVibration;
@@ -121,6 +122,13 @@ class NotificationService {
       }
     }
 
+    // "Ring until answered" (Pillo-style). Android FLAG_INSISTENT (0x4) loops
+    // the alarm sound until the user acts on the notification. Only meaningful
+    // with sound on, and it's opt-in via the persistent flag so we never force
+    // a relentless alarm on users who didn't ask for it.
+    final Int32List? insistentFlags =
+        (persistent && useSound) ? Int32List.fromList([4]) : null;
+
     final androidDetails = AndroidNotificationDetails(
       'med_reminders_v2', // New channel for elevated priority
       'Medication Alarms',
@@ -134,6 +142,7 @@ class NotificationService {
       enableVibration: useVibration,
       playSound: useSound,
       visibility: NotificationVisibility.public,
+      additionalFlags: insistentFlags,
       actions: <AndroidNotificationAction>[
         const AndroidNotificationAction('take', 'Take Now',
             showsUserInterface: true),
@@ -276,7 +285,7 @@ class NotificationService {
   static Future<void> cancelAll() => _plugin.cancelAll();
   static Future<void> cancel(int id) => _plugin.cancel(id: id);
 
-  static Future<void> scheduleAll(List<Medicine> meds, {String? profileName, bool showMedicationNames = true, required int currentStreak}) async {
+  static Future<void> scheduleAll(List<Medicine> meds, {String? profileName, bool showMedicationNames = true, required int currentStreak, bool persistent = false}) async {
     for (var med in meds) {
       for (int i = 0; i < med.schedule.length; i++) {
         final sched = med.schedule[i];
@@ -285,7 +294,7 @@ class NotificationService {
           // Unique ID across profiles: hash the profile name into the ID base
           final profileHash = profileName?.hashCode ?? 0;
           final notifId = (profileHash.abs() % 10000) * 10000 + med.id * 100 + i * 10 + day;
-          
+
           await scheduleWeeklyReminder(
             med: med,
             sched: sched,
@@ -297,6 +306,7 @@ class NotificationService {
             profileName: profileName,
             showMedicationNames: showMedicationNames,
             currentStreak: currentStreak,
+            persistent: persistent,
           );
         }
       }
@@ -343,6 +353,31 @@ class NotificationService {
       id: 999000,
       title: '$prefix${NotificationCopy.familyAlertTitle}',
       body: NotificationCopy.familyAlertBody,
+      notificationDetails: details,
+    );
+  }
+
+  /// Displays an incoming remote (FCM) alert as a local notification. Needed
+  /// because Android suppresses notification payloads while the app is in the
+  /// foreground — this surfaces caregiver missed-dose alerts and nudges.
+  static Future<void> showRemoteAlert({
+    required String title,
+    required String body,
+  }) async {
+    const androidDetails = AndroidNotificationDetails(
+      'family_alerts',
+      'Family Alerts',
+      channelDescription: 'Alerts for family members doses',
+      importance: Importance.high,
+      priority: Priority.high,
+    );
+    const iosDetails =
+        DarwinNotificationDetails(presentAlert: true, presentSound: true);
+    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    await _plugin.show(
+      id: 999001,
+      title: title,
+      body: body,
       notificationDetails: details,
     );
   }

@@ -10,7 +10,6 @@ import '../../../../core/utils/refill_helper.dart';
 import 'settings_shared.dart';
 import '../../../stats/widgets/weekly_wellness_ring.dart';
 import '../../../stats/widgets/predictive_insight_card.dart';
-import '../../../../providers/controllers/wellness_controller.dart';
 
 class StatsTab extends StatelessWidget {
   final AppState state;
@@ -76,10 +75,13 @@ class StatsTab extends StatelessWidget {
       };
     });
 
-    final wellness = context.watch<WellnessController>();
+    final predictions = context.select<AppState, List<PredictiveInsight>>(
+      (s) => s.wellness.predictions,
+    );
+
     // Trigger analysis if needed
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      wellness.analyzePredictivePatterns(state.history);
+      state.wellness.analyzePredictivePatterns(state.history);
     });
 
     final dailyRates = weekData.map((w) => w['rate'] as double).toList();
@@ -213,14 +215,14 @@ class StatsTab extends StatelessWidget {
         const SizedBox(height: 24),
 
         // 🧠 AI PREDICTIVE INSIGHTS (Phase 5.0)
-        if (wellness.predictions.isNotEmpty) ...[
+        if (predictions.isNotEmpty) ...[
           Text('Smart patterns',
               style: AppTypography.titleMedium.copyWith(
                   fontWeight: FontWeight.w800,
                   color: L.text,
                   letterSpacing: -0.2)),
           const SizedBox(height: 12),
-          ...wellness.predictions.map((p) => Padding(
+          ...predictions.map((p) => Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: PredictiveInsightCard(insight: p),
               )),

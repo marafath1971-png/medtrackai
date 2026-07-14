@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../services/auth_service.dart';
+import '../../services/referral_service.dart';
 import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_loading_indicator.dart';
@@ -52,6 +53,47 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!MedAiA11y.reducedMotion(context)) {
       await Future.delayed(const Duration(milliseconds: 250));
     }
+  }
+
+  /// Lets a referred user enter their invite code manually — the reliable path
+  /// when a deep link didn't open the app. Stored as a pending inbound code and
+  /// redeemed on first app load (see AppShell._redeemPendingReferral).
+  Future<void> _enterInviteCode() async {
+    HapticEngine.selection();
+    final ctrl = TextEditingController();
+    final L = context.L;
+    final code = await showDialog<String>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: L.card,
+        title: Text('Have an invite code?',
+            style: AppTypography.titleMedium.copyWith(color: L.text)),
+        content: TextField(
+          controller: ctrl,
+          autofocus: true,
+          textCapitalization: TextCapitalization.characters,
+          decoration: const InputDecoration(hintText: 'e.g. AB3K9P'),
+          onSubmitted: (v) => Navigator.pop(ctx, v),
+        ),
+        actions: [
+          TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: Text('Cancel', style: TextStyle(color: L.sub))),
+          TextButton(
+              onPressed: () => Navigator.pop(ctx, ctrl.text),
+              child: Text('Apply', style: TextStyle(color: L.accent))),
+        ],
+      ),
+    );
+    ctrl.dispose();
+    if (code == null || code.trim().isEmpty) return;
+    await ReferralService.setPendingInbound(code);
+    if (!mounted) return;
+    SmartAlertService.show(
+      context,
+      title: 'Invite applied',
+      message: 'Your free month unlocks after you set up your account.',
+    );
   }
 
   Future<void> _submit() async {
@@ -303,6 +345,30 @@ class _AuthScreenState extends State<AuthScreen> {
                               fontSize: 13,
                               color: L.sub,
                               fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: Semantics(
+                      button: true,
+                      label: 'Have an invite code',
+                      child: AnimatedPressable(
+                        onTap: _enterInviteCode,
+                        hitTestPadding: const EdgeInsets.all(8),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 8,
+                          ),
+                          child: Text(
+                            'Have an invite code?',
+                            style: AppTypography.bodySmall.copyWith(
+                              fontSize: 13,
+                              color: L.accent,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),

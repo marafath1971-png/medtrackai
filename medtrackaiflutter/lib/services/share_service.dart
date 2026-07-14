@@ -30,15 +30,17 @@ class ShareService {
     }
   }
 
-  /// Share a referral invite message.
+  /// Share a referral invite message with the user's code + give/get framing.
   static Future<void> shareReferral(String referralCode,
-      {String? userName}) async {
-    final name = userName ?? 'Someone';
-    final message = '$name uses MedAI to never miss a dose.\n\n'
-        'Try it free with code: $referralCode\n'
-        '14-day premium trial included!\n\n'
-        '$downloadUrl';
-    await shareText(message, subject: 'Join me on MedAI');
+      {String? userName, String? inviteUrl}) async {
+    final name = userName != null && userName.trim().isNotEmpty
+        ? userName
+        : 'A friend';
+    final link = inviteUrl ?? downloadUrl;
+    final message = '$name invited you to MedAI — never miss a dose again.\n\n'
+        'Tap to claim a free month of Premium:\n$link\n\n'
+        'Or enter code $referralCode when you sign up.';
+    await shareText(message, subject: 'Join me on MedAI — free month inside');
   }
 
   /// Share an achievement milestone (streak, adherence, etc.)

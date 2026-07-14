@@ -17,6 +17,16 @@ class ProductAnalysis {
   final String allergyRiskLevel; // "None", "Low", "Medium", "High"
   final List<ExpertPerspective> expertPerspectives;
 
+  /// Whether the AI could confidently identify the product. When false, the UI
+  /// presents a "not identified — retake / search" state instead of a
+  /// confident result.
+  final bool identified;
+
+  /// AI self-reported confidence: 'high' | 'medium' | 'low'. Drives the honest
+  /// badge and the low-confidence warning. Defaults to 'low' when absent so an
+  /// old or partial response can never masquerade as high-confidence.
+  final String confidence;
+
   ProductAnalysis({
     required this.id,
     required this.name,
@@ -35,6 +45,8 @@ class ProductAnalysis {
     required this.allergyAlerts,
     required this.allergyRiskLevel,
     required this.expertPerspectives,
+    this.identified = true,
+    this.confidence = 'low',
   });
 
   Map<String, dynamic> toJson() => {
@@ -55,6 +67,8 @@ class ProductAnalysis {
         'allergyAlerts': allergyAlerts,
         'allergyRiskLevel': allergyRiskLevel,
         'expertPerspectives': expertPerspectives.map((e) => e.toJson()).toList(),
+        'identified': identified,
+        'confidence': confidence,
       };
 
   factory ProductAnalysis.fromJson(Map<String, dynamic> json) {
@@ -82,6 +96,11 @@ class ProductAnalysis {
               ?.map((e) => ExpertPerspective.fromJson(Map<String, dynamic>.from(e as Map)))
               .toList() ??
           [],
+      // Default to identified=true for backward compat with stored history that
+      // predates this field; confidence defaults to 'low' so a missing value is
+      // never treated as a confident result.
+      identified: json['identified'] as bool? ?? true,
+      confidence: (json['confidence'] as String?) ?? 'low',
     );
   }
 
@@ -127,6 +146,8 @@ class ProductAnalysis {
             icon: '🏋️‍♂️',
           ),
         ],
+        identified: true,
+        confidence: 'high',
       );
 }
 

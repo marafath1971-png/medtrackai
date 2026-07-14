@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../theme/med_ai_ui.dart';
+import '../../../../theme/ios_ui.dart';
 import '../../../../widgets/common/animated_pressable.dart';
 import '../../../../domain/entities/entities.dart';
 import '../../../../services/gemini_service.dart';
@@ -136,39 +137,76 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
           showBorder: false,
           child: Column(
             children: [
+              // iOS sheet grabber
+              const Center(child: IOSGrabber()),
               // Header
               Padding(
-                padding: const EdgeInsets.fromLTRB(24, 20, 24, 12),
-                child: MedAiSectionHeader(
-                  title: 'MedAI Coach',
-                  subtitle: 'Discussing ${widget.medicine.name}',
-                  action: Semantics(
-                    button: true,
-                    label: 'Close',
-                    child: AnimatedPressable(
-                      onTap: () => Navigator.pop(context),
-                      child: Container(
-                        width: MedAiA11y.minTapTarget,
-                        height: MedAiA11y.minTapTarget,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: L.fill.withValues(alpha: 0.4),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(Icons.close_rounded, color: L.sub, size: 22),
+                padding: const EdgeInsets.fromLTRB(20, 6, 12, 12),
+                child: Row(
+                  children: [
+                    Container(
+                      width: 34,
+                      height: 34,
+                      decoration: BoxDecoration(
+                        color: L.accent.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(9),
+                      ),
+                      child: Icon(Icons.auto_awesome_rounded,
+                          color: L.accent, size: 18),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'MedAI Coach',
+                            style: AppTypography.titleMedium.copyWith(
+                              color: L.text,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: -0.3,
+                            ),
+                          ),
+                          Text(
+                            widget.medicine.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.labelSmall.copyWith(
+                              color: L.sub,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                  ),
+                    Semantics(
+                      button: true,
+                      label: 'Close',
+                      child: AnimatedPressable(
+                        onTap: () => Navigator.pop(context),
+                        child: Container(
+                          width: 30,
+                          height: 30,
+                          alignment: Alignment.center,
+                          decoration: BoxDecoration(
+                            color: L.fill.withValues(alpha: 0.6),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Icon(Icons.close_rounded, color: L.sub, size: 18),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              Divider(height: 1, color: L.border.withValues(alpha: 0.1)),
+              const IOSHairline(),
 
               // Chat Area
               Expanded(
                 child: ListView.builder(
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   controller: _scrollController,
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
                   itemCount: _messages.length + (_isLoading ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == _messages.length && _isLoading) {
@@ -177,8 +215,13 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
 
                     final msg = _messages[index];
                     final isAI = msg['role'] == 'ai';
+                    final prevSame = index > 0 &&
+                        (_messages[index - 1]['role'] == 'ai') == isAI;
 
-                    return _buildBubble(msg['text']!, isAI, L, reduceMotion);
+                    return Padding(
+                      padding: EdgeInsets.only(top: prevSame ? 3 : 10),
+                      child: _buildBubble(msg['text']!, isAI, reduceMotion),
+                    );
                   },
                 ),
               ),
@@ -186,39 +229,38 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
               // Suggestion Chips
               if (_messages.length < 3 && !_isLoading)
                 SizedBox(
-                  height: MedAiA11y.minTapTarget,
-                  child: ListView.builder(
+                  height: 42,
+                  child: ListView.separated(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
                     itemCount: suggestions.length,
+                    separatorBuilder: (_, __) => const SizedBox(width: 8),
                     itemBuilder: (context, index) {
                       final suggestion = suggestions[index];
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 8),
-                        child: Semantics(
-                          button: true,
-                          label: suggestion,
-                          child: AnimatedPressable(
-                            onTap: () => _sendMessage(suggestion),
-                            scaleFactor: 0.97,
-                            child: Container(
-                              constraints: const BoxConstraints(
-                                minHeight: MedAiA11y.minTapTargetCompact,
-                              ),
-                              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                              decoration: BoxDecoration(
-                                color: L.meshBg,
-                                borderRadius: BorderRadius.circular(AppRadius.xl),
-                                border: Border.all(color: L.border.withValues(alpha: 0.1)),
-                              ),
-                              alignment: Alignment.center,
-                              child: Text(
-                                suggestion,
-                                style: AppTypography.labelSmall.copyWith(
-                                  color: L.text,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                      return Semantics(
+                        button: true,
+                        label: suggestion,
+                        child: AnimatedPressable(
+                          onTap: () => _sendMessage(suggestion),
+                          scaleFactor: 0.97,
+                          child: Container(
+                            alignment: Alignment.center,
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 14, vertical: 9),
+                            decoration: BoxDecoration(
+                              color: L.fill.withValues(alpha: 0.5),
+                              borderRadius: BorderRadius.circular(AppRadius.max),
+                              border: Border.all(
+                                  color: L.accent.withValues(alpha: 0.28),
+                                  width: 0.7),
+                            ),
+                            child: Text(
+                              suggestion,
+                              style: AppTypography.labelSmall.copyWith(
+                                color: L.text,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 13,
                               ),
                             ),
                           ),
@@ -229,53 +271,14 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
                 ),
 
               // Input Area
-              SafeArea(
-                child: Container(
-                  padding: const EdgeInsets.all(16),
-                  margin: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-                  decoration: BoxDecoration(
-                    border: Border(top: BorderSide(color: L.border.withValues(alpha: 0.1))),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: MedAiGlass(
-                          radius: AppRadius.xl,
-                          padding: EdgeInsets.zero,
-                          blur: Design2026.glassBlur * 0.5,
-                          child: TextField(
-                            autofocus: true,
-                            controller: _controller,
-                            style: AppTypography.bodyMedium.copyWith(color: L.text),
-                            decoration: InputDecoration(
-                              hintText: 'Ask a question...',
-                              hintStyle: AppTypography.bodyMedium.copyWith(color: L.sub),
-                              border: InputBorder.none,
-                              contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-                            ),
-                            onSubmitted: (s) => _sendMessage(s),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Semantics(
-                        button: true,
-                        label: 'Send message',
-                        child: AnimatedPressable(
-                          onTap: () => _sendMessage(_controller.text),
-                          child: Container(
-                            width: MedAiA11y.minTapTarget,
-                            height: MedAiA11y.minTapTarget,
-                            decoration: BoxDecoration(
-                              color: L.secondary,
-                              shape: BoxShape.circle,
-                            ),
-                            child: const Icon(Icons.arrow_upward_rounded, color: Colors.white),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+              Padding(
+                padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom),
+                child: IOSComposer(
+                  controller: _controller,
+                  autofocus: true,
+                  hintText: 'Ask a question…',
+                  onSubmit: _sendMessage,
                 ),
               ),
             ],
@@ -285,85 +288,46 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
     );
   }
 
-  Widget _buildBubble(String text, bool isAI, AppThemeColors L, bool reduceMotion) {
-    Widget bubble = Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        mainAxisAlignment: isAI ? MainAxisAlignment.start : MainAxisAlignment.end,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          if (isAI) ...[
-            Container(
-              width: 32,
-              height: 32,
-              decoration: BoxDecoration(color: L.secondary.withValues(alpha: 0.1), shape: BoxShape.circle),
-              child: Icon(Icons.auto_awesome_rounded, color: L.secondary, size: 16),
-            ),
-            const SizedBox(width: 12),
-          ],
-          Flexible(
-            child: MedAiDepthCard(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-              radius: 24,
-              color: isAI ? L.card : L.text,
-              child: Text(
-                text,
-                style: AppTypography.bodyMedium.copyWith(
-                  color: isAI ? L.text : L.bg,
-                  height: 1.4,
-                  fontWeight: isAI ? FontWeight.w500 : FontWeight.w600,
-                ),
-              ),
-            ),
-          ),
-          if (!isAI) const SizedBox(width: 44), // Spacer for AI avatar width
-        ],
-      ),
-    );
+  Widget _buildBubble(String text, bool isAI, bool reduceMotion) {
+    Widget bubble = IOSChatBubble(text: text, isUser: !isAI);
 
     if (reduceMotion) return bubble;
 
     return bubble
         .animate()
-        .fadeIn(duration: 300.ms)
-        .slideY(begin: 0.1, end: 0)
-        .scaleXY(
-          begin: isAI ? 0.95 : 1.0,
-          end: 1.0,
-          duration: isAI ? 600.ms : 100.ms,
-          curve: isAI ? Curves.elasticOut : Curves.easeOut,
-        );
+        .fadeIn(duration: 260.ms)
+        .slideY(begin: isAI ? 0.08 : 0.16, end: 0, curve: AppCurves.smooth);
   }
 
   Widget _buildTypingIndicator(AppThemeColors L, bool reduceMotion) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Container(
-            width: 32,
-            height: 32,
-            decoration: BoxDecoration(color: L.secondary.withValues(alpha: 0.1), shape: BoxShape.circle),
-            child: Icon(Icons.auto_awesome_rounded, color: L.secondary, size: 16),
-          ),
-          const SizedBox(width: 12),
-          MedAiDepthCard(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
-            radius: 24,
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _Dot(delay: 0, color: L.sub, reduceMotion: reduceMotion),
-                const SizedBox(width: 4),
-                _Dot(delay: 200, color: L.sub, reduceMotion: reduceMotion),
-                const SizedBox(width: 4),
-                _Dot(delay: 400, color: L.sub, reduceMotion: reduceMotion),
-              ],
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Container(
+          decoration: BoxDecoration(
+            color: L.card,
+            borderRadius: const BorderRadius.only(
+              topLeft: Radius.circular(IOSMetrics.bubbleRadius),
+              topRight: Radius.circular(IOSMetrics.bubbleRadius),
+              bottomLeft: Radius.circular(4),
+              bottomRight: Radius.circular(IOSMetrics.bubbleRadius),
             ),
+            border:
+                Border.all(color: L.border.withValues(alpha: 0.18), width: 0.7),
           ),
-        ],
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _Dot(delay: 0, color: L.sub, reduceMotion: reduceMotion),
+              const SizedBox(width: 4),
+              _Dot(delay: 200, color: L.sub, reduceMotion: reduceMotion),
+              const SizedBox(width: 4),
+              _Dot(delay: 400, color: L.sub, reduceMotion: reduceMotion),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -379,8 +343,8 @@ class _Dot extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final dot = Container(
-      width: 6,
-      height: 6,
+      width: 7,
+      height: 7,
       decoration: BoxDecoration(color: color, shape: BoxShape.circle),
     );
 

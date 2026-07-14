@@ -30,6 +30,10 @@ class RemoteConfigService {
     'onboarding_show_rating_step': true,
     'onboarding_show_att_step': true,
     'onboarding_skip_enabled': true,
+    // Defer the onboarding paywall until the user has added their first med
+    // (the activation "aha"). Session-1 activators convert 2-3x better, so
+    // asking for the trial *after* value should lift trial-start rate.
+    'paywall_after_activation': true,
     // Free tier gates
     'free_tier_med_limit': 5,
     'free_tier_scan_limit': 3,
@@ -76,4 +80,5 @@ class RemoteConfigService {
   static int get freeTierScanLimit => getInt('free_tier_scan_limit');
   static int get freeTierVoiceLimit => getInt('free_tier_voice_limit');
   static bool get trialReminderEnabled => getBool('trial_reminder_enabled');
+  static bool get paywallAfterActivation => getBool('paywall_after_activation');
 }

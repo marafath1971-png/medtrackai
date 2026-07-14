@@ -1,7 +1,7 @@
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
 
 class WeeklyWellnessRing extends StatelessWidget {
   final double adherence;
@@ -17,6 +17,7 @@ class WeeklyWellnessRing extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     final ringColor = _getColor(adherence, L);
+    final reduceMotion = MedAiA11y.reducedMotion(context);
 
     return SizedBox(
       width: 200,
@@ -41,15 +42,21 @@ class WeeklyWellnessRing extends StatelessWidget {
           ),
 
           // Main Ring Painter
-          CustomPaint(
-            size: const Size(200, 200),
-            painter: _WellnessRingPainter(
-              adherence: adherence,
-              dailyRates: dailyRates,
-              color: ringColor,
-              trackColor: L.border.withValues(alpha: 0.15),
+          _maybeAnimate(
+            reduceMotion,
+            CustomPaint(
+              size: const Size(200, 200),
+              painter: _WellnessRingPainter(
+                adherence: adherence,
+                dailyRates: dailyRates,
+                color: ringColor,
+                trackColor: L.border.withValues(alpha: 0.15),
+              ),
             ),
-          ).animate(key: const ValueKey('weekly_wellness_rotate_anim')).rotate(duration: 800.ms, curve: Curves.easeOutCubic),
+            (w) => w
+                .animate(key: const ValueKey('weekly_wellness_rotate_anim'))
+                .rotate(duration: 800.ms, curve: Curves.easeOutCubic),
+          ),
 
           // Center Text — theme-aware
           Column(
@@ -78,6 +85,15 @@ class WeeklyWellnessRing extends StatelessWidget {
       ),
     );
   }
+
+  /// Applies [anim] only when reduced-motion is OFF; otherwise returns the
+  /// static widget so the ring is fully usable without motion.
+  Widget _maybeAnimate(
+    bool reduceMotion,
+    Widget child,
+    Widget Function(Widget) anim,
+  ) =>
+      reduceMotion ? child : anim(child);
 
   /// Returns semantic adherence color from the design system:
   /// ≥80% → accent lime-green (#D4F544), ≥50% → orange accent, <50% → error red

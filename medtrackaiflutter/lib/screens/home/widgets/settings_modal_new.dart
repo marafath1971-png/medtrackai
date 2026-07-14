@@ -27,25 +27,6 @@ class SettingsModal extends StatefulWidget {
 class _SettingsModalState extends State<SettingsModal> {
   String _activeTab = 'profile';
 
-  final GlobalKey<NavigatorState> _nestedNavKey = GlobalKey<NavigatorState>();
-
-  Future<bool> _onWillPop() async {
-    final innerNav = _nestedNavKey.currentState;
-    if (innerNav != null && innerNav.canPop()) {
-      innerNav.pop();
-      return false;
-    }
-    return true;
-  }
-
-  void _selectTab(String id) {
-    HapticEngine.selection();
-    while (_nestedNavKey.currentState?.canPop() == true) {
-      _nestedNavKey.currentState!.pop();
-    }
-    setState(() => _activeTab = id);
-  }
-
   @override
   Widget build(BuildContext context) {
     final state = context.read<AppState>();
@@ -66,10 +47,8 @@ class _SettingsModalState extends State<SettingsModal> {
 
     return PopScope(
       canPop: false,
-      onPopInvokedWithResult: (didPop, _) async {
-        if (didPop) return;
-        final shouldClose = await _onWillPop();
-        if (shouldClose && context.mounted) widget.onClose();
+      onPopInvokedWithResult: (didPop, _) {
+        if (!didPop && context.mounted) widget.onClose();
       },
       child: Stack(
         alignment: Alignment.bottomCenter,
@@ -172,21 +151,20 @@ class _SettingsModalState extends State<SettingsModal> {
                               .map((t) => t['icon'] as IconData)
                               .toList(),
                           selectedIndex: activeIndex,
-                          onSelected: (index) =>
-                              _selectTab(tabs[index]['id'] as String),
+                          onSelected: (index) {
+                            HapticEngine.selection();
+                            setState(
+                              () => _activeTab = tabs[index]['id'] as String,
+                            );
+                          },
                         ),
                       ),
                       Expanded(
                         child: ColoredBox(
                           color: L.bg,
-                          child: Navigator(
-                            key: _nestedNavKey,
-                            onGenerateRoute: (settings) {
-                              return MaterialPageRoute(
-                                settings: settings,
-                                builder: (_) => _buildContent(state, L),
-                              );
-                            },
+                          child: KeyedSubtree(
+                            key: ValueKey(_activeTab),
+                            child: _buildContent(state, L),
                           ),
                         ),
                       ),

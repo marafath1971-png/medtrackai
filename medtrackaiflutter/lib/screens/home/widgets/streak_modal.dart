@@ -14,6 +14,7 @@ class StreakModal extends StatefulWidget {
   final StreakData streakData;
   final VoidCallback onClose;
   final VoidCallback onFreeze;
+  final int freezes;
 
   const StreakModal(
       {super.key,
@@ -21,7 +22,8 @@ class StreakModal extends StatefulWidget {
       required this.history,
       required this.streakData,
       required this.onClose,
-      required this.onFreeze});
+      required this.onFreeze,
+      this.freezes = 0});
 
   @override
   State<StreakModal> createState() => _StreakModalState();
@@ -39,6 +41,7 @@ class StreakModal extends StatefulWidget {
         streakData: state.streakData,
         onClose: () => Navigator.of(ctx).pop(),
         onFreeze: () => state.useStreakFreeze(),
+        freezes: state.profile?.streakFreezes ?? 0,
       ),
       transitionBuilder: (ctx, anim1, anim2, child) {
         return FadeTransition(
@@ -391,14 +394,37 @@ class _StreakModalState extends State<StreakModal> {
         color: L.bg,
         border: Border(top: BorderSide(color: L.border.withValues(alpha: 0.1))),
       ),
-      child: MedAiCTA(
-        label: 'Share streak',
-        icon: Icons.ios_share_rounded,
-        secondary: true,
-        onTap: () {
-          HapticEngine.selection();
-          ShareService.shareStreak(streak);
-        },
+      child: Column(
+        children: [
+          // Loss-aversion mechanic (Duolingo/Cal AI): show freezes the user has
+          // banked and let them spend one to protect the streak. Only shown when
+          // they actually have freezes — otherwise it's just noise.
+          if (widget.freezes > 0) ...[
+            Semantics(
+              button: true,
+              label: 'Use a streak freeze, ${widget.freezes} available',
+              child: MedAiCTA(
+                label: 'Use freeze to protect streak (${widget.freezes})',
+                icon: Icons.ac_unit_rounded,
+                onTap: () {
+                  HapticEngine.success();
+                  widget.onFreeze();
+                  widget.onClose();
+                },
+              ),
+            ),
+            const SizedBox(height: 10),
+          ],
+          MedAiCTA(
+            label: 'Share streak',
+            icon: Icons.ios_share_rounded,
+            secondary: true,
+            onTap: () {
+              HapticEngine.selection();
+              ShareService.shareStreak(streak);
+            },
+          ),
+        ],
       ),
     );
   }

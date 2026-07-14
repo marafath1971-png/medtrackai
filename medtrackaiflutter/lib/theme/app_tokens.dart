@@ -43,14 +43,22 @@ class AppSpacing {
 }
 
 class AppDurations {
+  /// Button press, micro feedback (Emil: 100–160ms).
   static const Duration micro = Duration(milliseconds: 150);
-  static const Duration fast = Duration(milliseconds: 250);
-  static const Duration medium = Duration(milliseconds: 500);
+  /// Dropdowns, cards, tab fades (Emil: 150–250ms).
+  static const Duration fast = Duration(milliseconds: 220);
+  /// Modals, drawers enter (Emil: 200–500ms).
+  static const Duration medium = Duration(milliseconds: 320);
+  /// Modal/sheet exit — snappier than enter (asymmetric timing).
+  static const Duration exit = Duration(milliseconds: 180);
   static const Duration slow = Duration(milliseconds: 1000);
   static const Duration shimmer = Duration(milliseconds: 2000);
   static const Duration bounce = Duration(milliseconds: 800);
-  static const Duration breathe = Duration(milliseconds: 3000); 
-  static const Duration hero = Duration(milliseconds: 400); 
+  static const Duration breathe = Duration(milliseconds: 3000);
+  /// First-time / hero entrances only — not for tabs or daily UI.
+  static const Duration hero = Duration(milliseconds: 350);
+  /// Bottom-tab crossfade — seen often; keep under 200ms.
+  static const Duration tab = Duration(milliseconds: 180);
 }
 
 class AppRadius {
@@ -72,14 +80,22 @@ class AppRadius {
 }
 
 class AppCurves {
-  static const Curve spring = ElasticOutCurve(0.9);
-  static const Curve smooth = Curves.easeInOutCirc;
-  static const Curve liquid = ElasticOutCurve(0.7);
-  static const Curve bouncy = ElasticOutCurve(0.5);
+  /// Emil strong ease-out — default for enter/exit UI (cubic-bezier 0.23, 1, 0.32, 1).
+  static const Curve emilOut = Cubic(0.23, 1.0, 0.32, 1.0);
+  /// Emil ease-in-out for on-screen movement (0.77, 0, 0.175, 1).
+  static const Curve emilInOut = Cubic(0.77, 0.0, 0.175, 1.0);
+  /// iOS drawer / sheet curve (Ionic-style).
+  static const Curve drawer = Cubic(0.32, 0.72, 0.0, 1.0);
   /// Material 3 Expressive emphasized decelerate.
   static const Curve expressive = Cubic(0.05, 0.7, 0.1, 1.0);
   /// iOS HIG standard ease-out for transitions.
   static const Curve iosEaseOut = Cubic(0.25, 0.1, 0.25, 1.0);
+  /// General UI — prefer emilOut over easeInOutCirc.
+  static const Curve smooth = emilOut;
+  /// Rare celebrations / onboarding only — never on tabs or settings rows.
+  static const Curve spring = ElasticOutCurve(0.9);
+  static const Curve liquid = ElasticOutCurve(0.7);
+  static const Curve bouncy = ElasticOutCurve(0.5);
 }
 
 class AppTypography {
@@ -273,16 +289,15 @@ class AppGradients {
         end: Alignment.bottomRight,
       );
 
-  // ── Cal AI Hero Gradient — orange accent ──
+  // ── Hero accent gradients (sage + lime — matches reference home) ──
   static const LinearGradient accentOrange = LinearGradient(
-    colors: [Color(0xFF00E5FF), Color(0xFF80F2FF)],
+    colors: [Color(0xFF4A9E86), Color(0xFF8FD14F)],
     begin: Alignment.topLeft,
     end: Alignment.bottomRight,
   );
 
-  // ── Progress Ring gradient (orange → green for completion feel) ──
   static const LinearGradient ringProgress = LinearGradient(
-    colors: [Color(0xFF00E5FF), Color(0xFF0B132B)],
+    colors: [Color(0xFF8FD14F), Color(0xFF4A9E86)],
     begin: Alignment.topCenter,
     end: Alignment.bottomCenter,
   );
@@ -299,8 +314,8 @@ class AppGradients {
   static LinearGradient get darkCard     => _flat(const Color(0xFF2C2C2E));
   static LinearGradient get actionRed    => _flat(const Color(0xFFFF3B30));
 
-  // All formerly-distinct accents now point to the single orange
-  static LinearGradient get cyanFlash    => accentOrange;
+  // Aliases → sage/lime brand system
+  static LinearGradient get cyanFlash => accentOrange;
   static LinearGradient get purpleDusk   => _flat(const Color(0xFFBF5AF2));
   static LinearGradient get goldLegend   => _flat(const Color(0xFFFF9F0A));
   static LinearGradient get sunrise      => accentOrange;
@@ -317,22 +332,23 @@ class AppGradients {
       );
 }
 
-// ── 2026 motion presets — use app-wide for consistent entrance choreography ──
+// ── Motion presets (Emil Kowalski / Apple HIG — never scale from 0) ──
 extension MotionPresets on Widget {
   Widget entranceHero() => animate()
-      .fadeIn(duration: AppDurations.hero, curve: AppCurves.smooth)
-      .slideY(begin: 0.06, end: 0, duration: AppDurations.hero, curve: AppCurves.smooth);
+      .fadeIn(duration: AppDurations.hero, curve: AppCurves.emilOut)
+      .slideY(begin: 0.04, end: 0, duration: AppDurations.hero, curve: AppCurves.emilOut);
 
-  Widget entranceCard(int index) => animate(delay: (index * 60).ms)
-      .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
-      .slideY(begin: 0.04, end: 0, duration: AppDurations.fast, curve: AppCurves.smooth);
+  /// Stagger delay 50ms — Emil: 30–80ms between items.
+  Widget entranceCard(int index) => animate(delay: (index * 50).ms)
+      .fadeIn(duration: AppDurations.fast, curve: AppCurves.emilOut)
+      .slideY(begin: 0.03, end: 0, duration: AppDurations.fast, curve: AppCurves.emilOut);
 
   Widget entranceCTA() => animate()
-      .fadeIn(duration: AppDurations.micro)
-      .scaleXY(begin: 0.92, end: 1.0, duration: AppDurations.hero, curve: AppCurves.liquid);
+      .fadeIn(duration: AppDurations.micro, curve: AppCurves.emilOut)
+      .scaleXY(begin: 0.95, end: 1.0, duration: AppDurations.fast, curve: AppCurves.emilOut);
 
-  Widget entranceSlideX({double begin = 0.08}) => animate()
-      .fadeIn(duration: AppDurations.fast)
-      .slideX(begin: begin, end: 0, duration: AppDurations.hero, curve: AppCurves.smooth);
+  Widget entranceSlideX({double begin = 0.06}) => animate()
+      .fadeIn(duration: AppDurations.fast, curve: AppCurves.emilOut)
+      .slideX(begin: begin, end: 0, duration: AppDurations.fast, curve: AppCurves.emilOut);
 }
 

@@ -6,6 +6,8 @@ import '../../../app/app_routes.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../services/export_service.dart';
+import '../paywall/premium_paywall_overlay.dart';
 import '../../../widgets/common/animated_ring_hero.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/animated_pressable.dart';
@@ -26,6 +28,16 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
         .animate(delay: delay)
         .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
         .slideY(begin: 0.06, end: 0, curve: AppCurves.smooth);
+  }
+
+  /// Generates the doctor-ready PDF and opens the share sheet. Premium-gated:
+  /// non-premium users get the paywall (report is a top retention/upsell hook).
+  Future<void> _shareDoctorReport(BuildContext context, AppState state) async {
+    HapticEngine.selection();
+    final ok = await ExportService.exportAdherenceReport(state);
+    if (!ok && context.mounted) {
+      PremiumPaywallOverlay.show(context, triggerSource: 'doctor_report');
+    }
   }
 
   @override
@@ -71,6 +83,15 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                           : takenToday / todayDoses.length,
                       streak: streak,
                       remaining: todayDoses.length - takenToday,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  _analyticsEntrance(
+                    _DoctorReportCard(
+                      onTap: () => _shareDoctorReport(context, state),
+                      L: L,
                     ),
                   ),
 
@@ -483,6 +504,67 @@ class _TrendGraphState extends State<_TrendGraph> {
                   );
                 }),
               ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════
+// DOCTOR-READY PDF REPORT CTA (retention/upsell hook)
+// ══════════════════════════════════════════════
+class _DoctorReportCard extends StatelessWidget {
+  final VoidCallback onTap;
+  final AppThemeColors L;
+
+  const _DoctorReportCard({required this.onTap, required this.L});
+
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      button: true,
+      label: 'Share medication report with your doctor',
+      child: AnimatedPressable(
+        onTap: onTap,
+        child: MedAiDepthCard(
+          accentGlow: true,
+          padding: const EdgeInsets.all(18),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: L.accent.withValues(alpha: 0.12),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Icon(Icons.assignment_rounded, color: L.accent, size: 22),
+              ),
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Share with your doctor',
+                      style: AppTypography.titleMedium.copyWith(
+                        color: L.text,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      'Export a clinical PDF of your adherence & meds',
+                      style: AppTypography.bodySmall
+                          .copyWith(color: L.sub, height: 1.3),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.ios_share_rounded, color: L.sub, size: 20),
             ],
           ),
         ),

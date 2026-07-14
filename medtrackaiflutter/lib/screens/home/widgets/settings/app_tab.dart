@@ -9,6 +9,8 @@ import '../../../../theme/med_ai_ui.dart';
 import '../../../../widgets/shared/shared_widgets.dart';
 import 'settings_shared.dart';
 import '../../../../services/share_service.dart';
+import '../../../../services/referral_service.dart';
+import '../../../../services/growth_tracker.dart';
 import '../../../../widgets/common/paywall_sheet.dart';
 import '../../../family/profile_switcher_sheet.dart';
 import '../../../../core/utils/haptic_engine.dart';
@@ -78,6 +80,23 @@ class _AppTabState extends State<AppTab> {
                         final s = context.read<AppState>();
                         if (s.profile != null) {
                           s.saveProfile(s.profile!.copyWith(notifSound: v));
+                          s.refreshNotifications();
+                        }
+                      }),
+                  border: true),
+              SettingsModalRow(
+                  icon: '🔁',
+                  iconBg: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                  label: 'Persistent Alarms',
+                  sub: 'Ring until you respond (for critical meds)',
+                  right: AppToggle(
+                      value: profile?.reminderStyle == 'persistent',
+                      onChanged: (v) {
+                        final s = context.read<AppState>();
+                        if (s.profile != null) {
+                          s.saveProfile(s.profile!
+                              .copyWith(reminderStyle: v ? 'persistent' : 'normal'));
+                          s.refreshNotifications();
                         }
                       }),
                   border: true),
@@ -210,10 +229,20 @@ class _AppTabState extends State<AppTab> {
                 ),
                 const SizedBox(height: 24),
                 MedAiCTA(
-                  label: 'Share with friends',
-                  semanticsLabel: 'Share MedAI with friends',
-                  onTap: () => ShareService.shareText(
-                      'I\'m using MedAI to stay on top of my medications.'),
+                  label: 'Invite friends — give a free month',
+                  semanticsLabel:
+                      'Invite friends to MedAI and give them a free month',
+                  onTap: () async {
+                    HapticEngine.selection();
+                    final code = await ReferralService.myCode();
+                    await ShareService.shareReferral(
+                      code,
+                      userName: profile?.name,
+                      inviteUrl: ReferralService.inviteUrl(code),
+                    );
+                    await ReferralService.incrementSentCount();
+                    await GrowthTracker.trackReferralSent(source: 'settings');
+                  },
                 ),
               ]),
             )),

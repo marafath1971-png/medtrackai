@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MedAI — Home Redesign</title>
+<style>
+  :root { color-scheme: light; }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-font-smoothing:antialiased; }
+  body {
+    font-family: "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+    background:
+      radial-gradient(1200px 600px at 50% -5%, #eef7e4 0%, transparent 60%),
+      #eceef1;
+    min-height:100vh;
+    display:flex; flex-wrap:wrap; gap:40px;
+    align-items:flex-start; justify-content:center;
+    padding:48px 24px 80px;
+    color:#1a1d26;
+  }
+  .phone {
+    width:390px; height:844px;
+    background:#fbfbfc;
+    border-radius:54px;
+    box-shadow:
+      0 2px 4px rgba(0,0,0,.06),
+      0 30px 70px -20px rgba(40,60,30,.35),
+      inset 0 0 0 10px #0d0f14,
+      inset 0 0 0 12px #262a33;
+    position:relative; overflow:hidden;
+  }
+  .screen { position:absolute; inset:12px; border-radius:44px; overflow:hidden; background:#fbfbfc; }
+  .scroll { height:100%; overflow-y:auto; padding-bottom:110px; }
+  .scroll::-webkit-scrollbar{ display:none; }
+  .status {
+    display:flex; justify-content:space-between; align-items:center;
+    padding:16px 26px 6px; font-size:15px; font-weight:600; letter-spacing:.3px;
+  }
+  .status .dots { display:flex; gap:6px; align-items:center; }
+  .status svg { display:block; }
+  .header { display:flex; align-items:center; gap:12px; padding:12px 22px 8px; }
+  .avatar {
+    width:46px; height:46px; border-radius:50%;
+    background:linear-gradient(135deg,#c9efa0,#8fd14f);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; color:#2e3d1b; font-size:18px; flex-shrink:0;
+    box-shadow:0 4px 12px rgba(143,209,79,.35);
+  }
+  .hello { flex:1; line-height:1.15; }
+  .hello .eyebrow { font-size:12px; color:#9aa0a6; font-weight:600; }
+  .hello .name { font-size:21px; font-weight:800; letter-spacing:-.4px; }
+  .hello .live { font-size:11.5px; font-weight:700; color:#7cbb3f; margin-top:2px; }
+  .iconbtn {
+    width:42px; height:42px; border-radius:50%; background:#fff;
+    border:1px solid #eceef1; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 2px 8px rgba(0,0,0,.04); position:relative; flex-shrink:0;
+  }
+  .iconbtn .badge { position:absolute; top:9px; right:9px; width:8px; height:8px; border-radius:50%; background:#ff5b5b; border:2px solid #fff; }
+  .hero {
+    margin:14px 20px 0; border-radius:30px; padding:22px 20px;
+    background:linear-gradient(135deg,#c2ef7d 0%,#a9e65f 100%);
+    display:flex; align-items:center; gap:14px;
+    box-shadow:0 18px 34px -12px rgba(140,200,70,.55);
+    position:relative; overflow:hidden;
+  }
+  .hero::after{ content:""; position:absolute; right:-40px; top:-40px; width:150px; height:150px;
+    background:radial-gradient(circle,rgba(255,255,255,.35),transparent 70%); }
+  .hero .left { flex:1; position:relative; z-index:1; }
+  .hero .tag { display:inline-flex; align-items:center; gap:5px; font-size:10.5px; font-weight:800;
+    letter-spacing:1.2px; color:#3a4d20; opacity:.85; }
+  .hero h2 { font-size:22px; font-weight:800; color:#26330f; letter-spacing:-.5px; margin-top:8px; line-height:1.12; }
+  .hero .streak {
+    display:inline-flex; align-items:center; gap:5px; margin-top:14px;
+    background:rgba(255,255,255,.6); border-radius:999px; padding:5px 11px;
+    font-size:12px; font-weight:700; color:#2e3d1b;
+  }
+  .badge-ring { width:96px; height:96px; position:relative; flex-shrink:0; z-index:1; }
+  .badge-ring .num { position:absolute; inset:0; display:flex; flex-direction:column;
+    align-items:center; justify-content:center; }
+  .badge-ring .num b { font-size:22px; font-weight:800; color:#26330f; line-height:1; }
+  .badge-ring .num span { font-size:9px; font-weight:700; color:#3a4d20; opacity:.6; margin-top:2px; }
+  .bento { display:flex; gap:12px; padding:14px 20px 0; }
+  .tile {
+    flex:1; background:#fff; border:1px solid #eef0f2; border-radius:22px; padding:15px 16px;
+    box-shadow:0 6px 16px -8px rgba(30,40,25,.12);
+  }
+  .tile .top { display:flex; justify-content:space-between; align-items:flex-start; }
+  .tile .lbl { font-size:12.5px; font-weight:600; color:#9aa0a6; max-width:80px; line-height:1.2; }
+  .chip { width:34px; height:34px; border-radius:11px; display:flex; align-items:center; justify-content:center; font-size:16px; }
+  .tile .val { margin-top:12px; font-size:26px; font-weight:800; letter-spacing:-.5px; }
+  .tile .val small { font-size:13px; font-weight:600; color:#9aa0a6; margin-left:2px; }
+  .section-h { display:flex; align-items:center; justify-content:space-between; padding:22px 22px 12px; }
+  .section-h .t { font-size:16px; font-weight:800; letter-spacing:-.3px; }
+  .section-h .a { font-size:15px; font-weight:700; color:#9aa0a6; letter-spacing:2px; }
+  .week { display:flex; gap:8px; padding:0 18px; }
+  .day {
+    flex:1; aspect-ratio:.62; border-radius:16px; background:#fff; border:1px solid #eef0f2;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:5px;
+  }
+  .day .dow { font-size:11px; font-weight:600; color:#b3b8be; }
+  .day .dnum { font-size:15px; font-weight:800; color:#3b3f47; }
+  .day.on { background:linear-gradient(135deg,#b9ea6e,#9ada4b); border-color:transparent;
+    box-shadow:0 8px 16px -6px rgba(150,210,70,.6); }
+  .day.on .dow { color:#3a4d20; }
+  .day.on .dnum { color:#26330f; }
+  .grp-lbl { padding:22px 22px 10px; font-size:11px; font-weight:800; letter-spacing:1.6px; color:#b3b8be; }
+  .dose {
+    display:flex; align-items:center; gap:14px; margin:0 20px 12px; padding:14px;
+    background:#fff; border:1px solid #eef0f2; border-radius:22px;
+    box-shadow:0 6px 16px -10px rgba(30,40,25,.14);
+  }
+  .vial { width:50px; height:50px; border-radius:15px; display:flex; align-items:center; justify-content:center;
+    font-size:22px; flex-shrink:0; }
+  .dose .info { flex:1; }
+  .dose .info .n { font-size:15.5px; font-weight:800; letter-spacing:-.2px; }
+  .dose .info .d { font-size:12.5px; color:#9aa0a6; font-weight:500; margin-top:2px; }
+  .take {
+    width:40px; height:40px; border-radius:50%; border:2px solid #e4e7ea; background:#fff;
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;
+  }
+  .take.done { background:linear-gradient(135deg,#b9ea6e,#8fd14f); border-color:transparent; }
+  .time { font-size:12px; font-weight:700; color:#b3b8be; width:52px; text-align:right; flex-shrink:0; }
+  .nav {
+    position:absolute; left:50%; transform:translateX(-50%); bottom:20px;
+    width:330px; height:66px; background:#fff; border-radius:30px;
+    box-shadow:0 12px 30px -8px rgba(30,40,25,.28), 0 0 0 1px rgba(0,0,0,.03);
+    display:flex; align-items:center; justify-content:space-around; padding:0 10px;
+  }
+  .nav .n { display:flex; flex-direction:column; align-items:center; gap:3px; font-size:10px; font-weight:700; color:#c2c7cd; }
+  .nav .n.on { color:#1a1d26; }
+  .nav .fab {
+    width:56px; height:56px; border-radius:22px; margin-top:-6px;
+    background:linear-gradient(135deg,#b9ea6e,#8fd14f);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 10px 22px -6px rgba(143,209,79,.7);
+  }
+  .home-ind { position:absolute; bottom:9px; left:50%; transform:translateX(-50%);
+    width:130px; height:5px; border-radius:3px; background:#1a1d26; opacity:.85; z-index:5; }
+  .caption { width:100%; text-align:center; color:#8a9099; font-size:13px; margin-top:8px; }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="screen">
+    <div class="scroll">
+      <div class="status">
+        <span>9:41</span>
+        <span class="dots">
+          <svg width="18" height="12" viewBox="0 0 18 12"><rect x="0" y="7" width="3" height="5" rx="1" fill="#1a1d26"/><rect x="5" y="4" width="3" height="8" rx="1" fill="#1a1d26"/><rect x="10" y="2" width="3" height="10" rx="1" fill="#1a1d26"/><rect x="15" y="0" width="3" height="12" rx="1" fill="#1a1d26"/></svg>
+          <svg width="17" height="12" viewBox="0 0 17 12"><path d="M8.5 2.5C5.5 2.5 3 4 1.3 6.2c-.4.5-.3 1.2.2 1.5l7 4.1 7-4.1c.5-.3.6-1 .2-1.5C14 4 11.5 2.5 8.5 2.5z" fill="#1a1d26" opacity=".9"/></svg>
+          <svg width="26" height="13" viewBox="0 0 26 13"><rect x="1" y="1" width="21" height="11" rx="3" fill="none" stroke="#1a1d26" stroke-opacity=".4"/><rect x="3" y="3" width="16" height="7" rx="1.5" fill="#1a1d26"/><rect x="23" y="4" width="2" height="5" rx="1" fill="#1a1d26" opacity=".4"/></svg>
+        </span>
+      </div>
+      <div class="header">
+        <div class="avatar">S</div>
+        <div class="hello">
+          <div class="eyebrow">Good morning,</div>
+          <div class="name">Sajibur</div>
+          <div class="live">2 of 5 doses done</div>
+        </div>
+        <div class="iconbtn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1d26" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>
+        </div>
+        <div class="iconbtn">
+          <span class="badge"></span>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#1a1d26" stroke-width="2" stroke-linecap="round"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"/></svg>
+        </div>
+      </div>
+      <div class="hero">
+        <div class="left">
+          <span class="tag">⚡ DAILY DOSES</span>
+          <h2>Your progress<br>today</h2>
+          <span class="streak">🔥 12 day streak</span>
+        </div>
+        <div class="badge-ring">
+          <svg width="96" height="96" viewBox="0 0 96 96">
+            <circle cx="48" cy="48" r="41" fill="rgba(255,255,255,.9)"/>
+            <circle cx="48" cy="48" r="41" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="7"/>
+            <circle cx="48" cy="48" r="41" fill="none" stroke="#26330f" stroke-width="7"
+              stroke-linecap="round" stroke-dasharray="257.6" stroke-dashoffset="103"
+              transform="rotate(-90 48 48)"/>
+          </svg>
+          <div class="num"><b>2/5</b><span>DOSES</span></div>
+        </div>
+      </div>
+      <div class="bento">
+        <div class="tile">
+          <div class="top"><div class="lbl">Adherence</div><div class="chip" style="background:#e4f5e7">📈</div></div>
+          <div class="val">87<small>%</small></div>
+        </div>
+        <div class="tile">
+          <div class="top"><div class="lbl">Doses left</div><div class="chip" style="background:#d9ecf7">💊</div></div>
+          <div class="val">3<small>doses</small></div>
+        </div>
+      </div>
+      <div class="section-h"><div class="t">August 2025</div><div class="a">‹ ›</div></div>
+      <div class="week">
+        <div class="day"><span class="dow">S</span><span class="dnum">07</span></div>
+        <div class="day"><span class="dow">M</span><span class="dnum">08</span></div>
+        <div class="day"><span class="dow">T</span><span class="dnum">09</span></div>
+        <div class="day on"><span class="dow">W</span><span class="dnum">10</span></div>
+        <div class="day"><span class="dow">T</span><span class="dnum">11</span></div>
+        <div class="day"><span class="dow">F</span><span class="dnum">12</span></div>
+        <div class="day"><span class="dow">S</span><span class="dnum">13</span></div>
+      </div>
+      <div class="grp-lbl">🌅 MORNING</div>
+      <div class="dose">
+        <div class="vial" style="background:#e4f5e7">💊</div>
+        <div class="info"><div class="n">Metformin</div><div class="d">500 mg · 1 tablet</div></div>
+        <div class="time">8:00</div>
+        <div class="take done"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div>
+      </div>
+      <div class="dose">
+        <div class="vial" style="background:#fff3d1">🟠</div>
+        <div class="info"><div class="n">Vitamin D</div><div class="d">1000 IU · 1 capsule</div></div>
+        <div class="time">8:00</div>
+        <div class="take done"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg></div>
+      </div>
+      <div class="grp-lbl">🌙 EVENING</div>
+      <div class="dose">
+        <div class="vial" style="background:#d9ecf7">🔵</div>
+        <div class="info"><div class="n">Lisinopril</div><div class="d">10 mg · 1 tablet</div></div>
+        <div class="time">9:00</div>
+        <div class="take"></div>
+      </div>
+      <div class="dose">
+        <div class="vial" style="background:#fce4e6">🔴</div>
+        <div class="info"><div class="n">Atorvastatin</div><div class="d">20 mg · 1 tablet</div></div>
+        <div class="time">21:00</div>
+        <div class="take"></div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="n on"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-7 9 7v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>Home</div>
+      <div class="n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18M7 14l4-4 3 3 5-6"/></svg>Trends</div>
+      <div class="fab"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#26330f" stroke-width="2.6" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg></div>
+      <div class="n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg>Alarms</div>
+      <div class="n"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.5"/><path d="M2 21a7 7 0 0 1 14 0M17 5a3 3 0 0 1 0 6M22 21a6 6 0 0 0-4-5.6"/></svg>Circle</div>
+    </div>
+    <div class="home-ind"></div>
+  </div>
+</div>
+<div class="caption">MedAI — Home, redesigned in your reference style (white · lime · pastel bento)</div>
+</body>
+</html>

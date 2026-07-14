@@ -266,14 +266,20 @@ class GeminiService {
 
       final prompt = '''
 You are MedAI Pro, an expert clinical AI. The user has provided an input (a search query, barcode text, voice transcript, or image) to understand a product: "$query".
-Analyze the product and return a deeply informative breakdown. 
-If the product is unrecognizable or unsafe, return the best guess or a safe generic response.
+Analyze the product and return a deeply informative breakdown.
+
+HONESTY REQUIREMENT (critical for user safety):
+- Only claim to identify a product you can actually recognize. If the input is blurry, ambiguous, a non-medical object, or you are guessing, set "identified": false and "confidence": "low", and put what you DID observe in "description" (e.g. "This looks like a round white tablet but I can't confirm the specific medication.").
+- Never fabricate a confident medical profile for something you cannot identify. Do NOT invent a plausible-sounding drug from a barcode number or unclear image.
+- Set "confidence" honestly: "high" only when you clearly recognize the exact product; "medium" when likely but not certain; "low" when guessing or the input is poor quality.
 
 $allergyInstruction
 $childSafetyInstruction
 
 Return ONLY valid JSON matching this exact structure:
 {
+  "identified": true,
+  "confidence": "high|medium|low",
   "name": "Product Name",
   "category": "Medicine|Supplement|Vitamin|TCM",
   "description": "What is this? A brief 1-2 sentence overview.",

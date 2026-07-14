@@ -18,6 +18,9 @@ import 'security/lock_screen.dart';
 import '../l10n/app_localizations.dart';
 
 import '../services/analytics_service.dart';
+import '../services/referral_service.dart';
+import '../services/growth_tracker.dart';
+import 'paywall/premium_paywall_overlay.dart';
 import '../widgets/modals/dose_celebration_modal.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/common/medical_disclaimer_modal.dart';
@@ -39,6 +42,7 @@ class _AppShellState extends State<AppShell>
     with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   bool _showReentry = false;
   AppState? _appState;
+  bool _activationPaywallShown = false;
 
   @override
   void initState() {
@@ -49,7 +53,19 @@ class _AppShellState extends State<AppShell>
       if (mounted) MedicalDisclaimerModal.showIfNeeded(context);
       _checkReentry();
       _checkFirstMedActivation();
+      _redeemPendingReferral();
     });
+  }
+
+  /// Redeems an inbound referral once the user has reached the app (past both
+  /// onboarding and auth). Runs on first shell load; [ReferralService] no-ops
+  /// if there's nothing pending or it was already redeemed. The premium reward
+  /// grant is hooked here when entitlements go live.
+  Future<void> _redeemPendingReferral() async {
+    try {
+      final redeemed = await ReferralService.redeemPendingInbound();
+      if (redeemed != null) await GrowthTracker.trackReferralRedeemed();
+    } catch (_) {/* referral redemption is best-effort */}
   }
 
   /// Session-1 activation (blueprint §6 step 48): if onboarding captured how
@@ -108,6 +124,19 @@ class _AppShellState extends State<AppShell>
     // Use cached _appState — never call context.read() here
     final state = _appState!;
 
+    // Value-first funnel: the moment the user has their first *real* med (the
+    // aha), present the deferred onboarding paywall. We require a non-empty
+    // name so a blank placeholder from the manual-add flow doesn't trigger it
+    // mid-edit — the paywall fires only once a genuine med is saved. Runs
+    // before celebrations so the trial ask lands on the activation high.
+    // One-shot, gated on a marker set during onboarding.
+    final hasRealMed = state.meds.any((m) => m.name.trim().isNotEmpty);
+    if (!_activationPaywallShown && hasRealMed && !state.isPremium) {
+      _activationPaywallShown = true; // guard even if the async check bails
+      await _maybeShowActivationPaywall();
+      if (!mounted) return;
+    }
+
     // First Priority: Streak Milestones
     final milestone = state.pendingMilestoneAnimation;
     if (milestone != null) {
@@ -125,6 +154,38 @@ class _AppShellState extends State<AppShell>
       if (!mounted) return;
       DoseCelebrationModal.show(context, medName);
     }
+  }
+
+  /// Shows the personalized onboarding paywall once, immediately after the
+  /// user's first med is added. The marker + goal were persisted in onboarding
+  /// `_complete()` when the deferred-paywall experiment is on.
+  Future<void> _maybeShowActivationPaywall() async {
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      if (prefs.getBool('pending_activation_paywall') != true) return;
+      await prefs.remove('pending_activation_paywall');
+      if (!mounted) return;
+
+      final goal = prefs.getString('onboarding_goal');
+      final headline = switch (goal) {
+        'never_miss' => 'Your plan to never miss a dose is ready.',
+        'family' => "Your family's medication safety plan is ready.",
+        'condition' => 'Your condition-tracking plan is ready.',
+        'understand' => 'Your medication clarity plan is ready.',
+        _ => null,
+      };
+
+      // Let the add-med transition settle before presenting.
+      await Future.delayed(const Duration(milliseconds: 400));
+      if (!mounted) return;
+      AnalyticsService.logEvent('paywall_shown_post_activation');
+      await PremiumPaywallOverlay.show(
+        context,
+        triggerSource: 'post_activation',
+        variant: PaywallVariant.onboarding,
+        personalizedHeadline: headline,
+      );
+    } catch (_) {/* best-effort; feature-gate paywalls remain the safety net */}
   }
 
   @override
@@ -183,7 +244,7 @@ class _AppShellState extends State<AppShell>
         break;
     }
     AnalyticsService.logScreenView(
-      ['Home', 'Analytics', 'Alarms', 'Circles'][index],
+      ['Home', 'Trends', 'Alarms', 'Circles'][index],
     );
   }
 
@@ -273,13 +334,14 @@ class _AppShellState extends State<AppShell>
 
                   // ── Bottom Floating Island (Nav + Integrated FAB) ──
                   AnimatedPositioned(
-                    duration: const Duration(milliseconds: 380),
-                    curve: Curves.easeOutQuart,
+                    duration: AppDurations.fast,
+                    curve: AppCurves.emilOut,
                     left: 20,
                     right: 20,
                     bottom: (16 + bottomPadding),
                     child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 250),
+                      duration: AppDurations.micro,
+                      curve: AppCurves.emilOut,
                       opacity: 1,
                       child: _buildBottomIsland(L, unseenAlerts),
                     ),
@@ -314,7 +376,7 @@ class _AppShellState extends State<AppShell>
   Widget _buildBottomIsland(AppThemeColors L, int unseenAlerts) {
     final s = AppLocalizations.of(context);
     final labels = s == null
-        ? const ['Home', 'Analytics', 'Alarms', 'Circle']
+        ? const ['Home', 'Trends', 'Alarms', 'Circle']
         : [s.homeTab, s.dashboardTab, s.alarmsTab, s.familyTab];
     const iconPaths = [
       MedAiAssets.iconHome,
@@ -388,17 +450,14 @@ class _AppShellState extends State<AppShell>
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: context.isDark
-                        ? [L.text, L.text.withValues(alpha: 0.85)]
-                        : [
-                            L.accent,
-                            L.accent.withValues(alpha: 0.88),
-                          ],
+                    // Cal AI: the primary action (Scan FAB) is near-black, not a
+                    // brand color. Color is reserved for data viz + streak only.
+                    colors: [L.text, L.text.withValues(alpha: 0.85)],
                   ),
                   shape: BoxShape.circle,
                   boxShadow: AppShadows.glow(
-                    context.isDark ? L.accent : L.accent,
-                    intensity: 0.35,
+                    L.text.withValues(alpha: 0.4),
+                    intensity: 0.25,
                   ),
                 ),
                 child: Center(
@@ -442,20 +501,23 @@ class _AppShellState extends State<AppShell>
           behavior: HitTestBehavior.opaque,
           hitTestPadding: const EdgeInsets.symmetric(vertical: 4),
           child: AnimatedContainer(
-            duration: MedAiA11y.motion(context, AppDurations.fast),
-            curve: AppCurves.expressive,
+            duration: MedAiA11y.motion(context, AppDurations.micro),
+            curve: AppCurves.emilOut,
             constraints: const BoxConstraints(minHeight: AppA11y.minTapTarget),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 AnimatedContainer(
-                  duration: MedAiA11y.motion(context, AppDurations.fast),
+                  duration: MedAiA11y.motion(context, AppDurations.micro),
+                  curve: AppCurves.emilOut,
                   padding: selected
                       ? const EdgeInsets.symmetric(horizontal: 10, vertical: 4)
                       : EdgeInsets.zero,
                   decoration: selected
                       ? BoxDecoration(
-                          color: L.accent.withValues(alpha: 0.12),
+                          // Neutral active-tab pill (Cal AI: no brand color on
+                          // nav; active = darker icon + subtle grey pill).
+                          color: L.fill,
                           borderRadius: BorderRadius.circular(14),
                         )
                       : null,

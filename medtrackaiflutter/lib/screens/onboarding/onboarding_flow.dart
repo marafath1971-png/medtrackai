@@ -173,7 +173,19 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         await prefs.setString('pending_first_med_method', firstMedMethod!);
       } catch (_) {/* activation nudge is best-effort */}
     }
-    if (mounted && !skipPaywall && !state.isPremium) {
+    // Value-first funnel: when enabled, defer the paywall until the user has
+    // actually added their first med (the aha). We drop a marker + persist the
+    // goal so the shell can show the same personalized paywall post-activation.
+    // Users who skip the paywall entirely still never see it (skipPaywall).
+    final deferPaywall = RemoteConfigService.getBool('paywall_after_activation');
+    if (deferPaywall && !skipPaywall && !state.isPremium) {
+      try {
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('pending_activation_paywall', true);
+        final goal = _c.single('goal');
+        if (goal != null) await prefs.setString('onboarding_goal', goal);
+      } catch (_) {/* deferred paywall is best-effort; falls back to gates */}
+    } else if (mounted && !skipPaywall && !state.isPremium) {
       await _showPaywall();
     }
     if (mounted) state.auth.phase = AppPhase.auth;

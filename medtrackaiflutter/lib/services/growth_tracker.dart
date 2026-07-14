@@ -200,6 +200,32 @@ class GrowthTracker {
     }
   }
 
+  /// Fires when a user opens the manual add-medicine editor. [source] records
+  /// which entry point drove it (home_empty, scanner_hub, voice_fallback) so we
+  /// can see how much activation the manual path recovers vs. the scan path.
+  static Future<void> trackManualAddStarted({String source = 'unknown'}) async {
+    await trackFeatureUsed('manual_add_medicine');
+    await _analytics.logEvent(
+      name: 'manual_add_started',
+      parameters: {'source': source},
+    );
+  }
+
+  /// Fires when the user sends a referral invite (share sheet opened).
+  static Future<void> trackReferralSent({String source = 'unknown'}) async {
+    await trackFeatureUsed('referral_sent');
+    await _analytics.logEvent(
+      name: 'referral_sent',
+      parameters: {'source': source},
+    );
+  }
+
+  /// Fires when a new user redeems an inbound referral code at signup.
+  static Future<void> trackReferralRedeemed() async {
+    await trackFeatureUsed('referral_redeemed');
+    await _analytics.logEvent(name: 'referral_redeemed');
+  }
+
   static Future<void> trackShare(String event) async {
     // Standard growth tracking for share event
     await trackFeatureUsed('care_circle'); // shares tie to care/social loops

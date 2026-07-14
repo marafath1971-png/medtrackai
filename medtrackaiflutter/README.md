@@ -56,19 +56,30 @@ MedAI follows a **Premium Dark/Light** aesthetic:
    flutter pub get
    ```
 3. **Configure Environment**:
-   Create a `.env` file with your API keys:
+   Create a `.env` file (see `.env.example` for the full key list):
    ```env
    GEMINI_API_KEY=your_key_here
+   PURCHASES_API_KEY=your_revenuecat_key
+   GOOGLE_WEB_CLIENT_ID=...
    ```
-4. **Run the app**:
+4. **Add Firebase config** (gitignored — not in the repo, add your own):
+   - `android/app/google-services.json`
+   - `ios/Runner/GoogleService-Info.plist` (+ `macos/Runner/…` for macOS)
+   - `lib/firebase_options.dart` — generate with `flutterfire configure`
+5. **Cloud Functions** (optional, for caregiver alerts + missed-dose detection):
+   ```bash
+   cd functions && npm install && firebase deploy --only functions
+   ```
+6. **Run the app**:
    ```bash
    flutter run
    ```
+   > Note: `kDevPreview` in `lib/main.dart` bypasses auth/onboarding with a demo
+   > premium profile for screenshots. **Set it to `false` for real builds.**
 
-## 📜 Documentation & Task Audit
-Detailed implementation logs and verification results can be found in the `brain/` directory:
-- [Walkthrough](file:///Users/arafathossain/.gemini/antigravity/brain/8367e94f-fb77-4d8f-b003-6511d09819ce/walkthrough.md)
-- [Task Audit](file:///Users/arafathossain/.gemini/antigravity/brain/8367e94f-fb77-4d8f-b003-6511d09819ce/task.md)
+## 📜 Documentation
+Growth & product docs live in the repo root: `GROWTH_STRATEGY_2026.md`,
+`PRODUCT_PLAYBOOK_2026.md`, `DEEP_UX_AUDIT_GROWTH.md`, `FOCUS_MAP.md`.
 
 ---
 *Built with ❤️ by the MedAI Team.*

@@ -65,7 +65,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
     super.initState();
     _bounceCtrl = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 500),
+      duration: AppDurations.fast,
     );
 
     WidgetsBinding.instance.addPostFrameCallback((_) {

@@ -7,6 +7,7 @@ import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
+import '../../../widgets/common/premium_texture.dart';
 
 /// Reference-style dose card — vial, info, time, take circle.
 class HomeDoseRow extends StatelessWidget {
@@ -50,20 +51,10 @@ class HomeDoseRow extends StatelessWidget {
           HapticEngine.selection();
           onTap();
         },
-        child: Container(
+        child: PremiumTextureCard(
           padding: const EdgeInsets.all(14),
-          decoration: BoxDecoration(
-            color: L.card,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: L.border.withValues(alpha: 0.35)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 14,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
+          radius: 22,
+          texture: PremiumTextureStyle.fineGrain,
           child: Row(
             children: [
               Container(

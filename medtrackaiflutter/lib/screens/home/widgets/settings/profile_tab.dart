@@ -7,6 +7,7 @@ import '../../../../providers/app_state.dart';
 import '../../../../theme/med_ai_ui.dart';
 import '../../../../widgets/common/animated_pressable.dart';
 import '../../../../services/auth_service.dart';
+import '../../../../services/export_service.dart';
 import '../../../../widgets/common/paywall_sheet.dart';
 import 'settings_shared.dart';
 import '../../../../l10n/app_localizations.dart';
@@ -470,7 +471,13 @@ class _ProfileTabState extends State<ProfileTab> {
                   icon: Icons.assignment_rounded,
                   label: 'Clinical PDF Report',
                   sub: 'Generate a summary for your doctor',
-                  onClick: () => widget.state.exportDataPDF(),
+                  onClick: () async {
+                    final ok = await ExportService.exportAdherenceReport(
+                        widget.state);
+                    if (!ok && context.mounted) {
+                      PaywallSheet.show(context);
+                    }
+                  },
                   first: true,
                   border: true,
                 ),

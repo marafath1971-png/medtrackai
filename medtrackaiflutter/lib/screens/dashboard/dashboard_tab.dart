@@ -9,10 +9,10 @@ import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/paywall_sheet.dart';
 import '../../widgets/modals/clinical_report_modal.dart';
 import '../../widgets/modals/daily_log_sheet.dart';
+import '../../widgets/common/premium_texture.dart';
 import 'widgets/dashboard_adherence_hero.dart';
-import 'widgets/dashboard_stat_header.dart';
+import 'widgets/dashboard_purrent_ui.dart';
 import 'widgets/dashboard_widgets.dart';
-import 'widgets/ref_bento_tile.dart';
 
 class DashboardTab extends StatefulWidget {
   final VoidCallback onScan;
@@ -24,6 +24,7 @@ class DashboardTab extends StatefulWidget {
 
 class _DashboardTabState extends State<DashboardTab> {
   final ScrollController _scrollController = ScrollController();
+  final GlobalKey _insightsKey = GlobalKey();
 
   @override
   void initState() {
@@ -54,6 +55,17 @@ class _DashboardTabState extends State<DashboardTab> {
     return count;
   }
 
+  void _scrollToInsights() {
+    final ctx = _insightsKey.currentContext;
+    if (ctx != null) {
+      Scrollable.ensureVisible(
+        ctx,
+        duration: const Duration(milliseconds: 420),
+        curve: Curves.easeOutCubic,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final L = context.L;
@@ -69,30 +81,18 @@ class _DashboardTabState extends State<DashboardTab> {
     final loadingInsight =
         context.select<AppState, bool>((s) => s.loadingInsight);
     final meds = context.select<AppState, List<Medicine>>((s) => s.meds);
+    final history = context.select<AppState, Map<String, List<DoseEntry>>>(
+      (s) => s.history,
+    );
     final healthInsights =
         context.select<AppState, List<HealthInsight>>((s) => s.healthInsights);
     final healthConnected =
         context.select<AppState, bool>((s) => s.healthConnected);
-    final steps = context.select<AppState, double>((s) => s.healthSteps);
-    final hr = context.select<AppState, double>((s) => s.healthHeartRate);
     final dosesWeek = _dosesThisWeek(state);
 
-    const hPad = AppSpacing.screenPadding;
-
     return Scaffold(
-      backgroundColor: L.bg,
-      body: DecoratedBox(
-        decoration: BoxDecoration(
-          color: L.bg,
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: const Alignment(0, 0.3),
-            colors: [
-              AppColors.lime.withValues(alpha: 0.1),
-              L.bg,
-            ],
-          ),
-        ),
+      backgroundColor: Colors.transparent,
+      body: PremiumHomeSurface(
         child: RefreshIndicator(
           onRefresh: () async {
             HapticEngine.selection();
@@ -106,144 +106,125 @@ class _DashboardTabState extends State<DashboardTab> {
             child: CustomScrollView(
               controller: _scrollController,
               physics: const BouncingScrollPhysics(
-                  parent: AlwaysScrollableScrollPhysics()),
+                parent: AlwaysScrollableScrollPhysics(),
+              ),
               slivers: [
                 SliverToBoxAdapter(
-                  child: DashboardStatHeader(
+                  child: DashboardPurrentTopBar(
+                    onMenu: _scrollToInsights,
                     onDailyLog: () {
                       HapticEngine.selection();
                       DailyLogSheet.show(context);
                     },
                   ),
                 ),
-
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(hPad, 8, hPad, 14),
-                  sliver: SliverToBoxAdapter(
+                SliverToBoxAdapter(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(22, 16, 22, 0),
                     child: DashboardAdherenceHero(
                       trendData: trendData,
                       adherence: adherence,
                     ),
                   ),
                 ),
-
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(hPad, 0, hPad, 12),
-                  sliver: SliverToBoxAdapter(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: RefBentoTile(
-                            label: 'Day streak',
-                            value: '$streak',
-                            unit: 'days',
-                            emoji: '🔥',
-                            tint: AppColors.pastelSun,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: RefBentoTile(
-                            label: 'Doses this week',
-                            value: '$dosesWeek',
-                            unit: dosesWeek == 1 ? 'dose' : 'doses',
-                            emoji: '💊',
-                            tint: AppColors.pastelSky,
-                          ),
-                        ),
-                      ],
+                SliverToBoxAdapter(
+                  child: DashboardPurrentMetricGrid(
+                    streak: streak,
+                    dosesWeek: dosesWeek,
+                  ),
+                ),
+                if (!healthConnected)
+                  SliverPadding(
+                    padding: const EdgeInsets.fromLTRB(22, 14, 22, 0),
+                    sliver: SliverToBoxAdapter(
+                      child: _ConnectHealthCard(
+                        onConnect: () async {
+                          HapticEngine.selection();
+                          final ok = await state.connectHealth();
+                          if (ok) state.syncHealthData();
+                        },
+                      ),
                     ),
                   ),
-                ),
-
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(hPad, 0, hPad, 20),
-                  sliver: SliverToBoxAdapter(
-                    child: healthConnected
-                        ? Row(
-                            children: [
-                              Expanded(
-                                child: RefBentoTile(
-                                  label: 'Steps today',
-                                  value: '${steps.toInt()}',
-                                  unit: 'steps',
-                                  emoji: '👟',
-                                  tint: AppColors.pastelMint,
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: RefBentoTile(
-                                  label: 'Heart rate',
-                                  value: '${hr.toInt()}',
-                                  unit: 'bpm',
-                                  emoji: '❤️',
-                                  tint: AppColors.pastelPink,
-                                ),
-                              ),
-                            ],
-                          )
-                        : _ConnectHealthCard(
-                            onConnect: () async {
-                              HapticEngine.selection();
-                              final ok = await state.connectHealth();
-                              if (ok) state.syncHealthData();
-                            },
-                          ),
+                SliverToBoxAdapter(
+                  child: DashboardMedicationDiary(
+                    history: history,
+                    meds: meds,
                   ),
                 ),
-
                 if (meds.isNotEmpty) ...[
-                  SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(hPad, 0, hPad, 8),
-                    sliver: SliverToBoxAdapter(
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(22, 22, 22, 8),
                       child: Text(
                         'Supply status',
-                        style: AppTypography.titleMedium.copyWith(
+                        style: AppTypography.titleLarge.copyWith(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 20,
                           color: L.text,
-                          fontWeight: FontWeight.w700,
-                          fontSize: 16,
+                          letterSpacing: -0.4,
                         ),
                       ),
                     ),
                   ),
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(hPad, 0, hPad, 20),
+                    padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
                     sliver: SliverToBoxAdapter(
-                      child: InventoryStatusCard(meds: meds, L: L),
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: L.card,
+                          borderRadius: BorderRadius.circular(24),
+                          border:
+                              Border.all(color: L.border.withValues(alpha: 0.25)),
+                        ),
+                        child: InventoryStatusCard(
+                          meds: meds,
+                          L: L,
+                          embedded: true,
+                        ),
+                      ),
                     ),
                   ),
                 ],
-
-                SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(hPad, 0, hPad, 8),
-                  sliver: SliverToBoxAdapter(
+                SliverToBoxAdapter(
+                  key: _insightsKey,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(22, 22, 22, 8),
                     child: Text(
                       'AI insights',
-                      style: AppTypography.titleMedium.copyWith(
+                      style: AppTypography.titleLarge.copyWith(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 20,
                         color: L.text,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 16,
+                        letterSpacing: -0.4,
                       ),
                     ),
                   ),
                 ),
-
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(hPad, 0, hPad, 20),
+                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 14),
                   sliver: SliverToBoxAdapter(
-                    child: loadingInsight
-                        ? SmartLoadingInsights(L: L)
-                        : HealthCoachCard(
-                            insights: healthInsights,
-                            L: L,
-                            onRetry: () => state.fetchHealthInsights(),
-                          ),
+                    child: Container(
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: L.card,
+                        borderRadius: BorderRadius.circular(24),
+                        border:
+                            Border.all(color: L.border.withValues(alpha: 0.25)),
+                      ),
+                      child: loadingInsight
+                          ? SmartLoadingInsights(L: L)
+                          : HealthCoachCard(
+                              insights: healthInsights,
+                              L: L,
+                              onRetry: () => state.fetchHealthInsights(),
+                            ),
+                    ),
                   ),
                 ),
-
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(hPad, 0, hPad, 12),
+                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 12),
                   sliver: SliverToBoxAdapter(
                     child: MedAiCTA(
                       label: s.generateClinicalReport,
@@ -255,15 +236,18 @@ class _DashboardTabState extends State<DashboardTab> {
                           return;
                         }
                         ClinicalReportModal.show(
-                            context, state, adherence, streak);
+                          context,
+                          state,
+                          adherence,
+                          streak,
+                        );
                       },
                       semanticsLabel: 'Generate clinical report PDF',
                     ),
                   ),
                 ),
-
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(hPad, 0, hPad, 16),
+                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 16),
                   sliver: SliverToBoxAdapter(
                     child: Center(
                       child: TextButton(
@@ -285,22 +269,24 @@ class _DashboardTabState extends State<DashboardTab> {
                     ),
                   ),
                 ),
-
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(hPad, 0, hPad, 0),
+                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
                   sliver: SliverToBoxAdapter(
                     child: Container(
                       padding: const EdgeInsets.all(16),
                       decoration: BoxDecoration(
                         color: L.card,
-                        borderRadius: BorderRadius.circular(18),
+                        borderRadius: BorderRadius.circular(20),
                         border:
-                            Border.all(color: L.border.withValues(alpha: 0.35)),
+                            Border.all(color: L.border.withValues(alpha: 0.25)),
                       ),
                       child: Row(
                         children: [
-                          Icon(Icons.info_outline_rounded,
-                              color: L.sub, size: 18),
+                          Icon(
+                            Icons.info_outline_rounded,
+                            color: L.sub,
+                            size: 18,
+                          ),
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
@@ -317,7 +303,6 @@ class _DashboardTabState extends State<DashboardTab> {
                     ),
                   ),
                 ),
-
                 const SliverToBoxAdapter(child: SizedBox(height: 120)),
               ],
             ),
@@ -342,8 +327,8 @@ class _ConnectHealthCard extends StatelessWidget {
         padding: const EdgeInsets.all(18),
         decoration: BoxDecoration(
           color: L.card,
-          borderRadius: BorderRadius.circular(22),
-          border: Border.all(color: L.border.withValues(alpha: 0.35)),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(color: L.border.withValues(alpha: 0.25)),
         ),
         child: Row(
           children: [
@@ -355,7 +340,11 @@ class _ConnectHealthCard extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
               ),
               alignment: Alignment.center,
-              child: const Text('🩺', style: TextStyle(fontSize: 20)),
+              child: const Icon(
+                Icons.monitor_heart_outlined,
+                size: 22,
+                color: AppColors.limeInk,
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -380,8 +369,10 @@ class _ConnectHealthCard extends StatelessWidget {
                 ],
               ),
             ),
-            Icon(Icons.chevron_right_rounded,
-                color: L.sub.withValues(alpha: 0.5)),
+            Icon(
+              Icons.chevron_right_rounded,
+              color: L.sub.withValues(alpha: 0.5),
+            ),
           ],
         ),
       ),

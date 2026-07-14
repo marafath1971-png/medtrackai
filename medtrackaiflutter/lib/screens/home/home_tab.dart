@@ -3,7 +3,8 @@ import 'package:provider/provider.dart';
 
 import '../../core/utils/haptic_engine.dart';
 import '../../providers/app_state.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
+import '../../widgets/common/premium_texture.dart';
 import '../dashboard/widgets/lime_progress_hero.dart';
 import '../dashboard/widgets/ref_bento_tile.dart';
 import '../medicine/medicine_detail_screen.dart';
@@ -11,6 +12,7 @@ import 'dose_grouping.dart';
 import 'widgets/emergency_warning_card.dart';
 import 'widgets/home_dose_group.dart';
 import 'widgets/home_header.dart';
+import 'widgets/home_mascot_card.dart';
 import 'widgets/home_schedule_empty.dart';
 import 'widgets/home_week_strip.dart';
 import 'widgets/settings_modal_new.dart';
@@ -35,7 +37,7 @@ class _HomeTabState extends State<HomeTab> {
   DateTime _selectedDate = DateTime.now();
   late final ScrollController _scrollController;
 
-  static const _hPad = AppSpacing.screenPadding;
+  static const _hPad = 22.0;
 
   @override
   void initState() {
@@ -52,8 +54,8 @@ class _HomeTabState extends State<HomeTab> {
   void _scrollToTop() {
     _scrollController.animateTo(
       0,
-      duration: const Duration(milliseconds: 500),
-      curve: Curves.easeOutCubic,
+      duration: AppDurations.medium,
+      curve: AppCurves.emilOut,
     );
     HapticEngine.selection();
   }
@@ -74,6 +76,56 @@ class _HomeTabState extends State<HomeTab> {
     });
   }
 
+  ({String label, String value, String unit}) _nextDoseInfo(
+    List<DoseItem> doses,
+    Map<String, bool> takenMap,
+  ) {
+    if (doses.isEmpty) {
+      return (label: 'Next dose', value: '—', unit: 'Add meds');
+    }
+
+    final now = DateTime.now();
+    final nowM = now.hour * 60 + now.minute;
+    final pending =
+        doses.where((d) => takenMap[d.key] != true).toList()
+          ..sort((a, b) {
+            final am = a.sched.h * 60 + a.sched.m;
+            final bm = b.sched.h * 60 + b.sched.m;
+            return am.compareTo(bm);
+          });
+
+    if (pending.isEmpty) {
+      return (label: 'Next dose', value: 'Done', unit: 'All clear');
+    }
+
+    DoseItem? next;
+    for (final d in pending) {
+      final m = d.sched.h * 60 + d.sched.m;
+      if (m >= nowM) {
+        next = d;
+        break;
+      }
+    }
+    next ??= pending.first;
+
+    var minsUntil = (next.sched.h * 60 + next.sched.m) - nowM;
+    if (minsUntil < 0) minsUntil += 24 * 60;
+
+    final countdown = minsUntil <= 0
+        ? 'Now'
+        : minsUntil < 60
+            ? '${minsUntil}m'
+            : minsUntil % 60 == 0
+                ? '${minsUntil ~/ 60}h'
+                : '${minsUntil ~/ 60}h ${minsUntil % 60}m';
+
+    return (
+      label: 'Next dose',
+      value: countdown,
+      unit: next.med.name,
+    );
+  }
+
   Widget _buildMain(
     BuildContext context,
     AppThemeColors L,
@@ -82,7 +134,6 @@ class _HomeTabState extends State<HomeTab> {
     Map<String, bool> takenMap,
     List<Medicine> meds,
     int takenCount,
-    double adherence,
   ) {
     final severeSymptoms = context
         .select<AppState, List<Symptom>>((s) => s.symptoms)
@@ -94,24 +145,16 @@ class _HomeTabState extends State<HomeTab> {
     final groups = DoseGrouping.group(doses);
     final dosePct = doses.isEmpty ? 0.0 : takenCount / doses.length;
     final dosesLeft = (doses.length - takenCount).clamp(0, doses.length);
-    final adherencePct = (adherence * 100).round();
+    final nextDose = _nextDoseInfo(doses, takenMap);
+    final allDone = doses.isNotEmpty && takenCount >= doses.length;
+    final showMascot = allDone || (doses.isEmpty && meds.isNotEmpty);
 
     return Scaffold(
-      backgroundColor: L.bg,
+      backgroundColor: Colors.transparent,
       body: Stack(
+        fit: StackFit.expand,
         children: [
-          DecoratedBox(
-            decoration: BoxDecoration(
-              color: L.bg,
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: const Alignment(0, 0.35),
-                colors: [
-                  AppColors.lime.withValues(alpha: 0.12),
-                  L.bg,
-                ],
-              ),
-            ),
+          PremiumHomeSurface(
             child: RefreshIndicator(
               onRefresh: () async {
                 HapticEngine.selection();
@@ -133,8 +176,6 @@ class _HomeTabState extends State<HomeTab> {
                       child: HomeHeader(
                         state: context.read<AppState>(),
                         onTap: _scrollToTop,
-                        onOpenStreak: () =>
-                            setState(() => _showStreak = true),
                         onOpenSettings: () =>
                             setState(() => _showSettings = true),
                       ),
@@ -173,14 +214,11 @@ class _HomeTabState extends State<HomeTab> {
                           children: [
                             Expanded(
                               child: RefBentoTile(
-                                label: 'Adherence',
-                                value: '$adherencePct',
-                                unit: '%',
-                                emoji: '📈',
+                                label: nextDose.label,
+                                value: nextDose.value,
+                                unit: nextDose.unit,
+                                emoji: '⏰',
                                 tint: AppColors.pastelMint,
-                                onTap: widget.onSwitchTab != null
-                                    ? () => widget.onSwitchTab!(1)
-                                    : null,
                               ),
                             ),
                             const SizedBox(width: 12),
@@ -242,6 +280,15 @@ class _HomeTabState extends State<HomeTab> {
                         ),
                       ),
 
+                    if (showMascot)
+                      SliverPadding(
+                        padding:
+                            const EdgeInsets.fromLTRB(_hPad, 14, _hPad, 0),
+                        sliver: const SliverToBoxAdapter(
+                          child: HomeMascotCard(),
+                        ),
+                      ),
+
                     const SliverToBoxAdapter(child: SizedBox(height: 120)),
                   ],
                 ),
@@ -282,30 +329,48 @@ class _HomeTabState extends State<HomeTab> {
     final takenMap = context.select<AppState, Map<String, bool>>(
         (s) => s.getTakenMapForDate(_selectedDate));
     final meds = context.select<AppState, List<Medicine>>((s) => s.meds);
-    final adherence =
-        context.select<AppState, double>((s) => s.getAdherenceScore());
 
     final takenCount = doses.where((d) => takenMap[d.key] == true).length;
     final L = context.L;
 
-    final mainContent = _buildMain(context, L, doses, streak, takenMap, meds,
-        takenCount, adherence);
+    final mainContent = _buildMain(
+        context, L, doses, streak, takenMap, meds, takenCount);
 
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 300),
+      duration: AppDurations.fast,
+      reverseDuration: AppDurations.exit,
+      switchInCurve: AppCurves.emilOut,
+      switchOutCurve: AppCurves.emilOut,
       child: _viewingMed != null
           ? MedicineDetailScreen(
               key: ValueKey('med_detail_${_viewingMed!.id}'),
               medId: _viewingMed!.id,
               onBack: () => setState(() => _viewingMed = null),
               initialEditMode: _startInEditMode)
-          : Container(key: const ValueKey('home_main'), child: mainContent),
+          : SizedBox.expand(key: const ValueKey('home_main'), child: mainContent),
     );
   }
 
   Widget _buildOverlay(bool visible, String key, Widget child) {
     return AnimatedSwitcher(
-      duration: const Duration(milliseconds: 280),
+      duration: AppDurations.medium,
+      reverseDuration: AppDurations.exit,
+      switchInCurve: AppCurves.emilOut,
+      switchOutCurve: AppCurves.emilOut,
+      transitionBuilder: (child, animation) {
+        final curved = CurvedAnimation(
+          parent: animation,
+          curve: AppCurves.emilOut,
+        );
+        return FadeTransition(
+          opacity: curved,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.97, end: 1.0).animate(curved),
+            alignment: Alignment.bottomCenter,
+            child: child,
+          ),
+        );
+      },
       child: visible
           ? SizedBox.expand(key: ValueKey(key), child: child)
           : const SizedBox.shrink(),

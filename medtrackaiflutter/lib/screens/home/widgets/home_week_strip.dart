@@ -99,7 +99,7 @@ class HomeWeekStrip extends StatelessWidget {
                       border: Border.all(
                         color: isSelected
                             ? Colors.transparent
-                            : L.border.withValues(alpha: 0.55),
+                            : L.border.withValues(alpha: 0.12),
                       ),
                       boxShadow: isSelected
                           ? [
@@ -110,7 +110,13 @@ class HomeWeekStrip extends StatelessWidget {
                                 offset: const Offset(0, 4),
                               ),
                             ]
-                          : null,
+                          : [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.04),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                     ),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,

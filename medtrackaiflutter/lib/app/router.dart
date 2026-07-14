@@ -46,9 +46,15 @@ final GlobalKey<NavigatorState> shellNavigatorKey = GlobalKey<NavigatorState>();
 CustomTransitionPage<void> _fadeTabPage({required Widget child}) {
   return CustomTransitionPage<void>(
     child: child,
-    transitionDuration: const Duration(milliseconds: 200),
+    transitionDuration: AppDurations.tab,
+    reverseTransitionDuration: AppDurations.exit,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
-      return FadeTransition(opacity: animation, child: child);
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: AppCurves.emilOut,
+        reverseCurve: AppCurves.emilOut,
+      );
+      return FadeTransition(opacity: curved, child: child);
     },
   );
 }
@@ -57,7 +63,7 @@ CustomTransitionPage<void> _springPage({required Widget child}) {
   return CustomTransitionPage<void>(
     child: child,
     transitionDuration: AppDurations.hero,
-    reverseTransitionDuration: AppDurations.fast,
+    reverseTransitionDuration: AppDurations.exit,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       final slide = Tween<Offset>(
         begin: const Offset(0, 0.06),
@@ -75,7 +81,7 @@ CustomTransitionPage<void> _slidePage({required Widget child}) {
   return CustomTransitionPage<void>(
     child: child,
     transitionDuration: AppDurations.hero,
-    reverseTransitionDuration: AppDurations.fast,
+    reverseTransitionDuration: AppDurations.exit,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
       final slide = Tween<Offset>(
         begin: const Offset(0, 0.04),

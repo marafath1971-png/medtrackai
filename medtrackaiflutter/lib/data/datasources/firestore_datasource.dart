@@ -321,7 +321,13 @@ class FirestoreDataSource {
 
   // ── FCM Token ──────────────────────────────────────────────────────
   Future<void> saveFcmToken(String uid, String token) async {
-    await _userDoc(uid).set({'fcmToken': token}, SetOptions(merge: true));
+    // Persist the current UTC offset (minutes) alongside the token so the
+    // server-side missed-dose detector can compute the patient's LOCAL time.
+    // Refreshed on every token save/refresh, so travel + DST stay current.
+    await _userDoc(uid).set({
+      'fcmToken': token,
+      'utcOffsetMinutes': DateTime.now().timeZoneOffset.inMinutes,
+    }, SetOptions(merge: true));
   }
 
   // ── Invites ────────────────────────────────────────────────────────

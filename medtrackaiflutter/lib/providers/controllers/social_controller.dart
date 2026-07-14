@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:math';
 
 import 'package:flutter/foundation.dart';
+import 'package:cloud_functions/cloud_functions.dart';
 import '../../domain/entities/entities.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../../services/auth_service.dart';
@@ -203,8 +204,18 @@ class SocialController extends ChangeNotifier {
 
   Future<void> nudgePatient(String uid) async {
     appLogger.i('[Social] Nudging patient: $uid');
-    await userRepo.nudgePatient(uid);
     HapticEngine.selection();
+    // The `nudgePatient` function verifies the caregiver→patient link, records
+    // the nudge, and sends the FCM push. Falls back to a direct Firestore write
+    // so the nudge is still recorded if the callable is unreachable.
+    try {
+      await FirebaseFunctions.instance
+          .httpsCallable('nudgePatient')
+          .call({'patientUid': uid});
+    } catch (e) {
+      appLogger.e('[Social] nudgePatient function failed, writing directly', error: e);
+      await userRepo.nudgePatient(uid);
+    }
   }
 
   Future<void> fetchProtectorInsight(Caregiver cg, List<Medicine> meds,
@@ -220,14 +231,22 @@ class SocialController extends ChangeNotifier {
 
   Future<void> joinCareTeam(String code) => joinCaregiver(code);
 
-  /// Task Phase 2.4: Caregiver Telemetry Alert
+  /// Task Phase 2.4: Caregiver Telemetry Alert.
+  /// Calls the secure `alertMyCaregivers` function — the server resolves the
+  /// caregiver list from the patient's own record and fans out FCM pushes, so
+  /// the client never targets users directly (no spoofing / arbitrary sends).
   Future<void> notifyCaregiversOfMissedDose(Medicine med) async {
-    appLogger.e('[Social] CRITICAL ALERT: Missed dose of ${med.name}');
     final uid = AuthService.uid;
     if (uid == null) return;
-
-    for (var cg in _caregivers.where((c) => c.status == 'active')) {
-      appLogger.i('[Social] Pushing alert to caregiver: ${cg.name}');
+    // Skip the round-trip when there are no active caregivers to notify.
+    if (!_caregivers.any((c) => c.status == 'active')) return;
+    try {
+      await FirebaseFunctions.instance
+          .httpsCallable('alertMyCaregivers')
+          .call({'medName': med.name});
+      appLogger.i('[Social] Missed-dose alert dispatched for ${med.name}');
+    } catch (e) {
+      appLogger.e('[Social] alertMyCaregivers failed', error: e);
     }
   }
 

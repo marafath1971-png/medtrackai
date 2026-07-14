@@ -1,12 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_theme.dart';
+import '../../../widgets/common/premium_texture.dart';
 
-/// Reference-style 2-up bento tile: pastel-tinted rounded card, a small
-/// label with an emoji chip on the right, then a big value + unit on the
-/// baseline (see reference "Step to walk 5,500 steps" cards).
-///
-/// Pure presentation — parents pass formatted strings + a pastel tint.
+/// Reference-style bento tile with premium grain texture.
 class RefBentoTile extends StatelessWidget {
   final String label;
   final String value;
@@ -34,21 +31,16 @@ class RefBentoTile extends StatelessWidget {
       label: '$label: $value $unit',
       child: GestureDetector(
         onTap: onTap,
-        child: Container(
-          padding: const EdgeInsets.all(16),
-          constraints: const BoxConstraints(minHeight: 104),
-          decoration: BoxDecoration(
-            color: L.card,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(
-              color: L.border.withValues(alpha: 0.5),
-              width: 1,
-            ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+        child: PremiumTextureCard(
+          padding: const EdgeInsets.fromLTRB(16, 15, 16, 14),
+          radius: 22,
+          texture: PremiumTextureStyle.dots,
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(minHeight: 104),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -61,6 +53,7 @@ class RefBentoTile extends StatelessWidget {
                         color: L.sub.withValues(alpha: 0.9),
                         fontWeight: FontWeight.w600,
                         height: 1.2,
+                        fontSize: 12.5,
                       ),
                     ),
                   ),
@@ -71,7 +64,7 @@ class RefBentoTile extends StatelessWidget {
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       color: tint,
-                      borderRadius: BorderRadius.circular(12),
+                      borderRadius: BorderRadius.circular(11),
                     ),
                     child: Icon(
                       mappedIcon,
@@ -95,6 +88,7 @@ class RefBentoTile extends StatelessWidget {
                         color: L.text,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.5,
+                        fontSize: 26,
                       ),
                     ),
                   ),
@@ -107,13 +101,15 @@ class RefBentoTile extends StatelessWidget {
                         style: AppTypography.labelMedium.copyWith(
                           color: L.sub.withValues(alpha: 0.9),
                           fontWeight: FontWeight.w600,
+                          fontSize: 13,
                         ),
                       ),
                     ),
                   ],
                 ],
               ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
@@ -124,8 +120,10 @@ class RefBentoTile extends StatelessWidget {
     return switch (token) {
       '🔥' => Icons.local_fire_department_rounded,
       '💊' => Icons.medication_rounded,
+      '📈' => Icons.show_chart_rounded,
       '👟' => Icons.directions_walk_rounded,
       '❤️' => Icons.favorite_rounded,
+      '⏰' => Icons.schedule_rounded,
       _ => Icons.auto_awesome_rounded,
     };
   }

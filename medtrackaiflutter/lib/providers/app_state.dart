@@ -20,6 +20,7 @@ import '../services/analytics_service.dart';
 import '../services/export_service.dart';
 import '../services/auth_service.dart';
 import '../services/link_service.dart';
+import '../services/referral_service.dart';
 import '../services/purchases_service.dart';
 import '../services/performance_service.dart';
 import '../services/dynamic_icon_service.dart';
@@ -127,6 +128,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         activateVoiceAssistant();
       }
     };
+    // Referral: remember the inbound code until the user finishes signup, then
+    // it's redeemed in completeOnboarding(). Existing users (already in the app)
+    // can't redeem — the reward is for new signups only.
+    _linkService.onReferralDetected = (code) {
+      ReferralService.setPendingInbound(code);
+    };
     _linkService.init();
   }
 
@@ -189,6 +196,11 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       _lifecycleState == AppLifecycleState.inactive;
 
   // ── Lifecycle ──────────────────────────────────────────────────────
+  /// Public re-arm hook for settings that change how reminders fire (sound,
+  /// persistent alarms, etc.). Notification content is only applied at
+  /// schedule time, so toggles must call this to take effect.
+  Future<void> refreshNotifications() => _rescheduleNotifications();
+
   Future<void> _rescheduleNotifications() async {
     if (profile == null || !profile!.notifPerm) return;
 
@@ -198,12 +210,16 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     // 2. Schedule Primary (Me)
     final myMeds = await medRepo.getMedicines(profileId: null);
     final myStreak = getStreak();
-    await NotificationService.scheduleAll(myMeds, currentStreak: myStreak);
+    // "Ring until answered" is opt-in via reminderStyle == 'persistent'.
+    final persistent = profile!.reminderStyle == 'persistent';
+    await NotificationService.scheduleAll(myMeds,
+        currentStreak: myStreak, persistent: persistent);
 
     // 3. Schedule Dependents
     for (var member in profile!.familyMembers) {
       final memberMeds = await medRepo.getMedicines(profileId: member.id);
-      await NotificationService.scheduleAll(memberMeds, profileName: member.name, currentStreak: 0);
+      await NotificationService.scheduleAll(memberMeds,
+          profileName: member.name, currentStreak: 0, persistent: persistent);
     }
     
     // 4. Global Morning Summary (Primary only for now)
@@ -234,6 +250,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         if (AuthService.uid != null) {
           _syncUserProfileFromAuth();
           _initPushNotifications();
+          _reconcilePremium();
 
           // Apply saved app icon on start
           if (profile?.appIcon != null && profile?.appIcon != 'default') {
@@ -421,7 +438,11 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   void clearInteractionWarning() => med.clearInteractionWarning();
 
   // ── Auth & Profile Proxies ─────────────────────────────────────────
-  bool get isPremium => true; // profile?.isPremium ?? false; // Unlocked premium
+  /// Real entitlement state. Backed by the profile flag, which is written on
+  /// purchase/restore and reconciled against RevenueCat at launch
+  /// (see _reconcilePremium). Dev-preview seeds isPremium:true on its demo
+  /// profile, so preview builds still see premium without special-casing here.
+  bool get isPremium => profile?.isPremium ?? false;
   bool get biometricEnabled => profile?.biometricEnabled ?? false;
   bool get isPurchasing => auth.isPurchasing;
 
@@ -734,6 +755,24 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       social.fetchProtectorInsight(cg, m, h);
 
   // ── Purchases ──────────────────────────────────────────────────────
+  /// Reconciles the cached `profile.isPremium` flag against RevenueCat's actual
+  /// entitlement at launch. Handles a lapsed sub (cached true → real false) and
+  /// a cross-device active sub (cached false → real true). Fail-safe: if the
+  /// entitlement check throws (offline, dev preview with no RC), we leave the
+  /// cached value untouched — we never revoke premium on an inconclusive check.
+  Future<void> _reconcilePremium() async {
+    if (profile == null) return;
+    try {
+      final active = await PurchasesService.isPremium();
+      if (active != profile!.isPremium) {
+        await auth.saveProfile(profile!.copyWith(isPremium: active));
+        safeNotifyListeners();
+      }
+    } catch (e) {
+      appLogger.w('[AppState] Premium reconcile skipped', error: e);
+    }
+  }
+
   Future<void> manageSubscription() => auth.manageSubscription();
   Future<void> unlockPremium() => purchasePremium('annual');
 
@@ -1121,6 +1160,21 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         final token = await messaging.getToken();
         if (token != null) await userRepo.saveFcmToken(token);
       }
+      // Keep the stored token fresh so caregiver pushes keep reaching us.
+      messaging.onTokenRefresh.listen((t) {
+        userRepo.saveFcmToken(t).catchError((_) {});
+      });
+      // Surface incoming caregiver alerts/nudges while the app is foregrounded
+      // (Android drops notification payloads in the foreground by default).
+      FirebaseMessaging.onMessage.listen((message) {
+        final n = message.notification;
+        if (n != null) {
+          NotificationService.showRemoteAlert(
+            title: n.title ?? 'MedAI',
+            body: n.body ?? '',
+          );
+        }
+      });
     } catch (e) {
       appLogger.w('FCM Init failed', error: e);
     }

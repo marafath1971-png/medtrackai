@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/med_ai_ui.dart';
+import '../../theme/ios_ui.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_page_header.dart';
 import '../../models/product_analysis.dart';
 import '../../core/utils/haptic_engine.dart';
-import '../../widgets/shared/shared_widgets.dart';
 import '../../services/gemini_service.dart';
 import '../../core/utils/result.dart';
 import 'package:provider/provider.dart';
@@ -125,12 +125,13 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
     });
   }
 
-  Widget _messageEntrance(Widget child) {
+  Widget _messageEntrance(Widget child, bool isUser) {
     if (MedAiA11y.reducedMotion(context)) return child;
+    // Sent messages pop from the composer; received ones ease in — iOS feel.
     return child
         .animate()
         .fadeIn(duration: AppDurations.fast, curve: AppCurves.smooth)
-        .slideY(begin: 0.06, end: 0, curve: AppCurves.smooth);
+        .slideY(begin: isUser ? 0.18 : 0.06, end: 0, curve: AppCurves.smooth);
   }
 
   @override
@@ -149,130 +150,88 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
               Navigator.pop(context);
             },
           ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 2, 20, 8),
-            child: MedAiGlass(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-              radius: AppRadius.l,
-              tint: L.card,
-              child: Row(
-                children: [
-                  Container(
-                    width: 34,
-                    height: 34,
-                    decoration: BoxDecoration(
-                      color: L.accent.withValues(alpha: 0.15),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Icon(Icons.auto_awesome_rounded, color: L.accent, size: 18),
-                  ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      'Smart medication guidance with context from your current regimen.',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: L.sub,
-                        height: 1.35,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
+          _contextBanner(L),
           Expanded(
             child: ListView.builder(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               controller: _scrollController,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
               itemCount: _messages.length + (_isTyping ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == _messages.length && _isTyping) {
                   return _buildTypingIndicator(L);
                 }
                 final msg = _messages[index];
-                return _buildMessageBubble(L, msg);
+                // Tighter grouping when the same sender speaks consecutively.
+                final prevSame = index > 0 &&
+                    _messages[index - 1].isUser == msg.isUser;
+                return Padding(
+                  padding: EdgeInsets.only(top: prevSame ? 3 : 10),
+                  child: _messageEntrance(
+                    Semantics(
+                      label: msg.isUser ? 'You said' : 'AI assistant said',
+                      child: IOSChatBubble(text: msg.text, isUser: msg.isUser),
+                    ),
+                    msg.isUser,
+                  ),
+                );
               },
             ),
           ),
-          _buildInputArea(L),
+          if (_messages.length == 1 && !_isTyping) _suggestionRow(L),
+          IOSComposer(
+            controller: _controller,
+            autofocus: true,
+            hintText: 'Ask about interactions, timing…',
+            onSubmit: _sendMessage,
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildMessageBubble(AppThemeColors L, ChatMessage msg) {
-    final maxW = MediaQuery.of(context).size.width * 0.8;
-    final aiBubble = MedAiGlass(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-      radius: AppRadius.xl,
-      tint: L.card,
-      child: Text(
-        msg.text,
-        style: AppTypography.bodyMedium.copyWith(
-          color: L.text,
-          height: 1.6,
+  Widget _contextBanner(AppThemeColors L) {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(16, 2, 16, 6),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 9),
+        decoration: BoxDecoration(
+          color: L.accent.withValues(alpha: 0.08),
+          borderRadius: BorderRadius.circular(10),
+          border: Border.all(color: L.accent.withValues(alpha: 0.18), width: 0.7),
         ),
-      ),
-    );
-    final userBubble = MedAiDepthCard(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-      radius: AppRadius.xl,
-      color: L.text,
-      child: Text(
-        msg.text,
-        style: AppTypography.bodyMedium.copyWith(
-          color: L.bg,
-          height: 1.6,
-          fontWeight: FontWeight.w500,
-        ),
-      ),
-    );
-
-    return _messageEntrance(
-      Align(
-        alignment: msg.isUser ? Alignment.centerRight : Alignment.centerLeft,
-        child: Semantics(
-          label: msg.isUser ? 'You said' : 'AI assistant said',
-          child: ConstrainedBox(
-            constraints: BoxConstraints(maxWidth: maxW),
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  if (!msg.isUser) ...[
-                    Container(
-                      width: 26,
-                      height: 26,
-                      decoration: BoxDecoration(
-                        color: L.accent.withValues(alpha: 0.14),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(Icons.smart_toy_rounded, color: L.accent, size: 15),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
-                  Flexible(child: msg.isUser ? userBubble : aiBubble),
-                  if (msg.isUser) ...[
-                    const SizedBox(width: 8),
-                    Container(
-                      width: 24,
-                      height: 24,
-                      decoration: BoxDecoration(
-                        color: L.text.withValues(alpha: 0.12),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(Icons.person_rounded, color: L.text, size: 14),
-                    ),
-                  ],
-                ],
+        child: Row(
+          children: [
+            Icon(Icons.auto_awesome_rounded, color: L.accent, size: 15),
+            const SizedBox(width: 8),
+            Expanded(
+              child: Text(
+                'Personalised with context from your current medications.',
+                style: AppTypography.labelSmall.copyWith(
+                  color: L.sub,
+                  height: 1.3,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 12,
+                ),
               ),
             ),
-          ),
+          ],
         ),
+      ),
+    );
+  }
+
+  Widget _suggestionRow(AppThemeColors L) {
+    return SizedBox(
+      height: 40,
+      child: ListView.separated(
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        scrollDirection: Axis.horizontal,
+        physics: const BouncingScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: _suggestions.length,
+        separatorBuilder: (_, __) => const SizedBox(width: 8),
+        itemBuilder: (context, i) => _buildSuggestionChip(L, _suggestions[i]),
       ),
     );
   }
@@ -280,10 +239,18 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
   Widget _buildTypingIndicator(AppThemeColors L) {
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
-    Widget indicator = MedAiGlass(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-      radius: AppRadius.xl,
-      tint: L.card,
+    Widget indicator = Container(
+      decoration: BoxDecoration(
+        color: L.card,
+        borderRadius: const BorderRadius.only(
+          topLeft: Radius.circular(IOSMetrics.bubbleRadius),
+          topRight: Radius.circular(IOSMetrics.bubbleRadius),
+          bottomLeft: Radius.circular(4),
+          bottomRight: Radius.circular(IOSMetrics.bubbleRadius),
+        ),
+        border: Border.all(color: L.border.withValues(alpha: 0.18), width: 0.7),
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -300,13 +267,13 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
       indicator = indicator.animate().fadeIn(duration: AppDurations.fast);
     }
 
-    return Align(
-      alignment: Alignment.centerLeft,
-      child: Semantics(
-        label: 'AI is typing',
-        liveRegion: true,
-        child: Padding(
-          padding: const EdgeInsets.only(bottom: 16),
+    return Padding(
+      padding: const EdgeInsets.only(top: 10),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Semantics(
+          label: 'AI is typing',
+          liveRegion: true,
           child: indicator,
         ),
       ),
@@ -315,8 +282,8 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
 
   Widget _buildDot(AppThemeColors L, int delay, bool reduceMotion) {
     final dot = Container(
-      width: 6,
-      height: 6,
+      width: 7,
+      height: 7,
       decoration: BoxDecoration(color: L.sub, shape: BoxShape.circle),
     );
     if (reduceMotion) return dot;
@@ -330,98 +297,27 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
         );
   }
 
-  Widget _buildInputArea(AppThemeColors L) {
-    return MedAiGlass(
-      radius: 0,
-      padding: EdgeInsets.fromLTRB(
-        16,
-        12,
-        16,
-        MediaQuery.of(context).padding.bottom + 16,
-      ),
-      showBorder: false,
-      tint: L.bg,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (_messages.length == 1)
-            SingleChildScrollView(
-              keyboardDismissBehavior:
-                  ScrollViewKeyboardDismissBehavior.onDrag,
-              scrollDirection: Axis.horizontal,
-              physics: const BouncingScrollPhysics(),
-              padding: const EdgeInsets.only(bottom: 12),
-              child: Row(
-                children:
-                    _suggestions.map((s) => _buildSuggestionChip(L, s)).toList(),
-              ),
-            ),
-          Row(
-            children: [
-              Expanded(
-                child: MedAiDepthCard(
-                  padding: const EdgeInsets.symmetric(horizontal: 18),
-                  radius: 22,
-                  child: TextField(
-                    autofocus: true,
-                    controller: _controller,
-                    style: AppTypography.bodyMedium.copyWith(color: L.text),
-                    decoration: InputDecoration(
-                      hintText: 'Ask about interactions, timing, organs...',
-                      hintStyle: AppTypography.bodyMedium
-                          .copyWith(color: L.sub.withValues(alpha: 0.6)),
-                      border: InputBorder.none,
-                      contentPadding:
-                          const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    onSubmitted: _sendMessage,
-                  ),
-                ),
-              ),
-              const SizedBox(width: 12),
-              Semantics(
-                button: true,
-                label: 'Send message',
-                child: AnimatedPressable(
-                  onTap: () => _sendMessage(_controller.text),
-                  child: Container(
-                    width: MedAiA11y.minTapTarget,
-                    height: MedAiA11y.minTapTarget,
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [L.text, L.text.withValues(alpha: 0.88)],
-                      ),
-                      shape: BoxShape.circle,
-                      boxShadow: AppShadows.glow(L.text, intensity: 0.25),
-                    ),
-                    child: Icon(Icons.arrow_upward_rounded,
-                        color: L.bg, size: 22),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   Widget _buildSuggestionChip(AppThemeColors L, String text) {
     return Semantics(
       button: true,
       label: text,
-      child: MedAiDepthCard(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        radius: AppRadius.max,
+      child: GestureDetector(
         onTap: () => _sendMessage(text),
-        child: Text(
-          text,
-          style: AppTypography.labelSmall.copyWith(
-            color: L.text,
-            fontWeight: FontWeight.w600,
+        child: Container(
+          alignment: Alignment.center,
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          decoration: BoxDecoration(
+            color: L.fill.withValues(alpha: 0.5),
+            borderRadius: BorderRadius.circular(AppRadius.max),
+            border: Border.all(color: L.accent.withValues(alpha: 0.28), width: 0.7),
+          ),
+          child: Text(
+            text,
+            style: AppTypography.labelSmall.copyWith(
+              color: L.text,
+              fontWeight: FontWeight.w600,
+              fontSize: 13,
+            ),
           ),
         ),
       ),

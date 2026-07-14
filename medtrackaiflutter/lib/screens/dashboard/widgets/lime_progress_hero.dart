@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../theme/med_ai_ui.dart';
+import '../../../widgets/common/premium_texture.dart';
 
 /// Today's dose progress hero — single accent (sage), streak optional (header owns it).
 class LimeProgressHero extends StatefulWidget {
@@ -102,23 +103,7 @@ class _LimeProgressHeroState extends State<LimeProgressHero>
           child: Stack(
             clipBehavior: Clip.none,
             children: [
-              Positioned(
-                right: -40,
-                top: -40,
-                child: Container(
-                  width: 150,
-                  height: 150,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    gradient: RadialGradient(
-                      colors: [
-                        Colors.white.withValues(alpha: 0.35),
-                        Colors.transparent,
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              const Positioned.fill(child: PremiumHeroSheen()),
               Row(
                 children: [
                   Expanded(

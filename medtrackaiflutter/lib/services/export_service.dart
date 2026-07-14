@@ -18,17 +18,21 @@ class ExportService {
     final profile = state.profile;
     if (profile == null) return false;
 
+    // Doctor-ready reports are a Premium feature (research: top retention hook).
+    // Returning false lets the call site present the paywall.
+    if (!state.isPremium) return false;
+
     final userName = profile.name;
     final history = state.history;
     final meds = state.activeMeds;
-    
+
     await _generateAndSharePdf(
       userName: userName,
       relation: 'Self',
       meds: meds,
       history: history,
     );
-    
+
     return true;
   }
 
@@ -40,6 +44,7 @@ class ExportService {
   ) async {
     final profile = state.profile;
     if (profile == null) return false;
+    if (!state.isPremium) return false;
 
     await _generateAndSharePdf(
       userName: member.name,

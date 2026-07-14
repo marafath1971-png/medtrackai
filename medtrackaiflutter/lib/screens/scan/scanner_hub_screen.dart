@@ -13,7 +13,9 @@ import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
 import '../../theme/app_theme.dart';
+import '../../theme/ios_ui.dart';
 import '../../core/utils/haptic_engine.dart';
+import '../../core/utils/manual_add_medicine.dart';
 import '../../core/utils/logger.dart';
 import '../../services/gemini_service.dart';
 import '../analysis/product_analysis_screen.dart';
@@ -407,6 +409,24 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
                     focusNode: _searchFocus,
                     onSubmit: _triggerScan,
                   ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.08, end: 0),
+                if (!_isScanning) ...[
+                  const SizedBox(height: 20),
+                  TextButton.icon(
+                    onPressed: () => startManualAddMedicine(
+                      context,
+                      source: 'scanner_search',
+                    ),
+                    icon: const Icon(Icons.edit_note_rounded,
+                        color: Colors.white70, size: 20),
+                    label: const Text(
+                      "Can't find it? Add manually",
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),
@@ -990,7 +1010,6 @@ class _BarcodeStatus extends StatelessWidget {
                         ? 'Analyzing…'
                         : 'Aim at barcode',
                 style: AppTypography.labelSmall.copyWith(
-                  fontFamily: 'Courier',
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
                   fontSize: 14,
@@ -1022,11 +1041,11 @@ class _SearchInput extends StatelessWidget {
       children: [
         Text(
           'Search',
-          style: AppTypography.headlineMedium.copyWith(
-            fontFamily: 'Courier',
+          style: AppTypography.displaySmall.copyWith(
             color: Colors.white,
-            fontWeight: FontWeight.w900,
-            letterSpacing: 0.5,
+            fontWeight: FontWeight.w800,
+            fontSize: 30,
+            letterSpacing: -0.5,
           ),
         ),
         const SizedBox(height: 8),
@@ -1059,7 +1078,6 @@ class _SearchInput extends StatelessWidget {
                       controller: controller,
                       focusNode: focusNode,
                       style: AppTypography.titleMedium.copyWith(
-                        fontFamily: 'Courier',
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
@@ -1068,9 +1086,8 @@ class _SearchInput extends StatelessWidget {
                         border: InputBorder.none,
                         hintText: 'Metformin, Vitamin C...',
                         hintStyle: AppTypography.titleMedium.copyWith(
-                          fontFamily: 'Courier',
                           color: Colors.white.withValues(alpha: 0.3),
-                          fontWeight: FontWeight.w600,
+                          fontWeight: FontWeight.w500,
                         ),
                       ),
                       onSubmitted: (_) => onSubmit(),
@@ -1154,13 +1171,12 @@ class _VoiceVisual extends StatelessWidget {
                 ? 'Speak a medicine name'
                 : text,
             style: AppTypography.headlineSmall.copyWith(
-              fontFamily: 'Courier',
               color: text.isEmpty
                   ? Colors.white.withValues(alpha: 0.5)
                   : Colors.white,
-              fontWeight: text.isEmpty ? FontWeight.w500 : FontWeight.w900,
+              fontWeight: text.isEmpty ? FontWeight.w500 : FontWeight.w700,
               height: 1.3,
-              letterSpacing: 0.0,
+              letterSpacing: -0.2,
             ),
             textAlign: TextAlign.center,
           ),
@@ -1605,152 +1621,88 @@ class _ScannerMenuSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+      borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
         child: Container(
-          padding: const EdgeInsets.fromLTRB(24, 12, 24, 48),
+          padding: EdgeInsets.fromLTRB(
+              0, 0, 0, 24 + MediaQuery.of(context).padding.bottom),
           decoration: BoxDecoration(
-            color: L.bg.withValues(alpha: 0.7),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(40)),
+            color: L.bg.withValues(alpha: 0.86),
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             border: Border(
-              top: BorderSide(color: AppColors.accent.withValues(alpha: 0.3), width: 1.5),
+              top: BorderSide(
+                  color: L.border.withValues(alpha: 0.16),
+                  width: IOSMetrics.hairline),
             ),
-            boxShadow: [
-              BoxShadow(
-                color: AppColors.accent.withValues(alpha: 0.08),
-                blurRadius: 60,
-                spreadRadius: 20,
-              ),
-            ],
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Drag Handle
-              Container(
-                width: 40,
-                height: 5,
-                margin: const EdgeInsets.only(bottom: 24),
-                decoration: BoxDecoration(
-                  color: L.sub.withValues(alpha: 0.2),
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-              
+              const IOSGrabber(),
+              const SizedBox(height: 8),
               Text(
                 'Scanner Options',
                 style: AppTypography.titleLarge.copyWith(
                   color: L.text,
-                  fontWeight: FontWeight.w800,
-                  fontSize: 20,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 18,
+                  letterSpacing: -0.3,
                 ),
               ),
-              const SizedBox(height: 32),
-              
-              _MenuRow(
-                icon: Icons.history_rounded,
-                title: 'Scan History',
-                subtitle: 'View your previously scanned medications',
-                onTap: () {
-                  HapticEngine.selection();
-                  Navigator.pop(context);
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ScanHistoryScreen()));
-                },
-              ),
-              const SizedBox(height: 16),
-              
-              _MenuRow(
-                icon: Icons.auto_awesome_rounded,
-                title: 'AI Accuracy Settings',
-                subtitle: 'Adjust confidence thresholds for recognition',
-                onTap: () {
-                  HapticEngine.selection();
-                  Navigator.pop(context);
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const AiAccuracySettingsScreen()));
-                },
-              ),
-              const SizedBox(height: 16),
-              
-              _MenuRow(
-                icon: Icons.help_outline_rounded,
-                title: 'Help & Tips',
-                subtitle: 'Learn how to scan perfectly every time',
-                onTap: () {
-                  HapticEngine.selection();
-                  Navigator.pop(context);
-                  Navigator.push(context, MaterialPageRoute(builder: (_) => const ScannerHelpScreen()));
-                },
+              const SizedBox(height: 18),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 16),
+                child: IOSInsetGroup(
+                  children: [
+                    IOSGroupedRow(
+                      icon: Icons.history_rounded,
+                      title: 'Scan History',
+                      subtitle: 'View your previously scanned medications',
+                      showChevron: true,
+                      onTap: () {
+                        HapticEngine.selection();
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const ScanHistoryScreen()));
+                      },
+                    ),
+                    IOSGroupedRow(
+                      icon: Icons.auto_awesome_rounded,
+                      title: 'AI Accuracy Settings',
+                      subtitle: 'Adjust confidence thresholds for recognition',
+                      showChevron: true,
+                      onTap: () {
+                        HapticEngine.selection();
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) =>
+                                    const AiAccuracySettingsScreen()));
+                      },
+                    ),
+                    IOSGroupedRow(
+                      icon: Icons.help_outline_rounded,
+                      title: 'Help & Tips',
+                      subtitle: 'Learn how to scan perfectly every time',
+                      showChevron: true,
+                      onTap: () {
+                        HapticEngine.selection();
+                        Navigator.pop(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (_) => const ScannerHelpScreen()));
+                      },
+                    ),
+                  ],
+                ),
               ),
             ],
           ),
-        ),
-      ),
-    );
-  }
-}
-
-class _MenuRow extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final VoidCallback onTap;
-
-  const _MenuRow({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final L = context.L;
-    return AnimatedPressable(
-      onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: L.fill.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: L.border.withValues(alpha: 0.05)),
-        ),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: AppColors.accent.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(icon, color: AppColors.accent, size: 24),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: AppTypography.titleMedium.copyWith(
-                      color: L.text,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: L.sub.withValues(alpha: 0.8),
-                      fontSize: 13,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Icon(Icons.chevron_right_rounded, color: L.sub.withValues(alpha: 0.5)),
-          ],
         ),
       ),
     );

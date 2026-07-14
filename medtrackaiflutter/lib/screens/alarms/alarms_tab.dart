@@ -11,7 +11,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../widgets/common/refined_sheet_wrapper.dart';
 import '../../widgets/shared/shared_widgets.dart';
 import '../../core/utils/haptic_engine.dart';
-import '../../widgets/common/app_scaffold.dart';
+import '../../widgets/common/premium_texture.dart';
 
 // ══════════════════════════════════════════════════════════════════════
 // ALARMS TAB — Premium Reminders & Schedules
@@ -51,13 +51,13 @@ class _AlarmsTabState extends State<AlarmsTab> {
     if (slideX) {
       return child
           .animate(delay: (index * 50).ms)
-          .fadeIn(duration: AppDurations.fast, curve: AppCurves.expressive)
-          .slideX(begin: 0.04, end: 0, curve: AppCurves.expressive);
+          .fadeIn(duration: AppDurations.fast, curve: AppCurves.emilOut)
+          .slideX(begin: 0.03, end: 0, curve: AppCurves.emilOut);
     }
     return child
         .animate(delay: (index * 50).ms)
-        .fadeIn(duration: AppDurations.fast, curve: AppCurves.expressive)
-        .slideY(begin: 0.04, end: 0, curve: AppCurves.expressive);
+        .fadeIn(duration: AppDurations.fast, curve: AppCurves.emilOut)
+        .slideY(begin: 0.03, end: 0, curve: AppCurves.emilOut);
   }
 
   void _showAddAlarmSheet(BuildContext context, Medicine med, {int? idx}) {
@@ -114,19 +114,20 @@ class _AlarmsTabState extends State<AlarmsTab> {
             .firstOrNull ??
         (activeSchedules.isNotEmpty ? activeSchedules.first : null);
 
-    return AppScaffold(
-      showAurora: context.isDark,
+    return Scaffold(
+      backgroundColor: Colors.transparent,
       body: Stack(
+        fit: StackFit.expand,
         children: [
-          // ── MAIN SCROLL CONTENT ──
-          RefreshIndicator(
+          PremiumHomeSurface(
+            child: RefreshIndicator(
             onRefresh: () async {
               HapticEngine.selection();
               await context.read<AppState>().loadFromStorage();
             },
             displacement: 100,
-            color: L.text,
-            backgroundColor: L.bg,
+            color: AppColors.limeDeep,
+            backgroundColor: L.card,
             child: CustomScrollView(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
               controller: _scrollController,
@@ -330,6 +331,7 @@ class _AlarmsTabState extends State<AlarmsTab> {
               ],
             ),
           ),
+          ),
 
           // ── FROSTED HEADER ──
           Positioned(
@@ -416,15 +418,15 @@ class _AlarmsHeader extends StatelessWidget {
               label: 'Add reminder',
               child: AnimatedPressable(
                 onTap: onAdd!,
-                child: Container(
-                  width: 42,
-                  height: 42,
-                  decoration: BoxDecoration(
-                    color: L.card,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: L.border.withValues(alpha: 0.45)),
+                child: PremiumTextureCard(
+                  padding: EdgeInsets.zero,
+                  radius: 999,
+                  texture: PremiumTextureStyle.none,
+                  child: SizedBox(
+                    width: 42,
+                    height: 42,
+                    child: Icon(Icons.add_rounded, size: 22, color: L.text),
                   ),
-                  child: Icon(Icons.add_rounded, size: 22, color: L.text),
                 ),
               ),
             ),
@@ -586,7 +588,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                   children: [
                     const Text('✅', style: TextStyle(fontSize: 48))
                         .animate()
-                        .scale(duration: 400.ms, curve: Curves.easeOutBack),
+                        .scale(duration: AppDurations.fast, curve: AppCurves.emilOut),
                     const SizedBox(height: 12),
                     Text(
                       'Logged successfully',
@@ -721,27 +723,18 @@ class _AlarmCard extends StatelessWidget {
         color: CupertinoColors.destructiveRed,
         child: const Icon(CupertinoIcons.delete, color: Colors.white, size: 28),
       ),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onEdit,
-        child: Container(
-          margin: const EdgeInsets.only(bottom: 10),
-          padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
-          decoration: BoxDecoration(
-            color: L.card,
-            borderRadius: BorderRadius.circular(22),
-            border: Border.all(color: L.border.withValues(alpha: 0.35)),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 10,
-                offset: const Offset(0, 4),
-              ),
-            ],
-          ),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 10),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: onEdit,
+          child: PremiumTextureCard(
+        padding: const EdgeInsets.fromLTRB(16, 14, 16, 14),
+        radius: 22,
+        texture: PremiumTextureStyle.fineGrain,
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -811,6 +804,7 @@ class _AlarmCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
         ),
       ),
     );

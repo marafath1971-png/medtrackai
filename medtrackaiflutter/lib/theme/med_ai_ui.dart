@@ -205,7 +205,11 @@ class MedAiCTA extends StatelessWidget {
 
     final bg = secondary ? L.fill : L.text;
     final fg = secondary ? L.text : L.bg;
-    final glow = secondary ? <BoxShadow>[] : AppShadows.glow(L.accent, intensity: 0.35);
+    // Cal AI: primary button is near-black with a soft neutral shadow — no
+    // brand-color glow (accent is reserved for data viz + streak).
+    final glow = secondary
+        ? <BoxShadow>[]
+        : AppShadows.glow(L.text.withValues(alpha: 0.35), intensity: 0.2);
 
     return Semantics(
       button: true,

@@ -73,7 +73,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
                   const Spacer(),
                   Text(widget.profile.avatar, style: const TextStyle(fontSize: 64))
                       .animate()
-                      .scaleXY(begin: 0.8, duration: 500.ms, curve: AppCurves.liquid),
+                      .scaleXY(begin: 0.95, duration: 500.ms, curve: AppCurves.emilOut),
                   const SizedBox(height: 16),
                   Text(
                     'Unlock ${widget.profile.name}',

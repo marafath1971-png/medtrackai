@@ -153,6 +153,7 @@ class IosSettingsSegmentedBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     assert(labels.length == icons.length);
+    final useScroll = scrollable || labels.length > 4;
 
     final track = Container(
       padding: const EdgeInsets.all(3),
@@ -160,136 +161,136 @@ class IosSettingsSegmentedBar extends StatelessWidget {
         color: L.fill.withValues(alpha: context.isDark ? 0.55 : 0.9),
         borderRadius: BorderRadius.circular(9),
       ),
-      child: _buildSegments(context, L),
+      child: _buildSegments(context, L, expand: !useScroll),
     );
 
-    if (!scrollable && labels.length <= 4) return track;
+    if (!useScroll) return track;
 
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      physics: const BouncingScrollPhysics(),
-      child: ConstrainedBox(
-        constraints: BoxConstraints(
-          minWidth: MediaQuery.sizeOf(context).width - 32,
-        ),
-        child: track,
-      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final minTrackWidth = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : MediaQuery.sizeOf(context).width - 32;
+        return SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minWidth: minTrackWidth),
+            child: track,
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildSegments(BuildContext context, AppThemeColors L) {
+  Widget _buildSegments(
+    BuildContext context,
+    AppThemeColors L, {
+    required bool expand,
+  }) {
     return Row(
       children: List.generate(labels.length, (index) {
-        final selected = index == selectedIndex;
-        return Expanded(
-          child: Semantics(
-            button: true,
-            selected: selected,
-            label: labels[index],
-            child: GestureDetector(
-              onTap: () => onSelected(index),
-              behavior: HitTestBehavior.opaque,
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                curve: Curves.easeInOut,
-                constraints: const BoxConstraints(
-                  minHeight: MedAiA11y.minTapTargetCompact,
-                  minWidth: 68,
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
-                decoration: BoxDecoration(
-                  color: selected
-                      ? (context.isDark ? L.card : Colors.white)
-                      : Colors.transparent,
-                  borderRadius: BorderRadius.circular(7),
-                  boxShadow: selected && !context.isDark
-                      ? [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.08),
-                            blurRadius: 3,
-                            offset: const Offset(0, 1),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(
-                      icons[index],
-                      size: 15,
-                      color:
-                          selected ? L.text : L.sub.withValues(alpha: 0.9),
+        final segment = _buildSegment(context, L, index);
+        if (expand) return Expanded(child: segment);
+        return SizedBox(width: 76, child: segment);
+      }),
+    );
+  }
+
+  Widget _buildSegment(BuildContext context, AppThemeColors L, int index) {
+    final selected = index == selectedIndex;
+    return Semantics(
+      button: true,
+      selected: selected,
+      label: labels[index],
+      child: GestureDetector(
+        onTap: () => onSelected(index),
+        behavior: HitTestBehavior.opaque,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeInOut,
+          constraints: const BoxConstraints(
+            minHeight: MedAiA11y.minTapTargetCompact,
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
+          decoration: BoxDecoration(
+            color: selected
+                ? (context.isDark ? L.card : Colors.white)
+                : Colors.transparent,
+            borderRadius: BorderRadius.circular(7),
+            boxShadow: selected && !context.isDark
+                ? [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.08),
+                      blurRadius: 3,
+                      offset: const Offset(0, 1),
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      labels[index],
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: AppTypography.labelSmall.copyWith(
-                        fontSize: 10,
-                        fontWeight:
-                            selected ? FontWeight.w600 : FontWeight.w500,
-                        color:
-                            selected ? L.text : L.sub.withValues(alpha: 0.9),
-                        letterSpacing: -0.1,
-                      ),
-                    ),
-                  ],
+                  ]
+                : null,
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                icons[index],
+                size: 15,
+                color: selected ? L.text : L.sub.withValues(alpha: 0.9),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                labels[index],
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: AppTypography.labelSmall.copyWith(
+                  fontSize: 10,
+                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
+                  color: selected ? L.text : L.sub.withValues(alpha: 0.9),
+                  letterSpacing: -0.1,
                 ),
               ),
-            ),
+            ],
           ),
-        );
-      }),
+        ),
+      ),
     );
   }
 }
 
 Color iosSettingsIconColor(dynamic icon, Color? iconBg) {
+  // Explicit override always wins (callers that intentionally set a status color).
   if (iconBg != null) {
     return iconBg.withValues(alpha: 1);
   }
 
+  // Cal AI de-noise: settings icons are MONOCHROME by default. Only true
+  // destructive/exit actions keep a status color (red). Everything else uses
+  // one neutral tone so the list reads calm, not rainbow. (Was: a different
+  // bright system color per emoji — the main source of visual noise.)
+  const neutral = IosSettingsTokens.systemGray;
+
   if (icon is IconData) {
     return switch (icon) {
-      Icons.assignment_rounded => IosSettingsTokens.systemRed,
-      Icons.apple_rounded => IosSettingsTokens.systemGray,
-      _ => IosSettingsTokens.systemBlue,
+      Icons.delete_forever_rounded || Icons.logout_rounded =>
+        IosSettingsTokens.systemRed,
+      _ => neutral,
     };
   }
 
   final token = icon is String ? icon : null;
   return switch (token) {
-    '🌐' => IosSettingsTokens.systemBlue,
-    '🎯' => IosSettingsTokens.systemOrange,
-    '🩺' => IosSettingsTokens.systemRed,
-    '🎂' => IosSettingsTokens.systemPink,
-    '🧬' => IosSettingsTokens.systemPurple,
-    '💳' => IosSettingsTokens.systemIndigo,
-    '🔄' => IosSettingsTokens.systemTeal,
-    '🎬' || '🚀' => IosSettingsTokens.systemPurple,
-    '📊' => IosSettingsTokens.systemBlue,
-    '🚪' => IosSettingsTokens.systemGray,
-    '🗑️' => IosSettingsTokens.systemRed,
-    '💬' => IosSettingsTokens.systemGreen,
-    '⭐' => IosSettingsTokens.systemOrange,
-    '🔐' || '🛡️' => IosSettingsTokens.systemGray,
-    '📜' || '📄' => IosSettingsTokens.systemBlue,
-    'ℹ️' => IosSettingsTokens.systemBlue,
-    '🔔' => IosSettingsTokens.systemRed,
-    '⚡' => IosSettingsTokens.systemOrange,
-    '⏰' => IosSettingsTokens.systemIndigo,
-    '👨‍👩‍👧' => IosSettingsTokens.systemGreen,
-    '✨' => IosSettingsTokens.systemPink,
-    '❤️' => IosSettingsTokens.systemRed,
-    '💊' => IosSettingsTokens.systemTeal,
-    '📥' => IosSettingsTokens.systemBlue,
-    '⚖️' => IosSettingsTokens.systemGray,
-    _ => IosSettingsTokens.systemBlue,
+    // Keep red ONLY for destructive/critical signals.
+    '🗑️' || '🚪' => IosSettingsTokens.systemRed,
+    _ => neutral,
   };
 }
+
+// ── Legacy rainbow mapping removed ─────────────────────────────────────
+// The per-emoji bright-color switch (🎯→orange, 🩺→red, 🎂→pink, 🧬→purple…)
+// was the main source of settings visual noise. Replaced by the monochrome
+// default in iosSettingsIconColor above, per CAL_AI_DESIGN_SPEC.md. If you ever
+// want the iOS-style rainbow back, it's in git history before this commit.
+
 
 IconData? iosSettingsResolveIcon(dynamic icon) {
   if (icon is IconData) return icon;

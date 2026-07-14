@@ -72,17 +72,30 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
   int _computeSafetyScore(ProductAnalysis p) {
     int score = 80;
     for (final se in p.sideEffects) {
-      if (se.severity == 'High') score -= 10;
-      else if (se.severity == 'Medium') score -= 4;
-      else score -= 1;
+      if (se.severity == 'High') {
+        score -= 10;
+      } else if (se.severity == 'Medium') {
+        score -= 4;
+      } else {
+        score -= 1;
+      }
     }
     score -= (p.medicineInteractions.length * 3).clamp(0, 20);
-    if (p.allergyRiskLevel == 'High') score -= 20;
-    else if (p.allergyRiskLevel == 'Medium') score -= 10;
+    if (p.allergyRiskLevel == 'High') {
+      score -= 20;
+    } else if (p.allergyRiskLevel == 'Medium') {
+      score -= 10;
+    }
     final ev = p.scientificEvidence.toLowerCase();
-    if (ev.contains('strong') || ev.contains('well-established')) score += 10;
-    if (ev.contains('limited') || ev.contains('insufficient')) score -= 10;
-    if (ev.contains('high-risk') || ev.contains('dangerous')) score -= 20;
+    if (ev.contains('strong') || ev.contains('well-established')) {
+      score += 10;
+    }
+    if (ev.contains('limited') || ev.contains('insufficient')) {
+      score -= 10;
+    }
+    if (ev.contains('high-risk') || ev.contains('dangerous')) {
+      score -= 20;
+    }
     return score.clamp(10, 98);
   }
 
@@ -135,6 +148,22 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
                       product: widget.product,
                       safetyColor: _safetyColor,
                       imageFile: widget.imageFile)),
+
+              // Honesty banner: when the AI wasn't confident, warn before the
+              // user trusts the details, and offer a way to re-scan / search.
+              if (!widget.product.identified ||
+                  widget.product.confidence.toLowerCase() == 'low')
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(20, 4, 20, 12),
+                  sliver: SliverToBoxAdapter(
+                    child: _analysisEntrance(
+                      _LowConfidenceBanner(
+                        identified: widget.product.identified,
+                        onRetry: () => Navigator.pop(context),
+                      ),
+                    ),
+                  ),
+                ),
 
               if (widget.product.allergyAlerts.isNotEmpty)
                 SliverPadding(
@@ -261,6 +290,11 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen>
                     delay: 600.ms,
                   ),
                 ),
+              ),
+
+              const SliverPadding(
+                padding: EdgeInsets.fromLTRB(20, 20, 20, 0),
+                sliver: SliverToBoxAdapter(child: _ScanDisclaimer()),
               ),
 
               SliverToBoxAdapter(child: SizedBox(height: botPad + 140)),
@@ -500,8 +534,10 @@ class _HeroHeader extends StatelessWidget {
                 style: AppTypography.bodySmall.copyWith(color: L.sub),
               ),
               const SizedBox(width: 16),
+              Icon(Icons.auto_awesome_rounded, size: 12, color: L.sub),
+              const SizedBox(width: 5),
               Text(
-                'AI verified',
+                _confidenceLabel(product),
                 style: AppTypography.bodySmall.copyWith(
                   color: L.sub,
                   fontWeight: FontWeight.w600,
@@ -516,6 +552,20 @@ class _HeroHeader extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Honest identification label — never claims "verified". Reflects the AI's
+  /// self-reported confidence so an uncertain result reads as an estimate.
+  String _confidenceLabel(ProductAnalysis p) {
+    if (!p.identified) return 'Not confirmed';
+    switch (p.confidence.toLowerCase()) {
+      case 'high':
+        return 'AI estimate · high confidence';
+      case 'medium':
+        return 'AI estimate · medium confidence';
+      default:
+        return 'AI estimate · low confidence';
+    }
   }
 
   String _safetyLabel(Color c) {
@@ -537,17 +587,30 @@ class _SafetyScoreCard extends StatelessWidget {
   int _score(ProductAnalysis p) {
     int s = 80;
     for (final se in p.sideEffects) {
-      if (se.severity == 'High') s -= 10;
-      else if (se.severity == 'Medium') s -= 4;
-      else s -= 1;
+      if (se.severity == 'High') {
+        s -= 10;
+      } else if (se.severity == 'Medium') {
+        s -= 4;
+      } else {
+        s -= 1;
+      }
     }
     s -= (p.medicineInteractions.length * 3).clamp(0, 20);
-    if (p.allergyRiskLevel == 'High') s -= 20;
-    else if (p.allergyRiskLevel == 'Medium') s -= 10;
+    if (p.allergyRiskLevel == 'High') {
+      s -= 20;
+    } else if (p.allergyRiskLevel == 'Medium') {
+      s -= 10;
+    }
     final ev = p.scientificEvidence.toLowerCase();
-    if (ev.contains('strong') || ev.contains('well-established')) s += 10;
-    if (ev.contains('limited') || ev.contains('insufficient')) s -= 10;
-    if (ev.contains('high-risk') || ev.contains('dangerous')) s -= 20;
+    if (ev.contains('strong') || ev.contains('well-established')) {
+      s += 10;
+    }
+    if (ev.contains('limited') || ev.contains('insufficient')) {
+      s -= 10;
+    }
+    if (ev.contains('high-risk') || ev.contains('dangerous')) {
+      s -= 20;
+    }
     return s.clamp(10, 98);
   }
 
@@ -1872,6 +1935,120 @@ class _AllergyRiskCard extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════
+// LOW-CONFIDENCE / NOT-IDENTIFIED HONESTY BANNER
+// ══════════════════════════════════════════════
+class _LowConfidenceBanner extends StatelessWidget {
+  final bool identified;
+  final VoidCallback onRetry;
+
+  const _LowConfidenceBanner({required this.identified, required this.onRetry});
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    final title = identified
+        ? "We're not fully sure about this one"
+        : "We couldn't confidently identify this";
+    final body = identified
+        ? 'The details below are a low-confidence estimate. Double-check the name against the packaging before relying on them.'
+        : 'This may be a guess. Retake a clearer photo, or search by the medicine name for a reliable result.';
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: AppColors.amber.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.amber.withValues(alpha: 0.4)),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Icon(Icons.info_outline_rounded,
+              color: AppColors.amber, size: 22),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: L.text,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  body,
+                  style: AppTypography.bodySmall
+                      .copyWith(color: L.sub, height: 1.4),
+                ),
+                const SizedBox(height: 10),
+                GestureDetector(
+                  onTap: () {
+                    HapticEngine.selection();
+                    onRetry();
+                  },
+                  child: Semantics(
+                    button: true,
+                    label: 'Retake or search again',
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(Icons.refresh_rounded,
+                            size: 16, color: AppColors.amber),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Retake or search again',
+                          style: AppTypography.labelMedium.copyWith(
+                            color: AppColors.amber,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════
+// PERSISTENT MEDICAL DISCLAIMER (always shown)
+// ══════════════════════════════════════════════
+class _ScanDisclaimer extends StatelessWidget {
+  const _ScanDisclaimer();
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(Icons.health_and_safety_outlined, size: 16, color: L.sub),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            'AI-generated information — it can be incomplete or wrong. '
+            'Always verify with the packaging, your pharmacist, or your doctor '
+            'before taking or changing any medication.',
+            style: AppTypography.labelSmall.copyWith(
+              color: L.sub,
+              height: 1.4,
+              fontSize: 11,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

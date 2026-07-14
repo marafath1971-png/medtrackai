@@ -45,3 +45,33 @@ app.*.map.json
 /android/app/release
 
 .env
+
+# ── Secrets & platform config (DO NOT COMMIT) ──────────────────
+.env.*
+!.env.example
+# Firebase / Google service config (contain project keys/identifiers)
+**/google-services.json
+**/GoogleService-Info.plist
+lib/firebase_options.dart
+.firebase/
+# Android signing
+**/key.properties
+**/*.keystore
+**/*.jks
+# RevenueCat / misc local secrets
+**/secrets.dart
+
+# Node (Cloud Functions deps — reinstalled via npm install)
+functions/node_modules/
+node_modules/
+
+# Local logs / scratch
+run_verbose_log.txt
+*.log
+build_output.txt
+analyze*.txt
+crash.txt
+
+images/
+*.jpg # optional: keep raw art out of the repo
+.tmp_check/ # mascot-extraction scratch (contact sheets, grid renders)
