@@ -100,6 +100,18 @@ class MedAiAssets {
         return mascotCaregiverElder;
       case 'family_empty':
         return mascotFamilyCry;
+      case 'safety':
+      case 'privacy':
+      case 'guard':
+        return mascotShieldGuard;
+      case 'together':
+      case 'community':
+      case 'not_alone':
+        return mascotHugHeart;
+      case 'plan':
+      case 'goal':
+      case 'determined':
+        return mascotDeterminedPill;
       case 'reminder':
       case 'alarm':
         return mascotAlarmPanic;

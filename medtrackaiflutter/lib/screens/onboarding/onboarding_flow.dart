@@ -700,7 +700,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 11:
         return _info(
-          hero: const ObShieldHero(),
+          hero: const ObMascot(feature: 'safety', size: 100),
           title: _obt('ob_thanksForSharing'),
           subtitle:
               _obt('ob_yourHealthDataIsEncryptedAndNeve'),
@@ -719,7 +719,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 13:
         return _info(
-          hero: const ObHeroIllustration(scene: ObHeroScene.thriving, height: 200),
+          hero: const ObMascot(feature: 'home', size: 108),
           title: "You're in the *right place*",
           extra: const [
             ObSocialProofBanner(
@@ -814,7 +814,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 20:
         return _info(
-          hero: const ObMascotHero(size: 120),
+          hero: const ObMascot(feature: 'not_alone', size: 108),
           title: "You're *not alone*",
           subtitle:
               "7 in 10 people miss doses. It's not about willpower — it's about systems.",
@@ -985,7 +985,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       // ░░ PHASE E — MOTIVATION & PROJECTION (39–46) ░░
       case 39:
         return _info(
-          hero: const ObMascotHero(size: 120),
+          hero: const ObMascot(feature: 'plan', size: 104),
           title: "Let's understand what *drives* you",
           subtitle: _obt('ob_aFewQuickQuestionsToLockInYourMo'),
         );
@@ -1147,7 +1147,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
 
       default:
         return _info(
-          hero: const ObMascotHero(),
+          hero: const ObMascot(feature: 'welcome', size: 104),
           title: _obt('ob_welcomeToMedAi'),
           onCta: () => _complete(skipPaywall: true),
         );
@@ -1259,7 +1259,7 @@ class _WelcomeScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     const Spacer(),
-                    const ObMascotHero(size: 160),
+                    const ObMascot(feature: 'success', size: 132),
                     const SizedBox(height: 28),
                     ObHeadline(
                       name == null

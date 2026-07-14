@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../../core/constants/med_ai_assets.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
@@ -376,6 +377,72 @@ class ObHeadline extends StatelessWidget {
         ],
       ],
     );
+  }
+}
+
+// ════════════════════════════════════════════════════════════════════════
+// OB MASCOT — feature-matched ghost sticker on a soft halo (onboarding hero)
+// ════════════════════════════════════════════════════════════════════════
+/// Drops a ghost mascot (from [MedAiAssets.mascotFor]) into a step as the
+/// emotional anchor. Ask by intent — `feature: 'welcome' | 'caregiver' |
+/// 'streak' | 'success' | 'calm' | 'family'…` — so the same character logic is
+/// shared with the rest of the app. One-shot fade + gentle float entrance
+/// (never loops — a step hero shouldn't bounce), fully skipped under
+/// reduced-motion. Degrades to a soft tinted disc if the PNG isn't bundled.
+class ObMascot extends StatelessWidget {
+  final String feature;
+  final double size;
+  const ObMascot({super.key, required this.feature, this.size = 96});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = ObPalette.of(context);
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+    final asset = MedAiAssets.mascotFor(feature);
+
+    final halo = Container(
+      width: size + 44,
+      height: size + 44,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        gradient: RadialGradient(
+          colors: [
+            p.accent.withValues(alpha: 0.12),
+            p.accent.withValues(alpha: 0.0),
+          ],
+        ),
+      ),
+      child: Image.asset(
+        asset,
+        width: size,
+        height: size,
+        fit: BoxFit.contain,
+        filterQuality: FilterQuality.high,
+        errorBuilder: (_, __, ___) => Container(
+          width: size * 0.7,
+          height: size * 0.7,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: p.surfaceSel,
+            border: Border.all(color: p.borderSel.withValues(alpha: 0.4)),
+          ),
+        ),
+      ),
+    );
+
+    final hero = Center(child: halo);
+    if (reduceMotion) return hero;
+    return hero
+        .animate()
+        .fadeIn(duration: 450.ms, curve: Curves.easeOut)
+        .scale(
+          begin: const Offset(0.82, 0.82),
+          end: const Offset(1, 1),
+          duration: 550.ms,
+          curve: Curves.easeOutBack,
+        )
+        .slideY(begin: 0.06, end: 0, duration: 500.ms, curve: Curves.easeOut);
   }
 }
 
