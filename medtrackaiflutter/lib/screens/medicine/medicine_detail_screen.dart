@@ -1101,6 +1101,15 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
   }
 
   void _save(Medicine med, AppState state) {
+    // Build refill info even when the medicine had none yet — otherwise
+    // `med.refillInfo?.copyWith(...)` short-circuits to null and pharmacy edits
+    // are silently dropped (the "edit not working" bug for new meds).
+    final refillInfo = (med.refillInfo ?? RefillInfo()).copyWith(
+      pharmacyName: _editFields['pharmacyName'],
+      pharmacyPhone: _editFields['pharmacyPhone'],
+      rxNumber: _editFields['rxNumber'],
+    );
+    final priceText = (_editFields['price'] as String?)?.trim() ?? '';
     final updated = med.copyWith(
       name: _editFields['name'],
       brand: _editFields['brand'],
@@ -1112,11 +1121,9 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       count: int.tryParse(_editFields['count']) ?? med.count,
       totalCount: int.tryParse(_editFields['totalCount']) ?? med.totalCount,
       refillAt: int.tryParse(_editFields['refillAt']) ?? med.refillAt,
-      refillInfo: med.refillInfo?.copyWith(
-          pharmacyName: _editFields['pharmacyName'],
-          pharmacyPhone: _editFields['pharmacyPhone'],
-          rxNumber: _editFields['rxNumber']),
-      price: double.tryParse(_editFields['price']),
+      refillInfo: refillInfo,
+      // Empty price field keeps the existing value; a valid number updates it.
+      price: priceText.isEmpty ? med.price : double.tryParse(priceText),
       currency: _editFields['currency'],
       color: _editFields['color'],
     );

@@ -35,8 +35,9 @@ import 'services/remote_config_service.dart';
 
 /// DEV PREVIEW ONLY — when true, seeds demo data and jumps straight into the
 /// app (bypassing onboarding/auth) so redesigned screens can be reviewed.
-/// MUST be false for release.
-const bool kDevPreview = true;
+/// MUST be false for release. Keep false so onboarding/auth actually run —
+/// flip to true only to preview a specific in-app screen via [kDevRoute].
+const bool kDevPreview = false;
 
 /// DEV PREVIEW ONLY — initial route to land on after the dev jump. Change this
 /// to screenshot a specific screen. Ignored when [kDevPreview] is false.

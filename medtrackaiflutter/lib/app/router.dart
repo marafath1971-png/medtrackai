@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:medai/main.dart' show kDevPreview, kDevRoute;
@@ -318,6 +319,10 @@ List<RouteBase> _rootOverlayRoutes() => [
   GoRoute(
     path: AppRoutes.adminGrowth,
     parentNavigatorKey: rootNavigatorKey,
+    // Internal growth dashboard — must never reach real users. Hard-gated to
+    // debug/profile builds: release always redirects home regardless of any
+    // dev flag, so it can't ship even if kDevPreview is accidentally left on.
+    redirect: (context, state) => kReleaseMode ? AppRoutes.home : null,
     pageBuilder: (context, state) =>
         _slidePage(child: const GrowthDashboardScreen()),
   ),
