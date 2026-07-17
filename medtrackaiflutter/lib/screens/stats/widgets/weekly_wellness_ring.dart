@@ -58,29 +58,37 @@ class WeeklyWellnessRing extends StatelessWidget {
                 .rotate(duration: 800.ms, curve: Curves.easeOutCubic),
           ),
 
-          // Center Text — theme-aware
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                '${(adherence * 100).round()}%',
-                style: AppTypography.displayMedium.copyWith(
-                  fontWeight: FontWeight.w900,
-                  color: L.text,
-                  letterSpacing: -2,
+          _maybeAnimate(
+            reduceMotion,
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  '${(adherence * 100).round()}%',
+                  style: AppTypography.displayMedium.copyWith(
+                    fontWeight: FontWeight.w900,
+                    color: L.text,
+                    letterSpacing: -2,
+                  ),
                 ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                'ADHERENCE',
-                style: AppTypography.labelSmall.copyWith(
-                  fontWeight: FontWeight.w800,
-                  color: L.sub,
-                  letterSpacing: 2.0,
+                const SizedBox(height: 4),
+                Text(
+                  'ADHERENCE',
+                  style: AppTypography.labelSmall.copyWith(
+                    fontWeight: FontWeight.w800,
+                    color: L.sub,
+                    letterSpacing: 2.0,
+                  ),
                 ),
-              ),
-            ],
-          ).animate(key: const ValueKey('weekly_wellness_scale_anim')).scale(delay: 400.ms, duration: 600.ms, curve: Curves.easeOutBack),
+              ],
+            ),
+            (w) => w
+                .animate(key: const ValueKey('weekly_wellness_scale_anim'))
+                .scale(
+                    delay: 400.ms,
+                    duration: 600.ms,
+                    curve: Curves.easeOutBack),
+          ),
         ],
       ),
     );

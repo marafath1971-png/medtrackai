@@ -40,7 +40,7 @@ class InteractionWarningSheet extends StatelessWidget {
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         boxShadow: AppShadows.premium,
       ),
-      padding: const EdgeInsets.only(top: 12, left: 24, right: 24, bottom: 48),
+      padding: const EdgeInsetsDirectional.fromSTEB(24, 12, 24, 48),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -56,20 +56,20 @@ class InteractionWarningSheet extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 32),
+          const SizedBox(height: AppSpacing.p32),
           
           // Icon and Title
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(AppSpacing.p12),
                 decoration: BoxDecoration(
                   color: warningColor.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.warning_amber_rounded, color: warningColor, size: 28),
               ).animate().scale(delay: 100.ms, duration: 400.ms, curve: Curves.easeOutBack),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppSpacing.p16),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -82,7 +82,7 @@ class InteractionWarningSheet extends StatelessWidget {
                         letterSpacing: -0.4,
                       ),
                     ).animate().fade(delay: 200.ms).slideX(begin: 0.1, end: 0),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.p4),
                     Text(
                       "$medicineName + $interactionName",
                       style: AppTypography.titleMedium.copyWith(
@@ -96,17 +96,17 @@ class InteractionWarningSheet extends StatelessWidget {
             ],
           ),
           
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.p24),
           
           // Details
           MedAiDepthCard(
             color: warningColor.withValues(alpha: 0.05),
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(AppSpacing.p20),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(Icons.info_outline, color: warningColor, size: 20),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.p12),
                 Expanded(
                   child: Text(
                     interactionDetails,
@@ -120,7 +120,7 @@ class InteractionWarningSheet extends StatelessWidget {
             ),
           ).animate().fade(delay: 400.ms).slideY(begin: 0.1, end: 0),
 
-          const SizedBox(height: 32),
+          const SizedBox(height: AppSpacing.p32),
 
           // Actions
           Row(
@@ -132,7 +132,7 @@ class InteractionWarningSheet extends StatelessWidget {
                   onTap: () => Navigator.of(context).pop(),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.p12),
               Expanded(
                 child: MedAiCTA(
                   label: "Adjust Time",

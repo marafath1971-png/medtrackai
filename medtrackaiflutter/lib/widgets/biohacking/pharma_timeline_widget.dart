@@ -313,9 +313,12 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                       tooltip: 'Record Mode',
                     ),
                     IconButton(
-                      icon: Icon(_isPlaying ? Icons.pause_rounded : Icons.play_arrow_rounded),
+                      icon: Icon(_isPlaying
+                          ? Icons.pause_rounded
+                          : Icons.play_arrow_rounded),
                       color: L.sub,
                       onPressed: _togglePlayback,
+                      tooltip: _isPlaying ? 'Pause' : 'Play',
                     ),
                   ],
                 ),
@@ -350,6 +353,7 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                     painter: SilhouettePainter(
                       organGlows: organGlows,
                       activeOrgans: activeOrgans,
+                      kidneyGlow: L.success,
                     ),
                   ),
                 ),
@@ -456,9 +460,15 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                         'General Information Tag',
                         style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold),
                       ),
-                      GestureDetector(
-                        onTap: () => setState(() => _selectedOrganTooltip = null),
-                        child: Icon(Icons.close_rounded, size: 14, color: L.sub),
+                      Semantics(
+                        button: true,
+                        label: 'Dismiss organ info',
+                        child: GestureDetector(
+                          onTap: () =>
+                              setState(() => _selectedOrganTooltip = null),
+                          child: Icon(Icons.close_rounded,
+                              size: 14, color: L.sub),
+                        ),
                       ),
                     ],
                   ),
@@ -502,8 +512,13 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
 class SilhouettePainter extends CustomPainter {
   final Map<String, double> organGlows;
   final Set<String> activeOrgans;
+  final Color kidneyGlow;
 
-  SilhouettePainter({required this.organGlows, required this.activeOrgans});
+  SilhouettePainter({
+    required this.organGlows,
+    required this.activeOrgans,
+    required this.kidneyGlow,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -584,8 +599,8 @@ class SilhouettePainter extends CustomPainter {
       drawGlow(Offset(center.dx - 8, center.dy - 3), 5, const Color(0xFFFF9500), organGlows['liver'] ?? 0);
     }
     if (activeOrgans.contains('kidneys')) {
-      drawGlow(Offset(center.dx - 8, center.dy + 12), 4, const Color(0xFF34C759), organGlows['kidneys'] ?? 0);
-      drawGlow(Offset(center.dx + 8, center.dy + 12), 4, const Color(0xFF34C759), organGlows['kidneys'] ?? 0);
+      drawGlow(Offset(center.dx - 8, center.dy + 12), 4, kidneyGlow, organGlows['kidneys'] ?? 0);
+      drawGlow(Offset(center.dx + 8, center.dy + 12), 4, kidneyGlow, organGlows['kidneys'] ?? 0);
     }
     if (activeOrgans.contains('bloodstream')) {
       final outlineGlow = Paint()

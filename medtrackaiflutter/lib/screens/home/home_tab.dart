@@ -37,7 +37,7 @@ class _HomeTabState extends State<HomeTab> {
   DateTime _selectedDate = DateTime.now();
   late final ScrollController _scrollController;
 
-  static const _hPad = 22.0;
+  static const _hPad = AppSpacing.gutter;
 
   @override
   void initState() {
@@ -79,12 +79,16 @@ class _HomeTabState extends State<HomeTab> {
   ({String label, String value, String unit}) _nextDoseInfo(
     List<DoseItem> doses,
     Map<String, bool> takenMap,
+    DateTime forDate,
   ) {
     if (doses.isEmpty) {
       return (label: 'Next dose', value: '—', unit: 'Add meds');
     }
 
     final now = DateTime.now();
+    final isToday = forDate.year == now.year &&
+        forDate.month == now.month &&
+        forDate.day == now.day;
     final nowM = now.hour * 60 + now.minute;
     final pending =
         doses.where((d) => takenMap[d.key] != true).toList()
@@ -95,18 +99,42 @@ class _HomeTabState extends State<HomeTab> {
           });
 
     if (pending.isEmpty) {
-      return (label: 'Next dose', value: 'Done', unit: 'All clear');
+      return (
+        label: isToday ? 'Next dose' : 'Schedule',
+        value: 'Done',
+        unit: 'All clear',
+      );
     }
 
     DoseItem? next;
-    for (final d in pending) {
-      final m = d.sched.h * 60 + d.sched.m;
-      if (m >= nowM) {
-        next = d;
-        break;
+    if (isToday) {
+      for (final d in pending) {
+        final m = d.sched.h * 60 + d.sched.m;
+        if (m >= nowM) {
+          next = d;
+          break;
+        }
       }
+      next ??= pending.first;
+    } else {
+      next = pending.first;
     }
-    next ??= pending.first;
+
+    // Past/future days: show scheduled clock time, not a relative countdown.
+    if (!isToday) {
+      final h = next.sched.h;
+      final m = next.sched.m;
+      final hour12 = h % 12 == 0 ? 12 : h % 12;
+      final ampm = h >= 12 ? 'PM' : 'AM';
+      final mm = m.toString().padLeft(2, '0');
+      return (
+        label: forDate.isBefore(DateTime(now.year, now.month, now.day))
+            ? 'First pending'
+            : 'Next dose',
+        value: '$hour12:$mm',
+        unit: '$ampm · ${next.med.name}',
+      );
+    }
 
     var minsUntil = (next.sched.h * 60 + next.sched.m) - nowM;
     if (minsUntil < 0) minsUntil += 24 * 60;
@@ -145,9 +173,14 @@ class _HomeTabState extends State<HomeTab> {
     final groups = DoseGrouping.group(doses);
     final dosePct = doses.isEmpty ? 0.0 : takenCount / doses.length;
     final dosesLeft = (doses.length - takenCount).clamp(0, doses.length);
-    final nextDose = _nextDoseInfo(doses, takenMap);
+    final nextDose = _nextDoseInfo(doses, takenMap, _selectedDate);
     final allDone = doses.isNotEmpty && takenCount >= doses.length;
     final showMascot = allDone || (doses.isEmpty && meds.isNotEmpty);
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+    final listSwitchDuration =
+        MedAiA11y.motion(context, AppDurations.fast);
+    final listSwitchReverse =
+        MedAiA11y.motion(context, AppDurations.exit);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -158,10 +191,14 @@ class _HomeTabState extends State<HomeTab> {
             child: RefreshIndicator(
               onRefresh: () async {
                 HapticEngine.selection();
-                await context.read<AppState>().loadFromStorage();
+                final state = context.read<AppState>();
+                await state.checkConnectivity();
+                await state.loadFromStorage();
               },
               color: AppColors.limeDeep,
               backgroundColor: L.card,
+              displacement: 48,
+              strokeWidth: 2.5,
               child: Scrollbar(
                 controller: _scrollController,
                 child: CustomScrollView(
@@ -184,7 +221,7 @@ class _HomeTabState extends State<HomeTab> {
                     if (severeSymptoms.isNotEmpty)
                       SliverPadding(
                         padding:
-                            const EdgeInsets.fromLTRB(_hPad, 0, _hPad, 12),
+                            const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p12),
                         sliver: SliverToBoxAdapter(
                           child: EmergencyWarningCard(
                               symptom: severeSymptoms.first),
@@ -193,7 +230,7 @@ class _HomeTabState extends State<HomeTab> {
 
                     SliverPadding(
                       padding:
-                          const EdgeInsets.fromLTRB(_hPad, 6, _hPad, 14),
+                          const EdgeInsets.fromLTRB(_hPad, AppSpacing.p8, _hPad, AppSpacing.p16),
                       sliver: SliverToBoxAdapter(
                         child: LimeProgressHero(
                           fraction: dosePct,
@@ -208,7 +245,7 @@ class _HomeTabState extends State<HomeTab> {
 
                     SliverPadding(
                       padding:
-                          const EdgeInsets.fromLTRB(_hPad, 0, _hPad, 18),
+                          const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p16),
                       sliver: SliverToBoxAdapter(
                         child: Row(
                           children: [
@@ -218,17 +255,17 @@ class _HomeTabState extends State<HomeTab> {
                                 value: nextDose.value,
                                 unit: nextDose.unit,
                                 emoji: '⏰',
-                                tint: AppColors.pastelMint,
+                                tint: AppColors.accent,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppSpacing.p12),
                             Expanded(
                               child: RefBentoTile(
                                 label: 'Doses left',
                                 value: '$dosesLeft',
                                 unit: dosesLeft == 1 ? 'dose' : 'doses',
                                 emoji: '💊',
-                                tint: AppColors.pastelSky,
+                                tint: AppColors.infoSoft,
                               ),
                             ),
                           ],
@@ -238,7 +275,7 @@ class _HomeTabState extends State<HomeTab> {
 
                     SliverPadding(
                       padding:
-                          const EdgeInsets.fromLTRB(_hPad, 0, _hPad, 20),
+                          const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p20),
                       sliver: SliverToBoxAdapter(
                         child: HomeWeekStrip(
                           selectedDate: _selectedDate,
@@ -249,33 +286,80 @@ class _HomeTabState extends State<HomeTab> {
 
                     if (doses.isEmpty)
                       SliverPadding(
-                        padding:
-                            const EdgeInsets.fromLTRB(_hPad, 0, _hPad, 24),
+                        padding: const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p24),
                         sliver: SliverToBoxAdapter(
-                          child: HomeScheduleEmpty(
-                            hasMeds: meds.isNotEmpty,
-                            onAdd: widget.onScan,
+                          child: AnimatedSwitcher(
+                            duration: listSwitchDuration,
+                            reverseDuration: listSwitchReverse,
+                            switchInCurve: AppCurves.emilOut,
+                            switchOutCurve: AppCurves.emilOut,
+                            transitionBuilder: (child, animation) {
+                              if (reduceMotion) return child;
+                              final curved = CurvedAnimation(
+                                parent: animation,
+                                curve: AppCurves.emilOut,
+                              );
+                              return FadeTransition(
+                                opacity: curved,
+                                child: SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(0, 0.03),
+                                    end: Offset.zero,
+                                  ).animate(curved),
+                                  child: child,
+                                ),
+                              );
+                            },
+                            child: HomeScheduleEmpty(
+                              key: ValueKey(
+                                  'empty-${_selectedDate.toIso8601String()}'),
+                              hasMeds: meds.isNotEmpty,
+                              onAdd: widget.onScan,
+                            ),
                           ),
                         ),
                       )
                     else
                       SliverPadding(
-                        padding:
-                            const EdgeInsets.fromLTRB(_hPad, 0, _hPad, 24),
-                        sliver: SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (context, index) {
-                              final group = groups[index];
-                              return HomeDoseGroup(
-                                title: group.title,
-                                doses: group.items,
-                                takenToday: takenMap,
-                                state: context.read<AppState>(),
-                                selectedDate: _selectedDate,
-                                onView: (med) => _viewMed(med),
+                        padding: const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p24),
+                        sliver: SliverToBoxAdapter(
+                          child: AnimatedSwitcher(
+                            duration: listSwitchDuration,
+                            reverseDuration: listSwitchReverse,
+                            switchInCurve: AppCurves.emilOut,
+                            switchOutCurve: AppCurves.emilOut,
+                            transitionBuilder: (child, animation) {
+                              if (reduceMotion) return child;
+                              final curved = CurvedAnimation(
+                                parent: animation,
+                                curve: AppCurves.emilOut,
+                              );
+                              return FadeTransition(
+                                opacity: curved,
+                                child: SlideTransition(
+                                  position: Tween<Offset>(
+                                    begin: const Offset(0, 0.03),
+                                    end: Offset.zero,
+                                  ).animate(curved),
+                                  child: child,
+                                ),
                               );
                             },
-                            childCount: groups.length,
+                            child: Column(
+                              key: ValueKey(
+                                  'doses-${_selectedDate.toIso8601String()}-${doses.length}'),
+                              children: [
+                                for (final group in groups)
+                                  HomeDoseGroup(
+                                    title: group.title,
+                                    doses: group.items,
+                                    takenToday: takenMap,
+                                    state: context.read<AppState>(),
+                                    selectedDate: _selectedDate,
+                                    onView: (med) => _viewMed(med),
+                                  ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -283,13 +367,13 @@ class _HomeTabState extends State<HomeTab> {
                     if (showMascot)
                       SliverPadding(
                         padding:
-                            const EdgeInsets.fromLTRB(_hPad, 14, _hPad, 0),
+                            const EdgeInsets.fromLTRB(_hPad, AppSpacing.p16, _hPad, 0),
                         sliver: const SliverToBoxAdapter(
                           child: HomeMascotCard(),
                         ),
                       ),
 
-                    const SliverToBoxAdapter(child: SizedBox(height: 120)),
+                    const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.bottomBuffer)),
                   ],
                 ),
               ),
@@ -336,11 +420,15 @@ class _HomeTabState extends State<HomeTab> {
     final mainContent = _buildMain(
         context, L, doses, streak, takenMap, meds, takenCount);
 
+    final reduceMotion = MedAiA11y.reducedMotion(context);
     return AnimatedSwitcher(
-      duration: AppDurations.fast,
-      reverseDuration: AppDurations.exit,
+      duration: MedAiA11y.motion(context, AppDurations.fast),
+      reverseDuration: MedAiA11y.motion(context, AppDurations.exit),
       switchInCurve: AppCurves.emilOut,
       switchOutCurve: AppCurves.emilOut,
+      transitionBuilder: reduceMotion
+          ? (child, animation) => child
+          : AnimatedSwitcher.defaultTransitionBuilder,
       child: _viewingMed != null
           ? MedicineDetailScreen(
               key: ValueKey('med_detail_${_viewingMed!.id}'),
@@ -352,12 +440,14 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   Widget _buildOverlay(bool visible, String key, Widget child) {
+    final reduceMotion = MedAiA11y.reducedMotion(context);
     return AnimatedSwitcher(
-      duration: AppDurations.medium,
-      reverseDuration: AppDurations.exit,
+      duration: MedAiA11y.motion(context, AppDurations.medium),
+      reverseDuration: MedAiA11y.motion(context, AppDurations.exit),
       switchInCurve: AppCurves.emilOut,
       switchOutCurve: AppCurves.emilOut,
       transitionBuilder: (child, animation) {
+        if (reduceMotion) return child;
         final curved = CurvedAnimation(
           parent: animation,
           curve: AppCurves.emilOut,

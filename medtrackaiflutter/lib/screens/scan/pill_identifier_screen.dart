@@ -356,16 +356,16 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
                       padding: const EdgeInsets.symmetric(
                           horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
-                        color: Colors.red.withValues(alpha: 0.2),
+                        color: AppColors.red.withValues(alpha: 0.2),
                         borderRadius: BorderRadius.circular(14),
                         border: Border.all(
-                            color: Colors.red.withValues(alpha: 0.5),
+                            color: AppColors.red.withValues(alpha: 0.5),
                             width: 0.8),
                       ),
                       child: Row(
                         children: [
                           const Icon(Icons.warning_rounded,
-                              color: Colors.redAccent, size: 18),
+                              color: AppColors.red, size: 18),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(

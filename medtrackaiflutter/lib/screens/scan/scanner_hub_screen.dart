@@ -12,7 +12,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../theme/ios_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../core/utils/manual_add_medicine.dart';
@@ -23,6 +23,7 @@ import '../../services/upc_service.dart';
 import '../../widgets/shared/shared_widgets.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
+import '../../widgets/common/app_feedback.dart';
 import 'scan_history_screen.dart';
 import 'ai_accuracy_settings_screen.dart';
 import 'scanner_help_screen.dart';
@@ -73,15 +74,30 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
     super.initState();
     _mode = widget.initialMode;
     _scanLineCtrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 1600))
-      ..forward();
+        vsync: this, duration: const Duration(milliseconds: 1600));
     _breathCtrl = AnimationController(
-        vsync: this, duration: const Duration(milliseconds: 2400))
-      ..forward();
+        vsync: this, duration: const Duration(milliseconds: 2400));
     _cornerCtrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 800));
-    _cornerCtrl.forward();
     _initSpeech();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+    if (reduceMotion) {
+      _scanLineCtrl.stop();
+      _breathCtrl.stop();
+      _cornerCtrl.stop();
+      _scanLineCtrl.value = 0.5;
+      _breathCtrl.value = 0.5;
+      _cornerCtrl.value = 1.0;
+    } else {
+      if (!_scanLineCtrl.isAnimating) _scanLineCtrl.forward();
+      if (!_breathCtrl.isAnimating) _breathCtrl.forward();
+      if (!_cornerCtrl.isAnimating) _cornerCtrl.forward();
+    }
   }
 
   void _initSpeech() async {
@@ -244,12 +260,7 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
   }
 
   void _showError(String msg) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      content: Text(msg),
-      backgroundColor: AppColors.red,
-      behavior: SnackBarBehavior.floating,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-    ));
+    AppFeedback.toast(context, msg, type: 'error');
   }
 
   void _switchMode(ScanMode m) {
@@ -311,7 +322,10 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
             right: 0,
             child: _TopBar(
               onClose: widget.onClose,
-            ).animate().fadeIn(duration: 400.ms),
+            ).medAiChain(
+              context,
+              (w) => w.animate().fadeIn(duration: 400.ms),
+            ),
           ),
 
           // ── Bottom Controls ───────────────────────────────
@@ -408,7 +422,13 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
                     controller: _searchCtrl,
                     focusNode: _searchFocus,
                     onSubmit: _triggerScan,
-                  ).animate().fadeIn(duration: 350.ms).slideY(begin: 0.08, end: 0),
+                  ).medAiChain(
+                    context,
+                    (w) => w
+                        .animate()
+                        .fadeIn(duration: 350.ms)
+                        .slideY(begin: 0.08, end: 0),
+                  ),
                 if (!_isScanning) ...[
                   const SizedBox(height: 20),
                   TextButton.icon(
@@ -1120,16 +1140,20 @@ class _SearchInput extends StatelessWidget {
                       onSubmitted: (_) => onSubmit(),
                     ),
                   ),
-                  AnimatedPressable(
-                    onTap: onSubmit,
-                    child: Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        shape: BoxShape.circle,
+                  Semantics(
+                    button: true,
+                    label: 'Search medication',
+                    child: AnimatedPressable(
+                      onTap: onSubmit,
+                      child: Container(
+                        padding: const EdgeInsets.all(10),
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(Icons.arrow_forward_rounded,
+                            color: Colors.black, size: 20),
                       ),
-                      child: const Icon(Icons.arrow_forward_rounded,
-                          color: Colors.black, size: 20),
                     ),
                   ),
                 ],
@@ -1394,6 +1418,45 @@ class _ScanningRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final activeIndicator = Container(
+      width: 22,
+      height: 22,
+      decoration: BoxDecoration(
+        color: AppColors.accent.withValues(alpha: 0.15),
+        shape: BoxShape.circle,
+        border: Border.all(
+            color: AppColors.accent.withValues(alpha: 0.5), width: 1.5),
+      ),
+      child: const Padding(
+        padding: EdgeInsets.all(4.0),
+        child: CircularProgressIndicator(
+          strokeWidth: 1.5,
+          color: AppColors.accent,
+        ),
+      ),
+    ).medAiChain(
+      context,
+      (w) => w.animate().shimmer(
+            duration: 900.ms,
+            color: Colors.white.withValues(alpha: 0.5),
+          ),
+    );
+
+    final doneIndicator = Container(
+      width: 22,
+      height: 22,
+      decoration: BoxDecoration(
+        color: AppColors.green.withValues(alpha: 0.15),
+        shape: BoxShape.circle,
+        border: Border.all(
+            color: AppColors.green.withValues(alpha: 0.5), width: 1.5),
+      ),
+      child: const Icon(Icons.check_rounded, color: AppColors.green, size: 14),
+    ).medAiChain(
+      context,
+      (w) => w.animate().scale(curve: Curves.easeOutBack, duration: 400.ms),
+    );
+
     return Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -1402,39 +1465,19 @@ class _ScanningRow extends StatelessWidget {
           child: _TerminalText(text: text, isActive: isActive),
         ),
         const SizedBox(width: 14),
-        if (isActive)
-          Container(
-            width: 22,
-            height: 22,
-            decoration: BoxDecoration(
-              color: AppColors.accent.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.accent.withValues(alpha: 0.5), width: 1.5),
-            ),
-            child: const Padding(
-              padding: EdgeInsets.all(4.0),
-              child: CircularProgressIndicator(
-                strokeWidth: 1.5,
-                color: AppColors.accent,
-              ),
-            ),
-          ).animate()
-           .shimmer(duration: 900.ms, color: Colors.white.withValues(alpha: 0.5))
-        else
-          Container(
-            width: 22,
-            height: 22,
-            decoration: BoxDecoration(
-              color: AppColors.green.withValues(alpha: 0.15),
-              shape: BoxShape.circle,
-              border: Border.all(color: AppColors.green.withValues(alpha: 0.5), width: 1.5),
-            ),
-            child: const Icon(Icons.check_rounded, color: AppColors.green, size: 14),
-          ).animate().scale(curve: Curves.easeOutBack, duration: 400.ms),
+        if (isActive) activeIndicator else doneIndicator,
       ],
-    ).animate()
-      .slideX(begin: 0.3, end: 0, curve: Curves.easeOutExpo, duration: 600.ms)
-      .fadeIn(duration: 400.ms);
+    ).medAiChain(
+      context,
+      (w) => w
+          .animate()
+          .slideX(
+              begin: 0.3,
+              end: 0,
+              curve: Curves.easeOutExpo,
+              duration: 600.ms)
+          .fadeIn(duration: 400.ms),
+    );
   }
 }
 
@@ -1528,9 +1571,20 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
   @override
   void initState() {
     super.initState();
-    _pulseCtrl = AnimationController(vsync: this, duration: const Duration(milliseconds: 1500))
-      ..forward();
+    _pulseCtrl = AnimationController(
+        vsync: this, duration: const Duration(milliseconds: 1500));
     _playStages();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    if (MedAiA11y.reducedMotion(context)) {
+      _pulseCtrl.stop();
+      _pulseCtrl.value = 0.5;
+    } else if (!_pulseCtrl.isAnimating) {
+      _pulseCtrl.forward();
+    }
   }
 
   void _playStages() async {
@@ -1549,6 +1603,9 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
 
   @override
   Widget build(BuildContext context) {
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+    final switchDuration = MedAiA11y.motion(context, const Duration(milliseconds: 400));
+
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 40),
@@ -1589,18 +1646,24 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
                 ),
               );
             },
-          ).animate().scale(curve: Curves.easeOutBack, duration: 600.ms),
+          ).medAiChain(
+            context,
+            (w) => w.animate().scale(curve: Curves.easeOutBack, duration: 600.ms),
+          ),
           
           const SizedBox(height: 48),
           
           // Sleek cycling text
           AnimatedSwitcher(
-            duration: const Duration(milliseconds: 400),
+            duration: switchDuration,
             switchInCurve: Curves.easeOutExpo,
-            transitionBuilder: (child, anim) => SlideTransition(
-              position: Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(anim),
-              child: FadeTransition(opacity: anim, child: child),
-            ),
+            transitionBuilder: (child, anim) {
+              if (reduceMotion) return child;
+              return SlideTransition(
+                position: Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(anim),
+                child: FadeTransition(opacity: anim, child: child),
+              );
+            },
             child: Text(
               _stages[_currentStage],
               key: ValueKey(_currentStage),
@@ -1621,7 +1684,7 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
             children: List.generate(_stages.length, (index) {
               final isActive = index <= _currentStage;
               return AnimatedContainer(
-                duration: const Duration(milliseconds: 400),
+                duration: switchDuration,
                 margin: const EdgeInsets.symmetric(horizontal: 4),
                 height: 4,
                 width: isActive ? 24 : 12,
@@ -1634,10 +1697,20 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
                 ),
               );
             }),
-          ).animate().fadeIn(delay: 300.ms),
+          ).medAiChain(
+            context,
+            (w) => w.animate().fadeIn(delay: 300.ms),
+          ),
         ],
       ),
-    ).animate().fadeIn(duration: 400.ms).scale(begin: const Offset(0.95, 0.95), end: const Offset(1, 1), curve: Curves.easeOutExpo);
+    ).medAiChain(
+      context,
+      (w) => w.animate().fadeIn(duration: 400.ms).scale(
+            begin: const Offset(0.95, 0.95),
+            end: const Offset(1, 1),
+            curve: Curves.easeOutExpo,
+          ),
+    );
   }
 }
 

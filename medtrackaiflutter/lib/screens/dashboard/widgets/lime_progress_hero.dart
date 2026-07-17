@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../theme/med_ai_ui.dart';
+import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/premium_texture.dart';
 
 /// Today's dose progress hero — single accent (sage), streak optional (header owns it).
@@ -81,15 +82,17 @@ class _LimeProgressHeroState extends State<LimeProgressHero>
       button: widget.onTap != null,
       label:
           '${widget.taken} of ${widget.total} doses taken today${widget.showStreak ? ', ${widget.streak} day streak' : ''}',
-      child: GestureDetector(
+      child: AnimatedPressable(
         onTap: widget.onTap,
+        disabled: widget.onTap == null,
+        scaleFactor: 0.98,
         child: Container(
-          padding: const EdgeInsets.fromLTRB(22, 22, 18, 22),
+          padding: const EdgeInsets.all(AppSpacing.p20),
           decoration: BoxDecoration(
             gradient: const LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
-              colors: [Color(0xFFC2EF7D), Color(0xFFA9E65F)],
+              colors: [AppColors.lime, AppColors.limeDeep],
             ),
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
@@ -113,21 +116,20 @@ class _LimeProgressHeroState extends State<LimeProgressHero>
                       children: [
                         Row(
                           children: [
-                            const Text('⚡',
-                                style: TextStyle(fontSize: 12)),
-                            const SizedBox(width: 4),
+                            Icon(Icons.bolt_rounded,
+                                size: 14, color: onAccent.withValues(alpha: 0.85)),
+                            const SizedBox(width: AppSpacing.p4),
                             Text(
                               'DAILY DOSES',
-                              style: AppTypography.labelSmall.copyWith(
+                              style: AppTypography.caption.copyWith(
                                 color: onAccent.withValues(alpha: 0.85),
                                 letterSpacing: 1.2,
                                 fontWeight: FontWeight.w800,
-                                fontSize: 10.5,
                               ),
                             ),
                           ],
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppSpacing.p8),
                         Text(
                           title,
                           style: AppTypography.headlineSmall.copyWith(
@@ -135,24 +137,22 @@ class _LimeProgressHeroState extends State<LimeProgressHero>
                             fontWeight: FontWeight.w800,
                             height: 1.12,
                             letterSpacing: -0.5,
-                            fontSize: 22,
                           ),
                         ),
                         if (widget.showStreak) ...[
-                          const SizedBox(height: 14),
+                          const SizedBox(height: AppSpacing.p16),
                           Container(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 11, vertical: 5),
+                                horizontal: AppSpacing.p12, vertical: AppSpacing.p4),
                             decoration: BoxDecoration(
                               color: Colors.white.withValues(alpha: 0.6),
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Text(
                               '🔥 ${widget.streak} day streak',
-                              style: AppTypography.labelMedium.copyWith(
+                              style: AppTypography.bodySmall.copyWith(
                                 color: onAccent,
                                 fontWeight: FontWeight.w700,
-                                fontSize: 12,
                               ),
                             ),
                           ),
@@ -160,7 +160,7 @@ class _LimeProgressHeroState extends State<LimeProgressHero>
                       ],
                     ),
                   ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: AppSpacing.p12),
                   AnimatedBuilder(
                     animation: _a,
                     builder: (context, _) {
@@ -175,29 +175,33 @@ class _LimeProgressHeroState extends State<LimeProgressHero>
                             fillColor: Colors.white.withValues(alpha: 0.9),
                           ),
                           child: Center(
-                            child: Column(
+                            child: FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Text(
                                   allDone
                                       ? '✓'
                                       : '${widget.taken}/${widget.total}',
-                                  style: AppTypography.titleLarge.copyWith(
+                                  style: (allDone
+                                          ? AppTypography.headlineLarge
+                                          : AppTypography.headlineSmall)
+                                      .copyWith(
                                     color: onAccent,
                                     fontWeight: FontWeight.w800,
-                                    fontSize: allDone ? 30 : 22,
                                   ),
                                 ),
                                 if (!allDone)
                                   Text(
                                     'DOSES',
-                                    style: AppTypography.labelSmall.copyWith(
+                                    style: AppTypography.caption.copyWith(
                                       color: onAccent.withValues(alpha: 0.6),
-                                      fontSize: 9,
                                       fontWeight: FontWeight.w700,
                                     ),
                                   ),
                               ],
+                            ),
                             ),
                           ),
                         ),

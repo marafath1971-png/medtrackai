@@ -67,9 +67,10 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      '✨',
-                      style: AppTypography.displayLarge.copyWith(fontSize: 64),
+                    Icon(
+                      Icons.sentiment_dissatisfied_rounded,
+                      size: 64,
+                      color: Colors.white70,
                     ),
                     const SizedBox(height: 24),
                     Text(

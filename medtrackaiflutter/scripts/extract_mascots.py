@@ -2,22 +2,22 @@
 """
 Extract 30 ghost-mascot stickers from a 6x5 sheet — FACE-PRESERVING.
 
-The sheet places each sticker on a grey/white checkerboard "transparent"
-placeholder. Naive colour-keying (remove all light desaturated pixels) also
-erased the ghost's OWN white body, eye-whites and highlights — leaving faceless
-blobs. This version removes the checkerboard by RECONSTRUCTING it (see remove_bg):
+The sheet places each sticker on a solid GREEN matte (a green screen). Keying
+that is both simpler and more reliable than the old checkerboard: the ghost's
+white body, eye-whites and coloured props are never as green as the matte, so a
+"greenness" key keeps the whole ghost while dropping only the background. See
+remove_bg:
 
-  1. Detect the checker's distinctive mid-grey squares (luminance ~210).
-  2. Solve for the checker phase, then rebuild the ideal grey/white grid.
-  3. Foreground = any pixel disagreeing with the colour its cell should be.
-     A white ghost body over a would-be-GREY cell disagrees -> kept. That
-     captures the whole ghost, including soft outline-less bottoms that a flood
-     fill or outline trace would leak through.
-  4. Force mid-grey fully transparent (it is only ever checker), keep the
-     largest blob, fill holes, feather 1px, then tight-crop the drop shadow.
+  1. greenness(px) = G - max(R, B): high on the matte, ~0 on the ghost.
+  2. Calibrate the matte's greenness from each cell's border (self-tuning to
+     whatever green / JPEG colour the export used).
+  3. Foreground = any pixel not clearly as green as the matte. This keeps the
+     ghost whole, including soft outline-less bottoms.
+  4. Clean speckle, keep the largest blob, fill holes, de-spill the green edge
+     fringe, feather 1px, then tight-crop.
 
 Usage:
-    python3 scripts/extract_mascots.py "images/Generated Image July 12, 2026 - 11_50PM.jpg"
+    python3 scripts/extract_mascots.py "images/Generated Image July 15, 2026 - 9_41AM.jpg"
 Optional:  --debug  writes a contact sheet of results to .tmp_check/mascots_qc.png
 
 Requires pillow, numpy and scipy. On Apple Silicon install them into a native
@@ -44,17 +44,16 @@ COLS, ROWS = 6, 5
 MAX_EDGE = 512  # master longest-edge; app renders 40-160px
 
 
-# The checkerboard placeholder alternates a distinctive MID-GREY (luminance
-# ~210) and white on a regular grid (~56px squares at full res). We reconstruct
-# that ideal checker and subtract it: wherever a pixel disagrees with the colour
-# its checker cell *should* be, it's foreground. Crucially, the white ghost body
-# sitting over a cell that should be GREY disagrees -> detected as foreground.
-# That captures the ghost whole, including soft outline-less bottoms that a
-# flood fill or outline trace would leak through.
-GREY_LO, GREY_HI, GREY_SAT = 190, 228, 16
-WHITE_LO = 232
-CHECKER_SQUARE_PX = 56.0
-REF_CELL_W = 5056 / 6
+# The sheet now places each sticker on a solid GREEN matte (green-screen). A
+# green pixel has its green channel well above red and blue; the ghost (white
+# body, coloured props, dark outline) never does. We measure the background's
+# "greenness" from each cell's border at runtime, so the key self-calibrates to
+# whatever green the export used and is robust to JPEG colour drift.
+#   greenness(px) = G - max(R, B)
+# Background greenness is high and uniform; foreground greenness is near zero or
+# negative. Anything clearly below the background level is the ghost.
+GREEN_KEY_FRAC = 0.55   # fg = greenness < GREEN_KEY_FRAC * background_greenness
+GREEN_MIN_EXCESS = 25   # ...but never treat <this much green excess as background
 
 
 def _disk(r):
@@ -66,57 +65,45 @@ def _disk(r):
 
 
 def remove_bg(cell):
-    """Return RGBA with the checkerboard removed, keeping the whole ghost."""
-    rgb = np.array(cell.convert("RGB"))
+    """Return RGBA with the solid-green matte removed, keeping the whole ghost."""
+    rgb = np.array(cell.convert("RGB")).astype(np.int16)
     H, W = rgb.shape[:2]
-    lum = rgb.mean(2)
-    sat = rgb.max(2).astype(int) - rgb.min(2)
-    grey = (lum > GREY_LO) & (lum < GREY_HI) & (sat < GREY_SAT)
-    whitish = (lum > WHITE_LO) & (sat < GREY_SAT)
-    sq = max(6.0, CHECKER_SQUARE_PX * (W / REF_CELL_W))
+    r, g, b = rgb[..., 0], rgb[..., 1], rgb[..., 2]
+    greenness = g - np.maximum(r, b)          # high on green matte, ~0 on ghost
+    blob = max(3.0, min(H, W) / 24.0)         # morphology scale ~cell size
 
-    # Find the checker phase that best lands grey pixels on the "even" cells.
-    ii = np.arange(H)[:, None]
-    jj = np.arange(W)[None, :]
-    best_score, best = -1e18, (0, 0)
-    step = max(2, int(sq / 12))
-    for oy in range(0, int(sq), step):
-        for ox in range(0, int(sq), step):
-            parity = (((ii + oy) // sq).astype(int) + ((jj + ox) // sq).astype(int)) & 1
-            score = grey[parity == 0].sum() - grey[parity == 1].sum()
-            if score > best_score:
-                best_score, best = score, (oy, ox)
-    oy, ox = best
-    expected_grey = ((((ii + oy) // sq).astype(int) + ((jj + ox) // sq).astype(int)) & 1) == 0
+    # Calibrate the background green from the cell border, which is (almost) all
+    # matte. Use a robust median so a stray sticker edge can't skew it.
+    band = max(2, int(min(H, W) * 0.03))
+    border = np.concatenate([
+        greenness[:band, :].ravel(), greenness[-band:, :].ravel(),
+        greenness[:, :band].ravel(), greenness[:, -band:].ravel(),
+    ])
+    bg_green = float(np.median(border))
+    thresh = max(GREEN_MIN_EXCESS, bg_green * GREEN_KEY_FRAC)
 
-    # Background = pixel matches the colour its cell should be. Raw foreground =
-    # everything else: colour, dark outline, AND white body over would-be-grey
-    # cells. Checker squares are never in raw_fg, so they can't survive as halo.
-    bg = (expected_grey & grey) | (~expected_grey & whitish)
-    raw_fg = ~bg
+    # Foreground = anything not clearly as green as the matte.
+    raw_fg = greenness < thresh
 
-    # Build a solid silhouette to recover the ambiguous white-over-white-cell
-    # pixels at the ghost's soft edges, then erode away the closing's outward
-    # bleed. Union back the raw foreground so thin real parts (stems, arms over
-    # grey cells) are never trimmed, and fill enclosed holes.
-    sil = ndimage.binary_closing(raw_fg, structure=_disk(sq * 0.8))
-    sil = ndimage.binary_fill_holes(sil)
-    sil = ndimage.binary_opening(sil, structure=_disk(sq * 0.4))   # drop specks
-    core = ndimage.binary_erosion(sil, _disk(sq * 0.8))            # undo bleed
-    keep = core | (raw_fg & sil)
-    keep = ndimage.binary_fill_holes(keep)
-
-    # Mid-grey is ONLY ever the checker — never the ghost. Force it out, which
-    # also snaps any misaligned edge-checker frame into disconnected white specks
-    # that the largest-blob + speckle passes below then drop.
-    keep &= ~grey
-    keep = ndimage.binary_opening(keep, structure=_disk(sq * 0.35))
+    # Clean up: drop matte speckle, close the ghost solid, keep the largest blob,
+    # fill interior holes (eye-whites keyed as fg stay fg anyway; this repairs any
+    # green-tinted interior pixels that fell to background).
+    keep = ndimage.binary_opening(raw_fg, structure=_disk(blob * 0.4))
+    keep = ndimage.binary_closing(keep, structure=_disk(blob * 0.9))
     keep = _largest_component(keep)
     keep = ndimage.binary_fill_holes(keep)
-    keep = ndimage.binary_closing(keep, structure=_disk(2))
+
+    # De-spill: green fringe left on the ghost's antialiased edge. Where a kept
+    # pixel is still greenish, clamp its green channel down toward max(R,B).
+    spill = keep & (greenness > 0)
+    if spill.any():
+        gv = rgb[..., 1]
+        cap = np.maximum(r, b)
+        gv[spill] = np.minimum(gv[spill], cap[spill])
+        rgb[..., 1] = gv
 
     alpha = np.where(keep, 255, 0).astype(np.uint8)
-    return np.dstack([rgb, alpha])
+    return np.dstack([rgb.astype(np.uint8), alpha])
 
 
 def _largest_component(mask):
@@ -223,5 +210,5 @@ def main(src, debug=False):
 if __name__ == "__main__":
     argv = [a for a in sys.argv[1:] if a != "--debug"]
     debug = "--debug" in sys.argv
-    default = "images/Generated Image July 12, 2026 - 11_50PM.jpg"
+    default = "images/Generated Image July 15, 2026 - 9_41AM.jpg"
     main(argv[0] if argv else default, debug=debug)

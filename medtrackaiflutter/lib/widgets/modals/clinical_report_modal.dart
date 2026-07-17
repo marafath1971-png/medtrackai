@@ -4,6 +4,7 @@ import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../common/refined_sheet_wrapper.dart';
+import '../common/app_feedback.dart';
 import '../../services/report_service.dart';
 import '../../l10n/app_localizations.dart';
 class ClinicalReportModal extends StatefulWidget {
@@ -138,11 +139,11 @@ class _ClinicalReportModalState extends State<ClinicalReportModal> {
                 );
               } catch (e) {
                 if (context.mounted) {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    content: Text('Failed to generate report: $e'),
-                    backgroundColor: AppColors.red,
-                    behavior: SnackBarBehavior.floating,
-                  ));
+                  AppFeedback.toast(
+                    context,
+                    'Failed to generate report: $e',
+                    type: 'error',
+                  );
                 }
               } finally {
                 if (context.mounted) {

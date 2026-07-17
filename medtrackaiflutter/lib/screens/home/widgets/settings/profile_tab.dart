@@ -75,7 +75,7 @@ class _ProfileTabState extends State<ProfileTab> {
       label: 'Upgrade to MedAI Pro',
       child: MedAiDepthCard(
         accentGlow: true,
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(AppSpacing.p20),
         onTap: () {
           HapticEngine.selection();
           PaywallSheet.show(context);
@@ -96,7 +96,7 @@ class _ProfileTabState extends State<ProfileTab> {
               ),
             ),
           ),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppSpacing.p16),
           Expanded(
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -107,7 +107,7 @@ class _ProfileTabState extends State<ProfileTab> {
                         fontSize: 18,
                         letterSpacing: -0.5,
                         fontWeight: FontWeight.w900)),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.p4),
                 Text('Unlock AI insights, Family Sharing and more.',
                     style: AppTypography.labelSmall.copyWith(
                         color: L.sub,
@@ -146,7 +146,7 @@ class _ProfileTabState extends State<ProfileTab> {
               widget.state.deleteAccount();
             },
             child: Text('Delete',
-                style: AppTypography.labelLarge.copyWith(color: Colors.redAccent, fontWeight: FontWeight.w700)),
+                style: AppTypography.labelLarge.copyWith(color: AppColors.red, fontWeight: FontWeight.w700)),
           ),
         ],
       ),
@@ -164,7 +164,7 @@ class _ProfileTabState extends State<ProfileTab> {
         style: AppTypography.displaySmall.copyWith(fontSize: 36));
 
     Widget heroCard = MedAiDepthCard(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppSpacing.p24),
       child: Row(children: [
         Container(
           width: 72,
@@ -189,7 +189,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     : avatarEmoji),
           ),
         ),
-        const SizedBox(width: 20),
+        const SizedBox(width: AppSpacing.p20),
         Expanded(
             child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -205,13 +205,13 @@ class _ProfileTabState extends State<ProfileTab> {
                             letterSpacing: -0.5)),
                   ),
                   if (widget.state.isPremium) ...[
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppSpacing.p8),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 6, vertical: 2),
+                          horizontal: AppSpacing.p8, vertical: 2),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Colors.amber, Colors.orangeAccent],
+                          colors: [AppColors.amber, Colors.orangeAccent],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -227,7 +227,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   ],
                 ],
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: AppSpacing.p8),
               Text(
                   '${p?.age != null && p!.age.isNotEmpty ? "Age ${p.age}" : "Age not set"}${p?.gender != null && p!.gender.isNotEmpty ? " · ${p.gender}" : ""}',
                   style: AppTypography.bodySmall.copyWith(
@@ -248,7 +248,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 constraints:
                     const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
                 decoration: BoxDecoration(
                     color: L.fill.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(12),
@@ -276,14 +276,14 @@ class _ProfileTabState extends State<ProfileTab> {
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: const EdgeInsets.fromLTRB(0, 4, 0, 40),
+      padding: const EdgeInsets.fromLTRB(0, AppSpacing.p4, 0, AppSpacing.p40),
       child: Column(
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16),
             child: heroCard,
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.p20),
 
           // ── APP SETTINGS (GLOBAL AUTHORITY) ──────────
           SettingsSection(
@@ -306,7 +306,7 @@ class _ProfileTabState extends State<ProfileTab> {
               ),
             ]),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.p24),
 
           if (_editing) ...[
             SettingsSection(
@@ -375,7 +375,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   },
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.p8),
               Expanded(
                 flex: 2,
                 child: MedAiCTA(
@@ -403,7 +403,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 ),
               ),
             ]),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.p24),
           ] else ...[
             SettingsSection(
                 title: 'Your Info',
@@ -437,7 +437,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 ])),
             if (!widget.state.isPremium)
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 0, 16, 24),
+                padding: const EdgeInsets.fromLTRB(AppSpacing.p16, 0, AppSpacing.p16, AppSpacing.p24),
                 child: _upgradeCard(L, reduceMotion, context),
               ),
             SettingsSection(
@@ -614,7 +614,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   ],
                 ),
               ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.p12),
             Center(
               child: Column(
                 children: [
@@ -626,7 +626,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       letterSpacing: 1.0,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpacing.p4),
                   Text(
                     'Made by the MedAI team',
                     style: AppTypography.labelSmall.copyWith(

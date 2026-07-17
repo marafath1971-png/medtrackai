@@ -62,11 +62,11 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
+            padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p20, AppSpacing.gutter, 0),
             child: MedAiSectionHeader(
               title: s.aiSafetyProfile,
               action: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p4),
                 decoration: BoxDecoration(
                   color: L.text,
                   borderRadius: BorderRadius.circular(6),
@@ -87,7 +87,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
 
           // Content
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(AppSpacing.p20),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -134,10 +134,10 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
       {bool isDanger = false, bool isAha = false, required bool reduceMotion}) {
     // 2026 Viral premium colors
     final Color colorToUse = isAha
-        ? const Color(0xFFA855F7) // Purple for Aha
+        ? AppColors.purple // Purple for Aha
         : isDanger
-            ? const Color(0xFFEF4444) // Red for Danger
-            : const Color(0xFF34D399); // Teal/Green for normal (food rules)
+            ? AppColors.dangerSoft // Red for Danger
+            : AppColors.green; // Teal/Green for normal (food rules)
 
     // Remove emoji from title if it exists to replace with pure text
     String cleanTitle = title.replaceAll(RegExp(r'[^\w\s&]'), '').trim();
@@ -148,20 +148,20 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
     );
 
     final dangerBadge = Container(
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
       decoration: BoxDecoration(
-        color: Colors.redAccent.withValues(alpha: 0.1),
+        color: AppColors.red.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: Colors.redAccent.withValues(alpha: 0.4)),
+        border: Border.all(color: AppColors.red.withValues(alpha: 0.4)),
       ),
       child: Row(
         children: [
           const Text("🛑", style: TextStyle(fontSize: 12)),
-          const SizedBox(width: 6),
+          const SizedBox(width: AppSpacing.p8),
           Text(
             "DANGER",
             style: AppTypography.labelSmall.copyWith(
-              color: Colors.redAccent,
+              color: AppColors.red,
               fontSize: 11,
               fontWeight: FontWeight.w900,
               letterSpacing: 1.0,
@@ -173,7 +173,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
 
     Widget section = MedAiDepthCard(
       accentGlow: isDanger || isAha,
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppSpacing.p24),
       radius: 32,
       color: L.card,
       child: Column(
@@ -182,7 +182,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(12),
+                padding: const EdgeInsets.all(AppSpacing.p12),
                 decoration: BoxDecoration(
                     color: colorToUse.withValues(alpha: 0.15),
                     shape: BoxShape.circle,
@@ -194,7 +194,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                     ]),
                 child: emojiIcon,
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppSpacing.p16),
               Expanded(
                 child: Text(
                   cleanTitle.toUpperCase(),
@@ -208,22 +208,22 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
               if (isDanger) dangerBadge,
             ],
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.p20),
           MedAiGlass(
             radius: 24,
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(AppSpacing.p20),
             tint: isAha ? Colors.transparent : L.meshBg,
             showBorder: !isAha,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: items.map((item) {
                 return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
+                  padding: const EdgeInsets.only(bottom: AppSpacing.p16),
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        margin: const EdgeInsets.only(top: 6, right: 14),
+                        margin: const EdgeInsetsDirectional.only(top: AppSpacing.p8, end: AppSpacing.p16),
                         width: 8,
                         height: 8,
                         decoration: BoxDecoration(
@@ -258,8 +258,8 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
           borderRadius: BorderRadius.circular(32),
           gradient: LinearGradient(
             colors: [
-              const Color(0xFF6366F1).withValues(alpha: 0.15),
-              const Color(0xFFA855F7).withValues(alpha: 0.05)
+              AppColors.indigo.withValues(alpha: 0.15),
+              AppColors.purple.withValues(alpha: 0.05)
             ],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
@@ -272,14 +272,14 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
     if (reduceMotion) {
       return Container(
         width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 24),
+        margin: const EdgeInsets.only(bottom: AppSpacing.p24),
         child: section,
       );
     }
 
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.only(bottom: 24),
+      margin: const EdgeInsets.only(bottom: AppSpacing.p24),
       child: section.animate().fadeIn(duration: 600.ms).slideY(
           begin: 0.1, end: 0, curve: Curves.easeOutQuart),
     );
@@ -287,12 +287,12 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
 
   Widget _buildErrorState(AppThemeColors L, AppLocalizations s, bool reduceMotion) {
     Widget card = MedAiDepthCard(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppSpacing.p24),
       color: L.error.withValues(alpha: 0.05),
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.p16),
             decoration: BoxDecoration(
               color: L.bg,
               shape: BoxShape.circle,
@@ -305,7 +305,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
             ),
             child: Icon(Icons.error_outline_rounded, color: L.error, size: 28),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.p16),
           Text(
             s.analysisFailed,
             style: AppTypography.titleMedium.copyWith(
@@ -313,7 +313,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 8),
+          const SizedBox(height: AppSpacing.p8),
           Text(
             _errorMessage ?? s.somethingWentWrong,
             textAlign: TextAlign.center,
@@ -322,7 +322,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
               height: 1.4,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.p20),
           MedAiCTA(
             label: s.retry,
             onTap: _runScan,
@@ -351,26 +351,26 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
       label: s.generateSafetyProfile,
       child: MedAiDepthCard(
         accentGlow: true,
-        padding: const EdgeInsets.all(32),
+        padding: const EdgeInsets.all(AppSpacing.p32),
         radius: 32,
         onTap: _isLoading ? null : _runScan,
         child: Column(
           children: [
             Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacing.p20),
               decoration: BoxDecoration(
-                color: const Color(0xFF6366F1).withValues(alpha: 0.2),
+                color: AppColors.indigo.withValues(alpha: 0.2),
                 shape: BoxShape.circle,
                 boxShadow: [
                   BoxShadow(
-                      color: const Color(0xFFA855F7).withValues(alpha: 0.5),
+                      color: AppColors.purple.withValues(alpha: 0.5),
                       blurRadius: 20,
                       spreadRadius: -5),
                 ],
               ),
               child: sparkle,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.p24),
             Text(
               _isLoading ? s.analyzingClinicalLimits : s.generateSafetyProfile,
               style: AppTypography.titleLarge.copyWith(
@@ -379,7 +379,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                 letterSpacing: -0.5,
               ),
             ),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.p12),
             Text(
               _isLoading
                   ? s.safetyLoadingSubtitle
@@ -401,8 +401,8 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
         borderRadius: BorderRadius.circular(32),
         gradient: LinearGradient(
           colors: [
-            const Color(0xFF6366F1).withValues(alpha: 0.1),
-            const Color(0xFFA855F7).withValues(alpha: 0.05)
+            AppColors.indigo.withValues(alpha: 0.1),
+            AppColors.purple.withValues(alpha: 0.05)
           ],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

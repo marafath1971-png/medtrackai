@@ -12,6 +12,7 @@ class LoadingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final L = context.L;
     return AppScaffold(
       showAurora: true,
       body: Center(
@@ -33,14 +34,17 @@ class LoadingScreen extends StatelessWidget {
                   style: AppTypography.displaySmall.copyWith(
                     fontWeight: FontWeight.w900,
                     letterSpacing: -0.8,
-                    color: context.L.text,
+                    color: L.text,
                   ),
-                ).animate().fadeIn(duration: 450.ms),
+                ).medAiChain(
+                  context,
+                  (w) => w.animate().fadeIn(duration: 450.ms),
+                ),
                 const SizedBox(height: 8),
                 Text(
                   'Preparing your health workspace',
                   style: AppTypography.bodySmall.copyWith(
-                    color: context.L.sub,
+                    color: L.sub,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -48,7 +52,10 @@ class LoadingScreen extends StatelessWidget {
                 const AppLoadingIndicator(size: 18),
               ],
             ),
-          ).animate().fadeIn(duration: 500.ms).slideY(begin: 0.05, end: 0),
+          ).medAiChain(
+            context,
+            (w) => w.animate().fadeIn(duration: 500.ms).slideY(begin: 0.05, end: 0),
+          ),
         ),
       ),
     );

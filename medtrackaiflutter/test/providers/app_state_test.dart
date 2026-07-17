@@ -147,4 +147,57 @@ void main() {
       expect(appState.med.getStreak(), 3);
     });
   });
+
+  group('AppState connectivity', () {
+    AppState buildWith(Future<bool> Function() probe) => AppState(
+          medRepo: mockMedRepo,
+          userRepo: mockUserRepo,
+          symptomRepo: mockSymptomRepo,
+          audioPlayer: mockAudioPlayer,
+          prefs: mockPrefs,
+          linkService: mockLinkService,
+          probeOnline: probe,
+        );
+
+    test('checkConnectivity flips isOffline when probe fails', () async {
+      final state = buildWith(() async => false);
+      expect(state.isOffline, false);
+
+      final online = await state.checkConnectivity();
+
+      expect(online, false);
+      expect(state.isOffline, true);
+    });
+
+    test('going back online clears a lingering networkErrorMessage', () async {
+      var reachable = false;
+      final state = buildWith(() async => reachable);
+
+      // Simulate a request-level failure while isOffline stayed false.
+      state.setNetworkError('Timed out');
+      expect(state.networkErrorMessage, 'Timed out');
+      expect(state.isOffline, false);
+
+      var notified = 0;
+      state.addListener(() => notified++);
+
+      reachable = true;
+      final online = await state.checkConnectivity();
+
+      expect(online, true);
+      expect(state.networkErrorMessage, isNull);
+      expect(notified, greaterThan(0),
+          reason: 'clearing the error should notify listeners');
+    });
+
+    test('checkConnectivity does not notify when nothing changed', () async {
+      final state = buildWith(() async => true);
+      var notified = 0;
+      state.addListener(() => notified++);
+
+      await state.checkConnectivity();
+
+      expect(notified, 0);
+    });
+  });
 }

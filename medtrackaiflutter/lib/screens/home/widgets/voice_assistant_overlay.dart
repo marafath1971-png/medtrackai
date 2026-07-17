@@ -33,7 +33,7 @@ class VoiceAssistantOverlay extends StatelessWidget {
     }
 
     Widget transcript = Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p40),
       child: Semantics(
         liveRegion: true,
         label: state.voiceTranscript,
@@ -64,12 +64,12 @@ class VoiceAssistantOverlay extends StatelessWidget {
               children: [
                 const Spacer(),
                 _buildAnimatedMic(state, L, reduceMotion),
-                const SizedBox(height: 48),
+                const SizedBox(height: AppSpacing.p48),
                 transcript,
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.p16),
                 if (state.voiceFeedback.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 48),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p48),
                     child: Text(
                       state.voiceFeedback,
                       textAlign: TextAlign.center,
@@ -101,7 +101,7 @@ class VoiceAssistantOverlay extends StatelessWidget {
                     ),
                   ),
                 ).maybeAnimate(reduceMotion, delay: 1.seconds),
-                const SizedBox(height: 40),
+                const SizedBox(height: AppSpacing.p40),
               ],
             ),
           ),
@@ -121,11 +121,11 @@ class VoiceAssistantOverlay extends StatelessWidget {
     if (isThinking) icon = Icons.auto_awesome;
     if (isSuccess) {
       icon = Icons.check_circle_rounded;
-      color = Colors.greenAccent;
+      color = AppColors.green;
     }
     if (isError) {
       icon = Icons.error_outline_rounded;
-      color = Colors.redAccent;
+      color = AppColors.red;
     }
 
     Widget mic = Container(

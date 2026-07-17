@@ -88,14 +88,18 @@ class InteractionWarningBanner extends StatelessWidget {
               ),
             ),
             // Dismiss button
-            GestureDetector(
-              onTap: () {
-                HapticEngine.selection();
-                context.read<AppState>().clearInteractionWarning();
-              },
-              child: Padding(
-                padding: const EdgeInsetsDirectional.only(start: 8, top: 2),
-                child: Icon(Icons.close_rounded, size: 18, color: L.sub),
+            Semantics(
+              button: true,
+              label: 'Dismiss interaction warning',
+              child: GestureDetector(
+                onTap: () {
+                  HapticEngine.selection();
+                  context.read<AppState>().clearInteractionWarning();
+                },
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.only(start: 8, top: 2),
+                  child: Icon(Icons.close_rounded, size: 18, color: L.sub),
+                ),
               ),
             ),
           ],

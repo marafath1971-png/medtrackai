@@ -144,23 +144,23 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
           SliverToBoxAdapter(child: _buildHeroSection(med, medColor, L)),
           SliverToBoxAdapter(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (med.intakeInstructions.isNotEmpty &&
                       med.intakeInstructions != 'None') ...[
                     _buildIntakeChip(med.intakeInstructions, L),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.p24),
                   ],
                   _buildBentoMetrics(med, adherence, L),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.p16),
                   _buildQuickActions(med, context.read<AppState>(), L),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.p24),
 
                   if (med.productAnalysis != null) ...[
                     _buildAnalysisButton(med, L),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.p24),
                   ],
 
                   if (med.aiSafetyProfile != null && (med.aiSafetyProfile!.mechanismOfAction.isNotEmpty && med.aiSafetyProfile!.mechanismOfAction != 'Details about how this medication works in your body will appear here.')) ...[
@@ -180,18 +180,18 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                         onAskAIPressed: () => InlineAiCoach.show(context, med, impact: impact),
                       ).animate().fadeIn(duration: 400.ms).slideY(begin: 0.05, end: 0);
                     }),
-                    const SizedBox(height: 24),
+                    const SizedBox(height: AppSpacing.p24),
                   ],
 
                   _buildSafetyPanel(med, L),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.p24),
                   _buildHistorySection(med, adherence, historyCount.taken,
                       historyCount.total, L),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.p24),
                   _buildScheduleSection(med, context.read<AppState>(), L),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.p24),
                   _buildSpecificationsSection(med, L),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.p24),
                   _buildSettingsSection(med, context.read<AppState>(), L),
                   const SizedBox(height: 120),
                 ],
@@ -234,7 +234,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
               controller: _scrollController,
               physics: const BouncingScrollPhysics(
                   parent: AlwaysScrollableScrollPhysics()),
-              padding: const EdgeInsets.fromLTRB(20, 20, 20, 120),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p20, AppSpacing.gutter, 120),
               child: Column(
                 children: [
                   _buildEditForm(med, context.read<AppState>(), L),
@@ -246,7 +246,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
 
         // ── SAVE ACTION BAR ──
         Container(
-          padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+          padding: const EdgeInsets.fromLTRB(AppSpacing.p24, AppSpacing.p16, AppSpacing.p24, AppSpacing.p32),
           decoration: BoxDecoration(
             color: L.bg,
             border: Border(
@@ -335,7 +335,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
     Widget avatar = Hero(
       tag: 'med_${med.id}',
       child: Container(
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.all(AppSpacing.p8),
         decoration: BoxDecoration(
           shape: BoxShape.circle,
           border: Border.all(
@@ -387,7 +387,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
 
     return Container(
       width: double.infinity,
-      margin: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+      margin: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, AppSpacing.p8),
       padding: const EdgeInsets.symmetric(vertical: 28),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(28),
@@ -404,9 +404,9 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       child: Column(
         children: [
           avatar,
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.p16),
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
             decoration: BoxDecoration(
               color: medColor.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(100),
@@ -432,7 +432,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
 
     return GlassCard(
       padding: EdgeInsets.zero,
-      tintColor: Colors.amber,
+      tintColor: AppColors.amber,
       borderRadius: AppRadius.roundXL,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(24),
@@ -444,11 +444,11 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
               child: Icon(
                 Icons.shield_rounded,
                 size: 140,
-                color: Colors.amber.withValues(alpha: 0.05),
+                color: AppColors.amber.withValues(alpha: 0.05),
               ),
             ),
             Padding(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppSpacing.p24),
               child: Row(
                 children: [
                   Expanded(
@@ -459,9 +459,9 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
+                                  horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
                               decoration: BoxDecoration(
-                                color: Colors.amber,
+                                color: AppColors.amber,
                                 borderRadius: BorderRadius.circular(4),
                               ),
                               child: Text(
@@ -474,7 +474,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppSpacing.p8),
                             Text(
                               'Antibiotic detected',
                               style: AppTypography.labelSmall.copyWith(
@@ -484,7 +484,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                             ),
                           ],
                         ),
-                        const SizedBox(height: 16),
+                        const SizedBox(height: AppSpacing.p16),
                         Text(
                           'Complete the full course',
                           style: AppTypography.titleMedium.copyWith(
@@ -494,7 +494,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                             letterSpacing: -0.3,
                           ),
                         ),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppSpacing.p8),
                         Text(
                           'This medication must be finished entirely. Do not stop early, even if symptoms vanish. Pathogens can remain and build resistance.',
                           style: AppTypography.bodySmall.copyWith(
@@ -503,20 +503,20 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
-                        const SizedBox(height: 20),
+                        const SizedBox(height: AppSpacing.p20),
                         Container(
-                          padding: const EdgeInsets.all(12),
+                          padding: const EdgeInsets.all(AppSpacing.p12),
                           decoration: BoxDecoration(
-                            color: Colors.amber.withValues(alpha: 0.05),
+                            color: AppColors.amber.withValues(alpha: 0.05),
                             borderRadius: BorderRadius.circular(12),
                             border: Border.all(
-                                color: Colors.amber.withValues(alpha: 0.15)),
+                                color: AppColors.amber.withValues(alpha: 0.15)),
                           ),
                           child: Row(
                             children: [
                               const Icon(Icons.shield_rounded,
-                                  size: 16, color: Colors.amber),
-                              const SizedBox(width: 12),
+                                  size: 16, color: AppColors.amber),
+                              const SizedBox(width: AppSpacing.p12),
                               Expanded(
                                 child: Text(
                                   "Safety measure active: Completing the full course prevents antibiotic resistance.",
@@ -556,23 +556,23 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                 label: 'Adherence',
                 value: adherence == -1 ? '••' : '$adherence%',
                 icon: '📈',
-                color: const Color(0xFF34C759), // iOS Green
+                color: L.success,
                 L: L,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.p12),
             Expanded(
               child: _DiagnosticCard(
                 label: 'Next Dose',
                 value: nextDose,
                 icon: '⏰',
-                color: const Color(0xFFFF9500), // iOS Orange
+                color: AppColors.orangeIos, // iOS Orange
                 L: L,
               ),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.p12),
         _DiagnosticCard(
           label: 'Inventory Reserve',
           value: '${med.count} Units',
@@ -598,7 +598,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                           fontWeight: FontWeight.w700)),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.p8),
               _ModernStockBar(pct: pct, isLow: med.count <= med.refillAt, L: L),
             ],
           ),
@@ -621,24 +621,24 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
               child: Container(
                 constraints:
                     const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
-                padding: const EdgeInsets.symmetric(vertical: 14),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.p16),
                 decoration: BoxDecoration(
                   gradient: isLow
                       ? LinearGradient(
                           colors: [
-                            const Color(0xFFFF9500),
-                            const Color(0xFFFF9500).withValues(alpha: 0.85),
+                            AppColors.orangeIos,
+                            AppColors.orangeIos.withValues(alpha: 0.85),
                           ],
                         )
                       : null,
                   color: isLow
                       ? null
-                      : const Color(0xFF007AFF).withValues(alpha: 0.12),
+                      : L.info.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(100),
                   border: isLow
                       ? null
                       : Border.all(
-                          color: const Color(0xFF007AFF).withValues(alpha: 0.25),
+                          color: L.info.withValues(alpha: 0.25),
                           width: 0.5),
                 ),
                 child: Row(
@@ -647,13 +647,13 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                     Icon(
                       isLow ? Icons.warning_amber_rounded : Icons.refresh_rounded,
                       size: 18,
-                      color: isLow ? Colors.white : const Color(0xFF007AFF),
+                      color: isLow ? Colors.white : L.info,
                     ),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppSpacing.p8),
                     Text(
                       'Restock',
                       style: AppTypography.titleMedium.copyWith(
-                        color: isLow ? Colors.white : const Color(0xFF007AFF),
+                        color: isLow ? Colors.white : L.info,
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                       ),
@@ -664,7 +664,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
             ),
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: AppSpacing.p12),
         // ── LOG FLEXIBLE DOSE ──
         Expanded(
           child: _AnimatedLogDoseButton(med: med),
@@ -705,7 +705,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
               Text('Add units to ${med.name}',
                   style: AppTypography.bodySmall
                       .copyWith(color: L.sub, fontWeight: FontWeight.w500)),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppSpacing.p32),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -715,7 +715,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                           setSheetState(() => addAmount = (addAmount - 10).clamp(10, 365)),
                       L: L,
                     ),
-                    const SizedBox(width: 20),
+                    const SizedBox(width: AppSpacing.p20),
                     Column(
                       children: [
                         Text('$addAmount',
@@ -732,7 +732,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                                 fontSize: 11)),
                       ],
                     ),
-                    const SizedBox(width: 20),
+                    const SizedBox(width: AppSpacing.p20),
                     _RestockBtn(
                       label: '+ 10',
                       onTap: () =>
@@ -741,7 +741,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppSpacing.p32),
                 MedAiCTA(
                   label: 'Confirm restock',
                   onTap: () {
@@ -778,7 +778,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
   Widget _buildIntakeChip(String intake, AppThemeColors L) {
     return Center(
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
         decoration: BoxDecoration(
           color: L.card,
           borderRadius: BorderRadius.circular(12),
@@ -789,7 +789,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             const Text("🍽️", style: TextStyle(fontSize: 14)),
-            const SizedBox(width: 10),
+            const SizedBox(width: AppSpacing.p12),
             Text(intake,
                 style: AppTypography.labelLarge.copyWith(
                     fontWeight: FontWeight.w600,
@@ -829,7 +829,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                   }
                 },
                 L: L)),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.p12),
         if (med.schedule.isEmpty)
           _buildEmptyCard('No active reminders', Icons.notifications_off_rounded, L)
         else
@@ -861,7 +861,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                       color: L.glassBorder.withValues(alpha: 0.08), width: 0.5))),
       child: ListTile(
         contentPadding:
-            const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+            const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p12),
         onTap: () async {
           HapticEngine.selection();
           final result = await ModernTimePicker.show(context,
@@ -910,7 +910,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                 style: AppTypography.titleLarge.copyWith(
                     fontWeight: FontWeight.w600,
                     color: s.enabled ? L.text : L.sub)),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.p12),
             Text(
                 (s.ritual != Ritual.none ? s.ritual.displayName : s.label),
                 style: AppTypography.bodySmall.copyWith(
@@ -920,7 +920,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
           ],
         ),
         subtitle: Padding(
-          padding: const EdgeInsets.only(top: 4),
+          padding: const EdgeInsets.only(top: AppSpacing.p4),
           child: Text(
               ['S', 'M', 'T', 'W', 'T', 'F', 'S']
                   .asMap()
@@ -952,9 +952,9 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(label: 'History', emoji: '🔄', L: L),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.p12),
         GlassCard(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.p24),
           tintColor: medColor,
           borderRadius: AppRadius.roundXL,
           child: Column(
@@ -971,9 +971,9 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                   _Metric(label: 'Score', value: '$adh%', color: L.text, L: L),
                 ],
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.p24),
               Divider(color: L.glassBorder.withValues(alpha: 0.08)),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.p24),
               _HistoryMatrix(medId: med.id, medColor: medColor),
             ],
           ),
@@ -988,7 +988,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(label: 'Specifications', emoji: '⚙️', L: L),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.p12),
         SizedBox(
           height: 100,
           child: ListView(
@@ -998,12 +998,12 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
             clipBehavior: Clip.none,
             children: [
               _SpecTile(label: 'Form', value: med.form, icon: Icons.medication_rounded, L: L, tintColor: medColor),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.p12),
               _SpecTile(
                   label: 'Category', value: med.category, icon: Icons.label_rounded, L: L, tintColor: medColor),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.p12),
               _SpecTile(label: 'Unit', value: med.unit, icon: Icons.scale_rounded, L: L, tintColor: medColor),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.p12),
               _SpecTile(
                   label: 'Start', value: med.courseStartDate, icon: Icons.calendar_today_rounded, L: L, tintColor: medColor),
             ],
@@ -1019,7 +1019,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _SectionHeader(label: 'Settings', emoji: '🛠️', L: L),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.p12),
         GlassCard(
           padding: EdgeInsets.zero,
           tintColor: medColor,
@@ -1030,7 +1030,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                   icon: Icons.add_rounded,
                   title: 'Quick Refill (+10)',
                   iconColor: Colors.white,
-                  iconBg: const Color(0xFF34C759), // iOS Green
+                  iconBg: L.success,
                   color: L.text,
                   onTap: () {
                     HapticEngine.success();
@@ -1041,8 +1041,8 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                   icon: Icons.delete_outline_rounded,
                   title: 'Decommission Medicine',
                   iconColor: Colors.white,
-                  iconBg: const Color(0xFFFF3B30), // iOS Red
-                  color: const Color(0xFFFF3B30),
+                  iconBg: AppColors.red, // iOS Red
+                  color: AppColors.red,
                   onTap: () {
                     HapticEngine.alertWarning();
                     state.deleteMed(med.id);
@@ -1073,24 +1073,24 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
               onCategorySelected: (c) => setState(() => _editFields['category'] = c),
               L: L),
         ]),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.p20),
         _FormSection(label: 'Identity', icon: Icons.person_rounded, L: L, children: [
           _ModernTextField(label: 'Medicine Name', value: _editFields['name'] ?? '', onChanged: (v) => _editFields['name'] = v, L: L),
           _ModernTextField(label: 'Brand Name', value: _editFields['brand'] ?? '', onChanged: (v) => _editFields['brand'] = v, L: L, isLast: true),
         ]),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.p20),
         _FormSection(label: 'Configuration', icon: Icons.settings_rounded, L: L, children: [
           _ModernTextField(label: 'Dosage', value: _editFields['dose'] ?? '', onChanged: (v) => _editFields['dose'] = v, L: L),
           _ModernTextField(label: 'Form', value: _editFields['form'] ?? '', onChanged: (v) => _editFields['form'] = v, L: L),
           _ModernTextField(label: 'Intake Instructions', value: _editFields['intakeInstructions'] ?? '', onChanged: (v) => _editFields['intakeInstructions'] = v, L: L, isLast: true),
         ]),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.p20),
         _FormSection(label: 'Inventory & refills', icon: Icons.inventory_2_rounded, L: L, children: [
           _ModernTextField(label: 'Current Count', value: _editFields['count'] ?? '', onChanged: (v) => _editFields['count'] = v, L: L, keyboard: TextInputType.number),
           _ModernTextField(label: 'Total Box Count', value: _editFields['totalCount'] ?? '', onChanged: (v) => _editFields['totalCount'] = v, L: L, keyboard: TextInputType.number),
           _ModernTextField(label: 'Refill Alert At', value: _editFields['refillAt'] ?? '', onChanged: (v) => _editFields['refillAt'] = v, L: L, keyboard: TextInputType.number, isLast: true),
         ]),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.p20),
         _FormSection(label: 'Pharmacy details', icon: Icons.local_pharmacy_rounded, L: L, children: [
           _ModernTextField(label: 'Pharmacy Name', value: _editFields['pharmacyName'] ?? '', onChanged: (v) => _editFields['pharmacyName'] = v, L: L),
           _ModernTextField(label: 'Pharmacy Phone', value: _editFields['pharmacyPhone'] ?? '', onChanged: (v) => _editFields['pharmacyPhone'] = v, L: L, keyboard: TextInputType.phone),
@@ -1161,7 +1161,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                 
                 // Active Days
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: Text("ACTIVE DAYS",
                       style: AppTypography.labelSmall.copyWith(
                           color: L.sub,
@@ -1169,7 +1169,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                           letterSpacing: 1.5,
                           fontSize: 10)),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.p12),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: ['S', 'M', 'T', 'W', 'T', 'F', 'S']
@@ -1209,11 +1209,11 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                   }).toList(),
                 ),
                 
-                const SizedBox(height: 32),
+                const SizedBox(height: AppSpacing.p32),
                 
                 // Meal Ritual
                 Align(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   child: Text("MEAL RITUAL",
                       style: AppTypography.labelSmall.copyWith(
                           color: L.sub,
@@ -1221,7 +1221,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                           letterSpacing: 1.5,
                           fontSize: 10)),
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.p12),
                 Flexible(
                   child: ListView(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -1250,7 +1250,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                   ),
                 ),
                 
-                const SizedBox(height: 24),
+                const SizedBox(height: AppSpacing.p24),
                 MedAiCTA(
                   label: 'Save reminder',
                   onTap: () {
@@ -1277,12 +1277,12 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
 
   Widget _buildEmptyCard(String text, IconData icon, AppThemeColors L) {
     return MedAiGlass(
-      padding: const EdgeInsets.symmetric(vertical: 40, horizontal: 20),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.p40, horizontal: AppSpacing.gutter),
       child: Center(
           child: Column(
         children: [
           Icon(icon, size: 32, color: L.sub.withValues(alpha: 0.3)),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.p16),
           Text(text,
               style: AppTypography.labelSmall
                   .copyWith(color: L.sub, fontWeight: FontWeight.w700)),
@@ -1320,7 +1320,7 @@ class _DiagnosticCard extends StatelessWidget {
         height: height,
         child: MedAiDepthCard(
           accentGlow: true,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1340,7 +1340,7 @@ class _DiagnosticCard extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding: const EdgeInsets.all(6),
+                    padding: const EdgeInsets.all(AppSpacing.p8),
                     decoration: BoxDecoration(
                       color: color.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
@@ -1349,7 +1349,7 @@ class _DiagnosticCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.p8),
               FittedBox(
                 fit: BoxFit.scaleDown,
                 child: Text(
@@ -1363,7 +1363,7 @@ class _DiagnosticCard extends StatelessWidget {
                 ),
               ),
               if (child != null) ...[
-                const SizedBox(height: 6),
+                const SizedBox(height: AppSpacing.p8),
                 child!,
               ],
             ],
@@ -1454,7 +1454,7 @@ class _HeaderAction extends StatelessWidget {
         onTap: onTap,
         child: Container(
           constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTargetCompact),
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
           decoration: BoxDecoration(
             color: L.card,
             borderRadius: BorderRadius.circular(12),
@@ -1463,7 +1463,7 @@ class _HeaderAction extends StatelessWidget {
           ),
           child: Row(mainAxisSize: MainAxisSize.min, children: [
             Icon(icon, size: 14, color: L.text),
-            const SizedBox(width: 4),
+            const SizedBox(width: AppSpacing.p4),
             Text(label,
                 style: AppTypography.labelSmall.copyWith(
                     color: L.text,
@@ -1567,7 +1567,7 @@ class _HistoryMatrix extends StatelessWidget {
             );
           },
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.p16),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -1580,11 +1580,11 @@ class _HistoryMatrix extends StatelessWidget {
             Row(
               children: [
                 Container(width: 8, height: 8, decoration: BoxDecoration(color: L.fill.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2))),
-                const SizedBox(width: 4),
+                const SizedBox(width: AppSpacing.p4),
                 Text('Missed', style: AppTypography.labelSmall.copyWith(fontSize: 10, color: L.sub, fontWeight: FontWeight.w500)),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.p12),
                 Container(width: 8, height: 8, decoration: BoxDecoration(color: medColor, borderRadius: BorderRadius.circular(2))),
-                const SizedBox(width: 4),
+                const SizedBox(width: AppSpacing.p4),
                 Text('Taken', style: AppTypography.labelSmall.copyWith(fontSize: 10, color: L.text, fontWeight: FontWeight.w500)),
               ],
             ),
@@ -1614,7 +1614,7 @@ class _SpecTile extends StatelessWidget {
     return SizedBox(
       width: 120,
       child: GlassCard(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p16),
         tintColor: tintColor ?? L.card,
         borderRadius: AppRadius.roundM,
         child: Stack(
@@ -1632,7 +1632,7 @@ class _SpecTile extends StatelessWidget {
                 Row(
                   children: [
                     Icon(icon, size: 14, color: (tintColor ?? L.text).withValues(alpha: 0.8)),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppSpacing.p8),
                     Expanded(
                       child: Text(
                         label,
@@ -1646,7 +1646,7 @@ class _SpecTile extends StatelessWidget {
                     ),
                   ],
                 ),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.p12),
                 Text(
                   value.isEmpty ? 'Not set' : value,
                   maxLines: 1,
@@ -1703,9 +1703,9 @@ class _ManagementTile extends StatelessWidget {
                           width: 0.5))),
           child: ListTile(
               contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+                  const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p8),
               leading: Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(AppSpacing.p8),
                 decoration: BoxDecoration(
                   color: iconBg,
                   borderRadius: BorderRadius.circular(10),
@@ -1774,12 +1774,12 @@ class _ModernTextField extends StatelessWidget {
                   bottom: BorderSide(
                       color: L.border.withValues(alpha: 0.05), width: 0.5))),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p12),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
-            SizedBox(
-              width: 130,
+            Flexible(
+              flex: 2,
               child: Text(label,
                   style: AppTypography.labelSmall.copyWith(
                       color: L.text,
@@ -1787,8 +1787,9 @@ class _ModernTextField extends StatelessWidget {
                       letterSpacing: 0.5,
                       fontSize: 13)),
             ),
-            const SizedBox(width: 16),
-            Expanded(
+            const SizedBox(width: AppSpacing.p16),
+            Flexible(
+              flex: 3,
               child: TextFormField(
                 initialValue: value,
                 onChanged: onChanged,
@@ -1824,23 +1825,23 @@ class _ColorPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     const colors = ['#FF3B30', '#FF9F0A', '#FFD60A', '#34C759', '#00C7BE', '#32ADE6', '#007AFF', '#5856D6', '#AF52DE', '#FF2D55'];
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.p16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
             child: Text("ACCENT COLOR", style: AppTypography.labelSmall.copyWith(color: L.sub, fontWeight: FontWeight.w600, letterSpacing: 1.0, fontSize: 10)),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.p12),
           SizedBox(
             height: 44,
             child: ListView.separated(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
               scrollDirection: Axis.horizontal,
               itemCount: colors.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.p12),
               itemBuilder: (context, index) {
                 final hex = colors[index];
                 final isSelected = selectedColor.toUpperCase() == hex.toUpperCase();
@@ -1893,23 +1894,23 @@ class _CategoryPicker extends StatelessWidget {
   Widget build(BuildContext context) {
     const categories = ['Tablet', 'Antibiotic', 'Vitamin', 'Painkiller', 'Sleep', 'Liquid', 'Cream', 'Inhaler', 'Injection'];
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 16),
+      padding: const EdgeInsets.symmetric(vertical: AppSpacing.p16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
             child: Text("CATEGORY & ICON", style: AppTypography.labelSmall.copyWith(color: L.sub, fontWeight: FontWeight.w600, letterSpacing: 1.0, fontSize: 10)),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.p12),
           SizedBox(
             height: 80,
             child: ListView.separated(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
               scrollDirection: Axis.horizontal,
               itemCount: categories.length,
-              separatorBuilder: (_, __) => const SizedBox(width: 12),
+              separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.p12),
               itemBuilder: (context, index) {
                 final cat = categories[index];
                 final isSelected = selectedCategory.toLowerCase() == cat.toLowerCase();
@@ -1932,7 +1933,7 @@ class _CategoryPicker extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Text(_getCategoryEmoji(cat), style: const TextStyle(fontSize: 24)),
-                        const SizedBox(height: 8),
+                        const SizedBox(height: AppSpacing.p8),
                         Text(cat, style: AppTypography.labelSmall.copyWith(color: isSelected ? L.primary : L.sub, fontSize: 10, fontWeight: FontWeight.w600)),
                       ],
                     ),
@@ -2030,6 +2031,7 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MedAiA11y.reducedMotion(context);
+    final L = context.L;
     return Semantics(
       button: true,
       enabled: _state == 0,
@@ -2046,21 +2048,21 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
               : const Duration(milliseconds: 400),
           curve: Curves.easeOutExpo,
           constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
-          padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 12),
+          padding: const EdgeInsets.symmetric(vertical: AppSpacing.p16, horizontal: AppSpacing.p12),
           decoration: BoxDecoration(
-            color: _state == 2 ? const Color(0xFF34C759) : Colors.white,
+            color: _state == 2 ? L.success : Colors.white,
             borderRadius: BorderRadius.circular(100),
             boxShadow: [
               if (_state == 0)
                 BoxShadow(
-                  color: const Color(0xFF34C759).withValues(alpha: 0.3),
+                  color: L.success.withValues(alpha: 0.3),
                   blurRadius: 16,
                   spreadRadius: 1,
                   offset: const Offset(0, 4),
                 ),
               if (_state == 2)
                 BoxShadow(
-                  color: const Color(0xFF34C759).withValues(alpha: 0.5),
+                  color: L.success.withValues(alpha: 0.5),
                   blurRadius: 24,
                   spreadRadius: 4,
                   offset: const Offset(0, 8),
@@ -2095,7 +2097,7 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: const EdgeInsets.all(4),
+                        padding: const EdgeInsets.all(AppSpacing.p4),
                         decoration: BoxDecoration(
                           color: Colors.black.withValues(alpha: 0.05),
                           shape: BoxShape.circle,
@@ -2103,7 +2105,7 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
                         child: const Icon(Icons.check_rounded,
                             color: Colors.black, size: 16),
                       ),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.p8),
                       Text(
                         'Log Dose',
                         style: AppTypography.titleMedium.copyWith(
@@ -2120,12 +2122,12 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const SizedBox(
-                            width: 18,
+                            width: AppSpacing.p20,
                             height: 18,
                             child: CircularProgressIndicator(
                                 strokeWidth: 2.5, color: Colors.black87),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: AppSpacing.p12),
                           Text(
                             'Logging...',
                             style: AppTypography.titleMedium.copyWith(
@@ -2142,7 +2144,7 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
                         children: [
                           const Icon(Icons.verified_rounded,
                               color: Colors.white, size: 20),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: AppSpacing.p8),
                           Text(
                             'Logged!',
                             style: AppTypography.titleMedium.copyWith(

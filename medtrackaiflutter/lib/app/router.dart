@@ -60,35 +60,70 @@ CustomTransitionPage<void> _fadeTabPage({required Widget child}) {
   );
 }
 
+/// Soft rise + fade for sheets / celebratory fullscreens (200–320ms).
 CustomTransitionPage<void> _springPage({required Widget child}) {
   return CustomTransitionPage<void>(
     child: child,
-    transitionDuration: AppDurations.hero,
+    transitionDuration: AppDurations.medium,
     reverseTransitionDuration: AppDurations.exit,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: AppCurves.emilOut,
+        reverseCurve: AppCurves.emilOut,
+      );
       final slide = Tween<Offset>(
-        begin: const Offset(0, 0.06),
+        begin: const Offset(0, 0.04),
         end: Offset.zero,
-      ).animate(CurvedAnimation(parent: animation, curve: AppCurves.smooth));
+      ).animate(curved);
       return FadeTransition(
-        opacity: animation,
+        opacity: curved,
         child: SlideTransition(position: slide, child: child),
       );
     },
   );
 }
 
+/// Standard push — short horizontal drift + fade (feels like premium iOS).
 CustomTransitionPage<void> _slidePage({required Widget child}) {
   return CustomTransitionPage<void>(
     child: child,
-    transitionDuration: AppDurations.hero,
+    transitionDuration: AppDurations.medium,
     reverseTransitionDuration: AppDurations.exit,
     transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: AppCurves.iosEaseOut,
+        reverseCurve: AppCurves.emilOut,
+      );
       final slide = Tween<Offset>(
-        begin: const Offset(0, 0.04),
+        begin: const Offset(0.06, 0),
         end: Offset.zero,
-      ).animate(CurvedAnimation(parent: animation, curve: AppCurves.smooth));
-      return SlideTransition(position: slide, child: FadeTransition(opacity: animation, child: child));
+      ).animate(curved);
+      return SlideTransition(
+        position: slide,
+        child: FadeTransition(opacity: curved, child: child),
+      );
+    },
+  );
+}
+
+CustomTransitionPage<void> _fadePage({
+  required Widget child,
+  bool fullscreenDialog = false,
+}) {
+  return CustomTransitionPage<void>(
+    child: child,
+    fullscreenDialog: fullscreenDialog,
+    transitionDuration: AppDurations.fast,
+    reverseTransitionDuration: AppDurations.exit,
+    transitionsBuilder: (context, animation, secondaryAnimation, child) {
+      final curved = CurvedAnimation(
+        parent: animation,
+        curve: AppCurves.emilOut,
+        reverseCurve: AppCurves.emilOut,
+      );
+      return FadeTransition(opacity: curved, child: child);
     },
   );
 }
@@ -118,13 +153,18 @@ List<RouteBase> _rootOverlayRoutes() => [
           onClose: () => context.pop(),
           initialMode: initialMode,
         ),
+        transitionDuration: AppDurations.medium,
+        reverseTransitionDuration: AppDurations.exit,
         transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          final curved = CurvedAnimation(
+            parent: animation,
+            curve: AppCurves.emilOut,
+            reverseCurve: AppCurves.emilOut,
+          );
           return FadeTransition(
-            opacity: animation,
+            opacity: curved,
             child: ScaleTransition(
-              scale: Tween<double>(begin: 0.92, end: 1.0).animate(
-                CurvedAnimation(parent: animation, curve: AppCurves.liquid),
-              ),
+              scale: Tween<double>(begin: 0.96, end: 1.0).animate(curved),
               child: child,
             ),
           );
@@ -177,12 +217,9 @@ List<RouteBase> _rootOverlayRoutes() => [
   GoRoute(
     path: AppRoutes.statsWrapped,
     parentNavigatorKey: rootNavigatorKey,
-    pageBuilder: (context, state) => CustomTransitionPage<void>(
+    pageBuilder: (context, state) => _fadePage(
       fullscreenDialog: true,
       child: const MonthlyWrappedScreen(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return FadeTransition(opacity: animation, child: child);
-      },
     ),
   ),
   GoRoute(
@@ -233,12 +270,9 @@ List<RouteBase> _rootOverlayRoutes() => [
     pageBuilder: (context, state) {
       final dialog = state.uri.queryParameters['dialog'] == 'true';
       if (dialog) {
-        return CustomTransitionPage<void>(
+        return _fadePage(
           fullscreenDialog: true,
           child: const AddFamilyMemberScreen(),
-          transitionsBuilder: (context, animation, secondaryAnimation, child) {
-            return FadeTransition(opacity: animation, child: child);
-          },
         );
       }
       return _slidePage(child: const AddFamilyMemberScreen());
@@ -308,12 +342,9 @@ List<RouteBase> _rootOverlayRoutes() => [
   GoRoute(
     path: AppRoutes.statsMedWrapped,
     parentNavigatorKey: rootNavigatorKey,
-    pageBuilder: (context, state) => CustomTransitionPage<void>(
+    pageBuilder: (context, state) => _fadePage(
       fullscreenDialog: true,
       child: const MedWrappedScreen(),
-      transitionsBuilder: (context, animation, secondaryAnimation, child) {
-        return FadeTransition(opacity: animation, child: child);
-      },
     ),
   ),
   GoRoute(

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
+import 'package:medai/widgets/common/animated_pressable.dart';
+
 import '../../domain/entities/managed_profile.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_page_header.dart';
-import 'package:flutter_animate/flutter_animate.dart';
-import 'package:medai/widgets/common/animated_pressable.dart';
 
 class ProfilePinScreen extends StatefulWidget {
   final ManagedProfile profile;
@@ -72,9 +73,15 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
                 children: [
                   const Spacer(),
                   Text(widget.profile.avatar, style: const TextStyle(fontSize: 64))
-                      .animate()
-                      .scaleXY(begin: 0.95, duration: 500.ms, curve: AppCurves.emilOut),
-                  const SizedBox(height: 16),
+                      .medAiChain(
+                    context,
+                    (w) => w.animate().scaleXY(
+                          begin: 0.95,
+                          duration: 500.ms,
+                          curve: AppCurves.emilOut,
+                        ),
+                  ),
+                  const SizedBox(height: AppSpacing.p16),
                   Text(
                     'Unlock ${widget.profile.name}',
                     style: AppTypography.headlineLarge.copyWith(
@@ -83,7 +90,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
                       letterSpacing: -0.6,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.p8),
                   Text(
                     'Enter profile PIN to switch',
                     style: AppTypography.bodyMedium.copyWith(
@@ -91,12 +98,12 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: AppSpacing.p32),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(4, (index) {
                       return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 12),
+                        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.p12),
                         width: 20,
                         height: 20,
                         decoration: BoxDecoration(
@@ -115,12 +122,12 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
                     }),
                   ),
                   if (_error) ...[
-                    const SizedBox(height: 16),
+                    const SizedBox(height: AppSpacing.p16),
                     Text('Incorrect PIN', style: TextStyle(color: L.error)),
                   ],
                   const Spacer(),
                   _buildNumpad(L),
-                  const SizedBox(height: 32),
+                  const SizedBox(height: AppSpacing.p32),
                 ],
               ),
             ),
@@ -132,7 +139,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
 
   Widget _buildNumpad(AppThemeColors L) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 40),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p40),
       child: Column(
         children: [
           Row(
@@ -143,7 +150,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
               _buildKey('3', L),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.p24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -152,7 +159,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
               _buildKey('6', L),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.p24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -161,7 +168,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
               _buildKey('9', L),
             ],
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: AppSpacing.p24),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
@@ -176,21 +183,27 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
   }
 
   Widget _buildKey(String value, AppThemeColors L) {
-    return AnimatedPressable(
-      onTap: () => _onKeyPress(value),
-      child: Container(
-        width: 72,
-        height: 72,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: L.fill,
-        ),
-        child: Center(
-          child: Text(
-            value,
-            style: AppTypography.headlineMedium.copyWith(
-              color: L.text,
-              fontWeight: FontWeight.w600,
+    return Semantics(
+      button: true,
+      label: value,
+      child: AnimatedPressable(
+        onTap: () => _onKeyPress(value),
+        child: Container(
+          width: 72,
+          height: 72,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: L.fill,
+          ),
+          child: Center(
+            child: ExcludeSemantics(
+              child: Text(
+                value,
+                style: AppTypography.headlineMedium.copyWith(
+                  color: L.text,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
           ),
         ),
@@ -199,13 +212,17 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
   }
 
   Widget _buildBackspaceKey(AppThemeColors L) {
-    return AnimatedPressable(
-      onTap: _onBackspace,
-      child: SizedBox(
-        width: 72,
-        height: 72,
-        child: Center(
-          child: Icon(Icons.backspace_outlined, color: L.text, size: 28),
+    return Semantics(
+      button: true,
+      label: 'Delete',
+      child: AnimatedPressable(
+        onTap: _onBackspace,
+        child: SizedBox(
+          width: 72,
+          height: 72,
+          child: Center(
+            child: Icon(Icons.backspace_outlined, color: L.text, size: 28),
+          ),
         ),
       ),
     );

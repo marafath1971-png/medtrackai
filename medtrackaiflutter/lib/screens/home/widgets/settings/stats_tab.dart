@@ -5,7 +5,6 @@ import '../../../../providers/app_state.dart';
 import '../../../../theme/med_ai_ui.dart';
 import '../../../../widgets/common/animated_pressable.dart';
 import '../../../../widgets/common/premium_empty_state.dart';
-import '../../../../core/constants/premium_graphics.dart';
 import '../../../../core/utils/refill_helper.dart';
 import 'settings_shared.dart';
 import '../../../stats/widgets/weekly_wellness_ring.dart';
@@ -90,13 +89,13 @@ class StatsTab extends StatelessWidget {
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: const EdgeInsets.fromLTRB(0, 4, 0, 40),
+      padding: const EdgeInsets.fromLTRB(0, AppSpacing.p4, 0, AppSpacing.p40),
       child: Column(children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16),
           child: MedAiDepthCard(
           accentGlow: true,
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.p24),
           radius: 28,
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -110,7 +109,7 @@ class StatsTab extends StatelessWidget {
                         letterSpacing: -0.2)),
                 Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
                   decoration: BoxDecoration(
                     color: L.fill.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(6),
@@ -126,7 +125,7 @@ class StatsTab extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: AppSpacing.p20),
             Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
               Text('$overallAdh%',
                   style: AppTypography.displayLarge.copyWith(
@@ -135,10 +134,10 @@ class StatsTab extends StatelessWidget {
                       color: L.text,
                       letterSpacing: -2,
                       height: 0.9)),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.p12),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 6),
+                  padding: const EdgeInsets.only(bottom: AppSpacing.p8),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
@@ -154,10 +153,10 @@ class StatsTab extends StatelessWidget {
                               fontWeight: FontWeight.w700,
                               letterSpacing: 0.1,
                               color: overallAdh >= 80
-                                  ? const Color(0xFF34C759)
+                                  ? L.success
                                   : (overallAdh >= 60
-                                      ? const Color(0xFFFF9500)
-                                      : const Color(0xFFFF453A)))),
+                                      ? L.warning
+                                      : L.error))),
                       const SizedBox(height: 2),
                       Text(
                         "Adherence",
@@ -172,7 +171,7 @@ class StatsTab extends StatelessWidget {
                 ),
               ),
             ]),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.p24),
             Stack(
               children: [
                 Container(
@@ -189,18 +188,18 @@ class StatsTab extends StatelessWidget {
                     height: 8,
                     decoration: BoxDecoration(
                         color: overallAdh >= 80
-                            ? const Color(0xFF34C759)
+                            ? L.success
                             : (overallAdh >= 60
-                                ? const Color(0xFFFF9500)
-                                : const Color(0xFFFF453A)),
+                                ? L.warning
+                                : L.error),
                         borderRadius: BorderRadius.circular(99),
                         boxShadow: [
                           BoxShadow(
                             color: (overallAdh >= 80
-                                    ? const Color(0xFF34C759)
+                                    ? L.success
                                     : (overallAdh >= 60
-                                        ? const Color(0xFFFF9500)
-                                        : const Color(0xFFFF453A)))
+                                        ? L.warning
+                                        : L.error))
                                 .withValues(alpha: 0.3),
                             blurRadius: 10,
                           )
@@ -212,7 +211,7 @@ class StatsTab extends StatelessWidget {
             ]),
         ),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: AppSpacing.p24),
 
         // 🧠 AI PREDICTIVE INSIGHTS (Phase 5.0)
         if (predictions.isNotEmpty) ...[
@@ -221,19 +220,19 @@ class StatsTab extends StatelessWidget {
                   fontWeight: FontWeight.w800,
                   color: L.text,
                   letterSpacing: -0.2)),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.p12),
           ...predictions.map((p) => Padding(
-                padding: const EdgeInsets.only(bottom: 12),
+                padding: const EdgeInsets.only(bottom: AppSpacing.p12),
                 child: PredictiveInsightCard(insight: p),
               )),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.p16),
         ],
 
         // 📊 WEEKLY WELLNESS RING (Phase 5.0)
         SettingsSection(
             title: 'Precision Overview',
             child: Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppSpacing.p24),
               decoration: BoxDecoration(
                 color: L.card,
                 borderRadius: BorderRadius.circular(28),
@@ -247,7 +246,7 @@ class StatsTab extends StatelessWidget {
                 ),
               ),
             )),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.p16),
 
         // Grid
         GridView.count(
@@ -296,13 +295,13 @@ class StatsTab extends StatelessWidget {
                 .slideY(begin: 0.2, end: 0),
           ],
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.p16),
 
         // Weekly Bar Chart
         SettingsSection(
             title: 'This Week',
             child: Container(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppSpacing.p24),
               decoration: BoxDecoration(
                 color: L.card,
                 borderRadius: BorderRadius.circular(24),
@@ -321,11 +320,11 @@ class StatsTab extends StatelessWidget {
                         height: (rate * 60).clamp(8, 60),
                         decoration: BoxDecoration(
                             color: rate >= 0.8
-                                ? const Color(0xFF1C1C1E)
-                                : (rate > 0 ? const Color(0xFFFF9500) : L.fill),
+                                ? AppColors.grey900
+                                : (rate > 0 ? L.warning : L.fill),
                             borderRadius: BorderRadius.circular(6)),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: AppSpacing.p8),
                       Text(w['day'] as String,
                           style: AppTypography.labelLarge.copyWith(
                               fontSize: 10,
@@ -336,27 +335,18 @@ class StatsTab extends StatelessWidget {
                 }).toList(),
               ),
             )),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.p16),
 
         // Symptom Trends (Phase 13: Live Integration)
         SettingsSection(
             title: 'Health Story',
             child: state.symptoms.isEmpty
-                ? Container(
-                    height: 100,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      color: L.card,
-                      borderRadius: BorderRadius.circular(24),
-                      border: Border.all(
-                          color: L.border.withValues(alpha: 0.08), width: 0.5),
-                      boxShadow: AppShadows.soft,
-                    ),
-                    child: Center(
-                      child: Text('No symptoms recorded',
-                          style:
-                              AppTypography.labelMedium.copyWith(color: L.sub)),
-                    ),
+                ? PremiumEmptyState(
+                    compact: true,
+                    title: 'No symptoms recorded',
+                    subtitle: 'Log how you feel to build your health story.',
+                    mascotFeature: 'calm',
+                    icon: Icons.monitor_heart_outlined,
                   )
                 : Column(
                     children: state.symptoms.reversed.take(5).map((s) {
@@ -366,7 +356,7 @@ class StatsTab extends StatelessWidget {
                           isHigh ? L.red : (isLow ? L.success : L.warning);
 
                       return Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(AppSpacing.p16),
                         decoration: BoxDecoration(
                           color: L.card,
                           borderRadius: BorderRadius.circular(16),
@@ -390,7 +380,7 @@ class StatsTab extends StatelessWidget {
                                         color: color)),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppSpacing.p12),
                             Expanded(
                               child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -408,7 +398,7 @@ class StatsTab extends StatelessWidget {
                                               .copyWith(color: L.sub)),
                                   ]),
                             ),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppSpacing.p8),
                             Text(s.timestamp.toIso8601String().substring(5, 10),
                                 style: AppTypography.labelSmall
                                     .copyWith(color: L.sub, fontSize: 10)),
@@ -417,17 +407,19 @@ class StatsTab extends StatelessWidget {
                       );
                     }).toList(),
                   )),
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.p16),
 
         // Inventory Forecast (Phase 14: Stock Integration)
         SettingsSection(
             title: 'Inventory Forecast',
             child: state.meds.isEmpty
                 ? PremiumEmptyState(
+                    compact: true,
                     title: 'No medications tracked',
                     subtitle:
                         'Add your first medicine to start building your daily precision log.',
-                    illustrationAsset: PremiumGraphics.onboardingThriving,
+                    mascotFeature: 'add_med',
+                    icon: Icons.medication_rounded,
                   )
                 : Column(
                     children: state.getRefillForecast().take(3).map((m) {
@@ -435,7 +427,7 @@ class StatsTab extends StatelessWidget {
                       final status = RefillHelper.getExhaustionStatus(m);
 
                       return Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(AppSpacing.p16),
                         decoration: BoxDecoration(
                           color: L.card,
                           borderRadius: BorderRadius.circular(16),
@@ -459,7 +451,7 @@ class StatsTab extends StatelessWidget {
                                     style: const TextStyle(fontSize: 14)),
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppSpacing.p12),
                             Expanded(
                               child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -478,7 +470,7 @@ class StatsTab extends StatelessWidget {
                                                     : FontWeight.w500)),
                                   ]),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppSpacing.p12),
                             Column(
                               crossAxisAlignment: CrossAxisAlignment.end,
                               children: [
@@ -500,7 +492,7 @@ class StatsTab extends StatelessWidget {
                                                     fontSize: 10)),
                                       ],
                                     ),
-                                    const SizedBox(width: 16),
+                                    const SizedBox(width: AppSpacing.p16),
                                     Semantics(
                                       button: true,
                                       label: 'Refill ${m.name}',
@@ -512,7 +504,7 @@ class StatsTab extends StatelessWidget {
                                               minHeight:
                                                   MedAiA11y.minTapTarget),
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: 12, vertical: 8),
+                                              horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
                                           decoration: BoxDecoration(
                                             color:
                                                 L.text.withValues(alpha: 0.05),

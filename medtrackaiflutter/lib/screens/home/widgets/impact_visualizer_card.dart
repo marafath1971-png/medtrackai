@@ -34,7 +34,7 @@ class ImpactVisualizerCard extends StatelessWidget {
       button: true,
       label: 'Body impact visualizer. Visualize medication absorption.',
       child: MedAiDepthCard(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p20),
         onTap: () {
           HapticEngine.selection();
           context.push(AppRoutes.impactVisualizer);
@@ -42,7 +42,7 @@ class ImpactVisualizerCard extends StatelessWidget {
         child: Row(
           children: [
             icon,
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.p16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -55,7 +55,7 @@ class ImpactVisualizerCard extends StatelessWidget {
                       letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpacing.p4),
                   Text(
                     'Visualize medication absorption 🚀',
                     style: AppTypography.bodySmall.copyWith(

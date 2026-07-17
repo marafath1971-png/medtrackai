@@ -79,7 +79,7 @@ class ScanResultDetailView extends StatelessWidget {
       children: [
         if (onClose != null)
           Align(
-            alignment: Alignment.centerRight,
+            alignment: AlignmentDirectional.centerEnd,
             child: Semantics(
               button: true,
               label: 'Close results',
@@ -479,7 +479,7 @@ class _IosSection extends StatelessWidget {
       children.add(rows[i]);
       if (i != rows.length - 1) {
         children.add(Padding(
-          padding: const EdgeInsets.only(left: _kSeparatorIndent),
+          padding: const EdgeInsetsDirectional.only(start: _kSeparatorIndent),
           child: SizedBox(
             height: _kHairline,
             child: ColoredBox(color: _hairlineColor(onDark, L)),
@@ -492,7 +492,7 @@ class _IosSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 7),
+          padding: const EdgeInsetsDirectional.only(start: 4, bottom: 7),
           child: Text(
             header.toUpperCase(),
             style: AppTypography.labelSmall.copyWith(
@@ -944,7 +944,7 @@ class _BodyImpactSection extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 4, bottom: 7),
+          padding: const EdgeInsetsDirectional.only(start: 4, bottom: 7),
           child: Text(
             'BODY IMPACT',
             style: AppTypography.labelSmall.copyWith(

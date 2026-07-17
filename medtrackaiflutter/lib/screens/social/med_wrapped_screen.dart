@@ -33,9 +33,9 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
   String _archetype = 'Steady Guardian';
   String _archetypeDesc =
       'You keep your health routine balanced and predictable.';
-  Color _archetypeColor = const Color(0xFF10B981);
+  Color _archetypeColor = AppColors.successSoft;
   Gradient _archetypeGradient = const LinearGradient(
-      colors: [Color(0xFF00E5FF), Color(0xFF7C4DFF)]);
+      colors: [Color(0xFF00E5FF), AppColors.violet]);
 
   late final ConfettiController _confettiController;
 
@@ -104,37 +104,37 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
     if (_adherenceScore >= 98) {
       _archetype = 'Consistency Champion';
       _archetypeDesc = 'Flawless execution. Your health routine is absolute.';
-      _archetypeColor = const Color(0xFF10B981);
+      _archetypeColor = AppColors.successSoft;
       _archetypeGradient = const LinearGradient(
-          colors: [Color(0xFF10B981), Color(0xFF059669)]);
+          colors: [AppColors.successSoft, AppColors.green]);
     } else if (morningDoses > nightDoses && morningDoses >= 5) {
       _archetype = '8am Perfectionist';
       _archetypeDesc =
           'You conquer your day early. Sunrise, medication, action.';
       _archetypeColor = const Color(0xFFFFD700);
       _archetypeGradient = const LinearGradient(
-          colors: [Color(0xFFFFD700), Color(0xFFFFA500)]);
+          colors: [Color(0xFFFFD700), AppColors.amber]);
     } else if (nightDoses > morningDoses && nightDoses >= 5) {
       _archetype = 'Night Owl Doser';
       _archetypeDesc =
           'Circadian routine engineered. Unlocking peak sleep recovery.';
-      _archetypeColor = const Color(0xFF8B5CF6);
+      _archetypeColor = AppColors.violet;
       _archetypeGradient = const LinearGradient(
-          colors: [Color(0xFF8B5CF6), Color(0xFF6366F1)]);
+          colors: [AppColors.violet, AppColors.indigo]);
     } else if (weekendMisses > weekdayMisses && weekendMisses >= 2) {
       _archetype = 'Weekend Wildcard';
       _archetypeDesc =
           'Locked in during the week, but Saturdays are a gamble.';
-      _archetypeColor = const Color(0xFFEF4444);
+      _archetypeColor = AppColors.dangerSoft;
       _archetypeGradient = const LinearGradient(
-          colors: [Color(0xFFEF4444), Color(0xFFF97316)]);
+          colors: [AppColors.dangerSoft, AppColors.amber]);
     } else {
       _archetype = 'Steady Guardian';
       _archetypeDesc =
           'Balanced, structured, and resilient. Maintaining the optimal baseline.';
       _archetypeColor = const Color(0xFF00E5FF);
       _archetypeGradient = const LinearGradient(
-          colors: [Color(0xFF00E5FF), Color(0xFF3B82F6)]);
+          colors: [Color(0xFF00E5FF), AppColors.blue]);
     }
   }
 

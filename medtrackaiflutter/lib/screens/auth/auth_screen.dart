@@ -621,7 +621,7 @@ class _EmailAuthSheet extends StatelessWidget {
                   if (!isSignUp) ...[
                     const SizedBox(height: 8),
                     Align(
-                      alignment: Alignment.centerRight,
+                      alignment: AlignmentDirectional.centerEnd,
                       child: Semantics(
                         button: true,
                         label: 'Forgot password',
@@ -736,7 +736,7 @@ class _AuthField extends StatelessWidget {
             ),
             suffixIcon: suffix != null
                 ? Padding(
-                    padding: const EdgeInsets.only(right: 12),
+                    padding: const EdgeInsetsDirectional.only(end: 12),
                     child: suffix,
                   )
                 : null,

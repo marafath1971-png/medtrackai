@@ -42,7 +42,7 @@ class HomeHeader extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(22, 12, 22, 8),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p12, AppSpacing.gutter, AppSpacing.p8),
         child: Row(
           children: [
             Expanded(
@@ -54,14 +54,14 @@ class HomeHeader extends StatelessWidget {
                 child: Row(
                   children: [
                     Container(
-                      width: 46,
-                      height: 46,
+                      width: AppA11y.minTapTargetCompact,
+                      height: AppA11y.minTapTargetCompact,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [Color(0xFFC9EFA0), Color(0xFF8FD14F)],
+                          colors: [AppColors.lime, AppColors.limeDeep],
                         ),
                         boxShadow: [
                           BoxShadow(
@@ -76,14 +76,13 @@ class HomeHeader extends StatelessWidget {
                         userName.isNotEmpty
                             ? userName[0].toUpperCase()
                             : 'A',
-                        style: AppTypography.titleMedium.copyWith(
+                        style: AppTypography.titleLarge.copyWith(
                           color: AppColors.limeInk,
                           fontWeight: FontWeight.w800,
-                          fontSize: 18,
                         ),
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppSpacing.p12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -93,32 +92,29 @@ class HomeHeader extends StatelessWidget {
                             greeting,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTypography.labelSmall.copyWith(
+                            style: AppTypography.bodySmall.copyWith(
                               color: L.sub,
                               fontWeight: FontWeight.w600,
-                              fontSize: 12,
                             ),
                           ),
                           Text(
                             userName,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTypography.titleLarge.copyWith(
+                            style: AppTypography.headlineSmall.copyWith(
                               color: L.text,
                               fontWeight: FontWeight.w800,
                               letterSpacing: -0.4,
-                              fontSize: 21,
                             ),
                           ),
-                          const SizedBox(height: 2),
+                          const SizedBox(height: AppSpacing.p4),
                           Text(
                             liveLine,
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
-                            style: AppTypography.labelSmall.copyWith(
+                            style: AppTypography.caption.copyWith(
                               color: AppColors.limeDeep,
                               fontWeight: FontWeight.w700,
-                              fontSize: 11.5,
                             ),
                           ),
                         ],
@@ -132,7 +128,8 @@ class HomeHeader extends StatelessWidget {
               icon: Icons.settings_outlined,
               onTap: onOpenSettings,
               semanticLabel: 'Open settings',
-              showBadge: true,
+              showBadge: state.unseenAlertsCount > 0 ||
+                  state.getLowStockCount() > 0,
             ),
           ],
         ),
@@ -184,16 +181,18 @@ class _IconCircleBtn extends StatelessWidget {
               children: [
                 Icon(icon, size: 20, color: L.text.withValues(alpha: 0.9)),
                 if (showBadge)
-                  Positioned(
+                  PositionedDirectional(
                     top: 10,
-                    right: 10,
-                    child: Container(
-                      width: 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: AppColors.red,
-                        shape: BoxShape.circle,
-                        border: Border.all(color: L.card, width: 2),
+                    end: 10,
+                    child: ExcludeSemantics(
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: AppColors.red,
+                          shape: BoxShape.circle,
+                          border: Border.all(color: L.card, width: 2),
+                        ),
                       ),
                     ),
                   ),

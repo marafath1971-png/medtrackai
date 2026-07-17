@@ -14,6 +14,7 @@ import '../../../../services/growth_tracker.dart';
 import '../../../../widgets/common/paywall_sheet.dart';
 import '../../../family/profile_switcher_sheet.dart';
 import '../../../../core/utils/haptic_engine.dart';
+import '../../../../widgets/common/app_feedback.dart';
 
 class AppTab extends StatefulWidget {
   final AppState state;
@@ -49,14 +50,14 @@ class _AppTabState extends State<AppTab> {
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: const EdgeInsets.fromLTRB(0, 4, 0, 40),
+      padding: const EdgeInsets.fromLTRB(0, AppSpacing.p4, 0, AppSpacing.p40),
       child: Column(children: [
         SettingsSection(
             title: 'Notifications',
             child: Column(children: [
               SettingsModalRow(
                   icon: '🔔',
-                  iconBg: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                  iconBg: AppColors.dangerSoft.withValues(alpha: 0.1),
                   label: 'Dose Reminders',
                   sub: 'Get notified when it\'s time',
                   right: AppToggle(
@@ -71,7 +72,7 @@ class _AppTabState extends State<AppTab> {
                   border: true),
               SettingsModalRow(
                   icon: '⚡',
-                  iconBg: const Color(0xFFF59E0B).withValues(alpha: 0.1),
+                  iconBg: AppColors.warningSoft.withValues(alpha: 0.1),
                   label: 'Sound & Haptics',
                   sub: 'Vibrate and play sound',
                   right: AppToggle(
@@ -86,7 +87,7 @@ class _AppTabState extends State<AppTab> {
                   border: true),
               SettingsModalRow(
                   icon: '🔁',
-                  iconBg: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                  iconBg: AppColors.dangerSoft.withValues(alpha: 0.1),
                   label: 'Persistent Alarms',
                   sub: 'Ring until you respond (for critical meds)',
                   right: AppToggle(
@@ -102,7 +103,7 @@ class _AppTabState extends State<AppTab> {
                   border: true),
               SettingsModalRow(
                   icon: '⏰',
-                  iconBg: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                  iconBg: AppColors.indigo.withValues(alpha: 0.1),
                   label: 'Refill Alerts',
                   sub: 'Alert when meds run low',
                   right: AppToggle(
@@ -134,7 +135,7 @@ class _AppTabState extends State<AppTab> {
             title: 'Caregiver & Profiles',
             child: SettingsModalRow(
                 icon: '👨‍👩‍👧',
-                iconBg: const Color(0xFF10B981).withValues(alpha: 0.1),
+                iconBg: AppColors.successSoft.withValues(alpha: 0.1),
                 label: 'Family & Dependents',
                 sub: 'Manage meds for loved ones',
                 onClick: () {
@@ -145,7 +146,7 @@ class _AppTabState extends State<AppTab> {
             title: 'Aesthetics & Theme',
             child: SettingsModalRow(
                 icon: '✨',
-                iconBg: const Color(0xFFE879F9).withValues(alpha: 0.1),
+                iconBg: AppColors.purple.withValues(alpha: 0.1),
                 label: 'App Appearance',
                 sub: 'Custom icons and themes',
                 onClick: () {
@@ -157,7 +158,7 @@ class _AppTabState extends State<AppTab> {
             title: 'Health & Wellness',
             child: SettingsModalRow(
                 icon: '❤️',
-                iconBg: const Color(0xFFFF2D55).withValues(alpha: 0.1),
+                iconBg: AppColors.pinkSystem.withValues(alpha: 0.1),
                 label: 'Connect Health Data',
                 sub: context.select<AppState, bool>((s) => s.health.isConnected)
                     ? 'Synced with ${defaultTargetPlatform == TargetPlatform.iOS ? 'Apple Health' : 'Health Connect'}'
@@ -204,7 +205,7 @@ class _AppTabState extends State<AppTab> {
         SettingsSection(
             title: 'Support & Feedback',
             child: MedAiGlass(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppSpacing.p24),
               radius: AppRadius.xl,
               child: Column(children: [
                 Text('Enjoying MedAI?',
@@ -212,22 +213,22 @@ class _AppTabState extends State<AppTab> {
                         fontWeight: FontWeight.w800,
                         color: L.text,
                         fontSize: 18)),
-                const SizedBox(height: 6),
+                const SizedBox(height: AppSpacing.p8),
                 Text('Your feedback helps us improve for everyone.',
                     style: AppTypography.bodySmall
                         .copyWith(color: L.sub, fontWeight: FontWeight.w600)),
-                const SizedBox(height: 20),
+                const SizedBox(height: AppSpacing.p20),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(5, (i) {
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 4),
+                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p4),
                       child: Icon(Icons.star_rounded,
                           color: L.text, size: 32),
                     );
                   }),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppSpacing.p24),
                 MedAiCTA(
                   label: 'Invite friends — give a free month',
                   semanticsLabel:
@@ -256,21 +257,21 @@ class _AppTabState extends State<AppTab> {
                   border: true),
               SettingsModalRow(
                   icon: '🛡️',
-                  iconBg: const Color(0xFF22C55E).withValues(alpha: 0.1),
+                  iconBg: AppColors.green.withValues(alpha: 0.1),
                   label: 'Privacy',
                   sub: 'Your data stays on this device',
                   onClick: () => context.push(AppRoutes.settingsPrivacy),
                   border: true),
               SettingsModalRow(
                   icon: 'ℹ️',
-                  iconBg: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                  iconBg: AppColors.indigo.withValues(alpha: 0.1),
                   label:
                       '${context.select<AppState, int>((s) => s.meds.length)} medicines tracked',
                   sub: 'Smart reminders active',
                   border: true),
               SettingsModalRow(
                   icon: '🗑️',
-                  iconBg: const Color(0xFFEF4444).withValues(alpha: 0.1),
+                  iconBg: AppColors.dangerSoft.withValues(alpha: 0.1),
                   label: 'Delete Account',
                   sub: 'Permanently erase your data',
                   onClick: () {
@@ -284,8 +285,8 @@ class _AppTabState extends State<AppTab> {
                           TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Cancel', style: TextStyle(color: L.text))),
                           TextButton(onPressed: () {
                             Navigator.pop(ctx);
-                            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Account scheduled for deletion within 30 days.')));
-                          }, child: const Text('Delete', style: TextStyle(color: Colors.red))),
+                            AppFeedback.toast(context, 'Account scheduled for deletion within 30 days.');
+                          }, child: const Text('Delete', style: TextStyle(color: AppColors.red))),
                         ],
                       ),
                     );

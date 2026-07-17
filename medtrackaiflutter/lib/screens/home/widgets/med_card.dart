@@ -30,7 +30,7 @@ class MedCard extends StatelessWidget {
     final isLow = med.count <= med.refillAt;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: AppSpacing.p12),
       child: Semantics(
         button: true,
         label: displayName,
@@ -44,7 +44,7 @@ class MedCard extends StatelessWidget {
             onEdit();
           },
           child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
             decoration: BoxDecoration(
               color: L.card,
               borderRadius: BorderRadius.circular(18),
@@ -65,7 +65,7 @@ class MedCard extends StatelessWidget {
                     color: medColor,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.p12),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -95,9 +95,9 @@ class MedCard extends StatelessWidget {
                 ),
                 if (isLow)
                   Container(
-                    margin: const EdgeInsets.only(left: 8),
+                    margin: const EdgeInsetsDirectional.only(start: AppSpacing.p8),
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
                     decoration: BoxDecoration(
                       color: L.error.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(8),

@@ -103,8 +103,8 @@ class _AskAiSheetState extends State<AskAiSheet> {
                           padding: const EdgeInsets.only(bottom: 12),
                           child: Align(
                             alignment: isAi
-                                ? Alignment.centerLeft
-                                : Alignment.centerRight,
+                                ? AlignmentDirectional.centerStart
+                                : AlignmentDirectional.centerEnd,
                             child: Semantics(
                               label: isAi ? 'AI response' : 'Your message',
                               child: MedAiGlass(

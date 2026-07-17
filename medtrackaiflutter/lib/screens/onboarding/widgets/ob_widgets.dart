@@ -226,7 +226,7 @@ class ObProgressBar extends StatelessWidget {
             children: [
               ColoredBox(color: p.border),
               FractionallySizedBox(
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 widthFactor: value,
                 child: DecoratedBox(
                   decoration: BoxDecoration(

@@ -270,7 +270,7 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
     return Padding(
       padding: const EdgeInsets.only(top: 10),
       child: Align(
-        alignment: Alignment.centerLeft,
+        alignment: AlignmentDirectional.centerStart,
         child: Semantics(
           label: 'AI is typing',
           liveRegion: true,

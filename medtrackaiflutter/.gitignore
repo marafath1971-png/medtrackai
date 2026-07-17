@@ -70,9 +70,27 @@ run_verbose_log.txt
 *.log
 build_output.txt
 analyze*.txt
+analysis_output.txt
+analyze.txt
+analyze_out.txt
+analyze_results.txt
+analyze_results_final.txt
 crash.txt
+final_analysis.txt
+masterpiece_analysis.txt
+
+# One-off agent rewrite scripts (local only — not product code)
+/update_*.py
+/revert_*.py
+/rewrite_*.py
 
 images/
-*.jpg # optional: keep raw art out of the repo
-.tmp_check/ # mascot-extraction scratch (contact sheets, grid renders)
-.venv_mascot/ # local Python venv for scripts/extract_mascots.py
+# optional: keep raw art out of the repo
+*.jpg
+# mascot-extraction scratch (contact sheets, grid renders)
+.tmp_check/
+.tmp_sheet_*.png
+# local Python venv for scripts/extract_mascots.py
+.venv_mascot/
+# editor workspace settings
+.vscode/

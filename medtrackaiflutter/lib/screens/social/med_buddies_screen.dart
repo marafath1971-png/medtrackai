@@ -50,15 +50,15 @@ class _MedBuddiesScreenState extends State<MedBuddiesScreen> {
                       title: 'No buddies connected yet',
                       subtitle:
                           'Invite a friend or caregiver to build accountability together. Your current streak is $myStreak days.',
+                      mascotFeature: 'community',
                       icon: Icons.groups_rounded,
                       actionLabel: 'Invite buddy',
                       onAction: () {
                         HapticEngine.selection();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Buddy invite flow will be available soon.'),
-                          ),
-                        );
+                        context.read<AppState>().showToast(
+                              'Buddy invite coming soon',
+                              type: 'info',
+                            );
                       },
                     ),
                   ),

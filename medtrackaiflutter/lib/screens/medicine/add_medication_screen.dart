@@ -34,6 +34,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
         elevation: 0,
         leading: IconButton(
           icon: Icon(Icons.close, color: L.text),
+          tooltip: 'Close',
           onPressed: () => Navigator.of(context).pop(),
         ),
         title: Text(
@@ -49,7 +50,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
           children: [
             // Medication Name Input
             MedAiDepthCard(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -73,7 +74,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                       ),
                       border: InputBorder.none,
                       isDense: true,
-                      contentPadding: const EdgeInsets.only(top: 8, bottom: 4),
+                      contentPadding: const EdgeInsets.only(top: AppSpacing.p8, bottom: AppSpacing.p4),
                     ),
                   ),
                 ],
@@ -83,7 +84,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
             // Autocomplete Suggestions (Simulated)
             if (_showSuggestions)
               Padding(
-                padding: const EdgeInsets.only(top: 8.0),
+                padding: const EdgeInsets.only(top: AppSpacing.p8),
                 child: MedAiDepthCard(
                   padding: EdgeInsets.zero,
                   child: Column(
@@ -98,7 +99,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 ),
               ).animate().fade(duration: 200.ms).slideY(begin: -0.1, end: 0),
 
-            const SizedBox(height: 32),
+            const SizedBox(height: AppSpacing.p32),
             
             // Schedule Configuration
             const MedAiSectionHeader(
@@ -114,7 +115,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 children: _scheduleOptions.map((option) {
                   final isSelected = _selectedSchedule == option;
                   return Padding(
-                    padding: const EdgeInsets.only(right: 12.0),
+                    padding: const EdgeInsetsDirectional.only(end: AppSpacing.p12),
                     child: GestureDetector(
                       onTap: () {
                         setState(() => _selectedSchedule = option);
@@ -122,7 +123,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                       child: AnimatedContainer(
                         duration: const Duration(milliseconds: 200),
                         curve: Curves.easeOutCubic,
-                        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p16),
                         decoration: BoxDecoration(
                           color: isSelected ? L.text : L.card,
                           borderRadius: AppRadius.roundXL,
@@ -145,11 +146,11 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
               ),
             ),
             
-            const SizedBox(height: 32),
+            const SizedBox(height: AppSpacing.p32),
 
             // Remind Me Toggle
             MedAiDepthCard(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -160,7 +161,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                         "Remind Me",
                         style: AppTypography.titleMedium.copyWith(color: L.text, fontWeight: FontWeight.w600),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.p4),
                       Text(
                         "Get a notification when it's time",
                         style: AppTypography.bodySmall.copyWith(color: L.sub),
@@ -178,7 +179,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
               ),
             ),
             
-            const SizedBox(height: 48),
+            const SizedBox(height: AppSpacing.p48),
 
             // Add Button
             MedAiCTA(
@@ -204,18 +205,18 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
         });
       },
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p16),
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(AppSpacing.p8),
               decoration: BoxDecoration(
                 color: context.L.accent.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(icon, color: context.L.accent, size: 20),
             ),
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.p16),
             Text(
               name,
               style: AppTypography.titleMedium.copyWith(

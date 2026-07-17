@@ -114,11 +114,11 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p24, vertical: AppSpacing.p12),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 const MedAiSectionHeader(title: 'Avatar'),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.p12),
                 SizedBox(
                   height: 88,
                   child: ListView.builder(
@@ -142,7 +142,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                           child: AnimatedContainer(
                             duration: MedAiA11y.motion(
                                 context, AppDurations.micro),
-                            margin: const EdgeInsets.only(right: 12),
+                            margin: const EdgeInsetsDirectional.only(end: AppSpacing.p12),
                             width: 72,
                             constraints: const BoxConstraints(
                                 minHeight: MedAiA11y.minTapTarget),
@@ -173,7 +173,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                                   color: isSelected ? L.bg : L.text,
                                   size: 26,
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: AppSpacing.p4),
                                 Text(
                                   label,
                                   style: AppTypography.labelSmall.copyWith(
@@ -192,27 +192,27 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppSpacing.p32),
                 _buildSectionHeader('BASIC DETAILS', L),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.p12),
                 _buildInputField(
                   controller: _nameCtrl,
                   hint: 'Full Name (e.g. Dr. Sarah)',
                   icon: Icons.person_outline_rounded,
                   L: L,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.p16),
                 _buildInputField(
                   controller: _relationCtrl,
                   hint: 'Role (e.g. Nurse, Grandparent)',
                   icon: Icons.assignment_ind_outlined,
                   L: L,
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppSpacing.p32),
                 _buildSectionHeader('SECURITY & PREFERENCES', L),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.p12),
                 MedAiDepthCard(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AppSpacing.p20),
                   child: Row(
                     children: [
                       Container(
@@ -225,7 +225,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                         child: Icon(Icons.warning_amber_rounded,
                             color: L.error, size: 20),
                       ),
-                      const SizedBox(width: 16),
+                      const SizedBox(width: AppSpacing.p16),
                       Expanded(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -261,7 +261,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.p16),
                 _buildInputField(
                   controller: _pinCtrl,
                   hint: '4-Digit PIN (Optional)',
@@ -271,7 +271,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                   obscureText: true,
                   L: L,
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: AppSpacing.p40),
                 MedAiCTA(
                   label: 'Save Caregiver',
                   loading: _isSaving,
@@ -314,13 +314,13 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
         borderRadius: BorderRadius.circular(24),
         border: Border.all(color: L.border.withValues(alpha: 0.08)),
       ),
-      padding: const EdgeInsets.only(left: 20, right: 20),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
       constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Icon(icon, color: L.sub.withValues(alpha: 0.6), size: 22),
-          const SizedBox(width: 16),
+          const SizedBox(width: AppSpacing.p16),
           Expanded(
             child: TextField(
               controller: controller,
@@ -340,7 +340,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                 hintText: hint,
                 hintStyle: TextStyle(color: L.sub.withValues(alpha: 0.3)),
                 border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.p16),
                 isDense: true,
                 counterText: '',
               ),

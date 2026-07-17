@@ -66,7 +66,7 @@ class ProfileSwitcherSheet extends StatelessWidget {
           child: Container(
             width: 40,
             height: 4,
-            margin: const EdgeInsets.only(bottom: 24),
+            margin: const EdgeInsets.only(bottom: AppSpacing.p24),
             decoration: BoxDecoration(
               color: L.border.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(2),
@@ -81,12 +81,12 @@ class ProfileSwitcherSheet extends StatelessWidget {
             letterSpacing: -0.5,
           ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: AppSpacing.p8),
         Text(
           'Manage schedules for your family',
           style: AppTypography.bodyMedium.copyWith(color: L.sub),
         ),
-        const SizedBox(height: 24),
+        const SizedBox(height: AppSpacing.p24),
         _ProfileTile(
           name: state.profile?.name ?? 'My Profile',
           relation: 'Main Account',
@@ -95,11 +95,11 @@ class ProfileSwitcherSheet extends StatelessWidget {
           isLocked: false,
           onTap: () => _switchProfile(context, null, null),
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.p12),
         ...familyMembers.map((member) {
           final isLocked = member.pin != null && member.pin!.isNotEmpty;
           return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.only(bottom: AppSpacing.p12),
             child: _ProfileTile(
               name: member.name,
               relation: member.relation,
@@ -110,12 +110,12 @@ class ProfileSwitcherSheet extends StatelessWidget {
             ),
           );
         }),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.p12),
         Semantics(
           button: true,
           label: 'Add dependent',
           child: MedAiDepthCard(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.p16),
             radius: AppRadius.l,
             onTap: () {
               HapticEngine.selection();
@@ -133,7 +133,7 @@ class ProfileSwitcherSheet extends StatelessWidget {
                   ),
                   child: Icon(Icons.add_rounded, color: L.primary),
                 ),
-                const SizedBox(width: 16),
+                const SizedBox(width: AppSpacing.p16),
                 Text(
                   'Add dependent',
                   style: AppTypography.bodyLarge.copyWith(
@@ -191,7 +191,7 @@ class _ProfileTile extends StatelessWidget {
       selected: isActive,
       label: '$name, $relation${isLocked ? ', locked' : ''}',
       child: MedAiDepthCard(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.p16),
         radius: AppRadius.l,
         color: isActive ? L.primary.withValues(alpha: 0.08) : null,
         onTap: () {
@@ -201,7 +201,7 @@ class _ProfileTile extends StatelessWidget {
         child: Row(
           children: [
             Text(avatar, style: const TextStyle(fontSize: 32)),
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.p16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -220,7 +220,7 @@ class _ProfileTile extends StatelessWidget {
                         ),
                       ),
                       if (isLocked) ...[
-                        const SizedBox(width: 8),
+                        const SizedBox(width: AppSpacing.p8),
                         Icon(Icons.lock_rounded, size: 14, color: L.sub),
                       ],
                     ],

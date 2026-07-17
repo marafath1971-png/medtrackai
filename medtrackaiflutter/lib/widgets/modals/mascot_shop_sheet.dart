@@ -6,6 +6,7 @@ import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../providers/app_state.dart';
 import '../common/animated_pressable.dart';
+import '../common/app_feedback.dart';
 
 class MascotAccessory {
   final String id;
@@ -93,10 +94,10 @@ class _MascotShopSheetState extends State<MascotShopSheet> {
       }
     } else {
       HapticEngine.error();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-            content:
-                Text('Not enough Med Coins! Keep building your streak.')),
+      AppFeedback.toast(
+        context,
+        'Not enough Med Coins! Keep building your streak.',
+        type: 'error',
       );
     }
   }

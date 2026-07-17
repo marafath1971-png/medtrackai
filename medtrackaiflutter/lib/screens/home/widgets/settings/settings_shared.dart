@@ -149,7 +149,7 @@ class SettingsModalRow extends StatelessWidget {
               ),
               if (right != null)
                 Padding(
-                  padding: const EdgeInsets.only(left: 8),
+                  padding: const EdgeInsetsDirectional.only(start: AppSpacing.p8),
                   child: right!,
                 )
               else if (onClick != null)
@@ -213,7 +213,7 @@ class SettingsEditField extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(
               horizontal: IosSettingsTokens.rowHPad,
-              vertical: 12,
+              vertical: AppSpacing.p12,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -226,7 +226,7 @@ class SettingsEditField extends StatelessWidget {
                     fontSize: 13,
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: AppSpacing.p4),
                 TextField(
                   controller: ctrl,
                   keyboardType: keyboard,
@@ -318,7 +318,7 @@ class SettingsSelectRow extends StatelessWidget {
                   if (isSel)
                     Icon(Icons.check, color: L.accent, size: 20)
                   else
-                    const SizedBox(width: 20),
+                    const SizedBox(width: AppSpacing.p20),
                 ],
               ),
             ),
@@ -362,14 +362,14 @@ class SettingsStatCard extends StatelessWidget {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.p16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 children: [
                   IosSettingsIcon(icon: icon, background: color),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: AppSpacing.p12),
                   Expanded(
                     child: Text(
                       label,
@@ -383,7 +383,7 @@ class SettingsStatCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 14),
+              const SizedBox(height: AppSpacing.p16),
               Text(
                 val,
                 style: AppTypography.displayMedium.copyWith(

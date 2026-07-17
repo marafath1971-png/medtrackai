@@ -1,7 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../../theme/med_ai_ui.dart';
 
@@ -19,26 +19,26 @@ class DashboardMedAlert extends StatelessWidget {
         : '$pendingCount doses waiting today';
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 4, 20, 0),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p4, AppSpacing.gutter, 0),
       child: MedAiGlass(
         radius: 999,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
         child: Row(
           children: [
             Container(
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                color: AppColors.pastelMint,
+                color: L.fill,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.medication_rounded,
                 size: 18,
-                color: AppColors.limeInk,
+                color: L.text.withValues(alpha: 0.75),
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.p12),
             Expanded(
               child: Text(
                 label,
@@ -49,10 +49,13 @@ class DashboardMedAlert extends StatelessWidget {
                 ),
               ),
             ),
-            Icon(
-              Icons.chevron_right_rounded,
-              color: L.sub.withValues(alpha: 0.45),
-              size: 20,
+            Transform.flip(
+              flipX: Directionality.of(context) == TextDirection.rtl,
+              child: Icon(
+                Icons.chevron_right_rounded,
+                color: L.sub.withValues(alpha: 0.45),
+                size: 20,
+              ),
             ),
           ],
         ),
@@ -84,10 +87,10 @@ class DashboardGlassAdherenceCard extends StatelessWidget {
     final dateLabel = DateFormat('d MMM yyyy').format(DateTime.now());
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(22, 16, 22, 0),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p16, AppSpacing.gutter, 0),
       child: MedAiGlass(
         radius: 28,
-        padding: const EdgeInsets.fromLTRB(18, 18, 18, 16),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.p16, AppSpacing.p16, AppSpacing.p16, AppSpacing.p16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -116,21 +119,21 @@ class DashboardGlassAdherenceCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                _SemiGauge(value: adherence),
+                _SemiGauge(value: adherence, accent: L.accent, track: L.fill),
               ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: AppSpacing.p8),
             Text(
               '$pct%',
               style: AppTypography.displaySmall.copyWith(
                 color: L.text,
                 fontWeight: FontWeight.w800,
-                fontSize: 34,
+                fontSize: 36,
                 letterSpacing: -1,
                 height: 1,
               ),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.p16),
             if (week.isEmpty)
               Text(
                 'Log doses to unlock your weekly trend',
@@ -153,8 +156,8 @@ class DashboardGlassAdherenceCard extends StatelessWidget {
 
                     return Expanded(
                       child: Padding(
-                        padding:
-                            EdgeInsets.only(right: i < week.length - 1 ? 5 : 0),
+                        padding: EdgeInsetsDirectional.only(
+                            end: i < week.length - 1 ? 5 : 0),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
@@ -167,27 +170,15 @@ class DashboardGlassAdherenceCard extends StatelessWidget {
                                   child: DecoratedBox(
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(6),
-                                      gradient: LinearGradient(
-                                        begin: Alignment.topCenter,
-                                        end: Alignment.bottomCenter,
-                                        colors: isToday
-                                            ? const [
-                                                Color(0xFFFFB8D9),
-                                                Color(0xFFE894C8),
-                                              ]
-                                            : [
-                                                const Color(0xFFFFD6E8)
-                                                    .withValues(alpha: 0.55),
-                                                const Color(0xFFE8C4F0)
-                                                    .withValues(alpha: 0.45),
-                                              ],
-                                      ),
+                                      color: isToday
+                                          ? L.accent
+                                          : L.fill.withValues(alpha: 0.85),
                                     ),
                                   ),
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 6),
+                            const SizedBox(height: AppSpacing.p8),
                             Text(
                               dowLabel.substring(0, 1),
                               style: AppTypography.labelSmall.copyWith(
@@ -195,7 +186,6 @@ class DashboardGlassAdherenceCard extends StatelessWidget {
                                     ? L.text
                                     : L.sub.withValues(alpha: 0.55),
                                 fontWeight: FontWeight.w700,
-                                fontSize: 10,
                               ),
                             ),
                           ],
@@ -230,8 +220,9 @@ class DashboardHealthParamsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final L = context.L;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 14, 20, 0),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p16, AppSpacing.gutter, 0),
       child: Column(
         children: [
           Row(
@@ -241,26 +232,26 @@ class DashboardHealthParamsGrid extends StatelessWidget {
                   title: 'Day streak',
                   value: '$streak',
                   unit: 'days',
-                  accent: const [Color(0xFFFFC8A8), Color(0xFFFF9F7A)],
-                  child: _PulseSparkline(color: const Color(0xFFFF8A65)),
+                  child: _PulseSparkline(color: L.amber),
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.p12),
               Expanded(
                 child: _HealthParamLarge(
                   title: 'Heart rate',
                   value: healthConnected ? '${heartRate.toInt()}' : '--',
                   unit: 'BPM',
-                  accent: const [Color(0xFFFFB8D4), Color(0xFFFF8CB8)],
                   child: _HeartWaveform(
                     active: healthConnected,
                     bpm: heartRate,
+                    color: L.accent,
+                    muted: L.fill,
                   ),
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.p12),
           Row(
             children: [
               Expanded(
@@ -268,17 +259,15 @@ class DashboardHealthParamsGrid extends StatelessWidget {
                   title: 'Doses this week',
                   value: '$dosesWeek',
                   unit: dosesWeek == 1 ? 'dose' : 'doses',
-                  tint: AppColors.pastelSky,
                   icon: Icons.medication_rounded,
                 ),
               ),
-              const SizedBox(width: 12),
+              const SizedBox(width: AppSpacing.p12),
               Expanded(
                 child: _HealthParamSmall(
                   title: 'Steps today',
                   value: healthConnected ? '${steps.toInt()}' : '--',
                   unit: 'steps',
-                  tint: AppColors.pastelMint,
                   icon: Icons.directions_walk_rounded,
                 ),
               ),
@@ -306,7 +295,7 @@ class DashboardSectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(20, 22, 20, 10),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.gutter, AppSpacing.gutter, AppSpacing.p12),
       child: Row(
         children: [
           Expanded(
@@ -328,7 +317,6 @@ class DashboardSectionTitle extends StatelessWidget {
                 style: AppTypography.labelLarge.copyWith(
                   color: L.sub,
                   fontWeight: FontWeight.w600,
-                  fontSize: 13,
                 ),
               ),
             ),
@@ -340,8 +328,14 @@ class DashboardSectionTitle extends StatelessWidget {
 
 class _SemiGauge extends StatelessWidget {
   final double value;
+  final Color accent;
+  final Color track;
 
-  const _SemiGauge({required this.value});
+  const _SemiGauge({
+    required this.value,
+    required this.accent,
+    required this.track,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -349,7 +343,11 @@ class _SemiGauge extends StatelessWidget {
       width: 56,
       height: 32,
       child: CustomPaint(
-        painter: _SemiGaugePainter(value.clamp(0.0, 1.0)),
+        painter: _SemiGaugePainter(
+          value.clamp(0.0, 1.0),
+          accent: accent,
+          track: track,
+        ),
       ),
     );
   }
@@ -357,8 +355,10 @@ class _SemiGauge extends StatelessWidget {
 
 class _SemiGaugePainter extends CustomPainter {
   final double value;
+  final Color accent;
+  final Color track;
 
-  _SemiGaugePainter(this.value);
+  _SemiGaugePainter(this.value, {required this.accent, required this.track});
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -367,8 +367,8 @@ class _SemiGaugePainter extends CustomPainter {
     const start = math.pi;
     const sweep = math.pi;
 
-    final track = Paint()
-      ..color = Colors.white.withValues(alpha: 0.35)
+    final trackPaint = Paint()
+      ..color = track
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5
       ..strokeCap = StrokeCap.round;
@@ -377,41 +377,40 @@ class _SemiGaugePainter extends CustomPainter {
       start,
       sweep,
       false,
-      track,
+      trackPaint,
     );
 
     final fill = Paint()
-      ..shader = const SweepGradient(
-        colors: [Color(0xFFFFB8D9), Color(0xFFB8A0FF), Color(0xFFFFC8A0)],
-      ).createShader(Rect.fromCircle(center: center, radius: radius))
+      ..color = accent
       ..style = PaintingStyle.stroke
       ..strokeWidth = 5
       ..strokeCap = StrokeCap.round;
+    // Floor tiny values so round caps still read as an arc on the semicircle.
+    final painted = value <= 0 ? 0.0 : math.max(value, 0.08);
     canvas.drawArc(
       Rect.fromCircle(center: center, radius: radius),
       start,
-      sweep * value,
+      sweep * painted,
       false,
       fill,
     );
   }
 
   @override
-  bool shouldRepaint(covariant _SemiGaugePainter old) => old.value != value;
+  bool shouldRepaint(covariant _SemiGaugePainter old) =>
+      old.value != value || old.accent != accent || old.track != track;
 }
 
 class _HealthParamLarge extends StatelessWidget {
   final String title;
   final String value;
   final String unit;
-  final List<Color> accent;
   final Widget child;
 
   const _HealthParamLarge({
     required this.title,
     required this.value,
     required this.unit,
-    required this.accent,
     required this.child,
   });
 
@@ -420,7 +419,7 @@ class _HealthParamLarge extends StatelessWidget {
     final L = context.L;
     return MedAiGlass(
       radius: 24,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(AppSpacing.p16),
       child: SizedBox(
         height: 148,
         child: Column(
@@ -434,21 +433,24 @@ class _HealthParamLarge extends StatelessWidget {
                 fontSize: 12,
               ),
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: AppSpacing.p4),
             Row(
               crossAxisAlignment: CrossAxisAlignment.baseline,
               textBaseline: TextBaseline.alphabetic,
               children: [
-                Text(
-                  value,
-                  style: AppTypography.headlineMedium.copyWith(
-                    color: L.text,
-                    fontWeight: FontWeight.w800,
-                    fontSize: 26,
-                    letterSpacing: -0.5,
+                Flexible(
+                  child: Text(
+                    value,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppTypography.headlineMedium.copyWith(
+                      color: L.text,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: -0.5,
+                    ),
                   ),
                 ),
-                const SizedBox(width: 4),
+                const SizedBox(width: AppSpacing.p4),
                 Text(
                   unit,
                   style: AppTypography.labelSmall.copyWith(
@@ -471,14 +473,12 @@ class _HealthParamSmall extends StatelessWidget {
   final String title;
   final String value;
   final String unit;
-  final Color tint;
   final IconData icon;
 
   const _HealthParamSmall({
     required this.title,
     required this.value,
     required this.unit,
-    required this.tint,
     required this.icon,
   });
 
@@ -487,7 +487,7 @@ class _HealthParamSmall extends StatelessWidget {
     final L = context.L;
     return MedAiGlass(
       radius: 22,
-      padding: const EdgeInsets.all(14),
+      padding: const EdgeInsets.all(AppSpacing.p16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -510,14 +510,15 @@ class _HealthParamSmall extends StatelessWidget {
                 width: 30,
                 height: 30,
                 decoration: BoxDecoration(
-                  color: tint,
+                  color: L.fill,
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, size: 16, color: L.text.withValues(alpha: 0.7)),
+                child:
+                    Icon(icon, size: 16, color: L.text.withValues(alpha: 0.7)),
               ),
             ],
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: AppSpacing.p12),
           Row(
             crossAxisAlignment: CrossAxisAlignment.baseline,
             textBaseline: TextBaseline.alphabetic,
@@ -530,18 +531,20 @@ class _HealthParamSmall extends StatelessWidget {
                   style: AppTypography.titleLarge.copyWith(
                     color: L.text,
                     fontWeight: FontWeight.w800,
-                    fontSize: 22,
                     letterSpacing: -0.4,
                   ),
                 ),
               ),
-              const SizedBox(width: 4),
-              Text(
-                unit,
-                style: AppTypography.labelSmall.copyWith(
-                  color: L.sub,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 11,
+              const SizedBox(width: AppSpacing.p4),
+              Flexible(
+                child: Text(
+                  unit,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: L.sub,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -555,8 +558,15 @@ class _HealthParamSmall extends StatelessWidget {
 class _HeartWaveform extends StatelessWidget {
   final bool active;
   final double bpm;
+  final Color color;
+  final Color muted;
 
-  const _HeartWaveform({required this.active, required this.bpm});
+  const _HeartWaveform({
+    required this.active,
+    required this.bpm,
+    required this.color,
+    required this.muted,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -564,6 +574,8 @@ class _HeartWaveform extends StatelessWidget {
       painter: _HeartWavePainter(
         active: active,
         phase: active ? bpm / 120 : 0,
+        color: color,
+        muted: muted,
       ),
       child: const SizedBox.expand(),
     );
@@ -573,13 +585,20 @@ class _HeartWaveform extends StatelessWidget {
 class _HeartWavePainter extends CustomPainter {
   final bool active;
   final double phase;
+  final Color color;
+  final Color muted;
 
-  _HeartWavePainter({required this.active, required this.phase});
+  _HeartWavePainter({
+    required this.active,
+    required this.phase,
+    required this.color,
+    required this.muted,
+  });
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = active ? const Color(0xFFFF6B9D) : Colors.white.withValues(alpha: 0.35)
+      ..color = active ? color : muted
       ..style = PaintingStyle.stroke
       ..strokeWidth = 2.2
       ..strokeCap = StrokeCap.round;
@@ -597,7 +616,10 @@ class _HeartWavePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _HeartWavePainter old) =>
-      old.active != active || old.phase != phase;
+      old.active != active ||
+      old.phase != phase ||
+      old.color != color ||
+      old.muted != muted;
 }
 
 class _PulseSparkline extends StatelessWidget {

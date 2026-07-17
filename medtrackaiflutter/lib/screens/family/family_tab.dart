@@ -3,7 +3,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/app_routes.dart';
-import '../../core/constants/med_ai_assets.dart';
 import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/date_formatter.dart';
@@ -16,7 +15,6 @@ import 'widgets/add_cg_flow.dart';
 import 'widgets/join_as_cg_view.dart';
 import 'widgets/alert_log_widgets.dart';
 import '../../widgets/common/premium_empty_state.dart';
-import '../../widgets/common/ghost_mascot.dart';
 
 import '../../widgets/common/premium_texture.dart';
 
@@ -274,8 +272,7 @@ class HubView extends StatelessWidget {
                     'Add guardian',
                     style: AppTypography.labelLarge.copyWith(
                       color: L.bg,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
+                      fontWeight: FontWeight.w700
                     ),
                   ),
                 ),
@@ -297,7 +294,7 @@ class HubView extends StatelessWidget {
 
                 // ── HUB CONTENT ──
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 22),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -313,7 +310,7 @@ class HubView extends StatelessWidget {
                                 L: L,
                               ),
                             ),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppSpacing.p12),
                             Expanded(
                               child: _CircleStatBento(
                                 label: 'Monitoring',
@@ -333,12 +330,12 @@ class HubView extends StatelessWidget {
                         delayMs: 80,
                       ),
 
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.p24),
 
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.all(4),
+                            padding: const EdgeInsets.all(AppSpacing.p4),
                             decoration: BoxDecoration(
                               color: L.card,
                               borderRadius: BorderRadius.circular(24),
@@ -362,7 +359,7 @@ class HubView extends StatelessWidget {
                                   onTap: () => onPivotChanged(1),
                                   L: L,
                                 ),
-                                const SizedBox(width: 4),
+                                const SizedBox(width: AppSpacing.p4),
                                 _CompactPivotPill(
                                   label: 'Care',
                                   active: pivot == 0,
@@ -374,7 +371,7 @@ class HubView extends StatelessWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.p24),
 
                       if (unseenCount > 0)
                         Semantics(
@@ -384,8 +381,8 @@ class HubView extends StatelessWidget {
                             onTap: onMarkSeen,
                             scaleFactor: 0.985,
                             child: Container(
-                              margin: const EdgeInsets.only(bottom: 24),
-                              padding: const EdgeInsets.all(20),
+                              margin: const EdgeInsets.only(bottom: AppSpacing.p24),
+                              padding: const EdgeInsets.all(AppSpacing.p20),
                               decoration: BoxDecoration(
                                 gradient: LinearGradient(
                                   colors: [L.error, L.error.withValues(alpha: 0.85)],
@@ -401,7 +398,7 @@ class HubView extends StatelessWidget {
                                 children: [
                                   const Icon(Icons.warning_amber_rounded,
                                       color: Colors.white, size: 26),
-                                  const SizedBox(width: 16),
+                                  const SizedBox(width: AppSpacing.p16),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -521,7 +518,7 @@ class HubView extends StatelessWidget {
                                             child: Row(
                                               children: [
                                                 Icon(Icons.swap_horiz_rounded, color: L.primary),
-                                                const SizedBox(width: 12),
+                                                const SizedBox(width: AppSpacing.p12),
                                                 Text('Switch to Profile', style: TextStyle(color: L.text)),
                                               ],
                                             ),
@@ -537,7 +534,7 @@ class HubView extends StatelessWidget {
                                             child: Row(
                                               children: [
                                                 Icon(Icons.edit_rounded, color: L.primary),
-                                                const SizedBox(width: 12),
+                                                const SizedBox(width: AppSpacing.p12),
                                                 Text('Edit Profile', style: TextStyle(color: L.text)),
                                               ],
                                             ),
@@ -551,7 +548,7 @@ class HubView extends StatelessWidget {
                                             child: Row(
                                               children: [
                                                 Icon(Icons.picture_as_pdf_rounded, color: L.primary),
-                                                const SizedBox(width: 12),
+                                                const SizedBox(width: AppSpacing.p12),
                                                 Text('Generate Adherence PDF', style: TextStyle(color: L.text)),
                                               ],
                                             ),
@@ -573,7 +570,7 @@ class HubView extends StatelessWidget {
                                                         state.removeFamilyMember(member.id);
                                                         Navigator.pop(removeCtx);
                                                       },
-                                                      child: Text('Remove', style: AppTypography.labelLarge.copyWith(color: Colors.redAccent, fontWeight: FontWeight.w700)),
+                                                      child: Text('Remove', style: AppTypography.labelLarge.copyWith(color: AppColors.red, fontWeight: FontWeight.w700)),
                                                     ),
                                                   ],
                                                 ),
@@ -581,9 +578,9 @@ class HubView extends StatelessWidget {
                                             },
                                             child: const Row(
                                               children: [
-                                                Icon(Icons.delete_forever_rounded, color: Colors.redAccent),
-                                                SizedBox(width: 12),
-                                                Text('Remove Profile', style: TextStyle(color: Colors.redAccent)),
+                                                Icon(Icons.delete_forever_rounded, color: AppColors.red),
+                                                SizedBox(width: AppSpacing.p12),
+                                                Text('Remove Profile', style: TextStyle(color: AppColors.red)),
                                               ],
                                             ),
                                           ),
@@ -593,14 +590,14 @@ class HubView extends StatelessWidget {
                                   },
                                   child: Container(
                                     width: 140,
-                                    margin: const EdgeInsets.only(right: 12),
-                                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                    margin: const EdgeInsetsDirectional.only(end: AppSpacing.p12),
+                                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
                                     decoration: BoxDecoration(
                                       color: L.card,
                                       borderRadius: BorderRadius.circular(16),
                                       border: Border.all(
                                         color: member.isCritical 
-                                            ? Colors.red.withValues(alpha: 0.3) 
+                                            ? AppColors.red.withValues(alpha: 0.3) 
                                             : L.border.withValues(alpha: 0.1),
                                         width: member.isCritical ? 1.5 : 1.0,
                                       ),
@@ -620,14 +617,14 @@ class HubView extends StatelessWidget {
                                                   width: 8,
                                                   height: 8,
                                                   decoration: const BoxDecoration(
-                                                    color: Colors.red,
+                                                    color: AppColors.red,
                                                     shape: BoxShape.circle,
                                                   ),
                                                 ),
                                               ),
                                           ],
                                         ),
-                                        const SizedBox(width: 10),
+                                        const SizedBox(width: AppSpacing.p12),
                                         Expanded(
                                           child: Text(
                                             member.name,
@@ -646,7 +643,7 @@ class HubView extends StatelessWidget {
                               },
                             ),
                           ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: AppSpacing.p32),
                         ],
 
                         if (state.caregivers.isEmpty)
@@ -672,7 +669,7 @@ class HubView extends StatelessWidget {
                         ],
                       ],
 
-                      const SizedBox(height: 32),
+                      const SizedBox(height: AppSpacing.p32),
 
                       // ALERT LOG
                       if (state.missedAlerts.isNotEmpty) ...[
@@ -730,9 +727,8 @@ class HubView extends StatelessWidget {
       title: 'No guardians found',
       subtitle:
           'Invite family or medical professionals to monitor your medication safety.',
+      mascotFeature: 'caregiver',
       icon: Icons.shield_outlined,
-      visual: _mascotVisual(
-          context, MedAiAssets.mascotCaregiverElder, Icons.shield_outlined, L),
       actionLabel: 'Invite Guardian',
       onAction: onAddCg,
     );
@@ -744,35 +740,11 @@ class HubView extends StatelessWidget {
       title: 'Protect your family',
       subtitle:
           'Join as a caregiver to see real-time health updates for your loved ones.',
+      mascotFeature: 'family',
       icon: Icons.groups_rounded,
-      visual: _mascotVisual(
-          context, MedAiAssets.mascotCaregiverElder, Icons.groups_rounded, L),
       actionLabel: 'Join Circle',
       onAction: onJoin,
     );
-  }
-
-  /// Ghost mascot for empty states, with a graceful icon fallback if the PNG
-  /// isn't bundled yet.
-  Widget _mascotVisual(
-      BuildContext context, String asset, IconData fallback, AppThemeColors L) {
-    final reduceMotion = MedAiA11y.reducedMotion(context);
-    final img = GhostMascot(
-      asset: asset,
-      size: 64,
-      idle: !reduceMotion,
-    );
-    if (reduceMotion) return img;
-    // Subtle one-shot fade + scale-in; no loop (garnish, not billboard).
-    return img
-        .animate()
-        .fadeIn(duration: 400.ms, curve: Curves.easeOut)
-        .scale(
-          begin: const Offset(0.85, 0.85),
-          end: const Offset(1, 1),
-          duration: 500.ms,
-          curve: Curves.easeOutBack,
-        );
   }
 }
 
@@ -805,7 +777,7 @@ class _CompactPivotPill extends StatelessWidget {
           duration: MedAiA11y.motion(context, AppDurations.fast),
           curve: AppCurves.emilOut,
           constraints: const BoxConstraints(minHeight: AppA11y.minTapTargetCompact),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p12),
           decoration: BoxDecoration(
             color: active ? AppColors.limeDeep : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
@@ -850,7 +822,7 @@ class _FamilyHeader extends StatelessWidget {
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
-      padding: EdgeInsets.fromLTRB(20, topPad + 12, 20, 10),
+      padding: EdgeInsets.fromLTRB(AppSpacing.gutter, topPad + AppSpacing.p12, AppSpacing.gutter, AppSpacing.p12),
       decoration: BoxDecoration(
         color: scrollOffset > 18
             ? L.bg.withValues(alpha: 0.96)
@@ -889,7 +861,7 @@ class _FamilyHeader extends StatelessWidget {
             onTap: onJoin,
             L: L,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: AppSpacing.p8),
           _CircleIconBtn(
             icon: Icons.person_add_rounded,
             label: 'Invite guardian',
@@ -963,7 +935,7 @@ class _CircleStatBento extends StatelessWidget {
     );
 
     return PremiumTextureCard(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(AppSpacing.p16),
       radius: 22,
       texture: PremiumTextureStyle.dots,
       child: Column(
@@ -972,31 +944,29 @@ class _CircleStatBento extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(6),
+                padding: const EdgeInsets.all(AppSpacing.p8),
                 decoration: BoxDecoration(
                   color: (iconColor ?? L.primary).withValues(alpha: 0.12),
                   shape: BoxShape.circle,
                 ),
                 child: iconWidget,
               ),
-              const SizedBox(width: 10),
+              const SizedBox(width: AppSpacing.p12),
               Text(
                 label,
                 style: AppTypography.labelMedium.copyWith(
                   color: L.sub,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12.5,
+                  fontWeight: FontWeight.w600
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpacing.p16),
           Text(
             value,
             style: AppTypography.titleLarge.copyWith(
               color: L.text,
               fontWeight: FontWeight.w800,
-              fontSize: 26,
               letterSpacing: -0.4,
               height: 1.0,
             ),

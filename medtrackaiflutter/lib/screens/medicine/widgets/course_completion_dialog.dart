@@ -24,10 +24,10 @@ class CourseCompletionDialog extends StatelessWidget {
     final L = context.L;
     return Dialog(
       backgroundColor: Colors.transparent,
-      insetPadding: const EdgeInsets.all(20),
+      insetPadding: const EdgeInsets.all(AppSpacing.p20),
       child: MedAiDepthCard(
         accentGlow: true,
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.all(AppSpacing.p24),
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const BouncingScrollPhysics(),
@@ -36,23 +36,23 @@ class CourseCompletionDialog extends StatelessWidget {
             children: [
               Text('🎉',
                   style: AppTypography.headlineLarge.copyWith(fontSize: 64)),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.p16),
               Text(
                 'Course Completed!',
                 style: AppTypography.titleLarge
                     .copyWith(fontWeight: FontWeight.w800, color: L.text),
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: AppSpacing.p8),
               Text(
                 'Great job finishing your course of ${med.name}. You\'ve successfully completed all prescribed doses.',
                 textAlign: TextAlign.center,
                 style:
                     AppTypography.bodyMedium.copyWith(color: L.sub, height: 1.5),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.p24),
               MedAiGlass(
                 radius: AppRadius.l,
-                padding: const EdgeInsets.all(16),
+                padding: const EdgeInsets.all(AppSpacing.p16),
                 tint: L.green.withValues(alpha: 0.08),
                 child: Row(
                   children: [
@@ -64,7 +64,7 @@ class CourseCompletionDialog extends StatelessWidget {
                       child: const Icon(Icons.check_rounded,
                           color: Colors.white, size: 24),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppSpacing.p12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -81,7 +81,7 @@ class CourseCompletionDialog extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.p24),
               MedAiCTA(
                 label: 'ARCHIVE & FINISH',
                 onTap: () {
@@ -90,7 +90,7 @@ class CourseCompletionDialog extends StatelessWidget {
                 },
                 semanticsLabel: 'Archive and finish course',
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.p12),
               Semantics(
                 button: true,
                 label: 'Close',

@@ -57,7 +57,7 @@ class ConfidenceMeter extends StatelessWidget {
               color: trackColor,
               borderRadius: BorderRadius.circular(3),
             ),
-            alignment: Alignment.centerLeft,
+            alignment: AlignmentDirectional.centerStart,
             child: AnimatedContainer(
               duration: reduceMotion
                   ? Duration.zero

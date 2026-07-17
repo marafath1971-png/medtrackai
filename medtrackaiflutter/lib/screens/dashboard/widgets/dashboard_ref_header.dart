@@ -24,17 +24,19 @@ class DashboardRefHeader extends StatelessWidget {
     final displayName =
         (name != null && name.isNotEmpty) ? name : 'Your profile';
     final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : 'M';
+    final showAlertDot =
+        appState.unseenAlertsCount > 0 || appState.getLowStockCount() > 0;
 
     return Padding(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(20, 12, 20, 8),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p12, AppSpacing.gutter, AppSpacing.p8),
         child: Row(
           children: [
             Expanded(
               child: MedAiGlass(
                 radius: 999,
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p8),
                 child: Row(
                   children: [
                     Container(
@@ -45,7 +47,7 @@ class DashboardRefHeader extends StatelessWidget {
                         gradient: const LinearGradient(
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
-                          colors: [Color(0xFFC9EFA0), Color(0xFF8FD14F)],
+                          colors: [AppColors.lime, AppColors.limeDeep],
                         ),
                         boxShadow: [
                           BoxShadow(
@@ -65,7 +67,7 @@ class DashboardRefHeader extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(width: 10),
+                    const SizedBox(width: AppSpacing.p12),
                     Expanded(
                       child: Text(
                         displayName,
@@ -83,18 +85,20 @@ class DashboardRefHeader extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(width: 10),
+            const SizedBox(width: AppSpacing.p12),
             _GlassIconBtn(
               icon: Icons.search_rounded,
               label: 'Search',
               onTap: onSearch ?? onDailyLog,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpacing.p8),
             _GlassIconBtn(
               icon: Icons.notifications_none_rounded,
-              label: 'Open daily log',
+              label: showAlertDot
+                  ? 'Open daily log, alerts pending'
+                  : 'Open daily log',
               onTap: onDailyLog,
-              showDot: true,
+              showDot: showAlertDot,
             ),
           ],
         ),
@@ -129,9 +133,9 @@ class _GlassIconBtn extends StatelessWidget {
         },
         child: MedAiGlass(
           radius: 999,
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(AppSpacing.p8),
           child: SizedBox(
-            width: 22,
+            width: AppSpacing.p24,
             height: 22,
             child: Stack(
               clipBehavior: Clip.none,
@@ -139,16 +143,16 @@ class _GlassIconBtn extends StatelessWidget {
               children: [
                 Icon(icon, size: 22, color: L.text.withValues(alpha: 0.9)),
                 if (showDot)
-                  Positioned(
+                  PositionedDirectional(
                     top: -2,
-                    right: -2,
+                    end: -2,
                     child: Container(
                       width: 8,
                       height: 8,
                       decoration: BoxDecoration(
                         color: AppColors.red,
                         shape: BoxShape.circle,
-                        border: Border.all(color: Colors.white, width: 1.5),
+                        border: Border.all(color: L.card, width: 1.5),
                       ),
                     ),
                   ),

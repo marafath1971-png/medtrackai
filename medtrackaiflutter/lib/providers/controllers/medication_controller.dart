@@ -209,7 +209,13 @@ class MedicationController extends ChangeNotifier {
 
   double getAdherenceScore() {
     if (!isAdherenceDirty && _cachedAdherence != null) return _cachedAdherence!;
-    if (_history.isEmpty) return 1.0;
+    // Empty history / no scheduled doses → 0 (not "perfect"), so Trends
+    // doesn't show 100% Excellent for brand-new users.
+    if (_history.isEmpty && _meds.isEmpty) {
+      _cachedAdherence = 0.0;
+      isAdherenceDirty = false;
+      return 0.0;
+    }
     int totalScheduled = 0, totalTaken = 0;
     final now = DateTime.now();
     for (int i = 0; i < 30; i++) {
@@ -230,7 +236,7 @@ class MedicationController extends ChangeNotifier {
       }
     }
     _cachedAdherence = totalScheduled == 0
-        ? 1.0
+        ? 0.0
         : (totalTaken / totalScheduled).clamp(0.0, 1.0);
     isAdherenceDirty = false;
     return _cachedAdherence!;
@@ -249,10 +255,8 @@ class MedicationController extends ChangeNotifier {
               m.schedule.any((s) => s.enabled && s.days.contains(dayOfWeek)))
           .length;
       if (dayScheduled == 0) {
-        trend.add({
-          'date': dateKey,
-          'value': 1.0
-        }); // Treat no-med days as perfect adherence
+        // No doses planned — don't pretend 100% adherence on the chart.
+        trend.add({'date': dateKey, 'value': 0.0});
       } else {
         final dailyEntries = _history[dateKey] ?? [];
         final takenCount = dailyEntries

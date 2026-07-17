@@ -54,7 +54,7 @@ class TrialCountdownCard extends StatelessWidget {
                           color: L.primary, size: 22),
                     ),
                   ),
-                  const SizedBox(width: 14),
+                  const SizedBox(width: AppSpacing.p16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -84,7 +84,7 @@ class TrialCountdownCard extends StatelessWidget {
                   ),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 14, vertical: 10),
+                        horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
                     decoration: BoxDecoration(
                       color: L.text,
                       borderRadius: BorderRadius.circular(AppRadius.m),
@@ -101,14 +101,14 @@ class TrialCountdownCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: 18),
+              const SizedBox(height: AppSpacing.p20),
               Row(
                 children: List.generate(scanLimit, (i) {
                   final used = i < scansUsed;
                   return Expanded(
                     child: Container(
                       height: 4,
-                      margin: EdgeInsets.only(right: i < scanLimit - 1 ? 6 : 0),
+                      margin: EdgeInsetsDirectional.only(end: i < scanLimit - 1 ? 6 : 0),
                       decoration: BoxDecoration(
                         color: used
                             ? (isExhausted ? L.error : L.primary)
@@ -120,16 +120,16 @@ class TrialCountdownCard extends StatelessWidget {
                 }),
               ),
               if (isExhausted) ...[
-                const SizedBox(height: 14),
+                const SizedBox(height: AppSpacing.p16),
                 MedAiGlass(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
                   radius: AppRadius.s,
                   tint: L.fill.withValues(alpha: 0.5),
                   child: Row(
                     children: [
                       Icon(Icons.star_rounded, color: L.primary, size: 16),
-                      const SizedBox(width: 8),
+                      const SizedBox(width: AppSpacing.p8),
                       Expanded(
                         child: Text(
                           'Unlock unlimited scans, interaction checks, and more with Pro.',

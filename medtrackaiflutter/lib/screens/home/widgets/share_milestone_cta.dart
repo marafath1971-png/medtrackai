@@ -38,7 +38,7 @@ class ShareMilestoneCta extends StatelessWidget {
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
         decoration: BoxDecoration(
           color: L.card,
           borderRadius: BorderRadius.circular(24),
@@ -49,14 +49,14 @@ class ShareMilestoneCta extends StatelessWidget {
         child: Row(
           children: [
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(AppSpacing.p12),
               decoration: BoxDecoration(
                 color: L.accent.withValues(alpha: 0.1),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.share_rounded, size: 18, color: L.accent),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: AppSpacing.p16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,

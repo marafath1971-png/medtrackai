@@ -5,7 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../services/growth_tracker.dart';
 import '../../core/constants/premium_graphics.dart';
-import '../../theme/design_2026.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/med_ai_mascot.dart';
 import '../../widgets/common/premium_shimmer.dart';
@@ -172,7 +172,10 @@ class _GrowthDashboardScreenState extends State<GrowthDashboardScreen> {
           ),
         ],
       ),
-    ).animate().fadeIn(duration: 450.ms).slideY(begin: 0.04, end: 0);
+    ).medAiChain(
+      context,
+      (w) => w.animate().fadeIn(duration: 450.ms).slideY(begin: 0.04, end: 0),
+    );
   }
 
   Widget _buildErrorCard(AppThemeColors L) {
@@ -551,7 +554,10 @@ class _DashboardCard extends StatelessWidget {
       tintOpacity: context.isDark ? 0.06 : 0.48,
       padding: const EdgeInsets.all(18),
       child: child,
-    ).animate().fadeIn(duration: 420.ms).slideY(begin: 0.03, end: 0);
+    ).medAiChain(
+      context,
+      (w) => w.animate().fadeIn(duration: 420.ms).slideY(begin: 0.03, end: 0),
+    );
   }
 }
 

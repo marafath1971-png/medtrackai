@@ -115,14 +115,14 @@ class _CaregiverCardState extends State<CaregiverCard> {
                             ),
                           ),
                           if (isActive) ...[
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppSpacing.p8),
                             _StatusPill(
                               label: 'Active',
                               color: L.success,
                               L: L,
                             ),
                           ] else ...[
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppSpacing.p8),
                             _StatusPill(
                               label: 'Waiting',
                               color: L.sub,
@@ -147,11 +147,11 @@ class _CaregiverCardState extends State<CaregiverCard> {
               ],
             ),
 
-            const SizedBox(height: 14),
+            const SizedBox(height: AppSpacing.p16),
 
             // Latest Activity Snippet (Cal AI Ticker)
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
               decoration: BoxDecoration(
                 color: L.fill.withValues(alpha: 0.4),
                 borderRadius: AppRadius.roundXS,
@@ -160,7 +160,7 @@ class _CaregiverCardState extends State<CaregiverCard> {
                 children: [
                   Icon(Icons.radar_rounded,
                       size: 12, color: isActive ? L.success : L.warning),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.p8),
                   Expanded(
                     child: Text(
                       isActive
@@ -177,7 +177,7 @@ class _CaregiverCardState extends State<CaregiverCard> {
               ),
             ),
 
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.p12),
 
             // Industrial Status Bar
             Container(
@@ -239,7 +239,7 @@ class FamStatJSX extends StatelessWidget {
               child: Text(emoji, style: const TextStyle(fontSize: 16)),
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpacing.p16),
           Text(value.toString(),
               style: AppTypography.displayLarge.copyWith(
                 fontSize: 24,
@@ -324,12 +324,12 @@ class HeaderBtn extends StatelessWidget {
           scaleFactor: 0.97,
           child: Container(
             constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p8),
             decoration: BoxDecoration(
                 color: bg, borderRadius: BorderRadius.circular(20)),
             child: Row(children: [
               Icon(icon, size: 14, color: color),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.p8),
               Text(label,
                   style: AppTypography.labelLarge.copyWith(
                       fontSize: 14, fontWeight: FontWeight.w700, color: color)),
@@ -353,7 +353,7 @@ class _StatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(99),

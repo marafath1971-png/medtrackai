@@ -10,6 +10,7 @@ import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/premium_page_header.dart';
 import '../../../widgets/common/app_shimmer.dart';
 import '../../../widgets/common/animated_pressable.dart';
+import '../../../widgets/common/app_feedback.dart';
 import '../../../core/utils/haptic_engine.dart';
 
 class AddHeader extends StatelessWidget {
@@ -35,7 +36,7 @@ class AddHeader extends StatelessWidget {
           onBack();
         },
       ),
-      const SizedBox(height: 16),
+      const SizedBox(height: AppSpacing.p16),
       Semantics(
         label: 'Step $step of 3',
         child: Row(
@@ -45,7 +46,7 @@ class AddHeader extends StatelessWidget {
                         duration: MedAiA11y.motion(
                             context, const Duration(milliseconds: 300)),
                         curve: Curves.easeOutCubic,
-                        margin: EdgeInsets.only(right: n == 3 ? 0 : 8),
+                        margin: EdgeInsetsDirectional.only(end: n == 3 ? 0 : 8),
                         height: 6,
                         decoration: BoxDecoration(
                             color: step >= n
@@ -54,7 +55,7 @@ class AddHeader extends StatelessWidget {
                             borderRadius: BorderRadius.circular(10)))))
                 .toList()),
       ),
-      const SizedBox(height: 32),
+      const SizedBox(height: AppSpacing.p32),
     ]);
   }
 }
@@ -92,7 +93,7 @@ class AddCgStep1 extends StatelessWidget {
                     keyboardDismissBehavior:
                         ScrollViewKeyboardDismissBehavior.onDrag,
                     padding: const EdgeInsets.only(
-                        left: 24, right: 24, top: 12, bottom: 120),
+                        left: AppSpacing.p24, right: AppSpacing.p24, top: AppSpacing.p12, bottom: 120),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -132,14 +133,14 @@ class AddCgStep1 extends StatelessWidget {
                                         ),
                                       ))
                                   .toList()),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: AppSpacing.p32),
                           MedAiSectionHeader(title: 'Full name *'),
                           ValueListenableBuilder<TextEditingValue>(
                               valueListenable: nameCtrl,
                               builder: (context, value, child) {
                                 return MedAiGlass(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 20, vertical: 4),
+                                      horizontal: AppSpacing.gutter, vertical: AppSpacing.p4),
                                   radius: AppRadius.xl,
                                   child: TextField(
                                       controller: nameCtrl,
@@ -156,7 +157,7 @@ class AddCgStep1 extends StatelessWidget {
                                                       alpha: 0.3)))),
                                 );
                               }),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: AppSpacing.p32),
                           MedAiSectionHeader(title: 'Relationship'),
                           Wrap(
                               spacing: 8,
@@ -182,7 +183,7 @@ class AddCgStep1 extends StatelessWidget {
                                           },
                                           child: MedAiGlass(
                                             padding: const EdgeInsets.symmetric(
-                                                horizontal: 16, vertical: 12),
+                                                horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
                                             radius: AppRadius.xl,
                                             tint: relation == r ? L.text : L.card,
                                             child: Text(r,
@@ -199,12 +200,12 @@ class AddCgStep1 extends StatelessWidget {
                                         ),
                                       ))
                                   .toList()),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: AppSpacing.p32),
                           MedAiSectionHeader(
                               title: 'Phone (optional — for SMS)'),
                           MedAiGlass(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 20, vertical: 4),
+                                horizontal: AppSpacing.gutter, vertical: AppSpacing.p4),
                             radius: AppRadius.xl,
                             child: TextField(
                                 controller: contactCtrl,
@@ -219,7 +220,7 @@ class AddCgStep1 extends StatelessWidget {
                                     hintStyle: AppTypography.bodySmall.copyWith(
                                         color: L.sub.withValues(alpha: 0.3)))),
                           ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: AppSpacing.p32),
                           MedAiSectionHeader(title: 'Alert after missed dose'),
                           Row(children: [
                             DelayBtn(
@@ -228,21 +229,21 @@ class AddCgStep1 extends StatelessWidget {
                                 current: alertDelay,
                                 onTap: onDelayChange,
                                 L: L),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppSpacing.p8),
                             DelayBtn(
                                 delay: 15,
                                 label: '15 min',
                                 current: alertDelay,
                                 onTap: onDelayChange,
                                 L: L),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppSpacing.p8),
                             DelayBtn(
                                 delay: 30,
                                 label: '30 min',
                                 current: alertDelay,
                                 onTap: onDelayChange,
                                 L: L),
-                            const SizedBox(width: 8),
+                            const SizedBox(width: AppSpacing.p8),
                             DelayBtn(
                                 delay: 60,
                                 label: '1 hr',
@@ -259,9 +260,9 @@ class AddCgStep1 extends StatelessWidget {
                 radius: 0,
                 showBorder: false,
                 padding: EdgeInsets.only(
-                    left: 24,
-                    right: 24,
-                    top: 16,
+                    left: AppSpacing.p24,
+                    right: AppSpacing.p24,
+                    top: AppSpacing.p16,
                     bottom: MediaQuery.of(context).padding.bottom + 16),
                 child: ValueListenableBuilder<TextEditingValue>(
                     valueListenable: nameCtrl,
@@ -309,7 +310,7 @@ class DelayBtn extends StatelessWidget {
               onTap(delay);
             },
             child: MedAiGlass(
-              padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 4),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.p16, horizontal: AppSpacing.p4),
               radius: AppRadius.xl,
               tint: current == delay ? L.text : L.card,
               child: Center(
@@ -410,7 +411,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
             child: SingleChildScrollView(
                 keyboardDismissBehavior:
                     ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p24, vertical: AppSpacing.p12),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -432,7 +433,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                                     child: Text(cg.avatar,
                                         style: AppTypography.headlineLarge
                                             .copyWith(fontSize: 32)))),
-                            const SizedBox(width: 16),
+                            const SizedBox(width: AppSpacing.p16),
                             Expanded(
                                 child: Column(
                                     crossAxisAlignment:
@@ -453,7 +454,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                           ]),
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: AppSpacing.p32),
                       Center(
                         child: Text('Scan from caregiver app',
                             style: AppTypography.labelLarge.copyWith(
@@ -461,12 +462,12 @@ class _AddCgStep2State extends State<AddCgStep2> {
                                 color: L.sub.withValues(alpha: 0.6),
                                 fontWeight: FontWeight.w700)),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.p24),
                       Center(
                           child: Semantics(
                         label: 'QR code for caregiver invite',
                         child: MedAiDepthCard(
-                          padding: const EdgeInsets.all(20),
+                          padding: const EdgeInsets.all(AppSpacing.p20),
                           radius: AppRadius.squircle,
                           accentGlow: true,
                           color: Colors.white,
@@ -482,18 +483,18 @@ class _AddCgStep2State extends State<AddCgStep2> {
                           ),
                         ),
                       )),
-                      const SizedBox(height: 40),
+                      const SizedBox(height: AppSpacing.p40),
                       Center(
                           child: Text('Or use invite code',
                               style: AppTypography.labelLarge.copyWith(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
                                   color: L.sub.withValues(alpha: 0.5)))),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AppSpacing.p12),
                       Center(
                           child: MedAiGlass(
                         padding: const EdgeInsets.symmetric(
-                            horizontal: 24, vertical: 14),
+                            horizontal: AppSpacing.p24, vertical: AppSpacing.p16),
                         radius: AppRadius.l,
                         child: Text(cg.inviteCode ?? '------',
                             style: AppTypography.displayLarge.copyWith(
@@ -502,7 +503,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                                 color: L.text,
                                 letterSpacing: 6)),
                       )),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: AppSpacing.p16),
                       Center(
                           child: Semantics(
                         button: true,
@@ -512,29 +513,18 @@ class _AddCgStep2State extends State<AddCgStep2> {
                             HapticEngine.selection();
                             Clipboard.setData(
                                 ClipboardData(text: widget.inviteCode));
-                            ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Code copied',
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.w700,
-                                          color: L.bg)),
-                                  backgroundColor: L.text,
-                                  behavior: SnackBarBehavior.floating,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius:
-                                          BorderRadius.circular(16)),
-                                ));
+                            AppFeedback.toast(context, 'Code copied');
                           },
                           child: MedAiGlass(
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 12),
+                                horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
                             radius: AppRadius.xl,
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 Icon(Icons.copy_rounded,
                                     color: L.text, size: 16),
-                                const SizedBox(width: 8),
+                                const SizedBox(width: AppSpacing.p8),
                                 Text('Copy code',
                                     style: AppTypography.labelLarge.copyWith(
                                         fontSize: 13,
@@ -545,7 +535,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                           ),
                         ),
                       )),
-                      const SizedBox(height: 48),
+                      const SizedBox(height: AppSpacing.p48),
                       MedAiDepthCard(
                         color: _scanState == 'idle'
                             ? L.card
@@ -560,7 +550,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                                       width: 28,
                                       height: 28,
                                       shape: BoxShape.circle)),
-                              const SizedBox(height: 16),
+                              const SizedBox(height: AppSpacing.p16),
                               Text('Waiting for caregiver to scan...',
                                   style: AppTypography.labelLarge.copyWith(
                                       fontWeight: FontWeight.w700,
@@ -569,7 +559,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                             ] else ...[
                               Icon(Icons.check_circle_rounded,
                                   color: L.green, size: 36),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: AppSpacing.p12),
                               Text('Success! Caregiver added.',
                                   style: AppTypography.labelLarge.copyWith(
                                       fontWeight: FontWeight.w800,
@@ -579,7 +569,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                           ],
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: AppSpacing.p32),
                     ]))));
   }
 }
@@ -620,7 +610,7 @@ class HowItWorksRow extends StatelessWidget {
                 style: AppTypography.bodyMedium.copyWith(fontSize: 22)),
           ),
         ),
-        const SizedBox(width: 16),
+        const SizedBox(width: AppSpacing.p16),
         Expanded(
             child:
                 Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -662,7 +652,7 @@ class AddCgStep3 extends StatelessWidget {
             child: SingleChildScrollView(
                 keyboardDismissBehavior:
                     ScrollViewKeyboardDismissBehavior.onDrag,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p24, vertical: AppSpacing.p12),
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -682,7 +672,7 @@ class AddCgStep3 extends StatelessWidget {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: AppSpacing.p32),
                       _entrance(
                         context,
                         MedAiDepthCard(
@@ -698,7 +688,7 @@ class AddCgStep3 extends StatelessWidget {
                                     child: Text(cg.avatar,
                                         style: AppTypography.headlineLarge
                                             .copyWith(fontSize: 30)))),
-                            const SizedBox(width: 16),
+                            const SizedBox(width: AppSpacing.p16),
                             Expanded(
                                 child: Column(
                                     crossAxisAlignment:
@@ -718,7 +708,7 @@ class AddCgStep3 extends StatelessWidget {
                                 ])),
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 14, vertical: 6),
+                                  horizontal: AppSpacing.p16, vertical: AppSpacing.p8),
                               decoration: BoxDecoration(
                                   color: L.green.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(99)),
@@ -731,7 +721,7 @@ class AddCgStep3 extends StatelessWidget {
                         ),
                         delay: 200.ms,
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.p24),
                       MedAiSectionHeader(title: 'They can now:'),
                       _entrance(
                         context,
@@ -762,7 +752,7 @@ class AddCgStep3 extends StatelessWidget {
                         ),
                         delay: 400.ms,
                       ),
-                      const SizedBox(height: 48),
+                      const SizedBox(height: AppSpacing.p48),
                       _entrance(
                         context,
                         MedAiCTA(

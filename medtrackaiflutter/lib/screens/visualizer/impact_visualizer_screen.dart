@@ -685,7 +685,7 @@ class _MiniBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     return Align(
-      alignment: alignEnd ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: alignEnd ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
       child: Container(
         width: 54,
         height: 4,
@@ -694,7 +694,7 @@ class _MiniBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(3),
         ),
         child: FractionallySizedBox(
-          alignment: alignEnd ? Alignment.centerRight : Alignment.centerLeft,
+          alignment: alignEnd ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
           widthFactor: value.clamp(0.0, 1.0),
           child: AnimatedContainer(
             duration: AppDurations.fast,

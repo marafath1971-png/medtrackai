@@ -3,7 +3,12 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../theme/med_ai_ui.dart';
+import 'ghost_mascot.dart';
 
+/// Shared empty state — icon/mascot + one-line message + optional CTA.
+///
+/// Prefer [mascotFeature], [visual], [illustrationAsset], or [icon].
+/// Do not use emoji as the primary visual.
 class PremiumEmptyState extends StatelessWidget {
   final String title;
   final String subtitle;
@@ -13,6 +18,12 @@ class PremiumEmptyState extends StatelessWidget {
   final IconData? icon;
   final Widget? visual;
   final String? illustrationAsset;
+
+  /// Resolve a ghost mascot by feature key (see [GhostMascot.feature]).
+  final String? mascotFeature;
+
+  /// Tighter padding / smaller artwork for in-card empties.
+  final bool compact;
 
   const PremiumEmptyState({
     super.key,
@@ -24,34 +35,51 @@ class PremiumEmptyState extends StatelessWidget {
     this.icon,
     this.visual,
     this.illustrationAsset,
+    this.mascotFeature,
+    this.compact = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
+    final artSize = compact ? 72.0 : 110.0;
+    final mascotSize = compact ? 64.0 : 96.0;
+    final hPad = compact ? AppSpacing.p16 : 32.0;
+    final vPad = compact ? AppSpacing.p24 : 48.0;
+
+    Widget resolvedVisual = visual ??
+        (mascotFeature != null
+            ? GhostMascot.feature(
+                mascotFeature!,
+                size: mascotSize,
+                idle: !reduceMotion && !compact,
+                showGlow: !compact,
+              )
+            : (illustrationAsset != null
+                ? SvgPicture.asset(
+                    illustrationAsset!,
+                    width: mascotSize,
+                    height: mascotSize,
+                    fit: BoxFit.contain,
+                  )
+                : (icon != null
+                    ? Icon(icon, size: compact ? 32 : 44, color: L.accent)
+                    : Text(
+                        emoji,
+                        style: AppTypography.displayLarge.copyWith(
+                          fontSize: compact ? 32 : 44,
+                        ),
+                      ))));
 
     Widget iconArea = MedAiDepthCard(
       padding: EdgeInsets.zero,
       radius: AppRadius.max,
       color: L.card,
       child: SizedBox(
-        width: 110,
-        height: 110,
-        child: Center(
-          child: visual ??
-              (illustrationAsset != null
-                  ? SvgPicture.asset(
-                      illustrationAsset!,
-                      width: 96,
-                      height: 96,
-                      fit: BoxFit.contain,
-                    )
-                  : (icon != null
-                      ? Icon(icon, size: 44, color: L.accent)
-                      : Text(emoji,
-                          style: AppTypography.displayLarge.copyWith(fontSize: 44)))),
-        ),
+        width: artSize,
+        height: artSize,
+        child: Center(child: resolvedVisual),
       ),
     );
 
@@ -60,7 +88,7 @@ class PremiumEmptyState extends StatelessWidget {
       textAlign: TextAlign.center,
       style: AppTypography.headlineLarge.copyWith(
         color: L.text,
-        fontSize: 22,
+        fontSize: compact ? 18 : 22,
         fontWeight: FontWeight.w800,
         letterSpacing: -0.4,
       ),
@@ -71,9 +99,9 @@ class PremiumEmptyState extends StatelessWidget {
       textAlign: TextAlign.center,
       style: AppTypography.bodyMedium.copyWith(
         color: L.sub,
-        fontSize: 15,
+        fontSize: compact ? 13 : 15,
         fontWeight: FontWeight.w500,
-        height: 1.6,
+        height: 1.5,
         letterSpacing: -0.2,
       ),
     );
@@ -94,18 +122,19 @@ class PremiumEmptyState extends StatelessWidget {
     }
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 48),
+      padding: EdgeInsets.symmetric(horizontal: hPad, vertical: vPad),
       width: double.infinity,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
         children: [
           iconArea,
-          const SizedBox(height: 32),
+          SizedBox(height: compact ? AppSpacing.p16 : 32),
           titleWidget,
-          const SizedBox(height: 12),
+          SizedBox(height: compact ? AppSpacing.p8 : 12),
           subtitleWidget,
           if (actionLabel != null && onAction != null) ...[
-            const SizedBox(height: 40),
+            SizedBox(height: compact ? AppSpacing.p20 : 40),
             _entrance(
               reduceMotion,
               MedAiCTA(

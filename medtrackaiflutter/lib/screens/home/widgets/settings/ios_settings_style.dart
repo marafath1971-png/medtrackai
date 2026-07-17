@@ -16,8 +16,6 @@ abstract final class IosSettingsTokens {
   static const double chevronSize = 14;
 
   // iOS system accent colors (Settings-style icon tiles).
-  static const Color systemBlue = Color(0xFF007AFF);
-  static const Color systemGreen = Color(0xFF34C759);
   static const Color systemOrange = Color(0xFFFF9500);
   static const Color systemRed = Color(0xFFFF3B30);
   static const Color systemPurple = Color(0xFFAF52DE);
@@ -122,7 +120,7 @@ class IosInsetSeparator extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     return Padding(
-      padding: const EdgeInsets.only(left: IosSettingsTokens.separatorInset),
+      padding: const EdgeInsetsDirectional.only(start: IosSettingsTokens.separatorInset),
       child: Divider(
         height: 0.5,
         thickness: 0.5,
@@ -212,7 +210,7 @@ class IosSettingsSegmentedBar extends StatelessWidget {
           constraints: const BoxConstraints(
             minHeight: MedAiA11y.minTapTargetCompact,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 7),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: 7),
           decoration: BoxDecoration(
             color: selected
                 ? (context.isDark ? L.card : Colors.white)

@@ -15,12 +15,12 @@ class AlertLogCard extends StatelessWidget {
       {super.key, required this.alert, required this.L, required this.onTap});
   @override
   Widget build(BuildContext context) => Padding(
-        padding: const EdgeInsets.only(bottom: 12),
+        padding: const EdgeInsets.only(bottom: AppSpacing.p12),
         child: Semantics(
         button: true,
         label: 'Missed dose alert for ${alert.medName}',
         child: MedAiDepthCard(
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(AppSpacing.p16),
           accentGlow: !alert.seen,
           onTap: () {
             HapticEngine.light();
@@ -37,7 +37,7 @@ class AlertLogCard extends StatelessWidget {
                   child: Icon(Icons.error_outline_rounded,
                       color: L.error, size: 22)),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: AppSpacing.p16),
             Expanded(
                 child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -63,9 +63,9 @@ class AlertLogCard extends StatelessWidget {
               children: [
                 if (!alert.seen)
                   Container(
-                    margin: const EdgeInsets.only(bottom: 6),
+                    margin: const EdgeInsets.only(bottom: AppSpacing.p8),
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: 3),
                     decoration: BoxDecoration(
                         color: L.fill.withValues(alpha: 0.6),
                         borderRadius: BorderRadius.circular(99)),
@@ -82,7 +82,7 @@ class AlertLogCard extends StatelessWidget {
                         color: L.sub.withValues(alpha: 0.6))),
               ],
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpacing.p8),
             Icon(Icons.chevron_right_rounded,
                 color: L.sub.withValues(alpha: 0.3), size: 18),
           ]),
@@ -120,7 +120,7 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
           Expanded(
             child: SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppSpacing.p24),
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -128,9 +128,9 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
                         'Safety simulation of how missed doses trigger household alerts.',
                         style: AppTypography.bodySmall
                             .copyWith(color: L.sub, fontSize: 14)),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: AppSpacing.p32),
                     EscalationTimeline(activeStep: _step, L: L),
-                    const SizedBox(height: 40),
+                    const SizedBox(height: AppSpacing.p40),
                     Row(children: [
                       Expanded(
                         child: MedAiCTA(
@@ -143,7 +143,7 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
                               : () => setState(() => _step--),
                         ),
                       ),
-                      const SizedBox(width: 12),
+                      const SizedBox(width: AppSpacing.p12),
                       Expanded(
                           flex: 2,
                           child: MedAiCTA(
@@ -160,7 +160,7 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
                           )),
                     ]),
                     if (_step == 4) ...[
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.p24),
                       _buildCriticalAlertCard(L),
                     ],
                   ],
@@ -175,7 +175,7 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
   Widget _buildCriticalAlertCard(AppThemeColors L) {
     final reduceMotion = MedAiA11y.reducedMotion(context);
     Widget card = MedAiDepthCard(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.p20),
       accentGlow: true,
       color: const Color(0xFF1C1917),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -183,7 +183,7 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
           children: [
             const Icon(Icons.campaign_rounded,
                 color: Color(0xFFFCA5A5), size: 20),
-            const SizedBox(width: 10),
+            const SizedBox(width: AppSpacing.p12),
             Text('Critical alert sent',
                 style: AppTypography.labelLarge.copyWith(
                     fontSize: 11,
@@ -191,7 +191,7 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
                     color: const Color(0xFFFCA5A5))),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.p12),
         Text(
             'Sarah J. missed their Blood Pressure medication. Please check on them immediately.',
             style: AppTypography.bodySmall.copyWith(
@@ -271,9 +271,9 @@ class EscalationTimeline extends StatelessWidget {
                         width: 2,
                         color:
                             isActive ? color.withValues(alpha: 0.4) : L.border,
-                        margin: const EdgeInsets.symmetric(vertical: 4))),
+                        margin: const EdgeInsets.symmetric(vertical: AppSpacing.p4))),
             ]),
-            const SizedBox(width: 18),
+            const SizedBox(width: AppSpacing.p20),
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.only(bottom: 28),
@@ -325,12 +325,12 @@ class AlertDetailView extends StatelessWidget {
           Expanded(
             child: SingleChildScrollView(
               keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppSpacing.p24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
             MedAiDepthCard(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppSpacing.p24),
               accentGlow: true,
               child: Column(
                 children: [
@@ -344,31 +344,31 @@ class AlertDetailView extends StatelessWidget {
                         child: Icon(Icons.warning_rounded,
                             color: L.error, size: 32)),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.p20),
                   Text(alert.medName,
                       style: AppTypography.displayLarge.copyWith(
                           fontSize: 24,
                           fontWeight: FontWeight.w800,
                           color: L.text)),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpacing.p4),
                   Text('Missed ${alert.doseLabel} at ${alert.time}',
                       style: AppTypography.bodySmall.copyWith(
                           fontSize: 15,
                           color: L.sub,
                           fontWeight: FontWeight.w500)),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.p24),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
                     _Badge(label: 'Critical', color: L.error),
-                    const SizedBox(width: 8),
+                    const SizedBox(width: AppSpacing.p8),
                     _Badge(
                         label: alert.timestamp.split(',').first, color: L.sub),
                   ]),
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: AppSpacing.p32),
             const MedAiSectionHeader(title: 'Safety protocol'),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.p16),
             EscalationTimeline(activeStep: 4, L: L),
                 ],
               ),
@@ -386,7 +386,7 @@ class _Badge extends StatelessWidget {
   const _Badge({required this.label, required this.color});
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p4),
         decoration: BoxDecoration(
             color: color.withValues(alpha: 0.1),
             borderRadius: BorderRadius.circular(8)),

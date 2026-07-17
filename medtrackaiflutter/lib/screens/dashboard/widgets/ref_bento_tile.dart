@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/app_theme.dart';
+import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/premium_texture.dart';
 
-/// Reference-style bento tile with premium grain texture.
+/// Reference-style bento tile — content-hugging (no dead vertical space).
 class RefBentoTile extends StatelessWidget {
   final String label;
   final String value;
@@ -29,18 +30,18 @@ class RefBentoTile extends StatelessWidget {
     return Semantics(
       button: onTap != null,
       label: '$label: $value $unit',
-      child: GestureDetector(
+      child: AnimatedPressable(
         onTap: onTap,
+        disabled: onTap == null,
+        scaleFactor: 0.97,
         child: PremiumTextureCard(
-          padding: const EdgeInsets.fromLTRB(16, 15, 16, 14),
-          radius: 22,
+          padding: const EdgeInsets.all(AppSpacing.p16),
+          radius: AppRadius.l,
           texture: PremiumTextureStyle.dots,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(minHeight: 104),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -49,37 +50,37 @@ class RefBentoTile extends StatelessWidget {
                       label,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
-                      style: AppTypography.labelMedium.copyWith(
+                      style: AppTypography.bodySmall.copyWith(
                         color: L.sub.withValues(alpha: 0.9),
                         fontWeight: FontWeight.w600,
                         height: 1.2,
-                        fontSize: 12.5,
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: AppSpacing.p8),
                   Container(
-                    width: 34,
-                    height: 34,
+                    width: 36,
+                    height: 36,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
-                      color: tint,
+                      color: AppColors.badgeFill(tint),
                       borderRadius: BorderRadius.circular(11),
                     ),
                     child: Icon(
                       mappedIcon,
                       size: 16,
-                      color: L.text.withValues(alpha: 0.75),
+                      color: tint,
                     ),
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.p8),
               Row(
                 crossAxisAlignment: CrossAxisAlignment.baseline,
                 textBaseline: TextBaseline.alphabetic,
                 children: [
                   Flexible(
+                    flex: 3,
                     child: Text(
                       value,
                       maxLines: 1,
@@ -88,28 +89,27 @@ class RefBentoTile extends StatelessWidget {
                         color: L.text,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.5,
-                        fontSize: 26,
                       ),
                     ),
                   ),
                   if (unit.isNotEmpty) ...[
-                    const SizedBox(width: 4),
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 2),
+                    const SizedBox(width: AppSpacing.p4),
+                    Flexible(
+                      flex: 2,
                       child: Text(
                         unit,
-                        style: AppTypography.labelMedium.copyWith(
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.labelLarge.copyWith(
                           color: L.sub.withValues(alpha: 0.9),
                           fontWeight: FontWeight.w600,
-                          fontSize: 13,
                         ),
                       ),
                     ),
                   ],
                 ],
               ),
-              ],
-            ),
+            ],
           ),
         ),
       ),

@@ -58,7 +58,7 @@ class _DataTabState extends State<DataTab> {
         context.select<AppState, int>((s) => s.symptoms.length);
 
     Widget heroCard = MedAiDepthCard(
-      padding: const EdgeInsets.all(24),
+      padding: const EdgeInsets.all(AppSpacing.p24),
       radius: 28,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(
@@ -72,7 +72,7 @@ class _DataTabState extends State<DataTab> {
             Icon(Icons.analytics_rounded, color: L.text, size: 16),
           ],
         ),
-        const SizedBox(height: 20),
+        const SizedBox(height: AppSpacing.p20),
         GridView.count(
           crossAxisCount: 2,
           shrinkWrap: true,
@@ -99,10 +99,10 @@ class _DataTabState extends State<DataTab> {
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
-      padding: const EdgeInsets.fromLTRB(0, 4, 0, 40),
+      padding: const EdgeInsets.fromLTRB(0, AppSpacing.p4, 0, AppSpacing.p40),
       child: Column(children: [
         heroCard,
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.p16),
 
         SettingsSection(
             title: s.exportAndBackup,
@@ -143,20 +143,20 @@ class _DataTabState extends State<DataTab> {
                 border: false)),
 
         if (_confirming) ...[
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.p12),
           MedAiDepthCard(
-            padding: const EdgeInsets.all(16),
+            padding: const EdgeInsets.all(AppSpacing.p16),
             radius: 24,
             color: L.card,
             child: Column(children: [
               Text(s.deleteConfirmTitle,
                   style: AppTypography.titleMedium
                       .copyWith(fontWeight: FontWeight.w800, color: L.red)),
-              const SizedBox(height: 6),
+              const SizedBox(height: AppSpacing.p8),
               Text(s.deleteConfirmBody,
                   textAlign: TextAlign.center,
                   style: AppTypography.bodySmall.copyWith(color: L.sub)),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.p16),
               Row(children: [
                 Expanded(
                   child: MedAiCTA(
@@ -168,7 +168,7 @@ class _DataTabState extends State<DataTab> {
                     },
                   ),
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: AppSpacing.p8),
                 Expanded(
                   child: Semantics(
                     button: true,
@@ -176,7 +176,7 @@ class _DataTabState extends State<DataTab> {
                     child: MedAiDepthCard(
                       color: L.red,
                       radius: AppRadius.max,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
+                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.p16),
                       onTap: () {
                         HapticEngine.alertWarning();
                         context.read<AppState>().deleteAllData();
@@ -196,7 +196,7 @@ class _DataTabState extends State<DataTab> {
           ),
         ],
 
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.p16),
 
         SettingsSection(
             title: s.legalSection,
@@ -217,7 +217,7 @@ class _DataTabState extends State<DataTab> {
                   border: false),
             ])),
 
-        const SizedBox(height: 16),
+        const SizedBox(height: AppSpacing.p16),
 
         Center(
           child: Text('${s.appVersionLabel}: ${s.appVersionValue}',
@@ -237,7 +237,7 @@ class _SummaryBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MedAiDepthCard(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(AppSpacing.p12),
       radius: 16,
       child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

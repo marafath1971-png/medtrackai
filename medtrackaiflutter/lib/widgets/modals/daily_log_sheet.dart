@@ -283,10 +283,12 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
           _SectionHeader(
               title: 'MEDICATIONS', count: allDosesToShow.length, L: L),
           if (allDosesToShow.isEmpty)
-            const PremiumEmptyState(
+            PremiumEmptyState(
               title: 'No doses scheduled',
               subtitle: 'Check back later or add a PRN dose to see logs here.',
-              emoji: '📅',
+              mascotFeature: 'missed',
+              icon: Icons.event_available_rounded,
+              compact: true,
             )
           else
             ...allDosesToShow.asMap().entries.map((entry) {
@@ -723,6 +725,7 @@ class _SymptomLogRow extends StatelessWidget {
               HapticEngine.selection();
               onDelete();
             },
+            tooltip: 'Delete symptom',
             icon: Icon(Icons.delete_outline_rounded, size: 18, color: L.sub),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
@@ -741,9 +744,11 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return PremiumEmptyState(
-      title: 'Empty',
+      title: 'Nothing here yet',
       subtitle: message,
-      emoji: '✨',
+      mascotFeature: 'home',
+      icon: Icons.inbox_outlined,
+      compact: true,
     );
   }
 }

@@ -280,7 +280,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                 end: Alignment.bottomCenter,
                 colors: [
                   const Color(0xFF1C1309).withValues(alpha: 0.94), // Dark Gold
-                  const Color(0xFF0B132B).withValues(alpha: 0.98),
+                  AppColors.bgDark.withValues(alpha: 0.98),
                 ],
               ),
               borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
@@ -686,7 +686,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
       children: [
         ...List.generate(
           5,
-          (_) => const Icon(Icons.star_rounded, color: Color(0xFFFFB340), size: 16),
+          (_) => const Icon(Icons.star_rounded, color: AppColors.amberDark, size: 16),
         ),
         const SizedBox(width: 8),
         Text(
@@ -841,7 +841,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
               child: AnimatedContainer(
                 duration: MedAiA11y.motion(context, AppDurations.fast),
                 curve: AppCurves.expressive,
-                margin: EdgeInsets.only(left: i == 0 ? 0 : 8),
+                margin: EdgeInsetsDirectional.only(start: i == 0 ? 0 : 8),
                 constraints: const BoxConstraints(minHeight: 88),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 14),
                 decoration: BoxDecoration(
@@ -1073,17 +1073,17 @@ class _PaywallErrorBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: const Color(0xFFFF453A).withValues(alpha: 0.12),
+        color: AppColors.redDark.withValues(alpha: 0.12),
         borderRadius: AppRadius.roundM,
         border: Border.all(
-          color: const Color(0xFFFF453A).withValues(alpha: 0.35),
+          color: AppColors.redDark.withValues(alpha: 0.35),
           width: 0.5,
         ),
       ),
       child: Row(
         children: [
           const Icon(Icons.error_outline_rounded,
-              color: Color(0xFFFF453A), size: 18),
+              color: AppColors.redDark, size: 18),
           const SizedBox(width: 10),
           Expanded(
             child: Text(
@@ -1135,8 +1135,8 @@ class _PaywallCTA extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: active
                 ? const LinearGradient(
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
+                    begin: AlignmentDirectional.centerStart,
+                    end: AlignmentDirectional.centerEnd,
                     colors: [
                       AppColors.eatoGold,
                       AppColors.amberDark,
@@ -1160,14 +1160,14 @@ class _PaywallCTA extends StatelessWidget {
                     height: 22,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: Color(0xFF0B132B),
+                      color: AppColors.bgDark,
                     ),
                   )
                 : Text(
                     label,
                     style: AppTypography.labelLarge.copyWith(
                       color: active
-                          ? const Color(0xFF0B132B)
+                          ? AppColors.bgDark
                           : Colors.white.withValues(alpha: 0.45),
                       fontWeight: FontWeight.w800,
                       fontSize: 16,

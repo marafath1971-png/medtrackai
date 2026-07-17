@@ -61,12 +61,21 @@ class StreakModal extends StatefulWidget {
 
 class _StreakModalState extends State<StreakModal> {
   late final ConfettiController _confettiController;
+  bool _confettiArmed = false;
 
   @override
   void initState() {
     super.initState();
     _confettiController =
         ConfettiController(duration: const Duration(seconds: 2));
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // MediaQuery is only safe after initState; arm confetti once.
+    if (_confettiArmed) return;
+    _confettiArmed = true;
     if (widget.streak >= 3 && !MedAiA11y.reducedMotion(context)) {
       _confettiController.play();
     }
@@ -161,7 +170,7 @@ class _StreakModalState extends State<StreakModal> {
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          const SizedBox(height: 12),
+                          const SizedBox(height: AppSpacing.p12),
                           Center(
                             child: Container(
                               width: 40,
@@ -183,22 +192,22 @@ class _StreakModalState extends State<StreakModal> {
                                     ScrollViewKeyboardDismissBehavior.onDrag,
                                 physics: const ClampingScrollPhysics(),
                                 padding:
-                                    const EdgeInsets.fromLTRB(24, 8, 24, 120),
+                                    const EdgeInsets.fromLTRB(AppSpacing.p24, AppSpacing.p8, AppSpacing.p24, 120),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     _buildHeroMetric(
                                         L, widget.streak, best, overallAdh),
-                                    const SizedBox(height: 24),
+                                    const SizedBox(height: AppSpacing.p24),
                                     _buildStatsGrid(
                                         L, totalDaysTracked, totalTaken, totalDoses),
-                                    const SizedBox(height: 32),
+                                    const SizedBox(height: AppSpacing.p32),
                                     _buildSectionTitle(L, 'Last 30 Days'),
-                                    const SizedBox(height: 16),
+                                    const SizedBox(height: AppSpacing.p16),
                                     _Heatmap(history: widget.history, L: L),
-                                    const SizedBox(height: 40),
+                                    const SizedBox(height: AppSpacing.p40),
                                     _buildSectionTitle(L, 'Milestones'),
-                                    const SizedBox(height: 20),
+                                    const SizedBox(height: AppSpacing.p20),
                                     _AscensionTrack(
                                       milestones: milestones,
                                       currentStreak: widget.streak,
@@ -241,7 +250,7 @@ class _StreakModalState extends State<StreakModal> {
 
   Widget _buildHeader(AppThemeColors L) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(24, 20, 24, 16),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.p24, AppSpacing.p20, AppSpacing.p24, AppSpacing.p16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -256,7 +265,7 @@ class _StreakModalState extends State<StreakModal> {
                   letterSpacing: -0.3,
                 ),
               ),
-              const SizedBox(height: 4),
+              const SizedBox(height: AppSpacing.p4),
               Text(
                 _getStreakTitle(widget.streak),
                 style: AppTypography.bodyMedium.copyWith(
@@ -268,11 +277,12 @@ class _StreakModalState extends State<StreakModal> {
           ),
           IconButton(
             onPressed: widget.onClose,
+            tooltip: 'Close',
             icon: Icon(Icons.close_rounded, color: L.text, size: 24),
             style: IconButton.styleFrom(
               minimumSize: const Size(MedAiA11y.minTapTarget, MedAiA11y.minTapTarget),
               backgroundColor: L.fill.withValues(alpha: 0.5),
-              padding: const EdgeInsets.all(8),
+              padding: const EdgeInsets.all(AppSpacing.p8),
             ),
           ),
         ],
@@ -300,7 +310,7 @@ class _StreakModalState extends State<StreakModal> {
                     fontSize: 11,
                   ),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: AppSpacing.p8),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.baseline,
                   textBaseline: TextBaseline.alphabetic,
@@ -315,7 +325,7 @@ class _StreakModalState extends State<StreakModal> {
                         height: 1.0,
                       ),
                     ),
-                    const SizedBox(width: 6),
+                    const SizedBox(width: AppSpacing.p8),
                     Text(
                       'days',
                       style: AppTypography.titleMedium.copyWith(
@@ -334,12 +344,12 @@ class _StreakModalState extends State<StreakModal> {
             height: 56,
             color: L.border.withValues(alpha: 0.15),
           ),
-          const SizedBox(width: 20),
+          const SizedBox(width: AppSpacing.p20),
           Column(
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               _MiniHeroStat(label: 'Best', val: '$best', L: L),
-              const SizedBox(height: 12),
+              const SizedBox(height: AppSpacing.p12),
               _MiniHeroStat(label: 'Adherence', val: '$adherence%', L: L),
             ],
           ),
@@ -357,11 +367,11 @@ class _StreakModalState extends State<StreakModal> {
         Expanded(
             child: _StatBox(
                 label: 'Days tracked', val: '$tracked', emoji: '📅', L: L)),
-        const SizedBox(width: 12),
+        const SizedBox(width: AppSpacing.p12),
         Expanded(
             child: _StatBox(
                 label: 'Doses taken', val: '$taken', emoji: '✓', L: L)),
-        const SizedBox(width: 12),
+        const SizedBox(width: AppSpacing.p12),
         Expanded(
             child: _StatBox(
                 label: 'Total logged', val: '$logged', emoji: '📊', L: L)),
@@ -381,7 +391,7 @@ class _StreakModalState extends State<StreakModal> {
             letterSpacing: -0.2,
           ),
         ),
-        const SizedBox(width: 12),
+        const SizedBox(width: AppSpacing.p12),
         Expanded(child: Divider(color: L.border.withValues(alpha: 0.1))),
       ],
     );
@@ -389,7 +399,7 @@ class _StreakModalState extends State<StreakModal> {
 
   Widget _buildFooterActions(AppThemeColors L, int streak) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(24, 16, 24, 32),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.p24, AppSpacing.p16, AppSpacing.p24, AppSpacing.p32),
       decoration: BoxDecoration(
         color: L.bg,
         border: Border(top: BorderSide(color: L.border.withValues(alpha: 0.1))),
@@ -413,7 +423,7 @@ class _StreakModalState extends State<StreakModal> {
                 },
               ),
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: AppSpacing.p12),
           ],
           MedAiCTA(
             label: 'Share streak',
@@ -478,7 +488,7 @@ class _StatBox extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(emoji, style: const TextStyle(fontSize: 16)),
-          const SizedBox(height: 10),
+          const SizedBox(height: AppSpacing.p12),
           Text(
             val,
             style: AppTypography.titleLarge.copyWith(
@@ -617,10 +627,10 @@ class _AscensionTrack extends StatelessWidget {
                     ),
                 ],
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: AppSpacing.p16),
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(bottom: 24),
+                  padding: const EdgeInsets.only(bottom: AppSpacing.p24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -638,7 +648,7 @@ class _AscensionTrack extends StatelessWidget {
                           if (isNext)
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: 8, vertical: 4),
+                                  horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
                               decoration: BoxDecoration(
                                 color: L.primary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
@@ -666,7 +676,7 @@ class _AscensionTrack extends StatelessWidget {
                         ),
                       ),
                       if (!achieved && isNext) ...[
-                        const SizedBox(height: 12),
+                        const SizedBox(height: AppSpacing.p12),
                         ClipRRect(
                           borderRadius: BorderRadius.circular(4),
                           child: LinearProgressIndicator(
@@ -676,7 +686,7 @@ class _AscensionTrack extends StatelessWidget {
                             color: L.primary,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: AppSpacing.p4),
                         Text(
                           '${target - currentStreak} days remaining',
                           style: AppTypography.labelSmall.copyWith(

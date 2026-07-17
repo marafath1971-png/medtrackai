@@ -47,16 +47,21 @@ fi
 echo
 echo "Applying (single-arg directional only)..."
 # NOTE: only rewrites the single-argument forms to stay safe.
-find "$LIB" -name '*.dart' -print0 | while IFS= read -r -d '' f; do
-  sed -i.bak -E \
-    -e 's/EdgeInsets\.only\(left:([^,)]*)\)/EdgeInsetsDirectional.only(start:\1)/g' \
-    -e 's/EdgeInsets\.only\(right:([^,)]*)\)/EdgeInsetsDirectional.only(end:\1)/g' \
-    -e 's/Alignment\.centerLeft/AlignmentDirectional.centerStart/g' \
-    -e 's/Alignment\.centerRight/AlignmentDirectional.centerEnd/g' \
-    "$f"
-  rm -f "$f.bak"
+# Skip PDF services — `pw.Alignment` has no Directional twin.
+find "$LIB" -name '*.dart' \
+  ! -path '*/services/report_service.dart' \
+  ! -path '*/services/export_service.dart' \
+  -print0 | while IFS= read -r -d '' f; do
+  # Use perl so we never rewrite `pw.Alignment.centerLeft`.
+  perl -i -pe '
+    s/EdgeInsets\.only\(left:([^,)]*)\)/EdgeInsetsDirectional.only(start:\1)/g;
+    s/EdgeInsets\.only\(right:([^,)]*)\)/EdgeInsetsDirectional.only(end:\1)/g;
+    s/(?<![\w.])Alignment\.centerLeft/AlignmentDirectional.centerStart/g;
+    s/(?<![\w.])Alignment\.centerRight/AlignmentDirectional.centerEnd/g;
+  ' "$f"
 done
 
 echo "Done. NOW RUN:"
 echo "  dart format lib/ && flutter analyze && git diff"
 echo "Review multi-arg EdgeInsets.only(left:.., right:..) and .fromLTRB by hand."
+echo "PDF tables (pw.Alignment) were intentionally skipped."

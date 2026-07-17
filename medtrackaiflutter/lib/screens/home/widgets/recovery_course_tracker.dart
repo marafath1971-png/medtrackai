@@ -25,7 +25,7 @@ class RecoveryCourseTracker extends StatelessWidget {
     final baseColor = hexToColor(medicine.color);
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p8),
       child: _entrance(
         reduceMotion,
         Semantics(
@@ -35,7 +35,7 @@ class RecoveryCourseTracker extends StatelessWidget {
           child: MedAiDepthCard(
           accentGlow: true,
           onTap: onTap,
-          padding: const EdgeInsets.all(20),
+          padding: const EdgeInsets.all(AppSpacing.p20),
           child: Row(
             children: [
               SizedBox(
@@ -94,14 +94,14 @@ class RecoveryCourseTracker extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: AppSpacing.p20),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
+                          horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
                       decoration: BoxDecoration(
                         color: L.red.withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(AppRadius.s),
@@ -116,7 +116,7 @@ class RecoveryCourseTracker extends StatelessWidget {
                         ),
                       ),
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: AppSpacing.p8),
                     Text(
                       medicine.name,
                       style: AppTypography.titleMedium.copyWith(
@@ -127,7 +127,7 @@ class RecoveryCourseTracker extends StatelessWidget {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.p4),
                     Text(
                       'Recovery mode active',
                       style: AppTypography.bodySmall.copyWith(

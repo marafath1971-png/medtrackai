@@ -91,7 +91,7 @@ class _SettingsModalState extends State<SettingsModal> {
                   ),
                   child: Column(
                     children: [
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSpacing.p8),
                       Container(
                         width: 36,
                         height: 5,
@@ -101,7 +101,7 @@ class _SettingsModalState extends State<SettingsModal> {
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 8, 4),
+                        padding: const EdgeInsets.fromLTRB(AppSpacing.p16, AppSpacing.p16, AppSpacing.p8, AppSpacing.p4),
                         child: Row(
                           children: [
                             Expanded(
@@ -141,7 +141,7 @@ class _SettingsModalState extends State<SettingsModal> {
                                 .slideY(begin: -0.06, end: 0)),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 8, 16, 12),
+                        padding: const EdgeInsets.fromLTRB(AppSpacing.p16, AppSpacing.p8, AppSpacing.p16, AppSpacing.p12),
                         child: IosSettingsSegmentedBar(
                           scrollable: true,
                           labels: tabs

@@ -73,32 +73,34 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
     final todayKey = DateFormat('yyyy-MM-dd').format(DateTime.now());
 
     String statusLabel;
-    if (pct >= 80) {
+    if (week.isEmpty || pct == 0) {
+      statusLabel = 'Start logging';
+    } else if (pct >= 80) {
       statusLabel = 'Excellent';
     } else if (pct >= 60) {
       statusLabel = 'On track';
-    } else if (week.isEmpty) {
-      statusLabel = 'Start logging';
     } else {
       statusLabel = 'Room to grow';
     }
 
     return PremiumTextureCard(
-      padding: const EdgeInsets.fromLTRB(22, 22, 22, 20),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.p16, AppSpacing.gutter, AppSpacing.p16, AppSpacing.p20),
       radius: 28,
       texture: PremiumTextureStyle.fineGrain,
-      child: Column(
+      child: Semantics(
+        label: "Today's adherence $pct percent, $statusLabel",
+        child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             "Today's adherence",
             style: AppTypography.labelMedium.copyWith(
               color: L.sub,
-              fontWeight: FontWeight.w600,
-              fontSize: 13,
+              fontWeight: FontWeight.w600
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.p16),
           Row(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
@@ -115,7 +117,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                           style: AppTypography.displayMedium.copyWith(
                             color: L.text,
                             fontWeight: FontWeight.w800,
-                            fontSize: 52,
+                            fontSize: 48,
                             letterSpacing: -2,
                             height: 1,
                           ),
@@ -129,7 +131,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                         ),
                       ],
                     ),
-                    const SizedBox(height: 6),
+                    const SizedBox(height: AppSpacing.p8),
                     Text(
                       statusLabel,
                       style: AppTypography.labelLarge.copyWith(
@@ -140,7 +142,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                         fontSize: 14,
                       ),
                     ),
-                    const SizedBox(height: 4),
+                    const SizedBox(height: AppSpacing.p4),
                     Text(
                       '7-day trend below',
                       style: AppTypography.bodySmall.copyWith(
@@ -162,11 +164,13 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                         trackColor: L.fill.withValues(alpha: 0.65),
                         progressColor: AppColors.limeDeep,
                       ),
-                      child: Center(
-                        child: Icon(
-                          Icons.show_chart_rounded,
-                          size: 28,
-                          color: AppColors.limeDeep.withValues(alpha: 0.85),
+                      child: const Center(
+                        child: ExcludeSemantics(
+                          child: Icon(
+                            Icons.show_chart_rounded,
+                            size: 28,
+                            color: AppColors.limeDeep,
+                          ),
                         ),
                       ),
                     ),
@@ -176,7 +180,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
             ],
           ),
           if (week.isNotEmpty) ...[
-            const SizedBox(height: 22),
+            const SizedBox(height: AppSpacing.p24),
             SizedBox(
               height: 56,
               child: Row(
@@ -190,7 +194,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
 
                   return Expanded(
                     child: Padding(
-                      padding: EdgeInsets.only(right: i < week.length - 1 ? 4 : 0),
+                      padding: EdgeInsetsDirectional.only(end: i < week.length - 1 ? 4 : 0),
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
@@ -199,7 +203,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                               alignment: Alignment.bottomCenter,
                               child: FractionallySizedBox(
                                 heightFactor:
-                                    val <= 0 ? 0.12 : val.clamp(0.15, 1.0),
+                                    val <= 0 ? 0.04 : val.clamp(0.04, 1.0),
                                 child: Container(
                                   width: double.infinity,
                                   decoration: BoxDecoration(
@@ -213,7 +217,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                               ),
                             ),
                           ),
-                          const SizedBox(height: 6),
+                          const SizedBox(height: AppSpacing.p8),
                           Text(
                             date != null
                                 ? _dow[(date.weekday - 1) % 7]
@@ -223,8 +227,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                                   ? AppColors.limeDeep
                                   : L.sub.withValues(alpha: 0.5),
                               fontWeight:
-                                  isToday ? FontWeight.w800 : FontWeight.w600,
-                              fontSize: 10,
+                                  isToday ? FontWeight.w800 : FontWeight.w600
                             ),
                           ),
                         ],
@@ -236,6 +239,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
             ),
           ],
         ],
+      ),
       ),
     );
   }
@@ -252,34 +256,49 @@ class _TrendRingPainter extends CustomPainter {
     required this.progressColor,
   });
 
+  /// Minimum painted fraction so low values (e.g. 7%) read as an arc,
+  /// not two round caps merged into a floating blob. Number labeling
+  /// still uses the real [fraction] outside this painter.
+  static const double _minVisibleFraction = 0.04;
+
   @override
   void paint(Canvas canvas, Size size) {
     final center = Offset(size.width / 2, size.height / 2);
-    final radius = size.width / 2 - 8;
+    const stroke = 11.0;
+    final radius = (size.shortestSide / 2) - stroke;
+    final rect = Rect.fromCircle(center: center, radius: radius);
 
+    // Full track — light gray ring (no round-cap ends; it's a closed circle).
     canvas.drawCircle(
       center,
       radius,
       Paint()
         ..color = trackColor
         ..style = PaintingStyle.stroke
-        ..strokeWidth = 10
-        ..strokeCap = StrokeCap.round,
+        ..strokeWidth = stroke,
     );
 
-    if (fraction > 0) {
-      canvas.drawArc(
-        Rect.fromCircle(center: center, radius: radius),
-        -math.pi / 2,
-        2 * math.pi * fraction,
-        false,
-        Paint()
-          ..color = progressColor
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = 10
-          ..strokeCap = StrokeCap.round,
-      );
-    }
+    if (fraction <= 0) return;
+
+    // Arc length floor so round caps don't collapse into a "dot".
+    // Also never shorter than ~stroke chord length on this radius.
+    final capFloor = stroke / (2 * math.pi * radius);
+    final painted = math.max(
+      fraction,
+      math.max(_minVisibleFraction, capFloor),
+    );
+
+    canvas.drawArc(
+      rect,
+      -math.pi / 2, // 12 o'clock
+      2 * math.pi * painted.clamp(0.0, 1.0),
+      false,
+      Paint()
+        ..color = progressColor
+        ..style = PaintingStyle.stroke
+        ..strokeWidth = stroke
+        ..strokeCap = StrokeCap.round,
+    );
   }
 
   @override

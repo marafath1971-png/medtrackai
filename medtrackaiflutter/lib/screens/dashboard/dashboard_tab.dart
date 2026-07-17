@@ -42,17 +42,33 @@ class _DashboardTabState extends State<DashboardTab> {
   }
 
   int _dosesThisWeek(AppState state) {
-    var count = 0;
+    return _weeklyDoseCounts(state).fold<int>(0, (a, b) => a + b);
+  }
+
+  /// Oldest → newest dose counts for the last 7 days.
+  List<int> _weeklyDoseCounts(AppState state) {
     final now = DateTime.now();
-    for (var i = 0; i < 7; i++) {
+    final counts = <int>[];
+    for (var i = 6; i >= 0; i--) {
       final d = now.subtract(Duration(days: i));
       final key =
           '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
-      count += (state.history[key] ?? [])
+      counts.add((state.history[key] ?? [])
           .where((e) => e.taken && !e.label.startsWith('PRN-'))
-          .length;
+          .length);
     }
-    return count;
+    return counts;
+  }
+
+  /// Last 7 adherence points from trend data (oldest → newest).
+  List<double> _weeklyAdherence(List<Map<String, dynamic>> trendData) {
+    if (trendData.isEmpty) return const [];
+    final slice = trendData.length >= 7
+        ? trendData.sublist(trendData.length - 7)
+        : trendData;
+    return slice
+        .map((e) => ((e['value'] as num?)?.toDouble() ?? 0.0).clamp(0.0, 1.0))
+        .toList();
   }
 
   void _scrollToInsights() {
@@ -96,11 +112,14 @@ class _DashboardTabState extends State<DashboardTab> {
         child: RefreshIndicator(
           onRefresh: () async {
             HapticEngine.selection();
+            await state.checkConnectivity();
             await state.loadFromStorage();
             await state.fetchHealthInsights();
           },
           color: AppColors.limeDeep,
           backgroundColor: L.card,
+          displacement: 48,
+          strokeWidth: 2.5,
           child: Scrollbar(
             controller: _scrollController,
             child: CustomScrollView(
@@ -120,7 +139,7 @@ class _DashboardTabState extends State<DashboardTab> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(22, 16, 22, 0),
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p16, AppSpacing.gutter, 0),
                     child: DashboardAdherenceHero(
                       trendData: trendData,
                       adherence: adherence,
@@ -131,11 +150,13 @@ class _DashboardTabState extends State<DashboardTab> {
                   child: DashboardPurrentMetricGrid(
                     streak: streak,
                     dosesWeek: dosesWeek,
+                    weeklyDoseCounts: _weeklyDoseCounts(state),
+                    weeklyAdherence: _weeklyAdherence(trendData),
                   ),
                 ),
                 if (!healthConnected)
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(22, 14, 22, 0),
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p16, AppSpacing.gutter, 0),
                     sliver: SliverToBoxAdapter(
                       child: _ConnectHealthCard(
                         onConnect: () async {
@@ -155,7 +176,7 @@ class _DashboardTabState extends State<DashboardTab> {
                 if (meds.isNotEmpty) ...[
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(22, 22, 22, 8),
+                      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.gutter, AppSpacing.gutter, AppSpacing.p8),
                       child: Text(
                         'Supply status',
                         style: AppTypography.titleLarge.copyWith(
@@ -168,10 +189,10 @@ class _DashboardTabState extends State<DashboardTab> {
                     ),
                   ),
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, 0),
                     sliver: SliverToBoxAdapter(
                       child: Container(
-                        padding: const EdgeInsets.all(16),
+                        padding: const EdgeInsets.all(AppSpacing.p16),
                         decoration: BoxDecoration(
                           color: L.card,
                           borderRadius: BorderRadius.circular(24),
@@ -190,7 +211,7 @@ class _DashboardTabState extends State<DashboardTab> {
                 SliverToBoxAdapter(
                   key: _insightsKey,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(22, 22, 22, 8),
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.gutter, AppSpacing.gutter, AppSpacing.p8),
                     child: Text(
                       'AI insights',
                       style: AppTypography.titleLarge.copyWith(
@@ -203,10 +224,10 @@ class _DashboardTabState extends State<DashboardTab> {
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 14),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, AppSpacing.p16),
                   sliver: SliverToBoxAdapter(
                     child: Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(AppSpacing.p16),
                       decoration: BoxDecoration(
                         color: L.card,
                         borderRadius: BorderRadius.circular(24),
@@ -224,7 +245,7 @@ class _DashboardTabState extends State<DashboardTab> {
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 12),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, AppSpacing.p12),
                   sliver: SliverToBoxAdapter(
                     child: MedAiCTA(
                       label: s.generateClinicalReport,
@@ -247,7 +268,7 @@ class _DashboardTabState extends State<DashboardTab> {
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 16),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, AppSpacing.p16),
                   sliver: SliverToBoxAdapter(
                     child: Center(
                       child: TextButton(
@@ -270,10 +291,10 @@ class _DashboardTabState extends State<DashboardTab> {
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 0),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, 0),
                   sliver: SliverToBoxAdapter(
                     child: Container(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(AppSpacing.p16),
                       decoration: BoxDecoration(
                         color: L.card,
                         borderRadius: BorderRadius.circular(20),
@@ -287,7 +308,7 @@ class _DashboardTabState extends State<DashboardTab> {
                             color: L.sub,
                             size: 18,
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(width: AppSpacing.p12),
                           Expanded(
                             child: Text(
                               s.aiCoachDisclaimer,
@@ -324,7 +345,7 @@ class _ConnectHealthCard extends StatelessWidget {
     return GestureDetector(
       onTap: onConnect,
       child: Container(
-        padding: const EdgeInsets.all(18),
+        padding: const EdgeInsets.all(AppSpacing.p16),
         decoration: BoxDecoration(
           color: L.card,
           borderRadius: BorderRadius.circular(24),
@@ -336,17 +357,17 @@ class _ConnectHealthCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: AppColors.pastelMint,
+                color: AppColors.badgeFill(AppColors.limeDeep),
                 borderRadius: BorderRadius.circular(14),
               ),
               alignment: Alignment.center,
               child: const Icon(
                 Icons.monitor_heart_outlined,
                 size: 22,
-                color: AppColors.limeInk,
+                color: AppColors.limeDeep,
               ),
             ),
-            const SizedBox(width: 14),
+            const SizedBox(width: AppSpacing.p16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -358,7 +379,7 @@ class _ConnectHealthCard extends StatelessWidget {
                       color: L.text,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpacing.p4),
                   Text(
                     'Sync steps and heart rate alongside your meds.',
                     style: AppTypography.bodySmall.copyWith(

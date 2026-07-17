@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:intl/intl.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../providers/app_state.dart';
-import '../../../core/constants/premium_graphics.dart';
+import '../../../app/app_routes.dart';
+import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/premium_empty_state.dart';
@@ -49,7 +51,13 @@ class ScanHistoryScreen extends StatelessWidget {
                   PremiumEmptyState(
                     title: 'No history yet',
                     subtitle: 'Medications you scan will appear here.',
-                    illustrationAsset: PremiumGraphics.onboardingDiagnose,
+                    mascotFeature: 'scan',
+                    icon: Icons.qr_code_scanner_rounded,
+                    actionLabel: 'Scan medicine',
+                    onAction: () {
+                      HapticEngine.selection();
+                      context.push(AppRoutes.scan);
+                    },
                   ),
                 ),
               ),
@@ -57,7 +65,7 @@ class ScanHistoryScreen extends StatelessWidget {
           else
             SliverPadding(
               padding:
-                  const EdgeInsets.only(top: 16, left: 24, right: 24, bottom: 40),
+                  const EdgeInsets.fromLTRB(AppSpacing.p24, AppSpacing.p16, AppSpacing.p24, AppSpacing.p40),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
@@ -67,7 +75,7 @@ class ScanHistoryScreen extends StatelessWidget {
                     final date = DateFormat('MMM d, yyyy').format(parsedDate);
 
                     Widget row = MedAiDepthCard(
-                      padding: const EdgeInsets.all(16),
+                      padding: const EdgeInsets.all(AppSpacing.p16),
                       child: Row(
                         children: [
                           Container(
@@ -80,7 +88,7 @@ class ScanHistoryScreen extends StatelessWidget {
                             child: Icon(Icons.medication_rounded,
                                 color: AppColors.accent, size: 28),
                           ),
-                          const SizedBox(width: 16),
+                          const SizedBox(width: AppSpacing.p16),
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -90,10 +98,10 @@ class ScanHistoryScreen extends StatelessWidget {
                                   style: AppTypography.titleMedium.copyWith(
                                     color: L.text,
                                     fontWeight: FontWeight.w800,
-                                    fontSize: 16,
+                                    
                                   ),
                                 ),
-                                const SizedBox(height: 4),
+                                const SizedBox(height: AppSpacing.p4),
                                 Text(
                                   'Added: $date',
                                   style: AppTypography.bodySmall.copyWith(
@@ -111,7 +119,7 @@ class ScanHistoryScreen extends StatelessWidget {
                     );
 
                     row = Padding(
-                      padding: const EdgeInsets.only(bottom: 16),
+                      padding: const EdgeInsets.only(bottom: AppSpacing.p16),
                       child: row,
                     );
 

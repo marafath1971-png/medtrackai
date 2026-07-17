@@ -31,6 +31,7 @@ import '../services/growth_tracker.dart';
 import '../services/remote_config_service.dart';
 import '../core/utils/logger.dart';
 import '../core/utils/haptic_engine.dart';
+import '../core/utils/network_status.dart';
 import '../core/utils/result.dart';
 
 import 'controllers/auth_controller.dart';
@@ -74,6 +75,9 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   String? toast;
   String? toastType;
   bool lowStockBannerDismissed = false;
+  /// True when a connectivity probe fails — drives [AppStatusBanner] in shell.
+  bool isOffline = false;
+  String? networkErrorMessage;
   bool isLocked = false;
   String? pendingCelebrationMedName;
   int? pendingMilestoneAnimation;
@@ -86,6 +90,9 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   String voiceTranscript = '';
   String voiceFeedback = '';
 
+  /// Connectivity probe — overridable in tests. Defaults to [NetworkStatus.isOnline].
+  final Future<bool> Function() _probeOnline;
+
   AppState({
     required this.medRepo,
     required this.userRepo,
@@ -93,8 +100,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     required SharedPreferences prefs,
     AudioPlayer? audioPlayer,
     LinkService? linkService,
+    Future<bool> Function()? probeOnline,
   })  : _audioPlayer = audioPlayer ?? AudioPlayer(),
-        _linkService = linkService ?? LinkService() {
+        _linkService = linkService ?? LinkService(),
+        _probeOnline = probeOnline ?? NetworkStatus.isOnline {
     // Controller Initialization
     auth = AuthController(userRepo: userRepo);
     med = MedicationController(medRepo: medRepo);
@@ -1090,6 +1099,28 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  Future<bool> checkConnectivity({bool notify = true}) async {
+    final online = await _probeOnline();
+    final wasOffline = isOffline;
+    final hadError = networkErrorMessage != null;
+    isOffline = !online;
+    if (online) networkErrorMessage = null;
+    final changed = wasOffline != isOffline || (online && hadError);
+    if (notify && changed) safeNotifyListeners();
+    return online;
+  }
+
+  void setNetworkError(String? message) {
+    networkErrorMessage = message;
+    safeNotifyListeners();
+  }
+
+  void clearNetworkError() {
+    if (networkErrorMessage == null) return;
+    networkErrorMessage = null;
+    safeNotifyListeners();
+  }
+
   // ── Utility ────────────────────────────────────────────────────────
   String todayStr() {
     final now = DateTime.now();
@@ -1244,8 +1275,14 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         // await medRepo.syncToCloud();
         // await userRepo.syncToCloud();
         appLogger.i('[AppState] Offline actions synced to cloud successfully.');
+        if (isOffline || networkErrorMessage != null) {
+          isOffline = false;
+          networkErrorMessage = null;
+          safeNotifyListeners();
+        }
       } catch (e) {
         appLogger.e('[AppState] Error during offline sync: $e');
+        setNetworkError('Sync failed. Your data is safe on this device.');
       }
     }
   }

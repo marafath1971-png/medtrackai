@@ -29,7 +29,7 @@ class FocusModeCard extends StatelessWidget {
       label: 'Focus mode. Breathe, relax, and center yourself.',
       child: MedAiDepthCard(
         accentGlow: true,
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p20),
         onTap: () {
           HapticEngine.selection();
           context.push(AppRoutes.focusMode);
@@ -37,7 +37,7 @@ class FocusModeCard extends StatelessWidget {
         child: Row(
           children: [
             icon,
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.p16),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -50,7 +50,7 @@ class FocusModeCard extends StatelessWidget {
                       letterSpacing: -0.5,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpacing.p4),
                   Text(
                     'Breathe, relax, and center yourself.',
                     style: AppTypography.bodySmall.copyWith(

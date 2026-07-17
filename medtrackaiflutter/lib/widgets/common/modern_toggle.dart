@@ -44,8 +44,9 @@ class _ModernToggleState extends State<ModernToggle> {
             AnimatedAlign(
               duration: 300.ms,
               curve: Curves.easeOutBack,
-              alignment:
-                  widget.value ? Alignment.centerRight : Alignment.centerLeft,
+              alignment: widget.value
+                  ? AlignmentDirectional.centerEnd
+                  : AlignmentDirectional.centerStart,
               child: Padding(
                 padding: const EdgeInsets.all(3),
                 child: Container(

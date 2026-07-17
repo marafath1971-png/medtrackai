@@ -229,7 +229,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p24, vertical: AppSpacing.p12),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
             // Avatar Preview & Role
@@ -270,12 +270,12 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.p8),
                   Text(
                     'Tap to change photo',
                     style: TextStyle(color: L.sub.withValues(alpha: 0.4), fontSize: 11),
                   ),
-                  const SizedBox(height: 12),
+                  const SizedBox(height: AppSpacing.p12),
                   Text(
                     _selectedRole.toUpperCase(),
                     style: AppTypography.labelSmall.copyWith(
@@ -288,17 +288,17 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: AppSpacing.p32),
 
             // Basic Info Section
             _buildSectionHeader('BASIC INFORMATION', L),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.p12),
             _buildInputField(
               controller: _nameController,
               hint: 'Full Name',
               L: L,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: AppSpacing.p16),
             
             Row(
               children: [
@@ -310,17 +310,17 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
                     L: L,
                   ),
                 ),
-                const SizedBox(width: 12),
+                const SizedBox(width: AppSpacing.p12),
                 Expanded(
                   child: _buildGenderPicker(L),
                 ),
               ],
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: AppSpacing.p32),
 
             // Role Selector Grid
             _buildSectionHeader('RELATIONSHIP', L),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.p12),
             GridView.count(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
@@ -359,7 +359,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
                             size: 16,
                             color: isSelected ? L.bg : L.text,
                           ),
-                          const SizedBox(width: 8),
+                          const SizedBox(width: AppSpacing.p8),
                           Text(
                             role['label']!,
                             style: AppTypography.labelSmall.copyWith(
@@ -375,22 +375,22 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
                 );
               }).toList(),
             ),
-            const SizedBox(height: 32),
+            const SizedBox(height: AppSpacing.p32),
 
             // Medical Notes
             _buildSectionHeader('MEDICAL NOTES / ALLERGIES', L),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.p12),
             _buildInputField(
               controller: _notesController,
               hint: 'e.g. Penicillin allergy, diabetic...',
               maxLines: 3,
               L: L,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.p24),
 
             // PIN Code
             _buildSectionHeader('PIN CODE (OPTIONAL)', L),
-            const SizedBox(height: 12),
+            const SizedBox(height: AppSpacing.p12),
             _buildInputField(
               controller: _pinController,
               hint: '4-digit PIN (e.g. 1234)',
@@ -399,11 +399,11 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
               maxLength: 4,
               L: L,
             ),
-            const SizedBox(height: 24),
+            const SizedBox(height: AppSpacing.p24),
 
             // Critical Care Toggle
             MedAiDepthCard(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacing.p20),
               child: Row(
                 children: [
                   Expanded(
@@ -415,7 +415,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
                           style: AppTypography.labelMedium.copyWith(
                               fontWeight: FontWeight.w900, color: L.text),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: AppSpacing.p4),
                         Text(
                           'Prioritize alerts and monitoring',
                           style: AppTypography.labelSmall
@@ -436,7 +436,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: AppSpacing.p40),
 
             MedAiCTA(
               label: 'Update member',
@@ -444,7 +444,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
               semanticsLabel: 'Save family member changes',
               onTap: _isSaving ? null : _handleSave,
             ),
-            const SizedBox(height: 40),
+            const SizedBox(height: AppSpacing.p40),
               ]),
             ),
           ),
@@ -489,7 +489,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
           hintText: hint,
           hintStyle: TextStyle(color: L.sub.withValues(alpha: 0.3)),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(20),
+          contentPadding: const EdgeInsets.all(AppSpacing.p20),
           counterText: '',
         ),
         style: AppTypography.labelMedium.copyWith(color: L.text, fontWeight: FontWeight.w600),
@@ -507,7 +507,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
       onTap: onTap,
       child: Container(
         height: 64,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16),
         decoration: BoxDecoration(
           color: L.card.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(24),
@@ -516,7 +516,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
         child: Row(
           children: [
             Icon(icon, size: 20, color: L.sub.withValues(alpha: 0.6)),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.p12),
             Expanded(
               child: Text(
                 label,

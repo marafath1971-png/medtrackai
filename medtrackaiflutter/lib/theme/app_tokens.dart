@@ -35,6 +35,8 @@ class AppSpacing {
 
   // Semantic spacing
   static const double screenPadding = p24;
+  /// Horizontal gutter for main shell tabs (home / dashboard / alarms / family).
+  static const double gutter = p20;
   static const double fieldPadding = p16;
   static const double cardPadding = p16;
   static const double sectionGap = p32;
@@ -180,6 +182,14 @@ class AppTypography {
         fontWeight: FontWeight.w400,
         height: 1.4,
         letterSpacing: 0.2,
+      );
+
+  /// Micro caption / overline — use instead of ad-hoc fontSize 9–11.
+  static TextStyle get caption => GoogleFonts.outfit(
+        fontSize: 11,
+        fontWeight: FontWeight.w600,
+        letterSpacing: 0.3,
+        height: 1.3,
       );
 
   static TextStyle get monoNumber => GoogleFonts.spaceGrotesk(

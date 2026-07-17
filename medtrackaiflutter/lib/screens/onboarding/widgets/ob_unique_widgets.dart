@@ -110,11 +110,14 @@ class _ObLongTermResultsChartState extends State<ObLongTermResultsChart>
       vsync: this,
       duration: const Duration(milliseconds: 1400),
     );
-    if (!MedAiA11y.reducedMotion(context)) {
-      _ctrl.forward();
-    } else {
-      _ctrl.value = 1;
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!MedAiA11y.reducedMotion(context)) {
+        _ctrl.forward();
+      } else {
+        _ctrl.value = 1;
+      }
+    });
   }
 
   @override

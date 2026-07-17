@@ -30,8 +30,8 @@ class HomeScheduleEmpty extends StatelessWidget {
         : 'Scan or add a medicine to build your daily schedule.';
 
     return PremiumTextureCard(
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 20),
-      radius: 22,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p20, vertical: AppSpacing.p20),
+      radius: AppRadius.l,
       texture: PremiumTextureStyle.fineGrain,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -57,7 +57,7 @@ class HomeScheduleEmpty extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.p16),
           Text(
             title,
             style: AppTypography.titleMedium.copyWith(
@@ -65,7 +65,7 @@ class HomeScheduleEmpty extends StatelessWidget {
               fontWeight: FontWeight.w700,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: AppSpacing.p8),
           Text(
             subtitle,
             style: AppTypography.bodySmall.copyWith(
@@ -74,7 +74,7 @@ class HomeScheduleEmpty extends StatelessWidget {
             ),
           ),
           if (!hasMeds && onAdd != null) ...[
-            const SizedBox(height: 14),
+            const SizedBox(height: AppSpacing.p16),
             AnimatedPressable(
               onTap: () {
                 HapticEngine.selection();
@@ -82,7 +82,7 @@ class HomeScheduleEmpty extends StatelessWidget {
               },
               child: Container(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
                 decoration: BoxDecoration(
                   color: L.accent,
                   borderRadius: BorderRadius.circular(12),
@@ -96,13 +96,13 @@ class HomeScheduleEmpty extends StatelessWidget {
                 ),
               ),
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: AppSpacing.p8),
             AnimatedPressable(
               onTap: () =>
                   startManualAddMedicine(context, source: 'home_empty'),
               child: Padding(
                 padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                    const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p8),
                 child: Text(
                   'Or enter it manually',
                   style: AppTypography.labelMedium.copyWith(

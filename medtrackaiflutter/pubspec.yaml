@@ -117,7 +117,9 @@ flutter_launcher_icons:
 flutter:
   generate: true
   uses-material-design: true
-  
+  config:
+    enable-swift-package-manager: false
+
   assets:
     - .env
     - assets/images/

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../domain/entities/predictive_insight.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/shared/shared_widgets.dart';
 
 class PredictiveInsightCard extends StatelessWidget {
@@ -88,11 +88,13 @@ class PredictiveInsightCard extends StatelessWidget {
         ],
       ),
     )
-    .animate(
-      key: ValueKey('predictive_entrance_${insight.title}'),
-    )
-    .fadeIn(duration: 600.ms)
-    .slideY(begin: 0.1, end: 0);
+    .medAiChain(
+      context,
+      (w) => w
+          .animate(key: ValueKey('predictive_entrance_${insight.title}'))
+          .fadeIn(duration: 600.ms)
+          .slideY(begin: 0.1, end: 0),
+    );
   }
 
   // On-brand semantic colors — using AppColors tokens

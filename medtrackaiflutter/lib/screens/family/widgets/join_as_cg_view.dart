@@ -77,7 +77,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
         body: SafeArea(
             child: Column(children: [
           Padding(
-            padding: const EdgeInsets.all(20),
+            padding: const EdgeInsets.all(AppSpacing.p20),
             child: Row(children: [
               Semantics(
                 button: true,
@@ -100,7 +100,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                   ),
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: AppSpacing.p16),
               Expanded(
                 child: Text('Join as Caregiver',
                     style: AppTypography.titleLarge.copyWith(
@@ -115,7 +115,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                   keyboardDismissBehavior:
                       ScrollViewKeyboardDismissBehavior.onDrag,
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: 24),
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p24),
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
@@ -123,7 +123,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                             'Scan the QR code or enter the invite code to start monitoring.',
                             style: AppTypography.bodySmall.copyWith(
                                 fontSize: 14, color: L.sub, height: 1.5)),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: AppSpacing.p32),
                         Center(
                           child: Semantics(
                             label: 'QR code scanner',
@@ -162,7 +162,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                             ),
                           ),
                         ),
-                        const SizedBox(height: 32),
+                        const SizedBox(height: AppSpacing.p32),
                         Center(
                             child: Text('OR ENTER CODE',
                                 style: AppTypography.labelLarge.copyWith(
@@ -170,12 +170,12 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                                     fontWeight: FontWeight.w700,
                                     color: L.sub,
                                     letterSpacing: 1.5))),
-                        const SizedBox(height: 12),
+                        const SizedBox(height: AppSpacing.p12),
                         Semantics(
                           textField: true,
                           label: 'Invite code',
                           child: MedAiGlass(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16),
                             radius: AppRadius.xl,
                             child: TextField(
                               controller: _codeCtrl,
@@ -196,7 +196,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                           ),
                         ),
                         if (_error != null) ...[
-                          const SizedBox(height: 8),
+                          const SizedBox(height: AppSpacing.p8),
                           Semantics(
                             liveRegion: true,
                             child: Center(
@@ -207,7 +207,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                                         fontWeight: FontWeight.w600))),
                           ),
                         ],
-                        const SizedBox(height: 40),
+                        const SizedBox(height: AppSpacing.p40),
                         MedAiCTA(
                           label: 'Verify and Join',
                           loading: _isChecking,
@@ -216,7 +216,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                               ? null
                               : () => _checkCode(_codeCtrl.text),
                         ),
-                        const SizedBox(height: 40),
+                        const SizedBox(height: AppSpacing.p40),
                       ]))),
         ])));
   }

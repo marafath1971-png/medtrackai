@@ -82,7 +82,7 @@ class CompleteProfileCard extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Padding(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(AppSpacing.p20),
               child: Row(
                 children: [
                   Expanded(
@@ -93,7 +93,7 @@ class CompleteProfileCard extends StatelessWidget {
                           'Complete Your Profile',
                           style: AppTypography.titleLarge.copyWith(fontSize: 18),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(height: AppSpacing.p4),
                         Text(
                           'Unlock more personalised insights',
                           style: AppTypography.bodySmall.copyWith(color: L.sub),
@@ -103,7 +103,7 @@ class CompleteProfileCard extends StatelessWidget {
                   ),
                   Container(
                     padding:
-                        const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
                     decoration: BoxDecoration(
                       color: L.secondary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -123,12 +123,12 @@ class CompleteProfileCard extends StatelessWidget {
               color: L.secondary,
               minHeight: 3,
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.p8),
             ...tasks
                 .where((t) => !t.isDone)
                 .take(2)
                 .map((task) => _TaskItem(task: task, L: L)),
-            const SizedBox(height: 8),
+            const SizedBox(height: AppSpacing.p8),
           ],
         ),
       ),
@@ -162,7 +162,7 @@ class CompleteProfileCard extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text('How old are you?', style: AppTypography.headlineMedium),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.p24),
               TextField(
                 controller: controller,
                 autofocus: true,
@@ -173,7 +173,7 @@ class CompleteProfileCard extends StatelessWidget {
                       borderRadius: BorderRadius.circular(16)),
                 ),
               ),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.p24),
               MedAiCTA(
                 label: 'Save',
                 semanticsLabel: 'Save age',
@@ -184,7 +184,7 @@ class CompleteProfileCard extends StatelessWidget {
                   HapticEngine.success();
                 },
               ),
-              const SizedBox(height: 32),
+              const SizedBox(height: AppSpacing.p32),
             ],
           ),
         ),
@@ -200,14 +200,14 @@ class CompleteProfileCard extends StatelessWidget {
       builder: (c) => ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         child: MedAiGlass(
-          padding: const EdgeInsets.all(24),
+          padding: const EdgeInsets.all(AppSpacing.p24),
           radius: 32,
           showBorder: false,
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(title, style: AppTypography.headlineMedium),
-              const SizedBox(height: 16),
+              const SizedBox(height: AppSpacing.p16),
               ...options.map((opt) => Semantics(
                     button: true,
                     label: opt['v'],
@@ -226,7 +226,7 @@ class CompleteProfileCard extends StatelessWidget {
                       },
                     ),
                   )),
-              const SizedBox(height: 24),
+              const SizedBox(height: AppSpacing.p24),
             ],
           ),
         ),
@@ -249,14 +249,14 @@ class CompleteProfileCard extends StatelessWidget {
           return ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
             child: MedAiGlass(
-              padding: const EdgeInsets.all(24),
+              padding: const EdgeInsets.all(AppSpacing.p24),
               radius: 32,
               showBorder: false,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(title, style: AppTypography.headlineMedium),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.p16),
                   ...options.map((opt) {
                     final val = opt['v']!;
                     final isSel = selected.contains(val);
@@ -279,7 +279,7 @@ class CompleteProfileCard extends StatelessWidget {
                       },
                     );
                   }),
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.p24),
                   MedAiCTA(
                     label: 'Save selection',
                     onTap: () {
@@ -288,7 +288,7 @@ class CompleteProfileCard extends StatelessWidget {
                       HapticEngine.success();
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.p16),
                 ],
               ),
             ),
@@ -330,11 +330,11 @@ class _TaskItem extends StatelessWidget {
       child: ListTile(
         onTap: task.onTap,
         minVerticalPadding: 12,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20),
+        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
         leading: Container(
           width: 44,
           height: 44,
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(AppSpacing.p12),
           decoration: BoxDecoration(
             color: L.bg,
             borderRadius: BorderRadius.circular(12),

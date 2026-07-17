@@ -156,8 +156,8 @@ class _ObMasonryGalleryState extends State<ObMasonryGallery>
   late final AnimationController _ctrl;
 
   static const _tints = [
-    Color(0xFF4A9E86),
-    Color(0xFF6CF2D2),
+    AppColors.accent,
+    AppColors.electric,
     Color(0xFF8B7BF2),
     Color(0xFF4ABFE2),
     Color(0xFFF5A623),
@@ -467,12 +467,12 @@ class _HeroScenePainter extends CustomPainter {
     canvas.drawRRect(
       phoneRect,
       Paint()
-        ..color = const Color(0xFF4A9E86)
+        ..color = AppColors.accent
         ..style = PaintingStyle.stroke
         ..strokeWidth = 3,
     );
     // Scan corners on phone
-    _drawCorners(canvas, phoneRect.outerRect, const Color(0xFF6CF2D2), 14);
+    _drawCorners(canvas, phoneRect.outerRect, AppColors.electric, 14);
 
     // Person silhouette
     canvas.drawCircle(
@@ -494,7 +494,7 @@ class _HeroScenePainter extends CustomPainter {
         Rect.fromLTWH(w * 0.08, h * 0.62, w * 0.1, h * 0.2),
         const Radius.circular(6),
       ),
-      Paint()..color = const Color(0xFF4A9E86),
+      Paint()..color = AppColors.accent,
     );
     canvas.drawRRect(
       RRect.fromRectAndRadius(
@@ -577,7 +577,7 @@ class _HeroScenePainter extends CustomPainter {
       ),
       const Radius.circular(99),
     );
-    canvas.drawRRect(pillRect, Paint()..color = const Color(0xFF4A9E86));
+    canvas.drawRRect(pillRect, Paint()..color = AppColors.accent);
     canvas.drawRRect(
       RRect.fromRectAndRadius(
         Rect.fromCenter(
@@ -590,7 +590,7 @@ class _HeroScenePainter extends CustomPainter {
       Paint()..color = Colors.white,
     );
 
-    _drawCorners(canvas, pillRect.outerRect.inflate(20), const Color(0xFF6CF2D2), 18);
+    _drawCorners(canvas, pillRect.outerRect.inflate(20), AppColors.electric, 18);
   }
 
   void _drawCorners(Canvas canvas, Rect rect, Color color, double len) {
@@ -647,11 +647,14 @@ class _ObAccuracyBarChartState extends State<ObAccuracyBarChart>
       vsync: this,
       duration: const Duration(milliseconds: 1400),
     );
-    if (!MedAiA11y.reducedMotion(context)) {
-      _ctrl.forward();
-    } else {
-      _ctrl.value = 1;
-    }
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!MedAiA11y.reducedMotion(context)) {
+        _ctrl.forward();
+      } else {
+        _ctrl.value = 1;
+      }
+    });
   }
 
   @override
@@ -880,7 +883,7 @@ class ObTrialFlashInterstitial extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          const ObAccentBars(color: Color(0xFF4A9E86)),
+          const ObAccentBars(color: AppColors.accent),
           SafeArea(
             child: Column(
               children: [
@@ -925,11 +928,11 @@ class ObTrialFlashInterstitial extends StatelessWidget {
                         padding: const EdgeInsets.symmetric(vertical: 16),
                         decoration: BoxDecoration(
                           gradient: const LinearGradient(
-                            colors: [Color(0xFF4A9E86), Color(0xFF3D8A72)],
+                            colors: [AppColors.accent, AppColors.accentDeep],
                           ),
                           borderRadius: BorderRadius.circular(99),
                           boxShadow: AppShadows.glow(
-                            const Color(0xFF4A9E86),
+                            AppColors.accent,
                             intensity: 0.35,
                           ),
                         ),
@@ -961,10 +964,10 @@ class ObPaywallFeatureGrid extends StatelessWidget {
   static const _items = [
     (Icons.warning_amber_rounded, Color(0xFFE5573F), 'Interactions'),
     (Icons.notifications_active_rounded, Color(0xFF4ABFE2), 'Reminders'),
-    (Icons.alarm_rounded, Color(0xFF4A9E86), 'Alarms'),
+    (Icons.alarm_rounded, AppColors.accent, 'Alarms'),
     (Icons.camera_alt_rounded, Color(0xFF8B7BF2), 'Scan'),
     (Icons.medical_services_rounded, Color(0xFFFF8C42), 'Reports'),
-    (Icons.family_restroom_rounded, Color(0xFF6CF2D2), 'Family'),
+    (Icons.family_restroom_rounded, AppColors.electric, 'Family'),
   ];
 
   @override
@@ -1059,7 +1062,7 @@ class ObMedicineDetailSkeleton extends StatelessWidget {
               3,
               (_) => Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsetsDirectional.only(end: 8),
                   child: _ShimmerBox(height: 48, color: p.border),
                 ),
               ),

@@ -67,7 +67,8 @@ class _AiScannerViewfinderState extends State<AiScannerViewfinder>
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.close, color: Colors.white),
+          icon: const Icon(Icons.close, color: AppColors.white),
+          tooltip: 'Close scanner',
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),

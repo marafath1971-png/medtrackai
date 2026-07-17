@@ -18,7 +18,7 @@ class HomeSectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     return Padding(
-      padding: const EdgeInsets.only(bottom: 10),
+      padding: const EdgeInsets.only(bottom: AppSpacing.p12),
       child: Row(
         children: [
           Expanded(

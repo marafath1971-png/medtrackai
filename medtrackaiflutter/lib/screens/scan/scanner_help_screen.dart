@@ -7,6 +7,7 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/premium_page_header.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../widgets/common/app_feedback.dart';
 
 class ScannerHelpScreen extends StatelessWidget {
   const ScannerHelpScreen({super.key});
@@ -98,9 +99,10 @@ class ScannerHelpScreen extends StatelessWidget {
                       fullWidth: false,
                       onTap: () {
                         HapticEngine.selection();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                              content: Text('Support chat opening soon...')),
+                        AppFeedback.toast(
+                          context,
+                          'Support chat opening soon…',
+                          type: 'info',
                         );
                       },
                     ),

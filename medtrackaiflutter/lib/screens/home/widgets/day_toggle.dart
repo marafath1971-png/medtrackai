@@ -71,7 +71,7 @@ class DayToggle extends StatelessWidget {
                             color:
                                 isToday ? Colors.white : L.sub,
                             fontWeight: FontWeight.w600,
-                            fontSize: 13,
+                            
                           ),
                           child: const Text('Today'),
                         ),
@@ -92,7 +92,7 @@ class DayToggle extends StatelessWidget {
                             color:
                                 !isToday ? Colors.white : L.sub,
                             fontWeight: FontWeight.w600,
-                            fontSize: 13,
+                            
                           ),
                           child: const Text('Yesterday'),
                         ),

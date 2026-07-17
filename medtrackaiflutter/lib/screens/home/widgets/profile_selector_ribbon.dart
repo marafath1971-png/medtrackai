@@ -20,23 +20,23 @@ class ProfileSelectorRibbon extends StatelessWidget {
     final L = context.L;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p8),
       child: MedAiGlass(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p4, vertical: AppSpacing.p8),
         radius: 20,
         child: SizedBox(
           height: 42,
           child: Row(
             children: [
               Padding(
-                padding: const EdgeInsets.only(left: 12),
+                padding: const EdgeInsetsDirectional.only(start: AppSpacing.p12),
                 child: Icon(
                   Icons.people_alt_rounded,
                   size: 16,
                   color: L.sub.withValues(alpha: 0.5),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: AppSpacing.p8),
               Expanded(
                 child: ListView.builder(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -104,7 +104,7 @@ class ProfileSelectorRibbon extends StatelessWidget {
         return Dialog(
           backgroundColor: Colors.transparent,
           child: MedAiGlass(
-            padding: const EdgeInsets.all(24),
+            padding: const EdgeInsets.all(AppSpacing.p24),
             radius: 28,
             child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -116,14 +116,14 @@ class ProfileSelectorRibbon extends StatelessWidget {
                       fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.p8),
                   Text(
                     'Enter PIN for ${member.name}',
                     style: AppTypography.labelSmall.copyWith(
                       color: L.sub.withValues(alpha: 0.6),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.p20),
                   TextField(
                     controller: pinController,
                     keyboardType: TextInputType.number,
@@ -165,7 +165,7 @@ class ProfileSelectorRibbon extends StatelessWidget {
                       }
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: AppSpacing.p16),
                 ],
               ),
             ),
@@ -220,9 +220,9 @@ class _ProfileAvatar extends StatelessWidget {
         child: AnimatedContainer(
           duration: MedAiA11y.motion(context, const Duration(milliseconds: 250)),
           curve: Curves.easeOutQuart,
-          margin: const EdgeInsets.symmetric(horizontal: 4),
+          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.p4),
           constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p4),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
           color: isSelected ? L.accent : Colors.transparent,
@@ -287,21 +287,23 @@ class _ProfileAvatar extends StatelessWidget {
                   ),
                 ),
                 if (isCritical)
-                  Positioned(
+                  PositionedDirectional(
                     top: -2,
-                    right: -2,
-                    child: Container(
-                      width: 6,
-                      height: 6,
-                      decoration: const BoxDecoration(
-                        color: Colors.red,
-                        shape: BoxShape.circle,
+                    end: -2,
+                    child: ExcludeSemantics(
+                      child: Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          color: AppColors.red,
+                          shape: BoxShape.circle,
+                        ),
                       ),
                     ),
                   ),
               ],
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: AppSpacing.p8),
             Text(
               name,
               style: AppTypography.labelSmall.copyWith(
@@ -332,10 +334,10 @@ class _AddProfileButton extends StatelessWidget {
       child: AnimatedPressable(
         onTap: onTap,
         child: Container(
-          margin: const EdgeInsets.symmetric(horizontal: 4),
+          margin: const EdgeInsets.symmetric(horizontal: AppSpacing.p4),
           constraints:
               const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p4),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(18),
           color: L.fill.withValues(alpha: 0.15),
@@ -356,7 +358,7 @@ class _AddProfileButton extends StatelessWidget {
               ),
               child: Icon(Icons.add_rounded, color: L.sub, size: 14),
             ),
-            const SizedBox(width: 6),
+            const SizedBox(width: AppSpacing.p8),
             Text(
               'Add',
               style: AppTypography.labelSmall.copyWith(

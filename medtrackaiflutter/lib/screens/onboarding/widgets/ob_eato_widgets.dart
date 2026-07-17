@@ -173,7 +173,7 @@ class _ObWeightRulerState extends State<ObWeightRuler> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.only(bottom: 8, left: 6),
+              padding: const EdgeInsetsDirectional.only(bottom: 8, start: 6),
               child: Text(
                 unit,
                 style: AppTypography.labelMedium.copyWith(color: p.sub),

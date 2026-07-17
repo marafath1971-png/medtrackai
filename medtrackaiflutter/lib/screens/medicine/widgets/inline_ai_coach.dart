@@ -141,7 +141,7 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
               const Center(child: IOSGrabber()),
               // Header
               Padding(
-                padding: const EdgeInsets.fromLTRB(20, 6, 12, 12),
+                padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p8, AppSpacing.p12, AppSpacing.p12),
                 child: Row(
                   children: [
                     Container(
@@ -154,7 +154,7 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
                       child: Icon(Icons.auto_awesome_rounded,
                           color: L.accent, size: 18),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppSpacing.p12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -206,7 +206,7 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
                 child: ListView.builder(
                   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                   controller: _scrollController,
-                  padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.p16, AppSpacing.p12, AppSpacing.p16, AppSpacing.p12),
                   itemCount: _messages.length + (_isLoading ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == _messages.length && _isLoading) {
@@ -233,9 +233,9 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
                   child: ListView.separated(
                     keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16),
                     itemCount: suggestions.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: 8),
+                    separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.p8),
                     itemBuilder: (context, index) {
                       final suggestion = suggestions[index];
                       return Semantics(
@@ -247,7 +247,7 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
                           child: Container(
                             alignment: Alignment.center,
                             padding: const EdgeInsets.symmetric(
-                                horizontal: 14, vertical: 9),
+                                horizontal: AppSpacing.p16, vertical: 9),
                             decoration: BoxDecoration(
                               color: L.fill.withValues(alpha: 0.5),
                               borderRadius: BorderRadius.circular(AppRadius.max),
@@ -301,9 +301,9 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
 
   Widget _buildTypingIndicator(AppThemeColors L, bool reduceMotion) {
     return Padding(
-      padding: const EdgeInsets.only(top: 10),
+      padding: const EdgeInsets.only(top: AppSpacing.p12),
       child: Align(
-        alignment: Alignment.centerLeft,
+        alignment: AlignmentDirectional.centerStart,
         child: Container(
           decoration: BoxDecoration(
             color: L.card,
@@ -316,14 +316,14 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
             border:
                 Border.all(color: L.border.withValues(alpha: 0.18), width: 0.7),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 15),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p20, vertical: 15),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               _Dot(delay: 0, color: L.sub, reduceMotion: reduceMotion),
-              const SizedBox(width: 4),
+              const SizedBox(width: AppSpacing.p4),
               _Dot(delay: 200, color: L.sub, reduceMotion: reduceMotion),
-              const SizedBox(width: 4),
+              const SizedBox(width: AppSpacing.p4),
               _Dot(delay: 400, color: L.sub, reduceMotion: reduceMotion),
             ],
           ),

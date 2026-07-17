@@ -56,6 +56,25 @@ abstract final class MedAiMotion {
       ),
     ];
   }
+
+  /// Apply a flutter_animate chain only when motion is enabled.
+  static Widget chain(
+    BuildContext context,
+    Widget child,
+    Widget Function(Widget w) animate,
+  ) {
+    if (MedAiA11y.reducedMotion(context)) return child;
+    return animate(child);
+  }
+}
+
+extension MedAiWidgetMotion on Widget {
+  /// `child.medAiChain(context, (w) => w.animate().fadeIn())`
+  Widget medAiChain(
+    BuildContext context,
+    Widget Function(Widget w) animate,
+  ) =>
+      MedAiMotion.chain(context, this, animate);
 }
 
 // ────────────────────────────────────────────────────────────────

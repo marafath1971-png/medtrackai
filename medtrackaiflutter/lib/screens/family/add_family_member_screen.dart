@@ -173,7 +173,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p24, vertical: AppSpacing.p12),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 Center(
@@ -213,7 +213,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                           ),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      const SizedBox(height: AppSpacing.p8),
                       Text(
                         'Tap to add photo',
                         style: TextStyle(
@@ -222,15 +222,15 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppSpacing.p32),
                 _buildSectionHeader('BASIC DETAILS', L),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.p12),
                 _buildInputField(
                   controller: _nameController,
                   hint: 'Full Name',
                   L: L,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.p16),
                 Row(
                   children: [
                     Expanded(
@@ -243,13 +243,13 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                         L: L,
                       ),
                     ),
-                    const SizedBox(width: 12),
+                    const SizedBox(width: AppSpacing.p12),
                     Expanded(child: _buildGenderPicker(L)),
                   ],
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppSpacing.p32),
                 _buildSectionHeader('RELATIONSHIP', L),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.p12),
                 GridView.count(
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
@@ -297,7 +297,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                                 size: 16,
                                 color: isSelected ? L.bg : L.text,
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: AppSpacing.p8),
                               Text(
                                 role['label'],
                                 style: AppTypography.labelSmall.copyWith(
@@ -315,9 +315,9 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                     );
                   }).toList(),
                 ),
-                const SizedBox(height: 32),
+                const SizedBox(height: AppSpacing.p32),
                 _buildSectionHeader('SECURITY & PREFERENCES', L),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.p12),
                 _buildInputField(
                   controller: _pinController,
                   hint: '4-Digit PIN (Optional)',
@@ -325,9 +325,9 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                   maxLength: 4,
                   L: L,
                 ),
-                const SizedBox(height: 16),
+                const SizedBox(height: AppSpacing.p16),
                 MedAiDepthCard(
-                  padding: const EdgeInsets.all(20),
+                  padding: const EdgeInsets.all(AppSpacing.p20),
                   child: Row(
                     children: [
                       Expanded(
@@ -341,7 +341,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                                 color: L.text,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: AppSpacing.p4),
                             Text(
                               'Prioritize alerts and monitoring',
                               style: AppTypography.labelSmall.copyWith(
@@ -366,16 +366,16 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                     ],
                   ),
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: AppSpacing.p24),
                 _buildSectionHeader('MEDICAL NOTES / ALLERGIES', L),
-                const SizedBox(height: 12),
+                const SizedBox(height: AppSpacing.p12),
                 _buildInputField(
                   controller: _notesController,
                   hint: 'e.g. Penicillin allergy, diabetic...',
                   maxLines: 3,
                   L: L,
                 ),
-                const SizedBox(height: 40),
+                const SizedBox(height: AppSpacing.p40),
                 MedAiCTA(
                   label: 'Save Profile',
                   loading: _isSaving,
@@ -430,7 +430,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
           hintText: hint,
           hintStyle: TextStyle(color: L.sub.withValues(alpha: 0.3)),
           border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(20),
+          contentPadding: const EdgeInsets.all(AppSpacing.p20),
           counterText: '',
         ),
         style: AppTypography.labelMedium.copyWith(
@@ -451,7 +451,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
       onTap: onTap,
       child: Container(
         constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16),
         decoration: BoxDecoration(
           color: L.card.withValues(alpha: 0.5),
           borderRadius: BorderRadius.circular(24),
@@ -460,7 +460,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
         child: Row(
           children: [
             Icon(icon, size: 20, color: L.sub.withValues(alpha: 0.6)),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.p12),
             Expanded(
               child: Text(
                 label,
@@ -501,7 +501,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
               color: L.sub.withValues(alpha: 0.6),
               size: 20,
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: AppSpacing.p8),
             Text(
               _gender,
               style: AppTypography.labelMedium.copyWith(

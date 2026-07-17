@@ -453,23 +453,23 @@ class _HeroHeader extends StatelessWidget {
           Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
-              color: AppColors.accent.withValues(alpha: 0.1),
+              color: L.accent.withValues(alpha: 0.1),
               borderRadius: BorderRadius.circular(16),
               border: Border.all(
-                color: AppColors.accent.withValues(alpha: 0.25),
+                color: L.accent.withValues(alpha: 0.25),
                 width: 1.0,
               ),
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const Icon(Icons.auto_awesome_rounded,
-                    size: 14, color: AppColors.accent),
+                Icon(Icons.auto_awesome_rounded,
+                    size: 14, color: L.accent),
                 const SizedBox(width: 8),
                 Text(
                   product.category,
                   style: AppTypography.labelSmall.copyWith(
-                    color: AppColors.accent,
+                    color: L.accent,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 0.1,
                     fontSize: 11,
@@ -818,11 +818,10 @@ class _QuickFacts extends StatelessWidget {
         final f = e.value;
         return Expanded(
           child: Padding(
-            padding: EdgeInsets.only(left: idx == 0 ? 0 : 12),
+            padding: EdgeInsetsDirectional.only(start: idx == 0 ? 0 : 12),
             child: MedAiGlass(
               padding: const EdgeInsets.all(18),
               radius: 20,
-              onTap: () => HapticEngine.selection(),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -1274,7 +1273,7 @@ class _ExpertSection extends StatelessWidget {
                       child: AnimatedContainer(
                         duration: 300.ms,
                         curve: Curves.easeOutCirc,
-                        margin: const EdgeInsets.only(right: 14),
+                        margin: const EdgeInsetsDirectional.only(end: 14),
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         decoration: BoxDecoration(
                           color: isSelected ? L.accent.withValues(alpha: 0.15) : L.fill,
@@ -1509,7 +1508,7 @@ class _BottomActionBar extends StatelessWidget {
     );
     final impactIcon = Icon(Icons.biotech_rounded, color: L.accent, size: 26);
     final chatIcon =
-        Icon(Icons.auto_awesome_rounded, color: AppColors.accent, size: 24);
+        Icon(Icons.auto_awesome_rounded, color: L.accent, size: 24);
 
     return ClipRRect(
       child: BackdropFilter(
@@ -1582,18 +1581,18 @@ class _BottomActionBar extends StatelessWidget {
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
                           colors: [
-                            AppColors.accent.withValues(alpha: 0.3),
-                            AppColors.accent.withValues(alpha: 0.05),
+                            L.accent.withValues(alpha: 0.3),
+                            L.accent.withValues(alpha: 0.05),
                           ],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
                         shape: BoxShape.circle,
                         border: Border.all(
-                            color: AppColors.accent.withValues(alpha: 0.6),
+                            color: L.accent.withValues(alpha: 0.6),
                             width: 1.5),
                         boxShadow:
-                            AppShadows.glow(AppColors.accent, intensity: 0.4),
+                            AppShadows.glow(L.accent, intensity: 0.4),
                       ),
                       child: Center(child: chatIcon),
                     ),
@@ -1666,7 +1665,7 @@ class _AllergyAlertCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const Padding(
-                        padding: EdgeInsets.only(top: 4, right: 8),
+                        padding: EdgeInsetsDirectional.only(top: 4, end: 8),
                         child: Icon(Icons.close_rounded,
                             color: AppColors.red, size: 16),
                       ),
@@ -1736,7 +1735,7 @@ class _ChildSafetyCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 const Padding(
-                  padding: EdgeInsets.only(top: 4, right: 8),
+                  padding: EdgeInsetsDirectional.only(top: 4, end: 8),
                   child: Icon(Icons.shield_rounded,
                       color: AppColors.amber, size: 16),
                 ),
@@ -1914,7 +1913,7 @@ class _AllergyRiskCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Padding(
-                      padding: const EdgeInsets.only(top: 4, right: 8),
+                      padding: const EdgeInsetsDirectional.only(top: 4, end: 8),
                       child: Icon(Icons.shield_rounded, color: alertColor, size: 16),
                     ),
                     Expanded(

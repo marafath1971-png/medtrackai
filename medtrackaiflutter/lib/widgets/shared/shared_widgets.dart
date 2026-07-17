@@ -148,7 +148,7 @@ class AppToggle extends StatelessWidget {
         toggled: value,
         child: CupertinoSwitch(
           value: value,
-          activeTrackColor: const Color(0xFF34C759),
+          activeTrackColor: L.success,
           onChanged: (v) {
             if (v) {
               HapticEngine.success();
@@ -184,7 +184,9 @@ class AppToggle extends StatelessWidget {
           AnimatedAlign(
             duration: const Duration(milliseconds: 150),
             curve: Curves.easeInOut,
-            alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+            alignment: value
+                ? AlignmentDirectional.centerEnd
+                : AlignmentDirectional.centerStart,
             child: Padding(
               padding: const EdgeInsets.all(3),
               child: AnimatedContainer(
@@ -552,7 +554,7 @@ class AppToast extends StatelessWidget {
                       const SizedBox(width: 12),
                       Flexible(
                         child: Padding(
-                          padding: const EdgeInsets.only(right: 4),
+                          padding: const EdgeInsetsDirectional.only(end: 4),
                           child: Text(
                             message,
                             style: AppTypography.bodyMedium.copyWith(
@@ -571,17 +573,17 @@ class AppToast extends StatelessWidget {
             ),
           )
               .animate()
-              .scale(
-                begin: const Offset(0.9, 0.9),
-                curve: Curves.easeOutBack,
-                duration: 400.ms,
-              )
-              .fadeIn(duration: 250.ms)
+              .fadeIn(duration: AppDurations.fast, curve: AppCurves.emilOut)
               .slideY(
-                begin: 0.5,
+                begin: 0.18,
                 end: 0.0,
-                curve: Curves.easeOutBack,
-                duration: 400.ms,
+                curve: AppCurves.emilOut,
+                duration: AppDurations.medium,
+              )
+              .scale(
+                begin: const Offset(0.96, 0.96),
+                curve: AppCurves.emilOut,
+                duration: AppDurations.fast,
               ),
         ),
       ),
@@ -1058,15 +1060,15 @@ class _DoseCardState extends State<DoseCard>
               },
               background: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 24),
-                alignment: Alignment.centerLeft,
+                alignment: AlignmentDirectional.centerStart,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
                       L.accent.withValues(alpha: 0.08),
                       L.success.withValues(alpha: 0.2),
                     ],
-                    begin: Alignment.centerLeft,
-                    end: Alignment.centerRight,
+                    begin: AlignmentDirectional.centerStart,
+                    end: AlignmentDirectional.centerEnd,
                   ),
                   borderRadius: BorderRadius.circular(24),
                   border: Border.all(

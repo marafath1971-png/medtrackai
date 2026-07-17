@@ -139,7 +139,7 @@ class HomeStatsGrid extends StatelessWidget {
                   reduceMotion,
                   _BentoMetricCard(
                     emoji: '📦',
-                    iconColor: const Color(0xFFEF5350),
+                    iconColor: AppColors.dangerSoft,
                     label: 'Inventory',
                     value: '${state.getLowStockCount()}',
                     unit: 'low',
@@ -147,7 +147,7 @@ class HomeStatsGrid extends StatelessWidget {
                         ? 'Stocks healthy'
                         : '${state.getLowStockCount()} refill needed',
                     sparklineData: _buildStockData(state),
-                    sparklineColor: const Color(0xFFEF5350),
+                    sparklineColor: AppColors.dangerSoft,
                     L: L,
                     reduceMotion: reduceMotion,
                   ),
@@ -160,7 +160,7 @@ class HomeStatsGrid extends StatelessWidget {
                   reduceMotion,
                   _BentoMetricCard(
                     emoji: '✨',
-                    iconColor: const Color(0xFFF59E0B),
+                    iconColor: AppColors.warningSoft,
                     label: 'Mood',
                     value: state.getMoodSummary(
                       good: 'Good',
@@ -181,7 +181,7 @@ class HomeStatsGrid extends StatelessWidget {
                       empty: 'No logs',
                     )['sublabel']!,
                     sparklineData: state.getRecentSymptomStats(),
-                    sparklineColor: const Color(0xFFF59E0B),
+                    sparklineColor: AppColors.warningSoft,
                     L: L,
                     reduceMotion: reduceMotion,
                   ),
@@ -253,7 +253,7 @@ class _BentoMetricCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final iconData = _mapMetricIcon(emoji);
     Widget sparkline = SizedBox(
-      height: 32,
+      height: AppSpacing.p32,
       child: CustomPaint(
         size: const Size(double.infinity, 32),
         painter: _SparklinePainter(
@@ -284,7 +284,7 @@ class _BentoMetricCard extends StatelessWidget {
                   width: 34,
                   height: 34,
                   decoration: BoxDecoration(
-                    color: iconColor.withValues(alpha: 0.08),
+                    color: AppColors.badgeFill(iconColor),
                     borderRadius: BorderRadius.circular(AppRadius.s),
                   ),
                   child: Center(
@@ -326,7 +326,7 @@ class _BentoMetricCard extends StatelessWidget {
                   ),
                 ),
                 if (unit.isNotEmpty) ...[
-                  const SizedBox(width: 4),
+                  const SizedBox(width: AppSpacing.p4),
                   Text(
                     unit,
                     style: AppTypography.labelSmall.copyWith(
@@ -337,7 +337,7 @@ class _BentoMetricCard extends StatelessWidget {
                 ],
               ],
             ),
-            const SizedBox(height: 4),
+            const SizedBox(height: AppSpacing.p4),
             Text(
               sublabel,
               maxLines: 1,
@@ -520,7 +520,7 @@ class _NextDoseCard extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.p12),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
               decoration: BoxDecoration(
                 color: L.onPrimary,
                 borderRadius: BorderRadius.circular(AppRadius.max),

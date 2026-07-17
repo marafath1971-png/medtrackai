@@ -53,16 +53,18 @@ class HomeWeekStrip extends StatelessWidget {
             ),
             _ArrowBtn(
               icon: Icons.chevron_left_rounded,
+              label: 'Previous week',
               onTap: () => _shiftWeek(context, -1),
             ),
-            const SizedBox(width: 4),
+            const SizedBox(width: AppSpacing.p4),
             _ArrowBtn(
               icon: Icons.chevron_right_rounded,
+              label: 'Next week',
               onTap: () => _shiftWeek(context, 1),
             ),
           ],
         ),
-        const SizedBox(height: 12),
+        const SizedBox(height: AppSpacing.p12),
         Row(
           children: List.generate(7, (i) {
             final day = days[i];
@@ -73,7 +75,7 @@ class HomeWeekStrip extends StatelessWidget {
 
             return Expanded(
               child: Padding(
-                padding: EdgeInsets.only(right: i < 6 ? 8 : 0),
+                padding: EdgeInsetsDirectional.only(end: i < 6 ? 8 : 0),
                 child: AnimatedPressable(
                   onTap: () {
                     HapticEngine.selection();
@@ -82,15 +84,15 @@ class HomeWeekStrip extends StatelessWidget {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 220),
                     curve: Curves.easeOut,
-                    padding: const EdgeInsets.symmetric(vertical: 10),
+                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.p8),
                     decoration: BoxDecoration(
                       gradient: isSelected
                           ? const LinearGradient(
                               begin: Alignment.topLeft,
                               end: Alignment.bottomRight,
                               colors: [
-                                Color(0xFFB9EA6E),
-                                Color(0xFF9ADA4B),
+                                AppColors.lime,
+                                AppColors.limeDeep,
                               ],
                             )
                           : null,
@@ -131,7 +133,7 @@ class HomeWeekStrip extends StatelessWidget {
                             fontSize: 11,
                           ),
                         ),
-                        const SizedBox(height: 5),
+                        const SizedBox(height: AppSpacing.p4),
                         Text(
                           day.day.toString().padLeft(2, '0'),
                           style: AppTypography.labelLarge.copyWith(
@@ -139,12 +141,11 @@ class HomeWeekStrip extends StatelessWidget {
                                 ? AppColors.limeInk
                                 : L.text.withValues(alpha: 0.85),
                             fontWeight: FontWeight.w800,
-                            fontSize: 15,
                           ),
                         ),
                         if (isToday && !isSelected)
                           Container(
-                            margin: const EdgeInsets.only(top: 4),
+                            margin: const EdgeInsets.only(top: AppSpacing.p4),
                             width: 4,
                             height: 4,
                             decoration: BoxDecoration(
@@ -174,19 +175,28 @@ class HomeWeekStrip extends StatelessWidget {
 
 class _ArrowBtn extends StatelessWidget {
   final IconData icon;
+  final String label;
   final VoidCallback onTap;
 
-  const _ArrowBtn({required this.icon, required this.onTap});
+  const _ArrowBtn({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    return AnimatedPressable(
-      onTap: onTap,
-      child: SizedBox(
-        width: 36,
-        height: 36,
-        child: Icon(icon, size: 22, color: L.sub.withValues(alpha: 0.7)),
+    return Semantics(
+      button: true,
+      label: label,
+      child: AnimatedPressable(
+        onTap: onTap,
+        child: SizedBox(
+          width: 36,
+          height: 36,
+          child: Icon(icon, size: 22, color: L.sub.withValues(alpha: 0.7)),
+        ),
       ),
     );
   }

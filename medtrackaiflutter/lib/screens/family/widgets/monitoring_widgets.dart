@@ -82,10 +82,10 @@ class PatientCard extends StatelessWidget {
             final adherence =
                 sysExpected == 0 ? 1.0 : (taken / sysExpected).clamp(0.0, 1.0);
             final color = adherence >= 0.85
-                ? const Color(0xFF10B981)
+                ? AppColors.successSoft
                 : adherence >= 0.65
-                    ? const Color(0xFFF59E0B)
-                    : const Color(0xFFEF4444);
+                    ? AppColors.warningSoft
+                    : AppColors.dangerSoft;
 
             return Semantics(
               button: true,
@@ -138,7 +138,7 @@ class PatientCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 14),
+                        const SizedBox(width: AppSpacing.p16),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -182,7 +182,7 @@ class PatientCard extends StatelessWidget {
                         ),
                       ],
                     ),
-                    const SizedBox(height: 14),
+                    const SizedBox(height: AppSpacing.p16),
 
                     // Adherence Progress Bar (Flat Cal Style)
                     Row(
@@ -214,7 +214,7 @@ class PatientCard extends StatelessWidget {
                             ),
                           ),
                         ),
-                        const SizedBox(width: 12),
+                        const SizedBox(width: AppSpacing.p12),
                         Text('${(adherence * 100).toInt()}%',
                             style: AppTypography.labelLarge.copyWith(
                                 color: color,
@@ -285,10 +285,10 @@ class WeeklyAdherenceChart extends StatelessWidget {
             final pct = e.value;
             final height = 15.0 + (pct * 55.0);
             final color = pct >= 0.85
-                ? const Color(0xFF10B981)
+                ? AppColors.successSoft
                 : pct >= 0.6
-                    ? const Color(0xFFF59E0B)
-                    : const Color(0xFFEF4444);
+                    ? AppColors.warningSoft
+                    : AppColors.dangerSoft;
 
             return Column(
               children: [
@@ -391,14 +391,14 @@ class PaywallScreen extends StatelessWidget {
             Expanded(
               child: Center(
                 child: Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: const EdgeInsets.all(AppSpacing.p24),
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Container(
                         width: 140,
                         height: 120,
-                        padding: const EdgeInsets.all(10),
+                        padding: const EdgeInsets.all(AppSpacing.p12),
                         decoration: BoxDecoration(
                           color: L.card,
                           borderRadius: BorderRadius.circular(20),
@@ -409,18 +409,18 @@ class PaywallScreen extends StatelessWidget {
                           fit: BoxFit.contain,
                         ),
                       ),
-                      const SizedBox(height: 24),
+                      const SizedBox(height: AppSpacing.p24),
                       Text('Pro feature',
                           style: AppTypography.displayLarge.copyWith(
                               fontSize: 24,
                               color: L.text,
                               fontWeight: FontWeight.w800)),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: AppSpacing.p12),
                       Text('Remote monitoring requires a Pro subscription.',
                           textAlign: TextAlign.center,
                           style: AppTypography.bodySmall
                               .copyWith(fontSize: 15, color: L.sub, height: 1.5)),
-                      const SizedBox(height: 32),
+                      const SizedBox(height: AppSpacing.p32),
                       MedAiCTA(
                         label: 'Upgrade to Pro',
                         onTap: () => PaywallSheet.show(context),
@@ -485,7 +485,7 @@ class InsightsContent extends StatelessWidget {
                 children: [
                   // Health Score Hero (Simplified for monitoring)
                   SquircleCard(
-                    padding: const EdgeInsets.all(24),
+                    padding: const EdgeInsets.all(AppSpacing.p24),
                     radius: 28,
                     boxShadow: AppShadows.soft,
                     child: Column(
@@ -501,7 +501,7 @@ class InsightsContent extends StatelessWidget {
                                   child: Text(cg.avatar,
                                       style: const TextStyle(fontSize: 30))),
                             ),
-                            const SizedBox(width: 16),
+                            const SizedBox(width: AppSpacing.p16),
                             Expanded(
                                 child: Column(
                                     crossAxisAlignment:
@@ -520,7 +520,7 @@ class InsightsContent extends StatelessWidget {
                                 ])),
                           ],
                         ),
-                        const SizedBox(height: 24),
+                        const SizedBox(height: AppSpacing.p24),
                         Row(
                           children: [
                             Expanded(
@@ -529,21 +529,21 @@ class InsightsContent extends StatelessWidget {
                                     value: meds.isEmpty
                                         ? '100%'
                                         : '${((historyEntries.where((e) => e.taken).length / (historyEntries.length.clamp(1, 1000))) * 100).toInt()}%',
-                                    color: const Color(0xFF10B981),
+                                    color: AppColors.successSoft,
                                     L: L)),
-                            const SizedBox(width: 12),
+                            const SizedBox(width: AppSpacing.p12),
                             Expanded(
                                 child: _CompactStat(
                                     label: 'Streak',
                                     value: '$streak days',
-                                    color: const Color(0xFFF97316),
+                                    color: AppColors.amber,
                                     L: L)),
                           ],
                         ),
                       ],
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.p20),
 
                   MedAiCTA(
                     label: 'Nudge ${cg.name}',
@@ -551,19 +551,19 @@ class InsightsContent extends StatelessWidget {
                     onTap: () => state.nudgePatient(cg.patientUid),
                   ),
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: AppSpacing.p24),
 
                   SquircleCard(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(AppSpacing.p20),
                     radius: 24,
                     boxShadow: AppShadows.soft,
                     child: WeeklyAdherenceChart(
                         meds: meds, history: history, L: L),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: AppSpacing.p20),
                   AIProtectorCard(cg: cg, state: state),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: AppSpacing.p40),
                 ],
               ),
             ),
@@ -585,7 +585,7 @@ class _CompactStat extends StatelessWidget {
       required this.L});
   @override
   Widget build(BuildContext context) => Container(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.all(AppSpacing.p16),
         decoration: BoxDecoration(
             color: L.fill.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(16)),
@@ -593,7 +593,7 @@ class _CompactStat extends StatelessWidget {
           Text(label,
               style: AppTypography.labelSmall.copyWith(
                   color: L.sub, fontWeight: FontWeight.w600, fontSize: 11)),
-          const SizedBox(height: 4),
+          const SizedBox(height: AppSpacing.p4),
           Text(value,
               style: AppTypography.titleLarge.copyWith(
                   color: color, fontWeight: FontWeight.w800, fontSize: 18)),

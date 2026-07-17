@@ -50,7 +50,7 @@ class HomeDoseGroup extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(left: 2, bottom: 10, top: 8),
+          padding: const EdgeInsetsDirectional.only(start: 2, bottom: AppSpacing.p12, top: AppSpacing.p8),
           child: Text(
             _groupLabel(title),
             style: AppTypography.labelSmall.copyWith(
@@ -67,7 +67,7 @@ class HomeDoseGroup extends StatelessWidget {
           final isOverdue = !isTaken && doseMins < nowMins;
 
           return Padding(
-            padding: const EdgeInsets.only(bottom: 12),
+            padding: const EdgeInsets.only(bottom: AppSpacing.p12),
             child: HomeDoseRow(
               med: d.med,
               sched: d.sched,

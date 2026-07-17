@@ -24,6 +24,7 @@ import 'paywall/premium_paywall_overlay.dart';
 import '../widgets/modals/dose_celebration_modal.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../widgets/common/medical_disclaimer_modal.dart';
+import '../widgets/common/app_status_banner.dart';
 import '../widgets/viral/reentry_screen.dart';
 import '../widgets/modals/ai_consent_sheet.dart';
 import 'package:flutter/scheduler.dart';
@@ -43,6 +44,7 @@ class _AppShellState extends State<AppShell>
   bool _showReentry = false;
   AppState? _appState;
   bool _activationPaywallShown = false;
+  bool _dismissedOfflineBanner = false;
 
   @override
   void initState() {
@@ -54,6 +56,7 @@ class _AppShellState extends State<AppShell>
       _checkReentry();
       _checkFirstMedActivation();
       _redeemPendingReferral();
+      if (mounted) await context.read<AppState>().checkConnectivity();
     });
   }
 
@@ -199,6 +202,12 @@ class _AppShellState extends State<AppShell>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
       context.read<AppState>().lockApp();
+    } else if (state == AppLifecycleState.resumed) {
+      context.read<AppState>().checkConnectivity().then((online) {
+        if (online && mounted) {
+          setState(() => _dismissedOfflineBanner = false);
+        }
+      });
     }
   }
 
@@ -272,6 +281,9 @@ class _AppShellState extends State<AppShell>
     final toastType = context.select<AppState, String?>((s) => s.toastType);
     final bannerDismissed =
         context.select<AppState, bool>((s) => s.lowStockBannerDismissed);
+    final isOffline = context.select<AppState, bool>((s) => s.isOffline);
+    final networkError =
+        context.select<AppState, String?>((s) => s.networkErrorMessage);
     final isSyncing = context.select<AppState, bool>((s) => s.isMutating);
     final lastSynced =
         context.select<AppState, DateTime?>((s) => s.lastSyncedAt);
@@ -300,21 +312,76 @@ class _AppShellState extends State<AppShell>
 
                   // Removed Scanner Overlay logic because we now use Navigator.push
 
-                  // ── Low stock banner ──
-                  if (lowMeds.isNotEmpty && !bannerDismissed)
-                    Positioned(
-                      top: MediaQuery.of(context).padding.top + AppSpacing.p12,
-                      left: AppSpacing.p16,
-                      right: AppSpacing.p16,
-                      child: LowStockBanner(
-                        meds: lowMeds,
-                        onDismiss: () {
-                          HapticEngine.medium();
-                          context.read<AppState>().dismissLowStockBanner();
-                        },
-                      ).animate().fadeIn(duration: 500.ms).slideY(
-                          begin: -0.2, end: 0, curve: Curves.easeOutBack),
-                    ),
+                  // ── Offline / network error / low-stock status strip ──
+                  Builder(builder: (context) {
+                    final topInset =
+                        MediaQuery.of(context).padding.top + AppSpacing.p12;
+                    final showOffline =
+                        (isOffline || networkError != null) &&
+                            !_dismissedOfflineBanner;
+                    final showLowStock =
+                        lowMeds.isNotEmpty && !bannerDismissed;
+
+                    if (!showOffline && !showLowStock) {
+                      return const SizedBox.shrink();
+                    }
+
+                    return Positioned(
+                      top: topInset,
+                      left: 0,
+                      right: 0,
+                      child: Column(
+                        children: [
+                          if (showOffline)
+                            isOffline
+                                ? AppStatusBanner.offline(
+                                    onRetry: () async {
+                                      final online = await context
+                                          .read<AppState>()
+                                          .checkConnectivity();
+                                      if (online && mounted) {
+                                        setState(() =>
+                                            _dismissedOfflineBanner = false);
+                                      }
+                                    },
+                                    onDismiss: () => setState(
+                                        () => _dismissedOfflineBanner = true),
+                                  )
+                                : AppStatusBanner.error(
+                                    message: networkError!,
+                                    onRetry: () {
+                                      final s = context.read<AppState>();
+                                      s.clearNetworkError();
+                                      s.checkConnectivity();
+                                    },
+                                    onDismiss: () => context
+                                        .read<AppState>()
+                                        .clearNetworkError(),
+                                  ),
+                          if (showLowStock)
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: AppSpacing.p16),
+                              child: LowStockBanner(
+                                meds: lowMeds,
+                                onDismiss: () {
+                                  HapticEngine.medium();
+                                  context
+                                      .read<AppState>()
+                                      .dismissLowStockBanner();
+                                },
+                              )
+                                  .animate()
+                                  .fadeIn(duration: 500.ms)
+                                  .slideY(
+                                      begin: -0.2,
+                                      end: 0,
+                                      curve: Curves.easeOutBack),
+                            ),
+                        ],
+                      ),
+                    );
+                  }),
 
                   // ── Sync indicator ──
                   Positioned(

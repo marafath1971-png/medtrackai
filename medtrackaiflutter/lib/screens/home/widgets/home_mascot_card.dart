@@ -194,7 +194,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
               child: Container(
                 width: 28,
                 height: 28,
-                padding: const EdgeInsets.all(4),
+                padding: const EdgeInsets.all(AppSpacing.p4),
                 decoration: BoxDecoration(
                   color: L.card,
                   shape: BoxShape.circle,
@@ -233,16 +233,16 @@ class _HomeMascotCardState extends State<HomeMascotCard>
       button: true,
       label: 'MedAI companion. Tap for a new coaching message.',
       child: MedAiDepthCard(
-        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p16),
         onTap: _onTap,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             mascot,
-            const SizedBox(width: 16),
+            const SizedBox(width: AppSpacing.p16),
             Expanded(
               child: MedAiGlass(
-                padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+                padding: const EdgeInsets.fromLTRB(AppSpacing.p16, AppSpacing.p12, AppSpacing.p16, AppSpacing.p12),
                 radius: 16,
                 tint: L.fill.withValues(alpha: 0.3),
                 child: AnimatedSwitcher(
@@ -261,7 +261,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                       ? Container(
                           key: const ValueKey('mascot_coaching_loading'),
                           height: 38,
-                          alignment: Alignment.centerLeft,
+                          alignment: AlignmentDirectional.centerStart,
                           child: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -274,7 +274,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
-                              const SizedBox(width: 8),
+                              const SizedBox(width: AppSpacing.p8),
                               ...List.generate(3, (index) {
                                 return Container(
                                   margin:
@@ -339,7 +339,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: AppSpacing.p4),
                             Text(
                               _currentQuote,
                               style: AppTypography.bodyMedium.copyWith(

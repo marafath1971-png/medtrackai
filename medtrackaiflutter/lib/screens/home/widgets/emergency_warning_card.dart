@@ -18,7 +18,7 @@ class EmergencyWarningCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     return Container(
-      padding: const EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppSpacing.p20),
       decoration: BoxDecoration(
         gradient: AppGradients.dangerRed,
         borderRadius: BorderRadius.circular(28),
@@ -30,7 +30,7 @@ class EmergencyWarningCard extends StatelessWidget {
           Row(
             children: [
               Container(
-                padding: const EdgeInsets.all(8),
+                padding: const EdgeInsets.all(AppSpacing.p8),
                 decoration: const BoxDecoration(
                   color: Colors.white24,
                   shape: BoxShape.circle,
@@ -41,13 +41,12 @@ class EmergencyWarningCard extends StatelessWidget {
                   size: 24,
                 ),
               ),
-              const SizedBox(width: 14),
+              const SizedBox(width: AppSpacing.p16),
               Expanded(
                 child: Text(
                   'CRITICAL MEDICAL ADVISORY',
                   style: AppTypography.labelLarge.copyWith(
                     color: Colors.white,
-                    fontSize: 13,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.5,
                   ),
@@ -55,17 +54,16 @@ class EmergencyWarningCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.p16),
           Text(
             'You logged a severe symptom of ${symptom.name} (Severity: ${symptom.severity}/10) recently. If you are experiencing chest pain, difficulty breathing, sudden weakness, or any life-threatening symptoms, seek medical help immediately.',
             style: AppTypography.bodyMedium.copyWith(
               color: Colors.white.withValues(alpha: 0.9),
-              fontSize: 13,
               fontWeight: FontWeight.w600,
               height: 1.4,
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: AppSpacing.p20),
           AnimatedPressable(
             onTap: () async {
               HapticEngine.heavyImpact();
@@ -76,16 +74,16 @@ class EmergencyWarningCard extends StatelessWidget {
             },
             child: Container(
               width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: AppSpacing.p16),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(18),
+                borderRadius: AppRadius.roundM,
               ),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(Icons.phone_in_talk_rounded, color: L.error, size: 20),
-                  const SizedBox(width: 10),
+                  const SizedBox(width: AppSpacing.p12),
                   Flexible(
                     child: Text(
                       'CALL EMERGENCY SERVICES (911)',
@@ -94,7 +92,6 @@ class EmergencyWarningCard extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: AppTypography.labelLarge.copyWith(
                         color: L.error,
-                        fontSize: 13,
                         fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
                       ),

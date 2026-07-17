@@ -32,7 +32,7 @@ class IOSHairline extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     return Padding(
-      padding: EdgeInsets.only(left: indent, right: endIndent),
+      padding: EdgeInsetsDirectional.only(start: indent, end: endIndent),
       child: SizedBox(
         height: IOSMetrics.hairline,
         child: ColoredBox(color: L.border.withValues(alpha: 0.16)),
@@ -201,7 +201,9 @@ class IOSChatBubble extends StatelessWidget {
     final fg = isUser ? Colors.white : L.text;
 
     return Align(
-      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      alignment: isUser
+          ? AlignmentDirectional.centerEnd
+          : AlignmentDirectional.centerStart,
       child: ConstrainedBox(
         constraints: BoxConstraints(maxWidth: maxW),
         child: CustomPaint(
@@ -211,9 +213,9 @@ class IOSChatBubble extends StatelessWidget {
             borderColor: isUser ? null : L.border.withValues(alpha: 0.18),
           ),
           child: Padding(
-            padding: EdgeInsets.only(
-              left: isUser ? 16 : 18,
-              right: isUser ? 18 : 16,
+            padding: EdgeInsetsDirectional.only(
+              start: isUser ? 16 : 18,
+              end: isUser ? 18 : 16,
               top: 10,
               bottom: 10,
             ),

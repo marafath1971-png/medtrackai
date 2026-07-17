@@ -91,6 +91,28 @@ class AppColors {
   static const Color warningDark = amberDark;
   static const Color errorDark   = redDark;
 
+  /// Electric CTA cyan (2026 accent system). Prefer over raw `0xFF6CF2D2`.
+  static const Color electric = Color(0xFF6CF2D2);
+  /// Deeper sage for pressed/onboarding ink variants.
+  static const Color accentDeep = Color(0xFF3D8A72);
+
+  // Drift aliases — same hue family as brand tokens (kills Tailwind/ad-hoc hex).
+  static const Color dangerSoft = Color(0xFFEF4444); // maps ← Tailwind red-500
+  static const Color successSoft = Color(0xFF10B981); // maps ← Tailwind emerald
+  static const Color warningSoft = Color(0xFFF59E0B); // maps ← Tailwind amber
+  static const Color infoSoft = Color(0xFF0A84FF); // maps ← AppColors.blue
+  static const Color indigo = Color(0xFF6366F1);
+  static const Color violet = Color(0xFF8B5CF6);
+  static const Color orangeIos = Color(0xFFFF9500); // iOS system orange
+  static const Color pinkSystem = Color(0xFFFF2D55);
+
+  /// Cal AI icon-badge fill opacity (~12%). Use [badgeFill] — never scatter alphas.
+  static const double badgeFillOpacity = 0.12;
+
+  /// Soft chip behind icons on neutral cards (Cal AI pattern).
+  static Color badgeFill(Color ink) =>
+      ink.withValues(alpha: badgeFillOpacity);
+
   static const Color lRed    = red;
   static const Color dRed    = redDark;
   static const Color oBg     = bgDark;
@@ -612,8 +634,8 @@ extension ThemeContextExtension on BuildContext {
 
 /// 2026 unified accent tokens — electric CTA on sage wellness base.
 extension AppThemeColors2026 on AppThemeColors {
-  static const Color electric = Color(0xFF6CF2D2);
-  static const Color wellness = Color(0xFF4A9E86);
+  static const Color electric = AppColors.electric;
+  static const Color wellness = AppColors.accent;
 
   Color get accentElectric => electric;
   Color get accentWellness => wellness;

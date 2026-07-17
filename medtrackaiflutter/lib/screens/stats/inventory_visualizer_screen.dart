@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/app_state.dart';
-import '../../core/constants/premium_graphics.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_empty_state.dart';
@@ -41,7 +40,8 @@ class InventoryVisualizerScreen extends StatelessWidget {
                       child: PremiumEmptyState(
                         title: 'No medications to track',
                         subtitle: 'Add meds from Home to see inventory levels.',
-                        illustrationAsset: PremiumGraphics.onboardingDiagnose,
+                        mascotFeature: 'refill',
+                        icon: Icons.inventory_2_outlined,
                       ),
                     )
                   : GridView.builder(

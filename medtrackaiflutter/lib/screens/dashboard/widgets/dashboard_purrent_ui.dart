@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -9,6 +7,7 @@ import '../../../core/utils/haptic_engine.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
+import '../../../widgets/common/premium_empty_state.dart';
 
 // ─── Top bar + greeting (Purrent + finance reference blend) ─────────────────
 
@@ -29,11 +28,13 @@ class DashboardPurrentTopBar extends StatelessWidget {
     final appState = context.watch<AppState>();
     final name = (appState.activeProfile?.name ?? appState.profile?.name)?.trim();
     final display = (name != null && name.isNotEmpty) ? name.split(' ').first : 'there';
+    final showAlertDot =
+        appState.unseenAlertsCount > 0 || appState.getLowStockCount() > 0;
 
     return Padding(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(22, 10, 22, 0),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p12, AppSpacing.gutter, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -52,7 +53,7 @@ class DashboardPurrentTopBar extends StatelessWidget {
                 _MenuPill(label: 'Menu', onTap: onMenu),
               ],
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: AppSpacing.p16),
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -64,13 +65,12 @@ class DashboardPurrentTopBar extends StatelessWidget {
                         'Hi, $display',
                         style: AppTypography.headlineMedium.copyWith(
                           fontWeight: FontWeight.w800,
-                          fontSize: 26,
                           color: L.text,
                           letterSpacing: -0.6,
                           height: 1.05,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: AppSpacing.p4),
                       Text(
                         'Welcome back!',
                         style: AppTypography.bodyMedium.copyWith(
@@ -83,7 +83,9 @@ class DashboardPurrentTopBar extends StatelessWidget {
                 ),
                 Semantics(
                   button: true,
-                  label: 'Open daily log',
+                  label: showAlertDot
+                      ? 'Open daily log, alerts pending'
+                      : 'Open daily log',
                   child: AnimatedPressable(
                     onTap: () {
                       HapticEngine.selection();
@@ -114,19 +116,23 @@ class DashboardPurrentTopBar extends StatelessWidget {
                             size: 22,
                             color: L.text.withValues(alpha: 0.9),
                           ),
-                          Positioned(
-                            top: 9,
-                            right: 9,
-                            child: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: AppColors.red,
-                                shape: BoxShape.circle,
-                                border: Border.all(color: L.card, width: 1.5),
+                          if (showAlertDot)
+                            PositionedDirectional(
+                              top: 9,
+                              end: 9,
+                              child: ExcludeSemantics(
+                                child: Container(
+                                  width: 8,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: AppColors.red,
+                                    shape: BoxShape.circle,
+                                    border:
+                                        Border.all(color: L.card, width: 1.5),
+                                  ),
+                                ),
                               ),
                             ),
-                          ),
                         ],
                       ),
                     ),
@@ -134,12 +140,12 @@ class DashboardPurrentTopBar extends StatelessWidget {
                 ),
               ],
             ),
-            const SizedBox(height: 6),
+            const SizedBox(height: AppSpacing.p8),
             Text(
               s?.dashboardTab ?? 'Trends',
               style: AppTypography.displaySmall.copyWith(
                 fontWeight: FontWeight.w800,
-                fontSize: 34,
+                fontSize: 36,
                 color: L.text,
                 letterSpacing: -1,
                 height: 1.05,
@@ -170,7 +176,7 @@ class _MenuPill extends StatelessWidget {
           onTap();
         },
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 9),
+          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
           decoration: BoxDecoration(
             color: L.card,
             borderRadius: BorderRadius.circular(999),
@@ -179,7 +185,7 @@ class _MenuPill extends StatelessWidget {
           child: Row(
             children: [
               Icon(Icons.grid_view_rounded, size: 16, color: L.text),
-              const SizedBox(width: 6),
+              const SizedBox(width: AppSpacing.p8),
               Text(
                 label,
                 style: AppTypography.labelMedium.copyWith(
@@ -195,24 +201,56 @@ class _MenuPill extends StatelessWidget {
   }
 }
 
-// ─── 3-metric row (streak · doses · daily avg) ───────────────────────────────
+// ─── 3-metric row (streak · doses · daily avg) — Cal AI neutral cards ────────
 
 class DashboardPurrentMetricGrid extends StatelessWidget {
   final int streak;
   final int dosesWeek;
+  /// Last 7 day dose counts (oldest → newest). Used for honest sparklines.
+  final List<int> weeklyDoseCounts;
+  /// Last 7 day adherence 0–1 (oldest → newest).
+  final List<double> weeklyAdherence;
 
   const DashboardPurrentMetricGrid({
     super.key,
     required this.streak,
     required this.dosesWeek,
+    this.weeklyDoseCounts = const [],
+    this.weeklyAdherence = const [],
   });
+
+  static List<double> _normalizeCounts(List<int> counts) {
+    if (counts.isEmpty) return const [0, 0, 0, 0, 0, 0, 0];
+    final max = counts.fold<int>(0, (a, b) => a > b ? a : b);
+    if (max <= 0) return List<double>.filled(counts.length, 0);
+    return counts.map((c) => (c / max).clamp(0.0, 1.0)).toList();
+  }
+
+  static List<double> _runningAvgSpark(List<int> counts) {
+    if (counts.isEmpty) return const [0, 0, 0, 0, 0, 0, 0];
+    final avgs = <double>[];
+    var sum = 0;
+    for (var i = 0; i < counts.length; i++) {
+      sum += counts[i];
+      avgs.add(sum / (i + 1));
+    }
+    final max = avgs.fold<double>(0, (a, b) => a > b ? a : b);
+    if (max <= 0) return List<double>.filled(avgs.length, 0);
+    return avgs.map((v) => (v / max).clamp(0.0, 1.0)).toList();
+  }
 
   @override
   Widget build(BuildContext context) {
     final avgDaily = dosesWeek > 0 ? (dosesWeek / 7).toStringAsFixed(1) : '0';
+    final adherenceSpark = weeklyAdherence.isNotEmpty
+        ? weeklyAdherence.map((v) => v.clamp(0.0, 1.0)).toList()
+        : _normalizeCounts(weeklyDoseCounts);
+    final doseSpark = _normalizeCounts(weeklyDoseCounts);
+    final avgSpark = _runningAvgSpark(weeklyDoseCounts);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(22, 14, 22, 0),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.gutter, AppSpacing.p16, AppSpacing.gutter, 0),
       child: Row(
         children: [
           Expanded(
@@ -220,32 +258,32 @@ class DashboardPurrentMetricGrid extends StatelessWidget {
               title: 'Day streak',
               value: '$streak',
               subtitle: streak == 1 ? 'day' : 'days',
-              colors: const [Color(0xFFC9EFA0), Color(0xFF8FD14F)],
-              pattern: _PatternType.dots,
-              sparkline: const [0.2, 0.35, 0.4, 0.55, 0.5, 0.72, 0.8],
+              accent: AppColors.limeDeep,
+              icon: Icons.local_fire_department_rounded,
+              sparkline: adherenceSpark,
               trend: streak > 0 ? '↑ active' : null,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.p12),
           Expanded(
             child: _PurrentMetricCard(
               title: 'Doses logged',
               value: '$dosesWeek',
               subtitle: 'this week',
-              colors: const [Color(0xFF9CA5FF), Color(0xFFB8B0FF)],
-              pattern: _PatternType.waves,
-              sparkline: const [0.3, 0.45, 0.5, 0.6, 0.55, 0.7, 0.65],
+              accent: AppColors.infoSoft,
+              icon: Icons.medication_rounded,
+              sparkline: doseSpark,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.p12),
           Expanded(
             child: _PurrentMetricCard(
               title: 'Daily avg',
               value: avgDaily,
               subtitle: 'per day',
-              colors: const [Color(0xFFFFE08A), Color(0xFFFFC857)],
-              pattern: _PatternType.curves,
-              sparkline: const [0.55, 0.62, 0.58, 0.72, 0.68, 0.8, 0.87],
+              accent: AppColors.warningSoft,
+              icon: Icons.show_chart_rounded,
+              sparkline: avgSpark,
             ),
           ),
         ],
@@ -254,14 +292,12 @@ class DashboardPurrentMetricGrid extends StatelessWidget {
   }
 }
 
-enum _PatternType { waves, curves, dots, rings }
-
 class _PurrentMetricCard extends StatelessWidget {
   final String title;
   final String value;
   final String subtitle;
-  final List<Color> colors;
-  final _PatternType pattern;
+  final Color accent;
+  final IconData icon;
   final List<double> sparkline;
   final String? trend;
 
@@ -269,155 +305,109 @@ class _PurrentMetricCard extends StatelessWidget {
     required this.title,
     required this.value,
     required this.subtitle,
-    required this.colors,
-    required this.pattern,
+    required this.accent,
+    required this.icon,
     required this.sparkline,
     this.trend,
   });
 
   @override
   Widget build(BuildContext context) {
+    final L = context.L;
     return Container(
-      height: 148,
-      padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(28),
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: colors,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: colors.last.withValues(alpha: 0.35),
-            blurRadius: 16,
-            offset: const Offset(0, 8),
-          ),
-        ],
+      constraints: const BoxConstraints(minHeight: 132),
+      padding: const EdgeInsets.fromLTRB(
+        AppSpacing.p16,
+        AppSpacing.p16,
+        AppSpacing.p16,
+        AppSpacing.p12,
       ),
-      child: Stack(
+      decoration: BoxDecoration(
+        color: L.card,
+        borderRadius: BorderRadius.circular(AppRadius.xl),
+        border: Border.all(color: L.border.withValues(alpha: 0.22)),
+        boxShadow: AppShadows.soft,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Positioned.fill(
-            child: CustomPaint(
-              painter: _CardPatternPainter(pattern: pattern),
-            ),
-          ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+          Row(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: AppTypography.labelMedium.copyWith(
-                        color: AppColors.inkStrong.withValues(alpha: 0.75),
-                        fontWeight: FontWeight.w700,
-                      ),
-                    ),
+              Expanded(
+                child: Text(
+                  title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.labelMedium.copyWith(
+                    color: L.sub,
+                    fontWeight: FontWeight.w700,
                   ),
-                  if (trend != null)
-                    Text(
-                      trend!,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: AppColors.inkStrong.withValues(alpha: 0.7),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 10,
-                      ),
-                    ),
-                ],
-              ),
-              const Spacer(),
-              Text(
-                value,
-                style: AppTypography.headlineMedium.copyWith(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 28,
-                  color: AppColors.inkStrong,
-                  letterSpacing: -0.8,
-                  height: 1,
                 ),
               ),
-              const SizedBox(height: 2),
-              Text(
-                subtitle,
-                style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.inkStrong.withValues(alpha: 0.65),
-                  fontWeight: FontWeight.w600,
+              Container(
+                width: 36,
+                height: 36,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: AppColors.badgeFill(accent),
+                  borderRadius: BorderRadius.circular(11),
                 ),
-              ),
-              const SizedBox(height: 10),
-              SizedBox(
-                height: 28,
-                child: CustomPaint(
-                  painter: _SparklinePainter(
-                    points: sparkline,
-                    color: Colors.white.withValues(alpha: 0.85),
-                  ),
-                  child: const SizedBox.expand(),
-                ),
+                child: Icon(icon, size: 18, color: accent),
               ),
             ],
+          ),
+          if (trend != null) ...[
+            const SizedBox(height: AppSpacing.p4),
+            Text(
+              trend!,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: AppTypography.caption.copyWith(
+                color: accent,
+                fontWeight: FontWeight.w800,
+              ),
+            ),
+          ],
+          const SizedBox(height: AppSpacing.p12),
+          Text(
+            value,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.headlineLarge.copyWith(
+              fontWeight: FontWeight.w800,
+              color: L.text,
+              letterSpacing: -0.8,
+              height: 1,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.p4),
+          Text(
+            subtitle,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: AppTypography.labelSmall.copyWith(
+              color: L.sub,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.p8),
+          ExcludeSemantics(
+            child: SizedBox(
+              height: AppSpacing.p24,
+              child: CustomPaint(
+                painter: _SparklinePainter(
+                  points: sparkline,
+                  color: accent.withValues(alpha: 0.85),
+                ),
+                child: const SizedBox.expand(),
+              ),
+            ),
           ),
         ],
       ),
     );
   }
-}
-
-class _CardPatternPainter extends CustomPainter {
-  final _PatternType pattern;
-
-  _CardPatternPainter({required this.pattern});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.12)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.2;
-
-    switch (pattern) {
-      case _PatternType.waves:
-        final path = Path();
-        for (var y = size.height * 0.55; y < size.height; y += 14) {
-          path.moveTo(0, y);
-          for (var x = 0.0; x <= size.width; x += 8) {
-            path.lineTo(x, y + math.sin(x / 18) * 4);
-          }
-        }
-        canvas.drawPath(path, paint);
-      case _PatternType.curves:
-        canvas.drawArc(
-          Rect.fromLTWH(-20, size.height * 0.35, size.width * 0.9, 80),
-          0,
-          math.pi,
-          false,
-          paint,
-        );
-      case _PatternType.dots:
-        for (var x = 8.0; x < size.width; x += 12) {
-          for (var y = size.height * 0.45; y < size.height; y += 12) {
-            canvas.drawCircle(Offset(x, y), 1.2, paint..style = PaintingStyle.fill);
-          }
-        }
-      case _PatternType.rings:
-        canvas.drawCircle(
-          Offset(size.width * 0.75, size.height * 0.72),
-          22,
-          paint,
-        );
-        canvas.drawCircle(
-          Offset(size.width * 0.75, size.height * 0.72),
-          34,
-          paint,
-        );
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _CardPatternPainter old) =>
-      old.pattern != pattern;
 }
 
 class _SparklinePainter extends CustomPainter {
@@ -481,7 +471,7 @@ class _DashboardMedicationDiaryState extends State<DashboardMedicationDiary> {
     final items = _buildItems();
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(22, 22, 22, 0),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.gutter, AppSpacing.gutter, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -494,26 +484,19 @@ class _DashboardMedicationDiaryState extends State<DashboardMedicationDiary> {
               letterSpacing: -0.4,
             ),
           ),
-          const SizedBox(height: 14),
+          const SizedBox(height: AppSpacing.p16),
           _DiarySegmentBar(
             selected: _range,
             onChanged: (r) => setState(() => _range = r),
           ),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.p16),
           if (items.isEmpty)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.all(24),
-              decoration: BoxDecoration(
-                color: L.card,
-                borderRadius: BorderRadius.circular(24),
-                border: Border.all(color: L.border.withValues(alpha: 0.25)),
-              ),
-              child: Text(
-                'No doses logged for this period',
-                textAlign: TextAlign.center,
-                style: AppTypography.bodyMedium.copyWith(color: L.sub),
-              ),
+            PremiumEmptyState(
+              compact: true,
+              title: 'No doses logged',
+              subtitle: 'Nothing recorded for this period yet.',
+              mascotFeature: 'missed',
+              icon: Icons.event_note_rounded,
             )
           else
             ...items.map((item) => _DiaryRow(item: item)),
@@ -556,7 +539,7 @@ class _DashboardMedicationDiaryState extends State<DashboardMedicationDiary> {
             title: med?.name ?? entry.label,
             detail: entry.label,
             when: when,
-            tint: const Color(0xFF9CA5FF),
+            tint: AppColors.infoSoft,
           ),
         );
       }
@@ -603,8 +586,11 @@ class _DiarySegmentBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
+    final chipDuration =
+        MedAiA11y.motion(context, const Duration(milliseconds: 220));
     return Container(
-      padding: const EdgeInsets.all(4),
+      padding: const EdgeInsets.all(AppSpacing.p4),
       decoration: BoxDecoration(
         color: L.fill.withValues(alpha: 0.65),
         borderRadius: BorderRadius.circular(999),
@@ -613,34 +599,41 @@ class _DiarySegmentBar extends StatelessWidget {
         children: DashboardDiaryRange.values.map((range) {
           final isSel = range == selected;
           return Expanded(
-            child: GestureDetector(
-              onTap: () {
-                HapticEngine.selection();
-                onChanged(range);
-              },
-              child: AnimatedContainer(
-                duration: const Duration(milliseconds: 220),
-                padding: const EdgeInsets.symmetric(vertical: 10),
-                decoration: BoxDecoration(
-                  color: isSel ? L.card : Colors.transparent,
-                  borderRadius: BorderRadius.circular(999),
-                  boxShadow: isSel
-                      ? [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.06),
-                            blurRadius: 6,
-                            offset: const Offset(0, 2),
-                          ),
-                        ]
-                      : null,
-                ),
-                child: Text(
-                  _labels[range]!,
-                  textAlign: TextAlign.center,
-                  style: AppTypography.labelSmall.copyWith(
-                    fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
-                    color: isSel ? L.text : L.sub,
-                    fontSize: 11,
+            child: Semantics(
+              button: true,
+              selected: isSel,
+              label: _labels[range]!,
+              child: GestureDetector(
+                onTap: () {
+                  HapticEngine.selection();
+                  onChanged(range);
+                },
+                child: AnimatedContainer(
+                  duration: chipDuration,
+                  curve: reduceMotion ? Curves.linear : Curves.easeOut,
+                  padding:
+                      const EdgeInsets.symmetric(vertical: AppSpacing.p12),
+                  decoration: BoxDecoration(
+                    color: isSel ? L.card : Colors.transparent,
+                    borderRadius: BorderRadius.circular(999),
+                    boxShadow: isSel
+                        ? [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.06),
+                              blurRadius: 6,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Text(
+                    _labels[range]!,
+                    textAlign: TextAlign.center,
+                    style: AppTypography.labelSmall.copyWith(
+                      fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
+                      color: isSel ? L.text : L.sub,
+                      fontSize: 11,
+                    ),
                   ),
                 ),
               ),
@@ -664,7 +657,7 @@ class _DiaryRow extends StatelessWidget {
     final clock = DateFormat('hh:mm a').format(item.when);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 14),
+      padding: const EdgeInsets.only(bottom: AppSpacing.p16),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -684,7 +677,7 @@ class _DiaryRow extends StatelessWidget {
             width: 36,
             height: 36,
             decoration: BoxDecoration(
-              color: item.tint.withValues(alpha: 0.18),
+              color: AppColors.badgeFill(item.tint),
               shape: BoxShape.circle,
             ),
             child: Icon(
@@ -693,7 +686,7 @@ class _DiaryRow extends StatelessWidget {
               color: item.tint,
             ),
           ),
-          const SizedBox(width: 12),
+          const SizedBox(width: AppSpacing.p12),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -710,7 +703,7 @@ class _DiaryRow extends StatelessWidget {
                 Text(
                   item.detail,
                   style: AppTypography.labelMedium.copyWith(
-                    color: const Color(0xFF9CA5FF),
+                    color: L.sub,
                     fontWeight: FontWeight.w700,
                   ),
                 ),

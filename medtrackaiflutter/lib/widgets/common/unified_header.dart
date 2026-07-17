@@ -266,7 +266,11 @@ class SliverUnifiedHeader extends StatelessWidget {
       flexibleSpace: FlexibleSpaceBar(
         stretchModes: const [StretchMode.zoomBackground],
         centerTitle: true,
-        titlePadding: const EdgeInsets.only(bottom: 16, left: 40, right: 40),
+        titlePadding: const EdgeInsetsDirectional.only(
+          bottom: 16,
+          start: 40,
+          end: 40,
+        ),
         title: Text(
           title,
           style: AppTypography.headlineMedium.copyWith(
