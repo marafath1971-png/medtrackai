@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import '../../../../models/constants.dart';
 import '../../../../providers/app_state.dart';
 import '../../../../services/export_service.dart';
 import '../../../../theme/med_ai_ui.dart';
@@ -206,14 +207,14 @@ class _DataTabState extends State<DataTab> {
                   iconBg: const Color(0xFF0EA5E9).withValues(alpha: 0.1),
                   label: s.privacyPolicy,
                   sub: s.privacyPolicySubtitle,
-                  onClick: () => _launchUrl('https://medai.app/privacy'),
+                  onClick: () => _launchUrl(kPrivacyPolicyUrl),
                   border: true),
               SettingsModalRow(
                   icon: '⚖️',
                   iconBg: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
                   label: s.termsOfService,
                   sub: s.termsOfServiceSubtitle,
-                  onClick: () => _launchUrl('https://medai.app/terms'),
+                  onClick: () => _launchUrl(kTermsOfServiceUrl),
                   border: false),
             ])),
 

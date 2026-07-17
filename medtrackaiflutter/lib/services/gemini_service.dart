@@ -264,6 +264,10 @@ class GeminiService {
 
       const childSafetyInstruction = 'CRITICAL PEDIATRIC CHECK: You must explicitly evaluate if this product is safe for children. If it requires strict weight-based dosing, is contraindicated for pediatrics, or has severe age restrictions, provide a highly specific warning in the "childSafetyAlert" field. If it is generally safe or not applicable, return null for "childSafetyAlert".';
 
+      const pregnancyInstruction = 'PREGNANCY / NURSING CHECK: Evaluate pregnancy and breastfeeding safety. If there is a known risk, contraindication, or "ask your doctor" guidance, put clear wording in "pregnancyAlert". If not applicable or unknown, return null.';
+
+      const skincareInstruction = 'If the product is skincare / topical / cosmetic, set category to "Skincare" and fill "skincareNotes" with patch-test, irritation, and ingredient caution tips. Otherwise return null for skincareNotes.';
+
       final prompt = '''
 You are MedAI Pro, an expert clinical AI. The user has provided an input (a search query, barcode text, voice transcript, or image) to understand a product: "$query".
 Analyze the product and return a deeply informative breakdown.
@@ -275,13 +279,15 @@ HONESTY REQUIREMENT (critical for user safety):
 
 $allergyInstruction
 $childSafetyInstruction
+$pregnancyInstruction
+$skincareInstruction
 
 Return ONLY valid JSON matching this exact structure:
 {
   "identified": true,
   "confidence": "high|medium|low",
   "name": "Product Name",
-  "category": "Medicine|Supplement|Vitamin|TCM",
+  "category": "Medicine|Supplement|Vitamin|TCM|Skincare",
   "description": "What is this? A brief 1-2 sentence overview.",
   "whyTakeIt": "Why do people take it?",
   "howItWorks": "How it works in the body (simple but scientific).",
@@ -297,6 +303,8 @@ Return ONLY valid JSON matching this exact structure:
   "allergyAlerts": ["Alert 1", "Alert 2"],
   "allergyRiskLevel": "None|Low|Medium|High",
   "childSafetyAlert": "Warning text if applicable, otherwise null",
+  "pregnancyAlert": "Pregnancy/nursing guidance if applicable, otherwise null",
+  "skincareNotes": "Skincare/topical tips if applicable, otherwise null",
   "expertPerspectives": [
     {"role": "Doctor", "explanation": "Medical perspective", "icon": "👩‍⚕️"},
     {"role": "Pharmacist", "explanation": "Pharmacology/interactions", "icon": "💊"},

@@ -60,8 +60,10 @@ class ObPalette {
         sub: Colors.white.withValues(alpha: 0.62),
         accent: accent,
         accentInk: Colors.white,
-        cta: Colors.white,
-        ctaInk: const Color(0xFF0B1411),
+        // Duo system (DESIGN.md §3.1): lime is the hope/success primary CTA.
+        // Sage (accent) stays the calm wellness base. Lime is light → dark ink.
+        cta: AppColors.limeDeep,
+        ctaInk: AppColors.limeInk,
         good: const Color(0xFF34D399),
         bad: const Color(0xFFFF6B6B),
         warmTint: accent.withValues(alpha: 0.14),
@@ -81,8 +83,9 @@ class ObPalette {
       sub: const Color(0xFF6B7280),
       accent: accent,
       accentInk: Colors.white,
-      cta: const Color(0xFF1A2238),
-      ctaInk: Colors.white,
+      // Duo system (DESIGN.md §3.1): lime hope/success primary CTA, dark ink.
+      cta: AppColors.limeDeep,
+      ctaInk: AppColors.limeInk,
       good: const Color(0xFF1FAE72),
       bad: const Color(0xFFE5573F),
       warmTint: AppColors.lime.withValues(alpha: 0.22),

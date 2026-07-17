@@ -5,17 +5,14 @@ import 'package:flutter/rendering.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:path_provider/path_provider.dart' as path_provider;
 import '../core/utils/logger.dart';
+import '../models/constants.dart';
+import '../theme/hope_vibe.dart';
 
 /// Centralized share service for all viral sharing mechanics.
 class ShareService {
-  // ── App Store URLs (replace with real ones before launch) ──
-  static const String _appStoreUrl =
-      'https://apps.apple.com/app/medai/id000000000';
-  static const String _playStoreUrl =
-      'https://play.google.com/store/apps/details?id=com.medai.app';
-
+  /// Uses [kAppStoreUrl] / [kPlayStoreUrl] from constants (must match store listings).
   static String get downloadUrl =>
-      Platform.isIOS ? _appStoreUrl : _playStoreUrl;
+      Platform.isIOS ? kAppStoreUrl : kPlayStoreUrl;
 
   /// Share a plain text message with optional subject.
   static Future<void> shareText(String text, {String? subject}) async {
@@ -37,10 +34,11 @@ class ShareService {
         ? userName
         : 'A friend';
     final link = inviteUrl ?? downloadUrl;
-    final message = '$name invited you to MedAI — never miss a dose again.\n\n'
+    final message = '$name invited you to MedAI — the #1 companion for medication success.\n\n'
+        '${HopeVibe.tagline}\n'
         'Tap to claim a free month of Premium:\n$link\n\n'
         'Or enter code $referralCode when you sign up.';
-    await shareText(message, subject: 'Join me on MedAI — free month inside');
+    await shareText(message, subject: 'Join me on MedAI — worth recommending');
   }
 
   /// Share an achievement milestone (streak, adherence, etc.)
@@ -85,9 +83,9 @@ class ShareService {
     }
 
     await shareAchievement(
-      title: '$streakDays-Day Streak!',
+      title: '$streakDays-Day Success Streak!',
       subtitle:
-          '$tier tier achieved! I\'m taking my medications consistently with MedAI.',
+          '$tier tier unlocked! I\'m building the life I want — one dose at a time with MedAI. ${HopeVibe.tagline}',
       emoji: emoji,
     );
   }
@@ -95,9 +93,10 @@ class ShareService {
   /// Share a scan result (medicine identified).
   static Future<void> shareScanResult(String medicineName) async {
     await shareAchievement(
-      title: 'Medicine Identified: $medicineName',
-      subtitle: 'I just scanned my medicine with AI and got instant details!',
-      emoji: '🔬',
+      title: 'I know my medicine: $medicineName',
+      subtitle:
+          'Scanned with MedAI — clear details, safety alerts, and reminders. ${HopeVibe.tagline}',
+      emoji: '✨',
     );
   }
 
@@ -105,14 +104,17 @@ class ShareService {
   static Future<void> shareAdherence(int percentage) async {
     String message;
     if (percentage >= 95) {
-      message = 'Perfect adherence! I\'m a medication champion!';
+      message =
+          'Perfect adherence! Proof that consistency becomes success.';
     } else if (percentage >= 80) {
-      message = 'Strong adherence this month. Staying on track!';
+      message =
+          'Strong adherence this month. I\'m staying on track with MedAI.';
     } else {
-      message = 'Working on improving my medication adherence!';
+      message =
+          'Working on my medication success streak with MedAI — every dose counts.';
     }
     await shareAchievement(
-      title: '$percentage% Medication Adherence',
+      title: '$percentage% Medication Success',
       subtitle: message,
       emoji: '📊',
     );

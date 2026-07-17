@@ -287,7 +287,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
       width: MedAiA11y.minTapTargetCompact,
       height: MedAiA11y.minTapTargetCompact,
       decoration: BoxDecoration(
-        gradient: AppGradients.accentOrange,
+        gradient: AppGradients.accentHero,
         borderRadius: BorderRadius.circular(14),
         boxShadow: AppShadows.glow(L.accent, intensity: 0.3),
       ),

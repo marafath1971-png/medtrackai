@@ -95,8 +95,9 @@ void main() {
       expect(appState.med.getStreak(), 0);
     });
 
-    test('getAdherenceScore returns 1.0 with no history', () {
-      expect(appState.med.getAdherenceScore(), 1.0);
+    test('getAdherenceScore returns 0.0 with no meds and no history', () {
+      // Brand-new users score 0, not a misleading 100% "Excellent".
+      expect(appState.med.getAdherenceScore(), 0.0);
     });
 
     test('getTrendData returns 30 entries', () {
@@ -126,7 +127,8 @@ void main() {
           .thenAnswer((_) => Future.value([med]));
 
       await appState.med.loadData();
-      expect(appState.getAdherenceScore(), 1.0); // No history yet, defaults 1.0
+      // Med scheduled daily but nothing logged yet → 0 taken / N scheduled.
+      expect(appState.getAdherenceScore(), 0.0);
 
       // Mock history for 30 days
       final now = DateTime.now();

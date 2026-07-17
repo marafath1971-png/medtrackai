@@ -583,6 +583,15 @@ class MedicationController extends ChangeNotifier {
       await medRepo.addMedicine(medicine, profileId: _currentProfileId);
       _meds.add(medicine);
       invalidateCache();
+      final profile = medicine.aiSafetyProfile;
+      if (profile != null &&
+          (profile.interactions.isNotEmpty || profile.warnings.isNotEmpty)) {
+        final tip = profile.interactions.isNotEmpty
+            ? profile.interactions.first
+            : profile.warnings.first;
+        _interactionWarning = tip;
+        _interactionWarningMedName = medicine.name;
+      }
       HapticEngine.success();
     } finally {
       _isMutating = false;

@@ -1,8 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import '../../../../core/utils/haptic_engine.dart';
 import '../../../../theme/med_ai_ui.dart';
 import '../../../../widgets/common/animated_pressable.dart';
-import '../../../../core/utils/haptic_engine.dart';
 import 'ios_settings_style.dart';
 
 class SettingsSection extends StatelessWidget {
@@ -19,7 +20,6 @@ class SettingsSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final L = context.L;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
@@ -30,12 +30,16 @@ class SettingsSection extends StatelessWidget {
           ),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: L.card,
-              borderRadius: BorderRadius.circular(IosSettingsTokens.groupRadius),
-              border: Border.all(
-                color: L.border.withValues(alpha: context.isDark ? 0.18 : 0.08),
-                width: 0.5,
-              ),
+              color: Colors.white,
+              borderRadius:
+                  BorderRadius.circular(IosSettingsTokens.groupRadius),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF1A2621).withValues(alpha: 0.045),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: ClipRRect(
               borderRadius:
@@ -86,8 +90,9 @@ class SettingsModalRow extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          constraints:
-              const BoxConstraints(minHeight: MedAiA11y.minTapTargetCompact),
+          constraints: const BoxConstraints(
+            minHeight: MedAiA11y.minTapTargetCompact,
+          ),
           padding: const EdgeInsets.symmetric(
             horizontal: IosSettingsTokens.rowHPad,
             vertical: IosSettingsTokens.rowVPad,
@@ -102,7 +107,7 @@ class SettingsModalRow extends StatelessWidget {
                   width: IosSettingsTokens.iconSize,
                   height: IosSettingsTokens.iconSize,
                   decoration: BoxDecoration(
-                    color: iconColor,
+                    color: AppColors.pastelMint,
                     borderRadius:
                         BorderRadius.circular(IosSettingsTokens.iconRadius),
                   ),
@@ -122,10 +127,10 @@ class SettingsModalRow extends StatelessWidget {
                     Text(
                       label,
                       style: AppTypography.bodyLarge.copyWith(
-                        fontWeight: FontWeight.w400,
+                        fontWeight: FontWeight.w600,
                         color: L.text,
-                        fontSize: 17,
-                        letterSpacing: -0.41,
+                        fontSize: 16,
+                        letterSpacing: -0.3,
                         height: 1.2,
                       ),
                       overflow: TextOverflow.ellipsis,
@@ -133,14 +138,14 @@ class SettingsModalRow extends StatelessWidget {
                     ),
                     if (sub != null)
                       Padding(
-                        padding: const EdgeInsets.only(top: 2),
+                        padding: const EdgeInsets.only(top: 3),
                         child: Text(
                           sub!,
                           style: AppTypography.bodySmall.copyWith(
                             color: L.sub.withValues(alpha: 0.85),
-                            fontWeight: FontWeight.w400,
+                            fontWeight: FontWeight.w500,
                             fontSize: 13,
-                            height: 1.25,
+                            height: 1.3,
                           ),
                         ),
                       ),
@@ -149,7 +154,8 @@ class SettingsModalRow extends StatelessWidget {
               ),
               if (right != null)
                 Padding(
-                  padding: const EdgeInsetsDirectional.only(start: AppSpacing.p8),
+                  padding:
+                      const EdgeInsetsDirectional.only(start: AppSpacing.p8),
                   child: right!,
                 )
               else if (onClick != null)
@@ -221,7 +227,7 @@ class SettingsEditField extends StatelessWidget {
                 Text(
                   label,
                   style: AppTypography.bodySmall.copyWith(
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w600,
                     color: L.sub.withValues(alpha: 0.85),
                     fontSize: 13,
                   ),
@@ -231,10 +237,10 @@ class SettingsEditField extends StatelessWidget {
                   controller: ctrl,
                   keyboardType: keyboard,
                   style: AppTypography.bodyLarge.copyWith(
-                    fontWeight: FontWeight.w400,
+                    fontWeight: FontWeight.w600,
                     color: L.text,
                     fontSize: 17,
-                    letterSpacing: -0.41,
+                    letterSpacing: -0.3,
                   ),
                   decoration: InputDecoration(
                     hintText: placeholder,
@@ -300,23 +306,39 @@ class SettingsSelectRow extends StatelessWidget {
                 horizontal: IosSettingsTokens.rowHPad,
                 vertical: IosSettingsTokens.rowVPad,
               ),
-              color: isSel ? L.accent.withValues(alpha: 0.06) : Colors.transparent,
+              color: isSel
+                  ? AppColors.pastelMint.withValues(alpha: 0.65)
+                  : Colors.transparent,
               child: Row(
                 children: [
                   Expanded(
                     child: Text(
                       label,
                       style: AppTypography.bodyLarge.copyWith(
-                        fontWeight: FontWeight.w400,
+                        fontWeight: isSel ? FontWeight.w700 : FontWeight.w500,
                         color: L.text,
-                        fontSize: 17,
-                        letterSpacing: -0.41,
+                        fontSize: 16,
+                        letterSpacing: -0.3,
                       ),
                       overflow: TextOverflow.ellipsis,
                     ),
                   ),
                   if (isSel)
-                    Icon(Icons.check, color: L.accent, size: 20)
+                    Container(
+                      width: 28,
+                      height: 28,
+                      decoration: const BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [AppColors.lime, AppColors.limeDeep],
+                        ),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.check_rounded,
+                        color: AppColors.limeInk,
+                        size: 16,
+                      ),
+                    )
                   else
                     const SizedBox(width: AppSpacing.p20),
                 ],
@@ -350,16 +372,21 @@ class SettingsStatCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final icon = _mapStatIcon(emoji);
     final color = iosSettingsIconColor(emoji, null);
+    final tint = _tintFor(emoji);
+
     return Semantics(
       label: '$label: $val. $sub',
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: L.card,
+          color: tint,
           borderRadius: BorderRadius.circular(IosSettingsTokens.groupRadius),
-          border: Border.all(
-            color: L.border.withValues(alpha: context.isDark ? 0.18 : 0.08),
-            width: 0.5,
-          ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF1A2621).withValues(alpha: 0.04),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
+            ),
+          ],
         ),
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.p16),
@@ -369,37 +396,42 @@ class SettingsStatCard extends StatelessWidget {
               Row(
                 children: [
                   IosSettingsIcon(icon: icon, background: color),
-                  const SizedBox(width: AppSpacing.p12),
-                  Expanded(
-                    child: Text(
-                      label,
-                      style: AppTypography.bodySmall.copyWith(
-                        fontWeight: FontWeight.w400,
-                        color: L.sub,
-                        fontSize: 13,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                    ),
+                  const Spacer(),
+                  Icon(
+                    Icons.arrow_outward_rounded,
+                    size: 14,
+                    color: L.sub.withValues(alpha: 0.4),
                   ),
                 ],
               ),
               const SizedBox(height: AppSpacing.p16),
               Text(
+                label,
+                style: AppTypography.bodySmall.copyWith(
+                  fontWeight: FontWeight.w600,
+                  color: L.sub,
+                  fontSize: 12,
+                ),
+                overflow: TextOverflow.ellipsis,
+              ),
+              const SizedBox(height: 4),
+              Text(
                 val,
                 style: AppTypography.displayMedium.copyWith(
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
                   fontSize: 28,
                   color: L.text,
-                  letterSpacing: -0.6,
+                  letterSpacing: -0.8,
+                  height: 1.05,
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 sub,
                 style: AppTypography.bodySmall.copyWith(
-                  fontWeight: FontWeight.w400,
-                  color: L.sub.withValues(alpha: 0.75),
-                  fontSize: 13,
+                  fontWeight: FontWeight.w500,
+                  color: L.sub.withValues(alpha: 0.8),
+                  fontSize: 12,
                 ),
               ),
             ],
@@ -407,6 +439,16 @@ class SettingsStatCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Color _tintFor(String token) {
+    return switch (token) {
+      '✅' => AppColors.pastelMint,
+      '📈' => AppColors.pastelSky,
+      '🔥' => AppColors.pastelSun,
+      '📅' => AppColors.pastelLilac,
+      _ => AppColors.pastelMint,
+    };
   }
 
   IconData _mapStatIcon(String token) {

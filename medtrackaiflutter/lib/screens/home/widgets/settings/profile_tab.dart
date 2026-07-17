@@ -73,49 +73,67 @@ class _ProfileTabState extends State<ProfileTab> {
     final card = Semantics(
       button: true,
       label: 'Upgrade to MedAI Pro',
-      child: MedAiDepthCard(
-        accentGlow: true,
-        padding: const EdgeInsets.all(AppSpacing.p20),
+      child: AnimatedPressable(
         onTap: () {
           HapticEngine.selection();
           PaywallSheet.show(context);
         },
-        child: Row(children: [
-          Container(
-            width: 50,
-            height: 50,
-            decoration: BoxDecoration(
-              color: AppColors.accent.withValues(alpha: 0.10),
-              shape: BoxShape.circle,
+        child: Container(
+          margin: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.all(AppSpacing.p20),
+          decoration: BoxDecoration(
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [AppColors.lime, AppColors.limeDeep],
             ),
-            child: const Center(
-              child: Icon(
-                Icons.rocket_launch_rounded,
-                size: 22,
-                color: AppColors.accent,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.limeDeep.withValues(alpha: 0.4),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Row(children: [
+            Container(
+              width: 50,
+              height: 50,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.75),
+                shape: BoxShape.circle,
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.workspace_premium_rounded,
+                  size: 24,
+                  color: AppColors.limeInk,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: AppSpacing.p16),
-          Expanded(
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                Text('Upgrade to MedAI Pro',
-                    style: AppTypography.titleLarge.copyWith(
-                        color: L.text,
-                        fontSize: 18,
-                        letterSpacing: -0.5,
-                        fontWeight: FontWeight.w900)),
-                const SizedBox(height: AppSpacing.p4),
-                Text('Unlock AI insights, Family Sharing and more.',
-                    style: AppTypography.labelSmall.copyWith(
-                        color: L.sub,
-                        fontWeight: FontWeight.w600,
-                        letterSpacing: 0.1)),
-              ])),
-          Icon(Icons.chevron_right_rounded, color: AppColors.accent, size: 28),
-        ]),
+            const SizedBox(width: AppSpacing.p16),
+            Expanded(
+                child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                  Text('Your success plan',
+                      style: AppTypography.titleLarge.copyWith(
+                          color: AppColors.limeInk,
+                          fontSize: 18,
+                          letterSpacing: -0.4,
+                          fontWeight: FontWeight.w800)),
+                  const SizedBox(height: AppSpacing.p4),
+                  Text('Unlock AI insights, family care & unlimited scans.',
+                      style: AppTypography.labelSmall.copyWith(
+                          color: AppColors.limeInk.withValues(alpha: 0.8),
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.1)),
+                ])),
+            Icon(Icons.arrow_outward_rounded,
+                color: AppColors.limeInk.withValues(alpha: 0.7), size: 20),
+          ]),
+        ),
       ),
     );
 

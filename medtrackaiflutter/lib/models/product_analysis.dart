@@ -13,6 +13,8 @@ class ProductAnalysis {
   final String halalStatus; // Halal, Haram, Doubtful
   final String scientificEvidence; // e.g. "Strong evidence for sleep"
   final String? childSafetyAlert;
+  final String? pregnancyAlert;
+  final String? skincareNotes;
   final List<String> allergyAlerts;
   final String allergyRiskLevel; // "None", "Low", "Medium", "High"
   final List<ExpertPerspective> expertPerspectives;
@@ -42,6 +44,8 @@ class ProductAnalysis {
     required this.halalStatus,
     required this.scientificEvidence,
     this.childSafetyAlert,
+    this.pregnancyAlert,
+    this.skincareNotes,
     required this.allergyAlerts,
     required this.allergyRiskLevel,
     required this.expertPerspectives,
@@ -64,6 +68,8 @@ class ProductAnalysis {
         'halalStatus': halalStatus,
         'scientificEvidence': scientificEvidence,
         'childSafetyAlert': childSafetyAlert,
+        'pregnancyAlert': pregnancyAlert,
+        'skincareNotes': skincareNotes,
         'allergyAlerts': allergyAlerts,
         'allergyRiskLevel': allergyRiskLevel,
         'expertPerspectives': expertPerspectives.map((e) => e.toJson()).toList(),
@@ -90,6 +96,8 @@ class ProductAnalysis {
       halalStatus: json['halalStatus'] ?? 'Unknown',
       scientificEvidence: json['scientificEvidence'] ?? '',
       childSafetyAlert: json['childSafetyAlert'],
+      pregnancyAlert: json['pregnancyAlert'],
+      skincareNotes: json['skincareNotes'],
       allergyAlerts: List<String>.from(json['allergyAlerts'] ?? []),
       allergyRiskLevel: json['allergyRiskLevel'] ?? 'None',
       expertPerspectives: (json['expertPerspectives'] as List<dynamic>?)

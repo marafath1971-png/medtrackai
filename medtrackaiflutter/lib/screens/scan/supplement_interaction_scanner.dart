@@ -12,12 +12,14 @@ import 'package:path/path.dart' as p;
 
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
+import '../../core/utils/scan_safety_mapper.dart';
 import '../../widgets/common/animated_pressable.dart';
 import '../../services/gemini_service.dart';
 import 'package:provider/provider.dart';
 import '../../providers/app_state.dart';
 import '../../screens/paywall/premium_paywall_overlay.dart';
 import '../../services/remote_config_service.dart';
+import '../../widgets/modals/scan_success_sheet.dart';
 import 'widgets/scan_result_detail_view.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/app_routes.dart';
@@ -430,60 +432,217 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
               ),
             ),
 
-          // 5. Gen Z Premium AI Analysis Overlay
+          // 5. Result overlay — cream + sticky track bar
           if (_showAnalysis && _scanResult != null)
-            Positioned.fill(
-              child: Container(
-                color: L.bg.withValues(alpha: 0.94),
-                child: SafeArea(
-                  child: SingleChildScrollView(
-                    padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-                    child: ScanResultDetailView(
-                      result: _scanResult!,
-                      onDark: false,
-                      onClose: () => setState(() {
-                        _showAnalysis = false;
-                        _scanResult = null;
-                      }),
-                      onScanAnother: () => setState(() {
-                        _showAnalysis = false;
-                        _scanResult = null;
-                      }),
-                      onAddToMedicines: () async {
-                        HapticEngine.success();
-                        final sr = _scanResult!;
-                        final newMed = Medicine(
-                          id: DateTime.now().millisecondsSinceEpoch,
-                          name: sr.name.isNotEmpty ? sr.name : 'Supplement stack',
-                          brand: sr.brand,
-                          genericName: sr.genericName,
-                          dose: sr.dose,
-                          form: sr.form,
-                          category: sr.category.isNotEmpty ? sr.category : 'Supplement',
-                          notes: sr.description,
-                          intakeInstructions: sr.howToTake,
-                          courseStartDate:
-                              DateTime.now().toIso8601String().substring(0, 10),
-                          color: '#8B5CF6',
-                        );
-                        final appState = context.read<AppState>();
-                        if (!appState.canAddMedicine) {
-                          await PremiumPaywallOverlay.show(context,
-                              triggerSource: 'unlimited_meds');
-                          return;
-                        }
-                        await appState.addMedicine(newMed);
-                        if (!context.mounted) return;
-                        context.push(AppRoutes.medicineDetailPath(newMed.id, edit: true));
-                      },
-                    ),
-                  ),
-                ),
-              ),
+            _SupplementResultOverlay(
+              scanResult: _scanResult!,
+              onDismiss: () => setState(() {
+                _showAnalysis = false;
+                _scanResult = null;
+              }),
             ),
         ],
       ),
     );
+  }
+}
+
+class _SupplementResultOverlay extends StatelessWidget {
+  final ScanResult scanResult;
+  final VoidCallback onDismiss;
+
+  const _SupplementResultOverlay({
+    required this.scanResult,
+    required this.onDismiss,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    final botPad = MediaQuery.paddingOf(context).bottom;
+
+    return Positioned.fill(
+      child: Container(
+        color: L.bg,
+        child: SafeArea(
+          bottom: false,
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.gutter,
+                  AppSpacing.p12,
+                  AppSpacing.gutter,
+                  botPad + 120,
+                ),
+                child: ScanResultDetailView(
+                  result: scanResult,
+                  onDark: false,
+                  showInlineActions: false,
+                  onClose: onDismiss,
+                  onScanAnother: onDismiss,
+                  onAddToMedicines: () => _addToMedicines(context),
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.gutter,
+                    AppSpacing.p12,
+                    AppSpacing.gutter,
+                    botPad + AppSpacing.p16,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        L.bg.withValues(alpha: 0),
+                        L.bg.withValues(alpha: 0.92),
+                        L.bg,
+                      ],
+                    ),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: L.card,
+                      borderRadius:
+                          BorderRadius.circular(AppRadius.squircle),
+                      border: Border.all(
+                        color: L.border.withValues(alpha: 0.55),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 24,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Semantics(
+                            button: true,
+                            label: 'Track medicine',
+                            child: AnimatedPressable(
+                              onTap: () => _addToMedicines(context),
+                              child: Container(
+                                constraints: const BoxConstraints(
+                                  minHeight: MedAiA11y.minTapTarget,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: L.text,
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.max),
+                                ),
+                                child: Center(
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.add_rounded,
+                                          color: Colors.white, size: 20),
+                                      const SizedBox(width: AppSpacing.p8),
+                                      Text(
+                                        'Track medicine',
+                                        style: AppTypography.labelMedium
+                                            .copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Semantics(
+                          button: true,
+                          label: 'Scan another',
+                          child: AnimatedPressable(
+                            onTap: onDismiss,
+                            child: Container(
+                              width: MedAiA11y.minTapTarget,
+                              height: MedAiA11y.minTapTarget,
+                              decoration: const BoxDecoration(
+                                color: AppColors.pastelMint,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.qr_code_scanner_rounded,
+                                  color: L.text, size: 22),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _addToMedicines(BuildContext context) async {
+    HapticEngine.selection();
+    final sr = scanResult;
+    final newMed = Medicine(
+      id: DateTime.now().millisecondsSinceEpoch,
+      name: sr.name.isNotEmpty ? sr.name : 'Supplement stack',
+      brand: sr.brand,
+      genericName: sr.genericName,
+      dose: sr.dose,
+      form: sr.form,
+      category: sr.category.isNotEmpty ? sr.category : 'Supplement',
+      notes: sr.description,
+      intakeInstructions: sr.howToTake,
+      courseStartDate: DateTime.now().toIso8601String().substring(0, 10),
+      color: '#10B981',
+      aiSafetyProfile: safetyProfileFromScan(sr),
+      schedule: [
+        ScheduleEntry(
+          id: 'supp_${DateTime.now().millisecondsSinceEpoch}',
+          h: 8,
+          m: 0,
+          label: 'Morning Dose',
+          days: const [0, 1, 2, 3, 4, 5, 6],
+          enabled: true,
+        ),
+      ],
+    );
+
+    final appState = context.read<AppState>();
+    if (!appState.canAddMedicine) {
+      await PremiumPaywallOverlay.show(context,
+          triggerSource: 'unlimited_meds');
+      return;
+    }
+    await appState.addMedicine(newMed);
+    if (!context.mounted) return;
+
+    appState.showToast("You're set — ${newMed.name} is tracking");
+
+    final next = await ScanSuccessSheet.show(context, med: newMed);
+    if (!context.mounted) return;
+
+    if (next == 'detail') {
+      appState.setPendingDetailMedId(newMed.id);
+    } else {
+      appState.clearPendingDetailMedId();
+    }
+    context.go(AppRoutes.home);
   }
 }
 

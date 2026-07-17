@@ -35,15 +35,16 @@ class BodyImpactCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.p8),
                   decoration: BoxDecoration(
-                    color: L.accent.withValues(alpha: 0.12),
-                    borderRadius: BorderRadius.circular(10),
+                    color: AppColors.pastelMint,
+                    borderRadius: BorderRadius.circular(AppRadius.s),
                   ),
-                  child: const Text('🧬', style: TextStyle(fontSize: 18)),
+                  child: Icon(Icons.monitor_heart_rounded,
+                      size: 18, color: L.text),
                 ),
                 const SizedBox(width: AppSpacing.p12),
                 Expanded(
                   child: Text(
-                    'Body impact',
+                    HopeVibe.bodyImpactTitle,
                     style: AppTypography.titleMedium.copyWith(
                       color: L.text,
                       fontWeight: FontWeight.w800,
@@ -61,7 +62,7 @@ class BodyImpactCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'How it works',
+                  HopeVibe.bodyImpactHow,
                   style: AppTypography.labelSmall.copyWith(
                     color: L.sub,
                     fontWeight: FontWeight.w700,

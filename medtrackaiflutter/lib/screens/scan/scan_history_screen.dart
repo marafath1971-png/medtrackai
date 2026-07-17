@@ -31,7 +31,7 @@ class ScanHistoryScreen extends StatelessWidget {
       });
 
     return AppScaffold(
-      showAurora: true,
+      showAurora: false,
       body: CustomScrollView(
         physics:
             const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),

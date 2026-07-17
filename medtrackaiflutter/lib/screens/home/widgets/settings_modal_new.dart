@@ -4,17 +4,18 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
+
+import '../../../core/utils/haptic_engine.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../../providers/app_state.dart';
+import '../../../screens/settings/global_settings_screen.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
-import 'settings/profile_tab.dart';
-import 'settings/stats_tab.dart';
 import 'settings/app_tab.dart';
 import 'settings/data_tab.dart';
 import 'settings/ios_settings_style.dart';
-import '../../../screens/settings/global_settings_screen.dart';
-import '../../../l10n/app_localizations.dart';
-import '../../../core/utils/haptic_engine.dart';
+import 'settings/profile_tab.dart';
+import 'settings/stats_tab.dart';
 
 class SettingsModal extends StatefulWidget {
   final VoidCallback onClose;
@@ -36,9 +37,21 @@ class _SettingsModalState extends State<SettingsModal> {
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
     final tabs = [
-      {'id': 'profile', 'label': s.settingsProfile, 'icon': Icons.person_rounded},
-      {'id': 'stats', 'label': s.settingsStats, 'icon': Icons.bar_chart_rounded},
-      {'id': 'app', 'label': s.settingsApp, 'icon': Icons.phone_iphone_rounded},
+      {
+        'id': 'profile',
+        'label': s.settingsProfile,
+        'icon': Icons.person_rounded
+      },
+      {
+        'id': 'stats',
+        'label': s.settingsStats,
+        'icon': Icons.bar_chart_rounded
+      },
+      {
+        'id': 'app',
+        'label': s.settingsApp,
+        'icon': Icons.phone_iphone_rounded
+      },
       {'id': 'data', 'label': s.settingsData, 'icon': Icons.storage_rounded},
       {'id': 'global', 'label': s.settingsGlobal, 'icon': Icons.tune_rounded},
     ];
@@ -60,7 +73,7 @@ class _SettingsModalState extends State<SettingsModal> {
               child: GestureDetector(
                 onTap: widget.onClose,
                 child: Container(
-                  color: Colors.black.withValues(alpha: 0.4),
+                  color: Colors.black.withValues(alpha: 0.38),
                 ),
               ),
             ),
@@ -69,51 +82,69 @@ class _SettingsModalState extends State<SettingsModal> {
             onTap: () {},
             child: ClipRRect(
               borderRadius:
-                  const BorderRadius.vertical(top: Radius.circular(20)),
+                  const BorderRadius.vertical(top: Radius.circular(32)),
               child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
                 child: Container(
-                  height: size.height * 0.9,
+                  height: size.height * 0.92,
                   width: size.width,
                   constraints: const BoxConstraints(maxWidth: 430),
                   decoration: BoxDecoration(
-                    color: L.bg.withValues(alpha: 0.97),
+                    color: IosSettingsTokens.canvas.withValues(alpha: 0.98),
                     borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(20),
+                      top: Radius.circular(32),
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.18),
-                        blurRadius: 24,
-                        offset: const Offset(0, -4),
+                        color: Colors.black.withValues(alpha: 0.14),
+                        blurRadius: 32,
+                        offset: const Offset(0, -8),
                       ),
                     ],
                   ),
                   child: Column(
                     children: [
-                      const SizedBox(height: AppSpacing.p8),
+                      const SizedBox(height: AppSpacing.p12),
                       Container(
-                        width: 36,
+                        width: 40,
                         height: 5,
                         decoration: BoxDecoration(
-                          color: L.sub.withValues(alpha: 0.35),
-                          borderRadius: BorderRadius.circular(2.5),
+                          color: L.sub.withValues(alpha: 0.28),
+                          borderRadius: BorderRadius.circular(3),
                         ),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(AppSpacing.p16, AppSpacing.p16, AppSpacing.p8, AppSpacing.p4),
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.p20,
+                          AppSpacing.p16,
+                          AppSpacing.p12,
+                          AppSpacing.p8,
+                        ),
                         child: Row(
                           children: [
                             Expanded(
-                              child: Text(
-                                s.settings,
-                                style: AppTypography.headlineLarge.copyWith(
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 34,
-                                  color: L.text,
-                                  letterSpacing: 0.37,
-                                  height: 1.1,
-                                ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    s.settings,
+                                    style: AppTypography.headlineLarge.copyWith(
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 30,
+                                      color: L.text,
+                                      letterSpacing: -0.6,
+                                      height: 1.1,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    'Made for you — manage with confidence',
+                                    style: AppTypography.bodySmall.copyWith(
+                                      color: L.sub,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             Semantics(
@@ -121,13 +152,26 @@ class _SettingsModalState extends State<SettingsModal> {
                               label: 'Close settings',
                               child: AnimatedPressable(
                                 onTap: widget.onClose,
-                                child: SizedBox(
+                                child: Container(
                                   width: MedAiA11y.minTapTarget,
                                   height: MedAiA11y.minTapTarget,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    shape: BoxShape.circle,
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.black
+                                            .withValues(alpha: 0.05),
+                                        blurRadius: 10,
+                                        offset: const Offset(0, 3),
+                                      ),
+                                    ],
+                                  ),
                                   child: Icon(
-                                    CupertinoIcons.xmark_circle_fill,
-                                    color: L.sub.withValues(alpha: 0.45),
-                                    size: 28,
+                                    CupertinoIcons.xmark,
+                                    color: L.sub.withValues(alpha: 0.7),
+                                    size: 16,
                                   ),
                                 ),
                               ),
@@ -137,19 +181,65 @@ class _SettingsModalState extends State<SettingsModal> {
                             ? w
                             : w
                                 .animate()
-                                .fade(duration: 400.ms)
-                                .slideY(begin: -0.06, end: 0)),
+                                .fade(duration: 320.ms)
+                                .slideY(begin: -0.04, end: 0)),
                       ),
                       Padding(
-                        padding: const EdgeInsets.fromLTRB(AppSpacing.p16, AppSpacing.p8, AppSpacing.p16, AppSpacing.p12),
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.p20,
+                          AppSpacing.p4,
+                          AppSpacing.p20,
+                          AppSpacing.p12,
+                        ),
+                        child: Container(
+                          padding: const EdgeInsets.all(AppSpacing.p12),
+                          decoration: BoxDecoration(
+                            color: AppColors.pastelMint,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 36,
+                                height: 36,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.85),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(
+                                  Icons.auto_awesome_rounded,
+                                  size: 18,
+                                  color: AppColors.limeInk,
+                                ),
+                              ),
+                              const SizedBox(width: AppSpacing.p12),
+                              Expanded(
+                                child: Text(
+                                  'Your success settings — reminders, safety, and share.',
+                                  style: AppTypography.bodySmall.copyWith(
+                                    color: L.text.withValues(alpha: 0.85),
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.35,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.p20,
+                          0,
+                          AppSpacing.p20,
+                          AppSpacing.p12,
+                        ),
                         child: IosSettingsSegmentedBar(
                           scrollable: true,
-                          labels: tabs
-                              .map((t) => t['label'] as String)
-                              .toList(),
-                          icons: tabs
-                              .map((t) => t['icon'] as IconData)
-                              .toList(),
+                          labels:
+                              tabs.map((t) => t['label'] as String).toList(),
+                          icons:
+                              tabs.map((t) => t['icon'] as IconData).toList(),
                           selectedIndex: activeIndex,
                           onSelected: (index) {
                             HapticEngine.selection();
@@ -161,7 +251,7 @@ class _SettingsModalState extends State<SettingsModal> {
                       ),
                       Expanded(
                         child: ColoredBox(
-                          color: L.bg,
+                          color: IosSettingsTokens.canvas,
                           child: KeyedSubtree(
                             key: ValueKey(_activeTab),
                             child: _buildContent(state, L),

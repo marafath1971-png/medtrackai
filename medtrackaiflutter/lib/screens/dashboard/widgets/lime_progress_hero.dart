@@ -73,10 +73,10 @@ class _LimeProgressHeroState extends State<LimeProgressHero>
     final onAccent = AppColors.limeInk;
     final allDone = widget.total > 0 && widget.taken >= widget.total;
     final title = allDone
-        ? "You're all caught up"
+        ? HopeVibe.progressDone
         : widget.total == 0
-            ? 'Nothing due today'
-            : 'Your progress\ntoday';
+            ? HopeVibe.progressEmpty
+            : HopeVibe.progressToday;
 
     return Semantics(
       button: widget.onTap != null,
@@ -120,7 +120,7 @@ class _LimeProgressHeroState extends State<LimeProgressHero>
                                 size: 14, color: onAccent.withValues(alpha: 0.85)),
                             const SizedBox(width: AppSpacing.p4),
                             Text(
-                              'DAILY DOSES',
+                              HopeVibe.dailyDosesTag,
                               style: AppTypography.caption.copyWith(
                                 color: onAccent.withValues(alpha: 0.85),
                                 letterSpacing: 1.2,
@@ -149,7 +149,7 @@ class _LimeProgressHeroState extends State<LimeProgressHero>
                               borderRadius: BorderRadius.circular(999),
                             ),
                             child: Text(
-                              '🔥 ${widget.streak} day streak',
+                              HopeVibe.streakChip(widget.streak),
                               style: AppTypography.bodySmall.copyWith(
                                 color: onAccent,
                                 fontWeight: FontWeight.w700,

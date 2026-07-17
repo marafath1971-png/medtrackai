@@ -1,18 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../providers/app_state.dart';
-import '../../theme/app_theme.dart';
+
 import '../../core/utils/haptic_engine.dart';
+import '../../providers/app_state.dart';
+import '../../theme/med_ai_ui.dart';
+import 'animated_pressable.dart';
 
-// ══════════════════════════════════════════════
-// INTERACTION WARNING BANNER
-// ══════════════════════════════════════════════
-//
-// Displayed after adding a medicine when Gemini detects a
-// clinically significant drug-drug interaction.
-// Dismissible with haptic feedback.
-
+/// Shown after adding a medicine when a drug–drug interaction is detected.
 class InteractionWarningBanner extends StatelessWidget {
   const InteractionWarningBanner({super.key});
 
@@ -25,89 +20,90 @@ class InteractionWarningBanner extends StatelessWidget {
     if (warning == null) return const SizedBox.shrink();
 
     final L = context.L;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 12),
+    Widget banner = Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.p12),
       child: Container(
-        padding: const EdgeInsets.all(14),
+        padding: const EdgeInsets.all(AppSpacing.p16),
         decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: L.amber.withValues(alpha: 0.1), width: 1.5),
+          color: AppColors.pastelSun,
+          borderRadius: BorderRadius.circular(AppRadius.l),
+          border: Border.all(
+            color: AppColors.amber.withValues(alpha: 0.28),
+          ),
         ),
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Warning icon
             Container(
-              width: 36,
-              height: 36,
+              width: 40,
+              height: 40,
               decoration: BoxDecoration(
-                color: L.amber.withValues(alpha: 0.15),
-                shape: BoxShape.circle,
+                color: Colors.white.withValues(alpha: 0.8),
+                borderRadius: BorderRadius.circular(AppRadius.s),
               ),
-              child: Center(
-                child:
-                    Icon(Icons.warning_amber_rounded, color: L.amber, size: 20),
+              child: Icon(
+                Icons.warning_amber_rounded,
+                color: const Color(0xFF9A6B1F),
+                size: 20,
               ),
             ),
-            const SizedBox(width: 12),
+            const SizedBox(width: AppSpacing.p12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'DRUG INTERACTION DETECTED',
+                    'Drug interaction',
                     style: AppTypography.labelMedium.copyWith(
-                      fontSize: 10,
-                      color: L.amber,
-                      letterSpacing: 0.8,
-                      fontWeight: FontWeight.w900,
+                      color: const Color(0xFF9A6B1F),
+                      fontWeight: FontWeight.w800,
                     ),
                   ),
-                  const SizedBox(height: 4),
+                  const SizedBox(height: AppSpacing.p4),
                   Text(
                     warning,
                     style: AppTypography.bodyMedium.copyWith(
-                      fontSize: 13,
                       color: L.text,
                       height: 1.4,
                       fontWeight: FontWeight.w600,
                     ),
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: AppSpacing.p8),
                   Text(
                     'Review with your doctor or pharmacist before taking ${medName ?? 'this medicine'}.',
                     style: AppTypography.bodySmall.copyWith(
-                      fontSize: 11,
                       color: L.sub,
-                      fontStyle: FontStyle.italic,
+                      height: 1.35,
                     ),
                   ),
                 ],
               ),
             ),
-            // Dismiss button
             Semantics(
               button: true,
               label: 'Dismiss interaction warning',
-              child: GestureDetector(
+              child: AnimatedPressable(
                 onTap: () {
                   HapticEngine.selection();
                   context.read<AppState>().clearInteractionWarning();
                 },
                 child: Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 8, top: 2),
-                  child: Icon(Icons.close_rounded, size: 18, color: L.sub),
+                  padding: const EdgeInsetsDirectional.only(start: 4),
+                  child: Icon(Icons.close_rounded, size: 20, color: L.sub),
                 ),
               ),
             ),
           ],
         ),
-      )
-          .animate()
-          .slideY(begin: -0.2, end: 0, duration: 400.ms, curve: Curves.easeOut)
-          .fadeIn(duration: 300.ms),
+      ),
     );
+
+    if (reduceMotion) return banner;
+    return banner
+        .animate()
+        .fadeIn(duration: AppDurations.fast)
+        .slideY(begin: -0.06, end: 0, curve: AppCurves.smooth);
   }
 }

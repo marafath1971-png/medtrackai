@@ -14,11 +14,13 @@ import 'package:go_router/go_router.dart';
 import '../../app/app_routes.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
+import '../../core/utils/scan_safety_mapper.dart';
 import '../../widgets/common/animated_pressable.dart';
 import '../../services/gemini_service.dart';
 import '../../providers/app_state.dart';
 import '../../screens/paywall/premium_paywall_overlay.dart';
 import '../../services/remote_config_service.dart';
+import '../../widgets/modals/scan_success_sheet.dart';
 import 'widgets/scan_result_detail_view.dart';
 
 // ══════════════════════════════════════════════
@@ -567,21 +569,137 @@ class _PillResultOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final L = context.L;
+    final botPad = MediaQuery.paddingOf(context).bottom;
     return Positioned.fill(
       child: Container(
-        color: Colors.black.withValues(alpha: 0.88),
+        color: L.bg,
         child: SafeArea(
-          child: SingleChildScrollView(
-            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 32),
-            child: ScanResultDetailView(
-              result: scanResult,
-              capturedImage: capturedImage,
-              onDark: true,
-              onClose: onScanAnother,
-              onScanAnother: onScanAnother,
-              onAddToMedicines: () => _addToMedicines(context),
-            ),
+          bottom: false,
+          child: Stack(
+            children: [
+              SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                padding: EdgeInsets.fromLTRB(
+                  AppSpacing.gutter,
+                  AppSpacing.p12,
+                  AppSpacing.gutter,
+                  botPad + 120,
+                ),
+                child: ScanResultDetailView(
+                  result: scanResult,
+                  capturedImage: capturedImage,
+                  onDark: false,
+                  showInlineActions: false,
+                  onClose: onScanAnother,
+                  onScanAnother: onScanAnother,
+                  onAddToMedicines: () => _addToMedicines(context),
+                ),
+              ),
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                child: Container(
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.gutter,
+                    AppSpacing.p12,
+                    AppSpacing.gutter,
+                    botPad + AppSpacing.p16,
+                  ),
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        L.bg.withValues(alpha: 0),
+                        L.bg.withValues(alpha: 0.92),
+                        L.bg,
+                      ],
+                    ),
+                  ),
+                  child: Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: L.card,
+                      borderRadius:
+                          BorderRadius.circular(AppRadius.squircle),
+                      border: Border.all(
+                        color: L.border.withValues(alpha: 0.55),
+                      ),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: 0.06),
+                          blurRadius: 24,
+                          offset: const Offset(0, 8),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Semantics(
+                            button: true,
+                            label: 'Track medicine',
+                            child: AnimatedPressable(
+                              onTap: () => _addToMedicines(context),
+                              child: Container(
+                                constraints: const BoxConstraints(
+                                  minHeight: MedAiA11y.minTapTarget,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: L.text,
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.max),
+                                ),
+                                child: Center(
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.center,
+                                    children: [
+                                      const Icon(Icons.add_rounded,
+                                          color: Colors.white, size: 20),
+                                      const SizedBox(width: AppSpacing.p8),
+                                      Text(
+                                        'Track medicine',
+                                        style: AppTypography.labelMedium
+                                            .copyWith(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Semantics(
+                          button: true,
+                          label: 'Scan another',
+                          child: AnimatedPressable(
+                            onTap: onScanAnother,
+                            child: Container(
+                              width: MedAiA11y.minTapTarget,
+                              height: MedAiA11y.minTapTarget,
+                              decoration: const BoxDecoration(
+                                color: AppColors.pastelMint,
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(Icons.qr_code_scanner_rounded,
+                                  color: L.text, size: 22),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -594,7 +712,7 @@ class _PillResultOverlay extends StatelessWidget {
     final sr = scanResult;
     final name = sr.name.isNotEmpty ? sr.name : 'Identified Pill';
 
-    final schedule = sr.scheduleSlots.map((slot) {
+    var schedule = sr.scheduleSlots.map((slot) {
       return ScheduleEntry(
         id: DateTime.now().millisecondsSinceEpoch.toString() +
             slot['label'].toString(),
@@ -606,6 +724,21 @@ class _PillResultOverlay extends StatelessWidget {
         ritual: sr.withFood ? Ritual.withBreakfast : Ritual.none,
       );
     }).toList();
+
+    // Home only shows scheduled doses — never leave an empty schedule.
+    if (schedule.isEmpty) {
+      schedule = [
+        ScheduleEntry(
+          id: 'scan_${DateTime.now().millisecondsSinceEpoch}',
+          h: 8,
+          m: 0,
+          label: 'Morning Dose',
+          days: const [0, 1, 2, 3, 4, 5, 6],
+          enabled: true,
+          ritual: sr.withFood ? Ritual.withBreakfast : Ritual.none,
+        ),
+      ];
+    }
 
     final halalSafe = sr.halalStatus == 'halal' ||
         sr.halalStatus == 'unknown' ||
@@ -640,6 +773,7 @@ class _PillResultOverlay extends StatelessWidget {
       isHalalCertified: sr.halalStatus == 'halal' ? true : null,
       imageUrl: capturedImage?.path ?? sr.imageUrl,
       color: '#10B981',
+      aiSafetyProfile: safetyProfileFromScan(sr),
     );
 
     if (!appState.canAddMedicine) {
@@ -649,6 +783,19 @@ class _PillResultOverlay extends StatelessWidget {
     }
     await appState.addMedicine(newMed);
     if (!context.mounted) return;
-    context.push(AppRoutes.medicineDetailPath(newMed.id, edit: true));
+
+    appState.showToast("You're set — ${newMed.name} is tracking");
+
+    final next = await ScanSuccessSheet.show(context, med: newMed);
+    if (!context.mounted) return;
+
+    if (next == 'detail') {
+      appState.setPendingDetailMedId(newMed.id);
+    } else {
+      appState.clearPendingDetailMedId();
+    }
+
+    // Leave scanner stack — Home dose list shows the new reminder today.
+    context.go(AppRoutes.home);
   }
 }

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/utils/color_utils.dart';
 import '../../../core/utils/date_formatter.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../core/utils/scan_safety_mapper.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
@@ -42,9 +43,18 @@ class HomeDoseRow extends StatelessWidget {
       if (med.form.isNotEmpty) med.form,
     ].join(' · ');
 
+    final doseStatus = taken
+        ? 'Taken'
+        : overdue
+            ? 'Overdue'
+            : 'Due $timeLabel';
+    final reviewNote = (!taken && med.hasCriticalSafetyAlerts)
+        ? '. Review before taking'
+        : '';
+
     return Semantics(
       button: true,
-      label: '${med.name}, $timeLabel',
+      label: '${med.name}, $timeLabel. $doseStatus$reviewNote',
       child: AnimatedPressable(
         onTap: () {
           HapticEngine.selection();
@@ -62,7 +72,7 @@ class HomeDoseRow extends StatelessWidget {
                 height: 50,
                 decoration: BoxDecoration(
                   color: vialBg,
-                  borderRadius: BorderRadius.circular(15),
+                  borderRadius: BorderRadius.circular(AppRadius.m),
                 ),
                 child: Icon(
                   Icons.medication_rounded,
@@ -98,6 +108,23 @@ class HomeDoseRow extends StatelessWidget {
                           color: L.sub,
                           fontWeight: FontWeight.w500,
                         ),
+                      ),
+                    ],
+                    if (!taken && med.hasCriticalSafetyAlerts) ...[
+                      const SizedBox(height: AppSpacing.p4),
+                      Row(
+                        children: [
+                          Icon(Icons.warning_amber_rounded,
+                              size: 12, color: AppColors.amber),
+                          const SizedBox(width: 4),
+                          Text(
+                            'Review before take',
+                            style: AppTypography.labelSmall.copyWith(
+                              color: AppColors.amber,
+                              fontWeight: FontWeight.w700,
+                            ),
+                          ),
+                        ],
                       ),
                     ],
                   ],
@@ -166,8 +193,10 @@ class _TakeButton extends StatelessWidget {
                     width: 2,
                   ),
           ),
+          // Dark ink on lime — lime is light, white check fails WCAG (DESIGN.md).
           child: taken
-              ? const Icon(Icons.check_rounded, color: Colors.white, size: 18)
+              ? const Icon(Icons.check_rounded,
+                  color: AppColors.limeInk, size: 18)
               : null,
         ),
       ),

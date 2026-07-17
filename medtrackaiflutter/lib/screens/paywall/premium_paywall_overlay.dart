@@ -512,8 +512,8 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                   ? null
                   : widget.personalizedHeadline) ??
               (widget.variant == PaywallVariant.onboarding
-                  ? 'Start your free trial — cancel anytime.'
-                  : 'Your complete medication intelligence.'),
+                  ? 'Your success plan starts free — cancel anytime.'
+                  : 'Unlock the full plan made for your medication life.'),
           style: AppTypography.bodyMedium.copyWith(
             color: Colors.white.withValues(alpha: 0.55),
             fontWeight: FontWeight.w500,
@@ -690,7 +690,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
         ),
         const SizedBox(width: 8),
         Text(
-          '4.9 · 50K+ users',
+          '4.9 · Trusted by 500K+ people',
           style: AppTypography.labelSmall.copyWith(
             color: Colors.white.withValues(alpha: 0.6),
             fontWeight: FontWeight.w600,
@@ -703,18 +703,19 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   Widget _buildTriggerBanner() {
     final messages = {
       'scan_limit':
-          'You\'ve used your ${RemoteConfigService.freeTierScanLimit} free AI scans.\nUpgrade for unlimited pill recognition.',
+          'Keep scanning with confidence.\nUnlock unlimited AI medicine recognition.',
       'voice_limit':
-          'You\'ve used your ${RemoteConfigService.freeTierVoiceLimit} free AI voice logs.\nUpgrade for unlimited voice logging.',
+          'Keep logging by voice.\nUnlock unlimited AI voice logging.',
       'report_export':
-          'Doctor reports are a Pro feature.\nUnlock PDF exports for your physician.',
+          'Share clear reports with your doctor.\nUnlock PDF exports on Pro.',
       'unlimited_meds':
-          'Free plan is limited to ${RemoteConfigService.freeTierMedLimit} active meds.\nPro gives you unlimited tracking.',
+          'Track every medicine that matters to you.\nPro unlocks unlimited meds.',
       'streak_freeze':
-          'Save your streak with a Streak Freeze.\nAvailable on Pro plans.',
+          'Protect the success you\'ve built.\nStreak Freeze is available on Pro.',
       'onboarding':
-          'Unlock everything Med AI has to offer.\nStart your free trial today.',
-      'generic': 'Unlock everything Med AI has to offer.',
+          'Continue your success plan.\nStart your free trial today.',
+      'generic':
+          'Continue your success plan.\nStart your free trial today.',
     };
 
     final msg = messages[widget.triggerSource] ?? messages['generic']!;

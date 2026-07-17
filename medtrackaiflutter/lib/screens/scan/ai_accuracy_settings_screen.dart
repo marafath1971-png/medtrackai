@@ -27,7 +27,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
     if (profile == null) return const SizedBox.shrink();
 
     return AppScaffold(
-      showAurora: true,
+      showAurora: false,
       body: CustomScrollView(
         physics:
             const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),

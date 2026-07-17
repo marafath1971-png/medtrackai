@@ -5,6 +5,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 
+import '../../models/constants.dart';
 import '../../services/auth_service.dart';
 import '../../services/referral_service.dart';
 import '../../providers/app_state.dart';
@@ -308,9 +309,9 @@ class _AuthScreenState extends State<AuthScreen> {
                             color: L.sub.withValues(alpha: 0.6),
                           ),
                         ),
-                        _LegalLink(
+                        const _LegalLink(
                           label: 'Terms',
-                          url: 'https://medtrackai.app/terms',
+                          url: kTermsOfServiceUrl,
                         ),
                         Text(
                           ' and ',
@@ -319,9 +320,9 @@ class _AuthScreenState extends State<AuthScreen> {
                             color: L.sub.withValues(alpha: 0.6),
                           ),
                         ),
-                        _LegalLink(
+                        const _LegalLink(
                           label: 'Privacy Policy',
-                          url: 'https://medtrackai.app/privacy',
+                          url: kPrivacyPolicyUrl,
                         ),
                       ],
                     ),

@@ -2,9 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import '../../core/utils/haptic_engine.dart';
+import '../../core/utils/scan_safety_mapper.dart';
 import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
+import '../../widgets/common/hope_surround_banner.dart';
 import '../../widgets/common/premium_texture.dart';
+import '../../widgets/common/recommend_hope_cta.dart';
 import '../dashboard/widgets/lime_progress_hero.dart';
 import '../dashboard/widgets/ref_bento_tile.dart';
 import '../medicine/medicine_detail_screen.dart';
@@ -15,7 +18,10 @@ import 'widgets/home_header.dart';
 import 'widgets/home_mascot_card.dart';
 import 'widgets/home_schedule_empty.dart';
 import 'widgets/home_week_strip.dart';
+import 'widgets/know_medicine_strip.dart';
+import 'widgets/med_card.dart';
 import 'widgets/settings_modal_new.dart';
+import 'widgets/share_milestone_cta.dart';
 import 'widgets/streak_modal.dart';
 import 'widgets/voice_assistant_overlay.dart';
 
@@ -43,6 +49,24 @@ class _HomeTabState extends State<HomeTab> {
   void initState() {
     super.initState();
     _scrollController = ScrollController();
+  }
+
+  void _consumePendingDetail() {
+    if (!mounted) return;
+    final state = context.read<AppState>();
+    final id = state.pendingDetailMedId;
+    if (id == null) return;
+    Medicine? med;
+    for (final m in state.meds) {
+      if (m.id == id) {
+        med = m;
+        break;
+      }
+    }
+    state.clearPendingDetailMedId();
+    if (med != null) {
+      _viewMed(med, edit: false);
+    }
   }
 
   @override
@@ -275,6 +299,37 @@ class _HomeTabState extends State<HomeTab> {
 
                     SliverPadding(
                       padding:
+                          const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p16),
+                      sliver: SliverToBoxAdapter(
+                        child: HopeSurroundBanner.homeSuccess(),
+                      ),
+                    ),
+
+                    SliverPadding(
+                      padding:
+                          const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p16),
+                      sliver: SliverToBoxAdapter(
+                        child: KnowMedicineStrip(
+                          onReviewFirst: () {
+                            final flagged = meds
+                                .where((m) => m.hasCriticalSafetyAlerts)
+                                .toList();
+                            final tips = meds
+                                .where((m) => m.needsPreTakeBriefing)
+                                .toList();
+                            final target = flagged.isNotEmpty
+                                ? flagged.first
+                                : (tips.isNotEmpty ? tips.first : null);
+                            if (target != null) {
+                              setState(() => _viewingMed = target);
+                            }
+                          },
+                        ),
+                      ),
+                    ),
+
+                    SliverPadding(
+                      padding:
                           const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p20),
                       sliver: SliverToBoxAdapter(
                         child: HomeWeekStrip(
@@ -364,6 +419,74 @@ class _HomeTabState extends State<HomeTab> {
                         ),
                       ),
 
+                    if (meds.isNotEmpty)
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(
+                            _hPad, AppSpacing.p8, _hPad, AppSpacing.p16),
+                        sliver: SliverToBoxAdapter(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Your medicines',
+                                style: AppTypography.titleMedium.copyWith(
+                                  color: L.text,
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                              const SizedBox(height: AppSpacing.p4),
+                              Text(
+                                HopeVibe.medicinesSubtitle,
+                                style: AppTypography.bodySmall
+                                    .copyWith(color: L.sub),
+                              ),
+                              const SizedBox(height: AppSpacing.p12),
+                              ...meds.take(6).map(
+                                    (m) => MedCard(
+                                      med: m,
+                                      onView: () => _viewMed(m),
+                                      onEdit: () =>
+                                          _viewMed(m, edit: true),
+                                    ),
+                                  ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                    if (streak >= 7)
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(
+                            _hPad, AppSpacing.p8, _hPad, AppSpacing.p8),
+                        sliver: SliverToBoxAdapter(
+                          child: ShareMilestoneCta(
+                            streak: streak,
+                            dosePct: dosePct,
+                            userName: context
+                                    .read<AppState>()
+                                    .activeProfile
+                                    ?.name ??
+                                context.read<AppState>().profile?.name ??
+                                '',
+                            totalDosesTaken: takenCount,
+                          ),
+                        ),
+                      ),
+
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(
+                          _hPad, AppSpacing.p8, _hPad, AppSpacing.p8),
+                      sliver: SliverToBoxAdapter(
+                        child: RecommendHopeCta(
+                          userName: context
+                                  .read<AppState>()
+                                  .activeProfile
+                                  ?.name ??
+                              context.read<AppState>().profile?.name,
+                        ),
+                      ),
+                    ),
+
                     if (showMascot)
                       SliverPadding(
                         padding:
@@ -407,6 +530,13 @@ class _HomeTabState extends State<HomeTab> {
 
   @override
   Widget build(BuildContext context) {
+    final pendingId =
+        context.select<AppState, int?>((s) => s.pendingDetailMedId);
+    if (pendingId != null) {
+      WidgetsBinding.instance
+          .addPostFrameCallback((_) => _consumePendingDetail());
+    }
+
     final doses = context.select<AppState, List<DoseItem>>(
         (s) => s.getDoses(date: _selectedDate));
     final streak = context.select<AppState, int>((s) => s.getStreak());

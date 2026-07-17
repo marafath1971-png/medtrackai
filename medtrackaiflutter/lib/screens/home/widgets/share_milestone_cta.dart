@@ -2,13 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/app_theme.dart';
+import '../../../theme/hope_vibe.dart';
 import '../../../widgets/shared/shared_widgets.dart';
 import '../../../widgets/viral/share_milestone_card.dart';
 
-// ─────────────────────────────────────────────────────────────
-// SHARE MILESTONE CTA — "Share your N-day streak" row, shown at
-// streak ≥ 7. Extracted verbatim from home_tab.dart.
-// ─────────────────────────────────────────────────────────────
+/// Share milestone CTA — streak ≥ 7. Hopeful “inspire others / worth it” framing.
 class ShareMilestoneCta extends StatelessWidget {
   final int streak;
   final double dosePct;
@@ -25,7 +23,6 @@ class ShareMilestoneCta extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    final gradColors = _getStreakGradient(streak, L);
     return AnimatedPressable(
       onTap: () {
         HapticEngine.selection();
@@ -38,20 +35,18 @@ class ShareMilestoneCta extends StatelessWidget {
         );
       },
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
-        decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(24),
-          border:
-              Border.all(color: L.border.withValues(alpha: 0.08), width: 1.0),
-          boxShadow: AppShadows.neumorphic,
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
+        decoration: HopeVibe.softCard(
+          tint: AppColors.pastelSun,
+          border: AppColors.limeDeep,
         ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(AppSpacing.p12),
               decoration: BoxDecoration(
-                color: L.accent.withValues(alpha: 0.1),
+                color: Colors.white.withValues(alpha: 0.85),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.share_rounded, size: 18, color: L.accent),
@@ -62,18 +57,18 @@ class ShareMilestoneCta extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    '🔥 Share your $streak-day streak!',
+                    HopeVibe.shareStreakTitle(streak),
                     style: AppTypography.titleMedium.copyWith(
                       color: L.text,
                       fontSize: 13,
-                      fontWeight: FontWeight.w500,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Inspire your followers on TikTok & Instagram',
+                    HopeVibe.shareStreakSubtitle,
                     style: AppTypography.bodySmall.copyWith(
-                      color: L.sub.withValues(alpha: 0.55),
+                      color: L.sub.withValues(alpha: 0.75),
                       fontSize: 12,
                     ),
                   ),
@@ -81,14 +76,10 @@ class ShareMilestoneCta extends StatelessWidget {
               ),
             ),
             Icon(Icons.chevron_right_rounded,
-                color: gradColors[0].withValues(alpha: 0.7), size: 22),
+                color: L.text.withValues(alpha: 0.45), size: 22),
           ],
         ),
       ),
     );
-  }
-
-  List<Color> _getStreakGradient(int streak, AppThemeColors L) {
-    return [L.text, L.text.withValues(alpha: 0.7)];
   }
 }

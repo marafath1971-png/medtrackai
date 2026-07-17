@@ -14,6 +14,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/premium_texture.dart';
 import '../../widgets/common/app_feedback.dart';
 import '../../widgets/common/premium_empty_state.dart';
+import '../../widgets/modals/know_your_medicine_sheet.dart';
 
 // ══════════════════════════════════════════════════════════════════════
 // ALARMS TAB — Premium Reminders & Schedules
@@ -647,11 +648,19 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
             const SizedBox(height: AppSpacing.p32),
             if (!_recorded)
               _SwipeToConfirm(
-                onConfirmed: () {
+                onConfirmed: () async {
+                  final sched = widget.sch.sched as ScheduleEntry;
+                  final med = widget.sch.med as Medicine;
+                  final appState = context.read<AppState>();
+                  final timeLabel = fmtTime(sched.h, sched.m, context);
+                  final ok = await KnowYourMedicineSheet.confirmTake(
+                    context,
+                    med: med,
+                    doseTimeLabel: timeLabel,
+                  );
+                  if (!ok || !mounted) return;
                   HapticEngine.success();
-                  context
-                      .read<AppState>()
-                      .takeDose(widget.sch.med.id, widget.sch.idx);
+                  appState.takeDose(med.id, widget.sch.idx);
                   setState(() => _recorded = true);
                   Future.delayed(3.seconds, () {
                     if (mounted) setState(() => _recorded = false);

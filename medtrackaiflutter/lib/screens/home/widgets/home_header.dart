@@ -36,8 +36,12 @@ class HomeHeader extends StatelessWidget {
     final takenMap = state.getTakenMapForDate(DateTime.now());
     final takenCount = doses.where((d) => takenMap[d.key] == true).length;
     final liveLine = doses.isEmpty
-        ? 'No doses scheduled today'
-        : '$takenCount of ${doses.length} doses done';
+        ? (state.meds.isEmpty
+            ? 'Scan a medicine — your success starts today'
+            : 'You’re set up — open a medicine to set times')
+        : takenCount >= doses.length && doses.isNotEmpty
+            ? 'Perfect day — you’re winning today'
+            : '$takenCount of ${doses.length} done — you’ve got this';
 
     return Padding(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),

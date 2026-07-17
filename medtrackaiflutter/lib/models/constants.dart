@@ -10,6 +10,13 @@ const String kTermsOfServiceUrl = 'https://medai.app/terms';
 const String kSupportEmail = 'support@medai.app';
 const String kSupportUrl = 'mailto:support@medai.app?subject=Medai%20Support';
 
+/// Must match Android `applicationId` / iOS `PRODUCT_BUNDLE_IDENTIFIER`.
+const String kAndroidApplicationId = 'com.medtracker.medtrackaiflutter';
+const String kPlayStoreUrl =
+    'https://play.google.com/store/apps/details?id=$kAndroidApplicationId';
+/// Replace `id` once the App Store listing exists.
+const String kAppStoreUrl = 'https://apps.apple.com/app/medai/id000000000';
+
 const String kModel = 'claude-sonnet-4-20250514';
 const String kAnthropicBaseUrl = 'https://api.anthropic.com/v1/messages';
 

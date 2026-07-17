@@ -918,7 +918,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 32:
         return _info(
-          hero: const ObOrangeScanIntro(),
+          hero: const ObScanIntro(),
           title: _obt('ob_seeWhatAScanReveals'),
           subtitle:
               _obt('ob_medAiIdentifiesYourPillFlagsInte'),
@@ -1021,7 +1021,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           ),
           title: _obt('ob_youHaveGreatPotential'),
           subtitle:
-              'Based on your answers, Med AI can take you to ${(_c.projectedAdherence * 100).round()}% adherence.',
+              'Based on your answers, Med AI can take you to ${(_c.projectedAdherence * 100).round()}% adherence — your success is already forming.',
         );
       case 43:
         return _info(
@@ -1034,12 +1034,14 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
             ],
             rightTitle: 'With Med AI',
             rightPoints: [
-              '2× more likely to stay on track',
+              '2× more likely to succeed',
               'Calm, automatic routine',
               'Early safety warnings',
             ],
           ),
           title: _obt('ob_youAre2MoreLikelyToSucceedWithMe'),
+          subtitle:
+              'People who use Med AI feel more in control — and stay on track.',
         );
       case 44:
         return _info(
@@ -1122,6 +1124,10 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           onDone: _next,
         );
       case 53:
+        final planName = _c.name;
+        final planLead = (planName != null && planName.isNotEmpty)
+            ? '$planName, this'
+            : 'This';
         return _info(
           hero: ObProjectionChart(
             start: _c.inferredAdherence,
@@ -1130,7 +1136,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           ),
           title: _obt('ob_yourPersonalizedPlanIsReady'),
           subtitle:
-              'Reach ${(_c.projectedAdherence * 100).round()}% adherence with a routine built around your life.',
+              '$planLead is the start of becoming someone who never misses — a routine built around your life is ready to take you to ${(_c.projectedAdherence * 100).round()}% adherence.',
         );
       case 54:
         return ObTrialFlashInterstitial(
@@ -1265,10 +1271,12 @@ class _WelcomeScreen extends StatelessWidget {
                       name == null
                           ? 'Welcome to *Med AI*!'
                           : 'Welcome, *$name*!',
-                      subtitle: "Let's keep you safe, on time, every day.",
+                      subtitle:
+                          "You're in. Let's make every dose a win — starting today.",
                     ).obFadeUp(),
                     const Spacer(),
-                    ObPrimaryButton(label: "Let's go", onTap: onContinue),
+                    ObPrimaryButton(
+                        label: 'Begin my success', onTap: onContinue),
                   ],
                 ),
               ),

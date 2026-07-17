@@ -38,7 +38,7 @@ class HomeTodayProgress extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p16),
           decoration: BoxDecoration(
             color: L.card,
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(AppRadius.l),
             border: Border.all(color: L.border.withValues(alpha: 0.45)),
           ),
           child: Row(
@@ -47,18 +47,19 @@ class HomeTodayProgress extends StatelessWidget {
                 width: AppSpacing.p48,
                 height: 48,
                 child: CustomPaint(
+                  // Daily progress is a lime "success" moment (DESIGN.md duo) —
+                  // deep lime for contrast on the light ring track.
                   painter: _RingPainter(
                     fraction: fraction,
                     track: L.fill,
-                    progress: L.accent,
+                    progress: AppColors.limeDeep,
                   ),
                   child: Center(
                     child: Text(
                       allDone ? '✓' : '${(fraction * 100).round()}%',
                       style: AppTypography.labelLarge.copyWith(
-                        color: L.text,
+                        color: allDone ? AppColors.limeDeep : L.text,
                         fontWeight: FontWeight.w800,
-                        fontSize: allDone ? 18 : 12,
                       ),
                     ),
                   ),
@@ -74,7 +75,6 @@ class HomeTodayProgress extends StatelessWidget {
                       style: AppTypography.labelSmall.copyWith(
                         color: L.sub,
                         fontWeight: FontWeight.w600,
-                        fontSize: 11,
                       ),
                     ),
                     const SizedBox(height: 2),

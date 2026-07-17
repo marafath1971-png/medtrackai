@@ -445,23 +445,29 @@ class _SummaryRow extends StatelessWidget {
 }
 
 /// Full-width orange panel — scan / AI feature intro.
-class ObOrangeScanIntro extends StatelessWidget {
-  const ObOrangeScanIntro({super.key});
+class ObScanIntro extends StatelessWidget {
+  const ObScanIntro({super.key});
 
   @override
   Widget build(BuildContext context) {
-    const orange = Color(0xFFF0A04B);
+    // Scan is the clinical domain (DESIGN.md §3.1) → sage, not retired orange.
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(20, 28, 20, 24),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.p20, AppSpacing.p32, AppSpacing.p20, AppSpacing.p24),
       decoration: BoxDecoration(
-        color: orange,
-        borderRadius: BorderRadius.circular(20),
+        gradient: const LinearGradient(
+          colors: [AppColors.accent, AppColors.accentDeep],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: AppRadius.roundL,
+        boxShadow: AppShadows.glow(AppColors.accent, intensity: 0.3),
       ),
       child: Column(
         children: [
           const MedAiMascot(size: 88, semanticLabel: 'Med AI scan assistant'),
-          const SizedBox(height: 16),
+          const SizedBox(height: AppSpacing.p16),
           Text(
             'Point. Scan. Know.',
             textAlign: TextAlign.center,
@@ -470,7 +476,7 @@ class ObOrangeScanIntro extends StatelessWidget {
               fontWeight: FontWeight.w800,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: AppSpacing.p8),
           Text(
             'Our AI identifies pills, flags interactions, and logs your schedule instantly.',
             textAlign: TextAlign.center,

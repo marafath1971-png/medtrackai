@@ -15,6 +15,7 @@ import 'widgets/add_cg_flow.dart';
 import 'widgets/join_as_cg_view.dart';
 import 'widgets/alert_log_widgets.dart';
 import '../../widgets/common/premium_empty_state.dart';
+import '../../core/utils/scan_safety_mapper.dart';
 
 import '../../widgets/common/premium_texture.dart';
 
@@ -381,24 +382,26 @@ class HubView extends StatelessWidget {
                             onTap: onMarkSeen,
                             scaleFactor: 0.985,
                             child: Container(
-                              margin: const EdgeInsets.only(bottom: AppSpacing.p24),
-                              padding: const EdgeInsets.all(AppSpacing.p20),
+                              margin: const EdgeInsets.only(bottom: AppSpacing.p12),
+                              padding: const EdgeInsets.all(AppSpacing.p16),
                               decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [L.error, L.error.withValues(alpha: 0.85)],
-                                ),
-                                borderRadius: AppRadius.roundL,
-                                border: Border.all(
-                                  color: Colors.white.withValues(alpha: 0.25),
-                                  width: 0.5,
-                                ),
-                                boxShadow: AppShadows.glow(L.error, intensity: 0.35),
+                                color: AppColors.pastelPink,
+                                borderRadius: BorderRadius.circular(AppRadius.l),
                               ),
                               child: Row(
                                 children: [
-                                  const Icon(Icons.warning_amber_rounded,
-                                      color: Colors.white, size: 26),
-                                  const SizedBox(width: AppSpacing.p16),
+                                  Container(
+                                    width: 40,
+                                    height: 40,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white.withValues(alpha: 0.75),
+                                      borderRadius:
+                                          BorderRadius.circular(AppRadius.s),
+                                    ),
+                                    child: Icon(Icons.warning_amber_rounded,
+                                        color: AppColors.red, size: 22),
+                                  ),
+                                  const SizedBox(width: AppSpacing.p12),
                                   Expanded(
                                     child: Column(
                                       crossAxisAlignment:
@@ -408,28 +411,75 @@ class HubView extends StatelessWidget {
                                           'Urgent monitoring',
                                           style: AppTypography.labelSmall
                                               .copyWith(
-                                            color: Colors.white
-                                                .withValues(alpha: 0.85),
-                                            fontWeight: FontWeight.w600,
+                                            color: L.sub,
+                                            fontWeight: FontWeight.w700,
                                           ),
                                         ),
                                         Text(
                                           '$unseenCount missed medication alerts',
                                           style: AppTypography.titleMedium
                                               .copyWith(
-                                            color: Colors.white,
-                                            fontWeight: FontWeight.w700,
-                                            fontSize: 15,
+                                            color: L.text,
+                                            fontWeight: FontWeight.w800,
                                           ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                  const Icon(Icons.chevron_right_rounded,
-                                      color: Colors.white, size: 22),
+                                  Icon(Icons.arrow_outward_rounded,
+                                      color: L.sub.withValues(alpha: 0.5),
+                                      size: 18),
                                 ],
                               ),
                             ),
+                          ),
+                        ),
+
+                      if (state.meds.any((m) => m.hasCriticalSafetyAlerts))
+                        Container(
+                          margin: const EdgeInsets.only(bottom: AppSpacing.p24),
+                          padding: const EdgeInsets.all(AppSpacing.p16),
+                          decoration: BoxDecoration(
+                            color: AppColors.pastelSun,
+                            borderRadius: BorderRadius.circular(AppRadius.l),
+                          ),
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  color: Colors.white.withValues(alpha: 0.75),
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.s),
+                                ),
+                                child: Icon(Icons.menu_book_rounded,
+                                    color: L.text, size: 20),
+                              ),
+                              const SizedBox(width: AppSpacing.p12),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Know your medicine',
+                                      style: AppTypography.titleMedium.copyWith(
+                                        color: L.text,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 2),
+                                    Text(
+                                      'Sensitive meds in this circle — caregivers should review warnings before dose time.',
+                                      style: AppTypography.bodySmall.copyWith(
+                                        color: L.sub,
+                                        height: 1.35,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
                         ),
 

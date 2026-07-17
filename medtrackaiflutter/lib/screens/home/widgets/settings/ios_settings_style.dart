@@ -1,28 +1,30 @@
 import 'package:flutter/material.dart';
+
 import '../../../../theme/med_ai_ui.dart';
+import '../../../../widgets/common/animated_pressable.dart';
 
-/// Apple HIG-aligned tokens for inset grouped settings lists.
+/// Premium settings tokens — soft pastel wellness aesthetic (reference-aligned).
 abstract final class IosSettingsTokens {
-  static const double groupRadius = 12;
-  static const double groupInset = 16;
-  static const double sectionGap = 24;
-  static const double headerGap = 8;
+  static const double groupRadius = 22;
+  static const double groupInset = 20;
+  static const double sectionGap = 20;
+  static const double headerGap = 10;
   static const double rowHPad = 16;
-  static const double rowVPad = 11;
-  static const double iconSize = 30;
-  static const double iconRadius = 7;
-  static const double iconGap = 12;
-  static const double separatorInset = 58;
-  static const double chevronSize = 14;
+  static const double rowVPad = 14;
+  static const double iconSize = 36;
+  static const double iconRadius = 12;
+  static const double iconGap = 14;
+  static const double separatorInset = 66;
+  static const double chevronSize = 16;
 
-  // iOS system accent colors (Settings-style icon tiles).
-  static const Color systemOrange = Color(0xFFFF9500);
-  static const Color systemRed = Color(0xFFFF3B30);
-  static const Color systemPurple = Color(0xFFAF52DE);
-  static const Color systemPink = Color(0xFFFF2D55);
-  static const Color systemTeal = Color(0xFF5AC8FA);
-  static const Color systemIndigo = Color(0xFF5856D6);
-  static const Color systemGray = Color(0xFF8E8E93);
+  static const Color systemOrange = Color(0xFFE8A04A);
+  static const Color systemRed = Color(0xFFC45C5C);
+  static const Color systemPurple = Color(0xFF8B7BB8);
+  static const Color systemPink = Color(0xFFD48A9A);
+  static const Color systemTeal = Color(0xFF5BA8C8);
+  static const Color systemIndigo = Color(0xFF6B7BB8);
+  static const Color systemGray = Color(0xFF8A9099);
+  static const Color canvas = Color(0xFFF7F6F3);
 }
 
 class IosSettingsSectionHeader extends StatelessWidget {
@@ -45,13 +47,13 @@ class IosSettingsSectionHeader extends StatelessWidget {
         bottom: IosSettingsTokens.headerGap,
       ),
       child: Text(
-        title.toUpperCase(),
-        style: AppTypography.labelSmall.copyWith(
-          fontSize: 13,
-          fontWeight: FontWeight.w400,
-          letterSpacing: -0.08,
+        title,
+        style: AppTypography.titleMedium.copyWith(
+          fontSize: 15,
+          fontWeight: FontWeight.w800,
+          letterSpacing: -0.2,
           height: 1.2,
-          color: L.sub.withValues(alpha: 0.85),
+          color: L.text,
         ),
       ),
     );
@@ -76,9 +78,9 @@ class IosSettingsSectionFooter extends StatelessWidget {
         text,
         style: AppTypography.bodySmall.copyWith(
           fontSize: 13,
-          fontWeight: FontWeight.w400,
-          height: 1.35,
-          color: L.sub.withValues(alpha: 0.75),
+          fontWeight: FontWeight.w500,
+          height: 1.4,
+          color: L.sub.withValues(alpha: 0.8),
         ),
       ),
     );
@@ -97,17 +99,23 @@ class IosSettingsIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final soft = Color.alphaBlend(
+      background.withValues(alpha: 0.18),
+      Colors.white,
+    );
     return Container(
       width: IosSettingsTokens.iconSize,
       height: IosSettingsTokens.iconSize,
       decoration: BoxDecoration(
-        color: background,
+        color: soft,
         borderRadius: BorderRadius.circular(IosSettingsTokens.iconRadius),
       ),
       child: Icon(
         icon,
-        size: 17,
-        color: Colors.white,
+        size: 18,
+        color: background == IosSettingsTokens.systemGray
+            ? AppColors.accentDeep
+            : background,
       ),
     );
   }
@@ -120,17 +128,19 @@ class IosInsetSeparator extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     return Padding(
-      padding: const EdgeInsetsDirectional.only(start: IosSettingsTokens.separatorInset),
+      padding: const EdgeInsetsDirectional.only(
+        start: IosSettingsTokens.separatorInset,
+      ),
       child: Divider(
         height: 0.5,
         thickness: 0.5,
-        color: L.border.withValues(alpha: 0.22),
+        color: L.border.withValues(alpha: 0.18),
       ),
     );
   }
 }
 
-/// iOS-style segmented tab track for settings sub-navigation.
+/// Soft pill segmented control — reference floating dock energy.
 class IosSettingsSegmentedBar extends StatelessWidget {
   final List<String> labels;
   final List<IconData> icons;
@@ -154,10 +164,17 @@ class IosSettingsSegmentedBar extends StatelessWidget {
     final useScroll = scrollable || labels.length > 4;
 
     final track = Container(
-      padding: const EdgeInsets.all(3),
+      padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: L.fill.withValues(alpha: context.isDark ? 0.55 : 0.9),
-        borderRadius: BorderRadius.circular(9),
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(22),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1A2621).withValues(alpha: 0.06),
+            blurRadius: 18,
+            offset: const Offset(0, 6),
+          ),
+        ],
       ),
       child: _buildSegments(context, L, expand: !useScroll),
     );
@@ -168,7 +185,7 @@ class IosSettingsSegmentedBar extends StatelessWidget {
       builder: (context, constraints) {
         final minTrackWidth = constraints.maxWidth.isFinite
             ? constraints.maxWidth
-            : MediaQuery.sizeOf(context).width - 32;
+            : MediaQuery.sizeOf(context).width - 40;
         return SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           physics: const BouncingScrollPhysics(),
@@ -190,7 +207,7 @@ class IosSettingsSegmentedBar extends StatelessWidget {
       children: List.generate(labels.length, (index) {
         final segment = _buildSegment(context, L, index);
         if (expand) return Expanded(child: segment);
-        return SizedBox(width: 76, child: segment);
+        return SizedBox(width: 78, child: segment);
       }),
     );
   }
@@ -201,27 +218,33 @@ class IosSettingsSegmentedBar extends StatelessWidget {
       button: true,
       selected: selected,
       label: labels[index],
-      child: GestureDetector(
+      child: AnimatedPressable(
         onTap: () => onSelected(index),
-        behavior: HitTestBehavior.opaque,
+        scaleFactor: 0.97,
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 220),
-          curve: Curves.easeInOut,
+          duration: AppDurations.fast,
+          curve: AppCurves.emilOut,
           constraints: const BoxConstraints(
             minHeight: MedAiA11y.minTapTargetCompact,
           ),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: 7),
+          padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.p8,
+            vertical: 8,
+          ),
           decoration: BoxDecoration(
-            color: selected
-                ? (context.isDark ? L.card : Colors.white)
-                : Colors.transparent,
-            borderRadius: BorderRadius.circular(7),
-            boxShadow: selected && !context.isDark
+            gradient: selected
+                ? const LinearGradient(
+                    colors: [AppColors.lime, AppColors.limeDeep],
+                  )
+                : null,
+            color: selected ? null : Colors.transparent,
+            borderRadius: BorderRadius.circular(16),
+            boxShadow: selected
                 ? [
                     BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.08),
-                      blurRadius: 3,
-                      offset: const Offset(0, 1),
+                      color: AppColors.limeDeep.withValues(alpha: 0.35),
+                      blurRadius: 12,
+                      offset: const Offset(0, 4),
                     ),
                   ]
                 : null,
@@ -231,10 +254,12 @@ class IosSettingsSegmentedBar extends StatelessWidget {
             children: [
               Icon(
                 icons[index],
-                size: 15,
-                color: selected ? L.text : L.sub.withValues(alpha: 0.9),
+                size: 16,
+                color: selected
+                    ? AppColors.limeInk
+                    : L.sub.withValues(alpha: 0.85),
               ),
-              const SizedBox(height: 2),
+              const SizedBox(height: 3),
               Text(
                 labels[index],
                 maxLines: 1,
@@ -242,8 +267,10 @@ class IosSettingsSegmentedBar extends StatelessWidget {
                 textAlign: TextAlign.center,
                 style: AppTypography.labelSmall.copyWith(
                   fontSize: 10,
-                  fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
-                  color: selected ? L.text : L.sub.withValues(alpha: 0.9),
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
+                  color: selected
+                      ? AppColors.limeInk
+                      : L.sub.withValues(alpha: 0.85),
                   letterSpacing: -0.1,
                 ),
               ),
@@ -256,39 +283,41 @@ class IosSettingsSegmentedBar extends StatelessWidget {
 }
 
 Color iosSettingsIconColor(dynamic icon, Color? iconBg) {
-  // Explicit override always wins (callers that intentionally set a status color).
-  if (iconBg != null) {
-    return iconBg.withValues(alpha: 1);
-  }
-
-  // Cal AI de-noise: settings icons are MONOCHROME by default. Only true
-  // destructive/exit actions keep a status color (red). Everything else uses
-  // one neutral tone so the list reads calm, not rainbow. (Was: a different
-  // bright system color per emoji — the main source of visual noise.)
-  const neutral = IosSettingsTokens.systemGray;
+  if (iconBg != null) return iconBg.withValues(alpha: 1);
 
   if (icon is IconData) {
     return switch (icon) {
       Icons.delete_forever_rounded || Icons.logout_rounded =>
         IosSettingsTokens.systemRed,
-      _ => neutral,
+      Icons.notifications_active_rounded || Icons.notifications_rounded =>
+        IosSettingsTokens.systemOrange,
+      Icons.shield_outlined || Icons.lock_rounded => AppColors.accentDeep,
+      Icons.favorite_rounded || Icons.monitor_heart_rounded =>
+        IosSettingsTokens.systemPink,
+      Icons.palette_rounded || Icons.auto_awesome_rounded =>
+        IosSettingsTokens.systemPurple,
+      Icons.medication_rounded || Icons.science_outlined => AppColors.sageGreen,
+      Icons.family_restroom_rounded => IosSettingsTokens.systemTeal,
+      Icons.bar_chart_rounded || Icons.insert_chart_rounded =>
+        IosSettingsTokens.systemIndigo,
+      _ => AppColors.accentDeep,
     };
   }
 
   final token = icon is String ? icon : null;
   return switch (token) {
-    // Keep red ONLY for destructive/critical signals.
     '🗑️' || '🚪' => IosSettingsTokens.systemRed,
-    _ => neutral,
+    '🔔' || '⚡' || '⏰' => IosSettingsTokens.systemOrange,
+    '🛡️' || '🔐' => AppColors.accentDeep,
+    '❤️' || '🩺' => IosSettingsTokens.systemPink,
+    '✨' || '🚀' || '🎬' => IosSettingsTokens.systemPurple,
+    '💊' => AppColors.sageGreen,
+    '👨‍👩‍👧' => IosSettingsTokens.systemTeal,
+    '📊' || '📈' => IosSettingsTokens.systemIndigo,
+    '🎯' || '🎂' || '🧬' || '🌐' => AppColors.accentDeep,
+    _ => AppColors.accentDeep,
   };
 }
-
-// ── Legacy rainbow mapping removed ─────────────────────────────────────
-// The per-emoji bright-color switch (🎯→orange, 🩺→red, 🎂→pink, 🧬→purple…)
-// was the main source of settings visual noise. Replaced by the monochrome
-// default in iosSettingsIconColor above, per CAL_AI_DESIGN_SPEC.md. If you ever
-// want the iOS-style rainbow back, it's in git history before this commit.
-
 
 IconData? iosSettingsResolveIcon(dynamic icon) {
   if (icon is IconData) return icon;

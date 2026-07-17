@@ -18,7 +18,7 @@ class ScannerHelpScreen extends StatelessWidget {
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
     return AppScaffold(
-      showAurora: true,
+      showAurora: false,
       body: CustomScrollView(
         physics:
             const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
