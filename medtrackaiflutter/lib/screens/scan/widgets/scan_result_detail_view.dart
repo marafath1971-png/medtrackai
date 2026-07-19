@@ -67,6 +67,27 @@ class ScanResultDetailView extends StatelessWidget {
         : (result.warnings.isNotEmpty
             ? AppColors.pastelPink
             : AppColors.pastelMint);
+    final statusIcon = !result.identified
+        ? Icons.help_outline_rounded
+        : (result.warnings.isNotEmpty
+            ? Icons.priority_high_rounded
+            : Icons.verified_rounded);
+    // Category-aware kicker: tailor the eyebrow to what was scanned so
+    // supplements and skincare feel first-class, not shoehorned into "pill".
+    final catLower = category.toLowerCase();
+    final (kindLabel, kindIcon) = catLower.contains('supplement') ||
+            catLower.contains('vitamin')
+        ? ('Supplement', Icons.eco_rounded)
+        : (catLower.contains('skin') ||
+                catLower.contains('cream') ||
+                catLower.contains('cosmetic'))
+            ? ('Skincare', Icons.spa_rounded)
+            : ('Medicine', Icons.medication_rounded);
+    // Ink is darkened tint-family so the label reads on the pastel chip and
+    // the danger case (pink) carries genuine red weight, not soft text.
+    final statusInk = !result.identified
+        ? AppColors.amber
+        : (result.warnings.isNotEmpty ? AppColors.red : AppColors.accentDeep);
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -104,6 +125,23 @@ class ScanResultDetailView extends StatelessWidget {
         ),
 
         const SizedBox(height: AppSpacing.p20),
+        // Reference-style eyebrow — small, confident, brand-colored kicker
+        // above the product name (mirrors the mockup's "⚡ DAILY DOSES" tag).
+        Row(
+          children: [
+            Icon(kindIcon, size: 14, color: AppColors.accentDeep),
+            const SizedBox(width: 6),
+            Text(
+              kindLabel.toUpperCase(),
+              style: AppTypography.caption.copyWith(
+                color: AppColors.accentDeep,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.2,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: AppSpacing.p8),
         Text(
           name,
           style: AppTypography.displaySmall.copyWith(
@@ -140,12 +178,19 @@ class ScanResultDetailView extends StatelessWidget {
               color: statusTint,
               borderRadius: BorderRadius.circular(AppRadius.max),
             ),
-            child: Text(
-              statusLabel,
-              style: AppTypography.labelSmall.copyWith(
-                color: L.text,
-                fontWeight: FontWeight.w800,
-              ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(statusIcon, size: 14, color: statusInk),
+                const SizedBox(width: 6),
+                Text(
+                  statusLabel,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: statusInk,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ],
             ),
           ),
         ),
@@ -163,6 +208,75 @@ class ScanResultDetailView extends StatelessWidget {
           ),
           60.ms,
         ),
+
+        // ── SAFETY FIRST ──────────────────────────────────────────────
+        // In a medication app the warning IS the point of the scan, so
+        // danger/interaction cues surface immediately after the hero —
+        // above general info — matching the reference safety-led layout.
+        if (result.warnings.isNotEmpty || result.interactions.isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.p24),
+          Row(
+            children: [
+              Icon(
+                Icons.shield_outlined,
+                size: 18,
+                color: AppColors.red,
+              ),
+              const SizedBox(width: AppSpacing.p8),
+              Text(
+                'Safety first',
+                style: AppTypography.headlineSmall.copyWith(
+                  color: L.text,
+                  fontWeight: FontWeight.w800,
+                  letterSpacing: -0.4,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: AppSpacing.p12),
+        ],
+
+        if (result.warnings.isNotEmpty) ...[
+          _in(
+            reduceMotion,
+            ScanSoftSection(
+              title: 'Important warnings',
+              subtitle: 'Know before you take — you’ve got this.',
+              tint: AppColors.pastelPink,
+              icon: Icons.priority_high_rounded,
+              child: Text(
+                result.warnings,
+                style: AppTypography.bodyMedium.copyWith(
+                  color: L.text.withValues(alpha: 0.88),
+                  height: 1.5,
+                ),
+              ),
+            ),
+            80.ms,
+          ),
+        ],
+
+        if (result.interactions.isNotEmpty) ...[
+          if (result.warnings.isNotEmpty)
+            const SizedBox(height: AppSpacing.p12),
+          _in(
+            reduceMotion,
+            ScanSoftSection(
+              title: 'Interactions',
+              subtitle: 'Check against what you already take.',
+              tint: AppColors.pastelSun,
+              icon: Icons.link_off_rounded,
+              child: Text(
+                result.interactions,
+                style: AppTypography.bodyMedium.copyWith(
+                  color: L.text.withValues(alpha: 0.88),
+                  height: 1.5,
+                ),
+              ),
+            ),
+            100.ms,
+          ),
+        ],
 
         const SizedBox(height: AppSpacing.p24),
         Text(
@@ -184,7 +298,7 @@ class ScanResultDetailView extends StatelessWidget {
           _in(
             reduceMotion,
             ScanInsightGrid(tiles: _insightTiles),
-            80.ms,
+            120.ms,
           ),
         ],
 
@@ -201,48 +315,6 @@ class ScanResultDetailView extends StatelessWidget {
           _in(
             reduceMotion,
             ScanBubbleRow(items: _sideEffectBubbles),
-            100.ms,
-          ),
-        ],
-
-        if (result.warnings.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.p20),
-          _in(
-            reduceMotion,
-            ScanSoftSection(
-              title: 'Important warnings',
-              subtitle: 'Know before you take — you’ve got this.',
-              tint: AppColors.pastelPink,
-              icon: Icons.priority_high_rounded,
-              child: Text(
-                result.warnings,
-                style: AppTypography.bodyMedium.copyWith(
-                  color: L.text.withValues(alpha: 0.88),
-                  height: 1.5,
-                ),
-              ),
-            ),
-            120.ms,
-          ),
-        ],
-
-        if (result.interactions.isNotEmpty) ...[
-          const SizedBox(height: AppSpacing.p12),
-          _in(
-            reduceMotion,
-            ScanSoftSection(
-              title: 'Interactions',
-              subtitle: 'Check against what you already take.',
-              tint: AppColors.pastelSun,
-              icon: Icons.link_off_rounded,
-              child: Text(
-                result.interactions,
-                style: AppTypography.bodyMedium.copyWith(
-                  color: L.text.withValues(alpha: 0.88),
-                  height: 1.5,
-                ),
-              ),
-            ),
             140.ms,
           ),
         ],
@@ -548,7 +620,7 @@ class _PhotoHero extends StatelessWidget {
         capturedImage != null || (imageUrl != null && imageUrl!.isNotEmpty);
 
     return ClipRRect(
-      borderRadius: BorderRadius.circular(30),
+      borderRadius: BorderRadius.circular(ScanResultChrome.cardRadius),
       child: AspectRatio(
         aspectRatio: 16 / 11,
         child: Stack(

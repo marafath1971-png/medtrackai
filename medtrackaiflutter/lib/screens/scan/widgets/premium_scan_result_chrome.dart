@@ -8,8 +8,10 @@ import '../../../widgets/common/animated_pressable.dart';
 /// Shared premium scan-result chrome — reference wellness aesthetic:
 /// soft pastels, large radius cards, bold type, airy whitespace.
 abstract final class ScanResultChrome {
-  static const double cardRadius = 26;
-  static const double tileRadius = 22;
+  // Reference wellness cards sit at ~22-28px; map to shared AppRadius tokens
+  // so the scan surface tracks the design system (xl=28 cards, l=24 tiles).
+  static const double cardRadius = AppRadius.xl; // 28
+  static const double tileRadius = AppRadius.l; // 24
   static const EdgeInsets pagePad =
       EdgeInsets.symmetric(horizontal: AppSpacing.gutter);
 
@@ -195,7 +197,7 @@ class ScanInsightTile extends StatelessWidget {
                 height: 34,
                 decoration: BoxDecoration(
                   color: Colors.white.withValues(alpha: 0.72),
-                  borderRadius: BorderRadius.circular(11),
+                  borderRadius: BorderRadius.circular(AppRadius.s),
                 ),
                 child: Icon(icon, size: 18, color: L.text),
               ),
@@ -359,7 +361,7 @@ class ScanSoftSection extends StatelessWidget {
                   height: 36,
                   decoration: BoxDecoration(
                     color: Colors.white.withValues(alpha: 0.75),
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(AppRadius.s),
                   ),
                   child: Icon(icon, size: 18, color: L.text),
                 ),
