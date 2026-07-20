@@ -54,6 +54,11 @@ class _AuthScreenState extends State<AuthScreen> {
     if (!MedAiA11y.reducedMotion(context)) {
       await Future.delayed(const Duration(milliseconds: 250));
     }
+    if (!mounted) return;
+    // Resolve the profile (returning user's cloud profile, or the freshly
+    // onboarded one) and enter the app. Without this the phase never advances
+    // past `auth` and the user is stranded on the sign-in screen.
+    await context.read<AppState>().enterAppAfterAuth();
   }
 
   /// Lets a referred user enter their invite code manually — the reliable path
@@ -328,30 +333,6 @@ class _AuthScreenState extends State<AuthScreen> {
                     ),
                   ),
                   const SizedBox(height: 20),
-                  Center(
-                    child: Semantics(
-                      button: true,
-                      label: 'Continue without account',
-                      child: AnimatedPressable(
-                        onTap: () => context.read<AppState>().skipAuth(),
-                        hitTestPadding: const EdgeInsets.all(8),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 10,
-                          ),
-                          child: Text(
-                            'Continue without account →',
-                            style: AppTypography.bodySmall.copyWith(
-                              fontSize: 13,
-                              color: L.sub,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
                   Center(
                     child: Semantics(
                       button: true,

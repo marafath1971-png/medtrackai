@@ -162,6 +162,11 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     final state = context.read<AppState>();
     await state.saveOnboardingPrefs(_c.toPrefs());
     await state.markOnboardingCompleted();
+    // Build a UserProfile from the collected answers and stash it as pending.
+    // The auth screen persists this under the real uid on first sign-in — a
+    // returning user's existing cloud profile takes precedence (see
+    // AuthController.enterAppAfterAuth), so this never overwrites real data.
+    state.auth.setPendingOnboardingProfile(_buildProfileFromAnswers());
     // Activation hand-off (step 48): remember how the user chose to add
     // their first med so the shell can deep-link straight there after auth.
     final firstMedMethod = _c.single('first_med_method');
@@ -189,6 +194,34 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       await _showPaywall();
     }
     if (mounted) state.auth.phase = AppPhase.auth;
+  }
+
+  /// Assembles a [UserProfile] from the onboarding answers so a brand-new
+  /// account starts personalized. Only fields the funnel actually collects are
+  /// set; everything else keeps its model default.
+  UserProfile _buildProfileFromAnswers() {
+    final goal = switch (_c.single('goal')) {
+      'never_miss' => 'Never miss a dose',
+      'family' => 'Care for my family',
+      'condition' => 'Manage a condition',
+      'understand' => 'Understand my medicine',
+      _ => '',
+    };
+    final targetUser = switch (_c.single('persona') ?? _c.single('managing_for')) {
+      'caregiver' || 'loved_one' => 'Family',
+      'family_leader' || 'me_family' => 'Both',
+      _ => 'Myself',
+    };
+    return UserProfile(
+      name: _c.name ?? '',
+      goal: goal,
+      targetUser: targetUser,
+      gender: _c.single('gender') ?? '',
+      medCount: _c.medCountLabel == 'Not set' ? '' : _c.medCountLabel,
+      challenge: _c.challengeLabel == 'Not set' ? '' : _c.challengeLabel,
+      allergies: _c.multi('allergies').toList(),
+      conditions: _c.multi('conditions').toList(),
+    );
   }
 
   Future<void> _requestNotifications() async {

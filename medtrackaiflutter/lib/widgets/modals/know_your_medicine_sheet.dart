@@ -405,6 +405,19 @@ class _AlertBlock extends StatelessWidget {
                 ],
               ),
             ),
+          // Be honest about truncation — never let a pre-take safety gate
+          // silently hide warnings/interactions beyond the first five.
+          if (items.length > 5)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.p4),
+              child: Text(
+                '+${items.length - 5} more — open medicine details to read all',
+                style: AppTypography.labelSmall.copyWith(
+                  color: accent,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
         ],
       ),
     );

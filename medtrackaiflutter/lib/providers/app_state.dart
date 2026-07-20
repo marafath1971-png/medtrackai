@@ -603,6 +603,17 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
   void skipAuth() => auth.skipAuth();
 
+  /// Stash the onboarding-built profile until the user authenticates.
+  void setPendingOnboardingProfile(UserProfile p) =>
+      auth.setPendingOnboardingProfile(p);
+
+  /// Enter the app after a successful sign-in — persists the new-user profile
+  /// or resumes a returning user's, then advances to [AppPhase.app].
+  Future<void> enterAppAfterAuth() async {
+    GrowthTracker.trackAccountCreated();
+    await auth.enterAppAfterAuth();
+  }
+
   /// DEV PREVIEW ONLY — seed demo data and jump straight into the app.
   void devPreviewJump() {
     med.devSeed();

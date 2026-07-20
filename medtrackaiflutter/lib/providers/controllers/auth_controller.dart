@@ -16,7 +16,48 @@ class AuthController extends ChangeNotifier {
   bool _isPurchasing = false;
   OnboardingPrefs _onboardingPrefs = const OnboardingPrefs();
 
+  /// Profile built from onboarding answers, held until the user authenticates.
+  /// Persisted under the real uid in [enterAppAfterAuth] for new accounts.
+  UserProfile? _pendingOnboardingProfile;
+
   AuthController({required this.userRepo});
+
+  /// Stash the onboarding-built profile so it can be saved once the user
+  /// signs in (we only have a real uid to save under after auth).
+  void setPendingOnboardingProfile(UserProfile p) {
+    _pendingOnboardingProfile = p;
+  }
+
+  /// Called after a successful sign-in / sign-up. Returning users (a cloud
+  /// profile already exists) resume with it untouched; brand-new users get the
+  /// onboarding-built profile persisted. Either way we land in [AppPhase.app]
+  /// with a non-null profile, so the app shell never renders profile-less.
+  Future<void> enterAppAfterAuth() async {
+    UserProfile? existing;
+    try {
+      existing = await userRepo.getProfile();
+    } catch (e) {
+      appLogger.w('[AuthController] getProfile after auth failed: $e');
+    }
+    final resolved =
+        existing ?? _pendingOnboardingProfile ?? UserProfile(name: '');
+    _profile = resolved;
+    if (resolved.preferredLanguage.isNotEmpty) {
+      _language = resolved.preferredLanguage;
+    }
+    // Only persist for new accounts — never overwrite a returning user's data.
+    if (existing == null) {
+      try {
+        await userRepo.saveProfile(resolved);
+      } catch (e) {
+        appLogger.e('[AuthController] saveProfile after auth failed: $e');
+      }
+    }
+    _pendingOnboardingProfile = null;
+    _isLocked = resolved.biometricEnabled;
+    _phase = AppPhase.app;
+    notifyListeners();
+  }
 
   OnboardingPrefs get onboardingPrefs => _onboardingPrefs;
 
