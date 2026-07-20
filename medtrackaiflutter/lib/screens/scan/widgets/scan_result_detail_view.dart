@@ -209,6 +209,46 @@ class ScanResultDetailView extends StatelessWidget {
           60.ms,
         ),
 
+        // ── LOW-CONFIDENCE RECOVERY ───────────────────────────────────
+        // When the scan didn't confirm a match, the honest next step is to
+        // rescan or search — not to track a guessed "Identified Pill". Guide
+        // the user rather than leaving a sparse, half-empty result.
+        if (!result.identified) ...[
+          const SizedBox(height: AppSpacing.p16),
+          _in(
+            reduceMotion,
+            ScanSoftSection(
+              title: 'Not confirmed yet',
+              subtitle: 'Let’s get you a sharper match.',
+              tint: AppColors.pastelSun,
+              icon: Icons.search_rounded,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Try a straight-on photo of the label in good light, or '
+                    'scan another angle. You can still track it manually and '
+                    'fill in the details yourself.',
+                    style: AppTypography.bodyMedium.copyWith(
+                      color: L.text.withValues(alpha: 0.88),
+                      height: 1.5,
+                    ),
+                  ),
+                  const SizedBox(height: AppSpacing.p12),
+                  MedAiCTA(
+                    label: 'Scan again',
+                    icon: Icons.qr_code_scanner_rounded,
+                    secondary: true,
+                    fullWidth: false,
+                    onTap: onScanAnother,
+                  ),
+                ],
+              ),
+            ),
+            70.ms,
+          ),
+        ],
+
         // ── SAFETY FIRST ──────────────────────────────────────────────
         // In a medication app the warning IS the point of the scan, so
         // danger/interaction cues surface immediately after the hero —
@@ -299,6 +339,65 @@ class ScanResultDetailView extends StatelessWidget {
             reduceMotion,
             ScanInsightGrid(tiles: _insightTiles),
             120.ms,
+          ),
+        ],
+
+        // ── DID YOU KNOW? ─────────────────────────────────────────────
+        // The AI returns a one-line awareness fact on every scan; surface
+        // it as a small delight moment instead of dropping it silently.
+        if (result.ahaMoment != null && result.ahaMoment!.trim().isNotEmpty) ...[
+          const SizedBox(height: AppSpacing.p16),
+          _in(
+            reduceMotion,
+            Container(
+              padding: const EdgeInsets.all(AppSpacing.p16),
+              decoration: BoxDecoration(
+                color: AppColors.pastelLilac,
+                borderRadius: BorderRadius.circular(AppRadius.l),
+              ),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 34,
+                    height: 34,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.72),
+                      borderRadius: AppRadius.roundS,
+                    ),
+                    child: Icon(
+                      Icons.lightbulb_outline_rounded,
+                      size: 18,
+                      color: L.text,
+                    ),
+                  ),
+                  const SizedBox(width: AppSpacing.p12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Did you know?',
+                          style: AppTypography.labelSmall.copyWith(
+                            color: L.sub,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          result.ahaMoment!.trim(),
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: L.text.withValues(alpha: 0.9),
+                            height: 1.45,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            140.ms,
           ),
         ],
 

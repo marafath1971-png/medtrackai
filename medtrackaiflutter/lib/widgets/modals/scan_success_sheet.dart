@@ -29,6 +29,7 @@ class ScanSuccessSheet extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     final bottom = MediaQuery.paddingOf(context).bottom;
+    final hasReminder = med.schedule.isNotEmpty;
 
     return Container(
       decoration: BoxDecoration(
@@ -107,12 +108,21 @@ class ScanSuccessSheet extends StatelessWidget {
                 ),
               ),
               const SizedBox(width: AppSpacing.p8),
+              // Only promise a reminder when a schedule actually exists —
+              // claiming "Reminder on" for an as-needed med with no schedule
+              // would be a false trust signal on the app's core moment.
               Expanded(
-                child: _TrustChip(
-                  icon: Icons.schedule_rounded,
-                  label: 'Reminder on',
-                  tint: AppColors.pastelSun,
-                ),
+                child: hasReminder
+                    ? _TrustChip(
+                        icon: Icons.schedule_rounded,
+                        label: 'Reminder on',
+                        tint: AppColors.pastelSun,
+                      )
+                    : _TrustChip(
+                        icon: Icons.touch_app_rounded,
+                        label: 'As needed',
+                        tint: AppColors.pastelSun,
+                      ),
               ),
               const SizedBox(width: AppSpacing.p8),
               Expanded(
@@ -144,28 +154,35 @@ class ScanSuccessSheet extends StatelessWidget {
             },
           ),
           const SizedBox(height: AppSpacing.p12),
-          AnimatedPressable(
-            onTap: () async {
-              HapticEngine.selection();
-              await ShareService.shareScanResult(med.name);
-            },
-            child: Container(
-              width: double.infinity,
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(vertical: AppSpacing.p12),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.ios_share_rounded, size: 18, color: L.text),
-                  const SizedBox(width: AppSpacing.p8),
-                  Text(
-                    HopeVibe.shareYourWin,
-                    style: AppTypography.labelLarge.copyWith(
-                      color: L.text,
-                      fontWeight: FontWeight.w800,
+          Semantics(
+            button: true,
+            label: 'Share your win',
+            child: AnimatedPressable(
+              onTap: () async {
+                HapticEngine.selection();
+                await ShareService.shareScanResult(med.name);
+              },
+              child: Container(
+                width: double.infinity,
+                alignment: Alignment.center,
+                constraints: const BoxConstraints(
+                  minHeight: MedAiA11y.minTapTarget,
+                ),
+                padding: const EdgeInsets.symmetric(vertical: AppSpacing.p12),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(Icons.ios_share_rounded, size: 18, color: L.text),
+                    const SizedBox(width: AppSpacing.p8),
+                    Text(
+                      HopeVibe.shareYourWin,
+                      style: AppTypography.labelLarge.copyWith(
+                        color: L.text,
+                        fontWeight: FontWeight.w800,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),
