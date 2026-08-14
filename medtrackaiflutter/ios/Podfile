@@ -45,22 +45,27 @@ post_install do |installer|
     end
   end
 
-  # ── Fix CocoaPods base-config override warning ────────────────────────
-  # CocoaPods sometimes cannot set the baseConfigurationReference on the
-  # Runner target when it already has a custom xcconfig. This loop manually
-  # wires the Pods-Runner xcconfig as a #include inside Flutter's xcconfigs
-  # so all linker flags (including -framework "Pods_Runner") are inherited.
+  # ── Keep Flutter's xcconfig as the Runner base config ──────────────────
+  # The Runner target must inherit Flutter/{Debug,Release}.xcconfig, because
+  # that is where FLUTTER_ROOT is defined (via #include "Generated.xcconfig").
+  # Without it, the "Run Prepare Flutter Framework Script" build phase expands
+  # to /packages/flutter_tools/bin/xcode_backend.sh and every iOS build fails
+  # with "No such file or directory".
+  #
+  # Pods flags are NOT lost: Flutter's xcconfigs already start with
+  #   #include? "Pods/Target Support Files/Pods-Runner/Pods-Runner.<cfg>.xcconfig"
+  # so the correct chain is Flutter -> Pods, not Pods alone. CocoaPods points
+  # the base config at its own file when it sees a custom xcconfig, so restore
+  # Flutter's here after each install.
   runner_project = installer.aggregate_targets
     .find { |t| t.name == 'Pods-Runner' }&.user_project
-  return unless runner_project
+  next unless runner_project
 
   config_map = {
-    'Debug'   => 'Pods-Runner.debug.xcconfig',
-    'Release' => 'Pods-Runner.release.xcconfig',
-    'Profile' => 'Pods-Runner.profile.xcconfig',
+    'Debug'   => 'Debug.xcconfig',
+    'Release' => 'Release.xcconfig',
+    'Profile' => 'Release.xcconfig',
   }
-
-  pods_xcconfig_dir = "${SRCROOT}/Pods/Target Support Files/Pods-Runner"
 
   runner_project.targets.each do |target|
     next unless target.name == 'Runner'
@@ -68,21 +73,12 @@ post_install do |installer|
       xcconfig_filename = config_map[config.name]
       next unless xcconfig_filename
 
-      xcconfig_path = File.join(
-        installer.sandbox.root,
-        'Target Support Files',
-        'Pods-Runner',
-        xcconfig_filename
-      )
-
-      # Find the PBXFileReference for this xcconfig in the Pods project
-      pods_xcconfig_ref = installer.pods_project.files.find do |f|
-        f.path == xcconfig_filename
+      flutter_xcconfig_ref = runner_project.files.find do |f|
+        f.path == "Flutter/#{xcconfig_filename}"
       end
-      next unless pods_xcconfig_ref
+      next unless flutter_xcconfig_ref
 
-      # Set it as the baseConfigurationReference for the Runner build config
-      config.base_configuration_reference = pods_xcconfig_ref
+      config.base_configuration_reference = flutter_xcconfig_ref
     end
   end
 

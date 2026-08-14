@@ -1213,11 +1213,11 @@ PODS:
   - BoringSSL-GRPC/Interface (0.0.37)
   - camera_avfoundation (0.0.1):
     - Flutter
-  - cloud_firestore (6.6.0):
+  - cloud_firestore (6.7.1):
     - Firebase/Firestore (= 12.15.0)
     - firebase_core
     - Flutter
-  - cloud_functions (6.3.3):
+  - cloud_functions (6.3.5):
     - Firebase/Functions (= 12.15.0)
     - firebase_core
     - Flutter
@@ -1252,39 +1252,39 @@ PODS:
   - Firebase/Storage (12.15.0):
     - Firebase/CoreOnly
     - FirebaseStorage (~> 12.15.0)
-  - firebase_analytics (12.4.3):
+  - firebase_analytics (12.4.5):
     - firebase_core
     - FirebaseAnalytics (= 12.15.0)
     - Flutter
-  - firebase_app_check (0.4.5):
+  - firebase_app_check (0.4.5-2):
     - Firebase/CoreOnly (~> 12.15.0)
     - firebase_core
     - FirebaseAppCheck (~> 12.15.0)
     - Flutter
-  - firebase_auth (6.5.3):
+  - firebase_auth (6.5.6):
     - Firebase/Auth (= 12.15.0)
     - firebase_core
     - Flutter
-  - firebase_core (4.11.0):
+  - firebase_core (4.12.1):
     - Firebase/CoreOnly (= 12.15.0)
     - Flutter
-  - firebase_crashlytics (5.2.4):
+  - firebase_crashlytics (5.2.6):
     - Firebase/Crashlytics (= 12.15.0)
     - firebase_core
     - Flutter
-  - firebase_messaging (16.4.0):
+  - firebase_messaging (16.4.3):
     - Firebase/Messaging (= 12.15.0)
     - firebase_core
     - Flutter
-  - firebase_performance (0.11.4-3):
+  - firebase_performance (0.11.4-5):
     - Firebase/Performance (= 12.15.0)
     - firebase_core
     - Flutter
-  - firebase_remote_config (6.5.3):
+  - firebase_remote_config (6.5.5):
     - Firebase/RemoteConfig (= 12.15.0)
     - firebase_core
     - Flutter
-  - firebase_storage (13.4.3):
+  - firebase_storage (13.4.5):
     - Firebase/Storage (= 12.15.0)
     - firebase_core
     - Flutter
@@ -1428,7 +1428,6 @@ PODS:
     - Flutter
   - flutter_image_compress_common (1.0.0):
     - Flutter
-    - Mantle
     - SDWebImage
     - SDWebImageWebPCoder
   - flutter_local_notifications (0.0.1):
@@ -1631,9 +1630,6 @@ PODS:
   - local_auth_darwin (0.0.1):
     - Flutter
     - FlutterMacOS
-  - Mantle (2.2.0):
-    - Mantle/extobjc (= 2.2.0)
-  - Mantle/extobjc (2.2.0)
   - mobile_scanner (7.0.0):
     - Flutter
     - FlutterMacOS
@@ -1649,13 +1645,13 @@ PODS:
   - PromisesObjC (2.4.1)
   - PromisesSwift (2.4.1):
     - PromisesObjC (= 2.4.1)
-  - purchases_flutter (10.2.3):
+  - purchases_flutter (10.4.2):
     - Flutter
-    - PurchasesHybridCommon (= 18.14.1)
-  - PurchasesHybridCommon (18.14.1):
-    - RevenueCat (= 5.78.0)
+    - PurchasesHybridCommon (= 18.22.1)
+  - PurchasesHybridCommon (18.22.1):
+    - RevenueCat (= 5.81.0)
   - RecaptchaInterop (101.0.0)
-  - RevenueCat (5.78.0)
+  - RevenueCat (5.81.0)
   - rive_common (0.0.1):
     - Flutter
   - SDWebImage (5.21.7):
@@ -1762,7 +1758,6 @@ SPEC REPOS:
     - GTMSessionFetcher
     - leveldb-library
     - libwebp
-    - Mantle
     - nanopb
     - PromisesObjC
     - PromisesSwift
@@ -1860,21 +1855,21 @@ SPEC CHECKSUMS:
   audioplayers_darwin: 835ced6edd4c9fc8ebb0a7cc9e294a91d99917d5
   BoringSSL-GRPC: dded2a44897e45f28f08ae87a55ee4bcd19bc508
   camera_avfoundation: 968a9a5323c79a99c166ad9d7866bfd2047b5a9b
-  cloud_firestore: 6413b4f717c368edb9c94214547da4c65c5a2fd9
-  cloud_functions: 26314ecaab7b88f3df15c1cc86f2a8348dcbbc02
+  cloud_firestore: 9233f35ca10ef27d5e5131f930507d00d5bc794d
+  cloud_functions: 87096942a5fc49359e6b3e8f011c044142c32b09
   CwlCatchException: 7acc161b299a6de7f0a46a6ed741eae2c8b4d75a
   CwlCatchExceptionSupport: 54ccab8d8c78907b57f99717fb19d4cc3bce02dc
   device_info_plus: 21fcca2080fbcd348be798aa36c3e5ed849eefbe
   Firebase: a8539b633d474fbeb654c7043f9c1649e274045b
-  firebase_analytics: 5e356f558625ce2d8b21deff00946b56d6e8d0d5
-  firebase_app_check: b140a524632115e950bd706a8d7a9d0633a25427
-  firebase_auth: 34a7d6abe16fdb067929e525d5290399ed067763
-  firebase_core: fc23178af8ea070194d09031ae4198a9608a3d22
-  firebase_crashlytics: 344bb168f55aee1086c6cdd0b105a9db018cd344
-  firebase_messaging: cbffc91e44e4e29d5a255c63f6cde1d1a7f98745
-  firebase_performance: 0102afafdc394249305ce255b4c5bc8f2a0194a1
-  firebase_remote_config: 3c6c60acab323f3e2f5dc25d35cfe5be984c7bd3
-  firebase_storage: e125a3327af0c0dd133bfe4510279dd7c301473f
+  firebase_analytics: eb8345c126a25cd1914597079faf3e64c2e6835f
+  firebase_app_check: a44c7f943be4484099b8373a10e29f1bfe453914
+  firebase_auth: 219da41caaff7c485ff48eb463eb04710b18bcfa
+  firebase_core: 1c1e250a77e2df9e80bb8bf0875c8b427044a697
+  firebase_crashlytics: 4d38aa785af57b2687a460778303d3b459707192
+  firebase_messaging: 90cf2b62f5058120ab19f29ceff1503ba0f51ba7
+  firebase_performance: ab940ff7973604fd85c28a26cc7fbd5333711f47
+  firebase_remote_config: a7e611ccd5cd1b6137a93f200f4185c5654f6981
+  firebase_storage: ae0a888070b0f4eaa93008e37dab4bc347abd15d
   FirebaseABTesting: 04cab3e6db77b86af50b6cf7c825a13e04beca52
   FirebaseAnalytics: 9c9fa7915fc52ea03077000d5a7b6a8947b2d76e
   FirebaseAppCheck: 29d81a8b4a1bf0273c04a1ffe1532aceabc9e7a8
@@ -1900,7 +1895,7 @@ SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_app_group_directory: 55b5362007d1c0cb45dc1dd1e94f67d615f45a6b
   flutter_dynamic_icon_plus: a7c81df360708aa1c9538f89cd96958fdda608ea
-  flutter_image_compress_common: 1697a328fd72bfb335507c6bca1a65fa5ad87df1
+  flutter_image_compress_common: 11d5dcfb36f4ded92320bfa896261813a073240e
   flutter_local_notifications: 643a3eda1ce1c0599413ca31672536d423dee214
   flutter_secure_storage_darwin: acdb3f316ed05a3e68f856e0353b133eec373a23
   flutter_timezone: 7c838e17ffd4645d261e87037e5bebf6d38fe544
@@ -1922,17 +1917,16 @@ SPEC CHECKSUMS:
   libwebp: 02b23773aedb6ff1fd38cec7a77b81414c6842a8
   live_activities: 4dfa736d0736e1c77866a2f9c056a76513cc9e7b
   local_auth_darwin: c3ee6cce0a8d56be34c8ccb66ba31f7f180aaebb
-  Mantle: c5aa8794a29a022dfbbfc9799af95f477a69b62d
   mobile_scanner: 9157936403f5a0644ca3779a38ff8404c5434a93
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   permission_handler_apple: 92d754bbaa7361d436db2d6c3c1c2a0fdcec462e
-  printing: 54ff03f28fe9ba3aa93358afb80a8595a071dd07
+  printing: a8960104e6c1a2b4bd3483a2f79c69be60830d08
   PromisesObjC: 752c3227f599e3467650e47ea36f433eeb10c273
   PromisesSwift: 217dea0fd5d2ad65222a109c48698add13cc1c5b
-  purchases_flutter: c2af1311b818f75b549290971a928cb30036cb82
-  PurchasesHybridCommon: 825e4e748b62c919bc4cb4032b0d1e452409bd74
+  purchases_flutter: 64c9e64676b8b681ced103755d6989bec7fbad0c
+  PurchasesHybridCommon: 5759975e7b63c093772fd92d8a9e5edbc6a809a8
   RecaptchaInterop: 11e0b637842dfb48308d242afc3f448062325aba
-  RevenueCat: f3641992451c1426da8d8d1466cec3bbdb765962
+  RevenueCat: c692d9b9d123ce98acea28796abcd81f63e9f34a
   rive_common: dd421daaf9ae69f0125aa761dd96abd278399952
   SDWebImage: e9fc87c1aab89a8ab1bbd74eba378c6f53be8abf
   SDWebImageWebPCoder: 0e06e365080397465cc73a7a9b472d8a3bd0f377
@@ -1942,6 +1936,6 @@ SPEC CHECKSUMS:
   speech_to_text: 3b313d98516d3d0406cea424782ec25470c59d19
   url_launcher_ios: 7a95fa5b60cc718a708b8f2966718e93db0cef1b
 
-PODFILE CHECKSUM: 985676041a96e49e9581d36f29d65884cdd71fa7
+PODFILE CHECKSUM: 43a3eaaa4ac4ee87874440795d9055be9d2e29e2
 
 COCOAPODS: 1.16.2
