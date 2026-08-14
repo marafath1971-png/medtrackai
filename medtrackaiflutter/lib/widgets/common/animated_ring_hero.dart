@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import 'med_ai_mascot.dart';
 
 // ─────────────────────────────────────────────────────────────
@@ -145,12 +145,15 @@ class CalAiRingHero extends StatelessWidget {
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       const Text('🔥', style: TextStyle(fontSize: 16))
-                          .animate(onPlay: (c) => c.repeat(reverse: true))
-                          .scaleXY(
-                              begin: 0.92,
-                              end: 1.08,
-                              duration: 900.ms,
-                              curve: Curves.easeInOutSine),
+                          .medAiChain(
+                              context,
+                              (w) => w
+                                  .animate(onPlay: (c) => c.repeat(reverse: true))
+                                  .scaleXY(
+                                      begin: 0.92,
+                                      end: 1.08,
+                                      duration: 900.ms,
+                                      curve: Curves.easeInOutSine)),
                       const SizedBox(width: 5),
                       Text(
                         '$streak',

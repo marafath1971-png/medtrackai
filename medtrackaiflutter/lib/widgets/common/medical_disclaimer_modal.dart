@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../models/constants.dart';
 
@@ -78,10 +78,12 @@ class MedicalDisclaimerModal extends StatelessWidget {
                     child: Text('⚕️',
                         style:
                             AppTypography.displayLarge.copyWith(fontSize: 36))),
-              )
-                  .animate()
-                  .scale(duration: 600.ms, curve: AppCurves.emilOut)
-                  .fadeIn(),
+              ).medAiChain(
+                  context,
+                  (w) => w
+                      .animate()
+                      .scale(duration: 600.ms, curve: AppCurves.emilOut)
+                      .fadeIn()),
 
               const SizedBox(height: 24),
 
@@ -94,7 +96,8 @@ class MedicalDisclaimerModal extends StatelessWidget {
                   fontWeight: FontWeight.w900,
                   letterSpacing: -0.8,
                 ),
-              ).animate().fadeIn(delay: 100.ms).slideY(begin: 0.2, end: 0),
+              ).medAiChain(context,
+                  (w) => w.animate().fadeIn(delay: 100.ms).slideY(begin: 0.2, end: 0)),
 
               const SizedBox(height: 16),
 
@@ -163,11 +166,15 @@ class MedicalDisclaimerModal extends StatelessWidget {
                     ),
                   ),
                 ),
-              )
-                  .animate()
-                  .scale(
-                      delay: 700.ms, duration: 400.ms, curve: AppCurves.emilOut)
-                  .fadeIn(),
+              ).medAiChain(
+                  context,
+                  (w) => w
+                      .animate()
+                      .scale(
+                          delay: 700.ms,
+                          duration: 400.ms,
+                          curve: AppCurves.emilOut)
+                      .fadeIn()),
 
               const SizedBox(height: 12),
 
@@ -179,14 +186,16 @@ class MedicalDisclaimerModal extends StatelessWidget {
                   fontSize: 11,
                   height: 1.4,
                 ),
-              ).animate().fadeIn(delay: 800.ms),
+              ).medAiChain(context, (w) => w.animate().fadeIn(delay: 800.ms)),
             ],
           ),
         ),
-      ).animate().fadeIn(duration: 400.ms).scale(
-            begin: const Offset(0.92, 0.92),
-            curve: AppCurves.emilOut,
-          ),
+      ).medAiChain(
+          context,
+          (w) => w.animate().fadeIn(duration: 400.ms).scale(
+                begin: const Offset(0.92, 0.92),
+                curve: AppCurves.emilOut,
+              )),
     );
   }
 }
@@ -241,6 +250,7 @@ class _DisclaimerItem extends StatelessWidget {
           ),
         ],
       ),
-    ).animate().fadeIn(delay: delay.ms).slideX(begin: 0.1, end: 0);
+    ).medAiChain(context,
+        (w) => w.animate().fadeIn(delay: delay.ms).slideX(begin: 0.1, end: 0));
   }
 }

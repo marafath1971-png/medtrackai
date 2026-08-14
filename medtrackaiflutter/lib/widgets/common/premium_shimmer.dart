@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 class PremiumShimmer extends StatefulWidget {
@@ -130,11 +130,22 @@ class ContextualLoader extends StatelessWidget {
               color: primaryColor.withValues(alpha: 0.1),
               boxShadow: AppShadows.glow(primaryColor, intensity: 0.3),
             ),
-            child: Icon(Icons.auto_awesome_rounded, color: primaryColor, size: 28)
-                .animate(onPlay: (c) => c.repeat(reverse: true))
-                .scaleXY(begin: 0.9, end: 1.1, duration: 800.ms, curve: Curves.easeInOut),
-          ).animate(onPlay: (c) => c.repeat())
-           .shimmer(duration: 2000.ms, color: primaryColor.withValues(alpha: 0.5)),
+            child: Icon(Icons.auto_awesome_rounded,
+                    color: primaryColor, size: 28)
+                .medAiChain(
+                    context,
+                    (w) => w
+                        .animate(onPlay: (c) => c.repeat(reverse: true))
+                        .scaleXY(
+                            begin: 0.9,
+                            end: 1.1,
+                            duration: 800.ms,
+                            curve: Curves.easeInOut)),
+          ).medAiChain(
+              context,
+              (w) => w.animate(onPlay: (c) => c.repeat()).shimmer(
+                  duration: 2000.ms,
+                  color: primaryColor.withValues(alpha: 0.5))),
           const SizedBox(height: 16),
           Text(
             message,
@@ -143,8 +154,11 @@ class ContextualLoader extends StatelessWidget {
               fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
             ),
-          ).animate(onPlay: (c) => c.repeat(reverse: true))
-           .fade(begin: 0.6, end: 1.0, duration: 1000.ms),
+          ).medAiChain(
+              context,
+              (w) => w
+                  .animate(onPlay: (c) => c.repeat(reverse: true))
+                  .fade(begin: 0.6, end: 1.0, duration: 1000.ms)),
         ],
       ),
     );

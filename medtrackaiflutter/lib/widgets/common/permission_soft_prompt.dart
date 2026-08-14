@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import 'animated_pressable.dart';
 import 'app_bottom_sheet.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -150,7 +150,12 @@ class PermissionSoftPrompt extends StatelessWidget {
                   .animate(onPlay: (c) => c.repeat(reverse: true))
                   .scaleXY(begin: 0.95, end: 1.05, duration: 1000.ms, curve: Curves.easeInOut),
             ),
-          ).animate().fade(duration: 400.ms).scale(curve: AppCurves.emilOut),
+          ).medAiChain(
+              context,
+              (w) => w
+                  .animate()
+                  .fade(duration: 400.ms)
+                  .scale(curve: AppCurves.emilOut)),
           const SizedBox(height: 24),
           Text(
             title,
@@ -160,7 +165,8 @@ class PermissionSoftPrompt extends StatelessWidget {
               fontWeight: FontWeight.w900,
               letterSpacing: -0.5,
             ),
-          ).animate().fade(delay: 100.ms).slideY(begin: 0.1, end: 0),
+          ).medAiChain(context,
+              (w) => w.animate().fade(delay: 100.ms).slideY(begin: 0.1, end: 0)),
           const SizedBox(height: 12),
           Text(
             explanation,
@@ -169,7 +175,8 @@ class PermissionSoftPrompt extends StatelessWidget {
               color: L.sub.withValues(alpha: 0.8),
               height: 1.4,
             ),
-          ).animate().fade(delay: 200.ms).slideY(begin: 0.1, end: 0),
+          ).medAiChain(context,
+              (w) => w.animate().fade(delay: 200.ms).slideY(begin: 0.1, end: 0)),
           const SizedBox(height: 32),
           AnimatedPressable(
             onTap: () => _requestPermission(context),
@@ -196,7 +203,8 @@ class PermissionSoftPrompt extends StatelessWidget {
                 ),
               ),
             ),
-          ).animate().fade(delay: 300.ms).slideY(begin: 0.1, end: 0),
+          ).medAiChain(context,
+              (w) => w.animate().fade(delay: 300.ms).slideY(begin: 0.1, end: 0)),
           const SizedBox(height: 16),
           AnimatedPressable(
             onTap: () {
@@ -213,7 +221,7 @@ class PermissionSoftPrompt extends StatelessWidget {
                 ),
               ),
             ),
-          ).animate().fade(delay: 400.ms),
+          ).medAiChain(context, (w) => w.animate().fade(delay: 400.ms)),
         ],
       ),
     );

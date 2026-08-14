@@ -28,6 +28,10 @@ class UserProfile {
   final bool notifPerm;
   final bool notifSound;
   final bool notifRefill;
+
+  /// In-app haptic feedback (button taps, dose logging, scan results).
+  /// Distinct from [notifSound], which controls notification sound only.
+  final bool hapticsEnabled;
   final String? promoCode;
   final Map<String, dynamic>? appliedPromo;
   final String avatar;
@@ -91,6 +95,7 @@ class UserProfile {
     this.notifPerm = true,
     this.notifSound = true,
     this.notifRefill = true,
+    this.hapticsEnabled = true,
     this.promoCode,
     this.appliedPromo,
     this.avatar = '😊',
@@ -151,6 +156,7 @@ class UserProfile {
         'reminderStyle': reminderStyle,
         'notifPerm': notifPerm,
         'notifSound': notifSound,
+        'hapticsEnabled': hapticsEnabled,
         'notifRefill': notifRefill,
         'promoCode': promoCode,
         'appliedPromo': appliedPromo,
@@ -213,6 +219,7 @@ class UserProfile {
         reminderStyle: j['reminderStyle'] ?? '',
         notifPerm: j['notifPerm'] ?? true,
         notifSound: j['notifSound'] ?? true,
+        hapticsEnabled: j['hapticsEnabled'] ?? true,
         notifRefill: j['notifRefill'] ?? true,
         promoCode: j['promoCode'],
         appliedPromo: j['appliedPromo'],
@@ -283,6 +290,7 @@ class UserProfile {
     String? reminderStyle,
     bool? notifPerm,
     bool? notifSound,
+    bool? hapticsEnabled,
     bool? notifRefill,
     String? avatar,
     bool? biometricEnabled,
@@ -341,6 +349,7 @@ class UserProfile {
         reminderStyle: reminderStyle ?? this.reminderStyle,
         notifPerm: notifPerm ?? this.notifPerm,
         notifSound: notifSound ?? this.notifSound,
+        hapticsEnabled: hapticsEnabled ?? this.hapticsEnabled,
         notifRefill: notifRefill ?? this.notifRefill,
         promoCode: promoCode,
         appliedPromo: appliedPromo,

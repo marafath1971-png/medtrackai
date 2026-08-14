@@ -30,7 +30,7 @@ class InteractionWarningSheet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    
+
     // Using a soft amber/warning tint
     final warningColor = Colors.amber.shade700;
 
@@ -68,7 +68,12 @@ class InteractionWarningSheet extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.warning_amber_rounded, color: warningColor, size: 28),
-              ).animate().scale(delay: 100.ms, duration: 400.ms, curve: AppCurves.emilOut),
+              ).medAiChain(
+                  context,
+                  (w) => w.animate().scale(
+                      delay: 100.ms,
+                      duration: 400.ms,
+                      curve: AppCurves.emilOut)),
               const SizedBox(width: AppSpacing.p16),
               Expanded(
                 child: Column(
@@ -81,7 +86,8 @@ class InteractionWarningSheet extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.4,
                       ),
-                    ).animate().fade(delay: 200.ms).slideX(begin: 0.1, end: 0),
+                    ).medAiChain(context,
+                        (w) => w.animate().fade(delay: 200.ms).slideX(begin: 0.1, end: 0)),
                     const SizedBox(height: AppSpacing.p4),
                     Text(
                       "$medicineName + $interactionName",
@@ -89,7 +95,8 @@ class InteractionWarningSheet extends StatelessWidget {
                         color: warningColor,
                         fontWeight: FontWeight.w600,
                       ),
-                    ).animate().fade(delay: 300.ms).slideX(begin: 0.1, end: 0),
+                    ).medAiChain(context,
+                        (w) => w.animate().fade(delay: 300.ms).slideX(begin: 0.1, end: 0)),
                   ],
                 ),
               ),
@@ -118,7 +125,8 @@ class InteractionWarningSheet extends StatelessWidget {
                 ),
               ],
             ),
-          ).animate().fade(delay: 400.ms).slideY(begin: 0.1, end: 0),
+          ).medAiChain(context,
+              (w) => w.animate().fade(delay: 400.ms).slideY(begin: 0.1, end: 0)),
 
           const SizedBox(height: AppSpacing.p32),
 
@@ -144,7 +152,8 @@ class InteractionWarningSheet extends StatelessWidget {
                 ),
               ),
             ],
-          ).animate().fade(delay: 500.ms, duration: 300.ms),
+          ).medAiChain(context,
+              (w) => w.animate().fade(delay: 500.ms, duration: 300.ms)),
         ],
       ),
     );

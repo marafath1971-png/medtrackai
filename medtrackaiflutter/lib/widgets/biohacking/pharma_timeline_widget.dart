@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../services/growth_tracker.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -221,7 +221,13 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                 ],
               ),
             ],
-          ).animate(onPlay: (c) => c.repeat(reverse: true)).shimmer(duration: 1500.ms, color: L.sub.withValues(alpha: 0.1)),
+          ).medAiChain(
+              context,
+              (w) => w
+                  .animate(onPlay: (c) => c.repeat(reverse: true))
+                  .shimmer(
+                      duration: 1500.ms,
+                      color: L.sub.withValues(alpha: 0.1))),
           const SizedBox(height: 32),
           Center(
             child: Container(
@@ -231,7 +237,13 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                 color: L.sub.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(20),
               ),
-            ).animate(onPlay: (c) => c.repeat(reverse: true)).shimmer(duration: 1500.ms, color: L.sub.withValues(alpha: 0.1)),
+            ).medAiChain(
+                context,
+                (w) => w
+                    .animate(onPlay: (c) => c.repeat(reverse: true))
+                    .shimmer(
+                        duration: 1500.ms,
+                        color: L.sub.withValues(alpha: 0.1))),
           ),
         ],
       ),

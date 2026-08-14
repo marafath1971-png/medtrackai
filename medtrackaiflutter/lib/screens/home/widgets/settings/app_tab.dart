@@ -71,10 +71,10 @@ class _AppTabState extends State<AppTab> {
                   first: true,
                   border: true),
               SettingsModalRow(
-                  icon: '⚡',
+                  icon: '🔊',
                   iconBg: AppColors.warningSoft.withValues(alpha: 0.1),
-                  label: 'Sound & Haptics',
-                  sub: 'Vibrate and play sound',
+                  label: 'Reminder Sound',
+                  sub: 'Play a sound with notifications',
                   right: AppToggle(
                       value: profile?.notifSound ?? true,
                       onChanged: (v) {
@@ -82,6 +82,24 @@ class _AppTabState extends State<AppTab> {
                         if (s.profile != null) {
                           s.saveProfile(s.profile!.copyWith(notifSound: v));
                           s.refreshNotifications();
+                        }
+                      }),
+                  border: true),
+              SettingsModalRow(
+                  icon: '⚡',
+                  iconBg: AppColors.warningSoft.withValues(alpha: 0.1),
+                  label: 'Haptics',
+                  sub: 'Vibrate on taps and dose logging',
+                  right: AppToggle(
+                      value: profile?.hapticsEnabled ?? true,
+                      onChanged: (v) {
+                        final s = context.read<AppState>();
+                        if (s.profile != null) {
+                          // Apply immediately so the confirming tap itself
+                          // respects the new setting.
+                          HapticEngine.isEnabled = v;
+                          if (v) HapticEngine.selection();
+                          s.saveProfile(s.profile!.copyWith(hapticsEnabled: v));
                         }
                       }),
                   border: true),

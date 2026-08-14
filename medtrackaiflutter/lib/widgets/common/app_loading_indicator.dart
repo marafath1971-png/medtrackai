@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import 'med_ai_logo.dart';
 
 class AppLoadingIndicator extends StatelessWidget {
@@ -40,12 +40,14 @@ class AppLoadingIndicator extends StatelessWidget {
                   ),
                 ],
               ),
-            ).animate(onPlay: (c) => c.repeat(reverse: true)).scale(
-                  begin: const Offset(0.8, 0.8),
-                  end: const Offset(1.2, 1.2),
-                  duration: 1500.ms,
-                  curve: Curves.easeInOut,
-                ),
+            ).medAiChain(
+                context,
+                (w) => w.animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+                      begin: const Offset(0.8, 0.8),
+                      end: const Offset(1.2, 1.2),
+                      duration: 1500.ms,
+                      curve: Curves.easeInOut,
+                    )),
 
             // ── The Logo
             MedAiLogo.badge(size: size, borderRadius: size * 0.22)
@@ -72,10 +74,14 @@ class AppLoadingIndicator extends StatelessWidget {
               color: L.text.withValues(alpha: 0.4),
               letterSpacing: 2.0,
             ),
-          )
-              .animate(onPlay: (c) => c.repeat(reverse: true))
-              .fadeIn(duration: 1500.ms, curve: Curves.easeInOut)
-              .scale(begin: const Offset(0.98, 0.98), end: const Offset(1, 1)),
+          ).medAiChain(
+              context,
+              (w) => w
+                  .animate(onPlay: (c) => c.repeat(reverse: true))
+                  .fadeIn(duration: 1500.ms, curve: Curves.easeInOut)
+                  .scale(
+                      begin: const Offset(0.98, 0.98),
+                      end: const Offset(1, 1))),
         ],
       ],
     );

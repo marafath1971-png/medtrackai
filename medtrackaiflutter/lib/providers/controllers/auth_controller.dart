@@ -5,12 +5,22 @@ import '../../domain/repositories/user_repository.dart';
 import '../../models/onboarding_prefs.dart';
 import '../../services/auth_service.dart';
 import '../../core/utils/logger.dart';
+import '../../core/utils/haptic_engine.dart';
 
 class AuthController extends ChangeNotifier {
   final IUserRepository userRepo;
 
   AppPhase _phase = AppPhase.loading;
-  UserProfile? _profile;
+  UserProfile? _profileValue;
+
+  /// Single funnel for profile writes so device-level side effects (currently
+  /// the [HapticEngine] kill switch) stay in sync with the stored preference.
+  /// A null profile (logout / deletion) restores the default-on behaviour.
+  UserProfile? get _profile => _profileValue;
+  set _profile(UserProfile? p) {
+    _profileValue = p;
+    HapticEngine.isEnabled = p?.hapticsEnabled ?? true;
+  }
   bool _isLocked = false;
   String _language = 'en';
   bool _isPurchasing = false;

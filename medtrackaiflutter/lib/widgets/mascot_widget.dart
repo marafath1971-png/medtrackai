@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:provider/provider.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 import '../../providers/app_state.dart';
 
 class MascotWidget extends StatelessWidget {
@@ -51,6 +51,9 @@ class MascotWidget extends StatelessWidget {
         );
       },
     );
+
+    // The idle bob loops forever — hold the mascot still under reduced motion.
+    if (MedAiA11y.reducedMotion(context)) return child;
 
     if (mood == 'energetic') {
       return child.animate(onPlay: (c) => c.repeat(reverse: true)).moveY(begin: -5, end: 5, duration: 1000.ms, curve: Curves.easeInOut);

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../providers/app_state.dart';
-import '../../theme/app_theme.dart';
+import '../../theme/med_ai_ui.dart';
 
 class AmbientMeshBackground extends StatelessWidget {
   const AmbientMeshBackground({super.key});
@@ -56,10 +56,15 @@ class AmbientMeshBackground extends StatelessWidget {
               shape: BoxShape.circle,
               color: pulseColor,
             ),
-          )
-              .animate(onPlay: (c) => c.repeat(reverse: true))
-              .scale(begin: const Offset(1, 1), end: const Offset(1.2, 1.2), duration: 8.seconds)
-              .fadeIn(duration: 2.seconds),
+          ).medAiChain(
+              context,
+              (w) => w
+                  .animate(onPlay: (c) => c.repeat(reverse: true))
+                  .scale(
+                      begin: const Offset(1, 1),
+                      end: const Offset(1.2, 1.2),
+                      duration: 8.seconds)
+                  .fadeIn(duration: 2.seconds)),
         ),
 
         // Animated Ambient Orb 2 (Bottom Right)
@@ -73,10 +78,15 @@ class AmbientMeshBackground extends StatelessWidget {
               shape: BoxShape.circle,
               color: L.secondary.withValues(alpha: isDark ? 0.15 : 0.08),
             ),
-          )
-              .animate(onPlay: (c) => c.repeat(reverse: true))
-              .scale(begin: const Offset(1, 1), end: const Offset(1.3, 1.3), duration: 10.seconds)
-              .fadeIn(duration: 2.seconds),
+          ).medAiChain(
+              context,
+              (w) => w
+                  .animate(onPlay: (c) => c.repeat(reverse: true))
+                  .scale(
+                      begin: const Offset(1, 1),
+                      end: const Offset(1.3, 1.3),
+                      duration: 10.seconds)
+                  .fadeIn(duration: 2.seconds)),
         ),
 
         // Soft wash — no live BackdropFilter (60fps).
