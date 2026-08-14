@@ -5,6 +5,10 @@ import WidgetKit
 
 @main
 @objc class AppDelegate: FlutterAppDelegate {
+  /// Retained: a FlutterMethodChannel does not keep itself alive, and a
+  /// deallocated channel stops delivering calls to its handler.
+  private var widgetChannel: FlutterMethodChannel?
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -18,10 +22,16 @@ import WidgetKit
       UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
     }
     
-    if let controller = window?.rootViewController as? FlutterViewController {
-      let widgetChannel = FlutterMethodChannel(name: "com.medtrackai.widget",
-                                                binaryMessenger: controller.binaryMessenger)
-      widgetChannel.setMethodCallHandler({
+    // Register on the shared engine's messenger, not window?.rootViewController.
+    // Under the UIScene lifecycle (this app has a SceneDelegate and a
+    // UIApplicationSceneManifest) the window is still nil here — the scene
+    // creates it later — so the old `if let controller = window?...` guard
+    // silently failed and the channel was never registered, leaving every
+    // syncData call to throw MissingPluginException.
+    if let registrar = self.registrar(forPlugin: "MedTrackAIWidget") {
+      widgetChannel = FlutterMethodChannel(name: "com.medtrackai.widget",
+                                           binaryMessenger: registrar.messenger())
+      widgetChannel?.setMethodCallHandler({
         (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
         if call.method == "syncData" {
           if let args = call.arguments as? [String: Any],
