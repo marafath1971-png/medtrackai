@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../core/utils/date_formatter.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
@@ -25,12 +26,9 @@ class HomeHeader extends StatelessWidget {
     final userName =
         state.activeProfile?.name ?? state.profile?.name ?? 'there';
 
-    final hour = DateTime.now().hour;
-    final greeting = hour < 12
-        ? 'Good morning,'
-        : hour < 17
-            ? 'Good afternoon,'
-            : 'Good evening,';
+    // Localized — the app ships 7 locales, including RTL (ar, he). Punctuation
+    // stays out of the string: a Latin comma is wrong in ja/ar.
+    final greeting = greet(context);
 
     final doses = state.getDoses();
     final takenMap = state.getTakenMapForDate(DateTime.now());
