@@ -112,10 +112,12 @@ class AddCgStep1 extends StatelessWidget {
                                             HapticEngine.selection();
                                             onAvatarChange(a);
                                           },
-                                          child: MedAiGlass(
-                                            padding: EdgeInsets.zero,
+                                          // Solid, not MedAiGlass: light mode
+                                          // discards the tint, so a selected
+                                          // avatar would look unselected.
+                                          child: _SelectableSurface(
+                                            selected: avatar == a,
                                             radius: 24,
-                                            tint: avatar == a ? L.text : L.card,
                                             child: SizedBox(
                                               width: MedAiA11y.minTapTarget,
                                               height: MedAiA11y.minTapTarget,
@@ -168,11 +170,11 @@ class AddCgStep1 extends StatelessWidget {
                                             HapticEngine.selection();
                                             onRelChange(r);
                                           },
-                                          child: MedAiGlass(
+                                          child: _SelectableSurface(
+                                            selected: relation == r,
                                             padding: const EdgeInsets.symmetric(
                                                 horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
                                             radius: AppRadius.xl,
-                                            tint: relation == r ? L.text : L.card,
                                             child: Text(r,
                                                 style: AppTypography.labelLarge
                                                     .copyWith(
@@ -284,10 +286,10 @@ class DelayBtn extends StatelessWidget {
               HapticEngine.selection();
               onTap(delay);
             },
-            child: MedAiGlass(
+            child: _SelectableSurface(
+              selected: current == delay,
               padding: const EdgeInsets.symmetric(vertical: AppSpacing.p16, horizontal: AppSpacing.p4),
               radius: AppRadius.xl,
-              tint: current == delay ? L.text : L.card,
               child: Center(
                 child: Text(label,
                     style: AppTypography.labelLarge.copyWith(
@@ -741,5 +743,43 @@ class AddCgStep3 extends StatelessWidget {
                         delay: 600.ms,
                       ),
                     ]))));
+  }
+}
+
+/// Selectable chip surface.
+///
+/// Deliberately not [MedAiGlass]: that widget ignores its `tint` in light mode
+/// and always paints `L.card`, so a dark "selected" tint never rendered while
+/// the child's colour still flipped to `L.bg` — selected items came out
+/// cream-on-white and effectively invisible.
+class _SelectableSurface extends StatelessWidget {
+  final bool selected;
+  final double radius;
+  final EdgeInsetsGeometry padding;
+  final Widget child;
+
+  const _SelectableSurface({
+    required this.selected,
+    required this.child,
+    this.radius = AppRadius.xl,
+    this.padding = EdgeInsets.zero,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: selected ? L.text : L.card,
+        borderRadius: BorderRadius.circular(radius),
+        border: Border.all(
+          color: selected ? L.text : L.glassBorder.withValues(alpha: 0.22),
+          width: selected ? 1.5 : 0.5,
+        ),
+        boxShadow: AppShadows.soft,
+      ),
+      child: child,
+    );
   }
 }

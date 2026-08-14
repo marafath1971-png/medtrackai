@@ -113,6 +113,11 @@ class MedAiGlass extends StatelessWidget {
     final effectiveBlur = blur > 12 ? 12.0 : blur;
     final useBlur = isDark && !reduceMotion && effectiveBlur > 0;
 
+    // NOTE: light mode intentionally ignores [tint] and paints L.card — ~45
+    // call sites pass pastel tints that are only meant to show in dark mode.
+    // A dark "selected state" tint therefore will NOT render here: use a solid
+    // surface for that (see _SurfaceWrap in auth_screen.dart), or the selected
+    // item will be invisible if its content color also flips.
     final decoration = BoxDecoration(
       color: useBlur
           ? null

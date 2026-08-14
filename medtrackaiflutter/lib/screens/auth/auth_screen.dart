@@ -424,11 +424,11 @@ class _SocialAuthBtn extends StatelessWidget {
         onTap: loading ? null : onTap,
         disabled: loading,
         scaleFactor: 0.98,
-        child: MedAiGlass(
-          radius: AppRadius.l,
-          blur: 24,
-          tint: isDark ? L.text : L.card,
-          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
+        // The dark variant (Apple) needs a genuinely solid fill: MedAiGlass
+        // discards its tint in light mode and paints L.card at 0.97, which
+        // rendered white-on-white and made the button look empty.
+        child: _SurfaceWrap(
+          isDark: isDark,
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -453,6 +453,43 @@ class _SocialAuthBtn extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Solid fill for the dark (Apple) variant, glass for the light ones.
+///
+/// [MedAiGlass] only honours its `tint` in dark mode — in light mode it paints
+/// `L.card` at 0.97 regardless — so a dark-tinted glass button renders as a
+/// near-white pill with invisible white content.
+class _SurfaceWrap extends StatelessWidget {
+  final bool isDark;
+  final Widget child;
+
+  const _SurfaceWrap({required this.isDark, required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    const padding = EdgeInsets.symmetric(vertical: 16, horizontal: 20);
+
+    if (!isDark) {
+      return MedAiGlass(
+        radius: AppRadius.l,
+        blur: 24,
+        tint: context.L.card,
+        padding: padding,
+        child: child,
+      );
+    }
+
+    return Container(
+      padding: padding,
+      decoration: BoxDecoration(
+        color: context.L.text,
+        borderRadius: BorderRadius.circular(AppRadius.l),
+        boxShadow: AppShadows.soft,
+      ),
+      child: child,
     );
   }
 }
