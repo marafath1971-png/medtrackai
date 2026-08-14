@@ -44,6 +44,35 @@ Verify it is signed with your key, not the debug key:
 jarsigner -verify -verbose:summary build/app/outputs/bundle/release/app-release.aab
 ```
 
+A correct build prints your own `CN=`. **A build made without `key.properties` prints
+`CN=Android Debug`** — that bundle is rejected by Play. This was confirmed on the
+2026-08-15 build, which came out debug-signed because the keystore did not exist yet.
+
+### About the bundle size
+
+The `.aab` is ~119 MB, but **that is not the size users download.** Roughly 92 MB of it
+is `BUNDLE-METADATA/` — a 55 MB ProGuard mapping file plus ~85 MB of native debug symbols
+that Play uses for crash deobfuscation and never ships to devices.
+
+Actual per-device install content:
+
+| Component | Size |
+|---|---|
+| shared (dex + assets + res) | ~37 MB |
+| native libs, arm64-v8a | ~33 MB |
+| native libs, armeabi-v7a | ~30 MB |
+| native libs, x86_64 | ~36 MB |
+
+So a typical arm64 phone pulls ~70 MB uncompressed, less after Play's compression. That is
+normal for a Flutter app carrying Firebase, ML barcode scanning, and Rive. Play's limit is
+150 MB, so there is comfortable headroom.
+
+Optional trims if you want it smaller:
+- **Drop `x86_64`** (~36 MB) — it only serves emulators and some Chromebooks:
+  `flutter build appbundle --release --target-platform android-arm,android-arm64`
+- `assets/mascots` is 7.6 MB and `assets/photos` 5.4 MB; compressing those is the main
+  asset-side win.
+
 ## 3. Play Console declarations this app specifically needs
 
 These are the ones most likely to cause a rejection here:
