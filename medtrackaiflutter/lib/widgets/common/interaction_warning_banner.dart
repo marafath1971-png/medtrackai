@@ -19,7 +19,6 @@ class InteractionWarningBanner extends StatelessWidget {
 
     if (warning == null) return const SizedBox.shrink();
 
-    final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
     Widget banner = Padding(
@@ -65,7 +64,7 @@ class InteractionWarningBanner extends StatelessWidget {
                   Text(
                     warning,
                     style: AppTypography.bodyMedium.copyWith(
-                      color: L.text,
+                      color: const Color(0xFF1A1D26),
                       height: 1.4,
                       fontWeight: FontWeight.w600,
                     ),
@@ -74,7 +73,7 @@ class InteractionWarningBanner extends StatelessWidget {
                   Text(
                     'Review with your doctor or pharmacist before taking ${medName ?? 'this medicine'}.',
                     style: AppTypography.bodySmall.copyWith(
-                      color: L.sub,
+                      color: const Color(0xFF5C6570),
                       height: 1.35,
                     ),
                   ),
@@ -89,9 +88,10 @@ class InteractionWarningBanner extends StatelessWidget {
                   HapticEngine.selection();
                   context.read<AppState>().clearInteractionWarning();
                 },
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.only(start: 4),
-                  child: Icon(Icons.close_rounded, size: 20, color: L.sub),
+                child: const Padding(
+                  padding: EdgeInsetsDirectional.only(start: 4),
+                  child: Icon(Icons.close_rounded,
+                      size: 20, color: Color(0xFF5C6570)),
                 ),
               ),
             ),

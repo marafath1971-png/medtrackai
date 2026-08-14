@@ -235,7 +235,7 @@ class _MascotShopSheetState extends State<MascotShopSheet> {
             colors: [
               L.green,
               L.accent,
-              L.purple,
+              AppColors.limeDeep,
               L.amber,
               L.error,
             ],

@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -80,13 +79,17 @@ class AmbientMeshBackground extends StatelessWidget {
               .fadeIn(duration: 2.seconds),
         ),
 
-        // Liquid Glass Blur Overlay
+        // Soft wash — no live BackdropFilter (60fps).
         Positioned.fill(
-          child: ClipRect(
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 40, sigmaY: 40),
-              child: Container(
-                color: Colors.transparent,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  L.bg.withValues(alpha: isDark ? 0.35 : 0.55),
+                  L.bg.withValues(alpha: isDark ? 0.15 : 0.25),
+                ],
               ),
             ),
           ),

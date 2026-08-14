@@ -352,7 +352,7 @@ class ScanResultDetailView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppSpacing.p16),
               decoration: BoxDecoration(
-                color: AppColors.pastelLilac,
+                color: AppColors.pastelMint,
                 borderRadius: BorderRadius.circular(AppRadius.l),
               ),
               child: Row(
@@ -453,7 +453,7 @@ class ScanResultDetailView extends StatelessWidget {
             reduceMotion,
             ScanSoftSection(
               title: 'About',
-              tint: AppColors.pastelLilac,
+              tint: AppColors.pastelMint,
               icon: Icons.menu_book_rounded,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -576,7 +576,7 @@ class ScanResultDetailView extends StatelessWidget {
     add(
       'When',
       result.whenToTake.isNotEmpty ? result.whenToTake : categoryFallback,
-      AppColors.pastelLilac,
+      AppColors.pastelMint,
       Icons.wb_sunny_outlined,
     );
     return tiles.take(4).toList();
@@ -602,7 +602,7 @@ class ScanResultDetailView extends StatelessWidget {
       AppColors.pastelSky,
       AppColors.pastelSun,
       AppColors.pastelPink,
-      AppColors.pastelLilac,
+      AppColors.pastelMint,
       AppColors.pastelMint,
       Color(0xFFF3F0EA),
     ];
@@ -890,7 +890,7 @@ class _BodyImpactPremium extends StatelessWidget {
                     label: impact.bodySystems[i],
                     color: const [
                       AppColors.pastelSky,
-                      AppColors.pastelLilac,
+                      AppColors.pastelMint,
                       AppColors.pastelSun,
                       AppColors.pastelMint,
                       AppColors.pastelPink,

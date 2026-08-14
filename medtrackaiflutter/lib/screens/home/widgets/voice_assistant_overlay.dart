@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -21,11 +20,8 @@ class VoiceAssistantOverlay extends StatelessWidget {
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
     Widget backdrop = Positioned.fill(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: Container(
-          color: Colors.black.withValues(alpha: 0.6),
-        ),
+      child: Container(
+        color: Colors.black.withValues(alpha: 0.72),
       ),
     );
     if (!reduceMotion) {
@@ -157,7 +153,7 @@ class VoiceAssistantOverlay extends StatelessWidget {
               begin: const Offset(0.8, 0.8),
               end: const Offset(1, 1),
               duration: 400.ms,
-              curve: Curves.elasticOut);
+              curve: AppCurves.emilOut);
     }
 
     final rings = reduceMotion || state.voiceStatus != 'listening'

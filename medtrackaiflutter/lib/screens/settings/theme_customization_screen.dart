@@ -135,7 +135,7 @@ class _ThemeCustomizationScreenState extends State<ThemeCustomizationScreen> {
                       if (!reduceMotion && isSelected) {
                         tile = tile
                             .animate()
-                            .scaleXY(end: 1.02, curve: Curves.easeOutBack);
+                            .scaleXY(end: 1.02, curve: AppCurves.emilOut);
                       }
 
                       return SizedBox(width: tileWidth, child: tile);

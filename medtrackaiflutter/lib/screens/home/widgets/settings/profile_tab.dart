@@ -229,7 +229,7 @@ class _ProfileTabState extends State<ProfileTab> {
                           horizontal: AppSpacing.p8, vertical: 2),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [AppColors.amber, Colors.orangeAccent],
+                          colors: [AppColors.lime, AppColors.limeDeep],
                           begin: Alignment.topLeft,
                           end: Alignment.bottomRight,
                         ),
@@ -239,7 +239,7 @@ class _ProfileTabState extends State<ProfileTab> {
                           style: AppTypography.labelSmall.copyWith(
                               fontWeight: FontWeight.w800,
                               fontSize: 10,
-                              color: Colors.black,
+                              color: AppColors.limeInk,
                               letterSpacing: 0.5)),
                     ),
                   ],

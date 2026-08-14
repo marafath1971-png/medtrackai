@@ -43,7 +43,7 @@ class ObScaffold extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [p.bgTop, p.bg],
-          stops: const [0.0, 0.45],
+          stops: const [0.0, 0.55],
         ),
       ),
       child: Scaffold(
@@ -51,8 +51,22 @@ class ObScaffold extends StatelessWidget {
         body: Stack(
           fit: StackFit.expand,
           children: [
-            if (!reduceMotion)
-              AuroraBackground(colors: p.aurora, opacity: context.isDark ? 0.38 : 0.22),
+            // Soft pastel wash only — no busy aurora on every step.
+            if (!reduceMotion && !context.isDark)
+              const IgnorePointer(
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    gradient: RadialGradient(
+                      center: Alignment(0, -0.85),
+                      radius: 1.1,
+                      colors: [
+                        Color(0x55EEF7E4),
+                        Color(0x00F7F6F3),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
             SafeArea(
               child: Column(
                 children: [
@@ -62,35 +76,39 @@ class ObScaffold extends StatelessWidget {
                       physics: const BouncingScrollPhysics(
                         parent: AlwaysScrollableScrollPhysics(),
                       ),
-                      padding: const EdgeInsets.fromLTRB(22, 8, 22, 16),
+                      padding: const EdgeInsets.fromLTRB(22, 12, 22, 20),
                       child: child,
                     ),
                   ),
-                  ClipRect(
-                    child: DecoratedBox(
-                      decoration: BoxDecoration(
-                        color: p.surface,
-                        border: Border(
-                          top: BorderSide(color: p.border.withValues(alpha: 0.65)),
-                        ),
-                        boxShadow: AppShadows.soft,
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      color: p.surface.withValues(alpha: 0.96),
+                      border: Border(
+                        top: BorderSide(color: p.border.withValues(alpha: 0.7)),
                       ),
-                      child: Padding(
-                        padding: const EdgeInsets.fromLTRB(22, 12, 22, 16),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            if (secondaryCta != null) ...[
-                              secondaryCta!,
-                              const SizedBox(height: 10),
-                            ],
-                            ObPrimaryButton(
-                              label: ctaLabel,
-                              enabled: ctaEnabled,
-                              onTap: onCta,
-                            ),
-                          ],
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF1A2621).withValues(alpha: 0.05),
+                          blurRadius: 20,
+                          offset: const Offset(0, -6),
                         ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(22, 14, 22, 16),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          if (secondaryCta != null) ...[
+                            secondaryCta!,
+                            const SizedBox(height: 10),
+                          ],
+                          ObPrimaryButton(
+                            label: ctaLabel,
+                            enabled: ctaEnabled,
+                            onTap: onCta,
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -230,11 +248,10 @@ class ObProgressBar extends StatelessWidget {
                 widthFactor: value,
                 child: DecoratedBox(
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [p.accent, p.electric],
+                    gradient: const LinearGradient(
+                      colors: [AppColors.lime, AppColors.limeDeep],
                     ),
                     borderRadius: BorderRadius.circular(99),
-                    boxShadow: AppShadows.glow(p.electric, intensity: 0.25),
                   ),
                 ),
               ),
@@ -262,7 +279,6 @@ class ObPrimaryButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final p = ObPalette.of(context);
     final active = enabled && onTap != null;
 
     return Semantics(
@@ -287,19 +303,19 @@ class ObPrimaryButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
             decoration: BoxDecoration(
               gradient: active
-                  ? LinearGradient(
+                  ? const LinearGradient(
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
-                      colors: [p.cta, p.cta.withValues(alpha: 0.88)],
+                      colors: [AppColors.lime, AppColors.limeDeep],
                     )
                   : null,
-              color: active ? null : p.cta.withValues(alpha: 0.5),
-              borderRadius: BorderRadius.circular(16),
+              color: active ? null : AppColors.lime.withValues(alpha: 0.45),
+              borderRadius: BorderRadius.circular(999),
               boxShadow: active
                   ? [
                       BoxShadow(
-                        color: p.cta.withValues(alpha: 0.22),
-                        blurRadius: 16,
+                        color: AppColors.limeDeep.withValues(alpha: 0.4),
+                        blurRadius: 18,
                         offset: const Offset(0, 8),
                       ),
                     ]
@@ -308,8 +324,8 @@ class ObPrimaryButton extends StatelessWidget {
             child: Text(
               label,
               style: AppTypography.titleMedium.copyWith(
-                color: p.ctaInk,
-                fontWeight: FontWeight.w700,
+                color: AppColors.limeInk,
+                fontWeight: FontWeight.w800,
                 letterSpacing: -0.2,
               ),
             ),
@@ -415,8 +431,6 @@ class ObMascot extends StatelessWidget {
       child: GhostMascot.feature(
         feature,
         size: size,
-        // Idle float gives the hero life; the outer one-shot entrance below
-        // handles the reveal. Both are suppressed under reduced-motion.
         idle: !reduceMotion,
       ),
     );
@@ -425,14 +439,14 @@ class ObMascot extends StatelessWidget {
     if (reduceMotion) return hero;
     return hero
         .animate()
-        .fadeIn(duration: 450.ms, curve: Curves.easeOut)
+        .fadeIn(duration: AppDurations.fast, curve: AppCurves.emilOut)
         .scale(
-          begin: const Offset(0.82, 0.82),
+          begin: const Offset(0.96, 0.96),
           end: const Offset(1, 1),
-          duration: 550.ms,
-          curve: Curves.easeOutBack,
+          duration: AppDurations.medium,
+          curve: AppCurves.emilOut,
         )
-        .slideY(begin: 0.06, end: 0, duration: 500.ms, curve: Curves.easeOut);
+        .slideY(begin: 0.03, end: 0, duration: AppDurations.fast, curve: AppCurves.emilOut);
   }
 }
 
@@ -475,24 +489,30 @@ class ObOptionCard extends StatelessWidget {
         scaleFactor: 0.985,
         child: AnimatedContainer(
           duration: MedAiA11y.motion(context, AppDurations.fast),
-          curve: AppCurves.expressive,
-          constraints: const BoxConstraints(minHeight: 60),
+          curve: AppCurves.emilOut,
+          constraints: const BoxConstraints(minHeight: 64),
           padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
           decoration: BoxDecoration(
             color: selected ? p.surfaceSel : p.surface,
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(22),
             border: Border.all(
-              color: selected ? p.borderSel : p.border,
-              width: selected ? 2 : 1,
+              color: selected ? AppColors.limeDeep.withValues(alpha: 0.45) : p.border,
+              width: selected ? 1.5 : 1,
             ),
-            boxShadow: selected ? null : AppShadows.soft,
+            boxShadow: [
+              BoxShadow(
+                color: const Color(0xFF1A2621).withValues(alpha: selected ? 0.06 : 0.04),
+                blurRadius: selected ? 18 : 14,
+                offset: const Offset(0, 6),
+              ),
+            ],
           ),
           child: Row(
             children: [
               if (emoji != null)
                 Text(emoji!, style: const TextStyle(fontSize: 22))
               else if (icon != null)
-                Icon(icon, size: 22, color: p.accent),
+                Icon(icon, size: 22, color: AppColors.accentDeep),
               if (emoji != null || icon != null) const SizedBox(width: 14),
               Expanded(
                 child: Column(
@@ -503,14 +523,18 @@ class ObOptionCard extends StatelessWidget {
                       label,
                       style: AppTypography.titleMedium.copyWith(
                         color: p.text,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.2,
                       ),
                     ),
                     if (subtitle != null) ...[
-                      const SizedBox(height: 2),
+                      const SizedBox(height: 3),
                       Text(
                         subtitle!,
-                        style: AppTypography.bodySmall.copyWith(color: p.sub),
+                        style: AppTypography.bodySmall.copyWith(
+                          color: p.sub,
+                          height: 1.35,
+                        ),
                       ),
                     ],
                   ],
@@ -540,22 +564,24 @@ class _Marker extends StatelessWidget {
   Widget build(BuildContext context) {
     return AnimatedContainer(
       duration: MedAiA11y.motion(context, AppDurations.micro),
-      width: 24,
-      height: 24,
+      width: 26,
+      height: 26,
       decoration: BoxDecoration(
         gradient: selected
-            ? LinearGradient(colors: [p.accent, p.electric])
+            ? const LinearGradient(
+                colors: [AppColors.lime, AppColors.limeDeep],
+              )
             : null,
         color: selected ? null : Colors.transparent,
         shape: multiSelect ? BoxShape.rectangle : BoxShape.circle,
-        borderRadius: multiSelect ? BorderRadius.circular(7) : null,
+        borderRadius: multiSelect ? BorderRadius.circular(8) : null,
         border: Border.all(
-          color: selected ? p.accent : p.border,
-          width: 2,
+          color: selected ? AppColors.limeDeep : p.border,
+          width: 1.5,
         ),
       ),
       child: selected
-          ? Icon(Icons.check_rounded, size: 16, color: p.accentInk)
+          ? const Icon(Icons.check_rounded, size: 16, color: AppColors.limeInk)
           : null,
     );
   }

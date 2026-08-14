@@ -249,7 +249,7 @@ class StatsTab extends StatelessWidget {
           physics: const NeverScrollableScrollPhysics(),
           crossAxisSpacing: 10,
           mainAxisSpacing: 10,
-          childAspectRatio: 1.4,
+          childAspectRatio: 1.25,
           children: [
             SettingsStatCard(
                     label: 'Doses Taken',

@@ -26,7 +26,7 @@ class CourseCompletionDialog extends StatelessWidget {
       backgroundColor: Colors.transparent,
       insetPadding: const EdgeInsets.all(AppSpacing.p20),
       child: MedAiDepthCard(
-        accentGlow: true,
+        accentGlow: false,
         padding: const EdgeInsets.all(AppSpacing.p24),
         child: SingleChildScrollView(
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

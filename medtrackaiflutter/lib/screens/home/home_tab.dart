@@ -5,7 +5,6 @@ import '../../core/utils/haptic_engine.dart';
 import '../../core/utils/scan_safety_mapper.dart';
 import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
-import '../../widgets/common/hope_surround_banner.dart';
 import '../../widgets/common/premium_texture.dart';
 import '../../widgets/common/recommend_hope_cta.dart';
 import '../dashboard/widgets/lime_progress_hero.dart';
@@ -15,6 +14,7 @@ import 'dose_grouping.dart';
 import 'widgets/emergency_warning_card.dart';
 import 'widgets/home_dose_group.dart';
 import 'widgets/home_header.dart';
+import 'widgets/home_hope_photo_strip.dart';
 import 'widgets/home_mascot_card.dart';
 import 'widgets/home_schedule_empty.dart';
 import 'widgets/home_week_strip.dart';
@@ -254,7 +254,15 @@ class _HomeTabState extends State<HomeTab> {
 
                     SliverPadding(
                       padding:
-                          const EdgeInsets.fromLTRB(_hPad, AppSpacing.p8, _hPad, AppSpacing.p16),
+                          const EdgeInsets.fromLTRB(_hPad, AppSpacing.p8, _hPad, AppSpacing.p12),
+                      sliver: const SliverToBoxAdapter(
+                        child: HomeHopePhotoStrip(),
+                      ),
+                    ),
+
+                    SliverPadding(
+                      padding:
+                          const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p16),
                       sliver: SliverToBoxAdapter(
                         child: LimeProgressHero(
                           fraction: dosePct,
@@ -294,14 +302,6 @@ class _HomeTabState extends State<HomeTab> {
                             ),
                           ],
                         ),
-                      ),
-                    ),
-
-                    SliverPadding(
-                      padding:
-                          const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p16),
-                      sliver: SliverToBoxAdapter(
-                        child: HopeSurroundBanner.homeSuccess(),
                       ),
                     ),
 
@@ -427,21 +427,52 @@ class _HomeTabState extends State<HomeTab> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                'Your medicines',
-                                style: AppTypography.titleMedium.copyWith(
-                                  color: L.text,
-                                  fontWeight: FontWeight.w800,
-                                ),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: Text(
+                                      'Your medicines',
+                                      style:
+                                          AppTypography.titleMedium.copyWith(
+                                        color: AppColors.inkStrong,
+                                        fontWeight: FontWeight.w800,
+                                        letterSpacing: -0.3,
+                                      ),
+                                    ),
+                                  ),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 10,
+                                      vertical: 5,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.pastelMint,
+                                      borderRadius: BorderRadius.circular(999),
+                                    ),
+                                    child: Text(
+                                      '${meds.length}',
+                                      style:
+                                          AppTypography.labelSmall.copyWith(
+                                        color: AppColors.limeInk,
+                                        fontWeight: FontWeight.w800,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
                               const SizedBox(height: AppSpacing.p4),
                               Text(
                                 HopeVibe.medicinesSubtitle,
-                                style: AppTypography.bodySmall
-                                    .copyWith(color: L.sub),
+                                style: AppTypography.bodySmall.copyWith(
+                                  color: AppColors.grey600,
+                                  height: 1.35,
+                                ),
                               ),
                               const SizedBox(height: AppSpacing.p12),
-                              ...meds.take(6).map(
+                              ...meds
+                                  .where((m) => m.name.trim().isNotEmpty)
+                                  .take(6)
+                                  .map(
                                     (m) => MedCard(
                                       med: m,
                                       onView: () => _viewMed(m),

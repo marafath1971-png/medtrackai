@@ -103,7 +103,7 @@ class _AppTabState extends State<AppTab> {
                   border: true),
               SettingsModalRow(
                   icon: '⏰',
-                  iconBg: AppColors.indigo.withValues(alpha: 0.1),
+                  iconBg: AppColors.pastelSky,
                   label: 'Refill Alerts',
                   sub: 'Alert when meds run low',
                   right: AppToggle(
@@ -146,7 +146,7 @@ class _AppTabState extends State<AppTab> {
             title: 'Aesthetics & Theme',
             child: SettingsModalRow(
                 icon: '✨',
-                iconBg: AppColors.purple.withValues(alpha: 0.1),
+                iconBg: AppColors.pastelMint,
                 label: 'App Appearance',
                 sub: 'Custom icons and themes',
                 onClick: () {
@@ -264,7 +264,7 @@ class _AppTabState extends State<AppTab> {
                   border: true),
               SettingsModalRow(
                   icon: 'ℹ️',
-                  iconBg: AppColors.indigo.withValues(alpha: 0.1),
+                  iconBg: AppColors.pastelMint,
                   label:
                       '${context.select<AppState, int>((s) => s.meds.length)} medicines tracked',
                   sub: 'Smart reminders active',

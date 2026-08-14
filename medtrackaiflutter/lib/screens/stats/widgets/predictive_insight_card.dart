@@ -100,10 +100,10 @@ class PredictiveInsightCard extends StatelessWidget {
   // On-brand semantic colors — using AppColors tokens
   Color _getColor(PredictiveType type, AppThemeColors L) {
     switch (type) {
-      case PredictiveType.eveningRisk:   return AppColors.purple;      // evening/night → purple
-      case PredictiveType.weekendSlump:  return AppColors.accent;       // slump warning → orange accent
-      case PredictiveType.travelRisk:    return AppColors.accent;       // travel → orange
-      case PredictiveType.heatWarning:   return L.error;                // danger → red (from theme)
+      case PredictiveType.eveningRisk:   return AppColors.limeDeep; // calm evening cue
+      case PredictiveType.weekendSlump:  return AppColors.accent;
+      case PredictiveType.travelRisk:    return AppColors.accent;
+      case PredictiveType.heatWarning:   return L.error;
     }
   }
 

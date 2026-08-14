@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'dart:ui';
 import 'package:provider/provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -297,7 +296,10 @@ class _AppShellState extends State<AppShell>
           : Scaffold(
               backgroundColor: L.bg,
               resizeToAvoidBottomInset: true,
+              // fit:expand is required — every child is Positioned*, and a
+              // loose Stack sizes to non-positioned children only (→ 0×0 cream blank).
               body: Stack(
+                fit: StackFit.expand,
                 clipBehavior: Clip.none,
                 children: [
                   // ── Main content with swipe tab navigation ──
@@ -376,7 +378,7 @@ class _AppShellState extends State<AppShell>
                                   .slideY(
                                       begin: -0.2,
                                       end: 0,
-                                      curve: Curves.easeOutBack),
+                                      curve: AppCurves.emilOut),
                             ),
                         ],
                       ),
@@ -456,41 +458,35 @@ class _AppShellState extends State<AppShell>
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(28),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-        child: Container(
-          height: 80,
-          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
-          decoration: BoxDecoration(
+      child: Container(
+        height: 80,
+        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 5),
+        decoration: BoxDecoration(
+          // Solid island — no BackdropFilter (keeps 60fps while tabs scroll).
+          color: L.card,
+          borderRadius: BorderRadius.circular(28),
+          border: Border.all(
             color: context.isDark
-                ? L.card.withValues(alpha: 0.72)
-                : L.card,
-            borderRadius: BorderRadius.circular(28),
-            border: Border.all(
-              color: context.isDark
-                  ? L.glassBorder.withValues(alpha: 0.35)
-                  : L.border.withValues(alpha: 0.5),
-              width: context.isDark ? 0.5 : 1,
+                ? L.glassBorder.withValues(alpha: 0.35)
+                : L.border.withValues(alpha: 0.5),
+            width: context.isDark ? 0.5 : 1,
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.eatoNavy.withValues(alpha: 0.08),
+              blurRadius: 16,
+              offset: const Offset(0, 6),
             ),
-            boxShadow: context.isDark
-                ? AppShadows.premium
-                : [
-                    BoxShadow(
-                      color: AppColors.eatoNavy.withValues(alpha: 0.06),
-                      blurRadius: 20,
-                      offset: const Offset(0, 8),
-                    ),
-                  ],
-          ),
-          child: Row(
-            children: [
-              _buildNavItem(0, iconPaths[0], labels[0], L, badges[0], currentIndex),
-              _buildNavItem(1, iconPaths[1], labels[1], L, badges[1], currentIndex),
-              _buildScanButton(L),
-              _buildNavItem(2, iconPaths[2], labels[2], L, badges[2], currentIndex),
-              _buildNavItem(3, iconPaths[3], labels[3], L, badges[3], currentIndex),
-            ],
-          ),
+          ],
+        ),
+        child: Row(
+          children: [
+            _buildNavItem(0, iconPaths[0], labels[0], L, badges[0], currentIndex),
+            _buildNavItem(1, iconPaths[1], labels[1], L, badges[1], currentIndex),
+            _buildScanButton(L),
+            _buildNavItem(2, iconPaths[2], labels[2], L, badges[2], currentIndex),
+            _buildNavItem(3, iconPaths[3], labels[3], L, badges[3], currentIndex),
+          ],
         ),
       ),
     );
@@ -511,8 +507,8 @@ class _AppShellState extends State<AppShell>
             mainAxisSize: MainAxisSize.min,
             children: [
               Container(
-                width: 48,
-                height: 48,
+                width: 44,
+                height: 44,
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -530,7 +526,7 @@ class _AppShellState extends State<AppShell>
                 child: Center(
                   child: AppSvgIcon(
                     assetPath: MedAiAssets.iconScan,
-                    size: 22,
+                    size: 20,
                     color: Colors.white,
                   ),
                 ),
@@ -540,10 +536,12 @@ class _AppShellState extends State<AppShell>
                 fit: BoxFit.scaleDown,
                 child: Text(
                   'Scan',
+                  maxLines: 1,
                   style: AppTypography.labelSmall.copyWith(
                     color: L.sub.withValues(alpha: 0.6),
                     fontSize: 10,
                     fontWeight: FontWeight.w600,
+                    height: 1.0,
                   ),
                 ),
               ),
@@ -576,12 +574,13 @@ class _AppShellState extends State<AppShell>
             constraints: const BoxConstraints(minHeight: AppA11y.minTapTarget),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
               children: [
                 AnimatedContainer(
                   duration: MedAiA11y.motion(context, AppDurations.micro),
                   curve: AppCurves.emilOut,
                   padding: selected
-                      ? const EdgeInsets.symmetric(horizontal: 10, vertical: 4)
+                      ? const EdgeInsets.symmetric(horizontal: 10, vertical: 3)
                       : EdgeInsets.zero,
                   decoration: selected
                       ? BoxDecoration(
@@ -631,11 +630,13 @@ class _AppShellState extends State<AppShell>
                             color: L.text,
                             fontSize: 10,
                             fontWeight: FontWeight.w700,
+                            height: 1.0,
                           )
                         : AppTypography.labelSmall.copyWith(
                             color: L.sub.withValues(alpha: 0.45),
                             fontSize: 10,
                             fontWeight: FontWeight.w500,
+                            height: 1.0,
                           ),
                   ),
                 ),

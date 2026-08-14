@@ -81,17 +81,12 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
             alignment: Alignment.center,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  L.accent.withValues(alpha: 0.18),
-                  AppThemeColors2026.electric.withValues(alpha: 0.12),
-                ],
+              color: AppColors.pastelMint,
+              border: Border.all(
+                color: AppColors.limeDeep.withValues(alpha: 0.35),
               ),
-              boxShadow: AppShadows.glow(L.accent, intensity: 0.2),
             ),
-            child: Icon(Icons.lock_rounded, size: 32, color: L.accent),
+            child: const Icon(Icons.lock_rounded, size: 32, color: AppColors.limeInk),
           ),
           const SizedBox(height: 24),
           Text(
@@ -124,24 +119,21 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
                 final isFilled = i < _enteredPin.length;
                 return AnimatedContainer(
                   duration: MedAiA11y.motion(context, AppDurations.micro),
-                  curve: AppCurves.expressive,
+                  curve: AppCurves.emilOut,
                   margin: const EdgeInsets.symmetric(horizontal: 10),
                   width: 16,
                   height: 16,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: isFilled
-                        ? (_isError ? L.error : L.accent)
+                        ? (_isError ? L.error : AppColors.limeDeep)
                         : Colors.transparent,
                     border: Border.all(
                       color: isFilled
-                          ? (_isError ? L.error : L.accent)
+                          ? (_isError ? L.error : AppColors.limeDeep)
                           : L.border.withValues(alpha: 0.6),
                       width: 2,
                     ),
-                    boxShadow: isFilled && !_isError
-                        ? AppShadows.glow(L.accent, intensity: 0.25)
-                        : null,
                   ),
                 );
               }),
@@ -183,11 +175,11 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
     );
 
     if (!reduceMotion) {
-      body = body.animate().fadeIn().slideY(begin: 0.06, end: 0, curve: AppCurves.expressive);
+      body = body.animate().fadeIn().slideY(begin: 0.06, end: 0, curve: AppCurves.emilOut);
     }
 
     return AppScaffold(
-      showAurora: true,
+      showAurora: false,
       body: body,
     );
   }

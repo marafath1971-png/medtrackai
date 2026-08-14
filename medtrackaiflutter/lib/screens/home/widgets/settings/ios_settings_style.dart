@@ -19,10 +19,11 @@ abstract final class IosSettingsTokens {
 
   static const Color systemOrange = Color(0xFFE8A04A);
   static const Color systemRed = Color(0xFFC45C5C);
-  static const Color systemPurple = Color(0xFF8B7BB8);
+  // Hopeful cream+lime — no stock iOS purple/indigo.
+  static const Color systemPurple = Color(0xFF7A9A4A); // sage-lime
   static const Color systemPink = Color(0xFFD48A9A);
   static const Color systemTeal = Color(0xFF5BA8C8);
-  static const Color systemIndigo = Color(0xFF6B7BB8);
+  static const Color systemIndigo = Color(0xFF5BA8C8); // soft sky
   static const Color systemGray = Color(0xFF8A9099);
   static const Color canvas = Color(0xFFF7F6F3);
 }

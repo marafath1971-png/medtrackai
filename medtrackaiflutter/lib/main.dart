@@ -81,8 +81,12 @@ void main() async {
   try {
     await FirebaseCrashlytics.instance.setCustomKey('app_version', '1.0.0+1');
 
-    // Pass all uncaught "fatal" errors from the framework to Crashlytics
-    FlutterError.onError = FirebaseCrashlytics.instance.recordFlutterFatalError;
+    // Pass framework errors to Crashlytics without treating every paint glitch
+    // as a fatal kill — that previously left users on a blank black screen.
+    FlutterError.onError = (details) {
+      FirebaseCrashlytics.instance.recordFlutterError(details);
+      FlutterError.presentError(details);
+    };
 
     // Pass all uncaught asynchronous errors that aren't handled by the Flutter framework to Crashlytics
     PlatformDispatcher.instance.onError = (error, stack) {
@@ -215,21 +219,32 @@ class _MedAIAppState extends State<MedAIApp> {
               }
             }
 
+            // Phone/tablet shell: size the navigator from MediaQuery, never from
+            // loosened Center/LayoutBuilder constraints (those can yield 0×0 and
+            // paint only meshBg — the cream blank screen).
             return GestureDetector(
               onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
               child: MediaQuery(
                 data: MedAiA11y.clampTextScale(MediaQuery.of(context)),
-                child: Semantics(
-                  label: 'MedAI',
-                  child: Container(
-                    color: L.meshBg,
-                    child: Center(
-                      child: ConstrainedBox(
-                        constraints: const BoxConstraints(maxWidth: 430),
-                        child: child ?? const SizedBox.expand(),
+                child: Builder(
+                  builder: (context) {
+                    final size = MediaQuery.sizeOf(context);
+                    final width = size.width > 430 ? 430.0 : size.width;
+                    return Semantics(
+                      label: 'MedAI',
+                      child: ColoredBox(
+                        color: L.meshBg,
+                        child: Align(
+                          alignment: Alignment.topCenter,
+                          child: SizedBox(
+                            width: width,
+                            height: size.height,
+                            child: child ?? const SizedBox.expand(),
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
             );

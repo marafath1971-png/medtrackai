@@ -162,7 +162,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
 
     return AppScaffold(
       showAurora: false,
-      backgroundColor: const Color(0xFFF7F6F3),
+      backgroundColor: L.bg,
       body: Stack(
         children: [
           CustomScrollView(
@@ -448,7 +448,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                               title: 'Pregnancy & nursing',
                               subtitle:
                                   'Decide with confidence — ask your clinician.',
-                              tint: AppColors.pastelLilac,
+                              tint: AppColors.pastelMint,
                               icon: Icons.pregnant_woman_rounded,
                               child: Text(
                                 p.pregnancyAlert!,
@@ -543,7 +543,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                               value: p.allergyRiskLevel.isNotEmpty
                                   ? p.allergyRiskLevel
                                   : 'None',
-                              tint: AppColors.pastelLilac,
+                              tint: AppColors.pastelMint,
                               icon: Icons.health_and_safety_outlined,
                             ),
                           ],
@@ -798,7 +798,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
       default:
         const soft = [
           AppColors.pastelSky,
-          AppColors.pastelLilac,
+          AppColors.pastelMint,
           AppColors.pastelMint,
         ];
         return soft[i % soft.length];
@@ -1042,7 +1042,7 @@ class _ExpertBlock extends StatelessWidget {
         const SizedBox(height: AppSpacing.p12),
         ScanSoftSection(
           title: current.role,
-          tint: AppColors.pastelLilac,
+          tint: AppColors.pastelMint,
           child: Text(
             current.explanation,
             style: AppTypography.bodyMedium.copyWith(
@@ -1154,7 +1154,7 @@ class _Dock extends StatelessWidget {
           color: const Color(0xFFF3F0EA),
           borderRadius: BorderRadius.circular(16),
         ),
-        child: Icon(icon, color: L.text, size: 20),
+        child: Icon(icon, color: AppColors.inkStrong, size: 20),
       ),
     );
   }

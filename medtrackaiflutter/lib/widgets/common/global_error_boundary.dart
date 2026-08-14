@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import '../../core/utils/logger.dart';
-import '../../theme/app_theme.dart';
 
 class GlobalErrorBoundary extends StatefulWidget {
   final Widget child;
@@ -17,39 +16,77 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
   bool _hasError = false;
   Object? _lastError;
 
+  // Plain styles only — never GoogleFonts / AppTypography here.
+  // Font loading failures in the recovery UI were painting a pure black screen.
+  static const _titleStyle = TextStyle(
+    fontSize: 24,
+    fontWeight: FontWeight.w800,
+    color: Colors.white,
+    letterSpacing: -0.4,
+    decoration: TextDecoration.none,
+  );
+  static const _bodyStyle = TextStyle(
+    fontSize: 15,
+    fontWeight: FontWeight.w500,
+    color: Color(0xB3FFFFFF),
+    height: 1.5,
+    decoration: TextDecoration.none,
+  );
+  static const _metaStyle = TextStyle(
+    fontSize: 11,
+    fontWeight: FontWeight.w500,
+    color: Color(0x66FFFFFF),
+    decoration: TextDecoration.none,
+  );
+
   @override
   void initState() {
     super.initState();
 
-    // Capture background errors for logging without crashing the UI
     final originalOnError = FlutterError.onError;
     FlutterError.onError = (FlutterErrorDetails details) {
-      FirebaseCrashlytics.instance.recordFlutterError(details);
+      try {
+        FirebaseCrashlytics.instance.recordFlutterError(details);
+      } catch (_) {/* crashlytics must never blank the UI */}
       if (originalOnError != null) originalOnError(details);
     };
 
-    // Replace the "Red Screen of Death" with our professional recovery UI
+    // Visible fallback — never SizedBox.shrink() (that is a black hole).
     ErrorWidget.builder = (FlutterErrorDetails details) {
       _handleError(details.exception, details.stack ?? StackTrace.current);
-      return const SizedBox.shrink(); // Handled by our stateful boundary
+      return Material(
+        color: const Color(0xFF12141C),
+        child: SafeArea(
+          child: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Text(
+                'This section failed to load.\nTap Resume on the recovery screen.',
+                textAlign: TextAlign.center,
+                style: _bodyStyle,
+              ),
+            ),
+          ),
+        ),
+      );
     };
   }
 
   void _handleError(Object error, StackTrace stack) {
     appLogger.e('[GlobalErrorBoundary] Caught exception: $error',
         stackTrace: stack);
-    FirebaseCrashlytics.instance.recordError(error, stack, fatal: true);
-    if (mounted) {
-      // Defer setState to avoid calling it during a build frame
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted) {
-          setState(() {
-            _hasError = true;
-            _lastError = error;
-          });
-        }
+    try {
+      // Non-fatal — leaf widget errors must not kill the whole session.
+      FirebaseCrashlytics.instance.recordError(error, stack, fatal: false);
+    } catch (_) {}
+    if (!mounted) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted || _hasError) return;
+      setState(() {
+        _hasError = true;
+        _lastError = error;
       });
-    }
+    });
   }
 
   @override
@@ -57,9 +94,8 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
     if (_hasError) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
-        theme: ThemeData.dark(),
         home: Scaffold(
-          backgroundColor: const Color(0xFF0A0A0A),
+          backgroundColor: const Color(0xFF12141C),
           body: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 32),
             child: SafeArea(
@@ -67,31 +103,22 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Icon(
+                    const Icon(
                       Icons.sentiment_dissatisfied_rounded,
                       size: 64,
                       color: Colors.white70,
                     ),
                     const SizedBox(height: 24),
-                    Text(
+                    const Text(
                       'Something went wrong',
                       textAlign: TextAlign.center,
-                      style: AppTypography.headlineLarge.copyWith(
-                        fontSize: 24,
-                        fontWeight: FontWeight.w900,
-                        color: Colors.white,
-                        letterSpacing: -0.5,
-                      ),
+                      style: _titleStyle,
                     ),
                     const SizedBox(height: 12),
-                    Text(
-                      "We've encountered a temporary issue. Don't worry, your data is safe and synchronized. Let's get you back on track.",
+                    const Text(
+                      "We've hit a temporary issue. Your data is safe — resume to keep going.",
                       textAlign: TextAlign.center,
-                      style: AppTypography.bodyMedium.copyWith(
-                        fontSize: 15,
-                        color: Colors.white70,
-                        height: 1.5,
-                      ),
+                      style: _bodyStyle,
                     ),
                     const SizedBox(height: 48),
                     _ActionButton(
@@ -110,17 +137,16 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
                       onTap: () => SystemNavigator.pop(),
                       primary: false,
                     ),
-                    const SizedBox(height: 16),
-                    if (_lastError != null)
+                    if (_lastError != null) ...[
+                      const SizedBox(height: 24),
                       Text(
-                        'Technical snippet: ${_lastError.toString().split('\n').first}',
-                        style: AppTypography.labelSmall.copyWith(
-                          fontSize: 10,
-                          color: Colors.white24,
-                        ),
-                        maxLines: 1,
+                        _lastError.toString().split('\n').first,
+                        style: _metaStyle,
+                        maxLines: 3,
                         overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
                       ),
+                    ],
                   ],
                 ),
               ),
@@ -152,20 +178,20 @@ class _ActionButton extends StatelessWidget {
       child: Container(
         width: double.infinity,
         height: 56,
+        alignment: Alignment.center,
         decoration: BoxDecoration(
           color: primary ? Colors.white : Colors.transparent,
           borderRadius: BorderRadius.circular(24),
           border: primary ? null : Border.all(color: Colors.white24),
         ),
-        child: Center(
-          child: Text(
-            label,
-            style: AppTypography.labelLarge.copyWith(
-              fontSize: 14,
-              fontWeight: FontWeight.w900,
-              color: primary ? Colors.black : Colors.white,
-              letterSpacing: 1.2,
-            ),
+        child: Text(
+          label,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w800,
+            letterSpacing: 0.6,
+            color: primary ? const Color(0xFF12141C) : Colors.white70,
+            decoration: TextDecoration.none,
           ),
         ),
       ),

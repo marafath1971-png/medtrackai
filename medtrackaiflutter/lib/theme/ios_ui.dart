@@ -331,34 +331,17 @@ class IOSComposer extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Expanded(
-                child: Container(
-                  constraints: const BoxConstraints(minHeight: 38),
-                  decoration: BoxDecoration(
-                    color: L.fill.withValues(alpha: 0.5),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(
-                        color: L.border.withValues(alpha: 0.2), width: 0.7),
-                  ),
-                  child: TextField(
-                    controller: controller,
-                    autofocus: autofocus,
-                    enabled: enabled,
-                    minLines: 1,
-                    maxLines: 5,
-                    textCapitalization: TextCapitalization.sentences,
-                    style: AppTypography.bodyMedium
-                        .copyWith(color: L.text, fontSize: 16),
-                    decoration: InputDecoration(
-                      isDense: true,
-                      hintText: hintText,
-                      hintStyle: AppTypography.bodyMedium.copyWith(
-                          color: L.sub.withValues(alpha: 0.7), fontSize: 16),
-                      border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16, vertical: 9),
-                    ),
-                    onSubmitted: enabled ? onSubmit : null,
-                  ),
+                child: MedAiTextField(
+                  controller: controller,
+                  autofocus: autofocus,
+                  enabled: enabled,
+                  minLines: 1,
+                  maxLines: 5,
+                  textCapitalization: TextCapitalization.sentences,
+                  hintText: hintText,
+                  onSubmitted: enabled ? onSubmit : null,
+                  contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16, vertical: 10),
                 ),
               ),
               const SizedBox(width: 8),

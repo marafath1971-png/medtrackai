@@ -27,11 +27,11 @@ class _SimulateMissCardState extends State<SimulateMissCard> {
               width: 34,
               height: 34,
               decoration: BoxDecoration(
-                  color: const Color(0xFFEDE9FE),
+                  color: AppColors.pastelMint,
                   borderRadius: BorderRadius.circular(24)),
-              child: Center(
+              child: const Center(
                   child: Icon(Icons.auto_awesome_rounded,
-                      size: 15, color: L.purple))),
+                      size: 15, color: AppColors.limeInk))),
           const SizedBox(width: AppSpacing.p12),
           Expanded(
               child: Column(
@@ -55,11 +55,12 @@ class _SimulateMissCardState extends State<SimulateMissCard> {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p8),
               decoration: BoxDecoration(
-                  color: _simulating ? L.border : const Color(0xFF1C1C1E),
+                  color: _simulating ? L.border : AppColors.limeDeep,
                   borderRadius: BorderRadius.circular(20)),
               child: Text(_simulating ? 'Sending...' : 'Trigger',
                   style: AppTypography.labelSmall.copyWith(
-                      fontWeight: FontWeight.w700, color: Colors.white)),
+                      fontWeight: FontWeight.w700,
+                      color: _simulating ? L.sub : AppColors.limeInk)),
             ),
           )
         ]),

@@ -35,7 +35,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
       'You keep your health routine balanced and predictable.';
   Color _archetypeColor = AppColors.successSoft;
   Gradient _archetypeGradient = const LinearGradient(
-      colors: [Color(0xFF00E5FF), AppColors.violet]);
+      colors: [AppColors.pastelSky, AppColors.limeDeep]);
 
   late final ConfettiController _confettiController;
 
@@ -118,9 +118,9 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
       _archetype = 'Night Owl Doser';
       _archetypeDesc =
           'Circadian routine engineered. Unlocking peak sleep recovery.';
-      _archetypeColor = AppColors.violet;
+      _archetypeColor = AppColors.accentDeep;
       _archetypeGradient = const LinearGradient(
-          colors: [AppColors.violet, AppColors.indigo]);
+          colors: [AppColors.pastelSky, AppColors.accentDeep]);
     } else if (weekendMisses > weekdayMisses && weekendMisses >= 2) {
       _archetype = 'Weekend Wildcard';
       _archetypeDesc =
@@ -306,12 +306,12 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
                       maxBlastForce: 30,
                       minBlastForce: 10,
                       emissionFrequency: 0.08,
-                      numberOfParticles: 40,
+                      numberOfParticles: 18,
                       gravity: 0.25,
                       colors: [
                         L.green,
                         L.accent,
-                        L.purple,
+                        AppColors.lime,
                         L.amber,
                         L.error,
                       ],
@@ -451,7 +451,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
     Widget badge = MedAiDepthCard(
       padding: EdgeInsets.zero,
       radius: AppRadius.xl,
-      accentGlow: true,
+      accentGlow: false,
       child: ClipRRect(
         borderRadius: BorderRadius.circular(AppRadius.xl),
         child: SizedBox(

@@ -105,9 +105,7 @@ class SocialController extends ChangeNotifier {
       if (idx != -1) {
         _caregivers[idx] = _caregivers[idx].copyWith(inviteCode: code);
       } else {
-        _caregivers = _caregivers
-            .map((c) => c.id == cg.id ? c.copyWith(inviteCode: code) : c)
-            .toList();
+        _caregivers = [..._caregivers, cgWithCode];
       }
       await userRepo.saveCaregivers(_caregivers);
       notifyListeners();

@@ -161,7 +161,8 @@ class _AlarmsTabState extends State<AlarmsTab> {
                 if (activeSchedules.isNotEmpty)
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(AppSpacing.p24, 36, AppSpacing.p24, AppSpacing.p16),
+                      padding: const EdgeInsets.fromLTRB(
+                          AppSpacing.gutter, 28, AppSpacing.gutter, AppSpacing.p12),
                       child: Row(
                         children: [
                           Expanded(
@@ -437,17 +438,16 @@ class _CountPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: L.text,
-        borderRadius: BorderRadius.circular(100),
+        color: AppColors.pastelMint,
+        borderRadius: BorderRadius.circular(999),
       ),
       child: Text(
         '$count',
         style: AppTypography.labelSmall.copyWith(
-          color: L.bg,
-          fontWeight: FontWeight.w700,
-          fontSize: 11,
+          color: AppColors.limeInk,
+          fontWeight: FontWeight.w800,
         ),
       ),
     );
@@ -504,171 +504,195 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
     final s = widget.sch.sched as ScheduleEntry;
     final L = widget.L;
 
+    final displayName =
+        med.name.trim().isNotEmpty ? med.name.trim() : 'Untitled medicine';
+    final meta = [
+      if (med.dose.isNotEmpty) med.dose,
+      if (s.label.isNotEmpty) s.label,
+    ].join(' · ');
+
     return Container(
       padding: const EdgeInsets.all(AppSpacing.p20),
       decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [Color(0xFFC2EF7D), Color(0xFFA9E65F)],
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: AppColors.limeDeep.withValues(alpha: 0.2),
         ),
-        borderRadius: BorderRadius.circular(28),
         boxShadow: [
           BoxShadow(
-            color: AppColors.limeDeep.withValues(alpha: 0.35),
-            blurRadius: 24,
-            offset: const Offset(0, 10),
+            color: AppColors.eatoNavy.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 6),
           ),
         ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.55),
-                    borderRadius: BorderRadius.circular(100),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const LiveStatusDot(
-                        color: AppThemeColors2026.electric,
-                        size: 6,
+          Row(
+            children: [
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: AppColors.pastelMint,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const LiveStatusDot(
+                      color: AppColors.limeDeep,
+                      size: 6,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Upcoming',
+                      style: AppTypography.labelSmall.copyWith(
+                        color: AppColors.limeInk,
+                        fontWeight: FontWeight.w800,
                       ),
-                      const SizedBox(width: AppSpacing.p8),
+                    ),
+                  ],
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: AppColors.pastelSun,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  fmtTime(s.h, s.m, context),
+                  style: AppTypography.labelSmall.copyWith(
+                    color: const Color(0xFF8A6A1A),
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 18),
+          if (_recorded)
+            Container(
+              height: 120,
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: AppColors.pastelMint,
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.check_circle_rounded,
+                          size: 36, color: AppColors.limeDeep)
+                      .animate()
+                      .scale(
+                          duration: AppDurations.fast,
+                          curve: AppCurves.emilOut),
+                  const SizedBox(height: AppSpacing.p8),
+                  Text(
+                    'Logged successfully',
+                    style: AppTypography.labelMedium.copyWith(
+                      color: AppColors.limeInk,
+                      fontWeight: FontWeight.w800,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            Row(
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(16),
+                  child: SizedBox(
+                    width: 56,
+                    height: 56,
+                    child: MedImage(
+                      imageUrl: med.imageUrl,
+                      width: 56,
+                      height: 56,
+                      fit: BoxFit.cover,
+                      borderRadius: 16,
+                      placeholder: ColoredBox(
+                        color: AppColors.pastelMint,
+                        child: Icon(
+                          Icons.medication_rounded,
+                          size: 26,
+                          color: L.accent,
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
                       Text(
-                        'Upcoming dose',
-                        style: AppTypography.labelSmall.copyWith(
-                          color: AppColors.limeInk.withValues(alpha: 0.85),
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.1,
+                        displayName,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: AppTypography.titleLarge.copyWith(
+                          color: AppColors.inkStrong,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.4,
+                        ),
+                      ),
+                      if (meta.isNotEmpty) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          meta,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.grey600,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 6),
+                      Text(
+                        _diffStr,
+                        style: AppTypography.labelMedium.copyWith(
+                          color: AppColors.limeDeep,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
                     ],
                   ),
                 ),
-                Text(
-                  fmtTime(s.h, s.m, context),
-                  style: AppTypography.labelSmall.copyWith(
-                    color: AppColors.limeInk.withValues(alpha: 0.75),
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: 0.1,
-                  ),
-                ),
               ],
             ),
-            const SizedBox(height: 28),
-            if (_recorded)
-              Container(
-                height: 140,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: L.success.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(24),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text('✅', style: TextStyle(fontSize: 48))
-                        .animate()
-                        .scale(duration: AppDurations.fast, curve: AppCurves.emilOut),
-                    const SizedBox(height: AppSpacing.p12),
-                    Text(
-                      'Logged successfully',
-                      style: AppTypography.labelMedium.copyWith(
-                        color: L.success,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.1,
-                      ),
-                    ),
-                  ],
-                ),
-              )
-            else
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: AlignmentDirectional.centerStart,
-                          child: Text(
-                            med.name,
-                            style: AppTypography.headlineMedium.copyWith(
-                              color: AppColors.limeInk,
-                              fontWeight: FontWeight.w800,
-                              fontSize: 28,
-                              letterSpacing: -0.6,
-                              height: 1.0,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.p4),
-                        Text(
-                          '${med.dose} · ${s.label}',
-                          style: AppTypography.bodySmall.copyWith(
-                            color: AppColors.limeInk.withValues(alpha: 0.7),
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.p20),
-                        Text(
-                          _diffStr,
-                          style: AppTypography.titleMedium.copyWith(
-                            color: AppColors.limeInk,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.2,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: 64,
-                    height: 64,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.5),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Center(
-                      child: Icon(Icons.medication_rounded, size: 32, color: L.accent),
-                    ),
-                  ),
-                ],
-              ),
-            const SizedBox(height: AppSpacing.p32),
-            if (!_recorded)
-              _SwipeToConfirm(
-                onConfirmed: () async {
-                  final sched = widget.sch.sched as ScheduleEntry;
-                  final med = widget.sch.med as Medicine;
-                  final appState = context.read<AppState>();
-                  final timeLabel = fmtTime(sched.h, sched.m, context);
-                  final ok = await KnowYourMedicineSheet.confirmTake(
-                    context,
-                    med: med,
-                    doseTimeLabel: timeLabel,
-                  );
-                  if (!ok || !mounted) return;
-                  HapticEngine.success();
-                  appState.takeDose(med.id, widget.sch.idx);
-                  setState(() => _recorded = true);
-                  Future.delayed(3.seconds, () {
-                    if (mounted) setState(() => _recorded = false);
-                  });
-                },
-                L: L,
-              ),
-          ],
+          const SizedBox(height: AppSpacing.p20),
+          if (!_recorded)
+            _SwipeToConfirm(
+              onConfirmed: () async {
+                final sched = widget.sch.sched as ScheduleEntry;
+                final med = widget.sch.med as Medicine;
+                final appState = context.read<AppState>();
+                final timeLabel = fmtTime(sched.h, sched.m, context);
+                final ok = await KnowYourMedicineSheet.confirmTake(
+                  context,
+                  med: med,
+                  doseTimeLabel: timeLabel,
+                );
+                if (!ok || !mounted) return;
+                HapticEngine.success();
+                appState.takeDose(med.id, widget.sch.idx);
+                setState(() => _recorded = true);
+                Future.delayed(3.seconds, () {
+                  if (mounted) setState(() => _recorded = false);
+                });
+              },
+              L: L,
+            ),
+        ],
       ),
     );
   }
@@ -699,12 +723,13 @@ class _AlarmCard extends StatelessWidget {
     final med = sch.med;
     final s = sch.sched;
     final isEnabled = s.enabled;
-    
-    // We parse the time to separate the H:MM from the AM/PM if possible.
-    final timeString = fmtTime(s.h, s.m, context);
-    final parts = timeString.split(' ');
-    final mainTime = parts[0];
-    final amPm = parts.length > 1 ? parts[1] : '';
+    final timeLabel = fmtTime(s.h, s.m, context);
+    final displayName =
+        med.name.trim().isNotEmpty ? med.name.trim() : 'Untitled medicine';
+    final subtitle = [
+      if (med.dose.isNotEmpty) med.dose,
+      if (s.label.isNotEmpty) s.label,
+    ].join(' · ');
 
     return Dismissible(
       key: Key('alarm_${med.id}_${sch.idx}'),
@@ -717,89 +742,180 @@ class _AlarmCard extends StatelessWidget {
       background: Container(
         alignment: AlignmentDirectional.centerEnd,
         padding: const EdgeInsetsDirectional.only(end: AppSpacing.p24),
-        color: CupertinoColors.destructiveRed,
-        child: const Icon(Icons.delete_rounded, color: Colors.white, size: 28),
+        margin: const EdgeInsets.only(bottom: AppSpacing.p12),
+        decoration: BoxDecoration(
+          color: AppColors.red.withValues(alpha: 0.92),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: const Icon(Icons.delete_rounded, color: Colors.white, size: 26),
       ),
       child: Padding(
         padding: const EdgeInsets.only(bottom: AppSpacing.p12),
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: onEdit,
-          child: PremiumTextureCard(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.p16, AppSpacing.p16, AppSpacing.p16, AppSpacing.p16),
-        radius: 22,
-        texture: PremiumTextureStyle.fineGrain,
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          mainTime,
-                          style: TextStyle(
-                            fontSize: 36,
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: -0.8,
-                            color: isEnabled ? L.text : L.sub.withValues(alpha: 0.4),
-                            height: 1.0,
+        child: Semantics(
+          button: true,
+          label: '$displayName reminder at $timeLabel',
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: () {
+              HapticEngine.selection();
+              onEdit();
+            },
+            child: Container(
+              padding: const EdgeInsets.fromLTRB(12, 12, 12, 12),
+              decoration: BoxDecoration(
+                color: isEnabled ? Colors.white : L.card.withValues(alpha: 0.7),
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: isNext
+                      ? AppColors.limeDeep.withValues(alpha: 0.35)
+                      : L.border.withValues(alpha: isEnabled ? 0.4 : 0.25),
+                ),
+                boxShadow: isEnabled
+                    ? [
+                        BoxShadow(
+                          color: AppColors.eatoNavy.withValues(alpha: 0.04),
+                          blurRadius: 12,
+                          offset: const Offset(0, 4),
+                        ),
+                      ]
+                    : null,
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 52,
+                    decoration: BoxDecoration(
+                      color: !isEnabled
+                          ? L.sub.withValues(alpha: 0.25)
+                          : isNext
+                              ? AppColors.limeDeep
+                              : AppColors.lime.withValues(alpha: 0.7),
+                      borderRadius: BorderRadius.circular(99),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: SizedBox(
+                      width: 52,
+                      height: 52,
+                      child: MedImage(
+                        imageUrl: med.imageUrl,
+                        width: 52,
+                        height: 52,
+                        fit: BoxFit.cover,
+                        borderRadius: 14,
+                        placeholder: ColoredBox(
+                          color: AppColors.pastelMint,
+                          child: Icon(
+                            Icons.medication_rounded,
+                            size: 24,
+                            color: isEnabled
+                                ? AppColors.limeDeep
+                                : L.sub.withValues(alpha: 0.45),
                           ),
                         ),
-                        if (amPm.isNotEmpty) ...[
-                          const SizedBox(width: AppSpacing.p4),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          displayName,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: AppTypography.titleMedium.copyWith(
+                            color: isEnabled
+                                ? AppColors.inkStrong
+                                : L.text.withValues(alpha: 0.4),
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        if (subtitle.isNotEmpty) ...[
+                          const SizedBox(height: 2),
                           Text(
-                            amPm,
-                            style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: isEnabled ? L.text : L.sub.withValues(alpha: 0.4),
+                            subtitle,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: AppTypography.bodySmall.copyWith(
+                              color: isEnabled
+                                  ? AppColors.grey600
+                                  : L.sub.withValues(alpha: 0.35),
+                              fontWeight: FontWeight.w500,
                             ),
                           ),
                         ],
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 3,
+                              ),
+                              decoration: BoxDecoration(
+                                color: isEnabled
+                                    ? (isNext
+                                        ? AppColors.pastelMint
+                                        : AppColors.pastelSun)
+                                    : L.fill,
+                                borderRadius: BorderRadius.circular(999),
+                              ),
+                              child: Text(
+                                timeLabel,
+                                style: AppTypography.labelSmall.copyWith(
+                                  color: !isEnabled
+                                      ? L.sub.withValues(alpha: 0.45)
+                                      : isNext
+                                          ? AppColors.limeInk
+                                          : const Color(0xFF8A6A1A),
+                                  fontWeight: FontWeight.w800,
+                                ),
+                              ),
+                            ),
+                            if (isNext) ...[
+                              const SizedBox(width: 6),
+                              Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.lime.withValues(alpha: 0.35),
+                                  borderRadius: BorderRadius.circular(999),
+                                ),
+                                child: Text(
+                                  'Next',
+                                  style: AppTypography.labelSmall.copyWith(
+                                    color: AppColors.limeInk,
+                                    fontWeight: FontWeight.w800,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      '${med.name} • ${s.label}',
-                      style: AppTypography.bodySmall.copyWith(
-                        fontWeight: FontWeight.w500,
-                        color: isEnabled
-                            ? L.sub.withValues(alpha: 0.75)
-                            : L.sub.withValues(alpha: 0.35),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              if (isNext)
-                Container(
-                  margin: const EdgeInsetsDirectional.only(end: AppSpacing.p12),
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
-                  decoration: BoxDecoration(
-                    color: AppColors.lime.withValues(alpha: 0.45),
-                    borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Text(
-                    'Next',
-                    style: AppTypography.labelSmall.copyWith(
-                      color: AppColors.limeInk,
-                      fontWeight: FontWeight.w700
-                    ),
+                  const SizedBox(width: 8),
+                  CupertinoSwitch(
+                    value: isEnabled,
+                    activeTrackColor: AppColors.limeDeep,
+                    onChanged: (_) {
+                      HapticEngine.selection();
+                      onToggle();
+                    },
                   ),
-                ),
-              CupertinoSwitch(
-                value: isEnabled,
-                activeTrackColor: AppColors.limeDeep,
-                onChanged: (_) => onToggle(),
+                ],
               ),
-            ],
+            ),
           ),
-        ),
         ),
       ),
     );

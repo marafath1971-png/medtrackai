@@ -345,7 +345,9 @@ class ScanSoftSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final L = context.L;
+    // Pastel scan cards stay light — always use dark ink for contrast.
+    const ink = Color(0xFF1A1D26);
+    const inkSub = Color(0xFF5C6570);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.p20),
@@ -363,7 +365,7 @@ class ScanSoftSection extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.75),
                     borderRadius: BorderRadius.circular(AppRadius.s),
                   ),
-                  child: Icon(icon, size: 18, color: L.text),
+                  child: Icon(icon, size: 18, color: ink),
                 ),
                 const SizedBox(width: AppSpacing.p12),
               ],
@@ -374,7 +376,7 @@ class ScanSoftSection extends StatelessWidget {
                     Text(
                       title,
                       style: AppTypography.titleMedium.copyWith(
-                        color: L.text,
+                        color: ink,
                         fontWeight: FontWeight.w800,
                         letterSpacing: -0.2,
                       ),
@@ -383,7 +385,7 @@ class ScanSoftSection extends StatelessWidget {
                       const SizedBox(height: 2),
                       Text(
                         subtitle!,
-                        style: AppTypography.bodySmall.copyWith(color: L.sub),
+                        style: AppTypography.bodySmall.copyWith(color: inkSub),
                       ),
                     ],
                   ],

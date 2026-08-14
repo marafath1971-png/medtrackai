@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../../theme/design_2026.dart';
 
-/// Onboarding palette — warm sage wellness base + electric mint accent.
-/// Light/dark aware; tuned for WCAG AA contrast on text/CTA pairs.
+/// Onboarding palette — premium cream wellness (matches home / settings).
+/// Calm, sparse, high-trust. Lime = progress & CTA; sage = clinical accents.
 class ObPalette {
   final Color bg;
   final Color bgTop;
@@ -44,53 +44,56 @@ class ObPalette {
   });
 
   static ObPalette of(BuildContext context) {
-    final L = context.L;
     final dark = context.isDark;
-    final accent = L.accent;
 
     if (dark) {
       return ObPalette(
-        bg: const Color(0xFF0B1411),
-        bgTop: const Color(0xFF0E1A16),
-        surface: const Color(0xFF15211C),
-        surfaceSel: accent.withValues(alpha: 0.16),
-        border: Colors.white.withValues(alpha: 0.07),
-        borderSel: Design2026.electric,
+        bg: const Color(0xFF0B132B),
+        bgTop: const Color(0xFF101A36),
+        surface: const Color(0xFF1C2541),
+        surfaceSel: AppColors.lime.withValues(alpha: 0.14),
+        border: Colors.white.withValues(alpha: 0.08),
+        borderSel: AppColors.limeDeep,
         text: Colors.white,
         sub: Colors.white.withValues(alpha: 0.62),
-        accent: accent,
+        accent: AppColors.sageGreen,
         accentInk: Colors.white,
-        // Duo system (DESIGN.md §3.1): lime is the hope/success primary CTA.
-        // Sage (accent) stays the calm wellness base. Lime is light → dark ink.
         cta: AppColors.limeDeep,
         ctaInk: AppColors.limeInk,
         good: const Color(0xFF34D399),
         bad: const Color(0xFFFF6B6B),
-        warmTint: accent.withValues(alpha: 0.14),
+        warmTint: AppColors.lime.withValues(alpha: 0.12),
         electric: Design2026.electric,
-        aurora: Design2026.aurora,
+        aurora: const [
+          Color(0xFF1A3A2E),
+          Color(0xFF163040),
+          Color(0xFF2A2450),
+        ],
       );
     }
 
     return ObPalette(
-      bg: const Color(0xFFF7F9F6),
-      bgTop: const Color(0xFFFAFCF8),
+      bg: const Color(0xFFF7F6F3),
+      bgTop: const Color(0xFFFBFBF8),
       surface: Colors.white,
-      surfaceSel: accent.withValues(alpha: 0.12),
-      border: const Color(0xFFE2E8E4),
-      borderSel: accent,
-      text: const Color(0xFF1A2238),
-      sub: const Color(0xFF6B7280),
-      accent: accent,
+      surfaceSel: AppColors.pastelMint,
+      border: const Color(0xFFE8EAE6),
+      borderSel: AppColors.limeDeep,
+      text: const Color(0xFF1A1D26),
+      sub: const Color(0xFF8A9099),
+      accent: AppColors.sageGreen,
       accentInk: Colors.white,
-      // Duo system (DESIGN.md §3.1): lime hope/success primary CTA, dark ink.
       cta: AppColors.limeDeep,
       ctaInk: AppColors.limeInk,
-      good: const Color(0xFF1FAE72),
-      bad: const Color(0xFFE5573F),
-      warmTint: AppColors.lime.withValues(alpha: 0.22),
-      electric: Design2026.electric,
-      aurora: Design2026.aurora,
+      good: const Color(0xFF10B981),
+      bad: const Color(0xFFC45C5C),
+      warmTint: AppColors.pastelMint,
+      electric: AppColors.lime,
+      aurora: const [
+        Color(0xFFE4F5E7),
+        Color(0xFFD9ECF7),
+        Color(0xFFFFF8F2),
+      ],
     );
   }
 }

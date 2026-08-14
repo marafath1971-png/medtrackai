@@ -64,14 +64,15 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
     HapticEngine.selection();
     final picker = ImagePicker();
     final picked = await picker.pickImage(source: ImageSource.gallery);
-    if (picked != null) {
-      final appDir = await getApplicationDocumentsDirectory();
-      final fileName =
-          'profile_${DateTime.now().millisecondsSinceEpoch}${p.extension(picked.path)}';
-      final savedFile =
-          await File(picked.path).copy(p.join(appDir.path, fileName));
-      setState(() => _photoPath = savedFile.path);
-    }
+    if (picked == null) return;
+    final appDir = await getApplicationDocumentsDirectory();
+    if (!mounted) return;
+    final fileName =
+        'profile_${DateTime.now().millisecondsSinceEpoch}${p.extension(picked.path)}';
+    final savedFile =
+        await File(picked.path).copy(p.join(appDir.path, fileName));
+    if (!mounted) return;
+    setState(() => _photoPath = savedFile.path);
   }
 
   Future<void> _selectDate() async {
@@ -411,33 +412,13 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
     TextInputType? keyboardType,
     required dynamic L,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: L.card.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: L.border.withValues(alpha: 0.08)),
-      ),
-      child: TextField(
-        controller: controller,
-        maxLines: maxLines,
-        maxLength: maxLength,
-        keyboardType: keyboardType,
-        obscureText: maxLength == 4,
-        buildCounter: (context,
-                {required currentLength, required isFocused, maxLength}) =>
-            null,
-        decoration: InputDecoration(
-          hintText: hint,
-          hintStyle: TextStyle(color: L.sub.withValues(alpha: 0.3)),
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.all(AppSpacing.p20),
-          counterText: '',
-        ),
-        style: AppTypography.labelMedium.copyWith(
-          color: L.text,
-          fontWeight: FontWeight.w600,
-        ),
-      ),
+    return MedAiTextField(
+      controller: controller,
+      hintText: hint,
+      maxLines: maxLines,
+      maxLength: maxLength,
+      keyboardType: keyboardType,
+      obscureText: maxLength == 4,
     );
   }
 

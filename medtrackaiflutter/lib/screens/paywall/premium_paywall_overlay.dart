@@ -1,5 +1,3 @@
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -137,6 +135,9 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
         };
         final idx = _packages.indexWhere((p) => p.packageType == preferred);
         _selectedPlan = idx != -1 ? idx : 0;
+        if (_packages.isNotEmpty) {
+          _selectedPlan = _selectedPlan.clamp(0, _packages.length - 1);
+        }
       });
     }
   }
@@ -177,7 +178,14 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
     });
 
     try {
-      if (_packages.isEmpty) return;
+      if (_packages.isEmpty) {
+        if (!mounted) return;
+        setState(() {
+          _isLoading = false;
+          _errorMsg = 'Subscription plans are currently unavailable.';
+        });
+        return;
+      }
       final packageId = _packages[_selectedPlan].identifier;
       final success = await state.purchasePremium(packageId);
       if (!mounted) return;
@@ -271,116 +279,123 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
       label: 'Med AI Pro subscription',
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 32, sigmaY: 32),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  const Color(0xFF1C1309).withValues(alpha: 0.94), // Dark Gold
-                  AppColors.bgDark.withValues(alpha: 0.98),
-                ],
-              ),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
-              border: Border(
-                top: BorderSide(color: L.glassBorder.withValues(alpha: 0.2)),
-              ),
+        child: DecoratedBox(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Color(0xFFFBFBF8),
+                Color(0xFFF7F6F3),
+              ],
             ),
-            child: Stack(
-              children: [
-                if (!reduceMotion)
-                  const Positioned(
-                    top: -40,
-                    left: -20,
-                    right: -20,
-                    height: 200,
-                    child: IgnorePointer(
-                      child: AuroraBackground(opacity: 0.35),
+            borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
+            border: Border(
+              top: BorderSide(color: Color(0xFFE8EAE6)),
+            ),
+          ),
+          child: Stack(
+            children: [
+              if (!reduceMotion)
+                const Positioned(
+                  top: -60,
+                  left: -40,
+                  right: -40,
+                  height: 220,
+                  child: IgnorePointer(
+                    child: DecoratedBox(
+                      decoration: BoxDecoration(
+                        gradient: RadialGradient(
+                          center: Alignment(0, -0.2),
+                          radius: 1.0,
+                          colors: [
+                            Color(0x66E4F5E7),
+                            Color(0x00F7F6F3),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
-                SingleChildScrollView(
-                  keyboardDismissBehavior:
-                      ScrollViewKeyboardDismissBehavior.onDrag,
-                  physics: const BouncingScrollPhysics(
-                    parent: AlwaysScrollableScrollPhysics(),
-                  ),
-                  child: Padding(
-                    padding: EdgeInsets.fromLTRB(24, 12, 24, bottomPad + 24),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          children: [
-                            const Spacer(),
-                            Semantics(
-                              button: true,
-                              label: 'Close paywall',
-                              child: AnimatedPressable(
-                                onTap: _dismiss,
-                                scaleFactor: 0.92,
-                                child: Container(
-                                  width: AppA11y.minTapTargetCompact,
-                                  height: AppA11y.minTapTargetCompact,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white.withValues(alpha: 0.08),
-                                    shape: BoxShape.circle,
-                                    border: Border.all(
-                                      color: Colors.white.withValues(alpha: 0.12),
-                                      width: 0.5,
-                                    ),
+                ),
+              SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(24, 12, 24, bottomPad + 24),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        children: [
+                          const Spacer(),
+                          Semantics(
+                            button: true,
+                            label: 'Close paywall',
+                            child: AnimatedPressable(
+                              onTap: _dismiss,
+                              scaleFactor: 0.92,
+                              child: Container(
+                                width: AppA11y.minTapTargetCompact,
+                                height: AppA11y.minTapTargetCompact,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  border: Border.all(
+                                    color: const Color(0xFFE8EAE6),
                                   ),
-                                  child: Icon(
-                                    Icons.close_rounded,
-                                    color: Colors.white.withValues(alpha: 0.7),
-                                    size: 20,
-                                  ),
+                                ),
+                                child: const Icon(
+                                  Icons.close_rounded,
+                                  color: Color(0xFF1A1D26),
+                                  size: 20,
                                 ),
                               ),
                             ),
-                          ],
-                        ),
-                        Center(
-                          child: Container(
-                            width: 36,
-                            height: 4,
-                            margin: const EdgeInsets.only(bottom: 20),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
+                          ),
+                        ],
+                      ),
+                      Center(
+                        child: Container(
+                          width: 36,
+                          height: 4,
+                          margin: const EdgeInsets.only(bottom: 20),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE8EAE6),
+                            borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                        if (widget.variant == PaywallVariant.onboarding)
-                          const ObPaywallFeatureGrid(),
-                        if (widget.variant == PaywallVariant.onboarding)
-                          const SizedBox(height: 12),
-                        if (_exitOfferShown) ...[
-                          _PaywallGlassCard(
-                            tint: AppColors.eatoGold.withValues(alpha: 0.10),
-                            child: Row(
-                              children: [
-                                const Text('👋',
-                                    style: TextStyle(fontSize: 22)),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: Text(
-                                    'Wait — not ready for a year? Try Med AI Pro by the week. Cancel anytime.',
-                                    style: AppTypography.bodySmall.copyWith(
-                                      color: Colors.white
-                                          .withValues(alpha: 0.9),
-                                      fontWeight: FontWeight.w600,
-                                      height: 1.4,
-                                    ),
+                      ),
+                      if (widget.variant == PaywallVariant.onboarding)
+                        const ObPaywallFeatureGrid(),
+                      if (widget.variant == PaywallVariant.onboarding)
+                        const SizedBox(height: 12),
+                      if (_exitOfferShown) ...[
+                        _PaywallGlassCard(
+                          tint: AppColors.pastelMint,
+                          child: Row(
+                            children: [
+                              const Text('👋',
+                                  style: TextStyle(fontSize: 22)),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: Text(
+                                  'Wait — not ready for a year? Try Med AI Pro by the week. Cancel anytime.',
+                                  style: AppTypography.bodySmall.copyWith(
+                                    color: const Color(0xFF1A1D26),
+                                    fontWeight: FontWeight.w600,
+                                    height: 1.4,
                                   ),
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
-                          const SizedBox(height: 16),
-                        ],
+                        ),
+                        const SizedBox(height: 16),
+                      ],
                         _buildHeader(L),
                         const SizedBox(height: 20),
                         if (widget.variant == PaywallVariant.onboarding) ...[
@@ -420,8 +435,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
             ),
           ),
         ),
-      ),
-    );
+      );
 
     if (!reduceMotion) {
       sheet = sheet
@@ -443,17 +457,17 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
             child: Text(
               'Remind me before the trial ends',
               style: AppTypography.bodySmall.copyWith(
-                color: Colors.white.withValues(alpha: 0.75),
+                color: const Color(0xFF8A9099),
                 fontWeight: FontWeight.w500,
               ),
             ),
           ),
           Switch.adaptive(
             value: _trialReminder,
-            activeTrackColor: AppColors.eatoGold.withValues(alpha: 0.45),
+            activeTrackColor: AppColors.limeDeep.withValues(alpha: 0.55),
             thumbColor: WidgetStateProperty.resolveWith(
               (states) => states.contains(WidgetState.selected)
-                  ? AppColors.eatoGold
+                  ? AppColors.limeDeep
                   : Colors.white,
             ),
             onChanged: (v) {
@@ -475,8 +489,8 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
           padding: const EdgeInsets.all(12),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.12)),
-            color: Colors.white.withValues(alpha: 0.03),
+            border: Border.all(color: const Color(0xFFE8EAE6)),
+            color: Colors.white,
           ),
           child: SvgPicture.asset(
             PremiumGraphics.paywallPro,
@@ -489,18 +503,13 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
           ),
         ).entranceHero(),
         const SizedBox(height: 16),
-        ShaderMask(
-          shaderCallback: (bounds) => const LinearGradient(
-            colors: [Colors.white, AppColors.eatoGold],
-          ).createShader(bounds),
-          blendMode: BlendMode.srcIn,
-          child: Text(
-            'Med AI Pro',
-            style: AppTypography.displaySmall.copyWith(
-              fontWeight: FontWeight.w800,
-              fontSize: 32,
-              letterSpacing: -0.8,
-            ),
+        Text(
+          'Med AI Pro',
+          style: AppTypography.displaySmall.copyWith(
+            color: const Color(0xFF1A1D26),
+            fontWeight: FontWeight.w800,
+            fontSize: 32,
+            letterSpacing: -0.8,
           ),
         ),
         const SizedBox(height: 6),
@@ -515,7 +524,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                   ? 'Your success plan starts free — cancel anytime.'
                   : 'Unlock the full plan made for your medication life.'),
           style: AppTypography.bodyMedium.copyWith(
-            color: Colors.white.withValues(alpha: 0.55),
+            color: const Color(0xFF8A9099),
             fontWeight: FontWeight.w500,
             height: 1.4,
           ),
@@ -546,23 +555,14 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                       height: 32,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        gradient: LinearGradient(
-                          colors: [
-                            AppColors.eatoGold.withValues(alpha: 0.25),
-                            AppColors.amberDark.withValues(alpha: 0.15),
-                          ],
-                        ),
-                        border: Border.all(color: AppColors.eatoGold),
-                        boxShadow: AppShadows.glow(
-                          AppColors.eatoGold,
-                          intensity: 0.2,
-                        ),
+                        color: AppColors.pastelMint,
+                        border: Border.all(color: AppColors.limeDeep),
                       ),
                       child: Center(
                         child: Text(
                           '${i + 1}',
                           style: AppTypography.labelSmall.copyWith(
-                            color: AppColors.eatoGold,
+                            color: AppColors.limeInk,
                             fontWeight: FontWeight.w800,
                           ),
                         ),
@@ -572,7 +572,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                     Text(
                       day,
                       style: AppTypography.labelSmall.copyWith(
-                        color: Colors.white,
+                        color: const Color(0xFF1A1D26),
                         fontWeight: FontWeight.w800,
                         fontSize: 10,
                       ),
@@ -581,7 +581,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                       desc,
                       textAlign: TextAlign.center,
                       style: AppTypography.labelSmall.copyWith(
-                        color: Colors.white.withValues(alpha: 0.45),
+                        color: const Color(0xFF8A9099),
                         fontSize: 9,
                         height: 1.35,
                       ),
@@ -593,7 +593,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                 Container(
                   width: 16,
                   height: 1,
-                  color: Colors.white.withValues(alpha: 0.15),
+                  color: const Color(0xFFE8EAE6),
                   margin: const EdgeInsets.only(bottom: 40),
                 ),
             ],
@@ -621,7 +621,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                   'Free',
                   textAlign: TextAlign.center,
                   style: AppTypography.labelSmall.copyWith(
-                    color: Colors.white.withValues(alpha: 0.4),
+                    color: const Color(0xFF8A9099),
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -631,7 +631,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                   'Pro',
                   textAlign: TextAlign.center,
                   style: AppTypography.labelSmall.copyWith(
-                    color: AppColors.eatoGold,
+                    color: AppColors.limeDeep,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -650,7 +650,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                     child: Text(
                       label,
                       style: AppTypography.labelSmall.copyWith(
-                        color: Colors.white.withValues(alpha: 0.75),
+                        color: const Color(0xFF1A1D26),
                         fontSize: 11,
                       ),
                     ),
@@ -660,15 +660,15 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                       free ? Icons.check_rounded : Icons.close_rounded,
                       size: 16,
                       color: free
-                          ? Colors.white.withValues(alpha: 0.5)
-                          : Colors.white.withValues(alpha: 0.2),
+                          ? const Color(0xFF8A9099)
+                          : const Color(0xFFE8EAE6),
                     ),
                   ),
                   Expanded(
                     child: Icon(
                       Icons.check_circle_rounded,
                       size: 16,
-                      color: pro ? AppColors.eatoGold : Colors.white24,
+                      color: pro ? AppColors.limeDeep : const Color(0xFFE8EAE6),
                     ),
                   ),
                 ],
@@ -686,13 +686,13 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
       children: [
         ...List.generate(
           5,
-          (_) => const Icon(Icons.star_rounded, color: AppColors.amberDark, size: 16),
+          (_) => const Icon(Icons.star_rounded, color: AppColors.limeDeep, size: 16),
         ),
         const SizedBox(width: 8),
         Text(
           '4.9 · Trusted by 500K+ people',
           style: AppTypography.labelSmall.copyWith(
-            color: Colors.white.withValues(alpha: 0.6),
+            color: const Color(0xFF8A9099),
             fontWeight: FontWeight.w600,
           ),
         ),
@@ -721,20 +721,20 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
     final msg = messages[widget.triggerSource] ?? messages['generic']!;
 
     return _PaywallGlassCard(
-      tint: AppColors.eatoGold.withValues(alpha: 0.08),
+      tint: AppColors.pastelMint,
       child: Row(
         children: [
           Container(
             width: 36,
             height: 36,
             alignment: Alignment.center,
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.eatoGold.withValues(alpha: 0.15),
+              color: Colors.white,
             ),
             child: const Icon(
               Icons.auto_awesome_rounded,
-              color: AppColors.eatoGold,
+              color: AppColors.limeDeep,
               size: 18,
             ),
           ),
@@ -743,7 +743,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
             child: Text(
               msg,
               style: AppTypography.bodySmall.copyWith(
-                color: Colors.white.withValues(alpha: 0.85),
+                color: const Color(0xFF1A1D26),
                 fontWeight: FontWeight.w500,
                 height: 1.45,
               ),
@@ -783,7 +783,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
         child: Text(
           'Subscription plans are currently unavailable.',
           style: AppTypography.labelSmall.copyWith(
-            color: Colors.white.withValues(alpha: 0.5),
+            color: const Color(0xFF8A9099),
           ),
           textAlign: TextAlign.center,
         ),
@@ -846,29 +846,22 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                 constraints: const BoxConstraints(minHeight: 88),
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 14),
                 decoration: BoxDecoration(
-                  gradient: isSelected
-                      ? LinearGradient(
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                          colors: [
-                            AppColors.eatoGold.withValues(alpha: 0.18),
-                            AppColors.amberDark.withValues(alpha: 0.08),
-                          ],
-                        )
-                      : null,
-                  color: isSelected
-                      ? null
-                      : Colors.white.withValues(alpha: 0.04),
+                  color: isSelected ? AppColors.pastelMint : Colors.white,
                   borderRadius: BorderRadius.circular(AppRadius.l),
                   border: Border.all(
                     color: isSelected
-                        ? AppColors.eatoGold.withValues(alpha: 0.65)
-                        : Colors.white.withValues(alpha: 0.08),
-                    width: isSelected ? 1.5 : 0.5,
+                        ? AppColors.limeDeep.withValues(alpha: 0.55)
+                        : const Color(0xFFE8EAE6),
+                    width: isSelected ? 1.5 : 1,
                   ),
-                  boxShadow: isSelected
-                      ? AppShadows.glow(AppColors.eatoGold, intensity: 0.25)
-                      : null,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF1A2621)
+                          .withValues(alpha: isSelected ? 0.07 : 0.04),
+                      blurRadius: isSelected ? 16 : 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -882,14 +875,16 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
-                              ? AppColors.eatoGold
-                              : Colors.white.withValues(alpha: 0.1),
+                              ? AppColors.limeDeep
+                              : const Color(0xFFF0F1EE),
                           borderRadius: BorderRadius.circular(6),
                         ),
                         child: Text(
                           badge,
                           style: AppTypography.labelSmall.copyWith(
-                            color: isSelected ? Colors.black : Colors.white,
+                            color: isSelected
+                                ? AppColors.limeInk
+                                : const Color(0xFF8A9099),
                             fontSize: 8,
                             fontWeight: FontWeight.w700,
                           ),
@@ -899,8 +894,8 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                       package.storeProduct.title.split(' ').first,
                       style: AppTypography.labelSmall.copyWith(
                         color: isSelected
-                            ? Colors.white
-                            : Colors.white.withValues(alpha: 0.45),
+                            ? const Color(0xFF1A1D26)
+                            : const Color(0xFF8A9099),
                         fontWeight: FontWeight.w700,
                         fontSize: 11,
                       ),
@@ -914,8 +909,8 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                         package.storeProduct.priceString,
                         style: AppTypography.titleMedium.copyWith(
                           color: isSelected
-                              ? AppColors.eatoGold
-                              : Colors.white.withValues(alpha: 0.6),
+                              ? AppColors.limeInk
+                              : const Color(0xFF1A1D26),
                           fontWeight: FontWeight.w800,
                           fontSize: 18,
                           letterSpacing: -0.5,
@@ -925,7 +920,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                     Text(
                       periodText,
                       style: AppTypography.labelSmall.copyWith(
-                        color: Colors.white.withValues(alpha: 0.35),
+                        color: const Color(0xFF8A9099),
                         fontSize: 10,
                       ),
                     ),
@@ -936,7 +931,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                         child: Text(
                           equivalentText,
                           style: AppTypography.labelSmall.copyWith(
-                            color: AppColors.eatoGold.withValues(alpha: 0.8),
+                            color: AppColors.limeDeep,
                             fontSize: 9,
                             fontWeight: FontWeight.w700,
                           ),
@@ -986,10 +981,10 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
               child: Text(
                 'Restore Purchases',
                 style: AppTypography.labelSmall.copyWith(
-                  color: Colors.white.withValues(alpha: 0.4),
+                  color: const Color(0xFF8A9099),
                   fontWeight: FontWeight.w600,
                   decoration: TextDecoration.underline,
-                  decorationColor: Colors.white.withValues(alpha: 0.25),
+                  decorationColor: const Color(0xFFE8EAE6),
                 ),
               ),
             ),
@@ -1000,21 +995,21 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
           'Subscription auto-renews unless cancelled at least 24 hours before the end of the current period. '
           'Manage or cancel any time in your device\'s App Store / Play Store account settings.',
           style: AppTypography.labelSmall.copyWith(
-            color: Colors.white.withValues(alpha: 0.28),
+            color: const Color(0xFF8A9099),
             fontSize: 10,
             height: 1.6,
           ),
           textAlign: TextAlign.center,
         ),
         const SizedBox(height: 8),
-        Row(
+        const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             _PaywallLegalLink(label: 'Privacy Policy', url: kPrivacyPolicyUrl),
             Text(
               '  ·  ',
-              style: AppTypography.labelSmall.copyWith(
-                color: Colors.white.withValues(alpha: 0.2),
+              style: TextStyle(
+                color: Color(0xFF8A9099),
                 fontSize: 10,
               ),
             ),
@@ -1042,24 +1037,22 @@ class _PaywallGlassCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(AppRadius.l),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-        child: Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            color: tint ?? Colors.white.withValues(alpha: 0.05),
-            borderRadius: BorderRadius.circular(AppRadius.l),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.1),
-              width: 0.5,
-            ),
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: tint ?? Colors.white,
+        borderRadius: BorderRadius.circular(AppRadius.l),
+        border: Border.all(color: const Color(0xFFE8EAE6)),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1A2621).withValues(alpha: 0.04),
+            blurRadius: 14,
+            offset: const Offset(0, 6),
           ),
-          child: child,
-        ),
+        ],
       ),
+      child: child,
     );
   }
 }
@@ -1074,10 +1067,10 @@ class _PaywallErrorBanner extends StatelessWidget {
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
       decoration: BoxDecoration(
-        color: AppColors.redDark.withValues(alpha: 0.12),
+        color: AppColors.redDark.withValues(alpha: 0.08),
         borderRadius: AppRadius.roundM,
         border: Border.all(
-          color: AppColors.redDark.withValues(alpha: 0.35),
+          color: AppColors.redDark.withValues(alpha: 0.28),
           width: 0.5,
         ),
       ),
@@ -1090,7 +1083,7 @@ class _PaywallErrorBanner extends StatelessWidget {
             child: Text(
               message,
               style: AppTypography.bodySmall.copyWith(
-                color: Colors.white.withValues(alpha: 0.9),
+                color: const Color(0xFF1A1D26),
                 fontWeight: FontWeight.w600,
               ),
             ),
@@ -1139,19 +1132,21 @@ class _PaywallCTA extends StatelessWidget {
                     begin: AlignmentDirectional.centerStart,
                     end: AlignmentDirectional.centerEnd,
                     colors: [
-                      AppColors.eatoGold,
-                      AppColors.amberDark,
+                      AppColors.lime,
+                      AppColors.limeDeep,
                     ],
                   )
-                : LinearGradient(
-                    colors: [
-                      Colors.white.withValues(alpha: 0.08),
-                      Colors.white.withValues(alpha: 0.04),
-                    ],
-                  ),
-            borderRadius: AppRadius.roundXL,
+                : null,
+            color: active ? null : AppColors.lime.withValues(alpha: 0.4),
+            borderRadius: BorderRadius.circular(999),
             boxShadow: active
-                ? AppShadows.glow(AppColors.eatoGold, intensity: 0.4)
+                ? [
+                    BoxShadow(
+                      color: AppColors.limeDeep.withValues(alpha: 0.35),
+                      blurRadius: 18,
+                      offset: const Offset(0, 8),
+                    ),
+                  ]
                 : null,
           ),
           child: Center(
@@ -1161,15 +1156,15 @@ class _PaywallCTA extends StatelessWidget {
                     height: 22,
                     child: CircularProgressIndicator(
                       strokeWidth: 2,
-                      color: AppColors.bgDark,
+                      color: AppColors.limeInk,
                     ),
                   )
                 : Text(
                     label,
                     style: AppTypography.labelLarge.copyWith(
                       color: active
-                          ? AppColors.bgDark
-                          : Colors.white.withValues(alpha: 0.45),
+                          ? AppColors.limeInk
+                          : AppColors.limeInk.withValues(alpha: 0.5),
                       fontWeight: FontWeight.w800,
                       fontSize: 16,
                       letterSpacing: -0.3,
@@ -1184,7 +1179,7 @@ class _PaywallCTA extends StatelessWidget {
     if (active && !reduceMotion && !loading) {
       btn = btn.animate(onPlay: (c) => c.repeat()).shimmer(
             duration: 2800.ms,
-            color: Colors.white.withValues(alpha: 0.25),
+            color: Colors.white.withValues(alpha: 0.28),
           );
     }
 
@@ -1206,25 +1201,15 @@ class _FeatureRow extends StatelessWidget {
             width: 44,
             height: 44,
             decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Colors.white.withValues(alpha: 0.1),
-                  Colors.white.withValues(alpha: 0.04),
-                ],
-              ),
+              color: AppColors.pastelMint,
               borderRadius: BorderRadius.circular(14),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.08),
-                width: 0.5,
-              ),
+              border: Border.all(color: const Color(0xFFE8EAE6)),
             ),
             child: Center(
               child: Icon(
                 feature.icon,
                 size: 18,
-                color: Colors.white.withValues(alpha: 0.9),
+                color: AppColors.limeInk,
               ),
             ),
           ),
@@ -1236,7 +1221,7 @@ class _FeatureRow extends StatelessWidget {
                 Text(
                   feature.label,
                   style: AppTypography.labelMedium.copyWith(
-                    color: Colors.white,
+                    color: const Color(0xFF1A1D26),
                     fontWeight: FontWeight.w700,
                     fontSize: 14,
                   ),
@@ -1245,7 +1230,7 @@ class _FeatureRow extends StatelessWidget {
                 Text(
                   feature.sub,
                   style: AppTypography.labelSmall.copyWith(
-                    color: Colors.white.withValues(alpha: 0.42),
+                    color: const Color(0xFF8A9099),
                     fontSize: 11,
                     height: 1.3,
                   ),
@@ -1255,7 +1240,7 @@ class _FeatureRow extends StatelessWidget {
           ),
           const Icon(
             Icons.check_circle_rounded,
-            color: AppColors.eatoGold,
+            color: AppColors.limeDeep,
             size: 20,
           ),
         ],
@@ -1284,10 +1269,10 @@ class _PaywallLegalLink extends StatelessWidget {
         child: Text(
           label,
           style: AppTypography.labelSmall.copyWith(
-            color: Colors.white.withValues(alpha: 0.35),
+            color: const Color(0xFF8A9099),
             fontSize: 10,
             decoration: TextDecoration.underline,
-            decorationColor: Colors.white.withValues(alpha: 0.2),
+            decorationColor: const Color(0xFFE8EAE6),
           ),
         ),
       ),

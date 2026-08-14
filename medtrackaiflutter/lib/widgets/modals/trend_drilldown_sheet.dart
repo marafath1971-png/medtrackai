@@ -131,13 +131,13 @@ class TrendDrilldownSheet extends StatelessWidget {
                   Row(
                     children: [
                       Icon(Icons.auto_awesome_rounded,
-                          color: L.purple, size: 18),
+                          color: AppColors.limeDeep, size: 18),
                       const SizedBox(width: 10),
                       Text('PATIENT INSIGHT',
                           style: AppTypography.labelSmall.copyWith(
                               fontSize: 11,
                               fontWeight: FontWeight.w900,
-                              color: L.purple,
+                              color: AppColors.limeDeep,
                               letterSpacing: 0.5)),
                     ],
                   ),

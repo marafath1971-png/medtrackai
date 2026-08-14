@@ -153,46 +153,37 @@ class _AskAiSheetState extends State<AskAiSheet> {
           const SizedBox(height: 8),
           Semantics(
             label: 'Ask a question',
-            child: MedAiGlass(
-              padding: const EdgeInsets.symmetric(horizontal: 8),
-              radius: AppRadius.xl,
-              child: Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: _controller,
-                      autofocus: true,
-                      onSubmitted: (_) => _sendMessage(),
-                      style: AppTypography.bodyMedium.copyWith(
-                          color: L.text,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600),
-                      decoration: InputDecoration(
-                        hintText: 'Ask a question...',
-                        hintStyle: AppTypography.bodyMedium.copyWith(
-                            color: L.sub.withValues(alpha: 0.5), fontSize: 14),
-                        border: InputBorder.none,
-                        contentPadding:
-                            const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: MedAiTextField(
+                    controller: _controller,
+                    autofocus: true,
+                    onSubmitted: (_) => _sendMessage(),
+                    hintText: 'Ask a question...',
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Semantics(
+                  button: true,
+                  label: 'Send message',
+                  child: AnimatedPressable(
+                    onTap: _sendMessage,
+                    child: Container(
+                      width: MedAiA11y.minTapTarget,
+                      height: MedAiA11y.minTapTarget,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        color: AppColors.lime,
+                        borderRadius: BorderRadius.circular(AppInputs.radius),
                       ),
+                      child: Icon(Icons.send_rounded,
+                          color: AppColors.limeInk, size: 20),
                     ),
                   ),
-                  Semantics(
-                    button: true,
-                    label: 'Send message',
-                    child: AnimatedPressable(
-                      onTap: _sendMessage,
-                      child: Container(
-                        width: MedAiA11y.minTapTarget,
-                        height: MedAiA11y.minTapTarget,
-                        alignment: Alignment.center,
-                        child: Icon(Icons.send_rounded,
-                            color: L.text, size: 20),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
           const SizedBox(height: 12),

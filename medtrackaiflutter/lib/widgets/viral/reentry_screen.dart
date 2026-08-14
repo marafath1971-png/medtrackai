@@ -89,7 +89,7 @@ class _ReentryScreenState extends State<ReentryScreen> {
     }
 
     Widget hero = MedAiDepthCard(
-      accentGlow: true,
+      accentGlow: false,
       padding: const EdgeInsets.all(28),
       radius: AppRadius.squircle,
       child: Column(

@@ -123,6 +123,7 @@ flutter:
   assets:
     - .env
     - assets/images/
+    - assets/photos/
     - assets/audio/
     - assets/rive/
     - assets/lottie/

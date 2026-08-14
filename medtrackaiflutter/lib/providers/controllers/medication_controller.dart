@@ -696,6 +696,7 @@ class MedicationController extends ChangeNotifier {
     final mIdx = _meds.indexWhere((m) => m.id == medId);
     if (mIdx == -1) return;
     final m = _meds[mIdx];
+    if (idx < 0 || idx >= m.schedule.length) return;
     final s = m.schedule[idx];
     m.schedule[idx] = s.copyWith(enabled: !s.enabled);
     updateMedDirect(m);
@@ -705,6 +706,7 @@ class MedicationController extends ChangeNotifier {
     final mIdx = _meds.indexWhere((m) => m.id == medId);
     if (mIdx == -1) return;
     final m = _meds[mIdx];
+    if (idx < 0 || idx >= m.schedule.length) return;
     m.schedule.removeAt(idx);
     updateMedDirect(m);
   }
@@ -721,6 +723,7 @@ class MedicationController extends ChangeNotifier {
     final mIdx = _meds.indexWhere((m) => m.id == medId);
     if (mIdx == -1) return;
     final m = _meds[mIdx];
+    if (idx < 0 || idx >= m.schedule.length) return;
     m.schedule[idx] = s;
     updateMedDirect(m);
   }

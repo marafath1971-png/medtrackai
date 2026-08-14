@@ -253,7 +253,7 @@ class KnowYourMedicineSheet extends StatelessWidget {
                     _AlertBlock(
                       title: 'Good to know',
                       items: tips.take(3).toList(),
-                      tint: AppColors.pastelLilac,
+                      tint: AppColors.pastelMint,
                       accent: L.text.withValues(alpha: 0.7),
                       icon: Icons.lightbulb_outline_rounded,
                     ),

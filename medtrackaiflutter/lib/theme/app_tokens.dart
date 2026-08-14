@@ -224,7 +224,7 @@ class AppShadows {
   static List<BoxShadow> get premium => [
         BoxShadow(
           color: const Color(0xFF3A7D6A).withValues(alpha: 0.08),
-          blurRadius: 40,
+          blurRadius: 24,
           spreadRadius: -8,
           offset: const Offset(0, 16),
         ),

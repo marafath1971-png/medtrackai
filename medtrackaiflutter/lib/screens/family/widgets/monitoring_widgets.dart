@@ -98,7 +98,7 @@ class PatientCard extends StatelessWidget {
                   child: MedAiDepthCard(
                     padding: const EdgeInsets.all(AppSpacing.p16),
                     radius: AppRadius.l,
-                    accentGlow: adherence < 0.65,
+                    accentGlow: false,
                     child: Column(
                   children: [
                     Row(

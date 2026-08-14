@@ -23,7 +23,7 @@ class BodyImpactCard extends StatelessWidget {
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
     Widget card = MedAiDepthCard(
-      accentGlow: true,
+      accentGlow: false,
       padding: EdgeInsets.zero,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -38,15 +38,15 @@ class BodyImpactCard extends StatelessWidget {
                     color: AppColors.pastelMint,
                     borderRadius: BorderRadius.circular(AppRadius.s),
                   ),
-                  child: Icon(Icons.monitor_heart_rounded,
-                      size: 18, color: L.text),
+                  child: const Icon(Icons.monitor_heart_rounded,
+                      size: 18, color: AppColors.inkStrong),
                 ),
                 const SizedBox(width: AppSpacing.p12),
                 Expanded(
                   child: Text(
                     HopeVibe.bodyImpactTitle,
                     style: AppTypography.titleMedium.copyWith(
-                      color: L.text,
+                      color: AppColors.inkStrong,
                       fontWeight: FontWeight.w800,
                       letterSpacing: -0.2,
                     ),

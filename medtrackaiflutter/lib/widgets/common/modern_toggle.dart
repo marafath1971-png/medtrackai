@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'dart:ui';
 import '../../theme/app_theme.dart';
 import '../../core/utils/haptic_engine.dart';
 
@@ -43,7 +42,7 @@ class _ModernToggleState extends State<ModernToggle> {
           children: [
             AnimatedAlign(
               duration: 300.ms,
-              curve: Curves.easeOutBack,
+              curve: AppCurves.emilOut,
               alignment: widget.value
                   ? AlignmentDirectional.centerEnd
                   : AlignmentDirectional.centerStart,
@@ -66,7 +65,7 @@ class _ModernToggleState extends State<ModernToggle> {
                 ).animate(target: widget.value ? 1 : 0).scale(
                     begin: const Offset(0.9, 0.9),
                     end: const Offset(1, 1),
-                    curve: Curves.easeOutBack),
+                    curve: AppCurves.emilOut),
               ),
             ),
           ],
@@ -91,9 +90,7 @@ class GlassToggle extends StatelessWidget {
     final L = context.L;
     return ClipRRect(
       borderRadius: BorderRadius.circular(30),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-        child: GestureDetector(
+      child: GestureDetector(
           onTap: () {
             HapticEngine.selection();
             onChanged(!value);
@@ -105,7 +102,7 @@ class GlassToggle extends StatelessWidget {
             height: 32,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(30),
-              color: value ? L.text : L.card.withValues(alpha: 0.1),
+              color: value ? L.text : L.card.withValues(alpha: 0.22),
               border: Border.all(
                   color: L.border.withValues(alpha: 0.2), width: 1.5),
             ),
@@ -135,7 +132,6 @@ class GlassToggle extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }

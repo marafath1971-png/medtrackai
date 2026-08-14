@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -74,11 +73,11 @@ class _AuthScreenState extends State<AuthScreen> {
         backgroundColor: L.card,
         title: Text('Have an invite code?',
             style: AppTypography.titleMedium.copyWith(color: L.text)),
-        content: TextField(
+        content: MedAiTextField(
           controller: ctrl,
           autofocus: true,
           textCapitalization: TextCapitalization.characters,
-          decoration: const InputDecoration(hintText: 'e.g. AB3K9P'),
+          hintText: 'e.g. AB3K9P',
           onSubmitted: (v) => Navigator.pop(ctx, v),
         ),
         actions: [
@@ -117,6 +116,7 @@ class _AuthScreenState extends State<AuthScreen> {
       }
       await _onAuthSuccess();
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
       setState(() => _error = _friendlyError(e.code));
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -132,8 +132,10 @@ class _AuthScreenState extends State<AuthScreen> {
       await AuthService.signInWithGoogle();
       await _onAuthSuccess();
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
       setState(() => _error = _friendlyError(e.code));
     } catch (e) {
+      if (!mounted) return;
       setState(() => _error = 'Google sign-in failed. Please try again.');
     } finally {
       if (mounted) setState(() => _loading = false);
@@ -149,12 +151,14 @@ class _AuthScreenState extends State<AuthScreen> {
       await AuthService.signInWithApple();
       await _onAuthSuccess();
     } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
       setState(() => _error = _friendlyError(e.code));
     } catch (e) {
       final msg = e.toString();
       if (!msg.contains('AuthorizationErrorCode.canceled') &&
           !msg.contains('com.apple.AuthenticationServices') &&
           !msg.contains('canceled')) {
+        if (!mounted) return;
         setState(() => _error = 'Apple sign-in failed. Please try again.');
       }
     } finally {
@@ -183,28 +187,48 @@ class _AuthScreenState extends State<AuthScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder: (ctx) => _EmailAuthSheet(
-        isSignUp: _isSignUp,
-        emailCtrl: _emailCtrl,
-        passCtrl: _passCtrl,
-        showPass: _showPass,
-        loading: _loading,
-        error: _error,
-        onToggleSignUp: () {
-          setState(() {
-            _isSignUp = !_isSignUp;
-            _error = null;
-          });
-          Navigator.pop(ctx);
-          _showEmailSheet();
-        },
-        onTogglePass: () => setState(() => _showPass = !_showPass),
-        onSubmit: () async {
-          Navigator.pop(ctx);
-          await _submit();
-        },
-        onForgot: _forgotPassword,
-      ),
+      builder: (ctx) {
+        var sheetSignUp = _isSignUp;
+        var sheetShowPass = _showPass;
+        var sheetLoading = _loading;
+        String? sheetError = _error;
+
+        return StatefulBuilder(
+          builder: (context, setSheetState) {
+            return _EmailAuthSheet(
+              isSignUp: sheetSignUp,
+              emailCtrl: _emailCtrl,
+              passCtrl: _passCtrl,
+              showPass: sheetShowPass,
+              loading: sheetLoading,
+              error: sheetError,
+              onToggleSignUp: () {
+                setSheetState(() {
+                  sheetSignUp = !sheetSignUp;
+                  sheetError = null;
+                });
+                setState(() {
+                  _isSignUp = sheetSignUp;
+                  _error = null;
+                });
+              },
+              onTogglePass: () {
+                setSheetState(() => sheetShowPass = !sheetShowPass);
+                setState(() => _showPass = sheetShowPass);
+              },
+              onSubmit: () async {
+                Navigator.pop(ctx);
+                setState(() {
+                  _isSignUp = sheetSignUp;
+                  _showPass = sheetShowPass;
+                });
+                await _submit();
+              },
+              onForgot: _forgotPassword,
+            );
+          },
+        );
+      },
     );
   }
 
@@ -234,7 +258,7 @@ class _AuthScreenState extends State<AuthScreen> {
     final topPad = MediaQuery.of(context).padding.top;
 
     return AppScaffold(
-      showAurora: true,
+      showAurora: false,
       body: Stack(
         children: [
           SafeArea(
@@ -532,17 +556,22 @@ class _EmailAuthSheet extends StatelessWidget {
       padding: EdgeInsets.only(bottom: bottom),
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 28, sigmaY: 28),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: L.card.withValues(alpha: context.isDark ? 0.88 : 0.94),
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
-              border: Border(
-                top: BorderSide(color: L.glassBorder.withValues(alpha: 0.35)),
-              ),
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: L.card,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            border: Border(
+              top: BorderSide(color: L.glassBorder.withValues(alpha: 0.35)),
             ),
-            child: Padding(
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.12),
+                blurRadius: 16,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: Padding(
               padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
@@ -613,7 +642,7 @@ class _EmailAuthSheet extends StatelessWidget {
                           child: Text(
                             'Forgot password?',
                             style: AppTypography.labelMedium.copyWith(
-                              color: AppThemeColors2026.electric,
+                              color: AppColors.limeDeep,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -663,7 +692,6 @@ class _EmailAuthSheet extends StatelessWidget {
             ),
           ),
         ),
-      ),
     );
   }
 }
@@ -689,46 +717,18 @@ class _AuthField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Semantics(
-      textField: true,
-      label: label,
-      child: Container(
-        constraints: const BoxConstraints(minHeight: AppA11y.minTapTarget),
-        decoration: BoxDecoration(
-          color: L.fill,
-          borderRadius: AppRadius.roundL,
-          border: Border.all(color: L.border.withValues(alpha: 0.35), width: 0.5),
-        ),
-        child: TextField(
-          controller: controller,
-          obscureText: obscure,
-          keyboardType: keyboardType,
-          autofillHints: autofillHints,
-          style: AppTypography.bodyLarge.copyWith(
-            color: L.text,
-            fontWeight: FontWeight.w600,
-          ),
-          decoration: InputDecoration(
-            labelText: label,
-            labelStyle: AppTypography.bodySmall.copyWith(color: L.sub),
-            border: InputBorder.none,
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 18,
-              vertical: 16,
-            ),
-            suffixIcon: suffix != null
-                ? Padding(
-                    padding: const EdgeInsetsDirectional.only(end: 12),
-                    child: suffix,
-                  )
-                : null,
-            suffixIconConstraints: const BoxConstraints(
-              minWidth: 0,
-              minHeight: 0,
-            ),
-          ),
-        ),
-      ),
+    return MedAiTextField(
+      controller: controller,
+      labelText: label,
+      obscureText: obscure,
+      keyboardType: keyboardType,
+      autofillHints: autofillHints,
+      suffixIcon: suffix != null
+          ? Padding(
+              padding: const EdgeInsetsDirectional.only(end: 8),
+              child: suffix,
+            )
+          : null,
     );
   }
 }

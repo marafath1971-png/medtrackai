@@ -542,7 +542,7 @@ class AdherenceTrendChart extends StatelessWidget {
                             begin: 0.0,
                             end: 1.0,
                             duration: 1000.ms,
-                            curve: Curves.elasticOut, // snappy bounce
+                            curve: AppCurves.emilOut,
                             alignment: Alignment.bottomCenter,
                           ),
                     ),
@@ -747,7 +747,7 @@ class _SmartLoadingInsightsState extends State<SmartLoadingInsights> {
             height: 28,
             child: CircularProgressIndicator(
               strokeWidth: 2.5,
-              color: L.purple,
+              color: AppColors.limeDeep,
             ),
           ),
           const SizedBox(width: AppSpacing.p16),

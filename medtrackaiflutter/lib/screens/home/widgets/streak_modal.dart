@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../theme/med_ai_ui.dart';
@@ -146,9 +145,7 @@ class _StreakModalState extends State<StreakModal> {
           onTap: widget.onClose,
           child: Container(
             color: Colors.black.withValues(alpha: 0.7),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-              child: Align(
+            child: Align(
                 alignment: Alignment.bottomCenter,
                 child: GestureDetector(
                   onTap: () {},
@@ -225,7 +222,6 @@ class _StreakModalState extends State<StreakModal> {
                 ),
               ),
             ),
-          ),
         ),
         if (widget.streak >= 3 && !reduceMotion)
           Align(
@@ -294,7 +290,7 @@ class _StreakModalState extends State<StreakModal> {
       AppThemeColors L, int streak, int best, int adherence) {
     final reduceMotion = MedAiA11y.reducedMotion(context);
     Widget card = MedAiDepthCard(
-      accentGlow: true,
+      accentGlow: false,
       padding: const EdgeInsets.all(AppSpacing.p24),
       child: Row(
         children: [

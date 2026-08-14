@@ -1,14 +1,13 @@
-import 'dart:math' as math;
-
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
+import '../../../core/constants/premium_photos.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
-import '../../../widgets/common/med_ai_mascot.dart';
 import '../onboarding_controller.dart';
 import '../onboarding_theme.dart';
+import 'ob_photo_hero.dart';
 
 // ════════════════════════════════════════════════════════════════════════
 // Eato-inspired onboarding widgets (unique_screens_hd.pdf)
@@ -16,79 +15,19 @@ import '../onboarding_theme.dart';
 // ════════════════════════════════════════════════════════════════════════
 
 /// Laurel wreath + thumbs-up hero — "Your goal will be reached in our app."
+/// Now photo-led for a hooked first impression (cream+lime brand chip).
 class ObLaurelWelcome extends StatelessWidget {
   const ObLaurelWelcome({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final p = ObPalette.of(context);
-    return SizedBox(
-      height: 220,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          CustomPaint(
-            size: const Size(200, 200),
-            painter: _LaurelPainter(color: p.accent),
-          ),
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.thumb_up_alt_rounded, color: p.bad, size: 36),
-              const SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 28),
-                child: Text(
-                  'Your adherence goal will be reached in Med AI',
-                  textAlign: TextAlign.center,
-                  style: AppTypography.titleMedium.copyWith(
-                    color: p.accent,
-                    fontWeight: FontWeight.w800,
-                    height: 1.25,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
+    return const ObPhotoHero(
+      asset: PremiumPhotos.welcome,
+      height: 280,
+      badge: 'MED AI',
+      overlayLine: 'Your adherence goal — reached here.',
     );
   }
-}
-
-class _LaurelPainter extends CustomPainter {
-  final Color color;
-  _LaurelPainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final c = Offset(size.width / 2, size.height / 2);
-    final paint = Paint()
-      ..color = color.withValues(alpha: 0.85)
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = 3
-      ..strokeCap = StrokeCap.round;
-
-    for (var side = -1; side <= 1; side += 2) {
-      final path = Path();
-      for (var i = 0; i < 8; i++) {
-        final t = i / 7;
-        final angle = math.pi * 0.75 + t * math.pi * 0.9 * side;
-        final r = size.width * 0.38;
-        final leaf = Offset(c.dx + math.cos(angle) * r, c.dy + math.sin(angle) * r * 0.9);
-        canvas.drawCircle(leaf, 5, Paint()..color = color.withValues(alpha: 0.35));
-        if (i == 0) {
-          path.moveTo(leaf.dx, leaf.dy);
-        } else {
-          path.lineTo(leaf.dx, leaf.dy);
-        }
-      }
-      canvas.drawPath(path, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(_LaurelPainter old) => old.color != color;
 }
 
 /// Long-term adherence chart — Med AI plan vs memory-only tracking.
@@ -450,43 +389,11 @@ class ObScanIntro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Scan is the clinical domain (DESIGN.md §3.1) → sage, not retired orange.
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.fromLTRB(
-          AppSpacing.p20, AppSpacing.p32, AppSpacing.p20, AppSpacing.p24),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [AppColors.accent, AppColors.accentDeep],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        ),
-        borderRadius: AppRadius.roundL,
-        boxShadow: AppShadows.glow(AppColors.accent, intensity: 0.3),
-      ),
-      child: Column(
-        children: [
-          const MedAiMascot(size: 88, semanticLabel: 'Med AI scan assistant'),
-          const SizedBox(height: AppSpacing.p16),
-          Text(
-            'Point. Scan. Know.',
-            textAlign: TextAlign.center,
-            style: AppTypography.headlineSmall.copyWith(
-              color: Colors.white,
-              fontWeight: FontWeight.w800,
-            ),
-          ),
-          const SizedBox(height: AppSpacing.p8),
-          Text(
-            'Our AI identifies pills, flags interactions, and logs your schedule instantly.',
-            textAlign: TextAlign.center,
-            style: AppTypography.bodySmall.copyWith(
-              color: Colors.white.withValues(alpha: 0.92),
-              height: 1.4,
-            ),
-          ),
-        ],
-      ),
+    return const ObPhotoHero(
+      asset: PremiumPhotos.scan,
+      height: 260,
+      badge: 'SCAN',
+      overlayLine: 'Point. Scan. Know — in one second.',
     );
   }
 }
@@ -611,7 +518,7 @@ class ObSocialProofCluster extends StatelessWidget {
               ).animate(delay: (i * 80).ms).fadeIn().scale(
                     begin: const Offset(0.8, 0.8),
                     end: const Offset(1, 1),
-                    curve: Curves.easeOutBack,
+                    curve: AppCurves.emilOut,
                   );
             }),
           ),

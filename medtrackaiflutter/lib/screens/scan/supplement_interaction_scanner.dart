@@ -54,9 +54,15 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
   void initState() {
     super.initState();
     _pulseController = AnimationController(
-      vsync: this, 
-      duration: const Duration(milliseconds: 1500)
-    )..repeat(reverse: true);
+      vsync: this,
+      duration: const Duration(milliseconds: 1500),
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!MedAiA11y.reducedMotion(context)) {
+        _pulseController.repeat(reverse: true);
+      }
+    });
     _initCamera();
   }
 
@@ -82,7 +88,7 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
       if (_cameras != null && _cameras!.isNotEmpty) {
         _controller = CameraController(
           _cameras![0],
-          ResolutionPreset.high,
+          ResolutionPreset.medium,
           enableAudio: false,
           imageFormatGroup: ImageFormatGroup.jpeg,
         );
@@ -215,11 +221,21 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
       );
     }
 
+    final preview = _controller?.value.previewSize;
+    if (preview == null) {
+      return Container(
+        color: L.bg,
+        child: const Center(
+          child: ContextualLoader(message: "Starting camera..."),
+        ),
+      );
+    }
+
     return SizedBox.expand(
       child: FittedBox(
         fit: BoxFit.cover,
         child: SizedBox(
-          width: _controller!.value.previewSize!.height,
+          width: preview.height,
           child: CameraPreview(_controller!),
         ),
       ),
@@ -273,7 +289,18 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                                             ],
                                           ),
                                         ),
-                                      ).animate(onPlay: (c) => c.repeat()).slideY(begin: -1, end: 1, duration: 1000.ms, curve: Curves.easeInOutSine),
+                                      ).animate(
+                                        onPlay: (c) {
+                                          if (!MedAiA11y.reducedMotion(context)) {
+                                            c.repeat();
+                                          }
+                                        },
+                                      ).slideY(
+                                        begin: -1,
+                                        end: 1,
+                                        duration: 1000.ms,
+                                        curve: Curves.easeInOutSine,
+                                      ),
                                     ),
                                   ],
                                 )

@@ -33,7 +33,7 @@ class RecoveryCourseTracker extends StatelessWidget {
           label:
               'Recovery course for ${medicine.name}, day $day of $totalDays',
           child: MedAiDepthCard(
-          accentGlow: true,
+          accentGlow: false,
           onTap: onTap,
           padding: const EdgeInsets.all(AppSpacing.p20),
           child: Row(

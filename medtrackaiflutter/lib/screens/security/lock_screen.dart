@@ -19,58 +19,54 @@ class LockScreen extends StatefulWidget {
 
 class _LockScreenState extends State<LockScreen> {
   bool _isAuthenticating = false;
-  bool _showRecoveryButton = false;
   String? _errorMessage;
+
+  /// Bumps on every attempt so a hung/stale auth future cannot unlock later.
+  int _attempt = 0;
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(milliseconds: 500), () {
+    Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) _authenticate();
     });
   }
 
-  Future<void> _authenticate() async {
-    if (!mounted || _isAuthenticating) return;
+  Future<void> _authenticate({bool force = false}) async {
+    if (!mounted) return;
+    if (_isAuthenticating && !force) return;
+
+    final attempt = ++_attempt;
+    if (force) {
+      await BiometricService.cancelAuthentication();
+    }
+
     setState(() {
       _isAuthenticating = true;
-      _showRecoveryButton = false;
       _errorMessage = null;
-    });
-
-    final timer = Timer(const Duration(seconds: 5), () {
-      if (mounted && _isAuthenticating) {
-        setState(() => _showRecoveryButton = true);
-      }
     });
 
     try {
       final success = await BiometricService.authenticate();
-      timer.cancel();
-      if (mounted) {
-        setState(() {
-          _isAuthenticating = false;
-          _showRecoveryButton = false;
-        });
-        if (success) {
-          HapticEngine.success();
-          context.read<AppState>().unlockApp();
-        } else {
-          HapticEngine.error();
-          setState(
-            () => _errorMessage = 'Authentication failed. Please try again.',
-          );
-        }
+      if (!mounted || attempt != _attempt) return;
+
+      setState(() => _isAuthenticating = false);
+      if (success) {
+        HapticEngine.success();
+        context.read<AppState>().unlockApp();
+      } else {
+        HapticEngine.error();
+        setState(
+          () => _errorMessage =
+              'Authentication didn’t complete. Try again, or use your device PIN.',
+        );
       }
     } catch (e) {
-      timer.cancel();
-      if (mounted) {
-        setState(() {
-          _isAuthenticating = false;
-          _showRecoveryButton = false;
-          _errorMessage = 'An error occurred during authentication.';
-        });
-      }
+      if (!mounted || attempt != _attempt) return;
+      setState(() {
+        _isAuthenticating = false;
+        _errorMessage = 'An error occurred during authentication.';
+      });
     }
   }
 
@@ -95,20 +91,23 @@ class _LockScreenState extends State<LockScreen> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  L.accent.withValues(alpha: 0.16),
-                  AppThemeColors2026.electric.withValues(alpha: 0.10),
+                  AppColors.lime.withValues(alpha: 0.22),
+                  AppColors.limeDeep.withValues(alpha: 0.10),
                 ],
               ),
-              boxShadow: AppShadows.glow(L.accent, intensity: 0.2),
+              boxShadow: AppShadows.glow(AppColors.limeDeep, intensity: 0.18),
             ),
             child: Center(
               child: _isAuthenticating
-                  ? AppLoadingIndicator(size: 32, color: L.accent)
+                  ? const AppLoadingIndicator(
+                      size: 32, color: AppColors.limeDeep)
                   : Icon(
                       _errorMessage != null
                           ? Icons.error_outline_rounded
                           : Icons.lock_person_rounded,
-                      color: _errorMessage != null ? L.error : L.accent,
+                      color: _errorMessage != null
+                          ? L.error
+                          : AppColors.limeInk,
                       size: 40,
                     ),
             ),
@@ -137,17 +136,17 @@ class _LockScreenState extends State<LockScreen> {
             ),
           ),
           const SizedBox(height: 32),
-          if (!_isAuthenticating || _showRecoveryButton)
-            MedAiCTA(
-              label: _isAuthenticating
-                  ? 'Manual retry'
-                  : (_errorMessage != null ? 'Try again' : 'Unlock now'),
-              onTap: () {
-                HapticEngine.selection();
-                _authenticate();
-              },
-              semanticsLabel: 'Unlock with biometrics',
-            ),
+          // Always offer a way out — never hide the CTA while auth can hang.
+          MedAiCTA(
+            label: _isAuthenticating
+                ? 'Manual retry'
+                : (_errorMessage != null ? 'Try again' : 'Unlock now'),
+            onTap: () {
+              HapticEngine.selection();
+              _authenticate(force: true);
+            },
+            semanticsLabel: 'Unlock with biometrics',
+          ),
         ],
       ),
     );

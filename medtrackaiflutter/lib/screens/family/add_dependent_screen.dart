@@ -308,46 +308,13 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
     bool obscureText = false,
     required dynamic L,
   }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: L.card.withValues(alpha: 0.5),
-        borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: L.border.withValues(alpha: 0.08)),
-      ),
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
-      constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Icon(icon, color: L.sub.withValues(alpha: 0.6), size: 22),
-          const SizedBox(width: AppSpacing.p16),
-          Expanded(
-            child: TextField(
-              controller: controller,
-              maxLength: maxLength,
-              keyboardType: keyboardType,
-              obscureText: obscureText,
-              buildCounter: (context,
-                      {required currentLength,
-                      required isFocused,
-                      maxLength}) =>
-                  null,
-              style: AppTypography.labelMedium.copyWith(
-                color: L.text,
-                fontWeight: FontWeight.w600,
-              ),
-              decoration: InputDecoration(
-                hintText: hint,
-                hintStyle: TextStyle(color: L.sub.withValues(alpha: 0.3)),
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(vertical: AppSpacing.p16),
-                isDense: true,
-                counterText: '',
-              ),
-            ),
-          ),
-        ],
-      ),
+    return MedAiTextField(
+      controller: controller,
+      hintText: hint,
+      maxLength: maxLength,
+      keyboardType: keyboardType,
+      obscureText: obscureText,
+      prefixIcon: Icon(icon, color: AppColors.grey600, size: 22),
     );
   }
 }

@@ -87,6 +87,8 @@ masterpiece_analysis.txt
 images/
 # optional: keep raw art out of the repo
 *.jpg
+!assets/photos/
+!assets/photos/*.jpg
 # mascot-extraction scratch (contact sheets, grid renders)
 .tmp_check/
 .tmp_sheet_*.png

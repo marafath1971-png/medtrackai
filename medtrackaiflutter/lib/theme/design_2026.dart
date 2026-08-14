@@ -25,12 +25,12 @@ class Design2026 {
   static const List<Color> aurora = [
     Color(0xFF4A9E86), // sage
     Color(0xFF6CF2D2), // mint
-    Color(0xFF8B7BF2), // periwinkle
+    Color(0xFFC8F06A), // lime
     Color(0xFF4ABFE2), // sky
   ];
 
-  /// Liquid glass blur sigma.
-  static const double glassBlur = 30;
+  /// Liquid glass blur sigma — capped for 60fps (Apple materials, not heavy frosted stacks).
+  static const double glassBlur = 12;
 
   /// Tight, oversized display for hero numerics.
   static TextStyle displayHero(Color color) => GoogleFonts.outfit(
@@ -191,55 +191,67 @@ class LiquidGlass extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+    final reduceMotion = MediaQuery.disableAnimationsOf(context);
     final base = tint ?? L.card;
+    final useBlur = isDark && !reduceMotion && blur > 0;
+    final effectiveBlur = blur > 12 ? 12.0 : blur;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur * 0.65, sigmaY: blur * 0.65),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
+    final decoration = BoxDecoration(
+      color: useBlur ? null : base.withValues(alpha: isDark ? 0.86 : 0.97),
+      gradient: useBlur
+          ? LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                base.withValues(alpha: isDark ? 0.72 : 0.88),
-                base.withValues(alpha: isDark ? 0.58 : 0.76),
+                base.withValues(alpha: 0.72),
+                base.withValues(alpha: 0.58),
               ],
-            ),
-            borderRadius: BorderRadius.circular(radius),
-            border: Border.all(
-              color: L.glassBorder.withValues(alpha: isDark ? 0.16 : 0.28),
-              width: 0.5,
-            ),
-            boxShadow: AppShadows.soft,
-          ),
-          child: Stack(
-            children: [
-              if (showGloss)
-                Positioned(
-                  top: 0,
-                  left: 0,
-                  right: 0,
-                  height: radius,
-                  child: DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        colors: [
-                          Colors.white.withValues(alpha: isDark ? 0.06 : 0.35),
-                          Colors.transparent,
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              Padding(padding: padding, child: child),
-            ],
-          ),
-        ),
+            )
+          : null,
+      borderRadius: BorderRadius.circular(radius),
+      border: Border.all(
+        color: L.glassBorder.withValues(alpha: isDark ? 0.16 : 0.28),
+        width: 0.5,
       ),
+      boxShadow: AppShadows.soft,
+    );
+
+    final body = Stack(
+      children: [
+        if (showGloss)
+          Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            height: radius,
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    Colors.white.withValues(alpha: isDark ? 0.06 : 0.35),
+                    Colors.transparent,
+                  ],
+                ),
+              ),
+            ),
+          ),
+        Padding(padding: padding, child: child),
+      ],
+    );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: useBlur
+          ? BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: effectiveBlur * 0.65,
+                sigmaY: effectiveBlur * 0.65,
+              ),
+              child: DecoratedBox(decoration: decoration, child: body),
+            )
+          : DecoratedBox(decoration: decoration, child: body),
     );
   }
 }
@@ -460,7 +472,7 @@ class KineticText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gradient = LinearGradient(
-      colors: colors ?? const [Color(0xFF6CF2D2), Color(0xFF4A9E86), Color(0xFF8B7BF2)],
+      colors: colors ?? const [Color(0xFF6CF2D2), Color(0xFF4A9E86), Color(0xFFC8F06A)],
     );
 
     return ShaderMask(

@@ -29,7 +29,6 @@ class HopeSurroundBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final L = context.L;
     final bg = tint ?? AppColors.pastelMint;
 
     return Container(
@@ -66,7 +65,8 @@ class HopeSurroundBanner extends StatelessWidget {
                 Text(
                   title,
                   style: AppTypography.titleMedium.copyWith(
-                    color: L.text,
+                    // Pastel fill → fixed dark ink (never theme L.text).
+                    color: AppColors.inkStrong,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.2,
                   ),
@@ -75,7 +75,7 @@ class HopeSurroundBanner extends StatelessWidget {
                 Text(
                   subtitle,
                   style: AppTypography.bodySmall.copyWith(
-                    color: L.sub,
+                    color: AppColors.grey600,
                     height: 1.4,
                   ),
                 ),

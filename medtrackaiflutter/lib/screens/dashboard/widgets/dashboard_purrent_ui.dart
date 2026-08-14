@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
-import '../../../l10n/app_localizations.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
@@ -24,7 +23,6 @@ class DashboardPurrentTopBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    final s = AppLocalizations.of(context);
     final appState = context.watch<AppState>();
     final name = (appState.activeProfile?.name ?? appState.profile?.name)?.trim();
     final display = (name != null && name.isNotEmpty) ? name.split(' ').first : 'there';
@@ -40,13 +38,20 @@ class DashboardPurrentTopBar extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(
-                  'MedAI',
-                  style: AppTypography.titleLarge.copyWith(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 20,
-                    color: L.text,
-                    letterSpacing: -0.3,
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: AppColors.pastelMint,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    'TRENDS',
+                    style: AppTypography.caption.copyWith(
+                      color: AppColors.limeInk,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.8,
+                    ),
                   ),
                 ),
                 const Spacer(),
@@ -65,17 +70,17 @@ class DashboardPurrentTopBar extends StatelessWidget {
                         'Hi, $display',
                         style: AppTypography.headlineMedium.copyWith(
                           fontWeight: FontWeight.w800,
-                          color: L.text,
-                          letterSpacing: -0.6,
+                          color: AppColors.inkStrong,
+                          letterSpacing: -0.5,
                           height: 1.05,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.p4),
                       Text(
-                        'Welcome back!',
+                        'Your week at a glance',
                         style: AppTypography.bodyMedium.copyWith(
-                          color: L.sub,
-                          fontWeight: FontWeight.w500,
+                          color: AppColors.grey600,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ],
@@ -92,17 +97,17 @@ class DashboardPurrentTopBar extends StatelessWidget {
                       onDailyLog();
                     },
                     child: Container(
-                      width: 42,
-                      height: 42,
+                      width: MedAiA11y.minTapTargetCompact,
+                      height: MedAiA11y.minTapTargetCompact,
                       decoration: BoxDecoration(
-                        color: L.card,
+                        color: Colors.white,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: L.border.withValues(alpha: 0.35),
+                          color: L.border.withValues(alpha: 0.4),
                         ),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
+                            color: AppColors.eatoNavy.withValues(alpha: 0.04),
                             blurRadius: 8,
                             offset: const Offset(0, 2),
                           ),
@@ -114,7 +119,7 @@ class DashboardPurrentTopBar extends StatelessWidget {
                           Icon(
                             Icons.notifications_none_rounded,
                             size: 22,
-                            color: L.text.withValues(alpha: 0.9),
+                            color: AppColors.inkStrong.withValues(alpha: 0.9),
                           ),
                           if (showAlertDot)
                             PositionedDirectional(
@@ -128,7 +133,7 @@ class DashboardPurrentTopBar extends StatelessWidget {
                                     color: AppColors.red,
                                     shape: BoxShape.circle,
                                     border:
-                                        Border.all(color: L.card, width: 1.5),
+                                        Border.all(color: Colors.white, width: 1.5),
                                   ),
                                 ),
                               ),
@@ -139,17 +144,6 @@ class DashboardPurrentTopBar extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-            const SizedBox(height: AppSpacing.p8),
-            Text(
-              s?.dashboardTab ?? 'Trends',
-              style: AppTypography.displaySmall.copyWith(
-                fontWeight: FontWeight.w800,
-                fontSize: 36,
-                color: L.text,
-                letterSpacing: -1,
-                height: 1.05,
-              ),
             ),
           ],
         ),
@@ -175,13 +169,18 @@ class _MenuPill extends StatelessWidget {
           HapticEngine.selection();
           onTap();
         },
-        child: Container(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(
+            minHeight: MedAiA11y.minTapTargetCompact,
+          ),
+          child: Container(
           padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
           decoration: BoxDecoration(
             color: L.card,
             borderRadius: BorderRadius.circular(999),
             border: Border.all(color: L.border.withValues(alpha: 0.35)),
           ),
+          alignment: Alignment.center,
           child: Row(
             children: [
               Icon(Icons.grid_view_rounded, size: 16, color: L.text),
@@ -195,6 +194,7 @@ class _MenuPill extends StatelessWidget {
               ),
             ],
           ),
+        ),
         ),
       ),
     );
@@ -255,7 +255,7 @@ class DashboardPurrentMetricGrid extends StatelessWidget {
         children: [
           Expanded(
             child: _PurrentMetricCard(
-              title: 'Day streak',
+              title: 'Streak',
               value: '$streak',
               subtitle: streak == 1 ? 'day' : 'days',
               accent: AppColors.limeDeep,
@@ -264,10 +264,10 @@ class DashboardPurrentMetricGrid extends StatelessWidget {
               trend: streak > 0 ? '↑ active' : null,
             ),
           ),
-          const SizedBox(width: AppSpacing.p12),
+          const SizedBox(width: AppSpacing.p8),
           Expanded(
             child: _PurrentMetricCard(
-              title: 'Doses logged',
+              title: 'Doses',
               value: '$dosesWeek',
               subtitle: 'this week',
               accent: AppColors.infoSoft,
@@ -275,7 +275,7 @@ class DashboardPurrentMetricGrid extends StatelessWidget {
               sparkline: doseSpark,
             ),
           ),
-          const SizedBox(width: AppSpacing.p12),
+          const SizedBox(width: AppSpacing.p8),
           Expanded(
             child: _PurrentMetricCard(
               title: 'Daily avg',
@@ -317,16 +317,22 @@ class _PurrentMetricCard extends StatelessWidget {
     return Container(
       constraints: const BoxConstraints(minHeight: 132),
       padding: const EdgeInsets.fromLTRB(
-        AppSpacing.p16,
-        AppSpacing.p16,
-        AppSpacing.p16,
+        AppSpacing.p12,
+        AppSpacing.p12,
+        AppSpacing.p12,
         AppSpacing.p12,
       ),
       decoration: BoxDecoration(
-        color: L.card,
-        borderRadius: BorderRadius.circular(AppRadius.xl),
-        border: Border.all(color: L.border.withValues(alpha: 0.22)),
-        boxShadow: AppShadows.soft,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: L.border.withValues(alpha: 0.4)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.eatoNavy.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -334,51 +340,55 @@ class _PurrentMetricCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              Expanded(
-                child: Text(
-                  title,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: AppTypography.labelMedium.copyWith(
-                    color: L.sub,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
               Container(
-                width: 36,
-                height: 36,
+                width: 28,
+                height: 28,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   color: AppColors.badgeFill(accent),
-                  borderRadius: BorderRadius.circular(11),
+                  borderRadius: BorderRadius.circular(9),
                 ),
-                child: Icon(icon, size: 18, color: accent),
+                child: Icon(icon, size: 15, color: accent),
               ),
+              const Spacer(),
+              if (trend != null)
+                Text(
+                  trend!,
+                  maxLines: 1,
+                  style: AppTypography.caption.copyWith(
+                    color: accent,
+                    fontWeight: FontWeight.w800,
+                    fontSize: 10,
+                  ),
+                ),
             ],
           ),
-          if (trend != null) ...[
-            const SizedBox(height: AppSpacing.p4),
-            Text(
-              trend!,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: AppTypography.caption.copyWith(
-                color: accent,
-                fontWeight: FontWeight.w800,
-              ),
-            ),
-          ],
-          const SizedBox(height: AppSpacing.p12),
+          const SizedBox(height: AppSpacing.p8),
           Text(
-            value,
+            title,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
-            style: AppTypography.headlineLarge.copyWith(
-              fontWeight: FontWeight.w800,
-              color: L.text,
-              letterSpacing: -0.8,
-              height: 1,
+            style: AppTypography.labelSmall.copyWith(
+              color: AppColors.grey600,
+              fontWeight: FontWeight.w700,
+              fontSize: 11,
+              letterSpacing: 0.1,
+            ),
+          ),
+          const SizedBox(height: AppSpacing.p4),
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              maxLines: 1,
+              style: AppTypography.headlineLarge.copyWith(
+                fontWeight: FontWeight.w800,
+                color: AppColors.inkStrong,
+                letterSpacing: -0.8,
+                height: 1,
+                fontSize: 28,
+              ),
             ),
           ),
           const SizedBox(height: AppSpacing.p4),
@@ -387,14 +397,16 @@ class _PurrentMetricCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.labelSmall.copyWith(
-              color: L.sub,
+              color: AppColors.grey600,
               fontWeight: FontWeight.w600,
+              fontSize: 11,
             ),
           ),
           const SizedBox(height: AppSpacing.p8),
           ExcludeSemantics(
             child: SizedBox(
               height: AppSpacing.p24,
+              width: double.infinity,
               child: CustomPaint(
                 painter: _SparklinePainter(
                   points: sparkline,

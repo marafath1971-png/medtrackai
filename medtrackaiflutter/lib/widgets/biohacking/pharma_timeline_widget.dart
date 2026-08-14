@@ -1,4 +1,3 @@
-import 'dart:ui' as ui;
 import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
@@ -171,18 +170,14 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
             ),
             if (!_revealMedName)
               Positioned.fill(
-                child: BackdropFilter(
-                  filter: ui.ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                  child: Container(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    child: const Center(
-                      child: Text(
-                        'Tap to reveal',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: 10,
-                          fontWeight: FontWeight.bold,
-                        ),
+                child: Container(
+                  color: L.card.withValues(alpha: 0.92),
+                  child: Center(
+                    child: Text(
+                      'Tap to reveal',
+                      style: AppTypography.caption.copyWith(
+                        color: L.sub,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

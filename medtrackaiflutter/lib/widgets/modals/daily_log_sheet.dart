@@ -37,6 +37,28 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
     _selectedDate = widget.date;
   }
 
+  /// Safe parse for PRN / AI log times (`"08:30"`, `"8:30 AM"`, `"Just now"`).
+  static int _parseHour(String raw) {
+    final t = raw.trim();
+    final hm = RegExp(r'^(\d{1,2}):(\d{2})').firstMatch(t);
+    if (hm != null) {
+      var h = int.tryParse(hm.group(1)!) ?? 8;
+      final lower = t.toLowerCase();
+      if (lower.contains('pm') && h < 12) h += 12;
+      if (lower.contains('am') && h == 12) h = 0;
+      return h.clamp(0, 23);
+    }
+    return DateTime.now().hour;
+  }
+
+  static int _parseMinute(String raw) {
+    final hm = RegExp(r'^(\d{1,2}):(\d{2})').firstMatch(raw.trim());
+    if (hm != null) {
+      return (int.tryParse(hm.group(2)!) ?? 0).clamp(0, 59);
+    }
+    return 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final L = context.L;
@@ -74,8 +96,8 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
             med: med,
             sched: ScheduleEntry(
                 id: 'prn_${e.medId}_${e.time}',
-                h: int.parse(e.time.split(':')[0]),
-                m: int.parse(e.time.split(':')[1]),
+                h: _parseHour(e.time),
+                m: _parseMinute(e.time),
                 label: 'PRN',
                 days: const []),
             key: 'PRN-${e.medId}-${e.time}',
@@ -554,7 +576,7 @@ class _DoseLogRow extends StatelessWidget {
                     : const Duration(milliseconds: 400),
               transitionBuilder: (child, anim) {
                 final scale = Tween<double>(begin: 0.5, end: 1.0).animate(
-                  CurvedAnimation(parent: anim, curve: Curves.elasticOut),
+                  CurvedAnimation(parent: anim, curve: AppCurves.emilOut),
                 );
                 final fade = Tween<double>(begin: 0.0, end: 1.0).animate(
                   CurvedAnimation(parent: anim, curve: Curves.easeOut),

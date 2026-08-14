@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../../theme/med_ai_ui.dart';
 
@@ -29,11 +28,18 @@ class _AiScannerViewfinderState extends State<AiScannerViewfinder>
     _laserController = AnimationController(
       vsync: this,
       duration: const Duration(seconds: 2),
-    )..repeat(reverse: true);
+    );
 
     _laserAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _laserController, curve: Curves.easeInOutSine),
     );
+
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      if (!MedAiA11y.reducedMotion(context)) {
+        _laserController.repeat(reverse: true);
+      }
+    });
 
     _cycleStatusText();
   }
@@ -83,10 +89,7 @@ class _AiScannerViewfinderState extends State<AiScannerViewfinder>
                   fit: BoxFit.cover,
                 ),
               ),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                child: Container(color: Colors.black.withValues(alpha: 0.1)),
-              ),
+              child: Container(color: Colors.black.withValues(alpha: 0.28)),
             ),
           ),
           
@@ -116,13 +119,6 @@ class _AiScannerViewfinderState extends State<AiScannerViewfinder>
                           height: 4,
                           decoration: BoxDecoration(
                             color: L.accent,
-                            boxShadow: [
-                              BoxShadow(
-                                color: L.accent.withValues(alpha: 0.8),
-                                blurRadius: 12,
-                                spreadRadius: 2,
-                              )
-                            ],
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),

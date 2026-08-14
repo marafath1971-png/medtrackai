@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:confetti/confetti.dart';
 
@@ -143,8 +142,8 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
       colors: [
         _isActive
             ? (_isInhaling
-                ? AppColors.cyanAccent.withValues(alpha: 0.15)
-                : AppColors.lavenderAccent.withValues(alpha: 0.15))
+                ? AppColors.lime.withValues(alpha: 0.18)
+                : AppColors.pastelSky.withValues(alpha: 0.35))
             : L.primary.withValues(alpha: 0.05),
         L.bg,
       ],
@@ -292,22 +291,19 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
                                     shape: BoxShape.circle,
                                     gradient: const LinearGradient(
                                       colors: [
-                                        AppColors.cyanAccent,
-                                        AppColors.lavenderAccent,
+                                        AppColors.lime,
+                                        AppColors.limeDeep,
                                       ],
                                       begin: Alignment.topLeft,
                                       end: Alignment.bottomRight,
                                     ),
                                     boxShadow: AppShadows.glow(
-                                        AppColors.cyanAccent,
-                                        intensity: 0.4),
+                                        AppColors.limeDeep,
+                                        intensity: 0.28),
                                   ),
                                   child: ClipOval(
-                                    child: BackdropFilter(
-                                      filter: ImageFilter.blur(
-                                          sigmaX: 10, sigmaY: 10),
-                                      child:
-                                          Container(color: Colors.transparent),
+                                    child: Container(
+                                      color: Colors.white.withValues(alpha: 0.12),
                                     ),
                                   ),
                                 ),
@@ -400,9 +396,9 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
                 minBlastForce: 80,
                 gravity: 0.3,
                 colors: const [
-                  AppColors.cyanAccent,
-                  AppColors.lavenderAccent,
-                  AppColors.coralAccent,
+                  AppColors.lime,
+                  AppColors.limeDeep,
+                  AppColors.pastelSky,
                   Colors.white,
                 ],
               ),

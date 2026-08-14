@@ -124,7 +124,7 @@ class ProfileSelectorRibbon extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.p20),
-                  TextField(
+                  MedAiTextField(
                     controller: pinController,
                     keyboardType: TextInputType.number,
                     obscureText: true,
@@ -137,20 +137,7 @@ class ProfileSelectorRibbon extends StatelessWidget {
                       fontWeight: FontWeight.bold,
                       letterSpacing: 8,
                     ),
-                    decoration: InputDecoration(
-                      counterText: '',
-                      hintText: '••••',
-                      hintStyle: TextStyle(
-                        color: L.sub.withValues(alpha: 0.2),
-                        letterSpacing: 8,
-                      ),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: L.border.withValues(alpha: 0.2)),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: L.text),
-                      ),
-                    ),
+                    hintText: '••••',
                     onChanged: (val) {
                       if (val.length == 4) {
                         if (val == member.pin) {

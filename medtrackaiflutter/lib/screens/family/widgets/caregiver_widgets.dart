@@ -34,10 +34,20 @@ class _CaregiverCardState extends State<CaregiverCard> {
       child: AnimatedPressable(
         onTap: widget.onDashboard,
         scaleFactor: 0.985,
-        child: MedAiDepthCard(
-        padding: const EdgeInsets.all(AppSpacing.p20),
-        radius: AppRadius.l,
-        accentGlow: isActive,
+        child: Container(
+        padding: const EdgeInsets.all(AppSpacing.p16),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: L.border.withValues(alpha: 0.4)),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.eatoNavy.withValues(alpha: 0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -94,7 +104,7 @@ class _CaregiverCardState extends State<CaregiverCard> {
                       Text(
                         cg.name,
                         style: AppTypography.titleLarge.copyWith(
-                          color: L.text,
+                          color: AppColors.inkStrong,
                           fontSize: 16,
                           fontWeight: FontWeight.w800,
                           letterSpacing: -0.5,
@@ -108,7 +118,7 @@ class _CaregiverCardState extends State<CaregiverCard> {
                           Text(
                             cg.relation,
                             style: AppTypography.labelSmall.copyWith(
-                              color: L.sub,
+                              color: AppColors.grey600,
                               fontWeight: FontWeight.w600,
                               fontSize: 11,
                               letterSpacing: 0.1,
@@ -118,14 +128,14 @@ class _CaregiverCardState extends State<CaregiverCard> {
                             const SizedBox(width: AppSpacing.p8),
                             _StatusPill(
                               label: 'Active',
-                              color: L.success,
+                              color: AppColors.limeDeep,
                               L: L,
                             ),
                           ] else ...[
                             const SizedBox(width: AppSpacing.p8),
                             _StatusPill(
                               label: 'Waiting',
-                              color: L.sub,
+                              color: AppColors.grey600,
                               L: L,
                             ),
                           ],
@@ -137,12 +147,12 @@ class _CaregiverCardState extends State<CaregiverCard> {
                 Container(
                   width: 32,
                   height: 32,
-                  decoration: BoxDecoration(
-                    color: L.fill.withValues(alpha: 0.5),
+                  decoration: const BoxDecoration(
+                    color: AppColors.pastelMint,
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(Icons.arrow_forward_ios_rounded,
-                      size: 14, color: L.text),
+                  child: const Icon(Icons.arrow_forward_ios_rounded,
+                      size: 14, color: AppColors.limeInk),
                 ),
               ],
             ),
@@ -153,13 +163,16 @@ class _CaregiverCardState extends State<CaregiverCard> {
             Container(
               padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
               decoration: BoxDecoration(
-                color: L.fill.withValues(alpha: 0.4),
+                color: isActive
+                    ? AppColors.pastelMint
+                    : L.fill.withValues(alpha: 0.5),
                 borderRadius: AppRadius.roundXS,
               ),
               child: Row(
                 children: [
                   Icon(Icons.radar_rounded,
-                      size: 12, color: isActive ? L.success : L.warning),
+                      size: 12,
+                      color: isActive ? AppColors.limeDeep : L.warning),
                   const SizedBox(width: AppSpacing.p8),
                   Expanded(
                     child: Text(
@@ -167,9 +180,11 @@ class _CaregiverCardState extends State<CaregiverCard> {
                           ? 'Active monitoring · stable'
                           : 'Invite sent · waiting',
                       style: AppTypography.labelSmall.copyWith(
-                        color: L.text.withValues(alpha: 0.7),
+                        color: isActive
+                            ? AppColors.limeInk
+                            : AppColors.grey600,
                         fontSize: 10,
-                        fontWeight: FontWeight.w600,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),
@@ -193,7 +208,7 @@ class _CaregiverCardState extends State<CaregiverCard> {
                     width: isActive ? 100 : 40,
                     height: 2,
                     decoration: BoxDecoration(
-                      color: isActive ? L.success : L.warning,
+                      color: isActive ? AppColors.limeDeep : L.warning,
                       borderRadius: BorderRadius.circular(1),
                     ),
                   ),
@@ -202,7 +217,7 @@ class _CaregiverCardState extends State<CaregiverCard> {
             ),
           ],
         ),
-      ),
+        ),
       ),
     );
   }

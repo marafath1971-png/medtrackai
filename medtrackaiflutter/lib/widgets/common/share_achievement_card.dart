@@ -117,7 +117,7 @@ class ShareAchievementCard extends StatelessWidget {
                     .animate()
                     .scale(
                         duration: 800.ms,
-                        curve: Curves.elasticOut,
+                        curve: AppCurves.emilOut,
                         begin: const Offset(0.3, 0.3))
                     .fadeIn(),
                 const SizedBox(height: 28),
@@ -187,7 +187,7 @@ class ShareAchievementCard extends StatelessWidget {
               ],
             ),
           ).animate().fadeIn(duration: 500.ms).scale(
-              begin: const Offset(0.88, 0.88), curve: Curves.easeOutBack),
+              begin: const Offset(0.88, 0.88), curve: AppCurves.emilOut),
 
           const SizedBox(height: 20),
 

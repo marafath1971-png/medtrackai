@@ -7,7 +7,8 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/interaction_warning_banner.dart';
 
-/// Home awareness strip — interaction banner + today’s “know before take” cue.
+/// Home awareness strip — interaction banner + today’s “know before take” cue
+/// with icon chips for the kinds of important info waiting.
 class KnowMedicineStrip extends StatelessWidget {
   final VoidCallback? onReviewFirst;
 
@@ -15,7 +16,6 @@ class KnowMedicineStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final L = context.L;
     final meds = context.select<AppState, List<Medicine>>((s) => s.meds);
     final critical = meds.where((m) => m.hasCriticalSafetyAlerts).toList();
     final briefing = meds.where((m) => m.needsPreTakeBriefing).toList();
@@ -27,17 +27,46 @@ class KnowMedicineStrip extends StatelessWidget {
     final focus = critical.isNotEmpty ? critical : briefing;
     final isCritical = critical.isNotEmpty;
     final tint = isCritical ? AppColors.pastelPink : AppColors.pastelSun;
-    final accent =
-        isCritical ? const Color(0xFF9B3D45) : const Color(0xFF9A6B1F);
+    final accent = isCritical ? AppColors.red : AppColors.amber;
+    // Pastel fills stay light — use dark ink, not theme text.
+    const ink = AppColors.inkStrong;
+    const inkSub = AppColors.grey600;
+
     final title =
         isCritical ? HopeVibe.stripCriticalTitle : HopeVibe.stripSoftTitle;
-    final subtitle = focus.length == 1
-        ? isCritical
-            ? '${focus.first.name} has important alerts — review with confidence'
-            : '${focus.first.name} has a clarity tip before this dose'
-        : isCritical
-            ? '${focus.length} medicines need a safety review — you’ve got this'
-            : '${focus.length} medicines have take tips to help you succeed';
+    final lead = focus.first;
+    final profile = lead.aiSafetyProfile;
+    final hookLine = () {
+      if (profile?.warnings.isNotEmpty == true) {
+        return profile!.warnings.first;
+      }
+      if (profile?.interactions.isNotEmpty == true) {
+        return profile!.interactions.first;
+      }
+      if (profile?.foodRules.isNotEmpty == true) {
+        return profile!.foodRules.first;
+      }
+      return isCritical
+          ? '${lead.name} has important alerts — review with confidence'
+          : '${lead.name} has a clarity tip before this dose';
+    }();
+    final clippedHook = hookLine.length > 88
+        ? '${hookLine.substring(0, 88).trimRight()}…'
+        : hookLine;
+
+    final chips = <({IconData icon, String label})>[
+      if (focus.any((m) => m.aiSafetyProfile?.warnings.isNotEmpty == true))
+        (icon: Icons.priority_high_rounded, label: 'Warning'),
+      if (focus.any((m) => m.aiSafetyProfile?.interactions.isNotEmpty == true))
+        (icon: Icons.science_outlined, label: 'Interaction'),
+      if (focus.any((m) =>
+          m.aiSafetyProfile?.foodRules.isNotEmpty == true ||
+          (m.intakeInstructions.isNotEmpty &&
+              m.intakeInstructions != 'None')))
+        (icon: Icons.restaurant_rounded, label: 'How to take'),
+      if (focus.length > 1)
+        (icon: Icons.medication_rounded, label: '${focus.length} meds'),
+    ];
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -53,6 +82,7 @@ class KnowMedicineStrip extends StatelessWidget {
               border: Border.all(color: accent.withValues(alpha: 0.18)),
             ),
             child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
                   width: 44,
@@ -77,18 +107,58 @@ class KnowMedicineStrip extends StatelessWidget {
                       Text(
                         title,
                         style: AppTypography.titleMedium.copyWith(
-                          color: L.text,
+                          color: ink,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.p4),
                       Text(
-                        subtitle,
+                        clippedHook,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: AppTypography.bodySmall.copyWith(
-                          color: L.sub,
+                          color: inkSub,
                           height: 1.35,
+                          fontWeight: FontWeight.w600,
                         ),
                       ),
+                      if (chips.isNotEmpty) ...[
+                        const SizedBox(height: AppSpacing.p8),
+                        Wrap(
+                          spacing: 6,
+                          runSpacing: 6,
+                          children: chips
+                              .take(3)
+                              .map(
+                                (c) => Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 3,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withValues(alpha: 0.72),
+                                    borderRadius: BorderRadius.circular(999),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Icon(c.icon, size: 11, color: accent),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        c.label,
+                                        style:
+                                            AppTypography.caption.copyWith(
+                                          color: accent,
+                                          fontWeight: FontWeight.w800,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                        ),
+                      ],
                     ],
                   ),
                 ),

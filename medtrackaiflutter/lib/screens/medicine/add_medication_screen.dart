@@ -109,47 +109,14 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     const SizedBox(height: AppSpacing.p24),
 
                     // Name input
-                    Container(
-                      padding: const EdgeInsets.all(AppSpacing.p16),
-                      decoration: BoxDecoration(
-                        color: AppColors.pastelSky,
-                        borderRadius: BorderRadius.circular(AppRadius.l),
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Medication name',
-                            style: AppTypography.labelSmall.copyWith(
-                              color: L.sub,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                          TextField(
-                            controller: _nameController,
-                            onChanged: (val) {
-                              setState(() => _showSuggestions = val.isNotEmpty);
-                            },
-                            style: AppTypography.headlineSmall.copyWith(
-                              color: L.text,
-                              fontWeight: FontWeight.w800,
-                            ),
-                            decoration: InputDecoration(
-                              hintText: 'e.g. Lisinopril',
-                              hintStyle: AppTypography.headlineSmall.copyWith(
-                                color: L.sub.withValues(alpha: 0.35),
-                                fontWeight: FontWeight.w700,
-                              ),
-                              border: InputBorder.none,
-                              isDense: true,
-                              contentPadding: const EdgeInsets.only(
-                                top: AppSpacing.p8,
-                                bottom: AppSpacing.p4,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
+                    MedAiLabeledField(
+                      label: 'Medication name',
+                      controller: _nameController,
+                      hintText: 'e.g. Lisinopril',
+                      textCapitalization: TextCapitalization.words,
+                      onChanged: (val) {
+                        setState(() => _showSuggestions = val.isNotEmpty);
+                      },
                     ),
 
                     if (_showSuggestions)
@@ -253,7 +220,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     Container(
                       padding: const EdgeInsets.all(AppSpacing.p16),
                       decoration: BoxDecoration(
-                        color: AppColors.pastelLilac,
+                        color: AppColors.pastelMint,
                         borderRadius: BorderRadius.circular(AppRadius.l),
                       ),
                       child: Row(

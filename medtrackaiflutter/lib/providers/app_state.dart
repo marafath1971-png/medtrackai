@@ -373,7 +373,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> takeDose(int medId, int idx, {DateTime? date}) async {
-    final m = meds.firstWhere((m) => m.id == medId);
+    final mIdx = meds.indexWhere((m) => m.id == medId);
+    if (mIdx == -1) return;
+    final m = meds[mIdx];
+    if (idx < 0 || idx >= m.schedule.length) return;
     final sched = m.schedule[idx];
     final dose = DoseItem(med: m, sched: sched, key: '${m.id}_${sched.id}');
     await toggleDose(dose, date: date);
@@ -406,6 +409,11 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       isPremium || meds.length < RemoteConfigService.freeTierMedLimit;
 
   Future<void> addMedicine(Medicine m) async {
+    if (!canAddMedicine) {
+      showToast('Medicine limit reached. Upgrade for unlimited meds.',
+          type: 'error');
+      return;
+    }
     await med.addMedicine(m);
     await GrowthTracker.trackFirstMedAdded();
     await _rescheduleNotifications();
@@ -423,7 +431,9 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> saveMedicine(Medicine m) => updateMedicine(m);
   Future<void> updateMed(int id, {int? count}) async {
-    final m = meds.firstWhere((m) => m.id == id);
+    final mIdx = meds.indexWhere((m) => m.id == id);
+    if (mIdx == -1) return;
+    final m = meds[mIdx];
     if (count != null) {
       await updateMedicine(m.copyWith(count: count));
     }
@@ -733,26 +743,47 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     if (res is Success<Map<String, dynamic>>) {
       final data = res.value;
       if (data['identified'] == true) {
-        final medId = data['medId'] as int;
-        final action = data['action'] as String;
-        final confText = data['confirmationText'] as String;
+        final medIdRaw = data['medId'];
+        final medId = medIdRaw is int
+            ? medIdRaw
+            : medIdRaw is num
+                ? medIdRaw.toInt()
+                : int.tryParse('$medIdRaw');
+        final action = data['action']?.toString();
+        final confText = data['confirmationText']?.toString() ?? 'Done!';
+        if (medId == null || action == null) return;
 
-        // Find the next upcoming dose for this med
-        final doses = med.getDoses().where((d) => d.med.id == medId).toList();
+        final medicineIdx = meds.indexWhere((m) => m.id == medId);
+        if (medicineIdx == -1) {
+          await VoiceService.speak(
+              "I couldn't find that medication in your cabinet.");
+          return;
+        }
+        final medicine = meds[medicineIdx];
+
+        final doses =
+            med.getDoses().where((d) => d.med.id == medId).toList();
         if (doses.isNotEmpty) {
           if (action == 'take') {
-            await takeDose(medId, 0); // Simplified: take the first scheduled dose
+            final schedIdx =
+                medicine.schedule.indexWhere((s) => s.enabled);
+            if (schedIdx != -1) {
+              await takeDose(medId, schedIdx);
+            } else if (medicine.schedule.isNotEmpty) {
+              await takeDose(medId, 0);
+            }
           } else {
             await skipDose(doses.first);
           }
-          
+
           await VoiceService.speak(confText);
           toast = confText;
           toastType = 'success';
           safeNotifyListeners();
         }
       } else {
-        await VoiceService.speak("I couldn't identify that medication. Try saying the full name.");
+        await VoiceService.speak(
+            "I couldn't identify that medication. Try saying the full name.");
       }
     }
   }
@@ -1324,15 +1355,27 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
           if (result is Success<Map<String, dynamic>>) {
             final data = result.value;
             if (data['identified'] == true) {
-              final medId = data['medId'];
-              final action = data['action'];
-              final confirmation = data['confirmationText'] ?? 'Done!';
+              final medIdRaw = data['medId'];
+              final medId = medIdRaw is int
+                  ? medIdRaw
+                  : medIdRaw is num
+                      ? medIdRaw.toInt()
+                      : int.tryParse('$medIdRaw');
+              final action = data['action']?.toString();
+              final confirmation =
+                  data['confirmationText']?.toString() ?? 'Done!';
 
-              if (action == 'take') {
-                final medicine = meds.firstWhere((m) => m.id == medId);
-                final schedIdx = medicine.schedule.indexWhere((s) => s.enabled);
-                if (schedIdx != -1) {
-                  await takeDose(medId, schedIdx);
+              if (action == 'take' && medId != null) {
+                final medicineIdx = meds.indexWhere((m) => m.id == medId);
+                if (medicineIdx != -1) {
+                  final medicine = meds[medicineIdx];
+                  final schedIdx =
+                      medicine.schedule.indexWhere((s) => s.enabled);
+                  if (schedIdx != -1) {
+                    await takeDose(medId, schedIdx);
+                  } else if (medicine.schedule.isNotEmpty) {
+                    await takeDose(medId, 0);
+                  }
                 }
               }
 

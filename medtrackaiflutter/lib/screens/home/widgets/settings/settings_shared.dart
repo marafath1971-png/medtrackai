@@ -224,34 +224,11 @@ class SettingsEditField extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  label,
-                  style: AppTypography.bodySmall.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: L.sub.withValues(alpha: 0.85),
-                    fontSize: 13,
-                  ),
-                ),
-                const SizedBox(height: AppSpacing.p4),
-                TextField(
+                MedAiLabeledField(
+                  label: label,
                   controller: ctrl,
+                  hintText: placeholder,
                   keyboardType: keyboard,
-                  style: AppTypography.bodyLarge.copyWith(
-                    fontWeight: FontWeight.w600,
-                    color: L.text,
-                    fontSize: 17,
-                    letterSpacing: -0.3,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: placeholder,
-                    hintStyle: AppTypography.bodyLarge.copyWith(
-                      color: L.sub.withValues(alpha: 0.35),
-                      fontSize: 17,
-                    ),
-                    border: InputBorder.none,
-                    isDense: true,
-                    contentPadding: EdgeInsets.zero,
-                  ),
                 ),
               ],
             ),
@@ -389,7 +366,12 @@ class SettingsStatCard extends StatelessWidget {
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.all(AppSpacing.p16),
+          padding: const EdgeInsets.fromLTRB(
+            AppSpacing.p12,
+            AppSpacing.p12,
+            AppSpacing.p12,
+            AppSpacing.p12,
+          ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -404,35 +386,45 @@ class SettingsStatCard extends StatelessWidget {
                   ),
                 ],
               ),
-              const SizedBox(height: AppSpacing.p16),
+              const Spacer(flex: 2),
               Text(
                 label,
+                maxLines: 1,
                 style: AppTypography.bodySmall.copyWith(
                   fontWeight: FontWeight.w600,
                   color: L.sub,
                   fontSize: 12,
+                  height: 1.2,
                 ),
                 overflow: TextOverflow.ellipsis,
               ),
-              const SizedBox(height: 4),
-              Text(
-                val,
-                style: AppTypography.displayMedium.copyWith(
-                  fontWeight: FontWeight.w800,
-                  fontSize: 28,
-                  color: L.text,
-                  letterSpacing: -0.8,
-                  height: 1.05,
+              const SizedBox(height: 2),
+              FittedBox(
+                fit: BoxFit.scaleDown,
+                alignment: Alignment.centerLeft,
+                child: Text(
+                  val,
+                  maxLines: 1,
+                  style: AppTypography.displayMedium.copyWith(
+                    fontWeight: FontWeight.w800,
+                    fontSize: 28,
+                    color: L.text,
+                    letterSpacing: -0.8,
+                    height: 1.0,
+                  ),
                 ),
               ),
               const SizedBox(height: 2),
               Text(
                 sub,
+                maxLines: 1,
                 style: AppTypography.bodySmall.copyWith(
                   fontWeight: FontWeight.w500,
                   color: L.sub.withValues(alpha: 0.8),
                   fontSize: 12,
+                  height: 1.2,
                 ),
+                overflow: TextOverflow.ellipsis,
               ),
             ],
           ),
@@ -446,7 +438,7 @@ class SettingsStatCard extends StatelessWidget {
       '✅' => AppColors.pastelMint,
       '📈' => AppColors.pastelSky,
       '🔥' => AppColors.pastelSun,
-      '📅' => AppColors.pastelLilac,
+      '📅' => AppColors.pastelSky,
       _ => AppColors.pastelMint,
     };
   }

@@ -227,7 +227,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
                 padding: const EdgeInsets.all(20),
                 radius: AppRadius.xl,
                 color: L.secondary.withValues(alpha: 0.06),
-                accentGlow: true,
+                accentGlow: false,
                 child: _loading
                     ? Row(
                         children: [

@@ -362,7 +362,7 @@ class _StatMiniCard extends StatelessWidget {
     return Semantics(
       label: '$title: $value. $subtitle',
       child: MedAiDepthCard(
-        accentGlow: true,
+        accentGlow: false,
         padding: const EdgeInsets.all(18),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -481,7 +481,7 @@ class _TrendGraphState extends State<_TrendGraph> {
                         duration: reduceMotion
                             ? Duration.zero
                             : Duration(milliseconds: 500 + index * 100),
-                        curve: Curves.easeOutBack,
+                        curve: AppCurves.emilOut,
                         height: _animate ? targetHeight : 0,
                         decoration: BoxDecoration(
                           gradient: index == data.length - 1
@@ -529,7 +529,7 @@ class _DoctorReportCard extends StatelessWidget {
       child: AnimatedPressable(
         onTap: onTap,
         child: MedAiDepthCard(
-          accentGlow: true,
+          accentGlow: false,
           padding: const EdgeInsets.all(18),
           child: Row(
             children: [

@@ -22,13 +22,13 @@ class PremiumHomeSurface extends StatelessWidget {
 
     return DecoratedBox(
       decoration: const BoxDecoration(
-        color: Color(0xFFFBFBFC),
+        color: AppColors.bgLight,
         gradient: LinearGradient(
           begin: Alignment.topCenter,
           end: Alignment(0, 0.45),
           colors: [
-            Color(0xFFEEF7E4),
-            Color(0xFFFBFBFC),
+            AppColors.pastelMint,
+            AppColors.bgLight,
             Color(0xFFF7F7F9),
           ],
           stops: [0.0, 0.22, 1.0],
@@ -56,7 +56,7 @@ class PremiumTextureCard extends StatelessWidget {
     this.padding = const EdgeInsets.all(16),
     this.radius = 22,
     this.color,
-    this.texture = PremiumTextureStyle.fineGrain,
+    this.texture = PremiumTextureStyle.none,
     this.shadows,
   });
 

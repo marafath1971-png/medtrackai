@@ -28,7 +28,7 @@ class FocusModeCard extends StatelessWidget {
       button: true,
       label: 'Focus mode. Breathe, relax, and center yourself.',
       child: MedAiDepthCard(
-        accentGlow: true,
+        accentGlow: false,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p20),
         onTap: () {
           HapticEngine.selection();

@@ -151,7 +151,7 @@ class _MedAiMascotState extends State<MedAiMascot>
       )
           .animate()
           .fadeIn(duration: 450.ms)
-          .scaleXY(begin: 0.92, end: 1, curve: Curves.easeOutBack),
+          .scaleXY(begin: 0.92, end: 1, curve: AppCurves.emilOut),
     );
   }
 }

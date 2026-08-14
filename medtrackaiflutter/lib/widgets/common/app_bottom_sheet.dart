@@ -34,7 +34,6 @@ class AppBottomSheet {
               bottom: MediaQuery.of(context).viewInsets.bottom,
             ),
             child: SafeArea(
-              bottom: false,
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [

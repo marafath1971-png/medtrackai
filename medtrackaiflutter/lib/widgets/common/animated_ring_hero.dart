@@ -452,7 +452,7 @@ class _AnimatedRingState extends State<AnimatedRing>
     _ctrl = AnimationController(
         vsync: this, duration: const Duration(milliseconds: 1800));
     _anim = Tween<double>(begin: 0, end: widget.percent)
-        .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
+        .animate(CurvedAnimation(parent: _ctrl, curve: AppCurves.emilOut));
     _ctrl.forward();
   }
 
@@ -461,7 +461,7 @@ class _AnimatedRingState extends State<AnimatedRing>
     super.didUpdateWidget(old);
     if (old.percent != widget.percent) {
       _anim = Tween<double>(begin: _anim.value, end: widget.percent)
-          .animate(CurvedAnimation(parent: _ctrl, curve: Curves.easeOutBack));
+          .animate(CurvedAnimation(parent: _ctrl, curve: AppCurves.emilOut));
       _ctrl
         ..reset()
         ..forward();

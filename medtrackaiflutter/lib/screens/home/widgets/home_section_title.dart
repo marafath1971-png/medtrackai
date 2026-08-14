@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/med_ai_ui.dart';
+import '../../../widgets/common/animated_pressable.dart';
 
 class HomeSectionTitle extends StatelessWidget {
   final String title;
@@ -33,14 +34,27 @@ class HomeSectionTitle extends StatelessWidget {
             ),
           ),
           if (actionLabel != null && onAction != null)
-            GestureDetector(
-              onTap: onAction,
-              child: Text(
-                actionLabel!,
-                style: AppTypography.labelMedium.copyWith(
-                  color: L.sub,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 14,
+            Semantics(
+              button: true,
+              label: actionLabel,
+              child: AnimatedPressable(
+                onTap: onAction,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(
+                    minWidth: MedAiA11y.minTapTargetCompact,
+                    minHeight: MedAiA11y.minTapTargetCompact,
+                  ),
+                  child: Align(
+                    alignment: Alignment.centerRight,
+                    child: Text(
+                      actionLabel!,
+                      style: AppTypography.labelMedium.copyWith(
+                        color: L.sub,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 14,
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),

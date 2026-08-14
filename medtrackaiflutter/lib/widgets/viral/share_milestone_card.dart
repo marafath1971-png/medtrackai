@@ -274,13 +274,13 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                 top: -50,
                 right: -50,
                 child: ImageFiltered(
-                  imageFilter: ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+                  imageFilter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
                   child: Container(
                     width: 200,
                     height: 200,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: const Color(0xFFBF5AF2).withValues(alpha: 0.25),
+                      color: AppColors.lime.withValues(alpha: 0.25),
                     ),
                   ),
                 ),
@@ -289,7 +289,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                 bottom: -30,
                 left: -30,
                 child: ImageFiltered(
-                  imageFilter: ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+                  imageFilter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
                   child: Container(
                     width: 180,
                     height: 180,
@@ -305,7 +305,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                 top: -60,
                 right: -60,
                 child: ImageFiltered(
-                  imageFilter: ui.ImageFilter.blur(sigmaX: 50, sigmaY: 50),
+                  imageFilter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
                   child: Container(
                     width: 200,
                     height: 200,
@@ -526,11 +526,11 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                   1.0,
                 ],
                 colors: const [
-                  Color(0xFFBF5AF2), // Purple
-                  Color(0xFF00F2FE), // Cyan
+                  AppColors.lime,
+                  AppColors.limeDeep,
                   Color(0xFFFF2D55), // Coral Red
                   Color(0xFFFFCC00), // Gold
-                  Color(0xFFBF5AF2), // Purple
+                  AppColors.pastelSky,
                 ],
               ).createShader(bounds);
             },
@@ -732,7 +732,7 @@ class ShareAdherenceCard extends StatelessWidget {
               top: -40,
               right: -40,
               child: ImageFiltered(
-                imageFilter: ui.ImageFilter.blur(sigmaX: 40, sigmaY: 40),
+                imageFilter: ui.ImageFilter.blur(sigmaX: 16, sigmaY: 16),
                 child: Container(
                   width: 150,
                   height: 150,

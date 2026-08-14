@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../theme/med_ai_ui.dart';
-import '../../../widgets/common/premium_texture.dart';
 
 /// Apple Health–style adherence ring hero for Trends tab.
 class DashboardAdherenceHero extends StatefulWidget {
@@ -83,22 +82,60 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
       statusLabel = 'Room to grow';
     }
 
-    return PremiumTextureCard(
+    return Container(
       padding: const EdgeInsets.fromLTRB(
           AppSpacing.p16, AppSpacing.gutter, AppSpacing.p16, AppSpacing.p20),
-      radius: 28,
-      texture: PremiumTextureStyle.fineGrain,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(color: L.border.withValues(alpha: 0.4)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.eatoNavy.withValues(alpha: 0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
       child: Semantics(
         label: "Today's adherence $pct percent, $statusLabel",
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            "Today's adherence",
-            style: AppTypography.labelMedium.copyWith(
-              color: L.sub,
-              fontWeight: FontWeight.w600
-            ),
+          Row(
+            children: [
+              Text(
+                "Today's adherence",
+                style: AppTypography.labelMedium.copyWith(
+                  color: AppColors.grey600,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              const Spacer(),
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                decoration: BoxDecoration(
+                  color: pct >= 80
+                      ? AppColors.pastelMint
+                      : pct >= 60
+                          ? AppColors.pastelSun
+                          : AppColors.pastelPink,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Text(
+                  statusLabel,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: pct >= 80
+                        ? AppColors.limeInk
+                        : pct >= 60
+                            ? const Color(0xFF8A6A1A)
+                            : AppColors.red,
+                    fontWeight: FontWeight.w800,
+                  ),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: AppSpacing.p16),
           Row(
@@ -115,7 +152,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                         Text(
                           '$pct',
                           style: AppTypography.displayMedium.copyWith(
-                            color: L.text,
+                            color: AppColors.inkStrong,
                             fontWeight: FontWeight.w800,
                             fontSize: 48,
                             letterSpacing: -2,
@@ -125,7 +162,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                         Text(
                           '%',
                           style: AppTypography.titleLarge.copyWith(
-                            color: L.sub,
+                            color: AppColors.grey600,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -133,20 +170,10 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                     ),
                     const SizedBox(height: AppSpacing.p8),
                     Text(
-                      statusLabel,
-                      style: AppTypography.labelLarge.copyWith(
-                        color: pct >= 80
-                            ? AppColors.limeDeep
-                            : L.sub,
-                        fontWeight: FontWeight.w700,
-                        fontSize: 14,
-                      ),
-                    ),
-                    const SizedBox(height: AppSpacing.p4),
-                    Text(
                       '7-day trend below',
                       style: AppTypography.bodySmall.copyWith(
-                        color: L.sub.withValues(alpha: 0.75),
+                        color: AppColors.grey600,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
                   ],
@@ -161,7 +188,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                     child: CustomPaint(
                       painter: _TrendRingPainter(
                         _a.value.clamp(0.0, 1.0),
-                        trackColor: L.fill.withValues(alpha: 0.65),
+                        trackColor: AppColors.pastelMint,
                         progressColor: AppColors.limeDeep,
                       ),
                       child: const Center(
@@ -225,7 +252,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                             style: AppTypography.labelSmall.copyWith(
                               color: isToday
                                   ? AppColors.limeDeep
-                                  : L.sub.withValues(alpha: 0.5),
+                                  : AppColors.grey600.withValues(alpha: 0.7),
                               fontWeight:
                                   isToday ? FontWeight.w800 : FontWeight.w600
                             ),

@@ -9,6 +9,7 @@ import 'design_2026.dart';
 
 export 'app_theme.dart';
 export 'app_tokens.dart';
+export 'app_inputs.dart';
 export 'design_2026.dart';
 export 'hope_vibe.dart';
 
@@ -95,7 +96,7 @@ class MedAiGlass extends StatelessWidget {
     required this.child,
     this.padding = const EdgeInsets.all(AppSpacing.p16),
     this.radius = AppRadius.xl,
-    this.blur = Design2026.glassBlur,
+    this.blur = 12,
     this.tint,
     this.showBorder = true,
     this.onTap,
@@ -105,34 +106,52 @@ class MedAiGlass extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     final isDark = context.isDark;
+    final reduceMotion = MedAiA11y.reducedMotion(context);
     final baseTint = tint ?? (isDark ? Colors.white : L.card);
+    // Cap blur for 60fps; skip BackdropFilter on light mode / reduce motion
+    // (Apple HIG: prefer solid materials when motion is reduced).
+    final effectiveBlur = blur > 12 ? 12.0 : blur;
+    final useBlur = isDark && !reduceMotion && effectiveBlur > 0;
 
-    Widget surface = ClipRRect(
-      borderRadius: BorderRadius.circular(radius),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            gradient: LinearGradient(
+    final decoration = BoxDecoration(
+      color: useBlur
+          ? null
+          : (isDark
+              ? baseTint.withValues(alpha: 0.14)
+              : L.card.withValues(alpha: 0.97)),
+      gradient: useBlur
+          ? LinearGradient(
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
               colors: [
-                baseTint.withValues(alpha: isDark ? 0.12 : 0.78),
-                baseTint.withValues(alpha: isDark ? 0.06 : 0.62),
+                baseTint.withValues(alpha: 0.12),
+                baseTint.withValues(alpha: 0.06),
               ],
-            ),
-            borderRadius: BorderRadius.circular(radius),
-            border: showBorder
-                ? Border.all(
-                    color: L.glassBorder.withValues(alpha: isDark ? 0.14 : 0.22),
-                    width: 0.5,
-                  )
-                : null,
-            boxShadow: isDark ? AppShadows.glass : AppShadows.soft,
-          ),
-          child: Padding(padding: padding, child: child),
-        ),
-      ),
+            )
+          : null,
+      borderRadius: BorderRadius.circular(radius),
+      border: showBorder
+          ? Border.all(
+              color: L.glassBorder.withValues(alpha: isDark ? 0.14 : 0.22),
+              width: 0.5,
+            )
+          : null,
+      boxShadow: isDark ? AppShadows.glass : AppShadows.soft,
+    );
+
+    final content = Padding(padding: padding, child: child);
+
+    Widget surface = ClipRRect(
+      borderRadius: BorderRadius.circular(radius),
+      child: useBlur
+          ? BackdropFilter(
+              filter: ImageFilter.blur(
+                sigmaX: effectiveBlur,
+                sigmaY: effectiveBlur,
+              ),
+              child: DecoratedBox(decoration: decoration, child: content),
+            )
+          : DecoratedBox(decoration: decoration, child: content),
     );
 
     if (onTap != null) {

@@ -113,7 +113,7 @@ class InteractiveProgressRing extends StatelessWidget {
       ),
     );
     if (reducedMotion) return ring;
-    return ring.animate().scale(duration: 600.ms, curve: Curves.easeOutBack);
+    return ring.animate().scale(duration: 600.ms, curve: AppCurves.emilOut);
   }
 
   Color _getStatusColor(AppThemeColors L) {

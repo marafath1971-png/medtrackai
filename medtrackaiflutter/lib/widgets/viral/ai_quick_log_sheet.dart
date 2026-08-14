@@ -89,15 +89,20 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
     _speech = stt.SpeechToText();
     _speechEnabled = await _speech.initialize(
       onStatus: (val) {
+        if (!mounted) return;
         if (val == 'done' || val == 'notListening') {
           setState(() => _isListening = false);
         }
       },
-      onError: (val) => setState(() {
-        _isListening = false;
-        _errorMsg = 'Microphone access denied or error: ${val.errorMsg}';
-      }),
+      onError: (val) {
+        if (!mounted) return;
+        setState(() {
+          _isListening = false;
+          _errorMsg = 'Microphone access denied or error: ${val.errorMsg}';
+        });
+      },
     );
+    if (!mounted) return;
     setState(() {});
   }
 
@@ -184,16 +189,24 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
       }
 
       final result = await GeminiService.parseConversationalLog(input, state.meds);
+      if (!mounted) return;
       result.fold(
         (parsedMap) {
-          final action = parsedMap['action'] as String?;
-          final medId = parsedMap['med_id'] as int?;
-          final confirmation = parsedMap['confirmation'] as String? ?? 'Processed successfully';
-          final timeTaken = parsedMap['time_taken'] as String? ?? 'Just now';
+          final action = parsedMap['action']?.toString();
+          final medIdRaw = parsedMap['med_id'];
+          final medId = medIdRaw is int
+              ? medIdRaw
+              : medIdRaw is num
+                  ? medIdRaw.toInt()
+                  : int.tryParse('$medIdRaw');
+          final confirmation =
+              parsedMap['confirmation']?.toString() ?? 'Processed successfully';
+          final timeTaken =
+              parsedMap['time_taken']?.toString() ?? 'Just now';
           
           if (action == 'schedule_med') {
-            final medName = parsedMap['med_name'] as String? ?? 'New Medicine';
-            final dosage = parsedMap['dosage'] as String? ?? '';
+            final medName = parsedMap['med_name']?.toString() ?? 'New Medicine';
+            final dosage = parsedMap['dosage']?.toString() ?? '';
             final timesList = parsedMap['times'] as List<dynamic>? ?? [];
             
             final schedule = timesList.map((t) {
@@ -242,6 +255,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
           
           state.incrementVoiceLogCount();
           GrowthTracker.trackVoiceLog(success: true, fallback: false);
+          if (!mounted) return;
           setState(() {
             _parsedResult = confirmation;
             _phase = _SheetPhase.success;
@@ -255,6 +269,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
           });
         },
         (err) {
+          if (!mounted) return;
           setState(() {
             _phase = _SheetPhase.error;
             _errorMsg =
@@ -263,6 +278,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
         },
       );
     } catch (e) {
+      if (!mounted) return;
       setState(() {
         _phase = _SheetPhase.error;
         _errorMsg = 'AI service unavailable. Please try again.';
@@ -556,66 +572,50 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
     return Column(
       key: const ValueKey('input'),
       children: [
-        MedAiDepthCard(
-          padding: EdgeInsets.zero,
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _ctrl,
-                  focusNode: _focus,
-                  autofocus: true,
-                  maxLines: 3,
-                  minLines: 1,
-                  textInputAction: TextInputAction.done,
-                  onSubmitted: (_) => _submit(),
-                  style: AppTypography.bodyLarge.copyWith(
-                    color: L.text,
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              child: MedAiTextField(
+                controller: _ctrl,
+                focusNode: _focus,
+                autofocus: true,
+                maxLines: 3,
+                minLines: 1,
+                textInputAction: TextInputAction.done,
+                onSubmitted: (_) => _submit(),
+                hintText: '"I took 2 Tylenol 30 minutes ago..."',
+              ),
+            ),
+            const SizedBox(width: 8),
+            Semantics(
+              button: true,
+              label: _isListening ? 'Stop listening' : 'Start voice input',
+              child: AnimatedPressable(
+                onTap: _listen,
+                child: AnimatedContainer(
+                  duration: MedAiA11y.motion(context, AppDurations.fast),
+                  width: MedAiA11y.minTapTarget,
+                  height: MedAiA11y.minTapTarget,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(AppInputs.radius),
+                    color: _isListening
+                        ? L.error.withValues(alpha: 0.2)
+                        : AppColors.lime.withValues(alpha: 0.35),
+                    boxShadow: _isListening
+                        ? AppShadows.glow(L.error, intensity: 0.4)
+                        : null,
                   ),
-                  decoration: InputDecoration(
-                    hintText: '"I took 2 Tylenol 30 minutes ago..."',
-                    hintStyle: AppTypography.bodyLarge.copyWith(
-                      color: L.sub.withValues(alpha: 0.4),
-                      fontSize: 15,
-                    ),
-                    border: InputBorder.none,
-                    contentPadding: const EdgeInsets.all(18),
+                  alignment: Alignment.center,
+                  child: Icon(
+                    _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+                    color: _isListening ? L.error : AppColors.limeInk,
+                    size: 24,
                   ),
                 ),
               ),
-              Semantics(
-                button: true,
-                label: _isListening ? 'Stop listening' : 'Start voice input',
-                child: AnimatedPressable(
-                  onTap: _listen,
-                  child: AnimatedContainer(
-                    duration: MedAiA11y.motion(context, AppDurations.fast),
-                    margin: const EdgeInsetsDirectional.only(end: 12),
-                    width: MedAiA11y.minTapTargetCompact,
-                    height: MedAiA11y.minTapTargetCompact,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: _isListening
-                          ? L.error.withValues(alpha: 0.2)
-                          : L.border.withValues(alpha: 0.1),
-                      boxShadow: _isListening
-                          ? AppShadows.glow(L.error, intensity: 0.4)
-                          : null,
-                    ),
-                    child: Icon(
-                      _isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
-                      color:
-                          _isListening ? L.error : L.sub.withValues(alpha: 0.7),
-                      size: 24,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
         const SizedBox(height: 16),
         MedAiCTA(
@@ -683,7 +683,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
                 .scale(
                     begin: const Offset(0.5, 0.5),
                     end: const Offset(1, 1),
-                    curve: Curves.elasticOut,
+                    curve: AppCurves.emilOut,
                     duration: 600.ms),
             const SizedBox(height: 20),
             Text(

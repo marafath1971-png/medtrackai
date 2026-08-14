@@ -83,14 +83,14 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                     borderRadius: BorderRadius.circular(AppRadius.s),
                   ),
                   child: Icon(Icons.verified_user_rounded,
-                      size: 18, color: L.text),
+                      size: 18, color: AppColors.inkStrong),
                 ),
                 const SizedBox(width: AppSpacing.p12),
                 Expanded(
                   child: Text(
                     'Know your medicine',
                     style: AppTypography.titleMedium.copyWith(
-                      color: L.text,
+                      color: AppColors.inkStrong,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -166,7 +166,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                   _SafetyBlock(
                     title: s.ahaInsight,
                     items: profile.ahaMoments,
-                    tint: AppColors.pastelLilac,
+                    tint: AppColors.pastelMint,
                     accent: L.text.withValues(alpha: 0.75),
                     icon: Icons.lightbulb_outline_rounded,
                   ),
@@ -224,7 +224,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
           Text(
             s.analysisFailed,
             style: AppTypography.titleMedium.copyWith(
-              color: L.text,
+              color: AppColors.inkStrong,
               fontWeight: FontWeight.w800,
             ),
           ),
@@ -232,7 +232,10 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
           Text(
             _errorMessage ?? s.somethingWentWrong,
             textAlign: TextAlign.center,
-            style: AppTypography.bodySmall.copyWith(color: L.sub, height: 1.4),
+            style: AppTypography.bodySmall.copyWith(
+              color: const Color(0xFF5C6570),
+              height: 1.4,
+            ),
           ),
           const SizedBox(height: AppSpacing.p20),
           MedAiCTA(

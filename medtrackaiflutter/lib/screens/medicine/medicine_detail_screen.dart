@@ -17,7 +17,7 @@ import 'widgets/body_impact_card.dart';
 import 'widgets/inline_ai_coach.dart';
 import 'widgets/medicine_safety_card.dart';
 // ══════════════════════════════════════════════════════════════════════
-// MEDICINE DETAIL SCREEN (Cal AI Industrial Hub Refined)
+// MEDICINE DETAIL SCREEN — premium cream / pastel hub
 // ══════════════════════════════════════════════════════════════════════
 
 class MedicineDetailScreen extends StatefulWidget {
@@ -56,8 +56,10 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
 
   void _resetEdit() {
     final state = Provider.of<AppState>(context, listen: false);
-    final med = state.meds.firstWhere((m) => m.id == widget.medId,
-        orElse: () => state.meds.first);
+    final med = state.meds.firstWhere(
+      (m) => m.id == widget.medId,
+      orElse: () => Medicine.empty(),
+    );
     _editFields = {
       'name': med.name,
       'brand': med.brand,
@@ -404,12 +406,13 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(_categoryIcon(med.category), size: 14, color: L.text),
+                      Icon(_categoryIcon(med.category),
+                          size: 14, color: AppColors.inkStrong),
                       const SizedBox(width: AppSpacing.p4),
                       Text(
                         med.category,
                         style: AppTypography.labelSmall.copyWith(
-                          color: L.text,
+                          color: AppColors.inkStrong,
                           fontWeight: FontWeight.w700,
                         ),
                       ),
@@ -472,7 +475,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                   'Complete the full course',
                   style: AppTypography.titleMedium.copyWith(
                     fontWeight: FontWeight.w800,
-                    color: L.text,
+                    color: AppColors.inkStrong,
                     letterSpacing: -0.2,
                   ),
                 ),
@@ -483,7 +486,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
           Text(
             'This antibiotic must be finished entirely. Do not stop early, even if symptoms improve — unfinished courses can drive resistance.',
             style: AppTypography.bodyMedium.copyWith(
-              color: L.sub,
+              color: const Color(0xFF5C6570),
               height: 1.45,
             ),
           ),
@@ -592,13 +595,13 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                     Icon(
                       isLow ? Icons.warning_amber_rounded : Icons.refresh_rounded,
                       size: 18,
-                      color: L.text,
+                      color: AppColors.inkStrong,
                     ),
                     const SizedBox(width: AppSpacing.p8),
                     Text(
                       'Restock',
                       style: AppTypography.titleMedium.copyWith(
-                        color: L.text,
+                        color: AppColors.inkStrong,
                         fontWeight: FontWeight.w700,
                         fontSize: 14,
                       ),
@@ -725,7 +728,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       width: double.infinity,
       padding: const EdgeInsets.all(AppSpacing.p16),
       decoration: BoxDecoration(
-        color: AppColors.pastelLilac,
+        color: AppColors.pastelMint,
         borderRadius: BorderRadius.circular(AppRadius.l),
       ),
       child: Row(
@@ -737,7 +740,8 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
               color: Colors.white.withValues(alpha: 0.75),
               borderRadius: BorderRadius.circular(AppRadius.s),
             ),
-            child: Icon(Icons.restaurant_rounded, size: 18, color: L.text),
+            child: Icon(Icons.restaurant_rounded,
+                size: 18, color: AppColors.inkStrong),
           ),
           const SizedBox(width: AppSpacing.p12),
           Expanded(
@@ -747,7 +751,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                 Text(
                   'How to take',
                   style: AppTypography.labelSmall.copyWith(
-                    color: L.sub,
+                    color: AppColors.grey600,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -755,7 +759,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                 Text(
                   intake,
                   style: AppTypography.bodyMedium.copyWith(
-                    color: L.text,
+                    color: AppColors.inkStrong,
                     fontWeight: FontWeight.w600,
                   ),
                 ),
@@ -959,9 +963,9 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
   Widget _buildSpecificationsSection(Medicine med, AppThemeColors L) {
     final tiles = [
       (label: 'Form', value: med.form, icon: Icons.medication_rounded, tint: AppColors.pastelSky),
-      (label: 'Category', value: med.category, icon: Icons.label_rounded, tint: AppColors.pastelLilac),
-      (label: 'Unit', value: med.unit, icon: Icons.scale_rounded, tint: AppColors.pastelMint),
-      (label: 'Start', value: med.courseStartDate, icon: Icons.calendar_today_rounded, tint: AppColors.pastelSun),
+      (label: 'Category', value: med.category, icon: Icons.label_rounded, tint: AppColors.pastelMint),
+      (label: 'Unit', value: med.unit, icon: Icons.scale_rounded, tint: AppColors.pastelSun),
+      (label: 'Start', value: med.courseStartDate, icon: Icons.calendar_today_rounded, tint: AppColors.pastelPink),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1323,7 +1327,7 @@ class _DiagnosticCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                Icon(icon, size: 16, color: L.text.withValues(alpha: 0.7)),
+                Icon(icon, size: 16, color: AppColors.inkStrong.withValues(alpha: 0.7)),
                 const SizedBox(width: AppSpacing.p8),
                 Expanded(
                   child: Text(
@@ -1331,7 +1335,7 @@ class _DiagnosticCard extends StatelessWidget {
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.labelSmall.copyWith(
-                      color: L.sub,
+                      color: const Color(0xFF5C6570),
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -1344,7 +1348,7 @@ class _DiagnosticCard extends StatelessWidget {
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
               style: AppTypography.titleMedium.copyWith(
-                color: L.text,
+                color: AppColors.inkStrong,
                 fontWeight: FontWeight.w800,
                 letterSpacing: -0.2,
                 fontSize: 18,
@@ -1752,17 +1756,16 @@ class _FormSection extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.p12),
-        Container(
-          decoration: BoxDecoration(
-            color: L.card,
-            borderRadius: BorderRadius.circular(AppRadius.l),
-            border: Border.all(
-              color: L.border.withValues(alpha: 0.35),
-              width: 0.7,
-            ),
-          ),
-          clipBehavior: Clip.antiAlias,
-          child: Column(children: children),
+        Column(
+          children: [
+            for (var i = 0; i < children.length; i++)
+              Padding(
+                padding: EdgeInsets.only(
+                  bottom: i == children.length - 1 ? 0 : AppSpacing.p12,
+                ),
+                child: children[i],
+              ),
+          ],
         ),
       ],
     );
@@ -1784,50 +1787,12 @@ class _ModernTextField extends StatelessWidget {
       this.isLast = false});
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-          border: isLast
-              ? null
-              : Border(
-                  bottom: BorderSide(
-                      color: L.border.withValues(alpha: 0.05), width: 0.5))),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p12),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Flexible(
-              flex: 2,
-              child: Text(label,
-                  style: AppTypography.labelSmall.copyWith(
-                      color: L.text,
-                      fontWeight: FontWeight.w600,
-                      letterSpacing: 0.5,
-                      fontSize: 13)),
-            ),
-            const SizedBox(width: AppSpacing.p16),
-            Flexible(
-              flex: 3,
-              child: TextFormField(
-                initialValue: value,
-                onChanged: onChanged,
-                keyboardType: keyboard,
-                maxLines: 1,
-                textAlign: TextAlign.right,
-                style: AppTypography.titleMedium
-                    .copyWith(color: L.sub, fontWeight: FontWeight.w500, fontSize: 15),
-                decoration: InputDecoration(
-                    isDense: true,
-                    border: InputBorder.none,
-                    contentPadding: EdgeInsets.zero,
-                    hintText: 'None',
-                    hintStyle: AppTypography.titleMedium.copyWith(color: L.sub.withValues(alpha: 0.3), fontSize: 15),
-                    fillColor: Colors.transparent),
-              ),
-            ),
-          ],
-        ),
-      ),
+    return MedAiLabeledField(
+      label: label,
+      initialValue: value,
+      hintText: 'None',
+      keyboardType: keyboard,
+      onChanged: onChanged,
     );
   }
 }
@@ -1916,11 +1881,11 @@ class _CategoryPicker extends StatelessWidget {
       AppColors.pastelSun,
       AppColors.pastelMint,
       AppColors.pastelPink,
-      AppColors.pastelLilac,
       AppColors.pastelSky,
       AppColors.pastelMint,
-      AppColors.pastelLilac,
       AppColors.pastelSun,
+      AppColors.pastelPink,
+      AppColors.pastelMint,
     ];
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.p16),
@@ -2131,8 +2096,8 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
             duration: reduceMotion
                 ? Duration.zero
                 : const Duration(milliseconds: 400),
-            switchInCurve: Curves.easeOutBack,
-            switchOutCurve: Curves.easeInBack,
+            switchInCurve: AppCurves.emilOut,
+            switchOutCurve: AppCurves.emilOut,
             transitionBuilder: (child, animation) => ScaleTransition(
               scale: animation,
               child: FadeTransition(opacity: animation, child: child),

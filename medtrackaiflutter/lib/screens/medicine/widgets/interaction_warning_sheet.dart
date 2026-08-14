@@ -68,7 +68,7 @@ class InteractionWarningSheet extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(Icons.warning_amber_rounded, color: warningColor, size: 28),
-              ).animate().scale(delay: 100.ms, duration: 400.ms, curve: Curves.easeOutBack),
+              ).animate().scale(delay: 100.ms, duration: 400.ms, curve: AppCurves.emilOut),
               const SizedBox(width: AppSpacing.p16),
               Expanded(
                 child: Column(

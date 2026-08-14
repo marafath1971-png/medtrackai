@@ -129,7 +129,7 @@ class ScanSuccessSheet extends StatelessWidget {
                 child: _TrustChip(
                   icon: Icons.favorite_rounded,
                   label: 'Made for you',
-                  tint: AppColors.pastelLilac,
+                  tint: AppColors.pastelMint,
                 ),
               ),
             ],

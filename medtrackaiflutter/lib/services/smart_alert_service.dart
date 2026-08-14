@@ -113,7 +113,7 @@ class SmartAlertService {
                     ],
                   ),
                 ).animate()
-                 .slideY(begin: -1.0, end: 0, curve: Curves.easeOutBack, duration: 600.ms)
+                 .slideY(begin: -1.0, end: 0, curve: AppCurves.emilOut, duration: 600.ms)
                  .fadeIn(duration: 400.ms)
                  .shimmer(delay: 400.ms, duration: 1000.ms, color: Colors.white.withValues(alpha: 0.2)),
               ),

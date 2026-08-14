@@ -21,7 +21,7 @@ class AlertLogCard extends StatelessWidget {
         label: 'Missed dose alert for ${alert.medName}',
         child: MedAiDepthCard(
           padding: const EdgeInsets.all(AppSpacing.p16),
-          accentGlow: !alert.seen,
+          accentGlow: false,
           onTap: () {
             HapticEngine.light();
             onTap();
@@ -176,19 +176,19 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
     final reduceMotion = MedAiA11y.reducedMotion(context);
     Widget card = MedAiDepthCard(
       padding: const EdgeInsets.all(AppSpacing.p20),
-      accentGlow: true,
-      color: const Color(0xFF1C1917),
+      accentGlow: false,
+      color: L.error.withValues(alpha: 0.12),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(
           children: [
-            const Icon(Icons.campaign_rounded,
-                color: Color(0xFFFCA5A5), size: 20),
+            Icon(Icons.campaign_rounded,
+                color: AppColors.red.withValues(alpha: 0.9), size: 20),
             const SizedBox(width: AppSpacing.p12),
             Text('Critical alert sent',
                 style: AppTypography.labelLarge.copyWith(
                     fontSize: 11,
-                    fontWeight: FontWeight.w700,
-                    color: const Color(0xFFFCA5A5))),
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.red)),
           ],
         ),
         const SizedBox(height: AppSpacing.p12),
@@ -197,12 +197,16 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
             style: AppTypography.bodySmall.copyWith(
                 fontSize: 14,
                 fontWeight: FontWeight.w600,
-                color: Colors.white,
+                color: L.text,
                 height: 1.5)),
       ]),
     );
     if (!reduceMotion) {
-      card = card.animate().scale(curve: Curves.easeOutBack);
+      card = card.animate().scale(
+            begin: const Offset(0.96, 0.96),
+            end: const Offset(1, 1),
+            curve: AppCurves.emilOut,
+          );
     }
     return card;
   }
@@ -331,7 +335,7 @@ class AlertDetailView extends StatelessWidget {
                 children: [
             MedAiDepthCard(
               padding: const EdgeInsets.all(AppSpacing.p24),
-              accentGlow: true,
+              accentGlow: false,
               child: Column(
                 children: [
                   Container(

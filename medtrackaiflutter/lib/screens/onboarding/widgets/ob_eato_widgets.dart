@@ -584,7 +584,7 @@ class _ObPayoffBarsState extends State<ObPayoffBars>
           AnimatedBuilder(
             animation: _ctrl,
             builder: (context, _) {
-              final t = Curves.easeOutBack.transform(_ctrl.value);
+              final t = AppCurves.emilOut.transform(_ctrl.value);
               return Container(
                 width: 92,
                 height: 170 * heightFactor * t.clamp(0.0, 1.0),

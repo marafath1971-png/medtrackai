@@ -2,15 +2,13 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 
-import '../../../core/constants/premium_graphics.dart';
-import '../../../core/utils/haptic_engine.dart';
+import '../../../core/constants/premium_photos.dart';
 import '../../../theme/med_ai_ui.dart';
-import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/med_ai_logo.dart';
 import '../../../widgets/common/med_ai_mascot.dart';
 import '../onboarding_theme.dart';
+import 'ob_photo_hero.dart';
 import 'ob_widgets.dart';
 
 // ════════════════════════════════════════════════════════════════════════
@@ -74,70 +72,82 @@ class _Bar extends StatelessWidget {
   }
 }
 
-/// Dark cinematic splash — glowing logo + pulse (loading screen).
+/// Soft splash — logo + pulse (loading screen).
 class ObCinematicSplash extends StatelessWidget {
   final String? subtitle;
   const ObCinematicSplash({super.key, this.subtitle});
 
   @override
   Widget build(BuildContext context) {
-    const bg = Color(0xFF0A0F0D);
+    final p = ObPalette.of(context);
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
     return DecoratedBox(
-      decoration: const BoxDecoration(color: bg),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          const ObAccentBars(),
-          Center(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                if (!reduceMotion)
-                  SizedBox(
-                    child: const MedAiMascot(
-                      size: 100,
-                      animate: false,
-                      semanticLabel: 'Med AI',
-                    ),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [p.bgTop, p.bg],
+        ),
+      ),
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (!reduceMotion)
+              SizedBox(
+                child: const MedAiMascot(
+                  size: 100,
+                  animate: false,
+                  semanticLabel: 'Med AI',
+                ),
+              )
+                  .animate()
+                  .fadeIn(duration: 600.ms)
+                  .scale(
+                    begin: const Offset(0.96, 0.96),
+                    end: const Offset(1, 1),
+                    duration: 600.ms,
+                    curve: AppCurves.smooth,
                   )
-                      .animate()
-                      .fadeIn(duration: 600.ms)
-                      .scale(
-                        begin: const Offset(0.96, 0.96),
-                        end: const Offset(1, 1),
-                        duration: 600.ms,
-                        curve: AppCurves.smooth,
-                      )
-                else
-                  const MedAiMascot(
-                    size: 100,
-                    animate: false,
-                    semanticLabel: 'Med AI',
-                  ),
-                const SizedBox(height: 28),
-                Text(
+            else
+              const MedAiMascot(
+                size: 100,
+                animate: false,
+                semanticLabel: 'Med AI',
+              ),
+            const SizedBox(height: 28),
+            Builder(
+              builder: (_) {
+                final title = Text(
                   'Med AI',
                   style: AppTypography.headlineLarge.copyWith(
-                    color: Colors.white,
+                    color: p.text,
                     fontWeight: FontWeight.w800,
                     letterSpacing: -0.5,
                   ),
-                ).animate().fadeIn(duration: 600.ms),
-                if (subtitle != null) ...[
-                  const SizedBox(height: 10),
-                  Text(
-                    subtitle!,
-                    style: AppTypography.bodySmall.copyWith(
-                      color: Colors.white.withValues(alpha: 0.5),
-                    ),
-                  ).animate().fadeIn(delay: 200.ms, duration: 500.ms),
-                ],
-              ],
+                );
+                return reduceMotion
+                    ? title
+                    : title.animate().fadeIn(duration: 600.ms);
+              },
             ),
-          ),
-        ],
+            if (subtitle != null) ...[
+              const SizedBox(height: 10),
+              Builder(
+                builder: (_) {
+                  final sub = Text(
+                    subtitle!,
+                    style: AppTypography.bodySmall.copyWith(color: p.sub),
+                  );
+                  return reduceMotion
+                      ? sub
+                      : sub.animate().fadeIn(delay: 200.ms, duration: 500.ms);
+                },
+              ),
+            ],
+          ],
+        ),
       ),
     );
   }
@@ -158,7 +168,7 @@ class _ObMasonryGalleryState extends State<ObMasonryGallery>
   static const _tints = [
     AppColors.accent,
     AppColors.electric,
-    Color(0xFF8B7BF2),
+    AppColors.limeDeep,
     Color(0xFF4ABFE2),
     Color(0xFFF5A623),
     Color(0xFFE5573F),
@@ -225,14 +235,7 @@ class _Column extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const assets = <String>[
-      PremiumGraphics.onboardingDiagnose,
-      PremiumGraphics.onboardingThriving,
-      PremiumGraphics.onboardingFamily,
-      PremiumGraphics.healthInsights,
-      PremiumGraphics.familyCare,
-      PremiumGraphics.scan,
-    ];
+    const assets = PremiumPhotos.gallery;
     return Expanded(
       child: Transform.translate(
         offset: Offset(0, offset),
@@ -262,139 +265,151 @@ class _PillTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-          colors: [
-            color.withValues(alpha: 0.35),
-            color.withValues(alpha: 0.12),
-          ],
-        ),
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: color.withValues(alpha: 0.25)),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(10),
-        child: SvgPicture.asset(
-          asset,
-          fit: BoxFit.contain,
-          colorFilter: ColorFilter.mode(
-            Colors.white.withValues(alpha: 0.02),
-            BlendMode.srcATop,
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(12),
+      child: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            asset,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.medium,
+            errorBuilder: (_, __, ___) => ColoredBox(color: color),
           ),
-        ),
+          DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  color.withValues(alpha: 0.15),
+                  color.withValues(alpha: 0.45),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// Full-screen #1 social proof interstitial.
+/// Full-screen #1 social proof interstitial — soft premium (not dark cinema).
 class ObRankInterstitial extends StatelessWidget {
   final VoidCallback onContinue;
   const ObRankInterstitial({super.key, required this.onContinue});
 
   @override
   Widget build(BuildContext context) {
-    const bg = Color(0xFF0F1F18);
-    return DecoratedBox(
-      decoration: const BoxDecoration(color: bg),
-      child: Scaffold(
-        backgroundColor: Colors.transparent,
-        body: SafeArea(
-          child: Column(
-            children: [
-              const Spacer(flex: 2),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(
-                    Icons.emoji_events_outlined,
-                    color: Colors.white.withValues(alpha: 0.85),
-                    size: 36,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    '1',
-                    style: Design2026.displayHero(Colors.white).copyWith(
-                      fontSize: 96,
-                      letterSpacing: -4,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Icon(
-                    Icons.emoji_events_outlined,
-                    color: Colors.white.withValues(alpha: 0.85),
-                    size: 36,
-                  ),
-                ],
-              ).obFadeUp(),
-              const SizedBox(height: 12),
-              Text(
-                '#1 MEDICATION TRACKER',
-                style: AppTypography.titleLarge.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w800,
-                  letterSpacing: 1.2,
-                ),
-              ).obFadeUp(delayMs: 80),
-              const SizedBox(height: 8),
-              Text(
-                'AI Pill Scanner & Adherence App',
-                style: AppTypography.bodyMedium.copyWith(
-                  color: Colors.white.withValues(alpha: 0.65),
-                ),
-              ).obFadeUp(delayMs: 120),
-              const Spacer(flex: 3),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(24, 0, 24, 20),
-                child: Text(
-                  'Trusted by 500,000+ people managing their health',
-                  textAlign: TextAlign.center,
-                  style: AppTypography.bodySmall.copyWith(
-                    color: Colors.white.withValues(alpha: 0.4),
-                  ),
-                ),
-              ),
-              Padding(
-                padding: const EdgeInsets.fromLTRB(22, 0, 22, 16),
-                child: Semantics(
-                  button: true,
-                  label: 'Continue',
-                  child: AnimatedPressable(
-                    onTap: () {
-                      HapticEngine.selection();
-                      onContinue();
-                    },
-                    child: Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(vertical: 16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(99),
-                      ),
-                      alignment: Alignment.center,
-                      child: Text(
-                        'Continue',
-                        style: AppTypography.titleMedium.copyWith(
-                          color: bg,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ],
+    final p = ObPalette.of(context);
+    return Scaffold(
+      backgroundColor: p.bg,
+      body: Stack(
+        fit: StackFit.expand,
+        children: [
+          Image.asset(
+            PremiumPhotos.rank,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.high,
+            errorBuilder: (_, __, ___) => ColoredBox(color: p.bgTop),
           ),
-        ),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0x66000000),
+                  Color(0x33000000),
+                  Color(0xF2FFF8F2),
+                ],
+                stops: [0.0, 0.4, 0.72],
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+              child: Column(
+                children: [
+                  const Spacer(flex: 2),
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(28),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.94),
+                      borderRadius: BorderRadius.circular(32),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.limeDeep.withValues(alpha: 0.16),
+                          blurRadius: 24,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
+                    ),
+                    child: Column(
+                      children: [
+                        Text(
+                          'YOUR #1 PLAN',
+                          style: AppTypography.caption.copyWith(
+                            color: AppColors.accentDeep,
+                            letterSpacing: 1.4,
+                            fontWeight: FontWeight.w800,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Text(
+                          '#1',
+                          style: AppTypography.displayLarge.copyWith(
+                            color: p.text,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -2,
+                            height: 1,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Medication companion',
+                          style: AppTypography.titleLarge.copyWith(
+                            color: p.text,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'Scan. Know. Never miss a dose.',
+                          textAlign: TextAlign.center,
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: p.sub,
+                            height: 1.4,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ).obFadeUp(),
+                  const SizedBox(height: 20),
+                  Text(
+                    'Trusted by 500,000+ people managing their health',
+                    textAlign: TextAlign.center,
+                    style: AppTypography.bodySmall.copyWith(
+                      color: AppColors.inkStrong.withValues(alpha: 0.72),
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ).obFadeUp(delayMs: 80),
+                  const Spacer(),
+                  ObPrimaryButton(label: 'Continue', onTap: onContinue),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-/// Illustrated hero scenes — flat vector style for onboarding.
+/// Photo hero scenes — HD lifestyle imagery for onboarding hooks.
 enum ObHeroScene { thriving, diagnose, scan, family }
 
 class ObHeroIllustration extends StatelessWidget {
@@ -404,222 +419,38 @@ class ObHeroIllustration extends StatelessWidget {
   const ObHeroIllustration({
     super.key,
     required this.scene,
-    this.height = 240,
+    this.height = 260,
   });
 
   @override
   Widget build(BuildContext context) {
-    final assetPath = switch (scene) {
-      ObHeroScene.diagnose => PremiumGraphics.onboardingDiagnose,
-      ObHeroScene.thriving => PremiumGraphics.onboardingThriving,
-      ObHeroScene.family => PremiumGraphics.onboardingFamily,
-      ObHeroScene.scan => PremiumGraphics.scan,
+    final (asset, line) = switch (scene) {
+      ObHeroScene.diagnose => (
+          PremiumPhotos.know,
+          'Know every med before you take it.'
+        ),
+      ObHeroScene.thriving => (
+          PremiumPhotos.thrive,
+          'Consistency that feels like success.'
+        ),
+      ObHeroScene.family => (
+          PremiumPhotos.family,
+          'Peace of mind for people you love.'
+        ),
+      ObHeroScene.scan => (
+          PremiumPhotos.scanFeature,
+          'Scan once. Understand forever.'
+        ),
     };
 
-    return SizedBox(
+    return ObPhotoHero(
+      asset: asset,
       height: height,
-      width: double.infinity,
-      child: SvgPicture.asset(
-        assetPath,
-        fit: BoxFit.contain,
-        placeholderBuilder: (_) => CustomPaint(
-          painter: _HeroScenePainter(scene: scene),
-        ),
-      ),
+      overlayLine: line,
     );
   }
 }
 
-class _HeroScenePainter extends CustomPainter {
-  final ObHeroScene scene;
-  _HeroScenePainter({required this.scene});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    switch (scene) {
-      case ObHeroScene.thriving:
-        _paintThriving(canvas, size);
-      case ObHeroScene.diagnose:
-        _paintDiagnose(canvas, size);
-      case ObHeroScene.scan:
-        _paintScan(canvas, size);
-      case ObHeroScene.family:
-        _paintThriving(canvas, size);
-    }
-  }
-
-  void _paintThriving(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-  // Phone frame
-    final phoneRect = RRect.fromRectAndRadius(
-      Rect.fromCenter(
-        center: Offset(w * 0.55, h * 0.52),
-        width: w * 0.42,
-        height: h * 0.72,
-      ),
-      const Radius.circular(16),
-    );
-    canvas.drawRRect(
-      phoneRect,
-      Paint()..color = const Color(0xFF1A2E28),
-    );
-    canvas.drawRRect(
-      phoneRect,
-      Paint()
-        ..color = AppColors.accent
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 3,
-    );
-    // Scan corners on phone
-    _drawCorners(canvas, phoneRect.outerRect, AppColors.electric, 14);
-
-    // Person silhouette
-    canvas.drawCircle(
-      Offset(w * 0.28, h * 0.35),
-      w * 0.09,
-      Paint()..color = const Color(0xFFFFB86C),
-    );
-    final body = Path()
-      ..moveTo(w * 0.22, h * 0.48)
-      ..lineTo(w * 0.34, h * 0.48)
-      ..lineTo(w * 0.36, h * 0.78)
-      ..lineTo(w * 0.18, h * 0.78)
-      ..close();
-    canvas.drawPath(body, Paint()..color = const Color(0xFF4ABFE2));
-
-    // Med bottles
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(w * 0.08, h * 0.62, w * 0.1, h * 0.2),
-        const Radius.circular(6),
-      ),
-      Paint()..color = AppColors.accent,
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(w * 0.78, h * 0.55, w * 0.12, h * 0.28),
-        const Radius.circular(8),
-      ),
-      Paint()..color = const Color(0xFF8B7BF2),
-    );
-  }
-
-  void _paintDiagnose(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-
-    // Window
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(w * 0.62, h * 0.08, w * 0.28, h * 0.35),
-        const Radius.circular(8),
-      ),
-      Paint()..color = const Color(0xFFE8F4F0),
-    );
-
-    // Person with phone
-    canvas.drawCircle(
-      Offset(w * 0.38, h * 0.32),
-      w * 0.08,
-      Paint()..color = const Color(0xFF2D3436),
-    );
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromCenter(
-          center: Offset(w * 0.38, h * 0.55),
-          width: w * 0.22,
-          height: h * 0.32,
-        ),
-        const Radius.circular(12),
-      ),
-      Paint()..color = const Color(0xFFFF8C42),
-    );
-
-    // Phone
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromCenter(
-          center: Offset(w * 0.52, h * 0.48),
-          width: w * 0.14,
-          height: h * 0.22,
-        ),
-        const Radius.circular(6),
-      ),
-      Paint()..color = const Color(0xFF4ABFE2),
-    );
-
-    // Warning pill bottle
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromLTWH(w * 0.12, h * 0.58, w * 0.14, h * 0.28),
-        const Radius.circular(10),
-      ),
-      Paint()..color = const Color(0xFFE5573F).withValues(alpha: 0.85),
-    );
-    canvas.drawCircle(
-      Offset(w * 0.19, h * 0.52),
-      w * 0.04,
-      Paint()..color = const Color(0xFFFF6B6B),
-    );
-  }
-
-  void _paintScan(Canvas canvas, Size size) {
-    final w = size.width;
-    final h = size.height;
-
-    // Large pill
-    final pillRect = RRect.fromRectAndRadius(
-      Rect.fromCenter(
-        center: Offset(w * 0.5, h * 0.5),
-        width: w * 0.55,
-        height: h * 0.22,
-      ),
-      const Radius.circular(99),
-    );
-    canvas.drawRRect(pillRect, Paint()..color = AppColors.accent);
-    canvas.drawRRect(
-      RRect.fromRectAndRadius(
-        Rect.fromCenter(
-          center: Offset(w * 0.38, h * 0.5),
-          width: w * 0.22,
-          height: h * 0.22,
-        ),
-        const Radius.circular(99),
-      ),
-      Paint()..color = Colors.white,
-    );
-
-    _drawCorners(canvas, pillRect.outerRect.inflate(20), AppColors.electric, 18);
-  }
-
-  void _drawCorners(Canvas canvas, Rect rect, Color color, double len) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 3
-      ..style = PaintingStyle.stroke
-      ..strokeCap = StrokeCap.round;
-
-    final tl = rect.topLeft;
-    final tr = rect.topRight;
-    final bl = rect.bottomLeft;
-    final br = rect.bottomRight;
-
-    canvas.drawLine(tl, tl + Offset(len, 0), paint);
-    canvas.drawLine(tl, tl + Offset(0, len), paint);
-    canvas.drawLine(tr, tr + Offset(-len, 0), paint);
-    canvas.drawLine(tr, tr + Offset(0, len), paint);
-    canvas.drawLine(bl, bl + Offset(len, 0), paint);
-    canvas.drawLine(bl, bl + Offset(0, -len), paint);
-    canvas.drawLine(br, br + Offset(-len, 0), paint);
-    canvas.drawLine(br, br + Offset(0, -len), paint);
-  }
-
-  @override
-  bool shouldRepaint(_HeroScenePainter old) => old.scene != scene;
-}
-
-/// Animated accuracy comparison bar chart (Med AI vs other apps).
 class ObAccuracyBarChart extends StatefulWidget {
   final double ourScore;
   final double otherScore;
@@ -754,7 +585,7 @@ class _ObAccuracyBarChartState extends State<ObAccuracyBarChart>
                   size: const Size(double.infinity, 40),
                   painter: _ArcConnectorPainter(
                     progress: (t - 0.5) * 2,
-                    color: Colors.white.withValues(alpha: 0.25),
+                    color: p.border.withValues(alpha: 0.9),
                   ),
                 ),
               const SizedBox(height: 8),
@@ -870,88 +701,93 @@ class _ArcConnectorPainter extends CustomPainter {
       old.progress != progress;
 }
 
-/// Full-screen trial flash — "Start 7 days for free!"
+/// Full-screen trial flash — soft premium (not dark cinema).
 class ObTrialFlashInterstitial extends StatelessWidget {
   final VoidCallback onContinue;
   const ObTrialFlashInterstitial({super.key, required this.onContinue});
 
   @override
   Widget build(BuildContext context) {
-    const bg = Color(0xFF0A0F0D);
+    final p = ObPalette.of(context);
     return DecoratedBox(
-      decoration: const BoxDecoration(color: bg),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          const ObAccentBars(color: AppColors.accent),
-          SafeArea(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [p.bgTop, p.bg],
+        ),
+      ),
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
             child: Column(
               children: [
-                const Spacer(flex: 3),
-                RichText(
-                  textAlign: TextAlign.center,
-                  text: TextSpan(
-                    style: AppTypography.headlineLarge.copyWith(
-                      color: Colors.white,
-                      fontWeight: FontWeight.w800,
-                      fontSize: 32,
-                      height: 1.2,
-                    ),
-                    children: const [
-                      TextSpan(text: 'Start '),
-                      TextSpan(
-                        text: '7',
-                        style: TextStyle(color: Color(0xFFFF8C42)),
+                const Spacer(flex: 2),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.fromLTRB(24, 36, 24, 36),
+                  decoration: BoxDecoration(
+                    color: p.surfaceSel,
+                    borderRadius: BorderRadius.circular(32),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.limeDeep.withValues(alpha: 0.16),
+                        blurRadius: 28,
+                        offset: const Offset(0, 12),
                       ),
-                      TextSpan(text: ' days for free!'),
                     ],
                   ),
-                ).obFadeUp().animate().scale(
-                      begin: const Offset(0.92, 0.92),
-                      end: const Offset(1, 1),
-                      duration: 600.ms,
-                      curve: Curves.easeOutBack,
-                    ),
-                const Spacer(flex: 4),
-                Padding(
-                  padding: const EdgeInsets.fromLTRB(22, 0, 22, 20),
-                  child: Semantics(
-                    button: true,
-                    label: 'Continue',
-                    child: AnimatedPressable(
-                      onTap: () {
-                        HapticEngine.selection();
-                        onContinue();
-                      },
-                      child: Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        decoration: BoxDecoration(
-                          gradient: const LinearGradient(
-                            colors: [AppColors.accent, AppColors.accentDeep],
-                          ),
-                          borderRadius: BorderRadius.circular(99),
-                          boxShadow: AppShadows.glow(
-                            AppColors.accent,
-                            intensity: 0.35,
-                          ),
-                        ),
-                        alignment: Alignment.center,
-                        child: Text(
-                          'Continue',
-                          style: AppTypography.titleMedium.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                          ),
+                  child: Column(
+                    children: [
+                      Text(
+                        'FREE TRIAL',
+                        style: AppTypography.caption.copyWith(
+                          color: AppColors.accentDeep,
+                          letterSpacing: 1.4,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 16),
+                      RichText(
+                        textAlign: TextAlign.center,
+                        text: TextSpan(
+                          style: AppTypography.headlineLarge.copyWith(
+                            color: p.text,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 30,
+                            height: 1.2,
+                            letterSpacing: -0.4,
+                          ),
+                          children: const [
+                            TextSpan(text: 'Start '),
+                            TextSpan(
+                              text: '7',
+                              style: TextStyle(color: AppColors.limeDeep),
+                            ),
+                            TextSpan(text: ' days\nfor free'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        'Full access. Cancel anytime.',
+                        textAlign: TextAlign.center,
+                        style: AppTypography.bodyMedium.copyWith(
+                          color: p.sub,
+                          height: 1.4,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
+                ).obFadeUp(),
+                const Spacer(flex: 3),
+                ObPrimaryButton(label: 'Continue', onTap: onContinue),
               ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
@@ -965,7 +801,7 @@ class ObPaywallFeatureGrid extends StatelessWidget {
     (Icons.warning_amber_rounded, Color(0xFFE5573F), 'Interactions'),
     (Icons.notifications_active_rounded, Color(0xFF4ABFE2), 'Reminders'),
     (Icons.alarm_rounded, AppColors.accent, 'Alarms'),
-    (Icons.camera_alt_rounded, Color(0xFF8B7BF2), 'Scan'),
+    (Icons.camera_alt_rounded, AppColors.limeDeep, 'Scan'),
     (Icons.medical_services_rounded, Color(0xFFFF8C42), 'Reports'),
     (Icons.family_restroom_rounded, AppColors.electric, 'Family'),
   ];
@@ -1007,7 +843,7 @@ class ObPaywallFeatureGrid extends StatelessWidget {
                 .scale(
                   begin: const Offset(0.6, 0.6),
                   end: const Offset(1, 1),
-                  curve: Curves.easeOutBack,
+                  curve: AppCurves.emilOut,
                 ),
               );
             }),

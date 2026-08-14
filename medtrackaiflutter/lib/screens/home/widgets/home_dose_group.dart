@@ -4,7 +4,7 @@ import '../../../core/utils/date_formatter.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../providers/app_state.dart';
 import '../../../services/smart_alert_service.dart';
-import '../../../theme/app_theme.dart';
+import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/modals/know_your_medicine_sheet.dart';
 import 'home_dose_row.dart';
 
@@ -28,18 +28,45 @@ class HomeDoseGroup extends StatelessWidget {
     this.onTakeDose,
   });
 
-  static String _groupLabel(String title) {
+  static ({String label, IconData icon, Color tint, Color ink}) _periodStyle(
+    String title,
+  ) {
     switch (title.toLowerCase()) {
       case 'morning':
-        return 'MORNING';
+        return (
+          label: 'Morning',
+          icon: Icons.wb_sunny_rounded,
+          tint: AppColors.pastelSun,
+          ink: const Color(0xFF8A6A1A),
+        );
       case 'afternoon':
-        return 'AFTERNOON';
+        return (
+          label: 'Afternoon',
+          icon: Icons.light_mode_rounded,
+          tint: AppColors.pastelMint,
+          ink: AppColors.limeInk,
+        );
       case 'evening':
-        return 'EVENING';
+        return (
+          label: 'Evening',
+          icon: Icons.wb_twilight_rounded,
+          tint: AppColors.pastelSky,
+          ink: const Color(0xFF2F5F7A),
+        );
       case 'night':
-        return 'NIGHT';
+        return (
+          label: 'Night',
+          icon: Icons.nights_stay_rounded,
+          tint: const Color(0xFFE8E4F5),
+          ink: const Color(0xFF4A3F6B),
+        );
       default:
-        return title.toUpperCase();
+        return (
+          label: title,
+          icon: Icons.schedule_rounded,
+          tint: AppColors.pastelMint,
+          ink: AppColors.inkStrong,
+        );
     }
   }
 
@@ -48,7 +75,6 @@ class HomeDoseGroup extends StatelessWidget {
     DoseItem d,
     bool isTaken,
   ) async {
-    // Untaking skips the briefing.
     if (isTaken) {
       HapticEngine.selection();
       state.toggleDose(d, date: selectedDate);
@@ -70,27 +96,50 @@ class HomeDoseGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final L = context.L;
     final now = DateTime.now();
     final nowMins = now.hour * 60 + now.minute;
+    final style = _periodStyle(title);
+    final takenCount =
+        doses.where((d) => takenToday[d.key] == true).length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsetsDirectional.only(
-            start: 2,
-            bottom: AppSpacing.p12,
-            top: AppSpacing.p8,
-          ),
-          child: Text(
-            _groupLabel(title),
-            style: AppTypography.labelSmall.copyWith(
-              color: L.sub.withValues(alpha: 0.55),
-              fontWeight: FontWeight.w800,
-              fontSize: 11,
-              letterSpacing: 1.6,
-            ),
+          padding: const EdgeInsets.only(top: AppSpacing.p12, bottom: AppSpacing.p8),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                decoration: BoxDecoration(
+                  color: style.tint,
+                  borderRadius: BorderRadius.circular(999),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(style.icon, size: 14, color: style.ink),
+                    const SizedBox(width: 6),
+                    Text(
+                      style.label,
+                      style: AppTypography.labelMedium.copyWith(
+                        color: style.ink,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.1,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              Text(
+                '$takenCount/${doses.length}',
+                style: AppTypography.labelSmall.copyWith(
+                  color: AppColors.grey600,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
         ),
         ...doses.map((d) {
@@ -99,7 +148,7 @@ class HomeDoseGroup extends StatelessWidget {
           final isOverdue = !isTaken && doseMins < nowMins;
 
           return Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.p12),
+            padding: const EdgeInsets.only(bottom: AppSpacing.p8),
             child: HomeDoseRow(
               med: d.med,
               sched: d.sched,

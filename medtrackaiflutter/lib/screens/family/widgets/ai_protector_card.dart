@@ -51,7 +51,8 @@ class _AIProtectorCardState extends State<AIProtectorCard>
         decoration: BoxDecoration(
           color: L.card,
           borderRadius: AppRadius.roundL,
-          border: Border.all(color: L.primary.withValues(alpha: 0.1), width: 0.5),
+          border: Border.all(
+              color: AppColors.limeDeep.withValues(alpha: 0.18), width: 0.5),
           boxShadow: AppShadows.premium,
         ),
         child: Column(
@@ -62,11 +63,11 @@ class _AIProtectorCardState extends State<AIProtectorCard>
                 Container(
                   padding: const EdgeInsets.all(AppSpacing.p8),
                   decoration: BoxDecoration(
-                    color: L.primary.withValues(alpha: 0.1),
+                    color: AppColors.pastelMint,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: Icon(Icons.psychology_rounded,
-                      color: L.primary, size: 20),
+                  child: const Icon(Icons.psychology_rounded,
+                      color: AppColors.limeInk, size: 20),
                 ),
                 const SizedBox(width: AppSpacing.p12),
                 Expanded(
@@ -109,7 +110,8 @@ class _AIProtectorCardState extends State<AIProtectorCard>
               Row(
                 children: [
                   Icon(Icons.auto_awesome_rounded,
-                      color: L.primary.withValues(alpha: 0.4), size: 14),
+                      color: AppColors.limeDeep.withValues(alpha: 0.55),
+                      size: 14),
                   const SizedBox(width: AppSpacing.p8),
                   Text('Patterns analyzed across last 7 days',
                       style: AppTypography.bodySmall.copyWith(

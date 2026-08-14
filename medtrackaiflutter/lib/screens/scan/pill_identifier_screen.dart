@@ -106,6 +106,7 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
   Future<void> _resetCamera() async {
     await _controller?.dispose();
     _controller = null;
+    if (!mounted) return;
     setState(() => _isCameraInitialized = false);
     await _initCamera();
   }
@@ -184,6 +185,7 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
           });
         },
         (failure) {
+          if (!mounted) return;
           HapticEngine.selection();
           _beamCtrl.stop();
           setState(() {
@@ -193,12 +195,18 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
         },
       );
     } catch (e) {
+      if (!mounted) return;
       HapticEngine.selection();
       _beamCtrl.stop();
       setState(() {
         _errorMessage = 'Camera error. Please try again.';
         _isScanning = false;
       });
+    } finally {
+      if (mounted && _isScanning) {
+        _beamCtrl.stop();
+        setState(() => _isScanning = false);
+      }
     }
   }
 
@@ -238,11 +246,26 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
       );
     }
 
+    final preview = _controller?.value.previewSize;
+    if (preview == null) {
+      return SizedBox.expand(
+        child: Container(
+          color: const Color(0xFF0A0A0A),
+          child: const Center(
+            child: ContextualLoader(
+              message: 'Starting camera...',
+              isDark: true,
+            ),
+          ),
+        ),
+      );
+    }
+
     return SizedBox.expand(
       child: FittedBox(
         fit: BoxFit.cover,
         child: SizedBox(
-          width: _controller!.value.previewSize!.height,
+          width: preview.height,
           child: CameraPreview(_controller!),
         ),
       ),

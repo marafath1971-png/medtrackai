@@ -110,7 +110,7 @@ class _DataTabState extends State<DataTab> {
             child: Column(children: [
               SettingsModalRow(
                   icon: '📄',
-                  iconBg: const Color(0xFF6366F1).withValues(alpha: 0.1),
+                  iconBg: AppColors.pastelSky,
                   label: s.exportPdfReport,
                   sub: s.exportPdfSubtitle,
                   onClick: () async {
@@ -211,7 +211,7 @@ class _DataTabState extends State<DataTab> {
                   border: true),
               SettingsModalRow(
                   icon: '⚖️',
-                  iconBg: const Color(0xFF8B5CF6).withValues(alpha: 0.1),
+                  iconBg: AppColors.pastelMint,
                   label: s.termsOfService,
                   sub: s.termsOfServiceSubtitle,
                   onClick: () => _launchUrl(kTermsOfServiceUrl),

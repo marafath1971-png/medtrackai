@@ -219,24 +219,60 @@ class AppTheme {
       ),
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
-        fillColor: AppColors.cardLight2,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        fillColor: Colors.white,
+        isDense: false,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        hintStyle: AppTypography.bodyMedium.copyWith(
+          color: AppColors.grey600.withValues(alpha: 0.55),
+          fontWeight: FontWeight.w500,
+        ),
+        labelStyle: AppTypography.labelMedium.copyWith(
+          color: AppColors.grey600,
+          fontWeight: FontWeight.w700,
+        ),
+        floatingLabelStyle: AppTypography.labelMedium.copyWith(
+          color: AppColors.limeDeep,
+          fontWeight: FontWeight.w800,
+        ),
+        helperStyle:
+            AppTypography.caption.copyWith(color: AppColors.grey600),
+        errorStyle: AppTypography.caption.copyWith(
+          color: AppColors.red,
+          fontWeight: FontWeight.w600,
+        ),
+        prefixIconColor: AppColors.grey600,
+        suffixIconColor: AppColors.grey600,
         border: OutlineInputBorder(
-          borderRadius: AppRadius.roundXL,
-          borderSide: BorderSide(color: scheme.outline.withValues(alpha: 0.6)),
+          borderRadius: BorderRadius.circular(AppRadius.m),
+          borderSide: const BorderSide(color: AppColors.grey200),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: AppRadius.roundXL,
-          borderSide: BorderSide(color: scheme.outline.withValues(alpha: 0.5)),
+          borderRadius: BorderRadius.circular(AppRadius.m),
+          borderSide: const BorderSide(color: AppColors.grey200),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.m),
+          borderSide:
+              BorderSide(color: AppColors.grey200.withValues(alpha: 0.45)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: AppRadius.roundXL,
-          borderSide: BorderSide(color: acc, width: 1.5),
+          borderRadius: BorderRadius.circular(AppRadius.m),
+          borderSide: const BorderSide(color: AppColors.limeDeep, width: 1.6),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: AppRadius.roundXL,
+          borderRadius: BorderRadius.circular(AppRadius.m),
           borderSide: const BorderSide(color: AppColors.red),
         ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.m),
+          borderSide: const BorderSide(color: AppColors.red, width: 1.6),
+        ),
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: AppColors.limeDeep,
+        selectionColor: Color(0x4DB4E869),
+        selectionHandleColor: AppColors.limeDeep,
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(
@@ -350,23 +386,58 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.cardDark2,
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        isDense: false,
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+        hintStyle: AppTypography.bodyMedium.copyWith(
+          color: AppColors.grey400.withValues(alpha: 0.7),
+          fontWeight: FontWeight.w500,
+        ),
+        labelStyle: AppTypography.labelMedium.copyWith(
+          color: AppColors.grey400,
+          fontWeight: FontWeight.w700,
+        ),
+        floatingLabelStyle: AppTypography.labelMedium.copyWith(
+          color: AppColors.lime,
+          fontWeight: FontWeight.w800,
+        ),
+        helperStyle:
+            AppTypography.caption.copyWith(color: AppColors.grey400),
+        errorStyle: AppTypography.caption.copyWith(
+          color: AppColors.redDark,
+          fontWeight: FontWeight.w600,
+        ),
+        prefixIconColor: AppColors.grey400,
+        suffixIconColor: AppColors.grey400,
         border: OutlineInputBorder(
-          borderRadius: AppRadius.roundXL,
-          borderSide: BorderSide(color: scheme.outline.withValues(alpha: 0.5)),
+          borderRadius: BorderRadius.circular(AppRadius.m),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: AppRadius.roundXL,
-          borderSide: BorderSide(color: scheme.outline.withValues(alpha: 0.4)),
+          borderRadius: BorderRadius.circular(AppRadius.m),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.12)),
+        ),
+        disabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.m),
+          borderSide: BorderSide(color: Colors.white.withValues(alpha: 0.06)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: AppRadius.roundXL,
-          borderSide: BorderSide(color: acc, width: 1.5),
+          borderRadius: BorderRadius.circular(AppRadius.m),
+          borderSide: const BorderSide(color: AppColors.lime, width: 1.6),
         ),
         errorBorder: OutlineInputBorder(
-          borderRadius: AppRadius.roundXL,
+          borderRadius: BorderRadius.circular(AppRadius.m),
           borderSide: const BorderSide(color: AppColors.redDark),
         ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(AppRadius.m),
+          borderSide: const BorderSide(color: AppColors.redDark, width: 1.6),
+        ),
+      ),
+      textSelectionTheme: const TextSelectionThemeData(
+        cursorColor: AppColors.lime,
+        selectionColor: Color(0x66B4E869),
+        selectionHandleColor: AppColors.lime,
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(

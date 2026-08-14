@@ -53,13 +53,17 @@ class _SmoothingTextState extends State<SmoothingText> {
 
   void _startAnimation() {
     _timer = Timer.periodic(widget.speed, (timer) {
+      if (!mounted) {
+        timer.cancel();
+        return;
+      }
       if (_currentIndex < widget.text.length) {
         setState(() {
           _displayedText += widget.text[_currentIndex];
           _currentIndex++;
         });
       } else {
-        _timer?.cancel();
+        timer.cancel();
       }
     });
   }

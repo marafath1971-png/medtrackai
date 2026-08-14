@@ -138,23 +138,10 @@ class AddCgStep1 extends StatelessWidget {
                           ValueListenableBuilder<TextEditingValue>(
                               valueListenable: nameCtrl,
                               builder: (context, value, child) {
-                                return MedAiGlass(
-                                  padding: const EdgeInsets.symmetric(
-                                      horizontal: AppSpacing.gutter, vertical: AppSpacing.p4),
-                                  radius: AppRadius.xl,
-                                  child: TextField(
-                                      controller: nameCtrl,
-                                      style: AppTypography.bodySmall.copyWith(
-                                          fontSize: 16,
-                                          color: L.text,
-                                          fontWeight: FontWeight.w600),
-                                      decoration: InputDecoration(
-                                          border: InputBorder.none,
-                                          hintText: 'e.g. Sarah Johnson',
-                                          hintStyle: AppTypography.bodySmall
-                                              .copyWith(
-                                                  color: L.sub.withValues(
-                                                      alpha: 0.3)))),
+                                return MedAiTextField(
+                                  controller: nameCtrl,
+                                  hintText: 'e.g. Sarah Johnson',
+                                  textCapitalization: TextCapitalization.words,
                                 );
                               }),
                           const SizedBox(height: AppSpacing.p32),
@@ -203,22 +190,10 @@ class AddCgStep1 extends StatelessWidget {
                           const SizedBox(height: AppSpacing.p32),
                           MedAiSectionHeader(
                               title: 'Phone (optional — for SMS)'),
-                          MedAiGlass(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: AppSpacing.gutter, vertical: AppSpacing.p4),
-                            radius: AppRadius.xl,
-                            child: TextField(
-                                controller: contactCtrl,
-                                keyboardType: TextInputType.phone,
-                                style: AppTypography.bodySmall.copyWith(
-                                    fontSize: 16,
-                                    color: L.text,
-                                    fontWeight: FontWeight.w600),
-                                decoration: InputDecoration(
-                                    border: InputBorder.none,
-                                    hintText: '+880 1XXX-XXXXXX',
-                                    hintStyle: AppTypography.bodySmall.copyWith(
-                                        color: L.sub.withValues(alpha: 0.3)))),
+                          MedAiTextField(
+                            controller: contactCtrl,
+                            keyboardType: TextInputType.phone,
+                            hintText: '+880 1XXX-XXXXXX',
                           ),
                           const SizedBox(height: AppSpacing.p32),
                           MedAiSectionHeader(title: 'Alert after missed dose'),
@@ -469,7 +444,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                         child: MedAiDepthCard(
                           padding: const EdgeInsets.all(AppSpacing.p20),
                           radius: AppRadius.squircle,
-                          accentGlow: true,
+                          accentGlow: false,
                           color: Colors.white,
                           child: QrImageView(
                             data: widget.inviteCode,

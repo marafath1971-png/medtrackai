@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/app_state.dart';
 import '../../services/analytics_service.dart';
 import '../../services/remote_config_service.dart';
+import '../../core/constants/premium_photos.dart';
 import '../../theme/med_ai_ui.dart';
 import '../paywall/premium_paywall_overlay.dart';
 import 'onboarding_controller.dart';
@@ -15,6 +16,7 @@ import 'widgets/ob_eato_widgets.dart';
 import 'widgets/ob_hero.dart';
 import 'widgets/ob_widgets.dart';
 import 'widgets/ob_p0_widgets.dart';
+import 'widgets/ob_photo_hero.dart';
 import 'widgets/ob_video_style_widgets.dart';
 import 'widgets/ob_unique_widgets.dart';
 import 'onboarding_l10n.dart';
@@ -331,9 +333,9 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          const SizedBox(height: 12),
+          const SizedBox(height: 4),
           hero.obFadeUp(),
-          const SizedBox(height: 26),
+          const SizedBox(height: 18),
           ObHeadline(title, subtitle: subtitle).obFadeUp(delayMs: 80),
           if (extra.isNotEmpty) ...[
             const SizedBox(height: 22),
@@ -442,7 +444,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
             label: _obt('ob_healthFocusedSenior'),
             subtitle: _obt('ob_stayingIndependent'),
             emoji: '👴',
-            tint: Color(0xFF8B7BF2),
+            tint: AppColors.limeDeep,
           ),
           ObPersonaOption(
             id: 'family_leader',
@@ -649,9 +651,9 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       case 0:
         return _info(
           hero: const ObLaurelWelcome(),
-          title: _obt('ob_letSBuildYourCustomPlan'),
+          title: 'Know it. *Trust it.* Succeed with it.',
           subtitle:
-              _obt('ob_aFewQuickQuestionsSoMedAiFitsYou'),
+              'A calm plan for every dose — built around you in under a minute.',
           cta: _obt('ob_getStarted'),
           skip: false,
         );
@@ -688,7 +690,12 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         return _largeGoalStep();
       case 5:
         return _info(
-          hero: const ObLongTermResultsChart(),
+          hero: const ObPhotoHero(
+            asset: PremiumPhotos.routine,
+            height: 240,
+            badge: 'RESULTS',
+            overlayLine: 'Long-term adherence, not luck.',
+          ),
           title: _obt('ob_medAiCreatesLongTermResults'),
           subtitle:
               _obt('ob_76OfMembersMaintainStrongAdheren'),
@@ -752,7 +759,12 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 13:
         return _info(
-          hero: const ObMascot(feature: 'home', size: 108),
+          hero: const ObPhotoHero(
+            asset: PremiumPhotos.community,
+            height: 240,
+            badge: 'YOU BELONG',
+            overlayLine: "You're in the right place.",
+          ),
           title: "You're in the *right place*",
           extra: const [
             ObSocialProofBanner(
@@ -1181,7 +1193,12 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       case 55:
         return _WelcomeScreen(
           name: _c.name,
-          onContinue: () => _complete(skipPaywall: true),
+          onContinue: () {
+            final isPremium =
+                Provider.of<AppState>(context, listen: false).isPremium;
+            // Only permanently skip reactivation paywall when already Pro.
+            _complete(skipPaywall: isPremium);
+          },
         );
 
       default:
@@ -1272,46 +1289,67 @@ class _WelcomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final p = ObPalette.of(context);
-    return DecoratedBox(
-      decoration: BoxDecoration(
-        gradient: LinearGradient(
-          begin: Alignment.topCenter,
-          end: Alignment.bottomCenter,
-          colors: [
-            p.electric.withValues(alpha: 0.12),
-            p.accent.withValues(alpha: 0.18),
-            p.bg,
-          ],
-          stops: const [0.0, 0.35, 0.75],
-        ),
-      ),
-      child: Stack(
+    return Scaffold(
+      backgroundColor: p.bg,
+      body: Stack(
         fit: StackFit.expand,
         children: [
-          if (!MedAiA11y.reducedMotion(context))
-            AuroraBackground(colors: p.aurora, opacity: 0.42),
-          Scaffold(
-            backgroundColor: Colors.transparent,
-            body: SafeArea(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(22, 22, 22, 16),
-                child: Column(
-                  children: [
-                    const Spacer(),
-                    const ObMascot(feature: 'success', size: 132),
-                    const SizedBox(height: 28),
-                    ObHeadline(
-                      name == null
-                          ? 'Welcome to *Med AI*!'
-                          : 'Welcome, *$name*!',
-                      subtitle:
-                          "You're in. Let's make every dose a win — starting today.",
-                    ).obFadeUp(),
-                    const Spacer(),
-                    ObPrimaryButton(
-                        label: 'Begin my success', onTap: onContinue),
-                  ],
-                ),
+          Image.asset(
+            PremiumPhotos.finish,
+            fit: BoxFit.cover,
+            filterQuality: FilterQuality.high,
+            errorBuilder: (_, __, ___) => ColoredBox(color: p.bg),
+          ),
+          const DecoratedBox(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0x33000000),
+                  Color(0x00000000),
+                  Color(0xE6FFF8F2),
+                ],
+                stops: [0.0, 0.35, 0.78],
+              ),
+            ),
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(22, 22, 22, 16),
+              child: Column(
+                children: [
+                  Align(
+                    alignment: Alignment.topLeft,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: AppColors.lime,
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        'YOU\'RE IN',
+                        style: AppTypography.caption.copyWith(
+                          color: AppColors.limeInk,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const Spacer(),
+                  ObHeadline(
+                    name == null
+                        ? 'Welcome to *Med AI*'
+                        : 'Welcome, *$name*',
+                    subtitle:
+                        'Every dose is a quiet win. Your plan starts now.',
+                  ).obFadeUp(),
+                  const SizedBox(height: 28),
+                  ObPrimaryButton(
+                      label: 'Begin my success', onTap: onContinue),
+                ],
               ),
             ),
           ),

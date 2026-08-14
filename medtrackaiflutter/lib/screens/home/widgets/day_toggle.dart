@@ -43,7 +43,7 @@ class DayToggle extends StatelessWidget {
             children: [
               AnimatedPositioned(
                 duration: const Duration(milliseconds: 350),
-                curve: Curves.easeOutBack,
+                curve: AppCurves.emilOut,
                 top: 4,
                 bottom: 4,
                 left: isToday ? 4 : halfWidth,

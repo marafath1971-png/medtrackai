@@ -150,7 +150,7 @@ class PermissionSoftPrompt extends StatelessWidget {
                   .animate(onPlay: (c) => c.repeat(reverse: true))
                   .scaleXY(begin: 0.95, end: 1.05, duration: 1000.ms, curve: Curves.easeInOut),
             ),
-          ).animate().fade(duration: 400.ms).scale(curve: Curves.easeOutBack),
+          ).animate().fade(duration: 400.ms).scale(curve: AppCurves.emilOut),
           const SizedBox(height: 24),
           Text(
             title,

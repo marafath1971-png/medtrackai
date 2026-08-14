@@ -182,7 +182,7 @@ class _DashboardTabState extends State<DashboardTab> {
                         style: AppTypography.titleLarge.copyWith(
                           fontWeight: FontWeight.w800,
                           fontSize: 20,
-                          color: L.text,
+                          color: AppColors.inkStrong,
                           letterSpacing: -0.4,
                         ),
                       ),
@@ -194,10 +194,17 @@ class _DashboardTabState extends State<DashboardTab> {
                       child: Container(
                         padding: const EdgeInsets.all(AppSpacing.p16),
                         decoration: BoxDecoration(
-                          color: L.card,
+                          color: Colors.white,
                           borderRadius: BorderRadius.circular(24),
                           border:
-                              Border.all(color: L.border.withValues(alpha: 0.25)),
+                              Border.all(color: L.border.withValues(alpha: 0.4)),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.eatoNavy.withValues(alpha: 0.04),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: InventoryStatusCard(
                           meds: meds,
@@ -217,7 +224,7 @@ class _DashboardTabState extends State<DashboardTab> {
                       style: AppTypography.titleLarge.copyWith(
                         fontWeight: FontWeight.w800,
                         fontSize: 20,
-                        color: L.text,
+                        color: AppColors.inkStrong,
                         letterSpacing: -0.4,
                       ),
                     ),
@@ -229,10 +236,17 @@ class _DashboardTabState extends State<DashboardTab> {
                     child: Container(
                       padding: const EdgeInsets.all(AppSpacing.p16),
                       decoration: BoxDecoration(
-                        color: L.card,
+                        color: Colors.white,
                         borderRadius: BorderRadius.circular(24),
                         border:
-                            Border.all(color: L.border.withValues(alpha: 0.25)),
+                            Border.all(color: L.border.withValues(alpha: 0.4)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.eatoNavy.withValues(alpha: 0.04),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
                       ),
                       child: loadingInsight
                           ? SmartLoadingInsights(L: L)
@@ -347,9 +361,16 @@ class _ConnectHealthCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.p16),
         decoration: BoxDecoration(
-          color: L.card,
+          color: Colors.white,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: L.border.withValues(alpha: 0.25)),
+          border: Border.all(color: L.border.withValues(alpha: 0.4)),
+          boxShadow: [
+            BoxShadow(
+              color: AppColors.eatoNavy.withValues(alpha: 0.04),
+              blurRadius: 12,
+              offset: const Offset(0, 4),
+            ),
+          ],
         ),
         child: Row(
           children: [
@@ -357,7 +378,7 @@ class _ConnectHealthCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: AppColors.badgeFill(AppColors.limeDeep),
+                color: AppColors.pastelMint,
                 borderRadius: BorderRadius.circular(14),
               ),
               alignment: Alignment.center,
@@ -375,16 +396,18 @@ class _ConnectHealthCard extends StatelessWidget {
                   Text(
                     'Connect health data',
                     style: AppTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: L.text,
+                      fontWeight: FontWeight.w800,
+                      color: AppColors.inkStrong,
+                      letterSpacing: -0.2,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.p4),
                   Text(
                     'Sync steps and heart rate alongside your meds.',
                     style: AppTypography.bodySmall.copyWith(
-                      color: L.sub,
+                      color: AppColors.grey600,
                       height: 1.3,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -392,7 +415,7 @@ class _ConnectHealthCard extends StatelessWidget {
             ),
             Icon(
               Icons.chevron_right_rounded,
-              color: L.sub.withValues(alpha: 0.5),
+              color: AppColors.grey600.withValues(alpha: 0.5),
             ),
           ],
         ),

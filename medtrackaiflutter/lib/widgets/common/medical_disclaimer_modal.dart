@@ -80,7 +80,7 @@ class MedicalDisclaimerModal extends StatelessWidget {
                             AppTypography.displayLarge.copyWith(fontSize: 36))),
               )
                   .animate()
-                  .scale(duration: 600.ms, curve: Curves.elasticOut)
+                  .scale(duration: 600.ms, curve: AppCurves.emilOut)
                   .fadeIn(),
 
               const SizedBox(height: 24),
@@ -166,7 +166,7 @@ class MedicalDisclaimerModal extends StatelessWidget {
               )
                   .animate()
                   .scale(
-                      delay: 700.ms, duration: 400.ms, curve: Curves.elasticOut)
+                      delay: 700.ms, duration: 400.ms, curve: AppCurves.emilOut)
                   .fadeIn(),
 
               const SizedBox(height: 12),
@@ -185,7 +185,7 @@ class MedicalDisclaimerModal extends StatelessWidget {
         ),
       ).animate().fadeIn(duration: 400.ms).scale(
             begin: const Offset(0.92, 0.92),
-            curve: Curves.easeOutBack,
+            curve: AppCurves.emilOut,
           ),
     );
   }

@@ -5,7 +5,6 @@ import 'package:flutter/rendering.dart';
 import 'package:medai/widgets/common/premium_shimmer.dart';
 import 'dart:io';
 import 'dart:math';
-import 'dart:ui';
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -143,14 +142,28 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
   // ── Capture Screen ──
   Future<void> _captureScreen() async {
     try {
-      final RenderRepaintBoundary boundary =
-          _cameraKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
-      final ui.Image image = await boundary.toImage(pixelRatio: 2.0);
-      final ByteData? byteData = await image.toByteData(format: ui.ImageByteFormat.png);
-      final Uint8List pngBytes = byteData!.buffer.asUint8List();
+      final ctx = _cameraKey.currentContext;
+      if (ctx == null) {
+        if (mounted) _showError('Camera preview not ready. Try again.');
+        return;
+      }
+      final renderObject = ctx.findRenderObject();
+      if (renderObject is! RenderRepaintBoundary) {
+        if (mounted) _showError('Camera preview not ready. Try again.');
+        return;
+      }
+      final ui.Image image = await renderObject.toImage(pixelRatio: 2.0);
+      final ByteData? byteData =
+          await image.toByteData(format: ui.ImageByteFormat.png);
+      if (byteData == null) {
+        if (mounted) _showError('Failed to capture screen.');
+        return;
+      }
+      final Uint8List pngBytes = byteData.buffer.asUint8List();
 
       final tempDir = await getTemporaryDirectory();
-      final file = File('${tempDir.path}/scan_capture_${DateTime.now().millisecondsSinceEpoch}.png');
+      final file = File(
+          '${tempDir.path}/scan_capture_${DateTime.now().millisecondsSinceEpoch}.png');
       await file.writeAsBytes(pngBytes);
 
       if (mounted) {
@@ -387,13 +400,8 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
         // Dark frosted glass overlay for Search, Voice, or Picked Image
         if (_mode == ScanMode.search || _mode == ScanMode.voice || (_selectedImage != null && !_isScanning))
           Positioned.fill(
-            child: ClipRect(
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                child: Container(
-                  color: Colors.black.withValues(alpha: 0.55),
-                ),
-              ),
+            child: Container(
+              color: Colors.black.withValues(alpha: 0.62),
             ),
           )
         else if (_isScanning && _selectedImage != null)
@@ -639,13 +647,11 @@ class _TopBar extends StatelessWidget {
               onTap: onClose,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Container(
+                child: Container(
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: Colors.white.withValues(alpha: 0.18),
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1.0),
                     ),
@@ -653,7 +659,6 @@ class _TopBar extends StatelessWidget {
                       child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
                     ),
                   ),
-                ),
               ),
             ),
           ),
@@ -691,13 +696,11 @@ class _TopBar extends StatelessWidget {
               },
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Container(
+                child: Container(
                     width: 44,
                     height: 44,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
+                      color: Colors.white.withValues(alpha: 0.18),
                       shape: BoxShape.circle,
                       border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1.0),
                     ),
@@ -705,7 +708,6 @@ class _TopBar extends StatelessWidget {
                       child: Icon(Icons.more_vert_rounded, color: Colors.white, size: 20),
                     ),
                   ),
-                ),
               ),
             ),
           ),
@@ -764,9 +766,7 @@ class _BottomControls extends StatelessWidget {
           // Mode pills row (Cal AI style: one pill with items inside)
           ClipRRect(
             borderRadius: BorderRadius.circular(32),
-            child: BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-              child: Container(
+            child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
                 decoration: BoxDecoration(
                   color: Colors.black.withValues(alpha: 0.35),
@@ -790,7 +790,6 @@ class _BottomControls extends StatelessWidget {
                   ),
                 ),
               ),
-            ),
           ),
           const SizedBox(height: 32),
 
@@ -810,9 +809,7 @@ class _BottomControls extends StatelessWidget {
                     onTap: onFlashToggle,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(30),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
+                      child: Container(
                           width: 52,
                           height: 52,
                           decoration: BoxDecoration(
@@ -827,7 +824,6 @@ class _BottomControls extends StatelessWidget {
                             ),
                           ),
                         ),
-                      ),
                     ),
                   ),
                 ),
@@ -849,9 +845,7 @@ class _BottomControls extends StatelessWidget {
                     onTap: onGalleryTap,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(30),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                        child: Container(
+                      child: Container(
                           width: 52,
                           height: 52,
                           decoration: BoxDecoration(
@@ -862,7 +856,6 @@ class _BottomControls extends StatelessWidget {
                             child: Icon(Icons.photo_library_outlined, color: Colors.white, size: 22),
                           ),
                         ),
-                      ),
                     ),
                   ),
                 ),
@@ -1017,9 +1010,7 @@ class _BarcodeStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
-        child: AnimatedContainer(
+      child: AnimatedContainer(
           duration: 300.ms,
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
           decoration: BoxDecoration(
@@ -1066,7 +1057,6 @@ class _BarcodeStatus extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }
@@ -1104,14 +1094,12 @@ class _SearchInput extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         ClipRRect(
-          borderRadius: BorderRadius.circular(24),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+          borderRadius: BorderRadius.circular(AppInputs.radius),
+          child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(24),
+                color: Colors.white.withValues(alpha: 0.20),
+                borderRadius: BorderRadius.circular(AppInputs.radius),
                 border: Border.all(color: Colors.white.withValues(alpha: 0.25), width: 1.0),
               ),
               child: Row(
@@ -1121,14 +1109,14 @@ class _SearchInput extends StatelessWidget {
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
-  autofocus: true,
+                      autofocus: true,
                       controller: controller,
                       focusNode: focusNode,
                       style: AppTypography.titleMedium.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
                       ),
-                      cursorColor: Colors.white,
+                      cursorColor: AppColors.lime,
                       decoration: InputDecoration(
                         border: InputBorder.none,
                         hintText: 'Metformin, Vitamin C...',
@@ -1159,7 +1147,6 @@ class _SearchInput extends StatelessWidget {
                 ],
               ),
             ),
-          ),
         ),
       ],
     );
@@ -1189,19 +1176,17 @@ class _VoiceVisual extends StatelessWidget {
               final pulse = isListening ? breathCtrl.value : 0.0;
               return ClipRRect(
                 borderRadius: BorderRadius.circular(60),
-                child: BackdropFilter(
-                  filter: ImageFilter.blur(sigmaX: 10, sigmaY: 10),
-                  child: Container(
+                child: Container(
                     width: 100 + pulse * 20,
                     height: 100 + pulse * 20,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: isListening
-                          ? AppColors.accent.withValues(alpha: 0.25)
+                          ? AppColors.limeDeep.withValues(alpha: 0.25)
                           : Colors.white.withValues(alpha: 0.10),
                       border: Border.all(
                         color: isListening
-                            ? AppColors.accent.withValues(alpha: 0.8)
+                            ? AppColors.limeDeep.withValues(alpha: 0.8)
                             : Colors.white.withValues(alpha: 0.25),
                         width: isListening ? 2.0 : 1.0,
                       ),
@@ -1212,7 +1197,6 @@ class _VoiceVisual extends StatelessWidget {
                       color: Colors.white,
                     ),
                   ),
-                ),
               );
             },
           ),
@@ -1301,7 +1285,7 @@ class _Animated3DIconState extends State<_Animated3DIcon> {
                     borderRadius: BorderRadius.circular(12),
                     boxShadow: [
                       BoxShadow(
-                        color: AppColors.accent.withValues(alpha: 0.4),
+                        color: AppColors.limeDeep.withValues(alpha: 0.4),
                         blurRadius: 15,
                         offset: Offset(valY * 15, valX * 15 + 4),
                       ),
@@ -1422,16 +1406,16 @@ class _ScanningRow extends StatelessWidget {
       width: 22,
       height: 22,
       decoration: BoxDecoration(
-        color: AppColors.accent.withValues(alpha: 0.15),
+        color: AppColors.limeDeep.withValues(alpha: 0.15),
         shape: BoxShape.circle,
         border: Border.all(
-            color: AppColors.accent.withValues(alpha: 0.5), width: 1.5),
+            color: AppColors.limeDeep.withValues(alpha: 0.5), width: 1.5),
       ),
       child: const Padding(
         padding: EdgeInsets.all(4.0),
         child: CircularProgressIndicator(
           strokeWidth: 1.5,
-          color: AppColors.accent,
+          color: AppColors.limeDeep,
         ),
       ),
     ).medAiChain(
@@ -1454,7 +1438,7 @@ class _ScanningRow extends StatelessWidget {
       child: const Icon(Icons.check_rounded, color: AppColors.green, size: 14),
     ).medAiChain(
       context,
-      (w) => w.animate().scale(curve: Curves.easeOutBack, duration: 400.ms),
+      (w) => w.animate().scale(curve: AppCurves.emilOut, duration: 400.ms),
     );
 
     return Row(
@@ -1500,7 +1484,7 @@ class _TerminalTextState extends State<_TerminalText> {
   }
 
   void _startHash() {
-    _timer = Timer.periodic(const Duration(milliseconds: 60), (timer) {
+    _timer = Timer.periodic(const Duration(milliseconds: 250), (timer) {
       if (!mounted) return;
       if (!widget.isActive) {
         timer.cancel();
@@ -1628,12 +1612,12 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
                   shape: BoxShape.circle,
                   color: Colors.white.withValues(alpha: 0.05),
                   border: Border.all(
-                    color: AppColors.accent.withValues(alpha: 0.3 + (_pulseCtrl.value * 0.4)),
+                    color: AppColors.limeDeep.withValues(alpha: 0.3 + (_pulseCtrl.value * 0.4)),
                     width: 2.0,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.accent.withValues(alpha: _pulseCtrl.value * 0.4),
+                      color: AppColors.limeDeep.withValues(alpha: _pulseCtrl.value * 0.4),
                       blurRadius: 30,
                       spreadRadius: 10,
                     ),
@@ -1648,7 +1632,7 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
             },
           ).medAiChain(
             context,
-            (w) => w.animate().scale(curve: Curves.easeOutBack, duration: 600.ms),
+            (w) => w.animate().scale(curve: AppCurves.emilOut, duration: 600.ms),
           ),
           
           const SizedBox(height: 48),
@@ -1689,10 +1673,10 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
                 height: 4,
                 width: isActive ? 24 : 12,
                 decoration: BoxDecoration(
-                  color: isActive ? AppColors.accent : Colors.white.withValues(alpha: 0.2),
+                  color: isActive ? AppColors.limeDeep : Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(4),
                   boxShadow: isActive
-                      ? [BoxShadow(color: AppColors.accent.withValues(alpha: 0.6), blurRadius: 8)]
+                      ? [BoxShadow(color: AppColors.limeDeep.withValues(alpha: 0.6), blurRadius: 8)]
                       : null,
                 ),
               );
@@ -1725,9 +1709,7 @@ class _ScannerMenuSheet extends StatelessWidget {
     final L = context.L;
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 30, sigmaY: 30),
-        child: Container(
+      child: Container(
           padding: EdgeInsets.fromLTRB(
               0, 0, 0, 24 + MediaQuery.of(context).padding.bottom),
           decoration: BoxDecoration(
@@ -1807,7 +1789,6 @@ class _ScannerMenuSheet extends StatelessWidget {
             ],
           ),
         ),
-      ),
     );
   }
 }

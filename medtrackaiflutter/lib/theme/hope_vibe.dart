@@ -19,7 +19,7 @@ abstract final class HopeVibe {
 
   // ── Home ──
   static const medicinesSubtitle =
-      'Built for you — know them, trust them, succeed with them.';
+      'Important info at a glance — warnings, how to take, next dose.';
   static const progressToday = 'Your success\ntoday';
   static const progressDone = "You're winning today";
   static const progressEmpty = 'Scan to begin\nyour win streak';

@@ -167,7 +167,7 @@ class _ClinicalReportModalState extends State<ClinicalReportModal> {
           child: MedAiDepthCard(
             padding: const EdgeInsets.all(20),
             radius: AppRadius.xl,
-            accentGlow: true,
+            accentGlow: false,
             child: Column(
               children: [
                 Icon(icon, color: L.accent, size: 20),

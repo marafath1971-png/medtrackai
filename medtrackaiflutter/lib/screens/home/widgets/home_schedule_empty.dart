@@ -32,7 +32,7 @@ class HomeScheduleEmpty extends StatelessWidget {
     return PremiumTextureCard(
       padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p20, vertical: AppSpacing.p20),
       radius: AppRadius.l,
-      texture: PremiumTextureStyle.fineGrain,
+      texture: PremiumTextureStyle.none,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -137,7 +137,7 @@ class _MascotEntrance extends StatelessWidget {
           begin: const Offset(0.85, 0.85),
           end: const Offset(1, 1),
           duration: 500.ms,
-          curve: Curves.easeOutBack,
+          curve: AppCurves.emilOut,
         );
   }
 }

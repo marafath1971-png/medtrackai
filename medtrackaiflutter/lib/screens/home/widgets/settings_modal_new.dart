@@ -1,4 +1,3 @@
-import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -83,22 +82,20 @@ class _SettingsModalState extends State<SettingsModal> {
             child: ClipRRect(
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(32)),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
-                child: Container(
+              child: Container(
                   height: size.height * 0.92,
                   width: size.width,
                   constraints: const BoxConstraints(maxWidth: 430),
                   decoration: BoxDecoration(
-                    color: IosSettingsTokens.canvas.withValues(alpha: 0.98),
+                    color: IosSettingsTokens.canvas,
                     borderRadius: const BorderRadius.vertical(
                       top: Radius.circular(32),
                     ),
                     boxShadow: [
                       BoxShadow(
                         color: Colors.black.withValues(alpha: 0.14),
-                        blurRadius: 32,
-                        offset: const Offset(0, -8),
+                        blurRadius: 20,
+                        offset: const Offset(0, -6),
                       ),
                     ],
                   ),
@@ -263,7 +260,6 @@ class _SettingsModalState extends State<SettingsModal> {
                 ),
               ),
             ),
-          ),
         ],
       ),
     );

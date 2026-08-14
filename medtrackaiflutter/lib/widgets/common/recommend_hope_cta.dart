@@ -14,7 +14,6 @@ class RecommendHopeCta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final L = context.L;
     final name = (userName != null && userName!.trim().isNotEmpty)
         ? userName!.trim()
         : 'I';
@@ -32,8 +31,8 @@ class RecommendHopeCta extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.p16),
         decoration: HopeVibe.softCard(
-          tint: AppColors.pastelLilac,
-          border: AppColors.accent,
+          tint: AppColors.pastelMint,
+          border: AppColors.limeDeep,
         ),
         child: Row(
           children: [
@@ -44,10 +43,10 @@ class RecommendHopeCta extends StatelessWidget {
                 color: Colors.white.withValues(alpha: 0.85),
                 borderRadius: BorderRadius.circular(AppRadius.s),
               ),
-              child: Icon(
+              child: const Icon(
                 Icons.favorite_rounded,
                 size: 22,
-                color: AppColors.accentDeep,
+                color: AppColors.limeInk,
               ),
             ),
             const SizedBox(width: AppSpacing.p12),
@@ -58,7 +57,7 @@ class RecommendHopeCta extends StatelessWidget {
                   Text(
                     HopeVibe.recommendTitle,
                     style: AppTypography.titleMedium.copyWith(
-                      color: L.text,
+                      color: AppColors.inkStrong,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -66,7 +65,7 @@ class RecommendHopeCta extends StatelessWidget {
                   Text(
                     HopeVibe.recommendSubtitle,
                     style: AppTypography.bodySmall.copyWith(
-                      color: L.sub,
+                      color: AppColors.grey600,
                       height: 1.35,
                     ),
                   ),
@@ -77,7 +76,7 @@ class RecommendHopeCta extends StatelessWidget {
             Icon(
               Icons.ios_share_rounded,
               size: 18,
-              color: L.sub.withValues(alpha: 0.7),
+              color: AppColors.inkStrong.withValues(alpha: 0.45),
             ),
           ],
         ),

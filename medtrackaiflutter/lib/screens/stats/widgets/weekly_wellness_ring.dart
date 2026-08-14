@@ -87,7 +87,7 @@ class WeeklyWellnessRing extends StatelessWidget {
                 .scale(
                     delay: 400.ms,
                     duration: 600.ms,
-                    curve: Curves.easeOutBack),
+                    curve: AppCurves.emilOut),
           ),
         ],
       ),

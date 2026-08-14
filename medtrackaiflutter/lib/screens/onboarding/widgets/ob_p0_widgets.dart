@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/constants/med_ai_assets.dart';
+import '../../../core/constants/premium_photos.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
@@ -9,6 +10,7 @@ import '../../../widgets/common/app_svg_icon.dart';
 import '../../../widgets/common/med_ai_mascot.dart';
 import '../onboarding_controller.dart';
 import '../onboarding_theme.dart';
+import 'ob_photo_hero.dart';
 import 'ob_widgets.dart';
 
 // ════════════════════════════════════════════════════════════════════════
@@ -158,7 +160,7 @@ class ObPersonaCard extends StatelessWidget {
 }
 
 // ════════════════════════════════════════════════════════════════════════
-// P0 — Dark interstitial: Scan → Remind → Protect
+// P0 — Feature interstitial: Scan → Remind → Protect (soft premium)
 // ════════════════════════════════════════════════════════════════════════
 class ObDarkInterstitial extends StatelessWidget {
   final double progress;
@@ -177,27 +179,34 @@ class ObDarkInterstitial extends StatelessWidget {
       asset: MedAiAssets.iconScan,
       title: 'Scan',
       sub: 'Identify any pill in a second',
+      tint: Color(0xFFE4F5E7),
     ),
     (
       asset: MedAiAssets.iconAlarms,
       title: 'Remind',
       sub: 'Smart alerts before you forget',
+      tint: Color(0xFFE8F1FB),
     ),
     (
       asset: MedAiAssets.iconShield,
       title: 'Protect',
       sub: 'Catch risky interactions early',
+      tint: Color(0xFFE4F5E7),
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
-    const bg = Color(0xFF0F1F18);
-    const fg = Colors.white;
-    const sub = Color(0xFFB8C9C0);
+    final p = ObPalette.of(context);
 
     return DecoratedBox(
-      decoration: const BoxDecoration(color: bg),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [p.bgTop, p.bg],
+        ),
+      ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: SafeArea(
@@ -208,7 +217,7 @@ class ObDarkInterstitial extends StatelessWidget {
                 child: Row(
                   children: [
                     if (onBack != null)
-                      _DarkCircleIcon(onTap: onBack!)
+                      _SoftCircleIcon(onTap: onBack!)
                     else
                       const SizedBox(width: AppA11y.minTapTargetCompact),
                     const SizedBox(width: 12),
@@ -218,9 +227,9 @@ class ObDarkInterstitial extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: progress.clamp(0, 1),
                           minHeight: 6,
-                          backgroundColor: Colors.white.withValues(alpha: 0.12),
+                          backgroundColor: p.border,
                           valueColor: const AlwaysStoppedAnimation(
-                            Design2026.electric,
+                            AppColors.limeDeep,
                           ),
                         ),
                       ),
@@ -231,38 +240,47 @@ class ObDarkInterstitial extends StatelessWidget {
               ),
               Expanded(
                 child: SingleChildScrollView(
-                  padding: const EdgeInsets.fromLTRB(22, 24, 22, 16),
+                  padding: const EdgeInsets.fromLTRB(22, 8, 22, 16),
                   child: Column(
                     children: [
+                      const ObPhotoHero(
+                        asset: PremiumPhotos.scanHow,
+                        height: 200,
+                        badge: 'HOW IT WORKS',
+                        overlayLine: 'Scan → Remind → Protect.',
+                      ).obFadeUp(),
+                      const SizedBox(height: 22),
                       Text(
                         'How Med AI helps you\nstay on track',
                         textAlign: TextAlign.center,
                         style: AppTypography.headlineLarge.copyWith(
-                          color: fg,
+                          color: p.text,
                           fontWeight: FontWeight.w800,
                           height: 1.15,
+                          letterSpacing: -0.5,
                         ),
-                      ).obFadeUp(),
+                      ).obFadeUp(delayMs: 40),
                       const SizedBox(height: 8),
                       Text(
-                        'Inside Med AI:',
-                        style: AppTypography.bodyMedium.copyWith(color: sub),
+                        'Three quiet moves. One calm routine.',
+                        style: AppTypography.bodyMedium.copyWith(color: p.sub),
                       ).obFadeUp(delayMs: 60),
-                      const SizedBox(height: 28),
+                      const SizedBox(height: 22),
                       ...List.generate(_steps.length, (i) {
                         final s = _steps[i];
                         return Column(
                           children: [
-                            _DarkFeatureCard(
+                            _SoftFeatureCard(
                               asset: s.asset,
                               title: s.title,
                               subtitle: s.sub,
+                              tint: s.tint,
                             ).obFadeUp(delayMs: 80 + i * 70),
                             if (i < _steps.length - 1) ...[
                               const SizedBox(height: 10),
                               Icon(
                                 Icons.arrow_downward_rounded,
-                                color: Colors.white.withValues(alpha: 0.35),
+                                color: p.sub.withValues(alpha: 0.55),
                                 size: 22,
                               ).obFadeUp(delayMs: 110 + i * 70),
                               const SizedBox(height: 10),
@@ -276,42 +294,9 @@ class ObDarkInterstitial extends StatelessWidget {
               ),
               Padding(
                 padding: const EdgeInsets.fromLTRB(22, 12, 22, 16),
-                child: Semantics(
-                  button: true,
+                child: ObPrimaryButton(
                   label: 'Continue',
-                  child: AnimatedPressable(
-                    onTap: () {
-                      HapticEngine.selection();
-                      onContinue();
-                    },
-                    scaleFactor: 0.96,
-                    child: Container(
-                      width: double.infinity,
-                      constraints: const BoxConstraints(
-                        minHeight: AppA11y.minTapTarget,
-                      ),
-                      alignment: Alignment.center,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(99),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            blurRadius: 20,
-                            offset: const Offset(0, 10),
-                          ),
-                        ],
-                      ),
-                      child: Text(
-                        'Continue',
-                        style: AppTypography.titleMedium.copyWith(
-                          color: bg,
-                          fontWeight: FontWeight.w700,
-                        ),
-                      ),
-                    ),
-                  ),
+                  onTap: onContinue,
                 ),
               ),
             ],
@@ -322,12 +307,13 @@ class ObDarkInterstitial extends StatelessWidget {
   }
 }
 
-class _DarkCircleIcon extends StatelessWidget {
+class _SoftCircleIcon extends StatelessWidget {
   final VoidCallback onTap;
-  const _DarkCircleIcon({required this.onTap});
+  const _SoftCircleIcon({required this.onTap});
 
   @override
   Widget build(BuildContext context) {
+    final p = ObPalette.of(context);
     return Semantics(
       button: true,
       label: 'Go back',
@@ -343,13 +329,13 @@ class _DarkCircleIcon extends StatelessWidget {
           alignment: Alignment.center,
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: Colors.white.withValues(alpha: 0.1),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+            color: p.surface,
+            border: Border.all(color: p.border),
           ),
-          child: const Icon(
+          child: Icon(
             Icons.arrow_back_ios_new_rounded,
             size: 16,
-            color: Colors.white,
+            color: p.text,
           ),
         ),
       ),
@@ -357,47 +343,51 @@ class _DarkCircleIcon extends StatelessWidget {
   }
 }
 
-class _DarkFeatureCard extends StatelessWidget {
+class _SoftFeatureCard extends StatelessWidget {
   final String asset;
   final String title;
   final String subtitle;
+  final Color tint;
 
-  const _DarkFeatureCard({
+  const _SoftFeatureCard({
     required this.asset,
     required this.title,
     required this.subtitle,
+    required this.tint,
   });
 
   @override
   Widget build(BuildContext context) {
+    final p = ObPalette.of(context);
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: p.surface,
         borderRadius: BorderRadius.circular(AppRadius.l),
+        border: Border.all(color: p.border),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.18),
-            blurRadius: 24,
-            offset: const Offset(0, 12),
+            color: const Color(0xFF1A2621).withValues(alpha: 0.05),
+            blurRadius: 18,
+            offset: const Offset(0, 8),
           ),
         ],
       ),
       child: Row(
         children: [
           Container(
-            width: 48,
-            height: 48,
+            width: 56,
+            height: 56,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: const Color(0xFF0F1F18).withValues(alpha: 0.08),
-              borderRadius: BorderRadius.circular(14),
+              color: tint,
+              borderRadius: BorderRadius.circular(16),
             ),
             child: AppSvgIcon(
               assetPath: asset,
-              size: 24,
-              color: const Color(0xFF0F1F18),
+              size: 26,
+              color: p.text,
             ),
           ),
           const SizedBox(width: 14),
@@ -408,15 +398,16 @@ class _DarkFeatureCard extends StatelessWidget {
                 Text(
                   title,
                   style: AppTypography.titleMedium.copyWith(
-                    color: const Color(0xFF0F1F18),
+                    color: p.text,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 3),
                 Text(
                   subtitle,
                   style: AppTypography.bodySmall.copyWith(
-                    color: const Color(0xFF5C6B64),
+                    color: p.sub,
+                    height: 1.35,
                   ),
                 ),
               ],

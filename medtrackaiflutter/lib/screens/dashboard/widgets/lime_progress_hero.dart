@@ -97,9 +97,9 @@ class _LimeProgressHeroState extends State<LimeProgressHero>
             borderRadius: BorderRadius.circular(30),
             boxShadow: [
               BoxShadow(
-                color: AppColors.limeDeep.withValues(alpha: 0.45),
-                blurRadius: 28,
-                offset: const Offset(0, 12),
+                color: AppColors.limeDeep.withValues(alpha: 0.28),
+                blurRadius: 16,
+                offset: const Offset(0, 8),
               ),
             ],
           ),
