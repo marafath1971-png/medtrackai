@@ -28,6 +28,14 @@ import '../widgets/viral/reentry_screen.dart';
 import '../widgets/modals/ai_consent_sheet.dart';
 import 'package:flutter/scheduler.dart';
 
+/// Space the floating nav island occupies above the system inset: its 80px
+/// height plus the 16px gap it is lifted by. [AppShell] adds this to the
+/// MediaQuery bottom padding it hands to tab content, so in-shell screens get
+/// the clearance without each one remembering to add it.
+///
+/// Keep in sync with the island's `height:` and its `bottom:` offset below.
+const double kShellNavIslandInset = 96;
+
 // ══════════════════════════════════════════════
 // APP SHELL — Bottom nav + FAB + overlays
 // ══════════════════════════════════════════════
@@ -303,12 +311,31 @@ class _AppShellState extends State<AppShell>
                 clipBehavior: Clip.none,
                 children: [
                   // ── Main content with swipe tab navigation ──
+                  //
+                  // The nav island floats over this content (see the
+                  // AnimatedPositioned below) and reserves no layout space, so
+                  // anything a tab pins or scrolls to the bottom ends up
+                  // underneath it — CTAs became untappable and list rows were
+                  // clipped. Publishing the island's footprint as MediaQuery
+                  // bottom padding means SafeArea, Scaffold, and every
+                  // scrollable inside a tab inherit the clearance for free,
+                  // including modal sheets opened from a tab.
                   Positioned.fill(
-                    child: MedAiSwipeTabs(
-                      currentIndex: _calculateSelectedIndex(context),
-                      tabCount: 4,
-                      onTabChanged: _navigateToTab,
-                      child: widget.child,
+                    child: MediaQuery(
+                      data: MediaQuery.of(context).copyWith(
+                        padding: MediaQuery.of(context).padding.copyWith(
+                              bottom: bottomPadding + kShellNavIslandInset,
+                            ),
+                        viewPadding: MediaQuery.of(context).viewPadding.copyWith(
+                              bottom: bottomPadding + kShellNavIslandInset,
+                            ),
+                      ),
+                      child: MedAiSwipeTabs(
+                        currentIndex: _calculateSelectedIndex(context),
+                        tabCount: 4,
+                        onTabChanged: _navigateToTab,
+                        child: widget.child,
+                      ),
                     ),
                   ),
 
