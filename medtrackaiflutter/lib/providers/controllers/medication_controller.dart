@@ -46,6 +46,9 @@ class MedicationController extends ChangeNotifier {
   double? _cachedAdherence;
   List<DoseItem>? _cachedDoses;
 
+  /// Day [_cachedDoses] was built for; the cache is stale on any other day.
+  DateTime? _cachedDosesDay;
+
   MedicationController({required this.medRepo});
 
   List<Medicine> get meds => _meds;
@@ -92,6 +95,10 @@ class MedicationController extends ChangeNotifier {
         [21, 0, 'Night'],
       ]),
     ];
+    // Replacing _meds invalidates any cached dose list; without this a cache
+    // warmed before seeding (e.g. by the home header on first build) is served
+    // forever and the header reports a stale count.
+    invalidateCache();
     notifyListeners();
   }
   Map<String, List<DoseEntry>> get history => _history;
@@ -342,7 +349,16 @@ class MedicationController extends ChangeNotifier {
 
   List<DoseItem> getDoses({DateTime? date}) {
     final targetDate = date ?? DateTime.now();
-    if (!isDosesDirty && _cachedDoses != null && date == null) {
+    // The cache is only valid for the day it was built on. Without this check a
+    // cache populated earlier (or before seeding finished) is served forever,
+    // so callers using the no-arg form — the home header — showed a different
+    // dose count from callers passing an explicit date, e.g. "0 of 2 done"
+    // beside a 2/5 progress ring.
+    final cacheFresh = _cachedDosesDay != null &&
+        _cachedDosesDay!.year == targetDate.year &&
+        _cachedDosesDay!.month == targetDate.month &&
+        _cachedDosesDay!.day == targetDate.day;
+    if (!isDosesDirty && _cachedDoses != null && date == null && cacheFresh) {
       return _cachedDoses!;
     }
 
@@ -424,6 +440,7 @@ class MedicationController extends ChangeNotifier {
 
     if (date == null) {
       _cachedDoses = items;
+      _cachedDosesDay = DateTime(targetDate.year, targetDate.month, targetDate.day);
       isDosesDirty = false;
     }
     return items;

@@ -37,11 +37,15 @@ import 'services/remote_config_service.dart';
 /// app (bypassing onboarding/auth) so redesigned screens can be reviewed.
 /// MUST be false for release. Keep false so onboarding/auth actually run —
 /// flip to true only to preview a specific in-app screen via [kDevRoute].
-const bool kDevPreview = false;
+/// Supplied at build time so it cannot be committed in the "on" state:
+///   flutter build apk --dart-define=DEV_PREVIEW=true --dart-define=DEV_ROUTE=/stats
+const bool kDevPreview =
+    bool.fromEnvironment('DEV_PREVIEW', defaultValue: false);
 
 /// DEV PREVIEW ONLY — initial route to land on after the dev jump. Change this
 /// to screenshot a specific screen. Ignored when [kDevPreview] is false.
-const String kDevRoute = '/home';
+const String kDevRoute =
+    String.fromEnvironment('DEV_ROUTE', defaultValue: '/home');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
