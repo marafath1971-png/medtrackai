@@ -98,14 +98,17 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
         ],
       ),
       child: Semantics(
-        label: "Today's adherence $pct percent, $statusLabel",
+        label: '30-day adherence $pct percent, $statusLabel',
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
               Text(
-                "Today's adherence",
+                // Not "Today's": this is getAdherenceScore(), which averages
+                // the last 30 days. Labelling it "Today's" made it contradict
+                // the home screen — 2% here beside "2 of 5 done" (40%) there.
+                '30-day adherence',
                 style: AppTypography.labelMedium.copyWith(
                   color: AppColors.grey600,
                   fontWeight: FontWeight.w700,
