@@ -65,7 +65,6 @@ class MedicationController extends ChangeNotifier {
         color: color,
         count: 24,
         totalCount: 30,
-        category: 'Tablet',
         courseStartDate: DateTime.now().toIso8601String(),
         schedule: [
           for (final t in times)

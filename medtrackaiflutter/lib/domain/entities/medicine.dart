@@ -296,7 +296,12 @@ class Medicine {
     this.din = '',
     this.dose = '',
     this.form = 'tablet',
-    this.category = 'Tablet',
+    // Empty, not 'Tablet': [category] is a classification (Supplement, General,
+    // Medicine) set by the scanners, while [form] is the physical form. The old
+    // default duplicated form and rendered as "Form: tablet / Category: Tablet"
+    // on the detail screen. It also disagreed with fromJson, which defaults to
+    // '', so a med lost the value after a storage round trip.
+    this.category = '',
     this.count = 30,
     this.totalCount = 30,
     this.color = '#10B981',

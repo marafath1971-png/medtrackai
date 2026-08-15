@@ -969,6 +969,10 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
   }
 
   Widget _buildSpecificationsSection(Medicine med, AppThemeColors L) {
+    // Only show specs that carry a value. [category] is a classification
+    // (Supplement, General, …) that the scanners set but manual entry does not,
+    // so an empty tile would otherwise sit next to Form showing nothing — and
+    // when it defaulted to 'Tablet' it simply duplicated Form.
     final tiles = [
       (label: 'Form', value: med.form, icon: Icons.medication_rounded, tint: AppColors.pastelSky),
       (label: 'Category', value: med.category, icon: Icons.label_rounded, tint: AppColors.pastelMint),
@@ -976,7 +980,9 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
       // courseStartDate is a raw ISO-8601 string; rendering it directly showed
       // "2026-08-15T12:52:2…" truncated mid-timestamp in the tile.
       (label: 'Start', value: _fmtStart(med.courseStartDate), icon: Icons.calendar_today_rounded, tint: AppColors.pastelPink),
-    ];
+    ].where((t) => t.value.trim().isNotEmpty && t.value.trim() != '—').toList();
+
+    if (tiles.isEmpty) return const SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
