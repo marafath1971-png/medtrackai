@@ -1182,7 +1182,12 @@ class _MedPickerSheet extends StatelessWidget {
         child: ListView.separated(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           shrinkWrap: true,
-          padding: const EdgeInsets.fromLTRB(0, AppSpacing.p8, 0, AppSpacing.p40),
+          // The sheet opens over the Alarms tab, so the shell's floating nav
+          // island covers the last rows. p40 was not enough — the final
+          // medicine sat half-hidden behind it and the list does not scroll
+          // far enough to free it.
+          padding: const EdgeInsets.fromLTRB(
+              0, AppSpacing.p8, 0, AppSpacing.bottomBuffer),
           itemCount: meds.length,
           separatorBuilder: (_, __) => const SizedBox(height: AppSpacing.p8),
           itemBuilder: (_, i) {

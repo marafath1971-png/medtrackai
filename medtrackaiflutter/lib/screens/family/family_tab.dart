@@ -275,7 +275,10 @@ class HubView extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      floatingActionButton: pivot == 1
+      // Hidden on the Care empty state too: that state already shows an
+      // "Invite Guardian" CTA for the same action, and the FAB floated on top
+      // of it — two overlapping buttons doing the same thing.
+      floatingActionButton: pivot == 1 || state.caregivers.isEmpty
           ? null
           : Padding(
               padding: EdgeInsets.only(
