@@ -536,12 +536,12 @@ Return ONLY valid JSON matching this exact structure:
             category: 'Safety',
             title: '${locPrefix}Hydration',
             body:
-                'Stay hydrated and track your symptoms regularily to help your doctor monitor your progress in $country.'),
+                'Stay hydrated and track your symptoms regularly to help your doctor monitor your progress$locSuffix.'),
         HealthInsight(
             category: 'Adherence',
             title: '${locPrefix}Keep it up!',
             body:
-                'Keep your current streak going! Every day adds up to a healthier routine for our $country community.')
+                'Keep your current streak going! Every day adds up to a healthier routine${country.isNotEmpty ? ' for our $country community' : ''}.')
       ];
 
       appLogger.e(

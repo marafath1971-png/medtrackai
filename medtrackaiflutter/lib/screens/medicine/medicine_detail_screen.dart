@@ -960,12 +960,22 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
     );
   }
 
+  /// Renders a stored ISO-8601 course start as a readable date, falling back
+  /// to the raw value if it is empty or unparseable rather than showing blank.
+  String _fmtStart(String raw) {
+    if (raw.trim().isEmpty) return '—';
+    final parsed = DateTime.tryParse(raw);
+    return parsed == null ? raw : fmtFullDate(parsed, context);
+  }
+
   Widget _buildSpecificationsSection(Medicine med, AppThemeColors L) {
     final tiles = [
       (label: 'Form', value: med.form, icon: Icons.medication_rounded, tint: AppColors.pastelSky),
       (label: 'Category', value: med.category, icon: Icons.label_rounded, tint: AppColors.pastelMint),
       (label: 'Unit', value: med.unit, icon: Icons.scale_rounded, tint: AppColors.pastelSun),
-      (label: 'Start', value: med.courseStartDate, icon: Icons.calendar_today_rounded, tint: AppColors.pastelPink),
+      // courseStartDate is a raw ISO-8601 string; rendering it directly showed
+      // "2026-08-15T12:52:2…" truncated mid-timestamp in the tile.
+      (label: 'Start', value: _fmtStart(med.courseStartDate), icon: Icons.calendar_today_rounded, tint: AppColors.pastelPink),
     ];
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
