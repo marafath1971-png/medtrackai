@@ -91,7 +91,11 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
     _Feature(icon: Icons.summarize_rounded, label: 'Doctor Reports (PDF)', sub: 'Export clinical summaries anytime'),
     _Feature(icon: Icons.medication_rounded, label: 'Unlimited Medications', sub: 'Track every med without limits'),
     _Feature(icon: Icons.local_fire_department_rounded, label: 'Streak Freeze Protection', sub: 'Never lose your streak'),
-    _Feature(icon: Icons.lock_rounded, label: 'Priority Biometric Lock', sub: 'Advanced HIPAA privacy mode'),
+    // Not "HIPAA": that statute binds covered entities (providers, insurers and their
+    // business associates), not a direct-to-consumer app, so claiming it is a
+    // misleading-claims risk. The privacy screen already says "HIPAA-equivalent
+    // security practices" — keep this consistent with that.
+    _Feature(icon: Icons.lock_rounded, label: 'Priority Biometric Lock', sub: 'Advanced privacy mode'),
     _Feature(icon: Icons.psychology_alt_rounded, label: 'AI Drug Interactions', sub: 'Full Gemini-powered analysis'),
   ];
 
