@@ -299,11 +299,16 @@ class _AccessoryCard extends StatelessWidget {
               ),
               const SizedBox(height: 12),
               if (isEquipped)
-                MedAiGlass(
+                // Solid, not MedAiGlass: that widget ignores its tint in light
+                // mode and paints L.card, so L.bg text on an L.accent tint came
+                // out cream-on-white — the equipped badge was invisible.
+                Container(
                   padding:
                       const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                  radius: AppRadius.xl,
-                  tint: L.accent,
+                  decoration: BoxDecoration(
+                    color: L.accent,
+                    borderRadius: BorderRadius.circular(AppRadius.xl),
+                  ),
                   child: Text(
                     'EQUIPPED',
                     style: AppTypography.labelSmall.copyWith(

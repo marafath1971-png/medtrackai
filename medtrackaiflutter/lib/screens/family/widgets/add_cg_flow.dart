@@ -13,11 +13,6 @@ import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/app_feedback.dart';
 import '../../../core/utils/haptic_engine.dart';
 
-/// Vertical space taken by the app shell's floating bottom nav island (80px)
-/// plus its surrounding margin. Steps rendered inside a tab must keep pinned
-/// CTAs above this, or the nav covers them and swallows their taps.
-const double _kShellNavClearance = 104;
-
 class AddHeader extends StatelessWidget {
   final int step;
   final AppThemeColors L;
@@ -102,7 +97,7 @@ class AddCgStep1 extends StatelessWidget {
                         right: AppSpacing.p24,
                         top: AppSpacing.p12,
                         // Clear the pinned CTA *and* the shell nav beneath it.
-                        bottom: 120 + _kShellNavClearance),
+                        bottom: 120 + AppSpacing.bottomBuffer),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -244,7 +239,7 @@ class AddCgStep1 extends StatelessWidget {
               // bottom: 0 — the CTA was completely hidden and unreachable, and
               // taps in that area hit the nav instead. Clear the island and its
               // margin so the button is visible and tappable.
-              bottom: _kShellNavClearance,
+              bottom: AppSpacing.bottomBuffer,
               left: 0,
               right: 0,
               child: MedAiGlass(
