@@ -118,6 +118,57 @@ void debugSetGeminiModelFactory(GeminiModelFactory? f) {
   geminiModelFactory = f ?? _defaultModelFactory;
 }
 
+/// The two inputs that decide whether a request goes via the Cloud Function
+/// proxy or straight to the SDK.
+///
+/// Both were read from global state — `FirebaseAuth.instance.currentUser` and
+/// a dotenv key — so tests could exercise each branch's body but never choose
+/// between them. Routing the decision through here makes the choice itself
+/// testable without Firebase or a .env file.
+abstract class GeminiEnvironment {
+  bool get isLoggedIn;
+  String get apiKey;
+}
+
+/// Reads the real app state. [isLoggedInFn] and [apiKeyFn] are supplied by
+/// GeminiService so this file does not import Firebase auth or dotenv.
+class LiveGeminiEnvironment implements GeminiEnvironment {
+  const LiveGeminiEnvironment({
+    required bool Function() isLoggedInFn,
+    required String Function() apiKeyFn,
+  })  : _isLoggedIn = isLoggedInFn,
+        _apiKey = apiKeyFn;
+
+  final bool Function() _isLoggedIn;
+  final String Function() _apiKey;
+
+  @override
+  bool get isLoggedIn => _isLoggedIn();
+
+  @override
+  String get apiKey => _apiKey();
+}
+
+/// Fixed values, for tests that need a specific branch.
+class FakeGeminiEnvironment implements GeminiEnvironment {
+  const FakeGeminiEnvironment({this.isLoggedIn = false, this.apiKey = ''});
+
+  @override
+  final bool isLoggedIn;
+
+  @override
+  final String apiKey;
+}
+
+/// Null until GeminiService installs the live one on first use, so this file
+/// stays free of Firebase and dotenv imports.
+GeminiEnvironment? geminiEnvironment;
+
+@visibleForTesting
+void debugSetGeminiEnvironment(GeminiEnvironment? e) {
+  geminiEnvironment = e;
+}
+
 /// Swappable so tests can drive [GeminiService] without a backend.
 ///
 /// Production never reassigns this; [debugSetGeminiTransport] is the only

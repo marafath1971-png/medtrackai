@@ -19,8 +19,22 @@ import '../models/product_analysis.dart';
 // ══════════════════════════════════════════════
 
 class GeminiService {
-  static String get _apiKey =>
-      (kDebugMode && dotenv.isInitialized ? dotenv.env['GEMINI_API_KEY'] : null) ?? '';
+  /// Branch inputs, read through a seam so tests can pick the proxy or the
+  /// direct-SDK path without Firebase auth or a .env file. Falls back to the
+  /// live sources when nothing has been installed.
+  static GeminiEnvironment get _env =>
+      geminiEnvironment ??= LiveGeminiEnvironment(
+        isLoggedInFn: () => AuthService.isLoggedIn,
+        apiKeyFn: () =>
+            (kDebugMode && dotenv.isInitialized
+                ? dotenv.env['GEMINI_API_KEY']
+                : null) ??
+            '',
+      );
+
+  static String get _apiKey => _env.apiKey;
+
+  static bool get _isLoggedIn => _env.isLoggedIn;
 
   /// Detects high-risk medical keywords to trigger immediate safety redirects.
   static bool detectHighRiskQuery(String input) {
@@ -181,7 +195,7 @@ class GeminiService {
           String fallbackErrorStr = '';
 
           // ── 1.0 FALLBACK: If Cloud Function fails for any reason ──────
-          if (AuthService.isLoggedIn && _apiKey.isNotEmpty) {
+          if (_isLoggedIn && _apiKey.isNotEmpty) {
             appLogger.w(
                 '[GeminiService] Proxy failed. Falling back to direct API for $modelName.');
             try {
@@ -326,7 +340,7 @@ Return ONLY valid JSON matching this exact structure:
       for (final config in _standardModels) {
         final modelName = config['model']!;
         try {
-          final bool useProxy = AuthService.isLoggedIn && _apiKey.isEmpty;
+          final bool useProxy = _isLoggedIn && _apiKey.isEmpty;
           String responseText = '';
 
           if (useProxy) {
@@ -937,7 +951,7 @@ Do not use markdown formatting like bolding or bullet points unless absolutely n
       final modelName = config['model']!;
 
       try {
-        final bool useProxy = AuthService.isLoggedIn && _apiKey.isEmpty;
+        final bool useProxy = _isLoggedIn && _apiKey.isEmpty;
         String responseText = '';
 
         if (useProxy) {
@@ -1201,10 +1215,7 @@ Rules:
 ''';
 
     try {
-      final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
-        apiKey: _apiKey,
-      );
+      final model = _getModel('gemini-1.5-flash');
       final response = await model.generateContent(
           [Content.text(prompt)]).timeout(const Duration(seconds: 15));
       final text = response.text?.trim() ?? '';
@@ -1255,10 +1266,7 @@ Example: "Take your dose now — it's only been ${hoursLate}h and you have ${nex
 ''';
 
     try {
-      final model = GenerativeModel(
-        model: 'gemini-1.5-flash',
-        apiKey: _apiKey,
-      );
+      final model = _getModel('gemini-1.5-flash');
       final response = await model.generateContent(
           [Content.text(prompt)]).timeout(const Duration(seconds: 15));
       return response.text?.trim() ??
@@ -1349,11 +1357,8 @@ Example: "$patientName is doing great with their morning heart medication, but s
               topP: 0.9,
               maxOutputTokens: 2048,
             );
-            final model = GenerativeModel(
-              model: modelName,
-              apiKey: _apiKey,
-              generationConfig: generationConfig,
-            );
+            final model =
+                _getModel(modelName, generationConfig: generationConfig);
             final response =
                 await model.generateContent([Content.text(prompt)]);
             final text = response.text?.trim() ?? '';
