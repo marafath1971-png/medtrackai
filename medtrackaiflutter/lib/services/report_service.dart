@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
@@ -258,11 +259,24 @@ class ReportService {
     );
   }
 
-  /// Task 4: CSV Export Implementation
-  static Future<void> generateAndShareCSV({
+  /// Quote a CSV field per RFC 4180.
+  ///
+  /// Medicine names are free text and AI scan results routinely contain commas
+  /// ("Aspirin, Enteric Coated"). Writing them raw shifted every later column,
+  /// silently corrupting a file people hand to their doctor.
+  static String csvField(String? value) {
+    final v = value ?? '';
+    if (!v.contains(RegExp(r'[",\n\r]'))) return v;
+    return '"${v.replaceAll('"', '""')}"';
+  }
+
+  /// Build the CSV body. Separated from file IO and sharing so it can be
+  /// tested without a filesystem or platform channels.
+  @visibleForTesting
+  static String buildCsv({
     required List<Medicine> meds,
     required Map<String, List<DoseEntry>> history,
-  }) async {
+  }) {
     final buffer = StringBuffer();
     // Headers
     buffer.writeln('Date,Medicine,Dose,Status,Timestamp');
@@ -282,10 +296,24 @@ class ReportService {
                 count: 0,
                 totalCount: 0,
                 courseStartDate: ''));
-        buffer.writeln(
-            '$date,${med.name},${med.dose},${entry.taken ? 'Taken' : 'Missed'},${entry.takenAt ?? ''}');
+        buffer.writeln([
+          csvField(date),
+          csvField(med.name),
+          csvField(med.dose),
+          csvField(entry.taken ? 'Taken' : 'Missed'),
+          csvField(entry.takenAt),
+        ].join(','));
       }
     }
+    return buffer.toString();
+  }
+
+  /// Task 4: CSV Export Implementation
+  static Future<void> generateAndShareCSV({
+    required List<Medicine> meds,
+    required Map<String, List<DoseEntry>> history,
+  }) async {
+    final buffer = StringBuffer(buildCsv(meds: meds, history: history));
 
     final tempDir = await getTemporaryDirectory();
     final file = File('${tempDir.path}/MedAI_Health_Data_${DateTime.now().millisecondsSinceEpoch}.csv');
