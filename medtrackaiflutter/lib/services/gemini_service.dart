@@ -48,16 +48,20 @@ class GeminiService {
     {'model': 'gemini-2.5-flash', 'version': 'v1beta'},
   ];
 
-  static GenerativeModel _getModel(String modelName,
+  /// Returns a [GeminiModel] rather than a raw GenerativeModel so the direct
+  /// SDK branch can be faked in tests. Every caller only uses
+  /// `generateContent(...)` and `.text`, so the shim is a drop-in and the
+  /// fourteen call sites are unchanged.
+  static GeminiModel _getModel(String modelName,
       {String apiVersion = 'v1', GenerationConfig? generationConfig}) {
     if (_apiKey.isEmpty) {
       appLogger.w('[GeminiService] Warning: GEMINI_API_KEY is empty.');
     }
-    return GenerativeModel(
-      model: modelName,
-      apiKey: _apiKey,
-      requestOptions: RequestOptions(apiVersion: apiVersion),
+    return geminiModelFactory(
+      modelName,
+      apiVersion: apiVersion,
       generationConfig: generationConfig,
+      apiKey: _apiKey,
     );
   }
 

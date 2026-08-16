@@ -1,4 +1,5 @@
 import 'package:cloud_functions/cloud_functions.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter/foundation.dart';
 
 /// The network boundary for [GeminiService].
@@ -60,6 +61,61 @@ class FirebaseGeminiTransport implements GeminiTransport {
         .timeout(timeout);
     return result.data['text'] ?? '';
   }
+}
+
+/// What [GeminiService] needs from a model: generate content, read the text.
+///
+/// The service's fourteen direct-SDK call sites all do
+/// `_getModel(...).generateContent(parts)` then `response.text`, so this
+/// mirrors that shape exactly. _getModel returns one of these instead of a
+/// raw GenerativeModel, which leaves every call site untouched.
+abstract class GeminiModel {
+  Future<GeminiModelResponse> generateContent(Iterable<Content> parts);
+}
+
+class GeminiModelResponse {
+  const GeminiModelResponse(this.text);
+  final String? text;
+}
+
+class SdkGeminiModel implements GeminiModel {
+  SdkGeminiModel(this._model);
+  final GenerativeModel _model;
+
+  @override
+  Future<GeminiModelResponse> generateContent(Iterable<Content> parts) async {
+    final r = await _model.generateContent(parts);
+    return GeminiModelResponse(r.text);
+  }
+}
+
+/// Builds the model for a given name. Swapped in tests so the direct-SDK
+/// branch can be exercised without an API key or a network.
+typedef GeminiModelFactory = GeminiModel Function(
+  String modelName, {
+  String apiVersion,
+  GenerationConfig? generationConfig,
+  String apiKey,
+});
+
+GeminiModel _defaultModelFactory(
+  String modelName, {
+  String apiVersion = 'v1',
+  GenerationConfig? generationConfig,
+  String apiKey = '',
+}) =>
+    SdkGeminiModel(GenerativeModel(
+      model: modelName,
+      apiKey: apiKey,
+      requestOptions: RequestOptions(apiVersion: apiVersion),
+      generationConfig: generationConfig,
+    ));
+
+GeminiModelFactory geminiModelFactory = _defaultModelFactory;
+
+@visibleForTesting
+void debugSetGeminiModelFactory(GeminiModelFactory? f) {
+  geminiModelFactory = f ?? _defaultModelFactory;
 }
 
 /// Swappable so tests can drive [GeminiService] without a backend.

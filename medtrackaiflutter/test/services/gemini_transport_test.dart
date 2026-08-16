@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/services/gemini_service.dart';
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:medai/services/gemini_transport.dart';
 
 /// Records what the service sends and replays canned model output, so the AI
@@ -41,6 +42,22 @@ class FakeGeminiTransport implements GeminiTransport {
     calls.add({...params, 'timeout': timeout, 'raw': true});
     if (error != null) throw error!;
     return response;
+  }
+}
+
+/// Stands in for the Gemini SDK so the direct-API branch (used when an API key
+/// is present and the proxy is bypassed) can run without a key or a network.
+class FakeGeminiModel implements GeminiModel {
+  FakeGeminiModel(this.text, {this.error});
+  final String text;
+  final Object? error;
+  final List<Iterable<Content>> calls = [];
+
+  @override
+  Future<GeminiModelResponse> generateContent(Iterable<Content> parts) async {
+    calls.add(parts);
+    if (error != null) throw error!;
+    return GeminiModelResponse(text);
   }
 }
 
@@ -138,6 +155,55 @@ void main() {
         expect(call['model'], isA<String>());
         expect(call['prompt'], isA<String>());
       }
+    });
+  });
+
+  group('direct SDK boundary', () {
+    tearDown(() => debugSetGeminiModelFactory(null));
+
+    test('the factory is swappable and restores the SDK default', () {
+      final model = FakeGeminiModel('hi');
+      debugSetGeminiModelFactory((n,
+              {String apiVersion = 'v1',
+              GenerationConfig? generationConfig,
+              String apiKey = ''}) =>
+          model);
+
+      expect(geminiModelFactory('m'), same(model));
+
+      debugSetGeminiModelFactory(null);
+      expect(geminiModelFactory, isNot(same(model)));
+    });
+
+    test('the model name and api version reach the factory', () {
+      String? seenName;
+      String? seenVersion;
+      debugSetGeminiModelFactory((n,
+          {String apiVersion = 'v1',
+          GenerationConfig? generationConfig,
+          String apiKey = ''}) {
+        seenName = n;
+        seenVersion = apiVersion;
+        return FakeGeminiModel('{}');
+      });
+
+      geminiModelFactory('gemini-2.0-flash', apiVersion: 'v1beta');
+
+      expect(seenName, 'gemini-2.0-flash');
+      expect(seenVersion, 'v1beta');
+    });
+
+    test('generateContent returns the faked text', () async {
+      final model = FakeGeminiModel('Take with food.');
+      final r = await model.generateContent([Content.text('prompt')]);
+      expect(r.text, 'Take with food.');
+      expect(model.calls, hasLength(1));
+    });
+
+    test('an SDK error propagates rather than being swallowed', () {
+      final model = FakeGeminiModel('', error: Exception('quota exceeded'));
+      expect(() => model.generateContent([Content.text('p')]),
+          throwsA(isA<Exception>()));
     });
   });
 }
