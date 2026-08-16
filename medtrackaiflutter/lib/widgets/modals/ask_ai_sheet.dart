@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/med_ai_ui.dart';
+import '../common/solid_surface.dart';
 import '../../services/gemini_service.dart';
 import '../../domain/entities/entities.dart';
 import '../../core/utils/haptic_engine.dart';
@@ -110,8 +111,11 @@ class _AskAiSheetState extends State<AskAiSheet> {
                               // Solid for the user bubble: MedAiGlass drops
                               // its tint in light mode, so L.bg text on the
                               // intended dark fill came out cream-on-white.
-                              child: _ChatBubble(
-                                isAi: isAi,
+                              child: SolidSurface(
+                                filled: !isAi,
+                                glassWhenUnfilled: true,
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 16, vertical: 12),
                                 child: Text(
                                   msg['content']!,
                                   style: AppTypography.bodyMedium.copyWith(
@@ -188,43 +192,6 @@ class _AskAiSheetState extends State<AskAiSheet> {
           const SizedBox(height: 12),
         ],
       ),
-    );
-  }
-}
-
-/// Chat bubble surface.
-///
-/// The AI bubble keeps the frosted [MedAiGlass] look. The user bubble must be
-/// solid: MedAiGlass ignores `tint` in light mode and always paints `L.card`,
-/// so the intended dark fill never appeared while the text still flipped to
-/// `L.bg` — the user's own messages rendered cream-on-white.
-class _ChatBubble extends StatelessWidget {
-  final bool isAi;
-  final Widget child;
-
-  const _ChatBubble({required this.isAi, required this.child});
-
-  @override
-  Widget build(BuildContext context) {
-    const padding = EdgeInsets.symmetric(horizontal: 16, vertical: 12);
-
-    if (isAi) {
-      return MedAiGlass(
-        padding: padding,
-        radius: AppRadius.l,
-        tint: context.L.card,
-        child: child,
-      );
-    }
-
-    return Container(
-      padding: padding,
-      decoration: BoxDecoration(
-        color: context.L.text,
-        borderRadius: BorderRadius.circular(AppRadius.l),
-        boxShadow: AppShadows.soft,
-      ),
-      child: child,
     );
   }
 }
