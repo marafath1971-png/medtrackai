@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:cloud_functions/cloud_functions.dart' hide Result;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart';
 import '../domain/entities/entities.dart';
@@ -9,6 +8,7 @@ import '../core/utils/result.dart';
 import '../core/error/failures.dart';
 import '../core/utils/logger.dart';
 import 'parsers/jahis_parser.dart';
+import 'gemini_transport.dart';
 import 'analytics_service.dart';
 import 'performance_service.dart';
 import 'auth_service.dart';
@@ -121,16 +121,12 @@ class GeminiService {
           if (useProxy) {
             appLogger.d('[GeminiService] Trying $modelName via Cloud Proxy...');
             final base64Image = base64Encode(bytes);
-            final result = await FirebaseFunctions.instance
-                .httpsCallable('geminiProxy')
-                .call({
-              'prompt': _buildScanPrompt(hint, country: country),
-              'model': modelName,
-              'isImage': true,
-              'imageBase64': base64Image,
-            }).timeout(const Duration(seconds: 30));
-
-            responseText = result.data['text'] ?? '';
+            responseText = await geminiTransport.callProxy(
+              prompt: _buildScanPrompt(hint, country: country),
+              model: modelName,
+              isImage: true,
+              imageBase64: base64Image,
+            );
             appLogger.d('[GeminiService] Proxy Response: $responseText');
           } else if (_apiKey.isNotEmpty) {
             appLogger.d(
@@ -341,11 +337,7 @@ Return ONLY valid JSON matching this exact structure:
               params['imageBase64'] =
                   base64Encode((parts[1] as DataPart).bytes);
             }
-            final result = await FirebaseFunctions.instance
-                .httpsCallable('geminiProxy')
-                .call(params)
-                .timeout(const Duration(seconds: 30));
-            responseText = result.data['text'] ?? '';
+            responseText = await geminiTransport.callProxyRaw(params);
           } else if (_apiKey.isNotEmpty) {
             final version = config['version']!;
             final model = _getModel(modelName, apiVersion: version);
@@ -411,15 +403,13 @@ Return ONLY valid JSON matching this exact structure:
             country: country,
           );
 
-          final result = await FirebaseFunctions.instance
-              .httpsCallable('geminiProxy')
-              .call({
-            'prompt': prompt,
-            'model': modelName,
-          }).timeout(const Duration(seconds: 30));
+          final proxyText = await geminiTransport.callProxy(
+            prompt: prompt,
+            model: modelName,
+          );
 
-          if (result.data['text'] != null) {
-            final responseText = result.data['text'].trim();
+          if (proxyText.isNotEmpty) {
+            final responseText = proxyText.trim();
             final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(responseText);
             if (jsonMatch != null) {
               try {
@@ -948,13 +938,10 @@ Do not use markdown formatting like bolding or bullet points unless absolutely n
 
         if (useProxy) {
           appLogger.d('[GeminiService] Trying $modelName proxy for Chat...');
-          final result = await FirebaseFunctions.instance
-              .httpsCallable('geminiProxy')
-              .call({
-            'prompt': prompt,
-            'model': modelName,
-          }).timeout(const Duration(seconds: 30));
-          responseText = result.data['text'] ?? '';
+          responseText = await geminiTransport.callProxy(
+            prompt: prompt,
+            model: modelName,
+          );
         } else if (_apiKey.isNotEmpty) {
           final apiVersion = config['version']!;
           final model = _getModel(modelName, apiVersion: apiVersion);
@@ -1337,13 +1324,12 @@ Example: "$patientName is doing great with their morning heart medication, but s
     for (final config in _standardModels) {
       final modelName = config['model']!;
       try {
-        final result =
-            await FirebaseFunctions.instance.httpsCallable('geminiProxy').call({
-          'prompt': prompt,
-          'model': modelName,
-        }).timeout(const Duration(seconds: 6));
-
-        final text = (result.data['text'] as String?)?.trim() ?? '';
+        final text = (await geminiTransport.callProxy(
+          prompt: prompt,
+          model: modelName,
+          timeout: const Duration(seconds: 6),
+        ))
+            .trim();
         if (text.isNotEmpty) return text;
       } catch (e) {
         // Fallback to direct API if proxy fails
@@ -1447,15 +1433,11 @@ Rules:
       for (final config in _standardModels) {
         final modelName = config['model']!;
         try {
-          final result = await FirebaseFunctions.instance
-              .httpsCallable('geminiProxy')
-              .call({
+          final responseText = await geminiTransport.callProxyRaw({
             'prompt': prompt,
             'model': modelName,
             'responseMimeType': 'application/json',
           });
-
-          final responseText = result.data['text'] ?? '';
           if (responseText.isEmpty) continue;
 
           try {
@@ -1647,13 +1629,12 @@ Rules:
     for (final config in _standardModels) {
       final modelName = config['model']!;
       try {
-        final result =
-            await FirebaseFunctions.instance.httpsCallable('geminiProxy').call({
-          'prompt': prompt,
-          'model': modelName,
-        }).timeout(const Duration(seconds: 6));
-
-        final raw = (result.data['text'] as String?)?.trim() ?? '';
+        final raw = (await geminiTransport.callProxy(
+          prompt: prompt,
+          model: modelName,
+          timeout: const Duration(seconds: 6),
+        ))
+            .trim();
         if (raw.isNotEmpty) {
           final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(raw);
           if (jsonMatch != null) {
@@ -1814,17 +1795,14 @@ Do NOT include markdown, quotes around the sentence, or any introductory text. R
       final modelName = config['model']!;
       final apiVersion = config['version']!;
       try {
-        final result = await FirebaseFunctions.instance
-            .httpsCallable('geminiProxy')
-            .call({
-          'prompt': prompt,
-          'model': modelName,
-        }).timeout(const Duration(seconds: 8));
-
-        if (result.data['text'] != null) {
-          final text = result.data['text'].trim().replaceAll('"', '');
-          if (text.isNotEmpty) return text;
-        }
+        final text = (await geminiTransport.callProxy(
+          prompt: prompt,
+          model: modelName,
+          timeout: const Duration(seconds: 8),
+        ))
+            .trim()
+            .replaceAll('"', '');
+        if (text.isNotEmpty) return text;
       } catch (e) {
         // Fallback to direct API if key present
         if (_apiKey.isNotEmpty) {
