@@ -59,9 +59,11 @@ class MedicationController extends ChangeNotifier {
   void setStateForTest({
     List<Medicine>? meds,
     Map<String, List<DoseEntry>>? history,
+    List<String>? frozenDates,
   }) {
     if (meds != null) _meds = meds;
     if (history != null) _history = Map.of(history);
+    if (frozenDates != null) _frozenDates = List.of(frozenDates);
     invalidateCache();
   }
 
@@ -186,10 +188,17 @@ class MedicationController extends ChangeNotifier {
       final k = d.toIso8601String().substring(0, 10);
       final ds = _history[k] ?? [];
       final dayOfWeek = d.weekday % 7;
-      final scheduledForDay = _meds
-          .where((m) =>
-              m.schedule.any((s) => s.enabled && s.days.contains(dayOfWeek)))
-          .length;
+      // Slots, not medicines — takenDoses below counts dose entries, so a
+      // twice-daily medicine gave rate = 2/1 and cleared the 0.8 bar on half
+      // the doses, awarding streak days that were not earned.
+      final scheduledForDay = _meds.fold<int>(
+        0,
+        (sum, m) =>
+            sum +
+            m.schedule
+                .where((s) => s.enabled && s.days.contains(dayOfWeek))
+                .length,
+      );
       if (scheduledForDay == 0) {
         d = d.subtract(const Duration(days: 1));
         continue;
