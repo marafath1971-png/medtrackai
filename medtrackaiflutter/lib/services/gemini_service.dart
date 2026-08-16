@@ -999,6 +999,26 @@ Do not use markdown formatting like bolding or bullet points unless absolutely n
 
   // ── Helper Data Parsers ──────────────────────────────────────────────────
 
+  /// Strip the markdown fences and stray `//` comments models wrap JSON in.
+  ///
+  /// The comment strip is needed — json.decode rejects `// note` — but a plain
+  /// replaceAll('//', '') also mangled every URL in the payload, turning
+  /// "https://nhs.uk/x" into "https:nhs.uk/x". The lookbehind keeps `://`
+  /// intact, and the match stops at a quote so a comment marker inside a
+  /// string value is left alone.
+  @visibleForTesting
+  static String cleanJsonPayload(String jsonStr) {
+    return jsonStr
+        .replaceAll('```json', '')
+        .replaceAll('```', '')
+        .replaceAll(RegExp(r'(?<!:)//[^\n"]*'), '')
+        .trim();
+  }
+
+  @visibleForTesting
+  static ScanResult parseScanResponse(String responseText) =>
+      _parseScanResponse(responseText);
+
   static ScanResult _parseScanResponse(String responseText) {
     try {
       final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(responseText);
@@ -1006,15 +1026,8 @@ Do not use markdown formatting like bolding or bullet points unless absolutely n
         throw const FormatException('No JSON found in response');
       }
 
-      String jsonStr = jsonMatch.group(0)!;
-      // Aggressive cleaning of markdown and potential junk
-      jsonStr = jsonStr
-          .replaceAll('```json', '')
-          .replaceAll('```', '')
-          .replaceAll('//', '') // Remove comments if any
-          .trim();
-
-      final data = json.decode(jsonStr) as Map<String, dynamic>;
+      final data =
+          json.decode(cleanJsonPayload(jsonMatch.group(0)!)) as Map<String, dynamic>;
       return ScanResult.fromJson(data);
     } catch (e) {
       appLogger.e('[GeminiService] JSON parse error', error: e);
