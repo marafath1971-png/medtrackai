@@ -46,7 +46,12 @@ class ScanResultDetailView extends StatelessWidget {
       case 'low':
         return 0.45;
       default:
-        return 0.78;
+        // Unrecognised input — including empty, "unknown" and "uncertain" —
+        // must not read as a confident match. This previously returned 0.78,
+        // which lands in the meter's amber band, so a scan that could not
+        // report its confidence was shown as a reasonable identification of
+        // the user's medication.
+        return 0.4;
     }
   }
 
