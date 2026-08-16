@@ -87,10 +87,14 @@ List<String> _splitBullets(String raw) {
       .toList();
   if (lines.length > 1) return lines;
   if (raw.contains(',') && raw.length > 40) {
+    // Keep every non-empty fragment. Filtering out short ones discarded real
+    // content — "Avoid grapefruit juice and dairy products, tea, and antacid
+    // medication" silently lost "tea", so a dietary interaction the scan found
+    // never reached the user.
     return raw
         .split(',')
         .map((e) => e.trim())
-        .where((e) => e.length > 3)
+        .where((e) => e.isNotEmpty)
         .toList();
   }
   return [raw.trim()];
