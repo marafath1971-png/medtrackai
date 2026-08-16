@@ -363,11 +363,20 @@ class MedicationController extends ChangeNotifier {
 
     final idx = _meds.indexWhere((m) => m.id == medId);
     if (idx != -1 && _meds[idx].count > 0) {
-      final updatedMed = _meds[idx].copyWith(count: _meds[idx].count - 1);
+      final previousCount = _meds[idx].count;
+      final updatedMed = _meds[idx].copyWith(count: previousCount - 1);
       _meds[idx] = updatedMed;
       await medRepo.updateMedicine(updatedMed, profileId: _currentProfileId);
 
-      if (updatedMed.count == updatedMed.refillAt) {
+      // `<=`, not `==`: a user who raises "Refill Alert At" above their
+      // current stock (editable on the medicine detail screen) is already
+      // below the threshold, so the count never *equals* it on the way down
+      // and no alert was ever sent. The inventory UI already uses `<=`.
+      //
+      // This is not spam — showRefillAlert posts with a stable per-medicine id
+      // (med.id + 100000), so each dose replaces the previous notification
+      // rather than stacking, and the body keeps a current count.
+      if (updatedMed.count <= updatedMed.refillAt) {
         NotificationService.showRefillAlert(med: updatedMed);
       }
     }
@@ -518,8 +527,9 @@ class MedicationController extends ChangeNotifier {
           await medRepo.updateMedicine(updatedMed,
               profileId: _currentProfileId);
 
-          // Auto-Refill Alert Check
-          if (updatedMed.count == updatedMed.refillAt) {
+          // Auto-Refill Alert Check — `<=`, not an exact match. See the note
+          // on the same check in markTaken.
+          if (updatedMed.count <= updatedMed.refillAt) {
             NotificationService.showRefillAlert(med: updatedMed);
           }
         }
