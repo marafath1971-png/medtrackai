@@ -291,9 +291,23 @@ class NotificationService {
         final sched = med.schedule[i];
         if (!sched.enabled) continue;
         for (var day in sched.days) {
-          // Unique ID across profiles: hash the profile name into the ID base
+          // Unique ID across profiles.
+          //
+          // The old scheme was (profileHash % 10000) * 10000 + med.id * 100 +
+          // i * 10 + day. Medicine ids are millisecondsSinceEpoch (~1.7e12),
+          // so med.id * 100 dwarfed the 10000-wide profile band: two profiles'
+          // medicines could land on the same id, and scheduling one silently
+          // cancelled the other's reminder. Ids also ran past the 32-bit
+          // notification space and were folded by remainder().
+          //
+          // Hash every component together instead, so the whole tuple varies
+          // the id rather than one term swamping the others. Object.hash is
+          // stable within a run, and reminders are rescheduled via
+          // scheduleAll on launch and whenever meds change, so ids do not need
+          // to survive across installs.
           final profileHash = profileName?.hashCode ?? 0;
-          final notifId = (profileHash.abs() % 10000) * 10000 + med.id * 100 + i * 10 + day;
+          final notifId =
+              Object.hash(profileHash, med.id, i, day).toUnsigned(31);
 
           await scheduleWeeklyReminder(
             med: med,
