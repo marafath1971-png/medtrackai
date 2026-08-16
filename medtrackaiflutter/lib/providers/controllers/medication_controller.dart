@@ -53,6 +53,18 @@ class MedicationController extends ChangeNotifier {
 
   List<Medicine> get meds => _meds;
 
+  /// Seed in-memory state directly so pure calculations (adherence, streaks,
+  /// dose grouping) can be tested without a repository or a live Firestore.
+  @visibleForTesting
+  void setStateForTest({
+    List<Medicine>? meds,
+    Map<String, List<DoseEntry>>? history,
+  }) {
+    if (meds != null) _meds = meds;
+    if (history != null) _history = Map.of(history);
+    invalidateCache();
+  }
+
   /// DEV PREVIEW ONLY — seeds in-memory demo medications so screens can be
   /// reviewed without going through onboarding/auth. Not persisted.
   void devSeed() {
@@ -229,10 +241,19 @@ class MedicationController extends ChangeNotifier {
       final dateKey =
           "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
       final dayOfWeek = date.weekday % 7;
-      final scheduledOnDay = _meds
-          .where((m) =>
-              m.schedule.any((s) => s.enabled && s.days.contains(dayOfWeek)))
-          .length;
+      // Count scheduled *slots*, not medicines. The numerator below counts
+      // dose entries, so counting medicines here made a twice-daily medicine
+      // contribute 1 to the denominator and 2 to the numerator — a fully
+      // adherent user scored 200% (clamped to 100%), and taking one of two
+      // daily doses also reported 100%.
+      final scheduledOnDay = _meds.fold<int>(
+        0,
+        (sum, m) =>
+            sum +
+            m.schedule
+                .where((s) => s.enabled && s.days.contains(dayOfWeek))
+                .length,
+      );
       if (scheduledOnDay > 0) {
         totalScheduled += scheduledOnDay;
         final dailyEntries = _history[dateKey] ?? [];
@@ -256,10 +277,16 @@ class MedicationController extends ChangeNotifier {
       final dateKey =
           "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
       final dayOfWeek = date.weekday % 7;
-      final dayScheduled = _meds
-          .where((m) =>
-              m.schedule.any((s) => s.enabled && s.days.contains(dayOfWeek)))
-          .length;
+      // Slots, not medicines — takenCount below counts dose entries, so a
+      // twice-daily medicine would otherwise plot as 200% on the trend.
+      final dayScheduled = _meds.fold<int>(
+        0,
+        (sum, m) =>
+            sum +
+            m.schedule
+                .where((s) => s.enabled && s.days.contains(dayOfWeek))
+                .length,
+      );
       if (dayScheduled == 0) {
         // No doses planned — don't pretend 100% adherence on the chart.
         trend.add({'date': dateKey, 'value': 0.0});

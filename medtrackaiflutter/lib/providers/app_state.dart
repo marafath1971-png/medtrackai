@@ -892,7 +892,16 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         final date = now.subtract(Duration(days: i));
         final key = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
         final dayOfWeek = date.weekday % 7;
-        final scheduledForDay = med.meds.where((m) => m.schedule.any((s) => s.enabled && s.days.contains(dayOfWeek))).length;
+        // Slots, not medicines — `taken` below counts dose entries, so a
+        // twice-daily medicine gave rate = 2/1 and a genuinely missed day
+        // never dropped below the 0.8 threshold to earn a streak freeze.
+        final scheduledForDay = med.meds.fold<int>(
+            0,
+            (sum, m) =>
+                sum +
+                m.schedule
+                    .where((s) => s.enabled && s.days.contains(dayOfWeek))
+                    .length);
         if (scheduledForDay == 0) continue;
         
         final taken = med.history[key]?.where((e) => e.taken).length ?? 0;

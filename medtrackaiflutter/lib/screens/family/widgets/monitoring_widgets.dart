@@ -31,11 +31,17 @@ int _calculateStreak(
   for (final key in sortedKeys) {
     final date = DateTime.parse(key);
     final dayIdx = date.weekday % 7;
-    final medsScheduledThisDay = meds
-        .where(
-            (m) => m.schedule.any((s) => s.enabled && s.days.contains(dayIdx)))
-        .toList();
-    final expectedCount = medsScheduledThisDay.length;
+    // Slots, not medicines — takenCount below counts dose entries, so a
+    // twice-daily medicine made a caregiver see their patient at 200%
+    // adherence, or at 100% after only half the day's doses.
+    final expectedCount = meds.fold<int>(
+      0,
+      (sum, m) =>
+          sum +
+          m.schedule
+              .where((s) => s.enabled && s.days.contains(dayIdx))
+              .length,
+    );
     final entries = history[key] ?? [];
     final takenCount = entries.where((e) => e.taken).length;
 
