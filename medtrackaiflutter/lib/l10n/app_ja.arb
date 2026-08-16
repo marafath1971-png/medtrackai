@@ -220,5 +220,12 @@
   "onboardingSocialAttribution": "— App Storeレビュー、星5つ",
   "onboardingAllowCamera": "カメラへのアクセスを許可",
   "onboardingTryDemoScan": "デモスキャンを試す",
-  "loadingHealthData": "健康データを読み込んでいます…"
+  "loadingHealthData": "健康データを読み込んでいます…",
+  "homeNextDose": "Next dose",
+  "homeSchedule": "Schedule",
+  "homeDosesLeft": "Doses left",
+  "homeYourMedicines": "Your medicines",
+  "homeAddMeds": "Add meds",
+  "homeAllClear": "All clear",
+  "homeFirstPending": "First pending"
 }

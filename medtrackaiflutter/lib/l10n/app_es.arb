@@ -220,5 +220,12 @@
   "onboardingSocialAttribution": "— Reseña en App Store, 5 estrellas",
   "onboardingAllowCamera": "Permitir acceso a la cámara",
   "onboardingTryDemoScan": "Probar escaneo de demostración",
-  "loadingHealthData": "Cargando tus datos de salud…"
+  "loadingHealthData": "Cargando tus datos de salud…",
+  "homeNextDose": "Next dose",
+  "homeSchedule": "Schedule",
+  "homeDosesLeft": "Doses left",
+  "homeYourMedicines": "Your medicines",
+  "homeAddMeds": "Add meds",
+  "homeAllClear": "All clear",
+  "homeFirstPending": "First pending"
 }

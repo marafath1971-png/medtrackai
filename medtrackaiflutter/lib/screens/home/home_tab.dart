@@ -13,6 +13,7 @@ import '../medicine/medicine_detail_screen.dart';
 import 'dose_grouping.dart';
 import 'widgets/emergency_warning_card.dart';
 import 'widgets/home_dose_group.dart';
+import '../../l10n/app_localizations.dart';
 import 'widgets/home_header.dart';
 import 'widgets/home_hope_photo_strip.dart';
 import 'widgets/home_mascot_card.dart';
@@ -105,8 +106,10 @@ class _HomeTabState extends State<HomeTab> {
     Map<String, bool> takenMap,
     DateTime forDate,
   ) {
+    final s = AppLocalizations.of(context)!;
+
     if (doses.isEmpty) {
-      return (label: 'Next dose', value: '—', unit: 'Add meds');
+      return (label: s.homeNextDose, value: '—', unit: s.homeAddMeds);
     }
 
     final now = DateTime.now();
@@ -124,9 +127,9 @@ class _HomeTabState extends State<HomeTab> {
 
     if (pending.isEmpty) {
       return (
-        label: isToday ? 'Next dose' : 'Schedule',
+        label: isToday ? s.homeNextDose : s.homeSchedule,
         value: 'Done',
-        unit: 'All clear',
+        unit: s.homeAllClear,
       );
     }
 
@@ -153,8 +156,8 @@ class _HomeTabState extends State<HomeTab> {
       final mm = m.toString().padLeft(2, '0');
       return (
         label: forDate.isBefore(DateTime(now.year, now.month, now.day))
-            ? 'First pending'
-            : 'Next dose',
+            ? s.homeFirstPending
+            : s.homeNextDose,
         value: '$hour12:$mm',
         unit: '$ampm · ${next.med.name}',
       );
@@ -172,7 +175,7 @@ class _HomeTabState extends State<HomeTab> {
                 : '${minsUntil ~/ 60}h ${minsUntil % 60}m';
 
     return (
-      label: 'Next dose',
+      label: s.homeNextDose,
       value: countdown,
       unit: next.med.name,
     );
@@ -293,7 +296,7 @@ class _HomeTabState extends State<HomeTab> {
                             const SizedBox(width: AppSpacing.p12),
                             Expanded(
                               child: RefBentoTile(
-                                label: 'Doses left',
+                                label: AppLocalizations.of(context)!.homeDosesLeft,
                                 value: '$dosesLeft',
                                 unit: dosesLeft == 1 ? 'dose' : 'doses',
                                 emoji: '💊',
@@ -431,7 +434,8 @@ class _HomeTabState extends State<HomeTab> {
                                 children: [
                                   Expanded(
                                     child: Text(
-                                      'Your medicines',
+                                      AppLocalizations.of(context)!
+                                          .homeYourMedicines,
                                       style:
                                           AppTypography.titleMedium.copyWith(
                                         color: AppColors.inkStrong,

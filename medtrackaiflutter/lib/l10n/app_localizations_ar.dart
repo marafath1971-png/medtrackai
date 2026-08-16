@@ -30,6 +30,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scanTab => 'مسح';
 
   @override
+  String get homeNextDose => 'Next dose';
+
+  @override
+  String get homeSchedule => 'Schedule';
+
+  @override
+  String get homeDosesLeft => 'Doses left';
+
+  @override
+  String get homeYourMedicines => 'Your medicines';
+
+  @override
+  String get homeAddMeds => 'Add meds';
+
+  @override
+  String get homeAllClear => 'All clear';
+
+  @override
+  String get homeFirstPending => 'First pending';
+
+  @override
   String get countrySelectionTitle => 'أين موقعك؟';
 
   @override

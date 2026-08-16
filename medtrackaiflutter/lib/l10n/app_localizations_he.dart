@@ -30,6 +30,27 @@ class AppLocalizationsHe extends AppLocalizations {
   String get scanTab => 'סריקה';
 
   @override
+  String get homeNextDose => 'Next dose';
+
+  @override
+  String get homeSchedule => 'Schedule';
+
+  @override
+  String get homeDosesLeft => 'Doses left';
+
+  @override
+  String get homeYourMedicines => 'Your medicines';
+
+  @override
+  String get homeAddMeds => 'Add meds';
+
+  @override
+  String get homeAllClear => 'All clear';
+
+  @override
+  String get homeFirstPending => 'First pending';
+
+  @override
   String get countrySelectionTitle => 'היכן אתם נמצאים?';
 
   @override

@@ -220,5 +220,12 @@
   "onboardingSocialAttribution": "— App Store 리뷰, 별 5개",
   "onboardingAllowCamera": "카메라 접근 허용",
   "onboardingTryDemoScan": "데모 스캔 체험",
-  "loadingHealthData": "건강 데이터를 불러오는 중…"
+  "loadingHealthData": "건강 데이터를 불러오는 중…",
+  "homeNextDose": "Next dose",
+  "homeSchedule": "Schedule",
+  "homeDosesLeft": "Doses left",
+  "homeYourMedicines": "Your medicines",
+  "homeAddMeds": "Add meds",
+  "homeAllClear": "All clear",
+  "homeFirstPending": "First pending"
 }

@@ -150,6 +150,48 @@ abstract class AppLocalizations {
   /// **'Scan'**
   String get scanTab;
 
+  /// Stat card label showing when the next dose is due
+  ///
+  /// In en, this message translates to:
+  /// **'Next dose'**
+  String get homeNextDose;
+
+  /// Stat card label shown instead of 'Next dose' when viewing a day other than today
+  ///
+  /// In en, this message translates to:
+  /// **'Schedule'**
+  String get homeSchedule;
+
+  /// Stat card label for the number of doses remaining today
+  ///
+  /// In en, this message translates to:
+  /// **'Doses left'**
+  String get homeDosesLeft;
+
+  /// Section heading above the user's medicine list
+  ///
+  /// In en, this message translates to:
+  /// **'Your medicines'**
+  String get homeYourMedicines;
+
+  /// Shown in place of a dose time when the user has no medicines yet
+  ///
+  /// In en, this message translates to:
+  /// **'Add meds'**
+  String get homeAddMeds;
+
+  /// Shown in place of a dose time when every dose for the day is done
+  ///
+  /// In en, this message translates to:
+  /// **'All clear'**
+  String get homeAllClear;
+
+  /// Stat card label pointing at the earliest dose not yet taken
+  ///
+  /// In en, this message translates to:
+  /// **'First pending'**
+  String get homeFirstPending;
+
   /// No description provided for @countrySelectionTitle.
   ///
   /// In en, this message translates to:

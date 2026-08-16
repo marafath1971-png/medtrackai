@@ -10,6 +10,36 @@
   "dashboardTab": "Trends",
   "familyTab": "Circle",
   "scanTab": "Scan",
+
+  "homeNextDose": "Next dose",
+  "@homeNextDose": {
+    "description": "Stat card label showing when the next dose is due"
+  },
+  "homeSchedule": "Schedule",
+  "@homeSchedule": {
+    "description": "Stat card label shown instead of 'Next dose' when viewing a day other than today"
+  },
+  "homeDosesLeft": "Doses left",
+  "@homeDosesLeft": {
+    "description": "Stat card label for the number of doses remaining today"
+  },
+  "homeYourMedicines": "Your medicines",
+  "@homeYourMedicines": {
+    "description": "Section heading above the user's medicine list"
+  },
+  "homeAddMeds": "Add meds",
+  "@homeAddMeds": {
+    "description": "Shown in place of a dose time when the user has no medicines yet"
+  },
+  "homeAllClear": "All clear",
+  "@homeAllClear": {
+    "description": "Shown in place of a dose time when every dose for the day is done"
+  },
+  "homeFirstPending": "First pending",
+  "@homeFirstPending": {
+    "description": "Stat card label pointing at the earliest dose not yet taken"
+  },
+
   "countrySelectionTitle": "Where are you located?",
   "countrySelectionSubtitle": "Helps us identify local medicine brands",
   "prnLabel": "As Needed",
