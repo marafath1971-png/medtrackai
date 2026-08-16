@@ -83,8 +83,13 @@ These are the ones most likely to cause a rejection here:
   pressure) — triggers Play's health-data review. You must declare each data type, its
   purpose, and confirm you do not sell it.
 - **`CAMERA`** — justify as medication/pill scanning.
-- **`RECORD_AUDIO`** — justify as voice logging. If the voice feature is not shipping in
-  v1, **remove this permission**; unjustified mic access is a common rejection.
+- **`RECORD_AUDIO`** — **keep it.** Voice logging is genuinely implemented and reachable:
+  `services/voice_service.dart`, `widgets/viral/ai_quick_log_sheet.dart`, and a "Voice
+  mode" control confirmed live in the scanner on a physical device. Declare it as
+  *speech-to-text for hands-free dose logging*. Nothing is recorded to a file and no
+  audio leaves the device — `voice_service.dart` only calls `SpeechToText.listen()` and
+  keeps the transcribed text — so the Data Safety form should say **audio is not
+  collected**, only the resulting text.
 - **Data safety form** — must match reality: what you collect (health data, account
   info), whether it is encrypted in transit, and whether users can request deletion. The
   app has Firebase auth + Firestore, so answer accordingly.
