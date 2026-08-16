@@ -51,15 +51,31 @@ Slot names map to `lib/core/constants/premium_photos.dart`.
 | `homeMorning` | `home_morning.jpg` | home hope strip | soft morning still life, mug and light | "morning coffee light", "sunlit kitchen still life" |
 | `gallery[0..7]` | `gallery_01..08.jpg` | onboarding mosaic | 8 small tiles: hands, water glass, plants, walking shoes, fruit, sunlight, notebook, mug | vary — these are texture, keep them abstract and warm |
 
-### Current photos that are actively wrong
+### Audit: every bundled photo, checked against its slot
 
-Fix these first — they are the reason the imagery feels off:
+Reviewed on 2026-08-16. All 20 files are byte-distinct — there are no literal
+duplicates. The problem is that most were picked by keyword, not for the screen they
+sit on, and two of them carry real people's professional identity.
 
-1. **`ob_scan_feature.jpg`** — a surgical team looking down at the viewer from an operating
-   theatre. Intimidating and unrelated to scanning.
-2. **`ob_family.jpg`** — a clinician giving an **injection**, with a visible hospital badge
-   and staff name tag. Not family caregiving, and carries real IP/privacy exposure.
-3. **`ob_scan.jpg`** — a plastic anatomical brain model. Nothing to do with scanning a pill.
+**Replace — wrong for the slot, or a licensing/privacy risk:**
+
+| File | What it actually shows | Why it fails |
+|---|---|---|
+| `ob_family.jpg` | Clinician giving an **injection**; visible hospital badge and staff name tag | Not family caregiving. Identifiable person + institutional branding = IP/privacy exposure in a published app. **Highest priority.** |
+| `ob_community.jpg` | Doctor in a lab coat holding a phone; **embroidered name "…Kastner, M.D."** legible | Not community. Second identifiable real person with professional identity. |
+| `ob_rank.jpg` | **Hospital IV drip stand**, cold blue cast | The bleakest image in the set, on the aspirational plan-reveal step. Pure hospital association. |
+| `ob_scan_feature.jpg` | **Surgical team** looking down at the viewer from an operating theatre | Clinically intimidating and unrelated to scanning a pill. |
+| `ob_scan.jpg` | Plastic anatomical **brain model** | Nothing to do with scanning a medicine. |
+| `ob_routine.jpg` | Yoga silhouette, tropical sunset | Wellness cliché, not a medication routine. Also the largest file at 947KB. |
+| `ob_thrive.jpg` | Yoga silhouette, sunset over water | **Near-duplicate of `ob_routine`** — two sunset yoga silhouettes is very likely the "same photo everywhere" impression. |
+| `ob_finish.jpg` | Dense pile of mixed multicoloured pills | Overwhelming on the final onboarding step, where the note should be reassuring. |
+
+**Keep — appropriate for the slot:**
+
+- `ob_know.jpg` — spilled capsules beside a bottle. Genuinely fits "know your medicine".
+  *Minor:* the imprint "S489 30 mg" is legible and identifies a real prescription drug.
+  Swap if you would rather not name a specific product.
+- `ob_welcome.jpg`, `home_morning.jpg`, `gallery_01`–`08` — not flagged.
 
 ## Specs
 
@@ -69,11 +85,18 @@ Fix these first — they are the reason the imagery feels off:
   needs to change: `premium_photos.dart` already maps one unique file per role, and no
   file is reused across screens.
 
-To resize/compress after downloading:
+## Installing them
+
+Save each download named after the slot it replaces — `ob_family.jpg`, `ob_rank.jpg`,
+and so on — into one folder, then:
 
 ```bash
-sips -Z 1600 ~/Downloads/photo.jpg --out assets/photos/ob_scan.jpg
+tool/install_photos.sh ~/Downloads/photos
 ```
+
+It converts to JPEG, resizes heroes to 1600px and gallery tiles to 800px, reports the
+size change per file, warns on anything over 500KB, and skips names that do not match a
+slot. Files you have not downloaded are left alone, so you can work in batches.
 
 ## After replacing
 
