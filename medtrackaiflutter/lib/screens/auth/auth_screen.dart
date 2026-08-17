@@ -26,6 +26,47 @@ class AuthScreen extends StatefulWidget {
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
+
+  /// Maps a FirebaseAuthException code to something the user can act on.
+  ///
+  /// Anything not listed falls through to "try again", so codes where retrying
+  /// cannot help — a disabled account, or being rate limited — must be named
+  /// explicitly or the advice is wrong.
+  @visibleForTesting
+  static String friendlyAuthError(String code) {
+    switch (code) {
+      case 'user-not-found':
+        return 'No account found with that email';
+      case 'wrong-password':
+      // Modern Firebase returns invalid-credential instead of wrong-password
+      // for a bad password, so without this the most common sign-in failure
+      // showed "Something went wrong".
+      case 'invalid-credential':
+      case 'invalid-login-credentials':
+        return 'Incorrect email or password';
+      case 'email-already-in-use':
+        return 'An account already exists with that email';
+      case 'weak-password':
+        return 'Password must be at least 6 characters';
+      case 'invalid-email':
+        return 'Please enter a valid email';
+      case 'network-request-failed':
+        return 'No internet connection';
+      case 'too-many-requests':
+        // Retrying immediately makes this worse, not better.
+        return 'Too many attempts. Wait a few minutes and try again.';
+      case 'user-disabled':
+        // Retrying can never succeed; the user needs support.
+        return 'This account has been disabled. Contact support.';
+      case 'operation-not-allowed':
+        return 'This sign-in method is not enabled.';
+      case 'requires-recent-login':
+        return 'Please sign in again to continue';
+      default:
+        return 'Something went wrong. Please try again.';
+    }
+  }
+
 }
 
 class _AuthScreenState extends State<AuthScreen> {
@@ -233,24 +274,7 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  String _friendlyError(String code) {
-    switch (code) {
-      case 'user-not-found':
-        return 'No account found with that email';
-      case 'wrong-password':
-        return 'Incorrect password';
-      case 'email-already-in-use':
-        return 'An account already exists with that email';
-      case 'weak-password':
-        return 'Password must be at least 6 characters';
-      case 'invalid-email':
-        return 'Please enter a valid email';
-      case 'network-request-failed':
-        return 'No internet connection';
-      default:
-        return 'Something went wrong. Please try again.';
-    }
-  }
+  String _friendlyError(String code) => AuthScreen.friendlyAuthError(code);
 
   @override
   Widget build(BuildContext context) {

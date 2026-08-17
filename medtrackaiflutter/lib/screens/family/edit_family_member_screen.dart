@@ -149,7 +149,14 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
       }
     } catch (e) {
       if (mounted) {
-        context.read<AppState>().showToast('Failed to save. Try again.', type: 'error');
+        final state = context.read<AppState>();
+        // Distinguish offline from a real failure: "try again" is wrong advice
+        // when the device has no connection.
+        state.showToast(
+            state.isOffline
+                ? "You're offline — reconnect and try again."
+                : 'Could not save. Please try again.',
+            type: 'error');
       }
     } finally {
       if (mounted) {
