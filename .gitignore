@@ -1,3 +1,7 @@
 
 .cursor/hooks.json
 .cursor/hooks/after-agent-response.js
+
+# Retired nested repo (see medtrackaiflutter/.git.disabled).
+# Kept for recovery: tag pre-retirement-2026-08-17 marks its old HEAD.
+medtrackaiflutter/.git.disabled/
