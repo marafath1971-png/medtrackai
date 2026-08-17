@@ -16,6 +16,7 @@ import '../../theme/ios_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../core/utils/manual_add_medicine.dart';
 import '../../core/utils/logger.dart';
+import '../../core/utils/scan_image_compressor.dart';
 import '../../services/gemini_service.dart';
 import '../analysis/product_analysis_screen.dart';
 import '../../services/upc_service.dart';
@@ -40,6 +41,17 @@ class ScannerHubScreen extends StatefulWidget {
     required this.onClose,
     this.initialMode = ScanMode.camera,
   });
+
+  /// Whether a speech-plugin status means "the user has finished talking".
+  ///
+  /// The plugin stops listening on its own after a pause, and the screen used
+  /// to have no handler for that: listening ended, the mic closed, and the UI
+  /// stayed on its prompt until the user tapped again, which read as voice
+  /// search being broken. Exposed so that mapping is pinned by a test rather
+  /// than only reachable by speaking into a real device.
+  @visibleForTesting
+  static bool isSpeechFinished(String status) =>
+      status == 'done' || status == 'notListening';
 
   @override
   State<ScannerHubScreen> createState() => _ScannerHubScreenState();
@@ -152,7 +164,10 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
         if (mounted) _showError('Camera preview not ready. Try again.');
         return;
       }
-      final ui.Image image = await renderObject.toImage(pixelRatio: 2.0);
+      // pixelRatio 2.0 produced a lossless PNG several megabytes large, which
+      // is the payload that timed out on upload. 1.0 is ample for label text
+      // and ScanImageCompressor downscales it further before it is sent.
+      final ui.Image image = await renderObject.toImage(pixelRatio: 1.0);
       final ByteData? byteData =
           await image.toByteData(format: ui.ImageByteFormat.png);
       if (byteData == null) {
@@ -179,28 +194,74 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
   }
 
   // ── Voice ──
+  /// Submits whatever was heard, if anything.
+  ///
+  /// Shared by the stop tap and by [_speech]'s own auto-stop: the plugin ends
+  /// listening after a pause on its own, and without a path from that back into
+  /// here the UI sat on "Listening…" forever while the phone had stopped
+  /// recording. The user had to guess and tap again.
+  void _submitVoice() {
+    final said = _voiceText.trim();
+    if (!mounted) return;
+    setState(() => _isListening = false);
+
+    if (said.isEmpty) {
+      _showError("Didn't catch that. Tap the mic and try again.");
+      return;
+    }
+    _analyze(
+      'Analyze this medicine or supplement: "$said". Provide comprehensive '
+      'details: dosage, active ingredients, uses, side effects, and interactions.',
+    );
+  }
+
   void _toggleVoice() async {
     if (_isListening) {
       await _speech.stop();
-      setState(() => _isListening = false);
-      if (_voiceText.isNotEmpty && _voiceText != 'Listening...') {
-        _analyze(
-          'Analyze this medicine or supplement: "$_voiceText". Provide comprehensive details: dosage, active ingredients, uses, side effects, and interactions.',
-        );
-      }
+      _submitVoice();
       return;
     }
-    final ok = await _speech.initialize();
-    if (ok) {
-      HapticEngine.light();
-      setState(() {
-        _isListening = true;
-        _voiceText = 'Listening...';
-      });
-      _speech.listen(onResult: (v) {
-        if (mounted) setState(() => _voiceText = v.recognizedWords);
-      });
+
+    final ok = await _speech.initialize(
+      // Without these, a failed init or a mid-session error was completely
+      // silent: _toggleVoice fell off the end of its `if (ok)` and the button
+      // simply did nothing.
+      onError: (e) {
+        if (!mounted) return;
+        setState(() => _isListening = false);
+        _showError('Voice input failed. Please try again or type the name.');
+        appLogger.w('[Voice] ${e.errorMsg} (permanent: ${e.permanent})');
+      },
+      onStatus: (status) {
+        if (!mounted || !_isListening) return;
+        if (ScannerHubScreen.isSpeechFinished(status)) _submitVoice();
+      },
+    );
+
+    if (!mounted) return;
+    if (!ok) {
+      _showError('Voice input is unavailable on this device.');
+      return;
     }
+
+    HapticEngine.light();
+    setState(() {
+      _isListening = true;
+      // Empty, not a 'Listening…' sentinel: the old code compared the
+      // transcript against that string to decide whether anything was said,
+      // so a real transcript of "listening..." would have been discarded.
+      _voiceText = '';
+    });
+    _speech.listen(
+      onResult: (v) {
+        if (mounted) setState(() => _voiceText = v.recognizedWords);
+      },
+      // Long enough to say a medicine name without being cut off mid-word.
+      listenOptions: stt.SpeechListenOptions(
+        pauseFor: const Duration(seconds: 3),
+        listenFor: const Duration(seconds: 30),
+      ),
+    );
   }
 
   // ── Flash ──
@@ -220,8 +281,15 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
     HapticEngine.heavyImpact();
     setState(() => _isScanning = true);
 
+    // Read before the await below: compression is an async gap, and the user
+    // can leave the scanner while it runs.
     final allergies = context.read<AppState>().profile?.allergies ?? [];
-    final result = await GeminiService.analyzeProductInsight(prompt, image: image, allergies: allergies);
+
+    // Downscale before the image is base64-encoded into the request. A raw
+    // capture is large enough to exceed the 30s request timeout, and the retry
+    // re-uploads it twice more before the scan fails with nothing to show.
+    final upload = image == null ? null : await ScanImageCompressor.compress(image);
+    final result = await GeminiService.analyzeProductInsight(prompt, image: upload, allergies: allergies);
 
     if (!mounted) return;
     setState(() {
@@ -1202,8 +1270,11 @@ class _VoiceVisual extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           Text(
+            // Three states, not two: idle, listening-but-nothing-heard-yet, and
+            // a live transcript. Listening previously showed the idle prompt,
+            // so there was no feedback that the mic was actually open.
             text.isEmpty
-                ? 'Speak a medicine name'
+                ? (isListening ? 'Listening…' : 'Speak a medicine name')
                 : text,
             style: AppTypography.headlineSmall.copyWith(
               color: text.isEmpty
