@@ -7,6 +7,8 @@ import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../services/biometric_service.dart';
+import '../../core/constants/med_ai_assets.dart';
+import '../../widgets/common/ghost_mascot.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/app_loading_indicator.dart';
 
@@ -82,37 +84,30 @@ class _LockScreenState extends State<LockScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            width: 88,
-            height: 88,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  AppColors.lime.withValues(alpha: 0.22),
-                  AppColors.limeDeep.withValues(alpha: 0.10),
-                ],
-              ),
-              boxShadow: AppShadows.glow(AppColors.limeDeep, intensity: 0.18),
-            ),
+          // The mascot carries the state instead of a bare icon. A failed
+          // unlock is a routine speed bump — the previous red error glyph over
+          // red body text made a locked app look like something had gone
+          // seriously wrong with the user's health data.
+          SizedBox(
+            height: 108,
             child: Center(
               child: _isAuthenticating
                   ? const AppLoadingIndicator(
                       size: 32, color: AppColors.limeDeep)
-                  : Icon(
-                      _errorMessage != null
-                          ? Icons.error_outline_rounded
-                          : Icons.lock_person_rounded,
-                      color: _errorMessage != null
-                          ? L.error
-                          : AppColors.limeInk,
-                      size: 40,
+                  : GhostMascot(
+                      // A guard when locked; a shrug when auth didn't take.
+                      asset: _errorMessage != null
+                          ? MedAiAssets.mascotSearchTime
+                          : MedAiAssets.mascotShieldGuard,
+                      size: 104,
+                      showGlow: true,
+                      semanticLabel: _errorMessage != null
+                          ? 'Unlock did not complete'
+                          : 'App locked',
                     ),
             ),
           ),
-          const SizedBox(height: 24),
+          const SizedBox(height: 20),
           Text(
             _isAuthenticating ? 'Authenticating…' : 'App locked',
             style: AppTypography.headlineMedium.copyWith(
@@ -129,7 +124,10 @@ class _LockScreenState extends State<LockScreen> {
                   'Authenticate to access your health data and medication history.',
               textAlign: TextAlign.center,
               style: AppTypography.bodySmall.copyWith(
-                color: _errorMessage != null ? L.error : L.sub,
+                // Deliberately not L.error. A biometric prompt that was
+                // dismissed or timed out is an ordinary retry, and full-width
+                // red body copy framed it as a failure of the app itself.
+                color: L.sub,
                 height: 1.5,
                 fontWeight: FontWeight.w600,
               ),

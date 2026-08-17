@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 
-import '../../core/constants/premium_graphics.dart';
+import '../../core/constants/med_ai_assets.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/app_loading_indicator.dart';
-import '../../widgets/common/premium_illustration_banner.dart';
+import '../../widgets/common/ghost_mascot.dart';
 
 class LoadingScreen extends StatelessWidget {
   const LoadingScreen({super.key});
@@ -23,10 +23,16 @@ class LoadingScreen extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                const PremiumIllustrationBanner(
-                  asset: PremiumGraphics.onboardingDiagnose,
-                  height: 120,
-                  padding: EdgeInsets.all(10),
+                // A mascot rather than the generic onboarding diagnostic
+                // illustration: this is the first thing anyone sees on every
+                // cold start, and the sticker set is the app's own character.
+                // GhostMascot floats on its own and drops to a static image
+                // under reduced motion.
+                const GhostMascot(
+                  asset: MedAiAssets.mascotMedsBottle,
+                  size: 116,
+                  showGlow: true,
+                  semanticLabel: 'MedTrack AI mascot',
                 ),
                 const SizedBox(height: 20),
                 Text(
@@ -47,6 +53,11 @@ class LoadingScreen extends StatelessWidget {
                     color: L.sub,
                     fontWeight: FontWeight.w600,
                   ),
+                ).medAiChain(
+                  context,
+                  // Trails the title so the card resolves top-down instead of
+                  // every line appearing at once.
+                  (w) => w.animate(delay: 150.ms).fadeIn(duration: 400.ms),
                 ),
                 const SizedBox(height: 18),
                 const AppLoadingIndicator(size: 18),
