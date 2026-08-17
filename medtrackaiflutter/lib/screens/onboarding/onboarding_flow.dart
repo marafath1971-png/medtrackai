@@ -112,7 +112,15 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     if (n >= 0) setState(() => _i = n);
   }
 
-  void _skip() => _complete(skipPaywall: true);
+  /// Skip ends the *questions*, not the offer.
+  ///
+  /// This previously called `_complete(skipPaywall: true)`, so tapping the Skip
+  /// link — visible from step 1 of 56 — permanently bypassed the paywall for
+  /// that session. Anyone in a hurry was silently removed from the funnel and
+  /// could never convert. Someone impatient with a long questionnaire has not
+  /// declined the product; they have declined the questionnaire, so they still
+  /// see the offer they can accept or dismiss on its own terms.
+  void _skip() => _complete();
 
   /// Remote Config can remove the skip escape hatch entirely (funnel
   /// experiments consistently show skip buttons depress trial starts).
@@ -1062,11 +1070,11 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         return _info(
           hero: ObProjectionChart(
             start: _c.inferredAdherence,
-            end: _c.projectedAdherence,
+            end: _c.adherenceTarget,
           ),
           title: _obt('ob_youHaveGreatPotential'),
           subtitle:
-              'Based on your answers, Med AI can take you to ${(_c.projectedAdherence * 100).round()}% adherence — your success is already forming.',
+              'Your answers point to a ${(_c.adherenceTarget * 100).round()}% adherence target — a realistic next step from where you are today.',
         );
       case 43:
         return _info(
@@ -1176,12 +1184,12 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         return _info(
           hero: ObProjectionChart(
             start: _c.inferredAdherence,
-            end: _c.projectedAdherence,
+            end: _c.adherenceTarget,
             endLabel: 'Day 30',
           ),
           title: _obt('ob_yourPersonalizedPlanIsReady'),
           subtitle:
-              '$planLead is the start of becoming someone who never misses — a routine built around your life is ready to take you to ${(_c.projectedAdherence * 100).round()}% adherence.',
+              '$planLead is built around your routine, aiming at a ${(_c.adherenceTarget * 100).round()}% adherence target you can actually hold.',
         );
       case 54:
         return ObTrialFlashInterstitial(

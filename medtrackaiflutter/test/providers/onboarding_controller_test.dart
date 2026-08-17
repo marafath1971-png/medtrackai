@@ -76,7 +76,12 @@ void main() {
       c.selectSingle('miss_frequency', 'never');
       final never = c.inferredAdherence;
       expect(often, lessThan(never));
-      expect(c.projectedAdherence, greaterThan(never));
+      // projectedAdherence was a flat 0.97 that beat every baseline. It is now
+      // adherenceTarget, derived from the user's own answer and capped below
+      // perfection, so a self-reported 0.93 stays 0.93 rather than being
+      // overwritten by a higher promise. See onboarding_claims_test.dart.
+      expect(c.adherenceTarget, greaterThanOrEqualTo(never));
+      expect(c.adherenceTarget, lessThan(0.94));
     });
 
     test('adherenceScore is clamped to 28..88 at the extremes', () {

@@ -96,8 +96,33 @@ class OnboardingController extends ChangeNotifier {
         _ => 0.70,
       };
 
-  /// Projected adherence after using Med AI — the optimistic "after" number.
-  double get projectedAdherence => 0.97;
+  /// The adherence *target* this plan aims at — not a prediction.
+  ///
+  /// This was a flat `0.97` presented to the user as "Based on your answers,
+  /// Med AI can take you to 97% adherence". It ignored the answers entirely and
+  /// promised a clinical outcome, which is the category of claim app review and
+  /// health regulators scrutinise hardest — and one nothing in the app could
+  /// support.
+  ///
+  /// It is now derived from the user's own baseline and framed as a goal: a
+  /// realistic improvement over where they say they are, capped so it never
+  /// implies perfection. Copy referring to this must say "target" or "aim",
+  /// never "will" or "can take you to".
+  double get adherenceTarget {
+    final base = inferredAdherence;
+    // Roughly a third of the remaining gap — meaningful, and reachable.
+    final target = base + (1.0 - base) * 0.35;
+
+    // Ceiling of 0.92 — high enough to be worth paying for, far enough from
+    // 100% that it never reads as a promise.
+    //
+    // Not `clamp(base, 0.92)`: a user answering "never" self-reports 0.93, and
+    // clamp throws when its lower bound exceeds its upper bound. Take whichever
+    // is higher instead, so that user simply keeps their own figure.
+    const ceiling = 0.92;
+    if (base >= ceiling) return base;
+    return target.clamp(base, ceiling);
+  }
 
   /// Olive-style baseline score (0..100) from onboarding answers.
   int get adherenceScore {

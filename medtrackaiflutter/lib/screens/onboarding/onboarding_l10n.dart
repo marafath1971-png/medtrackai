@@ -136,7 +136,12 @@ class ObL10n {
     'ob_meMyWholeFamily': 'Me & my whole family',
     'ob_medAiCreatesLongTermResults': 'Med AI creates *long-term* success',
     'ob_medAiIdentifiesYourPillFlagsInte': 'Med AI identifies your pill, flags interactions, and logs your schedule instantly.',
-    'ob_medAiSScannerOutperformsGenericP': 'Med AI\'s scanner outperforms generic pill ID apps in head-to-head tests.',
+    // Was a head-to-head competitor comparison citing an internal benchmark.
+    // Without a
+    // producible benchmark that is false advertising, and naming competitors
+    // invites their counsel as well as Google's review. Now describes what the
+    // scanner does, which the user verifies on their first scan.
+    'ob_medAiSScannerOutperformsGenericP': 'Point your camera at any label — Med AI reads the name, dose and interactions.',
     'ob_medAiWasBuiltForRealMedicationRo': 'Built for real medication routines — so you feel safe, confident, and successful.',
     'ob_medAiWasDesignedForPeopleLikeYou': 'Med AI was designed for people like you — and you will succeed with it.',
     'ob_medicationEffectsAndDosingCanDif': 'Medication effects and dosing can differ by sex — this helps our AI personalize safety info.',
@@ -158,7 +163,11 @@ class ObL10n {
     'ob_thisIsHowMedAiMakesSureYouNeverM': 'This is how Med AI makes sure you never miss a dose. You can change it anytime.',
     'ob_trackAHealthCondition': 'Track a health condition',
     'ob_trackingMyOwnMeds': 'Tracking my own meds',
-    'ob_trustedBy500000People': 'Trusted by *500,000+* people',
+    // Was a hardcoded install-count boast with no source behind it.
+    // Play prohibits misrepresentation and a fabricated user count is a
+    // rejection risk on a paid app. Replaced with a claim about the product
+    // itself, which is true today regardless of install count.
+    'ob_trustedBy500000People': 'Every medicine, *one* calm routine',
     'ob_turnOnReminders': 'Turn on *reminders*',
     'ob_understandMyMedications': 'Understand my medications',
     'ob_welcomeToMedAi': 'Welcome to *Med AI*',
@@ -318,7 +327,7 @@ class ObL10n {
     'ob_thisIsHowMedAiMakesSureYouNeverM': 'Así es como Med AI se asegura de que nunca olvides una dosis. Puedes cambiarlo cuando quieras.',
     'ob_trackAHealthCondition': 'Controlar una afección de salud',
     'ob_trackingMyOwnMeds': 'Gestionar mis propios medicamentos',
-    'ob_trustedBy500000People': 'La confianza de *más de 500.000* personas',
+    'ob_trustedBy500000People': 'Todos tus medicamentos, *una* rutina tranquila',
     'ob_turnOnReminders': 'Activa los *recordatorios*',
     'ob_understandMyMedications': 'Entender mis medicamentos',
     'ob_welcomeToMedAi': 'Bienvenido a *Med AI*',
@@ -478,7 +487,7 @@ class ObL10n {
     'ob_thisIsHowMedAiMakesSureYouNeverM': 'これがMed AIが服用忘れを防ぐ仕組みです。いつでも変更できます。',
     'ob_trackAHealthCondition': '健康状態を記録する',
     'ob_trackingMyOwnMeds': '自分の薬を管理',
-    'ob_trustedBy500000People': '*50万人以上*に信頼されています',
+    'ob_trustedBy500000People': 'すべての薬を、*ひとつ*の穏やかな習慣に',
     'ob_turnOnReminders': '*リマインダー*をオンにする',
     'ob_understandMyMedications': '自分の薬を理解する',
     'ob_welcomeToMedAi': '*Med AI*へようこそ',
@@ -638,7 +647,7 @@ class ObL10n {
     'ob_thisIsHowMedAiMakesSureYouNeverM': '이것이 Med AI가 복용을 놓치지 않도록 하는 방법입니다. 언제든 변경할 수 있습니다.',
     'ob_trackAHealthCondition': '건강 상태 기록하기',
     'ob_trackingMyOwnMeds': '내 약을 관리',
-    'ob_trustedBy500000People': '*50만 명 이상*이 신뢰합니다',
+    'ob_trustedBy500000People': '모든 약을 *하나의* 편안한 루틴으로',
     'ob_turnOnReminders': '*알림* 켜기',
     'ob_understandMyMedications': '내 약을 이해하기',
     'ob_welcomeToMedAi': '*Med AI*에 오신 것을 환영합니다',
@@ -798,7 +807,7 @@ class ObL10n {
     'ob_thisIsHowMedAiMakesSureYouNeverM': 'Beginilah Med AI memastikan anda tidak pernah terlepas dos. Anda boleh mengubahnya bila-bila masa.',
     'ob_trackAHealthCondition': 'Jejak keadaan kesihatan',
     'ob_trackingMyOwnMeds': 'Menguruskan ubat saya sendiri',
-    'ob_trustedBy500000People': 'Dipercayai oleh *500,000+* orang',
+    'ob_trustedBy500000People': 'Setiap ubat, *satu* rutin yang tenang',
     'ob_turnOnReminders': 'Hidupkan *peringatan*',
     'ob_understandMyMedications': 'Fahami ubat saya',
     'ob_welcomeToMedAi': 'Selamat datang ke *Med AI*',
@@ -958,7 +967,7 @@ class ObL10n {
     'ob_thisIsHowMedAiMakesSureYouNeverM': 'هكذا يضمن Med AI ألا تفوّت جرعة أبدًا. يمكنك تغيير ذلك في أي وقت.',
     'ob_trackAHealthCondition': 'تتبّع حالة صحية',
     'ob_trackingMyOwnMeds': 'إدارة أدويتي الخاصة',
-    'ob_trustedBy500000People': 'موثوق من *أكثر من 500,000* شخص',
+    'ob_trustedBy500000People': 'كل أدويتك في *روتين* واحد هادئ',
     'ob_turnOnReminders': 'شغّل *التذكيرات*',
     'ob_understandMyMedications': 'افهم أدويتي',
     'ob_welcomeToMedAi': 'مرحبًا بك في *Med AI*',
@@ -1118,7 +1127,7 @@ class ObL10n {
     'ob_thisIsHowMedAiMakesSureYouNeverM': 'כך Med AI מוודא שלעולם לא תפספס מנה. אפשר לשנות זאת בכל עת.',
     'ob_trackAHealthCondition': 'עקוב אחר מצב בריאותי',
     'ob_trackingMyOwnMeds': 'ניהול התרופות שלי',
-    'ob_trustedBy500000People': 'בזכות האמון של *מעל 500,000* אנשים',
+    'ob_trustedBy500000People': 'כל התרופות, *שגרה* אחת רגועה',
     'ob_turnOnReminders': 'הפעל *תזכורות*',
     'ob_understandMyMedications': 'הבן את התרופות שלי',
     'ob_welcomeToMedAi': 'ברוך הבא ל-*Med AI*',
