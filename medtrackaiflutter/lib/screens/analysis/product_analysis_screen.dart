@@ -17,6 +17,7 @@ import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/modals/scan_success_sheet.dart';
 import '../paywall/premium_paywall_overlay.dart';
 import '../scan/widgets/premium_scan_result_chrome.dart';
+import 'widgets/scan_insight_dashboard.dart';
 
 /// Premium scan result — 100% redesigned to match reference wellness UI.
 class ProductAnalysisScreen extends StatefulWidget {
@@ -58,36 +59,12 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
         .slideY(begin: 0.05, end: 0, curve: AppCurves.emilOut);
   }
 
-  int _safetyScore(ProductAnalysis p) {
-    var score = 80;
-    for (final se in p.sideEffects) {
-      if (se.severity == 'High') {
-        score -= 10;
-      } else if (se.severity == 'Medium') {
-        score -= 4;
-      } else {
-        score -= 1;
-      }
-    }
-    score -= (p.medicineInteractions.length * 3).clamp(0, 20);
-    if (p.allergyRiskLevel == 'High') {
-      score -= 20;
-    } else if (p.allergyRiskLevel == 'Medium') {
-      score -= 10;
-    }
-    final ev = p.scientificEvidence.toLowerCase();
-    if (ev.contains('strong') || ev.contains('well-established')) score += 10;
-    if (ev.contains('limited') || ev.contains('insufficient')) score -= 10;
-    if (ev.contains('high-risk') || ev.contains('dangerous')) score -= 20;
-    return score.clamp(10, 98);
-  }
-
-  Color get _safetyColor {
-    final score = _safetyScore(widget.product);
-    if (score >= 75) return AppColors.sageGreen;
-    if (score >= 50) return AppColors.amber;
-    return const Color(0xFFC45C5C);
-  }
+  // The old _safetyScore/_safetyColor pair lived here. It summed penalties into
+  // a "SAFETY SCORE" percentage, which read as "this drug is N% safe" — so
+  // Albendazole, a WHO essential medicine, showed 52% because it has a
+  // pregnancy contraindication, a child warning and five known interactions.
+  // Being well documented pushed the number down. See CautionProfile in
+  // widgets/scan_insight_dashboard.dart for the replacement.
 
   int get _confidencePct {
     switch (widget.product.confidence.toLowerCase()) {
@@ -157,7 +134,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
     final L = context.L;
     final botPad = MediaQuery.paddingOf(context).bottom;
     final p = widget.product;
-    final score = _safetyScore(p);
+    final caution = CautionProfile.from(p);
     final category = p.category.isNotEmpty ? p.category : 'Medicine';
 
     return AppScaffold(
@@ -284,6 +261,9 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                   ),
                 ),
 
+              // One dashboard instead of a "Safety score" card stacked on an
+              // "AI match" card: the two competed for the same glance and
+              // neither said what to do about it.
               SliverPadding(
                 padding: const EdgeInsets.fromLTRB(
                   AppSpacing.gutter,
@@ -293,76 +273,12 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                 ),
                 sliver: SliverToBoxAdapter(
                   child: _enter(
-                    ScanConfidenceHero(
-                      percent: score,
-                      accent: _safetyColor,
-                      title: 'Safety score',
-                      caption:
-                          'Based on interactions, side effects & evidence — ${p.scientificEvidence.isNotEmpty ? p.scientificEvidence : 'AI safety estimate'}.',
+                    ScanInsightDashboard(
+                      profile: caution,
+                      confidencePct: _confidencePct,
+                      category: category,
                     ),
                     delay: 100.ms,
-                  ),
-                ),
-              ),
-
-              SliverPadding(
-                padding: const EdgeInsets.fromLTRB(
-                  AppSpacing.gutter,
-                  AppSpacing.p12,
-                  AppSpacing.gutter,
-                  0,
-                ),
-                sliver: SliverToBoxAdapter(
-                  child: _enter(
-                    Container(
-                      padding: const EdgeInsets.all(AppSpacing.p16),
-                      decoration: ScanResultChrome.whiteCard(L),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  'AI match',
-                                  style: AppTypography.labelSmall.copyWith(
-                                    color: L.sub,
-                                    fontWeight: FontWeight.w700,
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  '$_confidencePct% confidence',
-                                  style: AppTypography.titleMedium.copyWith(
-                                    color: L.text,
-                                    fontWeight: FontWeight.w800,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 12,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.pastelMint,
-                              borderRadius:
-                                  BorderRadius.circular(AppRadius.max),
-                            ),
-                            child: Text(
-                              category,
-                              style: AppTypography.labelSmall.copyWith(
-                                color: L.text,
-                                fontWeight: FontWeight.w800,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    delay: 120.ms,
                   ),
                 ),
               ),
@@ -510,6 +426,10 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                               AppTypography.bodySmall.copyWith(color: L.sub),
                         ),
                         const SizedBox(height: AppSpacing.p16),
+                        // Tiles are built conditionally: a tile reading
+                        // "Halal — Unknown" took the same visual weight as real
+                        // information to say nothing at all. Omitting it is
+                        // more honest and leaves a tidier grid.
                         ScanInsightGrid(
                           tiles: [
                             ScanInsightTile(
@@ -530,22 +450,26 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                               tint: AppColors.pastelMint,
                               icon: Icons.science_outlined,
                             ),
-                            ScanInsightTile(
-                              label: 'Halal',
-                              value: p.halalStatus.isNotEmpty
-                                  ? p.halalStatus
-                                  : 'Unknown',
-                              tint: AppColors.pastelSun,
-                              icon: Icons.verified_outlined,
-                            ),
-                            ScanInsightTile(
-                              label: 'Allergy risk',
-                              value: p.allergyRiskLevel.isNotEmpty
-                                  ? p.allergyRiskLevel
-                                  : 'None',
-                              tint: AppColors.pastelMint,
-                              icon: Icons.health_and_safety_outlined,
-                            ),
+                            if (p.halalStatus.isNotEmpty &&
+                                p.halalStatus.toLowerCase() != 'unknown')
+                              ScanInsightTile(
+                                label: 'Halal',
+                                value: p.halalStatus,
+                                tint: AppColors.pastelSun,
+                                icon: Icons.verified_outlined,
+                              ),
+                            // Only shown when the model actually returned a
+                            // level. An empty field previously rendered as
+                            // "None", turning missing data into a reassurance.
+                            if (p.allergyRiskLevel.isNotEmpty)
+                              ScanInsightTile(
+                                label: 'Allergy risk',
+                                value: p.allergyRiskLevel,
+                                tint: p.allergyRiskLevel == 'High'
+                                    ? AppColors.pastelPink
+                                    : AppColors.pastelMint,
+                                icon: Icons.health_and_safety_outlined,
+                              ),
                           ],
                         ),
                       ],
