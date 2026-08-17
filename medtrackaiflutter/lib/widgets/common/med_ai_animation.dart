@@ -1,13 +1,20 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:lottie/lottie.dart';
-import 'package:rive/rive.dart' hide LinearGradient, RadialGradient;
 import '../../core/constants/med_ai_assets.dart';
 import '../../theme/design_2026.dart';
 import 'med_ai_logo.dart';
 
-/// Loads Rive/Lottie assets with premium animated fallbacks when files are absent.
+/// Loads Lottie assets with premium animated fallbacks when files are absent.
+///
+/// This used to also load Rive artboards. No `.riv` file was ever bundled —
+/// assets/rive/ is empty — so every Rive path threw inside rootBundle.load and
+/// rendered [_FallbackAnimation] instead. The dependency's native library
+/// (librive_text.so) shipped with 4 KB-aligned ELF LOAD segments, which fails
+/// Google Play's 16 KB page-size requirement and blocked publishing outright.
+/// Dropping the unused loader removes the blocker; if Rive artboards are wanted
+/// later, add rive back at a version whose .so is 16 KB aligned (rive 0.14.x
+/// via rive_native ships 2**14) together with the actual .riv assets.
 class MedAiAnimation extends StatefulWidget {
   final MedAiAnimationKind kind;
   final double width;
@@ -30,34 +37,6 @@ class MedAiAnimation extends StatefulWidget {
 
 class _MedAiAnimationState extends State<MedAiAnimation>
     with SingleTickerProviderStateMixin {
-  Artboard? _riveArtboard;
-  RiveAnimationController? _riveController;
-  bool _useFallback = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadRiveIfNeeded();
-  }
-
-  String? get _rivePath {
-    switch (widget.kind) {
-      case MedAiAnimationKind.splashLogo:
-        return MedAiAssets.riveSplashLogo;
-      case MedAiAnimationKind.onboardingStreak:
-        return MedAiAssets.riveOnboardingStreak;
-      case MedAiAnimationKind.onboardingScan:
-        return MedAiAssets.riveOnboardingScan;
-      case MedAiAnimationKind.onboardingFamily:
-        return MedAiAssets.riveOnboardingFamily;
-      case MedAiAnimationKind.paywallHero:
-        return MedAiAssets.rivePaywallHero;
-      case MedAiAnimationKind.celebrationCheck:
-      case MedAiAnimationKind.emptyMeds:
-        return null;
-    }
-  }
-
   String? get _lottiePath {
     switch (widget.kind) {
       case MedAiAnimationKind.celebrationCheck:
@@ -67,32 +46,6 @@ class _MedAiAnimationState extends State<MedAiAnimation>
       default:
         return null;
     }
-  }
-
-  Future<void> _loadRiveIfNeeded() async {
-    final path = _rivePath;
-    if (path == null) return;
-    try {
-      final data = await rootBundle.load(path);
-      final file = RiveFile.import(data);
-      final artboard = file.mainArtboard;
-      final ctrl = SimpleAnimation('idle', autoplay: true);
-      artboard.addController(ctrl);
-      if (mounted) {
-        setState(() {
-          _riveArtboard = artboard;
-          _riveController = ctrl;
-        });
-      }
-    } catch (_) {
-      if (mounted) setState(() => _useFallback = true);
-    }
-  }
-
-  @override
-  void dispose() {
-    _riveController?.dispose();
-    super.dispose();
   }
 
   @override
@@ -110,14 +63,6 @@ class _MedAiAnimationState extends State<MedAiAnimation>
           width: widget.width,
           height: widget.height,
         ),
-      );
-    }
-
-    if (_riveArtboard != null && !_useFallback) {
-      return SizedBox(
-        width: widget.width,
-        height: widget.height,
-        child: Rive(artboard: _riveArtboard!, fit: widget.fit),
       );
     }
 

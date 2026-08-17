@@ -2,12 +2,10 @@
 class MedAiAssets {
   MedAiAssets._();
 
-  // Rive (hero loops — fallbacks render if missing)
-  static const riveSplashLogo = 'assets/rive/splash_logo.riv';
-  static const riveOnboardingStreak = 'assets/rive/onboarding_streak.riv';
-  static const riveOnboardingScan = 'assets/rive/onboarding_scan.riv';
-  static const riveOnboardingFamily = 'assets/rive/onboarding_family.riv';
-  static const rivePaywallHero = 'assets/rive/paywall_hero.riv';
+  // Rive constants were removed with the rive dependency: no .riv file was ever
+  // bundled, so every one of these resolved to a missing asset and rendered a
+  // fallback. The package's librive_text.so was 4 KB-aligned, which fails
+  // Google Play's 16 KB page-size requirement. See MedAiAnimation.
 
   // Lottie
   static const lottieCelebrationCheck = 'assets/lottie/celebration_check.json';
