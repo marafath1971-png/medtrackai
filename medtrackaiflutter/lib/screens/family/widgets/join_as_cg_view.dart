@@ -20,6 +20,29 @@ class JoinAsCaregiverView extends StatefulWidget {
 
   @override
   State<JoinAsCaregiverView> createState() => _JoinAsCaregiverViewState();
+
+  /// Turns a [SocialController.joinCaregiver] failure into something the user
+  /// can act on.
+  ///
+  /// The previous mapping only matched 'Invalid' and 'your own', so the
+  /// "Sign in required" case — the most common one, since joining needs an
+  /// authenticated account — fell through to "Connection error" and sent
+  /// people to check their network instead of signing in.
+  @visibleForTesting
+  static String messageForError(Object e) {
+    final msg = e.toString();
+    if (msg.contains('Sign in required')) {
+      return 'Sign in to join a care circle';
+    }
+    if (msg.contains('your own')) {
+      return 'You cannot monitor yourself';
+    }
+    if (msg.contains('Invalid')) {
+      return 'Invalid code — check it and try again';
+    }
+    return 'Could not join. Check your connection and try again.';
+  }
+
 }
 
 class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
@@ -65,11 +88,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
       widget.state.showToast('Connected to ${patient['name'] ?? 'member'}');
     } catch (e) {
       if (!mounted) return;
-      setState(() => _error = e.toString().contains('Invalid')
-          ? 'Invalid code'
-          : e.toString().contains('your own')
-              ? 'You cannot monitor yourself'
-              : 'Connection error');
+      setState(() => _error = JoinAsCaregiverView.messageForError(e));
     } finally {
       if (mounted) setState(() => _isChecking = false);
     }
