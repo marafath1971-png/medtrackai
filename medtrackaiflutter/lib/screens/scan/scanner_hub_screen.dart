@@ -494,7 +494,7 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
                 if (_isScanning)
                   const _SearchProcessingAnimation()
                 else
-                  _SearchInput(
+                  ScanSearchInput(
                     controller: _searchCtrl,
                     focusNode: _searchFocus,
                     onSubmit: _triggerScan,
@@ -1132,12 +1132,17 @@ class _BarcodeStatus extends StatelessWidget {
 // ══════════════════════════════════════════════
 // SEARCH INPUT
 // ══════════════════════════════════════════════
-class _SearchInput extends StatelessWidget {
+/// Scanner search field.
+///
+/// Exposed so the white-on-white regression below is testable: the field
+/// hardcodes white text, so whatever is painted behind it must stay dark.
+@visibleForTesting
+class ScanSearchInput extends StatelessWidget {
   final TextEditingController controller;
   final FocusNode focusNode;
   final VoidCallback onSubmit;
 
-  const _SearchInput({required this.controller, required this.focusNode, required this.onSubmit});
+  const ScanSearchInput({super.key, required this.controller, required this.focusNode, required this.onSubmit});
 
   @override
   Widget build(BuildContext context) {
@@ -1166,20 +1171,35 @@ class _SearchInput extends StatelessWidget {
           child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.20),
+                // Was white @ 0.20 — a translucent wash that relied entirely on
+                // the camera feed behind it staying dark. Android also paints
+                // its own near-white autofill highlight behind text fields it
+                // considers fillable, and white-on-that is invisible: typing a
+                // medicine name produced a blank white box. A dark, opaque
+                // ground makes the field readable no matter what is behind or
+                // under it.
+                color: const Color(0xFF11171A).withValues(alpha: 0.82),
                 borderRadius: BorderRadius.circular(AppInputs.radius),
-                border: Border.all(color: Colors.white.withValues(alpha: 0.25), width: 1.0),
+                border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.30), width: 1.0),
               ),
               child: Row(
                 children: [
                   Icon(Icons.search_rounded,
-                      size: 22, color: Colors.white.withValues(alpha: 0.7)),
+                      size: 22, color: Colors.white.withValues(alpha: 0.75)),
                   const SizedBox(width: 12),
                   Expanded(
                     child: TextField(
                       autofocus: true,
                       controller: controller,
                       focusNode: focusNode,
+                      // A medicine name is not an identity field. Declaring it
+                      // unfillable stops the platform drawing its autofill
+                      // highlight over the input in the first place.
+                      autofillHints: const [],
+                      enableSuggestions: false,
+                      textCapitalization: TextCapitalization.words,
+                      textInputAction: TextInputAction.search,
                       style: AppTypography.titleMedium.copyWith(
                         color: Colors.white,
                         fontWeight: FontWeight.w600,
@@ -1187,9 +1207,15 @@ class _SearchInput extends StatelessWidget {
                       cursorColor: AppColors.lime,
                       decoration: InputDecoration(
                         border: InputBorder.none,
+                        isDense: true,
+                        // Painted by this field rather than inherited, so an
+                        // ambient InputDecorationTheme cannot reintroduce a
+                        // light fill behind white text.
+                        filled: true,
+                        fillColor: Colors.transparent,
                         hintText: 'Metformin, Vitamin C...',
                         hintStyle: AppTypography.titleMedium.copyWith(
-                          color: Colors.white.withValues(alpha: 0.3),
+                          color: Colors.white.withValues(alpha: 0.45),
                           fontWeight: FontWeight.w500,
                         ),
                       ),

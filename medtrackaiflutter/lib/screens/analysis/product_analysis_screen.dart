@@ -17,6 +17,7 @@ import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/modals/scan_success_sheet.dart';
 import '../paywall/premium_paywall_overlay.dart';
 import '../scan/widgets/premium_scan_result_chrome.dart';
+import 'widgets/scan_identity_header.dart';
 import 'widgets/scan_insight_dashboard.dart';
 
 /// Premium scan result — 100% redesigned to match reference wellness UI.
@@ -153,9 +154,10 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                 padding: ScanResultChrome.pagePad,
                 sliver: SliverToBoxAdapter(
                   child: _enter(
-                    _PhotoBlock(
+                    ScanIdentityHeader(
                       imageFile: widget.imageFile,
                       category: category,
+                      name: p.name,
                     ),
                     delay: 40.ms,
                   ),
@@ -174,31 +176,40 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Know your medicine',
-                          style: AppTypography.caption.copyWith(
-                            color: AppColors.accentDeep,
-                            letterSpacing: 1.1,
-                            fontWeight: FontWeight.w800,
+                        // The compact (no-photo) header already carries the
+                        // name, so repeating it as a display heading directly
+                        // below reads as a rendering bug. With a photo there is
+                        // no name on the image, and the big title still earns
+                        // its place.
+                        if (widget.imageFile != null) ...[
+                          Text(
+                            'Know your medicine',
+                            style: AppTypography.caption.copyWith(
+                              color: AppColors.accentDeep,
+                              letterSpacing: 1.1,
+                              fontWeight: FontWeight.w800,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: AppSpacing.p8),
-                        Text(
-                          p.name,
-                          style: AppTypography.displaySmall.copyWith(
-                            color: L.text,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 30,
-                            letterSpacing: -0.8,
-                            height: 1.08,
-                          ),
-                        ),
-                        if (p.whyTakeIt.isNotEmpty) ...[
                           const SizedBox(height: AppSpacing.p8),
                           Text(
+                            p.name,
+                            style: AppTypography.displaySmall.copyWith(
+                              color: L.text,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 30,
+                              letterSpacing: -0.8,
+                              height: 1.08,
+                            ),
+                          ),
+                        ],
+                        if (p.whyTakeIt.isNotEmpty) ...[
+                          if (widget.imageFile != null)
+                            const SizedBox(height: AppSpacing.p8),
+                          Text(
                             p.whyTakeIt,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
+                            // Was clamped to 2 lines with an ellipsis, which cut
+                            // the one-line answer to "what is this for?" mid
+                            // sentence. It is short prose; let it finish.
                             style: AppTypography.bodyMedium.copyWith(
                               color: L.sub,
                               height: 1.4,
@@ -299,19 +310,11 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Safety first',
-                            style: AppTypography.headlineSmall.copyWith(
-                              color: L.text,
-                              fontWeight: FontWeight.w800,
-                              letterSpacing: -0.3,
-                            ),
-                          ),
-                          const SizedBox(height: AppSpacing.p4),
-                          Text(
-                            'Important alerts — know before you take.',
-                            style: AppTypography.bodySmall
-                                .copyWith(color: L.sub),
+                          const ScanSectionHeader(
+                            title: 'Safety first',
+                            subtitle: 'Important alerts — know before you take.',
+                            icon: Icons.shield_outlined,
+                            tint: AppColors.pastelPink,
                           ),
                           const SizedBox(height: AppSpacing.p16),
                           if (p.allergyAlerts.isNotEmpty) ...[
@@ -411,19 +414,11 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Quick insights',
-                          style: AppTypography.headlineSmall.copyWith(
-                            color: L.text,
-                            fontWeight: FontWeight.w800,
-                            letterSpacing: -0.3,
-                          ),
-                        ),
-                        const SizedBox(height: AppSpacing.p4),
-                        Text(
-                          'Based on your needs — tap through to understand more.',
-                          style:
-                              AppTypography.bodySmall.copyWith(color: L.sub),
+                        const ScanSectionHeader(
+                          title: 'Quick insights',
+                          subtitle: 'Tap any card to understand more.',
+                          icon: Icons.bolt_rounded,
+                          tint: AppColors.pastelSky,
                         ),
                         const SizedBox(height: AppSpacing.p16),
                         // Tiles are built conditionally: a tile reading
@@ -492,12 +487,12 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            'Side-effect map',
-                            style: AppTypography.titleMedium.copyWith(
-                              color: L.text,
-                              fontWeight: FontWeight.w800,
-                            ),
+                          ScanSectionHeader(
+                            title: 'Side-effect map',
+                            subtitle:
+                                '${p.sideEffects.length} reported — sized by how often.',
+                            icon: Icons.monitor_heart_outlined,
+                            tint: AppColors.pastelSun,
                           ),
                           const SizedBox(height: AppSpacing.p12),
                           ScanBubbleRow(
@@ -823,83 +818,6 @@ class _TopBar extends StatelessWidget {
   }
 }
 
-class _PhotoBlock extends StatelessWidget {
-  final File? imageFile;
-  final String category;
-  const _PhotoBlock({required this.imageFile, required this.category});
-
-  @override
-  Widget build(BuildContext context) {
-    final L = context.L;
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(30),
-      child: AspectRatio(
-        aspectRatio: 16 / 11,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            ColoredBox(
-              color: AppColors.pastelSky,
-              child: imageFile != null
-                  ? Image.file(imageFile!, fit: BoxFit.cover)
-                  : Center(
-                      child: Icon(
-                        Icons.medication_rounded,
-                        size: 64,
-                        color: L.sub.withValues(alpha: 0.4),
-                      ),
-                    ),
-            ),
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: 90,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withValues(alpha: 0),
-                      Colors.black.withValues(alpha: 0.38),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            Positioned(
-              left: 16,
-              bottom: 16,
-              child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.94),
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Row(
-                  children: [
-                    Icon(Icons.auto_awesome_rounded, size: 14, color: L.text),
-                    const SizedBox(width: 6),
-                    Text(
-                      category,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: L.text,
-                        fontWeight: FontWeight.w800,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 class _ExpertBlock extends StatelessWidget {
   final List<ExpertPerspective> perspectives;
   final int selectedIdx;
@@ -920,13 +838,11 @@ class _ExpertBlock extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(
-          'Expert perspectives',
-          style: AppTypography.headlineSmall.copyWith(
-            color: L.text,
-            fontWeight: FontWeight.w800,
-            letterSpacing: -0.3,
-          ),
+        const ScanSectionHeader(
+          title: 'Expert perspectives',
+          subtitle: 'The same medicine, four professional lenses.',
+          icon: Icons.groups_2_outlined,
+          tint: AppColors.pastelLilac,
         ),
         const SizedBox(height: AppSpacing.p12),
         SizedBox(
