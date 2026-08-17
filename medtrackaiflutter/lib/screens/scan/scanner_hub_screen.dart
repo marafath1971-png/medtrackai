@@ -447,11 +447,33 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
                   final bc = capture.barcodes.first;
                   if (bc.rawValue != null) {
                     setState(() => _barcodeFound = true);
-                    final name = await UPCService.lookupBarcode(bc.rawValue!);
-                    final prompt = name != null
-                        ? 'Analyze medicine or supplement: "$name". Provide comprehensive details.'
-                        : 'Identify and analyze the medicine with barcode: ${bc.rawValue}. Be professional and thorough.';
-                    _analyze(prompt);
+                    final result = await UPCService.lookup(bc.rawValue!);
+                    if (!mounted) return;
+
+                    switch (result) {
+                      case BarcodeFound(:final name):
+                        _analyze(
+                          'Analyze medicine or supplement: "$name". '
+                          'Provide comprehensive details.',
+                        );
+                      case BarcodeUnknown():
+                        // Neither database knew the code, but the AI can often
+                        // still identify it, so the scan continues.
+                        _analyze(
+                          'Identify and analyze the medicine with barcode: '
+                          '${bc.rawValue}. Be professional and thorough.',
+                        );
+                      case BarcodeLookupFailed():
+                        // The lookup could not complete, which is not the same
+                        // as the product being unknown. Say so and let the user
+                        // retry rather than sending the AI a bare number and
+                        // presenting whatever comes back as an identification.
+                        setState(() => _barcodeFound = false);
+                        _showError(
+                          "Couldn't reach the barcode database. "
+                          'Check your connection, or search by name.',
+                        );
+                    }
                   }
                 }
               },
