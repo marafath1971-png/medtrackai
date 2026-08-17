@@ -279,6 +279,11 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
 
     Widget sheet = Semantics(
       scopesRoute: true,
+      // Required by the framework whenever scopesRoute is true — without it
+      // RenderObject.attach asserts and the whole app falls into the global
+      // error boundary ("Something went wrong"). This fired when the paywall
+      // was presented over the scanner, taking the app down with it.
+      explicitChildNodes: true,
       namesRoute: true,
       label: 'Med AI Pro subscription',
       child: ClipRRect(
