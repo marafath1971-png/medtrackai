@@ -81,10 +81,24 @@ class SocialController extends ChangeNotifier {
     });
   }
 
+  /// Why an invite could not be created.
+  ///
+  /// The last failure is exposed because [createInvite] can only answer with a
+  /// code or an empty string, and the two ways of getting an empty string need
+  /// opposite advice: signing in fixes one, retrying fixes the other. The
+  /// screen previously said "Check your connection and try again" for both, so
+  /// a signed-out user was sent to debug their wifi — the same defect already
+  /// fixed on the join side of this flow.
+  String? lastInviteError;
+
   Future<String> createInvite(
       Caregiver cg, String? patientName, String? patientAvatar) async {
+    lastInviteError = null;
     final uid = AuthService.uid;
-    if (uid == null) return '';
+    if (uid == null) {
+      lastInviteError = 'signed_out';
+      return '';
+    }
     try {
       String code = _generateInviteCode();
       for (var i = 0; i < 5; i++) {
@@ -112,9 +126,19 @@ class SocialController extends ChangeNotifier {
       return code;
     } catch (e) {
       appLogger.e('[SocialController] createInvite failed', error: e);
+      lastInviteError = 'failed';
       return '';
     }
   }
+
+  /// Message for the last [createInvite] failure.
+  ///
+  /// Static and on the controller so the mapping is testable without Firebase.
+  static String inviteErrorMessage(String? reason) => switch (reason) {
+        'signed_out' =>
+          'Sign in to create an invite — the code is tied to your account.',
+        _ => 'Could not create the invite. Please try again in a moment.',
+      };
 
   Future<void> joinCaregiver(String code) async {
     final caregiverUid = AuthService.uid;

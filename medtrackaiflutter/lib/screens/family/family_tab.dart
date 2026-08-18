@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/app_routes.dart';
 import '../../providers/app_state.dart';
+import '../../providers/controllers/social_controller.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/date_formatter.dart';
 import '../../services/auth_service.dart';
@@ -140,8 +141,11 @@ class _FamilyTabState extends State<FamilyTab> {
                 final code = await s.createInvite(cg);
                 if (!mounted) return;
                 if (code.isEmpty) {
+                  // Was a flat "Check your connection" for every failure, so a
+                  // signed-out user was told to debug their network.
                   s.showToast(
-                    'Could not create invite. Check your connection and try again.',
+                    SocialController.inviteErrorMessage(
+                        s.social.lastInviteError),
                     type: 'error',
                   );
                   return;
