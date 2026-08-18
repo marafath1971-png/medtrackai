@@ -74,14 +74,22 @@ class HomeHeader extends StatelessWidget {
                         ],
                       ),
                       alignment: Alignment.center,
-                      child: Text(
-                        userName.isNotEmpty
+                      clipBehavior: Clip.antiAlias,
+                      // The account picture when there is one, the initial
+                      // otherwise. UserProfile.photoUrl and AuthService.photoUrl
+                      // both existed and were never connected, so everyone got
+                      // a letter on a green disc even after signing in with a
+                      // Google account that has a photo.
+                      child: _AvatarContent(
+                        // Only the account profile carries a photo; a managed
+                        // family member keeps its initial, which is also what
+                        // distinguishes "viewing a dependent" at a glance.
+                        photoUrl: state.activeProfile == null
+                            ? state.profile?.photoUrl
+                            : null,
+                        initial: userName.isNotEmpty
                             ? userName[0].toUpperCase()
-                            : 'A',
-                        style: AppTypography.titleLarge.copyWith(
-                          color: AppColors.limeInk,
-                          fontWeight: FontWeight.w800,
-                        ),
+                            : '?',
                       ),
                     ),
                     const SizedBox(width: AppSpacing.p12),
@@ -203,6 +211,45 @@ class _IconCircleBtn extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Account photo with an initial as the fallback.
+///
+/// Split out so the failure paths are explicit. A Google photo URL can 404 once
+/// the account changes it, and it needs the network on first paint — so both
+/// the error and loading states fall back to the initial rather than leaving a
+/// blank disc or a broken-image glyph in the header.
+class _AvatarContent extends StatelessWidget {
+  final String? photoUrl;
+  final String initial;
+
+  const _AvatarContent({required this.photoUrl, required this.initial});
+
+  @override
+  Widget build(BuildContext context) {
+    final letter = Text(
+      initial,
+      style: AppTypography.titleLarge.copyWith(
+        color: AppColors.limeInk,
+        fontWeight: FontWeight.w800,
+      ),
+    );
+
+    final url = photoUrl?.trim();
+    if (url == null || url.isEmpty) return letter;
+
+    return Image.network(
+      url,
+      fit: BoxFit.cover,
+      width: AppA11y.minTapTargetCompact,
+      height: AppA11y.minTapTargetCompact,
+      errorBuilder: (_, __, ___) => letter,
+      // Show the initial while the image is in flight instead of an empty
+      // circle — the header is the first thing painted on a cold start.
+      loadingBuilder: (context, child, progress) =>
+          progress == null ? child : letter,
     );
   }
 }

@@ -4,6 +4,7 @@ import '../../domain/entities/entities.dart';
 import '../../domain/repositories/user_repository.dart';
 import '../../models/onboarding_prefs.dart';
 import '../../services/auth_service.dart';
+import '../../services/notification_service.dart';
 import '../../core/utils/logger.dart';
 import '../../core/utils/haptic_engine.dart';
 
@@ -20,6 +21,11 @@ class AuthController extends ChangeNotifier {
   set _profile(UserProfile? p) {
     _profileValue = p;
     HapticEngine.isEnabled = p?.hapticsEnabled ?? true;
+    // Refill alerts fire from MedicationController, which cannot see the
+    // profile, so the preference is mirrored onto the service here. Without
+    // this the Settings toggle was decorative: notifRefill was written and
+    // read back but never consulted before posting an alert.
+    NotificationService.refillAlertsEnabled = p?.notifRefill ?? true;
   }
   bool _isLocked = false;
   String _language = 'en';
@@ -38,6 +44,49 @@ class AuthController extends ChangeNotifier {
     _pendingOnboardingProfile = p;
   }
 
+  /// The signed-in account's name, or null if it cannot be determined.
+  String? _accountDisplayName() =>
+      resolveAccountName(AuthService.displayName, AuthService.email);
+
+  /// Derives a greeting name from what the auth provider gave us.
+  ///
+  /// Static and pure so the fallback order is testable without Firebase.
+  /// Google and Apple sign-in populate [displayName]; email sign-up often does
+  /// not, so the local part of the address is used as a last resort — but only
+  /// when it reads like a name. "j.smith" becomes "J Smith"; "user1234" and
+  /// "no-reply" are rejected, because a wrong name is worse than none.
+  @visibleForTesting
+  static String? resolveAccountName(String? displayName, String? email) {
+    final dn = displayName?.trim();
+    if (dn != null && dn.isNotEmpty) {
+      // Providers sometimes return the full address as the display name.
+      if (!dn.contains('@')) return dn;
+    }
+
+    final local = email?.trim().split('@').first ?? '';
+    if (local.isEmpty || local.length < 2) return null;
+
+    // Reject anything carrying digits at all: real names do not contain them,
+    // and "user1234" -> "User1234" is a worse greeting than none. An earlier
+    // version allowed up to half the characters to be digits, which let
+    // user1234@ through because four of eight is not "more than half".
+    if (RegExp(r'\d').hasMatch(local)) return null;
+    if (RegExp(r'^(no-?reply|admin|info|support|contact|test)$',
+            caseSensitive: false)
+        .hasMatch(local)) {
+      return null;
+    }
+
+    // "j.smith" / "jane_doe" / "jane-doe" -> "J Smith" / "Jane Doe".
+    final parts =
+        local.split(RegExp(r'[._\-+]')).where((p) => p.isNotEmpty).toList();
+    if (parts.isEmpty) return null;
+
+    return parts
+        .map((p) => p[0].toUpperCase() + p.substring(1).toLowerCase())
+        .join(' ');
+  }
+
   /// Called after a successful sign-in / sign-up. Returning users (a cloud
   /// profile already exists) resume with it untouched; brand-new users get the
   /// onboarding-built profile persisted. Either way we land in [AppPhase.app]
@@ -49,8 +98,29 @@ class AuthController extends ChangeNotifier {
     } catch (e) {
       appLogger.w('[AuthController] getProfile after auth failed: $e');
     }
-    final resolved =
-        existing ?? _pendingOnboardingProfile ?? UserProfile(name: '');
+    // Fall back to the signed-in account's own name before giving up on one.
+    //
+    // A brand-new user with no onboarding name previously landed on
+    // `UserProfile(name: '')`, so every greeting read "Good evening, there"
+    // even though Firebase already knew who they were: Google and Apple sign-in
+    // both populate displayName, and email sign-up carries one whenever the
+    // user supplied it. Only the local part of an email is used as a last
+    // resort — showing a full address as someone's name is worse than "there".
+    final accountName = _accountDisplayName();
+    var resolved = existing ?? _pendingOnboardingProfile ?? UserProfile(name: '');
+    if (resolved.name.trim().isEmpty && accountName != null) {
+      resolved = resolved.copyWith(name: accountName);
+    }
+    // Same gap as the name: UserProfile.photoUrl existed, the profile screen
+    // rendered it, AuthService.photoUrl exposed it — and nothing ever assigned
+    // one, so every user fell back to an initial on a coloured disc even after
+    // signing in with a Google account that has a picture.
+    final accountPhoto = AuthService.photoUrl?.trim();
+    if ((resolved.photoUrl == null || resolved.photoUrl!.isEmpty) &&
+        accountPhoto != null &&
+        accountPhoto.isNotEmpty) {
+      resolved = resolved.copyWith(photoUrl: accountPhoto);
+    }
     _profile = resolved;
     if (resolved.preferredLanguage.isNotEmpty) {
       _language = resolved.preferredLanguage;
