@@ -1,0 +1,79 @@
+import 'dart:io';
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
+import 'package:flutter_test/flutter_test.dart';
+import 'package:medai/theme/med_ai_ui.dart';
+
+/// The settings surface painted its cards with a hardcoded `Colors.white`
+/// while every row label used `L.text`, which resolves to near-white in dark
+/// mode. The result was white text on a white card: the whole screen was
+/// unreadable in dark, and no test caught it because both halves were
+/// individually correct.
+///
+/// The same pattern appeared three times — the section card, the tab track,
+/// and the icon chip, which blended its tint onto white and so produced a pale
+/// square invisible against a dark card.
+
+double _luminance(Color c) {
+  double channel(double v) =>
+      v <= 0.03928 ? v / 12.92 : math.pow((v + 0.055) / 1.055, 2.4).toDouble();
+
+  return 0.2126 * channel(c.r) + 0.7152 * channel(c.g) + 0.0722 * channel(c.b);
+}
+
+double _contrast(Color a, Color b) {
+  final la = _luminance(a);
+  final lb = _luminance(b);
+  final hi = la > lb ? la : lb;
+  final lo = la > lb ? lb : la;
+  return (hi + 0.05) / (lo + 0.05);
+}
+
+void main() {
+  AppThemeColors colorsFor(Brightness b) => AppThemeColors.fromColorScheme(
+        ColorScheme.fromSeed(seedColor: AppColors.accent, brightness: b),
+        b,
+      );
+
+  group('settings rows are readable in both themes', () {
+    for (final entry in {
+      'light': Brightness.light,
+      'dark': Brightness.dark,
+    }.entries) {
+      test('${entry.key}: label contrasts with the card', () {
+        final L = colorsFor(entry.value);
+
+        expect(_contrast(L.text, L.card), greaterThan(4.5),
+            reason: 'a hardcoded white card under L.text gave a ratio near 1 '
+                'in dark mode');
+      });
+
+      test('${entry.key}: the secondary line stays legible', () {
+        // Subtitles carry the meaning of a toggle ("Alert when meds run low"),
+        // so they need to clear the large-text minimum at least.
+        final L = colorsFor(entry.value);
+
+        expect(_contrast(L.sub, L.card), greaterThan(3.0));
+      });
+    }
+  });
+
+  group('no settings surface hardcodes its background', () {
+    test('cards and tracks are theme-driven', () {
+      for (final path in [
+        'lib/screens/home/widgets/settings/settings_shared.dart',
+        'lib/screens/home/widgets/settings/ios_settings_style.dart',
+      ]) {
+        final src = File(path).readAsStringSync();
+
+        for (final line in src.split('\n')) {
+          final t = line.trimLeft();
+          if (t.startsWith('//') || t.startsWith('///')) continue;
+          expect(t.contains('color: Colors.white,'), isFalse,
+              reason: '$path paints a fixed white surface: "$t"');
+        }
+      }
+    });
+  });
+}

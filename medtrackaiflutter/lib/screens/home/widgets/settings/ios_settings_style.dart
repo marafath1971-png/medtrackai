@@ -100,9 +100,11 @@ class IosSettingsIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Blend onto the card, not onto white: a tint mixed with white produces a
+    // pale chip that disappears against a dark card.
     final soft = Color.alphaBlend(
       background.withValues(alpha: 0.18),
-      Colors.white,
+      context.L.card,
     );
     return Container(
       width: IosSettingsTokens.iconSize,
@@ -167,7 +169,9 @@ class IosSettingsSegmentedBar extends StatelessWidget {
     final track = Container(
       padding: const EdgeInsets.all(5),
       decoration: BoxDecoration(
-        color: Colors.white,
+        // Theme-driven: a hardcoded white track carried light-mode-only
+        // contrast, so the selected tab label vanished in dark mode.
+        color: context.L.card,
         borderRadius: BorderRadius.circular(22),
         boxShadow: [
           BoxShadow(

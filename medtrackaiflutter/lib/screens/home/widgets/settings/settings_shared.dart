@@ -30,7 +30,10 @@ class SettingsSection extends StatelessWidget {
           ),
           child: DecoratedBox(
             decoration: BoxDecoration(
-              color: Colors.white,
+              // Was a hardcoded Colors.white while the row labels use L.text,
+              // which flips to near-white in dark mode — white text on a white
+              // card. The whole settings surface was unreadable in dark.
+              color: context.L.card,
               borderRadius:
                   BorderRadius.circular(IosSettingsTokens.groupRadius),
               boxShadow: [
@@ -90,8 +93,15 @@ class SettingsModalRow extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       children: [
         Container(
-          constraints: const BoxConstraints(
-            minHeight: MedAiA11y.minTapTargetCompact,
+          // 48dp for anything the user can act on, 44 for a static read-only
+          // row. Every row was pinned at the compact 44 regardless, which is
+          // under the platform minimum for a touch target — and these rows
+          // carry toggles that change whether notifications fire and links
+          // that delete an account.
+          constraints: BoxConstraints(
+            minHeight: (isInteractive || right != null)
+                ? MedAiA11y.minTapTarget
+                : MedAiA11y.minTapTargetCompact,
           ),
           padding: const EdgeInsets.symmetric(
             horizontal: IosSettingsTokens.rowHPad,
