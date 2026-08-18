@@ -327,11 +327,21 @@ class NotificationService {
     }
   }
 
+  /// Whether the user wants low-stock alerts.
+  ///
+  /// Mirrors `UserProfile.notifRefill`, kept here because refill alerts fire
+  /// from MedicationController, which has no access to the profile. Before
+  /// this, the Settings toggle wrote `notifRefill` to storage and nothing ever
+  /// read it back: the switch moved, persisted, restored on relaunch — and
+  /// refill notifications kept arriving regardless.
+  static bool refillAlertsEnabled = true;
+
   static Future<void> showRefillAlert({
     required Medicine med,
     String? title,
     String? body,
   }) async {
+    if (!refillAlertsEnabled) return;
     const androidDetails = AndroidNotificationDetails(
       'refill_alerts',
       'Refill Alerts',

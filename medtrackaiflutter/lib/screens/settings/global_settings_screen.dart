@@ -5,6 +5,7 @@ import '../../app/app_routes.dart';
 import '../../services/smart_alert_service.dart';
 import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
+import 'widgets/delete_account_dialog.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/shared/shared_widgets.dart';
@@ -384,67 +385,14 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
     );
   }
 
-  void _confirmDelete(BuildContext context, AppThemeColors L) {
-    HapticEngine.heavyImpact();
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: L.bg,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        title: Text('DELETE ACCOUNT?',
-            style: AppTypography.titleLarge.copyWith(
-                fontWeight: FontWeight.w900, color: L.error)),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-                'This action is irreversible. All health data, medication history, and vitals will be permanently erased.',
-                style: AppTypography.bodySmall
-                    .copyWith(color: L.text.withValues(alpha: 0.7), height: 1.5)),
-            const SizedBox(height: 20),
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: L.error.withValues(alpha: 0.06),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: L.error.withValues(alpha: 0.2)),
-              ),
-              child: Row(
-                children: [
-                  const Text('⚠️', style: TextStyle(fontSize: 14)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Text('PERMANENT ACTION: ACCOUNT DELETION',
-                        style: AppTypography.labelSmall.copyWith(
-                            color: L.error,
-                            fontWeight: FontWeight.w900,
-                            fontSize: 9,
-                            letterSpacing: 1.0)),
-                  ),
-                ],
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('CANCEL',
-                style: AppTypography.labelLarge.copyWith(color: L.sub)),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              context.read<AppState>().deleteAccount();
-            },
-            child: Text('CONFIRM DELETE',
-                style: AppTypography.labelLarge.copyWith(
-                    color: L.error, fontWeight: FontWeight.w900)),
-          ),
-        ],
-      ),
-    );
+  /// Delegates to the shared dialog so both entry points enforce the same
+  /// typed confirmation. This copy had haptics and a warning banner but still
+  /// deleted on a single tap, and the modal's copy had neither — which
+  /// safeguards a user got depended on how they navigated here.
+  Future<void> _confirmDelete(BuildContext context, AppThemeColors L) async {
+    final confirmed = await DeleteAccountDialog.show(context);
+    if (!context.mounted || !confirmed) return;
+    context.read<AppState>().deleteAccount();
   }
 }
 

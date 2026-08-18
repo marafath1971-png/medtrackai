@@ -66,6 +66,11 @@ class _AppTabState extends State<AppTab> {
                         final s = context.read<AppState>();
                         if (s.profile != null) {
                           s.saveProfile(s.profile!.copyWith(notifPerm: v));
+                          // The neighbouring sound toggle already did this.
+                          // Without it the preference was stored but nothing
+                          // re-armed, so switching reminders off left every
+                          // scheduled notification firing.
+                          s.refreshNotifications();
                         }
                       }),
                   first: true,

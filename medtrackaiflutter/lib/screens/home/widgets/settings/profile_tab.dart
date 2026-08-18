@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../providers/app_state.dart';
+import '../../../settings/widgets/delete_account_dialog.dart';
 import '../../../../theme/med_ai_ui.dart';
 import '../../../../widgets/common/animated_pressable.dart';
 import '../../../../services/auth_service.dart';
@@ -140,35 +141,14 @@ class _ProfileTabState extends State<ProfileTab> {
     return card;
   }
 
-  void _confirmDeleteAccount(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        backgroundColor: widget.L.bg,
-        title: Text('Delete Account?',
-            style: AppTypography.titleLarge
-                .copyWith(color: widget.L.text, fontWeight: FontWeight.w800)),
-        content: Text(
-          'This action is permanent and will delete all your medication history and account data from our servers.',
-          style: AppTypography.bodyMedium.copyWith(color: widget.L.sub),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx),
-            child: Text('Cancel',
-                style: AppTypography.labelLarge.copyWith(color: widget.L.sub)),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(ctx);
-              widget.state.deleteAccount();
-            },
-            child: Text('Delete',
-                style: AppTypography.labelLarge.copyWith(color: AppColors.red, fontWeight: FontWeight.w700)),
-          ),
-        ],
-      ),
-    );
+  /// Both delete paths now share one dialog that requires typing DELETE.
+  ///
+  /// This screen's version was a plain AlertDialog whose "Delete" carried the
+  /// same weight as "Cancel", so a single stray tap erased all medication
+  /// history. See DeleteAccountDialog.
+  Future<void> _confirmDeleteAccount(BuildContext context) async {
+    final confirmed = await DeleteAccountDialog.show(context);
+    if (confirmed) widget.state.deleteAccount();
   }
 
   @override

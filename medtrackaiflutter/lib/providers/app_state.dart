@@ -211,7 +211,18 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> refreshNotifications() => _rescheduleNotifications();
 
   Future<void> _rescheduleNotifications() async {
-    if (profile == null || !profile!.notifPerm) return;
+    if (profile == null) return;
+
+    // Reminders off means *cancel*, not "leave whatever is already armed".
+    //
+    // This used to return early on !notifPerm, before reaching cancelAll()
+    // below — so switching Dose Reminders off in Settings saved the preference
+    // and then kept firing every previously scheduled notification. The only
+    // way to stop them was to uninstall.
+    if (!profile!.notifPerm) {
+      await NotificationService.cancelAll();
+      return;
+    }
 
     // 1. Clear existing
     await NotificationService.cancelAll();
