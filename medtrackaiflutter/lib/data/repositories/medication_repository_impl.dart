@@ -78,7 +78,12 @@ class MedicationRepositoryImpl implements IMedicationRepository {
         }
         return cloudMeds;
       } catch (e) {
-        // Fallback to local if offline
+        // Falling back to local is correct — the user keeps working offline.
+        // Logging it is not optional though: a sync that keeps failing while
+        // the device reports itself online (expired token, tightened Firestore
+        // rules, quota) is indistinguishable from working normally, and the
+        // user's medicines quietly stop reaching the cloud.
+        appLogger.w('[MedRepo] Cloud medicine fetch failed, using local: $e');
       }
     }
 
@@ -159,7 +164,7 @@ class MedicationRepositoryImpl implements IMedicationRepository {
         );
         return merged;
       } catch (e) {
-        // Offline
+        appLogger.w('[MedRepo] Cloud history fetch failed, using local: $e');
       }
     }
     return local;

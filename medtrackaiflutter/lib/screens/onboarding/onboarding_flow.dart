@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../providers/app_state.dart';
 import '../../services/analytics_service.dart';
 import '../../services/remote_config_service.dart';
+import '../../core/utils/logger.dart';
 import '../../core/constants/premium_photos.dart';
 import '../../theme/med_ai_ui.dart';
 import '../paywall/premium_paywall_overlay.dart';
@@ -193,14 +194,25 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     // goal so the shell can show the same personalized paywall post-activation.
     // Users who skip the paywall entirely still never see it (skipPaywall).
     final deferPaywall = RemoteConfigService.getBool('paywall_after_activation');
+    var deferred = false;
     if (deferPaywall && !skipPaywall && !state.isPremium) {
       try {
         final prefs = await SharedPreferences.getInstance();
         await prefs.setBool('pending_activation_paywall', true);
         final goal = _c.single('goal');
         if (goal != null) await prefs.setString('onboarding_goal', goal);
-      } catch (_) {/* deferred paywall is best-effort; falls back to gates */}
-    } else if (mounted && !skipPaywall && !state.isPremium) {
+        deferred = true;
+      } catch (e) {
+        // The old comment promised a fallback that did not exist:
+        // _maybeShowActivationPaywall returns early unless the marker reads
+        // back true, so a failed write meant the user never saw a paywall at
+        // all in this variant — the offer was silently dropped. Fall through
+        // to showing it now instead.
+        appLogger.w('[Onboarding] Could not defer the paywall, showing it '
+            'now instead: $e');
+      }
+    }
+    if (!deferred && mounted && !skipPaywall && !state.isPremium) {
       await _showPaywall();
     }
     if (mounted) state.auth.phase = AppPhase.auth;
