@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../app/app_routes.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
+import 'widgets/trend_hero.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../services/export_service.dart';
 import '../paywall/premium_paywall_overlay.dart';
@@ -83,6 +84,21 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                           : takenToday / todayDoses.length,
                       streak: streak,
                       remaining: todayDoses.length - takenToday,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // Leads the tab, because "is this week better than last?" is
+                  // the question a trends screen exists to answer. The 30-day
+                  // series was already computed and previously unused, while
+                  // the tab opened on an all-time average that cannot move.
+                  _analyticsEntrance(
+                    TrendHero(
+                      series: [
+                        for (final d in state.getTrendData())
+                          (d['value'] as num).toDouble(),
+                      ],
                     ),
                   ),
 

@@ -28,13 +28,18 @@ import '../widgets/viral/reentry_screen.dart';
 import '../widgets/modals/ai_consent_sheet.dart';
 import 'package:flutter/scheduler.dart';
 
-/// Space the floating nav island occupies above the system inset: its 80px
-/// height plus the 16px gap it is lifted by. [AppShell] adds this to the
-/// MediaQuery bottom padding it hands to tab content, so in-shell screens get
-/// the clearance without each one remembering to add it.
+/// Height of the bottom navigation island itself.
 ///
-/// Keep in sync with the island's `height:` and its `bottom:` offset below.
-const double kShellNavIslandInset = 96;
+/// Keep in sync with the island's `height:` below.
+const double kShellNavIslandHeight = 80;
+
+/// Space tab content must reserve at the bottom.
+///
+/// The island (80) plus its 16px lift off the safe area, plus the FAB now
+/// floating clear above it — 12px gap and the button's own height. Without the
+/// extra the last row of a scrolled list finishes underneath the FAB.
+const double kShellNavIslandInset =
+    kShellNavIslandHeight + 16 + 12 + kScanFabDiameter;
 
 // ══════════════════════════════════════════════
 // APP SHELL — Bottom nav + FAB + overlays
@@ -428,7 +433,7 @@ class _AppShellState extends State<AppShell>
                   if (toast != null)
                     AppToast(message: toast, type: toastType ?? 'success'),
 
-                  // ── Bottom Floating Island (Nav + Integrated FAB) ──
+                  // ── Bottom navigation island ──
                   AnimatedPositioned(
                     duration: AppDurations.fast,
                     curve: AppCurves.emilOut,
@@ -441,6 +446,20 @@ class _AppShellState extends State<AppShell>
                       opacity: 1,
                       child: _buildBottomIsland(L, unseenAlerts),
                     ),
+                  ),
+
+                  // ── Scan FAB ──
+                  //
+                  // Detached from the island and sitting above its right end,
+                  // the standard place for a primary action. Centred and
+                  // overlapping, it read as a fifth nav destination and split
+                  // the four tabs into an awkward 2 + 2; here the tab row is
+                  // one even group and the FAB is plainly a different kind of
+                  // control. Right-aligned also puts it under the thumb.
+                  PositionedDirectional(
+                    end: 24,
+                    bottom: (16 + bottomPadding + kShellNavIslandHeight + 12),
+                    child: _ScanFab(onTap: _openScan),
                   ),
 
                   // ── Viral Reentry Screen ──
@@ -510,7 +529,6 @@ class _AppShellState extends State<AppShell>
           children: [
             _buildNavItem(0, iconPaths[0], labels[0], L, badges[0], currentIndex),
             _buildNavItem(1, iconPaths[1], labels[1], L, badges[1], currentIndex),
-            _buildScanButton(L),
             _buildNavItem(2, iconPaths[2], labels[2], L, badges[2], currentIndex),
             _buildNavItem(3, iconPaths[3], labels[3], L, badges[3], currentIndex),
           ],
@@ -519,65 +537,6 @@ class _AppShellState extends State<AppShell>
     );
   }
 
-  /// Center Scan action — the prominent primary action in the nav, matching
-  /// the reference (Cal AI / Eato) center-scan pattern.
-  Widget _buildScanButton(AppThemeColors L) {
-    return Expanded(
-      child: Semantics(
-        button: true,
-        label: 'Scan medicine',
-        child: AnimatedPressable(
-          onTap: _openScan,
-          behavior: HitTestBehavior.opaque,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 44,
-                height: 44,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    // Cal AI: the primary action (Scan FAB) is near-black, not a
-                    // brand color. Color is reserved for data viz + streak only.
-                    colors: [L.text, L.text.withValues(alpha: 0.85)],
-                  ),
-                  shape: BoxShape.circle,
-                  boxShadow: AppShadows.glow(
-                    L.text.withValues(alpha: 0.4),
-                    intensity: 0.25,
-                  ),
-                ),
-                child: Center(
-                  child: AppSvgIcon(
-                    assetPath: MedAiAssets.iconScan,
-                    size: 20,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 2),
-              FittedBox(
-                fit: BoxFit.scaleDown,
-                child: Text(
-                  'Scan',
-                  maxLines: 1,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: L.sub.withValues(alpha: 0.6),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w600,
-                    height: 1.0,
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
 
   Widget _buildNavItem(int index, String iconPath, String label,
       AppThemeColors L, int cnt, int currentIndex) {
@@ -761,6 +720,66 @@ class LowStockBanner extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// Diameter of the raised scan FAB.
+const double kScanFabDiameter = 58;
+
+/// The primary action: add a medicine by scanning it.
+///
+/// Was a 44px circle inside the nav Row between "Trends" and "Alarms",
+/// labelled "Scan" in the same small grey type as the tabs beside it, so the
+/// app's most important action read as one of five equal destinations — and at
+/// 44px it was under the 48dp minimum touch target.
+///
+/// It now floats free above the island's right end at 58px, which is where a
+/// primary action belongs and where the thumb already rests. The icon is a plus
+/// rather than a scanner glyph: the action is "add a medicine" and scanning is
+/// how it happens, so the universal add affordance reads faster.
+class _ScanFab extends StatelessWidget {
+  final VoidCallback onTap;
+
+  const _ScanFab({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+
+    return Semantics(
+      button: true,
+      label: 'Add a medicine by scanning',
+      child: AnimatedPressable(
+        onTap: onTap,
+        behavior: HitTestBehavior.opaque,
+        child: Container(
+          width: kScanFabDiameter,
+          height: kScanFabDiameter,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [L.text, L.text.withValues(alpha: 0.88)],
+            ),
+            // A ring in the page background separates the button from the
+            // island beneath it, so the overlap reads as depth rather than as
+            // two shapes merging.
+            border: Border.all(color: L.bg, width: 3),
+            boxShadow: [
+              BoxShadow(
+                color: L.text.withValues(alpha: 0.28),
+                blurRadius: 16,
+                offset: const Offset(0, 6),
+              ),
+            ],
+          ),
+          child: const Center(
+            child: Icon(Icons.add_rounded, size: 30, color: Colors.white),
+          ),
+        ),
       ),
     );
   }

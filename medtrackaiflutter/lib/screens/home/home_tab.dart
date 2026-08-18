@@ -15,7 +15,7 @@ import 'widgets/emergency_warning_card.dart';
 import 'widgets/home_dose_group.dart';
 import '../../l10n/app_localizations.dart';
 import 'widgets/home_header.dart';
-import 'widgets/home_hope_photo_strip.dart';
+import 'widgets/home_today_hero.dart';
 import 'widgets/home_mascot_card.dart';
 import 'widgets/home_schedule_empty.dart';
 import 'widgets/home_week_strip.dart';
@@ -258,8 +258,20 @@ class _HomeTabState extends State<HomeTab> {
                     SliverPadding(
                       padding:
                           const EdgeInsets.fromLTRB(_hPad, AppSpacing.p8, _hPad, AppSpacing.p12),
-                      sliver: const SliverToBoxAdapter(
-                        child: HomeHopePhotoStrip(),
+                      // Was HomeHopePhotoStrip: a 168px stock salad photo
+                      // captioned "MADE FOR YOU · Your #1 plan for medication
+                      // success" — food imagery on a medication screen, above
+                      // a line identical for every user. This shows the day's
+                      // actual state instead, in less vertical space.
+                      sliver: SliverToBoxAdapter(
+                        child: HomeTodayHero(
+                          taken: takenCount,
+                          total: doses.length,
+                          nextDose: doses.isEmpty
+                              ? null
+                              : '${nextDose.label} · ${nextDose.value}${nextDose.unit.isEmpty ? '' : ' ${nextDose.unit}'}',
+                          name: context.read<AppState>().profile?.name,
+                        ),
                       ),
                     ),
 
