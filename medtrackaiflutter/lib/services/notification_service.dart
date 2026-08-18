@@ -8,6 +8,7 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:flutter_timezone/flutter_timezone.dart';
 import 'dart:math';
 import '../core/config/notification_copy.dart';
+import '../core/utils/logger.dart';
 
 // ══════════════════════════════════════════════
 // LOCAL NOTIFICATION SERVICE
@@ -644,14 +645,36 @@ class NotificationService {
     );
   }
 
+  /// Whether [refreshTimeZone] managed to resolve the device's zone.
+  ///
+  /// False means every scheduled reminder is being computed against UTC.
+  static bool get timeZoneResolved => _timeZoneResolved;
+  static bool _timeZoneResolved = false;
+
   static Future<void> refreshTimeZone() async {
     try {
       tz.initializeTimeZones();
       final timezoneInfo = await FlutterTimezone.getLocalTimezone();
-      final String timeZoneName = timezoneInfo.toString();
-      tz.setLocalLocation(tz.getLocation(timeZoneName));
+
+      // `.identifier`, not `.toString()`. TimezoneInfo declares no toString
+      // override, so the previous code passed Dart's default — the literal
+      // string "Instance of 'TimezoneInfo'" — into tz.getLocation(), which
+      // threw. The catch below swallowed it and tz.local stayed UTC, so every
+      // reminder fired at the wrong hour by the device's whole UTC offset:
+      // six hours early in Dhaka, and silently, because nothing reported it.
+      final name = timezoneInfo.identifier;
+      tz.setLocalLocation(tz.getLocation(name));
+      _timeZoneResolved = true;
+      appLogger.i('[Notifications] Time zone set to $name');
     } catch (e) {
-      // Fallback or ignore
+      // Reminders still fire, but against UTC. Log loudly rather than
+      // silently: a wrong-hour medication alert is worse than none.
+      _timeZoneResolved = false;
+      appLogger.e(
+        '[Notifications] Could not resolve the device time zone — reminders '
+        'will be scheduled in UTC and may fire at the wrong hour',
+        error: e,
+      );
     }
   }
 }
