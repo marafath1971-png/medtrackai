@@ -109,19 +109,43 @@ void main() {
     });
   });
 
-  group('both entry points use it', () {
-    test('neither screen keeps its own single-tap dialog', () {
+  group('every delete path uses it', () {
+    test('no screen keeps its own destructive dialog', () {
+      // A third implementation lived in app_tab and was missed by the first
+      // audit — its "Delete" button showed "Account scheduled for deletion
+      // within 30 days." and then did nothing at all. A user who wanted their
+      // health data erased was told it would be, and it stayed.
       for (final path in [
         'lib/screens/home/widgets/settings/profile_tab.dart',
-        'lib/screens/settings/global_settings_screen.dart',
+        'lib/screens/home/widgets/settings/app_tab.dart',
       ]) {
         final src = File(path).readAsStringSync();
 
         expect(src.contains('DeleteAccountDialog.show'), isTrue,
             reason: '$path should delegate to the shared confirmation');
-        expect(src.contains("child: Text('CONFIRM DELETE'"), isFalse,
-            reason: '$path still has its own destructive dialog');
       }
+    });
+
+    test('no delete path fakes the outcome with a toast', () {
+      final src =
+          File('lib/screens/home/widgets/settings/app_tab.dart').readAsStringSync();
+
+      // Match the toast call, not the phrase: the comment explaining the bug
+      // legitimately mentions it.
+      expect(src.contains("AppFeedback.toast(context, 'Account scheduled"), isFalse,
+          reason: 'claiming a deletion that never happens is worse than '
+              'refusing to offer one');
+    });
+
+    test('the sub-page no longer duplicates account actions', () {
+      // global_settings_screen is reached *through* profile_tab, so a user met
+      // the same destructive action twice on one journey, backed by different
+      // code.
+      final src =
+          File('lib/screens/settings/global_settings_screen.dart').readAsStringSync();
+
+      expect(src.contains("title: 'Delete Account Permanently'"), isFalse);
+      expect(src.contains("title: 'Export Health Data (CSV)'"), isFalse);
     });
   });
 }

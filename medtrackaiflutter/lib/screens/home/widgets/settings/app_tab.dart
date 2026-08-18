@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:provider/provider.dart';
 import '../../../../providers/app_state.dart';
+import '../../../settings/widgets/delete_account_dialog.dart';
 import '../../../../theme/med_ai_ui.dart';
 import '../../../../widgets/shared/shared_widgets.dart';
 import 'settings_shared.dart';
@@ -14,7 +15,6 @@ import '../../../../services/growth_tracker.dart';
 import '../../../../widgets/common/paywall_sheet.dart';
 import '../../../family/profile_switcher_sheet.dart';
 import '../../../../core/utils/haptic_engine.dart';
-import '../../../../widgets/common/app_feedback.dart';
 
 class AppTab extends StatefulWidget {
   final AppState state;
@@ -296,23 +296,17 @@ class _AppTabState extends State<AppTab> {
                   icon: '🗑️',
                   iconBg: AppColors.dangerSoft.withValues(alpha: 0.1),
                   label: 'Delete Account',
-                  sub: 'Permanently erase your data',
-                  onClick: () {
-                    showDialog(
-                      context: context,
-                      builder: (ctx) => AlertDialog(
-                        backgroundColor: L.card,
-                        title: Text('Delete Account', style: AppTypography.titleMedium.copyWith(color: L.text)),
-                        content: Text('Are you sure you want to permanently delete your account and all data? This action cannot be undone.', style: AppTypography.bodyMedium.copyWith(color: L.sub)),
-                        actions: [
-                          TextButton(onPressed: () => Navigator.pop(ctx), child: Text('Cancel', style: TextStyle(color: L.text))),
-                          TextButton(onPressed: () {
-                            Navigator.pop(ctx);
-                            AppFeedback.toast(context, 'Account scheduled for deletion within 30 days.');
-                          }, child: const Text('Delete', style: TextStyle(color: AppColors.red))),
-                        ],
-                      ),
-                    );
+                  sub: 'Erase all medicines and history — permanent',
+                  // This row had its own dialog whose "Delete" button showed
+                  // "Account scheduled for deletion within 30 days." and then
+                  // did nothing at all — no deletion was ever requested. A
+                  // user who wanted their health data gone was told it would
+                  // be, and it stayed. Now it runs the same typed-confirmation
+                  // path as the profile screen.
+                  onClick: () async {
+                    final confirmed = await DeleteAccountDialog.show(context);
+                    if (!context.mounted || !confirmed) return;
+                    await context.read<AppState>().deleteAccount();
                   },
                   border: false),
             ])),

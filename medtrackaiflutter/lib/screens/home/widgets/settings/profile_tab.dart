@@ -518,7 +518,10 @@ class _ProfileTabState extends State<ProfileTab> {
                     SettingsModalRow(
                       icon: '🗑️',
                       label: 'Delete Account',
-                      sub: 'Permanently remove your data',
+                      // Says what is lost, not just that something is. This
+                      // row sits directly under Sign Out at identical weight,
+                      // and only one of the two is recoverable.
+                      sub: 'Erase all medicines and history — permanent',
                       iconBg: L.red,
                       onClick: () => _confirmDeleteAccount(context),
                       last: true,

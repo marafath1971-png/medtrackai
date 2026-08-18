@@ -5,7 +5,6 @@ import '../../app/app_routes.dart';
 import '../../services/smart_alert_service.dart';
 import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
-import 'widgets/delete_account_dialog.dart';
 import '../../l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../../widgets/shared/shared_widgets.dart';
@@ -227,36 +226,25 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
 
               const SizedBox(height: 24),
 
-              // ── ACCOUNT ARCHITECTURE BLOCK ───────────────
+              // ── ACCOUNT BLOCK ────────────────────────────
+              //
+              // Export and Delete Account used to be duplicated here and on
+              // the profile screen. This page is reached *through* that screen
+              // (profile_tab pushes AppRoutes.settingsGlobal), so a user could
+              // meet the same destructive action twice on one journey, backed
+              // by different code. Account-level actions now live only where
+              // the account does; this page keeps device-local state.
               _IndustrialSection(
-                label: 'Account',
-                icon: Icons.manage_accounts_rounded,
+                label: 'This device',
+                icon: Icons.phone_iphone_rounded,
                 L: L,
                 children: [
-                  _AccountActionTile(
-                    icon: Icons.upload_rounded,
-                    title: 'Export Health Data (CSV)',
-                    subtitle: 'Generate a clinical report of your vitals',
-                    onTap: () {
-                      HapticEngine.selection();
-                      context.read<AppState>().exportDataCSV();
-                    },
-                    L: L,
-                  ),
                   _AccountActionTile(
                     icon: Icons.cleaning_services_rounded,
                     title: 'Clear Local Cache',
                     subtitle: 'Free up space and refresh local state',
-                    onTap: () => _confirmReset(context, L),
-                    L: L,
-                  ),
-                  _AccountActionTile(
-                    icon: Icons.delete_forever_rounded,
-                    title: 'Delete Account Permanently',
-                    subtitle: 'Erase all personal health records',
-                    color: L.error,
                     isLast: true,
-                    onTap: () => _confirmDelete(context, L),
+                    onTap: () => _confirmReset(context, L),
                     L: L,
                   ),
                 ],
@@ -385,15 +373,6 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
     );
   }
 
-  /// Delegates to the shared dialog so both entry points enforce the same
-  /// typed confirmation. This copy had haptics and a warning banner but still
-  /// deleted on a single tap, and the modal's copy had neither — which
-  /// safeguards a user got depended on how they navigated here.
-  Future<void> _confirmDelete(BuildContext context, AppThemeColors L) async {
-    final confirmed = await DeleteAccountDialog.show(context);
-    if (!context.mounted || !confirmed) return;
-    context.read<AppState>().deleteAccount();
-  }
 }
 
 // ── Account Action Tile ───────────────────────────────────────────────
@@ -401,7 +380,6 @@ class _AccountActionTile extends StatelessWidget {
   final IconData icon;
   final String title;
   final String? subtitle;
-  final Color? color;
   final VoidCallback onTap;
   final AppThemeColors L;
   final bool isLast;
@@ -409,14 +387,13 @@ class _AccountActionTile extends StatelessWidget {
       {required this.icon,
       required this.title,
       this.subtitle,
-      this.color,
-      required this.onTap,
+        required this.onTap,
       required this.L,
       this.isLast = false});
 
   @override
   Widget build(BuildContext context) {
-    final tileColor = color ?? L.text;
+    final tileColor = L.text;
     return Semantics(
       button: true,
       label: subtitle != null ? '$title. $subtitle' : title,
