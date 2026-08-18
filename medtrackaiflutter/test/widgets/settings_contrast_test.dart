@@ -76,4 +76,37 @@ void main() {
       }
     });
   });
+
+  group('every settings row renders an icon', () {
+    test('no emoji falls through to a blank chip', () {
+      // iosSettingsResolveIcon maps emoji to IconData and returns null for
+      // anything unlisted, which paints the chip with no glyph. Two rows —
+      // Reminder Sound and Persistent Alarms — shipped as blank squares
+      // because their emoji were never added to the switch.
+      final style =
+          File('lib/screens/home/widgets/settings/ios_settings_style.dart')
+              .readAsStringSync();
+      final mapped = RegExp(r"    '([^']+)' =>")
+          .allMatches(style)
+          .map((m) => m.group(1)!)
+          .toSet();
+
+      final used = <String, String>{};
+      for (final f in Directory('lib/screens/home/widgets/settings')
+          .listSync()
+          .whereType<File>()
+          .where((f) => f.path.endsWith('.dart'))) {
+        for (final m
+            in RegExp(r"icon: '([^']+)'").allMatches(f.readAsStringSync())) {
+          used[m.group(1)!] = f.uri.pathSegments.last;
+        }
+      }
+
+      final unmapped = used.keys.where((e) => !mapped.contains(e)).toList();
+
+      expect(unmapped, isEmpty,
+          reason: 'these emoji render no icon: '
+              '${unmapped.map((e) => "$e (${used[e]})").join(", ")}');
+    });
+  });
 }

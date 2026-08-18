@@ -346,6 +346,10 @@ IconData? iosSettingsResolveIcon(dynamic icon) {
     'ℹ️' => Icons.info_outline_rounded,
     '🚀' => Icons.rocket_launch_rounded,
     '🔔' => Icons.notifications_active_rounded,
+    // Were unmapped and fell through to `_ => null`, which renders the chip
+    // with no glyph at all — two blank squares in the Notifications group.
+    '🔊' => Icons.volume_up_rounded,
+    '🔁' => Icons.repeat_rounded,
     '⚡' => Icons.bolt_rounded,
     '⏰' => Icons.alarm_rounded,
     '👨‍👩‍👧' => Icons.family_restroom_rounded,
