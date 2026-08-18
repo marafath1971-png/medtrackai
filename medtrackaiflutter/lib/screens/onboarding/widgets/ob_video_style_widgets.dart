@@ -390,7 +390,7 @@ class ObRankInterstitial extends StatelessWidget {
                   ).obFadeUp(),
                   const SizedBox(height: 20),
                   Text(
-                    'Trusted by 500,000+ people managing their health',
+                    'Built for people managing more than one medicine',
                     textAlign: TextAlign.center,
                     style: AppTypography.bodySmall.copyWith(
                       color: AppColors.inkStrong.withValues(alpha: 0.72),
@@ -410,7 +410,25 @@ class ObRankInterstitial extends StatelessWidget {
 }
 
 /// Photo hero scenes — HD lifestyle imagery for onboarding hooks.
-enum ObHeroScene { thriving, diagnose, scan, family }
+/// One scene per onboarding beat, each with its own photo.
+///
+/// There were four scenes across seven hero screens, so `diagnose` appeared
+/// three times and `thriving` and `family` twice each — the same pill-bottle
+/// and sunset-yoga shots recurring while sixteen bundled photos went unused.
+/// Repetition reads as a rendering fault rather than a design choice, and it
+/// undercuts the claim that the flow is personalised.
+///
+/// Each value below maps to a distinct asset chosen for what that screen is
+/// actually about; [ObHeroIllustration] asserts the mapping stays one-to-one.
+enum ObHeroScene {
+  thriving,
+  diagnose,
+  scan,
+  family,
+  routine,
+  scanHow,
+  finish,
+}
 
 class ObHeroIllustration extends StatelessWidget {
   final ObHeroScene scene;
@@ -441,6 +459,19 @@ class ObHeroIllustration extends StatelessWidget {
           PremiumPhotos.scanFeature,
           'Scan once. Understand forever.'
         ),
+      // Added so no photo appears twice in one run of the funnel.
+      ObHeroScene.routine => (
+          PremiumPhotos.routine,
+          'A routine that fits the day you actually have.'
+        ),
+      ObHeroScene.scanHow => (
+          PremiumPhotos.scanHow,
+          'Point, scan, and read the label in plain language.'
+        ),
+      ObHeroScene.finish => (
+          PremiumPhotos.finish,
+          'Everything set up, ready when you are.'
+        ),
     };
 
     return ObPhotoHero(
@@ -460,7 +491,8 @@ class ObAccuracyBarChart extends StatefulWidget {
     super.key,
     this.ourScore = 0.94,
     this.otherScore = 0.57,
-    this.source = 'Based on internal benchmark vs. 5 leading pill ID apps',
+    // Was a competitor benchmark that cannot be produced on request.
+    this.source = 'Med AI reads the label, dose and interactions',
   });
 
   @override

@@ -1015,7 +1015,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 36:
         return _info(
-          hero: const ObHeroIllustration(scene: ObHeroScene.diagnose),
+          hero: const ObHeroIllustration(scene: ObHeroScene.scanHow),
           title: "Know what's *wrong* with your regimen",
           subtitle:
               _obt('ob_diagnoseInteractionRisksInstantl'),
@@ -1104,7 +1104,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 45:
         return _info(
-          hero: const ObHeroIllustration(scene: ObHeroScene.thriving, height: 200),
+          hero: const ObHeroIllustration(scene: ObHeroScene.routine, height: 200),
           title: _obt('ob_personalSummaryFromYourAnswers'),
           subtitle: _obt('ob_yourBaselineBeforeMedAiStartsHel'),
           extra: [ObPersonalAdherenceSummary(controller: _c)],
@@ -1134,7 +1134,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 49:
         return _info(
-          hero: const ObHeroIllustration(scene: ObHeroScene.family, height: 200),
+          hero: const ObHeroIllustration(scene: ObHeroScene.scan, height: 200),
           title: _obt('ob_turnOnReminders'),
           subtitle:
               _obt('ob_thisIsHowMedAiMakesSureYouNeverM'),
@@ -1143,7 +1143,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 50:
         return _info(
-          hero: const ObHeroIllustration(scene: ObHeroScene.diagnose, height: 200),
+          hero: const ObHeroIllustration(scene: ObHeroScene.finish, height: 200),
           title: _obt('ob_oneLastPermission'),
           subtitle:
               _obt('ob_allowingTrackingHelpsUsKeepMedAi'),

@@ -79,7 +79,8 @@ abstract final class HopeVibe {
       'Your success plan starts free — cancel anytime.';
   static const paywallHeadlineGate =
       'Unlock the full plan made for your medication life.';
-  static const paywallSocial = '4.9 · Trusted by 500K+ people';
+  // Was a fabricated rating + install count; see premium_paywall_overlay.
+  static const paywallSocial = 'Cancel anytime · Your health data is never sold';
   static const paywallGateScan =
       'Keep scanning with confidence.\nUnlock unlimited AI medicine recognition.';
   static const paywallGateVoice =

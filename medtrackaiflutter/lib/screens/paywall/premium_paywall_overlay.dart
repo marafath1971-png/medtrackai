@@ -186,7 +186,9 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
         if (!mounted) return;
         setState(() {
           _isLoading = false;
-          _errorMsg = 'Subscription plans are currently unavailable.';
+          _errorMsg = PurchasesService.isMisconfigured
+              ? 'In-app purchases are not set up in this build yet.'
+              : "Plans didn't load. Check your connection and try again.";
         });
         return;
       }
@@ -693,13 +695,15 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        ...List.generate(
-          5,
-          (_) => const Icon(Icons.star_rounded, color: AppColors.limeDeep, size: 16),
-        ),
+        // Was five hardcoded stars and "4.9 · Trusted by 500K+ people" — an
+        // invented rating and install count, placed directly above the buy
+        // button. Play prohibits misrepresentation, and a fabricated star
+        // rating next to a purchase is the highest-risk placement for it.
+        const Icon(Icons.lock_outline_rounded,
+            color: AppColors.limeDeep, size: 16),
         const SizedBox(width: 8),
         Text(
-          '4.9 · Trusted by 500K+ people',
+          'Cancel anytime · Your health data is never sold',
           style: AppTypography.labelSmall.copyWith(
             color: const Color(0xFF8A9099),
             fontWeight: FontWeight.w600,
@@ -790,7 +794,15 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
     if (_packages.isEmpty) {
       return _PaywallGlassCard(
         child: Text(
-          'Subscription plans are currently unavailable.',
+          // Two very different causes produce an empty package list. A build
+          // with no RevenueCat key can never sell anything, so telling that
+          // user to "try again later" is advice that can never come true;
+          // a transient offerings fetch genuinely is worth retrying.
+          PurchasesService.isMisconfigured
+              ? 'In-app purchases are not set up in this build yet. '
+                  'Everything else works — nothing is charged.'
+              : "Plans didn't load. Check your connection and reopen this "
+                  'screen to try again.',
           style: AppTypography.labelSmall.copyWith(
             color: const Color(0xFF8A9099),
           ),
@@ -966,7 +978,9 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
     final selected = hasPackages ? _packages[_selectedPlan] : null;
     final buttonText = hasPackages
         ? 'Start ${selected!.storeProduct.title.split(' ').first} · ${selected.storeProduct.priceString}'
-        : 'Unavailable';
+        // "Unavailable" gave the user nothing to act on; naming the state
+        // at least distinguishes a build without billing from a failed fetch.
+        : (PurchasesService.isMisconfigured ? 'Not available yet' : 'Retry');
 
     return _PaywallCTA(
       label: buttonText,

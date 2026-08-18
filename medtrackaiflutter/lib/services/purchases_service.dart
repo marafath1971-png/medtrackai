@@ -42,15 +42,31 @@ class PurchasesService {
     return false;
   }
 
+  /// True when billing is unusable because no real key was supplied.
+  ///
+  /// Distinct from a transient offerings failure: no amount of retrying fixes
+  /// a placeholder key, and the paywall should not tell the user to try again
+  /// when the build itself cannot sell anything.
+  static bool get isMisconfigured => _misconfigured;
+  static bool _misconfigured = false;
+
   static Future<void> init() async {
     final key = Platform.isAndroid ? _googleApiKey : _appleApiKey;
-    appLogger.i('💰 RevenueCat: Resolved API Key is "$key"');
-    
+    // Never log the key itself — it is a secret once a real one is in place,
+    // and logcat is readable by anyone with the device plugged in.
+    appLogger.i('💰 RevenueCat: API key ${key.isEmpty ? "absent" : "present"} '
+        '(${key.length} chars)');
+
     if (!_isValidKey(key)) {
-      appLogger.w('💰 RevenueCat: No valid API key configured. Billing features will run in mock/bypass mode.');
+      appLogger.w('💰 RevenueCat: no valid API key — billing disabled. '
+          'Set PURCHASES_API_KEY (or RC_GOOGLE_KEY/RC_APPLE_KEY) in .env to a '
+          'real key from the RevenueCat dashboard; the bundled value is the '
+          'placeholder "demo_purchases_key", so nothing can be sold.');
       _configured = false;
+      _misconfigured = true;
       return;
     }
+    _misconfigured = false;
 
     try {
       appLogger.i('💰 RevenueCat: Valid API key detected. Configuring Purchases SDK...');
