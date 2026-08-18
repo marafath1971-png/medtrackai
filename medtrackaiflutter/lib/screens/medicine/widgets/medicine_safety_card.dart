@@ -273,7 +273,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                 width: 56,
                 height: 56,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.85),
+                  color: context.L.card.withValues(alpha: 0.85),
                   shape: BoxShape.circle,
                 ),
                 child: _isLoading

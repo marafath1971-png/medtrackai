@@ -109,4 +109,41 @@ void main() {
               '${unmapped.map((e) => "$e (${used[e]})").join(", ")}');
     });
   });
+
+  group('no screen paints a white surface under theme-driven text', () {
+    test('the pattern that broke settings does not exist elsewhere', () {
+      // A BoxDecoration fixed to Colors.white with L.text/L.sub drawn on it is
+      // white-on-white in dark mode. Eleven of these shipped outside settings
+      // — the scan result "Scan again" pill, the category chips over photos,
+      // the success sheet, the safety card — each individually plausible,
+      // because both halves were correct on their own.
+      final offenders = <String>[];
+
+      void walk(Directory dir) {
+        for (final e in dir.listSync()) {
+          if (e is Directory) {
+            walk(e);
+          } else if (e is File && e.path.endsWith('.dart')) {
+            final src = e.readAsStringSync();
+            for (final m in RegExp(
+                    r'BoxDecoration\((?:[^()]|\([^()]*\))*?color:\s*Colors\.white\b',
+                    dotAll: true)
+                .allMatches(src)) {
+              final end = (m.start + 700).clamp(0, src.length);
+              final seg = src.substring(m.start, end);
+              if (RegExp(r'color:\s*L\.(text|sub|onCard)\b').hasMatch(seg)) {
+                offenders.add('${e.path}:${'\n'.allMatches(src.substring(0, m.start)).length + 1}');
+              }
+            }
+          }
+        }
+      }
+
+      walk(Directory('lib/screens'));
+      walk(Directory('lib/widgets'));
+
+      expect(offenders, isEmpty,
+          reason: 'white surface with themed text on it:\n${offenders.join("\n")}');
+    });
+  });
 }

@@ -126,7 +126,7 @@ class KnowYourMedicineSheet extends StatelessWidget {
                           width: 52,
                           height: 52,
                           decoration: BoxDecoration(
-                            color: Colors.white.withValues(alpha: 0.85),
+                            color: context.L.card.withValues(alpha: 0.85),
                             borderRadius: BorderRadius.circular(AppRadius.s),
                           ),
                           child: Icon(Icons.medication_rounded,

@@ -367,7 +367,7 @@ class ScanResultDetailView extends StatelessWidget {
                     width: 34,
                     height: 34,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.72),
+                      color: context.L.card.withValues(alpha: 0.72),
                       borderRadius: AppRadius.roundS,
                     ),
                     child: Icon(
@@ -775,7 +775,7 @@ class _PhotoHero extends StatelessWidget {
                   vertical: AppSpacing.p8,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.94),
+                  color: context.L.card.withValues(alpha: 0.94),
                   borderRadius: BorderRadius.circular(AppRadius.max),
                 ),
                 child: Row(
@@ -919,7 +919,7 @@ class _BodyImpactPremium extends StatelessWidget {
             vertical: AppSpacing.p8,
           ),
           decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.8),
+            color: context.L.card.withValues(alpha: 0.8),
             borderRadius: BorderRadius.circular(AppRadius.max),
           ),
           child: Text(

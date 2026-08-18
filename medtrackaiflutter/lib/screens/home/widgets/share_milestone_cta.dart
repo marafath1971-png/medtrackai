@@ -46,7 +46,7 @@ class ShareMilestoneCta extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(AppSpacing.p12),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.85),
+                color: context.L.card.withValues(alpha: 0.85),
                 shape: BoxShape.circle,
               ),
               child: Icon(Icons.share_rounded, size: 18, color: L.accent),

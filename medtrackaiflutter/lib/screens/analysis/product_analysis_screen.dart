@@ -252,7 +252,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                                 vertical: 10,
                               ),
                               decoration: BoxDecoration(
-                                color: Colors.white.withValues(alpha: 0.85),
+                                color: context.L.card.withValues(alpha: 0.85),
                                 borderRadius:
                                     BorderRadius.circular(AppRadius.max),
                               ),
@@ -786,7 +786,7 @@ class _TopBar extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: context.L.card,
                 shape: BoxShape.circle,
                 boxShadow: AppShadows.soft,
               ),

@@ -378,7 +378,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                   vertical: AppSpacing.p8,
                 ),
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.94),
+                  color: context.L.card.withValues(alpha: 0.94),
                   borderRadius: BorderRadius.circular(AppRadius.max),
                 ),
                 child: Text(

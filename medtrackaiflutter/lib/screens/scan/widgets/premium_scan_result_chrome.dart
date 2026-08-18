@@ -196,7 +196,7 @@ class ScanInsightTile extends StatelessWidget {
                 width: 34,
                 height: 34,
                 decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.72),
+                  color: context.L.card.withValues(alpha: 0.72),
                   borderRadius: BorderRadius.circular(AppRadius.s),
                 ),
                 child: Icon(icon, size: 18, color: L.text),

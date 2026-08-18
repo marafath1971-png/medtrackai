@@ -69,7 +69,7 @@ class ScanSuccessSheet extends StatelessWidget {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.85),
+                    color: context.L.card.withValues(alpha: 0.85),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(Icons.check_rounded,
