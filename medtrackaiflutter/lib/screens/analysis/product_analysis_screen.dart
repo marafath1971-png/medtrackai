@@ -10,7 +10,6 @@ import '../../core/utils/haptic_engine.dart';
 import '../../core/utils/scan_safety_mapper.dart';
 import '../../models/product_analysis.dart';
 import '../../providers/app_state.dart';
-import '../../providers/controllers/medication_controller.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/animated_pressable.dart';
 import '../../widgets/common/app_scaffold.dart';
@@ -114,7 +113,12 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
       aiSafetyProfile: safetyProfileFromProductAnalysis(widget.product),
     );
 
-    await context.read<MedicationController>().addMedicine(newMed);
+    // Through AppState, not MedicationController directly: AppState.addMedicine
+    // is what calls _rescheduleNotifications(). Calling the controller skipped
+    // that, so a medicine added from a scan saved with its full schedule and
+    // never armed a single reminder — the manual-add path did, so the app
+    // reminded you about typed medicines and silently forgot scanned ones.
+    await appState.addMedicine(newMed);
     if (!mounted) return;
     setState(() => _added = true);
     appState.showToast("You're set — ${newMed.name} is tracking",
