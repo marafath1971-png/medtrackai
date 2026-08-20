@@ -58,10 +58,13 @@ class PurchasesService {
         '(${key.length} chars)');
 
     if (!_isValidKey(key)) {
+      // Deliberately does not echo the configured value. Naming the known
+      // placeholder here was fine while that is what ships, but the same line
+      // would print a hint about a real key once one is set.
       appLogger.w('💰 RevenueCat: no valid API key — billing disabled. '
           'Set PURCHASES_API_KEY (or RC_GOOGLE_KEY/RC_APPLE_KEY) in .env to a '
-          'real key from the RevenueCat dashboard; the bundled value is the '
-          'placeholder "demo_purchases_key", so nothing can be sold.');
+          'real goog_/appl_ key from the RevenueCat dashboard; until then '
+          'nothing can be sold.');
       _configured = false;
       _misconfigured = true;
       return;
