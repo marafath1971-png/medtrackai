@@ -78,4 +78,56 @@ void main() {
       expect(src.contains('timeZoneResolved'), isTrue);
     });
   });
+
+  group('the wall-clock semantics of the scheduler', () {
+    test('TZDateTime.from re-expresses an instant, it does not keep the hour',
+        () {
+      // This is why the UTC fallback did not simply shift every alarm by the
+      // device offset: the conversion preserves the absolute instant, so an
+      // 08:00 dose armed on a UTC+6 device still fired at 08:00 there.
+      final ny = tz.getLocation('America/New_York');
+      final local = DateTime.utc(2026, 8, 18, 8);
+      final converted = tz.TZDateTime.from(local, ny);
+
+      expect(converted.hour, isNot(local.hour),
+          reason: 'the wall clock moves when the zone differs');
+      expect(converted.toUtc(), local,
+          reason: 'the instant is what is preserved');
+    });
+
+    test('a matching zone does preserve the wall clock', () {
+      // The shipping case once refreshTimeZone resolves correctly.
+      final dhaka = tz.getLocation('Asia/Dhaka');
+      final wall = tz.TZDateTime(dhaka, 2026, 8, 18, 8);
+
+      expect(wall.hour, 8);
+      expect(wall.timeZoneOffset.inHours, 6);
+    });
+
+    test('a stale zone is what actually breaks reminders', () {
+      // Scheduled notifications are absolute instants derived from tz.local
+      // when they were armed. Fly from Dhaka to New York and an 08:00 dose
+      // keeps firing on Dhaka's clock — 22:00 the previous evening locally —
+      // until the zone is re-resolved and the reminders re-armed.
+      final dhaka = tz.getLocation('Asia/Dhaka');
+      final ny = tz.getLocation('America/New_York');
+      final armedInDhaka = tz.TZDateTime(dhaka, 2026, 8, 18, 8);
+      final seenInNy = tz.TZDateTime.from(armedInDhaka, ny);
+
+      expect(seenInNy.hour, isNot(8));
+      expect(seenInNy.day, 17);
+    });
+  });
+
+  group('the zone is re-resolved when the app resumes', () {
+    test('the shell refreshes and re-arms on a zone change', () {
+      // refreshTimeZone previously ran only from loadFromStorage — a cold
+      // start — so an app left resident kept a stale zone indefinitely.
+      final src = File('lib/screens/app_shell.dart').readAsStringSync();
+
+      expect(src.contains('_resyncTimeZone'), isTrue);
+      expect(src.contains('refreshNotifications'), isTrue,
+          reason: 're-resolving the zone is pointless without re-arming');
+    });
+  });
 }

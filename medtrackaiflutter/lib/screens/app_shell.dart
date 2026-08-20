@@ -16,6 +16,9 @@ import 'package:go_router/go_router.dart';
 import 'security/lock_screen.dart';
 import '../l10n/app_localizations.dart';
 
+import 'package:timezone/timezone.dart' as tz;
+import '../core/utils/logger.dart';
+import '../services/notification_service.dart';
 import '../services/analytics_service.dart';
 import '../services/referral_service.dart';
 import '../services/growth_tracker.dart';
@@ -220,7 +223,25 @@ class _AppShellState extends State<AppShell>
           setState(() => _dismissedOfflineBanner = false);
         }
       });
+      // Re-anchor reminders to the zone the user is actually in.
+      //
+      // Scheduled notifications are absolute instants derived from tz.local at
+      // the time they were armed, so they keep firing on the old zone's clock
+      // after the user flies somewhere or a DST boundary passes.
+      // refreshTimeZone previously ran only in loadFromStorage — a cold start —
+      // so an app left resident stayed on a stale zone indefinitely.
+      _resyncTimeZone();
     }
+  }
+
+  /// Re-resolves the device zone and re-arms reminders if it changed.
+  Future<void> _resyncTimeZone() async {
+    final before = tz.local.name;
+    await NotificationService.refreshTimeZone();
+    if (!mounted || tz.local.name == before) return;
+    appLogger.i('[AppShell] Time zone changed $before -> ${tz.local.name}; '
+        'rescheduling reminders');
+    await context.read<AppState>().refreshNotifications();
   }
 
   void _onReentryClosed() {
