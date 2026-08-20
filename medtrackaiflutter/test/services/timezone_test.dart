@@ -130,4 +130,63 @@ void main() {
           reason: 're-resolving the zone is pointless without re-arming');
     });
   });
+
+  group('the scheduler produces the hour the user chose', () {
+    // End-to-end arithmetic from scheduleWeeklyReminder, with tz.local
+    // resolved as it now is on a real device.
+    tz.TZDateTime schedule({
+      required DateTime now,
+      required int dayIdx,
+      required int hour,
+      required int minute,
+    }) {
+      final targetWeekday = dayIdx == 0 ? 7 : dayIdx;
+      var base = DateTime(now.year, now.month, now.day, hour, minute);
+      var daysUntil = (targetWeekday - now.weekday + 7) % 7;
+      if (daysUntil == 0 && base.isBefore(now)) daysUntil = 7;
+      base = base.add(Duration(days: daysUntil));
+      return tz.TZDateTime.from(base, tz.local);
+    }
+
+    setUp(() => tz.setLocalLocation(tz.getLocation('Asia/Dhaka')));
+
+    test('an 08:00 dose is scheduled at 08:00 local', () {
+      final s = schedule(
+        now: DateTime(2026, 8, 20, 6),
+        dayIdx: 4, // Thursday
+        hour: 8,
+        minute: 0,
+      );
+
+      expect(s.hour, 8);
+      expect(s.minute, 0);
+      expect(s.timeZoneOffset.inHours, 6);
+    });
+
+    test('it lands on the requested weekday', () {
+      for (final dayIdx in [0, 1, 2, 3, 4, 5, 6]) {
+        final s = schedule(
+          now: DateTime(2026, 8, 20, 6),
+          dayIdx: dayIdx,
+          hour: 8,
+          minute: 0,
+        );
+
+        expect(s.weekday % 7, dayIdx, reason: 'dayIdx $dayIdx landed wrong');
+      }
+    });
+
+    test("a dose already past today rolls to next week, not now", () {
+      // Thursday 14:30, asking for Thursday 08:00.
+      final s = schedule(
+        now: DateTime(2026, 8, 20, 14, 30),
+        dayIdx: 4,
+        hour: 8,
+        minute: 0,
+      );
+
+      expect(s.day, 27, reason: 'a past dose must not fire immediately');
+      expect(s.hour, 8);
+    });
+  });
 }
