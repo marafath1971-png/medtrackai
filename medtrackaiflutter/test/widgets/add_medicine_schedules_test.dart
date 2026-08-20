@@ -55,4 +55,32 @@ void main() {
           reason: 'adding a medicine has to arm its reminders');
     });
   });
+
+  group('snooze actually re-arms', () {
+    test('snoozeDose schedules rather than only logging', () {
+      // It logged a line, buzzed, and returned — so any caller would have
+      // shown a "snoozed" confirmation for a reminder that never came back.
+      // Nothing in the UI reaches it today (the notification action handler
+      // schedules its own one-off), but a method that looks like it works is
+      // a trap for the next caller.
+      final src = File('lib/providers/controllers/medication_controller.dart')
+          .readAsStringSync();
+      final idx = src.indexOf('Future<void> snoozeDose(');
+      expect(idx, greaterThan(-1));
+
+      final body = src.substring(idx, (idx + 700).clamp(0, src.length));
+      expect(body.contains('scheduleOneOffReminder'), isTrue,
+          reason: 'snoozing has to schedule something');
+    });
+
+    test('it uses the minutes it was given', () {
+      final src = File('lib/providers/controllers/medication_controller.dart')
+          .readAsStringSync();
+      final idx = src.indexOf('Future<void> snoozeDose(');
+      final body = src.substring(idx, (idx + 700).clamp(0, src.length));
+
+      expect(body.contains('Duration(minutes: minutes)'), isTrue,
+          reason: 'a hardcoded delay would ignore the caller');
+    });
+  });
 }

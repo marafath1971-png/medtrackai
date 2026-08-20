@@ -743,9 +743,25 @@ class MedicationController extends ChangeNotifier {
   Future<String?> uploadMedicineImage(File file) =>
       medRepo.uploadMedicineImage(file);
 
+  /// Re-arms a dose reminder [minutes] from now.
+  ///
+  /// This logged a line, buzzed, and returned. Nothing was scheduled, so any
+  /// caller would have shown a "snoozed" confirmation for a reminder that
+  /// never came back. Nothing in the UI reaches it today — the notification
+  /// action handler in AppState schedules its own one-off — but a dead method
+  /// that looks like it works is a trap for the next caller.
   Future<void> snoozeDose(DoseItem dose, int minutes) async {
-    appLogger.i('[Med] Snoozing dose ${dose.med.name}');
+    appLogger.i('[Med] Snoozing ${dose.med.name} for ${minutes}m');
     HapticEngine.selection();
+
+    await NotificationService.scheduleOneOffReminder(
+      id: dose.hashCode.remainder(0x7FFFFFFF),
+      title: '⏰ Snoozed: Time for ${dose.med.name}',
+      body: '${dose.med.dose} · ${dose.sched.label}',
+      scheduledDate: DateTime.now().add(Duration(minutes: minutes)),
+      payload: '${dose.med.id}|${dose.sched.h}|${dose.sched.m}|'
+          '${dose.sched.label}',
+    );
   }
 
   Future<void> logPaywallEvent(String eventName) async {
