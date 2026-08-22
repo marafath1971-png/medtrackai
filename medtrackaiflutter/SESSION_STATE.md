@@ -22,24 +22,34 @@ fabricated claims that were a Play policy risk.
 - No crashes, no ANR, zero 16 KB warnings
 - `USE_EXACT_ALARM` and `POST_NOTIFICATIONS` both granted
 
-## NOT verified — the one test still outstanding
+## Reminders — verified end to end
 
-**Scan a medicine, then confirm the reminder fires.**
+The bug that motivated this: a medicine added by scanning saved with its full
+schedule and armed **zero** alarms. Fixed in 6d7ff73, and confirmed on the
+device after installing that build:
 
-This matters because it is exactly the test that exposed the worst bug of the
-session: a medicine added by scanning saved correctly, with its schedule, and
-armed no alarm at all (`dumpsys alarm` showed zero). Fixed in 6d7ff73, but the
-build carrying that fix was never installed — the device dropped off during
-`adb install` and has not been reachable since.
+    alarms for the app:  70          (was 0)
+    tag:                 flutterlocalnotifications.ScheduledNotificationReceiver
+    origWhen:            1787371200000 -> Sat 10:00 +06 Dhaka
 
-To check it yourself:
+The firing time doubles as proof of the timezone fix — a clean local hour
+rather than one shifted by the UTC offset.
 
-    adb shell dumpsys alarm | grep -c medtrackaiflutter
+Notification delivery is also configured correctly, checked against the live
+device policy rather than assumed:
 
-Anything above 0 after adding a medicine means reminders are armed.
+- `med_reminders_v2` — importance 5, `USAGE_ALARM`, `category: alarm`
+- The channel has `mBypassDnd=false`, but the device's consolidated policy
+  allows `PRIORITY_CATEGORY_ALARMS` **with sound**, so dose reminders pass
+  through Do Not Disturb anyway. The plugin (flutter_local_notifications
+  9.9.1) does not expose `bypassDnd`, so this is worth re-checking if the
+  plugin is upgraded or a user runs a stricter DND policy.
+- `USE_FULL_SCREEN_INTENT` and `USE_EXACT_ALARM` both granted; the latter
+  cannot be revoked on Android 13+.
 
-Also unverified visually: dark mode in Settings (dc94011 fixed white-on-white
-text there, and it has never been seen rendered).
+Still unverified visually: dark mode in Settings (dc94011 fixed white-on-white
+text there, and it has never been seen rendered), and how the 12 short-flow
+screens read in sequence.
 
 ## Known-good but unfinished
 
