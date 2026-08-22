@@ -342,6 +342,13 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Persists a custom reminder sound.
+  ///
+  /// Nothing reads `reminderSound` back — NotificationService picks the sound
+  /// from the channel, not the profile — and no screen calls this. It is
+  /// dormant rather than broken (unlike notifRefill, which had a live toggle
+  /// writing a value nothing consumed), but wiring a sound picker to this
+  /// would silently do nothing until the service reads the field too.
   Future<void> updateReminderSound(String sound) async {
     if (_profile == null) return;
     _profile = _profile!.copyWith(reminderSound: sound);
