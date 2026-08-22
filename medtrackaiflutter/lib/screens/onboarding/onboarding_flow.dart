@@ -68,7 +68,22 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     'plan_ready', 'trial_flash', 'welcome_done',
   ];
 
-  double get _progress => (_i + 1) / _total;
+  /// Fraction of the *enabled* steps completed.
+  ///
+  /// Was `(_i + 1) / _total` against a fixed 56. In the short flow the last
+  /// step is index 53, so the bar would have crept to ~96% and stopped, and
+  /// early steps would have looked stalled — index 4 of 56 reads as 9% when
+  /// the user is really two screens into twelve.
+  double get _progress {
+    var seen = 0;
+    var total = 0;
+    for (var i = 0; i < _total; i++) {
+      if (_isStepDisabled(i)) continue;
+      total++;
+      if (i <= _i) seen++;
+    }
+    return total == 0 ? 0 : seen / total;
+  }
 
   @override
   void initState() {
@@ -83,9 +98,43 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     });
   }
 
+  /// The 12-step funnel, as indices into [_stepNames].
+  ///
+  /// Chosen by tracing which answers the app actually consumes, not by taste:
+  /// med_count, persona, timing and reminder intensity feed OnboardingPrefs;
+  /// goal personalises the paywall headline; challenge and miss_frequency drive
+  /// the adherence baseline; conditions is saved to the profile. welcome,
+  /// scan_intro, personal_summary, notifications and plan_ready carry the
+  /// value story and the permission ask.
+  ///
+  /// Everything else is an interstitial — including relate_forget,
+  /// relate_refill, relate_mixing and relate_guilt, which are the same screen
+  /// four times, and three separate competitor-comparison charts.
+  static const Set<int> _shortFlowSteps = {
+    0,  // welcome
+    4,  // goal              -> paywall headline
+    6,  // persona           -> role
+    10, // conditions        -> profile
+    12, // med_count         -> medCount
+    17, // timing            -> schedule
+    18, // challenge         -> copy + baseline
+    19, // miss_frequency    -> adherence baseline
+    32, // scan_intro        -> the one value interstitial
+    45, // personal_summary  -> reflects their answers back
+    49, // notifications     -> permission at the value peak
+    53, // plan_ready        -> hand-off to the paywall
+  };
+
   /// Steps that Remote Config can remove from the funnel without a release.
   /// Index 50 = ATT permission, 51 = rating request (see [_stepNames]).
   bool _isStepDisabled(int i) {
+    // The short flow is a filter over the same steps rather than a second
+    // widget tree: every screen keeps its existing index, analytics id and
+    // answer wiring, so the two variants cannot drift apart and switching
+    // between them is a config change rather than a release.
+    if (RemoteConfigService.shortOnboarding && !_shortFlowSteps.contains(i)) {
+      return true;
+    }
     if (i == 50) return !RemoteConfigService.showAttStep;
     if (i == 51) return !RemoteConfigService.showRatingStep;
     return false;

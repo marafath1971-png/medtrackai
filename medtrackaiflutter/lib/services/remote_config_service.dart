@@ -30,6 +30,9 @@ class RemoteConfigService {
     'onboarding_show_rating_step': true,
     'onboarding_show_att_step': true,
     'onboarding_skip_enabled': true,
+    // Off by default: the 56-step funnel stays live until the short variant
+    // has been measured against it.
+    'onboarding_short_flow': false,
     // Defer the onboarding paywall until the user has added their first med
     // (the activation "aha"). Session-1 activators convert 2-3x better, so
     // asking for the trial *after* value should lift trial-start rate.
@@ -76,6 +79,16 @@ class RemoteConfigService {
   static bool get showWeeklyPlan => getBool('paywall_show_weekly_plan');
   static bool get showRatingStep => getBool('onboarding_show_rating_step');
   static bool get showAttStep => getBool('onboarding_show_att_step');
+
+  /// Runs the 12-step funnel instead of the full 56.
+  ///
+  /// Only 14 of the 56 steps collect an answer the app ever reads, and 5 of
+  /// those configure anything; the rest are interstitials, including four
+  /// near-identical "relate_*" screens and three competitor-comparison charts.
+  /// Each step is a chance to leave, so the short flow should reach the paywall
+  /// with far more of the users who started — but that is a prediction, and
+  /// this exists so it can be measured rather than assumed.
+  static bool get shortOnboarding => getBool('onboarding_short_flow');
   static int get freeTierMedLimit => getInt('free_tier_med_limit');
   static int get freeTierScanLimit => getInt('free_tier_scan_limit');
   static int get freeTierVoiceLimit => getInt('free_tier_voice_limit');
