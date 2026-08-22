@@ -87,7 +87,14 @@ class SettingsSection extends StatelessWidget {
 /// keeps the label legible against the tint, because these rows delete health
 /// records and were previously styled ad hoc per screen.
 class SettingsRow extends StatelessWidget {
-  final IconData icon;
+  /// [IconData], or an emoji string the caller's resolver maps to one.
+  ///
+  /// The settings tabs were written against emoji literals ('🔔', '⚡'), so the
+  /// kit accepts them rather than forcing 38 call sites to change shape. An
+  /// emoji with no mapping renders as itself instead of vanishing — the blank
+  /// chips that shipped were a resolver returning null and the row drawing the
+  /// empty tile anyway.
+  final Object icon;
   final String title;
   final String? subtitle;
   final Widget? trailing;
@@ -110,6 +117,7 @@ class SettingsRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     final fg = destructive ? const Color(0xFFB4494A) : L.text;
+    final resolved = icon is IconData ? icon as IconData : null;
     final iconTint = destructive
         ? const Color(0xFFB4494A).withValues(alpha: 0.12)
         : (tint ?? AppColors.pastelMint);
@@ -126,11 +134,15 @@ class SettingsRow extends StatelessWidget {
               color: iconTint,
               borderRadius: BorderRadius.circular(AppRadius.xs),
             ),
-            child: Icon(icon,
-                size: 17,
-                color: destructive
-                    ? const Color(0xFFB4494A)
-                    : AppColors.accentDeep),
+            child: resolved != null
+                ? Icon(resolved,
+                    size: 17,
+                    color: destructive
+                        ? const Color(0xFFB4494A)
+                        : AppColors.accentDeep)
+                : Center(
+                    child: Text('$icon',
+                        style: const TextStyle(fontSize: 15))),
           ),
           const SizedBox(width: AppSpacing.p12),
           Expanded(

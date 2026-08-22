@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/utils/haptic_engine.dart';
 import '../../../../theme/med_ai_ui.dart';
 import '../../../../widgets/common/animated_pressable.dart';
+import '../../../settings/widgets/settings_kit.dart';
 import 'ios_settings_style.dart';
 
 class SettingsSection extends StatelessWidget {
@@ -84,119 +84,31 @@ class SettingsModalRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final L = context.L;
-    final isInteractive = onClick != null;
-    final resolvedIcon = iosSettingsResolveIcon(icon);
-    final iconColor = iosSettingsIconColor(icon, iconBg);
+    // Delegates to SettingsRow so there is one row implementation rather than
+    // two that drift. This wrapper keeps the emoji-to-IconData resolution and
+    // the first/last/border grouping the 38 existing call sites pass, so none
+    // of them had to change shape.
+    final resolved = iosSettingsResolveIcon(icon);
 
-    Widget row = Column(
+    return Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        Container(
-          // 48dp for anything the user can act on, 44 for a static read-only
-          // row. Every row was pinned at the compact 44 regardless, which is
-          // under the platform minimum for a touch target — and these rows
-          // carry toggles that change whether notifications fire and links
-          // that delete an account.
-          constraints: BoxConstraints(
-            minHeight: (isInteractive || right != null)
-                ? MedAiA11y.minTapTarget
-                : MedAiA11y.minTapTargetCompact,
-          ),
-          padding: const EdgeInsets.symmetric(
-            horizontal: IosSettingsTokens.rowHPad,
-            vertical: IosSettingsTokens.rowVPad,
-          ),
-          color: Colors.transparent,
-          child: Row(
-            children: [
-              if (resolvedIcon != null)
-                IosSettingsIcon(icon: resolvedIcon, background: iconColor)
-              else
-                Container(
-                  width: IosSettingsTokens.iconSize,
-                  height: IosSettingsTokens.iconSize,
-                  decoration: BoxDecoration(
-                    color: AppColors.pastelMint,
-                    borderRadius:
-                        BorderRadius.circular(IosSettingsTokens.iconRadius),
-                  ),
-                  child: Center(
-                    child: Text(
-                      icon.toString(),
-                      style: const TextStyle(fontSize: 15),
-                    ),
-                  ),
-                ),
-              const SizedBox(width: IosSettingsTokens.iconGap),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Text(
-                      label,
-                      style: AppTypography.bodyLarge.copyWith(
-                        fontWeight: FontWeight.w600,
-                        color: L.text,
-                        fontSize: 16,
-                        letterSpacing: -0.3,
-                        height: 1.2,
-                      ),
-                      overflow: TextOverflow.ellipsis,
-                      maxLines: 2,
-                    ),
-                    if (sub != null)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 3),
-                        child: Text(
-                          sub!,
-                          style: AppTypography.bodySmall.copyWith(
-                            color: L.sub.withValues(alpha: 0.85),
-                            fontWeight: FontWeight.w500,
-                            fontSize: 13,
-                            height: 1.3,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              if (right != null)
-                Padding(
-                  padding:
-                      const EdgeInsetsDirectional.only(start: AppSpacing.p8),
-                  child: right!,
-                )
-              else if (onClick != null)
-                Icon(
-                  CupertinoIcons.chevron_forward,
-                  size: IosSettingsTokens.chevronSize,
-                  color: L.sub.withValues(alpha: 0.35),
-                ),
-            ],
-          ),
+        SettingsRow(
+          icon: resolved ?? icon,
+          title: label,
+          subtitle: sub,
+          trailing: right,
+          tint: iconBg,
+          onTap: onClick == null
+              ? null
+              : () {
+                  HapticEngine.selection();
+                  onClick!();
+                },
         ),
         if (border) const IosInsetSeparator(),
       ],
     );
-
-    if (isInteractive) {
-      row = Semantics(
-        button: true,
-        label: sub != null ? '$label. $sub' : label,
-        child: AnimatedPressable(
-          onTap: () {
-            HapticEngine.selection();
-            onClick!();
-          },
-          scaleFactor: 0.99,
-          child: row,
-        ),
-      );
-    }
-
-    return row;
   }
 }
 
