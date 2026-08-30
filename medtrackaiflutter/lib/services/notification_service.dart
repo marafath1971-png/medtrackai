@@ -451,6 +451,19 @@ class NotificationService {
     );
   }
 
+  /// Unused. Caregiver alerting is server-side, not local.
+  ///
+  /// Nothing calls this. The real path is the `detectMissedDoses` Cloud
+  /// Function, which runs hourly, finds missed doses across monitored users and
+  /// pushes to each caregiver's FCM token — so escalation works even when the
+  /// patient's phone is asleep or the app has been force-stopped, which a
+  /// locally scheduled notification cannot do.
+  ///
+  /// Its body also tells the *patient* that "an alert has been escalated to
+  /// your caregiver network", which this method has no way of knowing: it
+  /// schedules a local notification and contacts nobody. Kept only because the
+  /// channel it defines is registered and referenced elsewhere; wire the server
+  /// path rather than this if a second escalation surface is ever wanted.
   static Future<void> scheduleCaregiverEscalation({
     required Medicine med,
     required ScheduleEntry sched,
