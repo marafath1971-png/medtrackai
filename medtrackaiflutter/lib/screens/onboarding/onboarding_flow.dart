@@ -110,6 +110,11 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
   /// Everything else is an interstitial — including relate_forget,
   /// relate_refill, relate_mixing and relate_guilt, which are the same screen
   /// four times, and three separate competitor-comparison charts.
+  ///
+  /// welcome_done is listed even though _next() cannot skip the final index
+  /// anyway (`n < _total - 1`), because that is a loop bound rather than an
+  /// intent: it is the step that calls _complete() and presents the paywall,
+  /// so the set should say so rather than depend on the guard.
   static const Set<int> _shortFlowSteps = {
     0,  // welcome
     4,  // goal              -> paywall headline
@@ -123,6 +128,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     45, // personal_summary  -> reflects their answers back
     49, // notifications     -> permission at the value peak
     53, // plan_ready        -> hand-off to the paywall
+    55, // welcome_done      -> calls _complete(), which shows the paywall
   };
 
   /// Steps that Remote Config can remove from the funnel without a release.

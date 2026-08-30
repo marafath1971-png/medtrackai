@@ -53,9 +53,38 @@ void main() {
       }
     });
 
-    test('it ends on a step that hands off to the paywall', () {
+    test('it ends on the step that completes onboarding', () {
+      // Simulating _next() showed the flow actually visits welcome_done: the
+      // loop bound (`n < _total - 1`) stops it skipping the final index, so
+      // that step renders whether or not the set names it. It is the screen
+      // that calls _complete() and presents the paywall, so the set names it.
       final last = keep.reduce((a, b) => a > b ? a : b);
-      expect(names[last], 'plan_ready');
+      expect(names[last], 'welcome_done');
+      expect(keep.contains(names.indexOf('plan_ready')), isTrue);
+    });
+
+    test('walking _next() reaches the end without stalling', () {
+      // The keep-set alone does not prove the flow is traversable — a gap the
+      // navigation cannot cross would strand the user mid-funnel.
+      const total = 56;
+      var i = 0;
+      final visited = <int>[0];
+      var guard = 0;
+
+      while (guard++ < total) {
+        var n = i + 1;
+        while (n < total - 1 && !keep.contains(n)) {
+          n++;
+        }
+        if (n > total - 1) break;
+        i = n;
+        visited.add(i);
+        if (i == total - 1) break;
+      }
+
+      expect(visited.last, total - 1, reason: 'the flow must reach its end');
+      expect(visited.length, keep.length,
+          reason: 'every kept step should be visited exactly once');
     });
   });
 
