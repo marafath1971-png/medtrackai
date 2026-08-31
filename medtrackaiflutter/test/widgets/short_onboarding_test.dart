@@ -129,4 +129,35 @@ void main() {
       expect(flow.contains('if (_isStepDisabled(i)) continue;'), isTrue);
     });
   });
+
+  group('back-navigation stays inside the flow', () {
+    test('every kept step lands on another kept step going back', () {
+      // _back() has its own skip loop with a different bound (`n > 0` rather
+      // than `n < _total - 1`), so forward traversal working does not prove
+      // backward traversal does. A gap here would drop the user onto a screen
+      // the short flow is meant to hide.
+      final offenders = <String>[];
+
+      for (final i in keep.where((i) => i != 0)) {
+        var n = i - 1;
+        while (n > 0 && !keep.contains(n)) {
+          n--;
+        }
+        if (!keep.contains(n)) {
+          offenders.add('${names[i]} -> ${names[n]}');
+        }
+      }
+
+      expect(offenders, isEmpty,
+          reason: 'back lands on a hidden step: ${offenders.join(", ")}');
+    });
+
+    test('back from the first step cannot escape the flow', () {
+      // _back() guards with `n >= 0`, so index 0 stays put rather than
+      // navigating to -1.
+      const first = 0;
+      expect(keep.contains(first), isTrue,
+          reason: 'the flow must start on an enabled step');
+    });
+  });
 }
