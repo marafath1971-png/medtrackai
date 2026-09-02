@@ -177,7 +177,7 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                     Text(_getWeekdayName(_selectedDate.weekday).toUpperCase(),
                         style: AppTypography.labelSmall.copyWith(
                             color: L.sub,
-                            fontSize: 9,
+                            fontSize: 11,
                             letterSpacing: 0.5,
                             fontWeight: FontWeight.w700)),
                   ],
@@ -277,7 +277,7 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                             : 'Daily Completion',
                         style: AppTypography.labelSmall.copyWith(
                           color: completion == 1.0 ? L.success : L.sub,
-                          fontSize: 10,
+                          fontSize: 11,
                           fontWeight: FontWeight.w900,
                           letterSpacing: 0.8,
                         ),
@@ -436,7 +436,7 @@ class _SectionHeader extends StatelessWidget {
         children: [
           Text(title,
               style: AppTypography.labelSmall.copyWith(
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: FontWeight.w900,
                 color: L.sub,
                 letterSpacing: 1.2,
@@ -449,7 +449,7 @@ class _SectionHeader extends StatelessWidget {
             ),
             child: Text('$count',
                 style: AppTypography.labelSmall.copyWith(
-                    fontSize: 10, fontWeight: FontWeight.w900, color: L.sub)),
+                    fontSize: 11, fontWeight: FontWeight.w900, color: L.sub)),
           ),
         ],
       ),
@@ -625,7 +625,7 @@ class _DoseLogRow extends StatelessWidget {
                             style: AppTypography.labelSmall.copyWith(
                               color: taken ? Colors.white : L.accent,
                               fontWeight: FontWeight.w900,
-                              fontSize: 9,
+                              fontSize: 11,
                               letterSpacing: 0.8,
                             ),
                           ),

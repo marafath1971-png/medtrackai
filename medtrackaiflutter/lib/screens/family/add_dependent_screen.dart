@@ -183,7 +183,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                                   label,
                                   style: AppTypography.labelSmall.copyWith(
                                     color: isSelected ? L.bg : L.sub,
-                                    fontSize: 10,
+                                    fontSize: 11,
                                     fontWeight: isSelected
                                         ? FontWeight.w900
                                         : FontWeight.w600,

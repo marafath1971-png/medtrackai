@@ -174,7 +174,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
                           child: Text(
                             statusLabel,
                             style: AppTypography.labelSmall.copyWith(
-                              fontSize: 10,
+                              fontSize: 11,
                               fontWeight: FontWeight.w800,
                               color: statusColor,
                               letterSpacing: 0.5,
@@ -255,7 +255,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
                               Text(
                                 'AI ADVICE',
                                 style: AppTypography.labelSmall.copyWith(
-                                  fontSize: 10,
+                                  fontSize: 11,
                                   color: L.secondary,
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 2.0,
@@ -285,7 +285,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
             child: Text(
               '⚠️ Informational only. Always consult your doctor or pharmacist for advice.',
               style: AppTypography.bodySmall.copyWith(
-                fontSize: 10,
+                fontSize: 11,
                 color: L.sub,
                 fontStyle: FontStyle.italic,
                 height: 1.4,

@@ -170,7 +170,7 @@ class UnifiedHeader extends StatelessWidget implements PreferredSizeWidget {
               'Pro',
               style: AppTypography.labelSmall.copyWith(
                 color: L.bg,
-                fontSize: 9,
+                fontSize: 11,
                 fontWeight: FontWeight.w800,
                 letterSpacing: 0.6,
               ),

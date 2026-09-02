@@ -336,7 +336,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                         'MEDAI MILESTONE // SHIELD',
                         style: TextStyle(
                           color: accentColor,
-                          fontSize: 9,
+                          fontSize: 11,
                           fontFamily: 'Outfit',
                           fontWeight: FontWeight.w900,
                           letterSpacing: 2.0,
@@ -353,7 +353,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                           '[SECURE_v2.026]',
                           style: TextStyle(
                             color: Colors.white30,
-                            fontSize: 7,
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
                             letterSpacing: 0.5,
                           ),
@@ -432,7 +432,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                             'DAY COMPLIANCE STREAK',
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.5),
-                              fontSize: 10,
+                              fontSize: 11,
                               fontWeight: FontWeight.w800,
                               letterSpacing: 1.2,
                             ),
@@ -493,7 +493,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                       'JOIN THE ROUTINE AT MEDAI.APP 💊',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.3),
-                        fontSize: 8,
+                        fontSize: 11,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 2.2,
                       ),
@@ -562,7 +562,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
             title,
             style: TextStyle(
               color: Colors.white.withValues(alpha: 0.35),
-              fontSize: 8,
+              fontSize: 11,
               fontWeight: FontWeight.w800,
               letterSpacing: 1.0,
             ),
@@ -772,7 +772,7 @@ class ShareAdherenceCard extends StatelessWidget {
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.3),
                           letterSpacing: 2,
-                          fontSize: 8,
+                          fontSize: 11,
                           fontWeight: FontWeight.w800,
                         ),
                       ),
@@ -802,7 +802,7 @@ class ShareAdherenceCard extends StatelessWidget {
                             style: TextStyle(
                               color: Color(0xFF6B7280),
                               letterSpacing: 2.0,
-                              fontSize: 9,
+                              fontSize: 11,
                               fontWeight: FontWeight.w800,
                             ),
                           ),
@@ -874,7 +874,7 @@ class ShareAdherenceCard extends StatelessWidget {
                       'JOIN THE ROUTINE AT MEDAI.APP 💊',
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.25),
-                        fontSize: 8,
+                        fontSize: 11,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 2.0,
                       ),

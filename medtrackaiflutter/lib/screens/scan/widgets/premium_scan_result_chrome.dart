@@ -313,7 +313,7 @@ class ScanBubbleRow extends StatelessWidget {
                   style: AppTypography.caption.copyWith(
                     color: L.text,
                     fontWeight: FontWeight.w700,
-                    fontSize: 9,
+                    fontSize: 11,
                     height: 1.1,
                   ),
                 ),

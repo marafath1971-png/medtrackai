@@ -72,12 +72,12 @@ class AlertLogCard extends StatelessWidget {
                     child: Text('New',
                         style: TextStyle(
                             color: L.sub,
-                            fontSize: 10,
+                            fontSize: 11,
                             fontWeight: FontWeight.w600)),
                   ),
                 Text(alert.timestamp.split(',').first,
                     style: AppTypography.labelLarge.copyWith(
-                        fontSize: 10,
+                        fontSize: 11,
                         fontWeight: FontWeight.w600,
                         color: L.sub.withValues(alpha: 0.6))),
               ],
@@ -396,7 +396,7 @@ class _Badge extends StatelessWidget {
             borderRadius: BorderRadius.circular(8)),
         child: Text(label,
             style: AppTypography.labelLarge.copyWith(
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
                 color: color)),
       );

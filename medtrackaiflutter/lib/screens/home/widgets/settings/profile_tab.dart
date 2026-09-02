@@ -218,7 +218,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       child: Text('PRO',
                           style: AppTypography.labelSmall.copyWith(
                               fontWeight: FontWeight.w800,
-                              fontSize: 10,
+                              fontSize: 11,
                               color: AppColors.limeInk,
                               letterSpacing: 0.5)),
                     ),
@@ -623,7 +623,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     'MedAI 1.0.0+1',
                     style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.4),
                       fontWeight: FontWeight.w800,
-                      fontSize: 10,
+                      fontSize: 11,
                       letterSpacing: 1.0,
                     ),
                   ),
@@ -633,7 +633,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     style: AppTypography.labelSmall.copyWith(
                       color: L.sub.withValues(alpha: 0.3),
                       fontWeight: FontWeight.w600,
-                      fontSize: 10,
+                      fontSize: 11,
                       letterSpacing: 0.1,
                     ),
                   ),

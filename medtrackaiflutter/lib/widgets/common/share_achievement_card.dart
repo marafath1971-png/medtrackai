@@ -90,7 +90,7 @@ class ShareAchievementCard extends StatelessWidget {
                       badgeLabel!.toUpperCase(),
                       style: AppTypography.labelLarge.copyWith(
                         color: L.onBg.withValues(alpha: 0.7),
-                        fontSize: 10,
+                        fontSize: 11,
                         fontWeight: FontWeight.w900,
                         letterSpacing: 1.5,
                       ),

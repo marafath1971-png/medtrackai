@@ -625,7 +625,7 @@ class SyncStatusBanner extends StatelessWidget {
           Text(
             isSyncing ? 'SYNCING_CLOUD' : 'CLOUD_STABLE',
             style: AppTypography.labelSmall.copyWith(
-              fontSize: 10,
+              fontSize: 11,
               fontWeight: FontWeight.w900,
               color: L.sub.withValues(alpha: 0.5),
               letterSpacing: 1.0,
@@ -1174,7 +1174,7 @@ class _DoseCardState extends State<DoseCard>
                                       child: Text(
                                         'Next',
                                         style: AppTypography.labelSmall.copyWith(
-                                          fontSize: 10,
+                                          fontSize: 11,
                                           fontWeight: FontWeight.w700,
                                           color: L.accent,
                                         ),
@@ -1425,7 +1425,7 @@ class StatusBadge extends StatelessWidget {
         style: AppTypography.labelSmall.copyWith(
           color: L.bg,
           fontWeight: FontWeight.w900,
-          fontSize: 10,
+          fontSize: 11,
           letterSpacing: 0.5,
         ),
       ),

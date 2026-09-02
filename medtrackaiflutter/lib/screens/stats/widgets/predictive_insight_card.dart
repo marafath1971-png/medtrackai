@@ -77,7 +77,7 @@ class PredictiveInsightCard extends StatelessWidget {
                     color: L.text,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.2,
-                    fontSize: 10,
+                    fontSize: 11,
                   ),
                 ),
                 const SizedBox(width: 8),

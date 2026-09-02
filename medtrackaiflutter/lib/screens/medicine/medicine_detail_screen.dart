@@ -1172,7 +1172,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                           color: L.sub,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 1.5,
-                          fontSize: 10)),
+                          fontSize: 11)),
                 ),
                 const SizedBox(height: AppSpacing.p12),
                 Row(
@@ -1224,7 +1224,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                           color: L.sub,
                           fontWeight: FontWeight.w600,
                           letterSpacing: 1.5,
-                          fontSize: 10)),
+                          fontSize: 11)),
                 ),
                 const SizedBox(height: AppSpacing.p12),
                 Flexible(
@@ -1489,7 +1489,7 @@ class _HeaderAction extends StatelessWidget {
                     color: L.text,
                     fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
-                    fontSize: 10)),
+                    fontSize: 11)),
           ]),
         ),
       ),
@@ -1593,7 +1593,7 @@ class _HistoryMatrix extends StatelessWidget {
           children: [
             Text('28 DAY ACTIVITY LOG',
                 style: AppTypography.labelSmall.copyWith(
-                    fontSize: 10,
+                    fontSize: 11,
                     color: L.sub.withValues(alpha: 0.7),
                     fontWeight: FontWeight.w600,
                     letterSpacing: 1.0)),
@@ -1601,11 +1601,11 @@ class _HistoryMatrix extends StatelessWidget {
               children: [
                 Container(width: 8, height: 8, decoration: BoxDecoration(color: L.fill.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2))),
                 const SizedBox(width: AppSpacing.p4),
-                Text('Missed', style: AppTypography.labelSmall.copyWith(fontSize: 10, color: L.sub, fontWeight: FontWeight.w500)),
+                Text('Missed', style: AppTypography.labelSmall.copyWith(fontSize: 11, color: L.sub, fontWeight: FontWeight.w500)),
                 const SizedBox(width: AppSpacing.p12),
                 Container(width: 8, height: 8, decoration: BoxDecoration(color: medColor, borderRadius: BorderRadius.circular(2))),
                 const SizedBox(width: AppSpacing.p4),
-                Text('Taken', style: AppTypography.labelSmall.copyWith(fontSize: 10, color: L.text, fontWeight: FontWeight.w500)),
+                Text('Taken', style: AppTypography.labelSmall.copyWith(fontSize: 11, color: L.text, fontWeight: FontWeight.w500)),
               ],
             ),
           ],
@@ -1830,7 +1830,7 @@ class _ColorPicker extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
-            child: Text("ACCENT COLOR", style: AppTypography.labelSmall.copyWith(color: L.sub, fontWeight: FontWeight.w600, letterSpacing: 1.0, fontSize: 10)),
+            child: Text("ACCENT COLOR", style: AppTypography.labelSmall.copyWith(color: L.sub, fontWeight: FontWeight.w600, letterSpacing: 1.0, fontSize: 11)),
           ),
           const SizedBox(height: AppSpacing.p12),
           SizedBox(

@@ -635,13 +635,13 @@ class _AppShellState extends State<AppShell>
                     style: selected
                         ? AppTypography.labelSmall.copyWith(
                             color: L.text,
-                            fontSize: 10,
+                            fontSize: 11,
                             fontWeight: FontWeight.w700,
                             height: 1.0,
                           )
                         : AppTypography.labelSmall.copyWith(
                             color: L.sub.withValues(alpha: 0.45),
-                            fontSize: 10,
+                            fontSize: 11,
                             fontWeight: FontWeight.w500,
                             height: 1.0,
                           ),

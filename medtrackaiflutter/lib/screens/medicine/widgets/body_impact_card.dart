@@ -181,7 +181,7 @@ class BodyImpactCard extends StatelessWidget {
                           style: AppTypography.labelSmall.copyWith(
                             color: L.text,
                             fontWeight: FontWeight.w800,
-                            fontSize: 10,
+                            fontSize: 11,
                           ),
                         ),
                       ],

@@ -131,7 +131,7 @@ class StatsTab extends StatelessWidget {
                     "On track",
                     style: AppTypography.labelSmall.copyWith(
                       color: AppColors.limeInk,
-                      fontSize: 10,
+                      fontSize: 11,
                       fontWeight: FontWeight.w800,
                     ),
                   ),
@@ -321,7 +321,7 @@ class StatsTab extends StatelessWidget {
                       const SizedBox(height: AppSpacing.p8),
                       Text(w['day'] as String,
                           style: AppTypography.labelLarge.copyWith(
-                              fontSize: 10,
+                              fontSize: 11,
                               fontWeight: FontWeight.w700,
                               color: L.sub)),
                     ]),
@@ -395,7 +395,7 @@ class StatsTab extends StatelessWidget {
                             const SizedBox(width: AppSpacing.p8),
                             Text(s.timestamp.toIso8601String().substring(5, 10),
                                 style: AppTypography.labelSmall
-                                    .copyWith(color: L.sub, fontSize: 10)),
+                                    .copyWith(color: L.sub, fontSize: 11)),
                           ],
                         ),
                       );
@@ -483,7 +483,7 @@ class StatsTab extends StatelessWidget {
                                             style: AppTypography.labelSmall
                                                 .copyWith(
                                                     color: L.sub,
-                                                    fontSize: 10)),
+                                                    fontSize: 11)),
                                       ],
                                     ),
                                     const SizedBox(width: AppSpacing.p16),
@@ -514,7 +514,7 @@ class StatsTab extends StatelessWidget {
                                                 .copyWith(
                                               color: L.text,
                                               fontWeight: FontWeight.w800,
-                                              fontSize: 10,
+                                              fontSize: 11,
                                               letterSpacing: 0.5,
                                             ),
                                           ),

@@ -269,7 +269,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                                 'Coaching',
                                 style: AppTypography.labelSmall.copyWith(
                                   color: L.accent.withValues(alpha: 0.8),
-                                  fontSize: 10,
+                                  fontSize: 11,
                                   letterSpacing: 0.1,
                                   fontWeight: FontWeight.w700,
                                 ),
@@ -302,7 +302,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                                   'MedAI companion',
                                   style: AppTypography.labelSmall.copyWith(
                                     color: L.accent,
-                                    fontSize: 10,
+                                    fontSize: 11,
                                     letterSpacing: 0.1,
                                     fontWeight: FontWeight.w700,
                                   ),
@@ -329,7 +329,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                                         'Live',
                                         style: AppTypography.labelSmall.copyWith(
                                           color: L.accent,
-                                          fontSize: 7,
+                                          fontSize: 11,
                                           fontWeight: FontWeight.w700,
                                           letterSpacing: 0.1,
                                         ),

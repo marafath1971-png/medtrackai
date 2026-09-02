@@ -226,7 +226,7 @@ class _CapMascotPainter extends CustomPainter {
           text: 'z',
           style: TextStyle(
             color: AppColors.grey500,
-            fontSize: 9,
+            fontSize: 11,
             fontWeight: FontWeight.w500,
           ),
         ),

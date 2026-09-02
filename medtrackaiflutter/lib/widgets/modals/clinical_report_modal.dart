@@ -181,7 +181,7 @@ class _ClinicalReportModalState extends State<ClinicalReportModal> {
                 Text(
                   label,
                   style: AppTypography.labelSmall.copyWith(
-                    fontSize: 10,
+                    fontSize: 11,
                     color: L.sub,
                     fontWeight: FontWeight.w700,
                     letterSpacing: 1.0,

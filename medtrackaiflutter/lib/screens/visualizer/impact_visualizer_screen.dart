@@ -906,7 +906,7 @@ class _ScrubberPanel extends StatelessWidget {
               textAlign: TextAlign.center,
               style: AppTypography.bodySmall.copyWith(
                 color: L.sub.withValues(alpha: 0.55),
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: FontWeight.w500,
               ),
             ),
@@ -919,7 +919,7 @@ class _ScrubberPanel extends StatelessWidget {
   TextStyle _cap(AppThemeColors L) => AppTypography.labelSmall.copyWith(
         color: L.sub,
         fontWeight: FontWeight.w700,
-        fontSize: 10,
+        fontSize: 11,
       );
 
   Widget _divider(AppThemeColors L) => Container(
@@ -945,7 +945,7 @@ class _ScrubberPanel extends StatelessWidget {
               style: AppTypography.labelSmall.copyWith(
                 color: L.sub,
                 fontWeight: FontWeight.w700,
-                fontSize: 9,
+                fontSize: 11,
                 letterSpacing: 0.4,
               ),
             ),

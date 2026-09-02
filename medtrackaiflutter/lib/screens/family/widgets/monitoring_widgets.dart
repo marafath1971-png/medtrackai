@@ -279,7 +279,7 @@ class WeeklyAdherenceChart extends StatelessWidget {
                 style: AppTypography.labelSmall.copyWith(
                     color: L.sub.withValues(alpha: 0.5),
                     fontWeight: FontWeight.w800,
-                    fontSize: 10,
+                    fontSize: 11,
                     letterSpacing: 0.5)),
           ],
         ),
@@ -314,7 +314,7 @@ class WeeklyAdherenceChart extends StatelessWidget {
                     style: AppTypography.labelSmall.copyWith(
                         color: L.sub,
                         fontWeight: FontWeight.w700,
-                        fontSize: 10)),
+                        fontSize: 11)),
               ],
             );
           }).toList(),

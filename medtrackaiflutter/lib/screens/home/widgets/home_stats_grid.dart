@@ -344,7 +344,7 @@ class _BentoMetricCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: AppTypography.labelSmall.copyWith(
                 color: L.sub.withValues(alpha: 0.5),
-                fontSize: 10,
+                fontSize: 11,
                 fontWeight: FontWeight.w600,
               ),
             ),

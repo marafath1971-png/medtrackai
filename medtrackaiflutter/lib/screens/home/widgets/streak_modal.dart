@@ -461,7 +461,7 @@ class _MiniHeroStat extends StatelessWidget {
           style: AppTypography.labelSmall.copyWith(
             fontWeight: FontWeight.w600,
             color: L.sub,
-            fontSize: 10,
+            fontSize: 11,
           ),
         ),
       ],
@@ -500,7 +500,7 @@ class _StatBox extends StatelessWidget {
             style: AppTypography.labelSmall.copyWith(
               color: L.sub,
               fontWeight: FontWeight.w600,
-              fontSize: 10,
+              fontSize: 11,
             ),
           ),
         ],
@@ -554,7 +554,7 @@ class _Heatmap extends StatelessWidget {
             child: Text(
               '${d.day}',
               style: AppTypography.labelSmall.copyWith(
-                fontSize: 9,
+                fontSize: 11,
                 fontWeight: FontWeight.w700,
                 color: rate >= 0.8 ? Colors.white : L.text.withValues(alpha: 0.5),
               ),
@@ -653,7 +653,7 @@ class _AscensionTrack extends StatelessWidget {
                                 'Next',
                                 style: AppTypography.labelSmall.copyWith(
                                   fontWeight: FontWeight.w700,
-                                  fontSize: 10,
+                                  fontSize: 11,
                                   color: L.primary,
                                 ),
                               ),
@@ -686,7 +686,7 @@ class _AscensionTrack extends StatelessWidget {
                         Text(
                           '${target - currentStreak} days remaining',
                           style: AppTypography.labelSmall.copyWith(
-                            fontSize: 10,
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: L.sub,
                           ),

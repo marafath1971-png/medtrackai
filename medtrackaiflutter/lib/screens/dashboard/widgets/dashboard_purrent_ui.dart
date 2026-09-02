@@ -358,7 +358,7 @@ class _PurrentMetricCard extends StatelessWidget {
                   style: AppTypography.caption.copyWith(
                     color: accent,
                     fontWeight: FontWeight.w800,
-                    fontSize: 10,
+                    fontSize: 11,
                   ),
                 ),
             ],

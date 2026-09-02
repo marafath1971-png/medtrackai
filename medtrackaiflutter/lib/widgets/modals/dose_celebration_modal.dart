@@ -206,7 +206,7 @@ class DoseCelebrationModal extends StatelessWidget {
                       style: AppTypography.labelSmall.copyWith(
                         color: AppColors.success,
                         fontWeight: FontWeight.w800,
-                        fontSize: 10,
+                        fontSize: 11,
                         letterSpacing: 1.2,
                       ),
                     ),

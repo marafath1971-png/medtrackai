@@ -465,7 +465,7 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                     children: [
                       const Text(
                         'General Information Tag',
-                        style: TextStyle(color: Colors.white38, fontSize: 10, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                       Semantics(
                         button: true,
@@ -484,7 +484,7 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                   const SizedBox(height: 6),
                   const Text(
                     'Disclaimer: Visualizer is for educational purposes and maps standard pharmacokinetics. Seek medical advice for personalized biology.',
-                    style: TextStyle(color: Colors.white24, fontSize: 9, fontStyle: FontStyle.italic),
+                    style: TextStyle(color: Colors.white24, fontSize: 11, fontStyle: FontStyle.italic),
                   ),
                 ],
               ),

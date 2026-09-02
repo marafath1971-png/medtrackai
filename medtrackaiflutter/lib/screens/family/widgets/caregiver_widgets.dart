@@ -183,7 +183,7 @@ class _CaregiverCardState extends State<CaregiverCard> {
                         color: isActive
                             ? AppColors.limeInk
                             : AppColors.grey600,
-                        fontSize: 10,
+                        fontSize: 11,
                         fontWeight: FontWeight.w700,
                       ),
                     ),
@@ -377,7 +377,7 @@ class _StatusPill extends StatelessWidget {
       child: Text(
         label,
         style: AppTypography.labelSmall.copyWith(
-          fontSize: 10,
+          fontSize: 11,
           color: color,
           fontWeight: FontWeight.w600,
         ),

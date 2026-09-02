@@ -184,6 +184,18 @@ class AppTypography {
         letterSpacing: 0.2,
       );
 
+  /// The smallest size any user-facing text may render at.
+  ///
+  /// 413 ad-hoc `fontSize:` overrides had accumulated across screens, 75 of
+  /// them at 10px or below — including the "Missed" and "Taken" legends on the
+  /// medicine history chart, which is content, not decoration. This app is used
+  /// by people managing several medications, often older adults, and 10px is
+  /// below what is comfortably readable for them.
+  ///
+  /// 11 matches Material's smallest label and iOS's caption2, so it is a floor
+  /// rather than an opinion.
+  static const double minFontSize = 11;
+
   /// Micro caption / overline — use instead of ad-hoc fontSize 9–11.
   static TextStyle get caption => GoogleFonts.outfit(
         fontSize: 11,

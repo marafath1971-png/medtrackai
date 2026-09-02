@@ -271,7 +271,7 @@ class IosSettingsSegmentedBar extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: AppTypography.labelSmall.copyWith(
-                  fontSize: 10,
+                  fontSize: 11,
                   fontWeight: selected ? FontWeight.w800 : FontWeight.w600,
                   color: selected
                       ? AppColors.limeInk

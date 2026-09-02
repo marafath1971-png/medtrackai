@@ -585,7 +585,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                       style: AppTypography.labelSmall.copyWith(
                         color: const Color(0xFF1A1D26),
                         fontWeight: FontWeight.w800,
-                        fontSize: 10,
+                        fontSize: 11,
                       ),
                     ),
                     Text(
@@ -593,7 +593,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                       textAlign: TextAlign.center,
                       style: AppTypography.labelSmall.copyWith(
                         color: const Color(0xFF8A9099),
-                        fontSize: 9,
+                        fontSize: 11,
                         height: 1.35,
                       ),
                     ),
@@ -906,7 +906,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                             color: isSelected
                                 ? AppColors.limeInk
                                 : const Color(0xFF8A9099),
-                            fontSize: 8,
+                            fontSize: 11,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -942,7 +942,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                       periodText,
                       style: AppTypography.labelSmall.copyWith(
                         color: const Color(0xFF8A9099),
-                        fontSize: 10,
+                        fontSize: 11,
                       ),
                     ),
                     if (equivalentText != null) ...[
@@ -953,7 +953,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                           equivalentText,
                           style: AppTypography.labelSmall.copyWith(
                             color: AppColors.limeDeep,
-                            fontSize: 9,
+                            fontSize: 11,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
@@ -1019,7 +1019,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
           'Manage or cancel any time in your device\'s App Store / Play Store account settings.',
           style: AppTypography.labelSmall.copyWith(
             color: const Color(0xFF8A9099),
-            fontSize: 10,
+            fontSize: 11,
             height: 1.6,
           ),
           textAlign: TextAlign.center,
@@ -1033,7 +1033,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
               '  ·  ',
               style: TextStyle(
                 color: Color(0xFF8A9099),
-                fontSize: 10,
+                fontSize: 11,
               ),
             ),
             _PaywallLegalLink(label: 'Terms of Use', url: kTermsOfServiceUrl),
@@ -1293,7 +1293,7 @@ class _PaywallLegalLink extends StatelessWidget {
           label,
           style: AppTypography.labelSmall.copyWith(
             color: const Color(0xFF8A9099),
-            fontSize: 10,
+            fontSize: 11,
             decoration: TextDecoration.underline,
             decorationColor: const Color(0xFFE8EAE6),
           ),

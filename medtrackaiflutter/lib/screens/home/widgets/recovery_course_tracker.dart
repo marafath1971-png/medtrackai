@@ -83,7 +83,7 @@ class RecoveryCourseTracker extends StatelessWidget {
                         Text(
                           'of $totalDays',
                           style: AppTypography.labelSmall.copyWith(
-                            fontSize: 10,
+                            fontSize: 11,
                             fontWeight: FontWeight.w600,
                             color: L.sub,
                             letterSpacing: 0.1,
@@ -110,7 +110,7 @@ class RecoveryCourseTracker extends StatelessWidget {
                         'Short-term course',
                         style: AppTypography.labelSmall.copyWith(
                           color: L.red,
-                          fontSize: 10,
+                          fontSize: 11,
                           fontWeight: FontWeight.w700,
                           letterSpacing: 0.1,
                         ),
