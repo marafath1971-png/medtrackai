@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/core/constants/med_ai_assets.dart';
+import 'package:medai/models/constants.dart';
 import 'package:medai/screens/loading/loading_screen.dart';
 import 'package:medai/widgets/common/ghost_mascot.dart';
 
@@ -29,7 +30,9 @@ void main() {
       await tester.pumpWidget(const MaterialApp(home: LoadingScreen()));
       await tester.pump(const Duration(milliseconds: 600));
 
-      expect(find.text('MedTrack AI'), findsOneWidget);
+      // Renamed: the wordmark follows kAppName rather than a literal, so
+      // this asserts the constant and not the string it happens to hold.
+      expect(find.text(kAppName), findsOneWidget);
       expect(find.text('Preparing your health workspace'), findsOneWidget);
 
       // No pumpAndSettle: the mascot idle float loops forever by design.
