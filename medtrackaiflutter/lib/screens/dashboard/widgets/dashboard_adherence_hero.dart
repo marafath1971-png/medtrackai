@@ -134,7 +134,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                         : pct >= 60
                             ? const Color(0xFF8A6A1A)
                             : AppColors.red,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),

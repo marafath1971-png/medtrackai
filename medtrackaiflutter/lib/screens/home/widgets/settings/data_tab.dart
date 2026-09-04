@@ -67,7 +67,7 @@ class _DataTabState extends State<DataTab> {
           children: [
             Text('Your data',
                 style: AppTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     color: L.text,
                     letterSpacing: -0.2)),
             Icon(Icons.analytics_rounded, color: L.text, size: 16),
@@ -186,7 +186,7 @@ class _DataTabState extends State<DataTab> {
                       child: Center(
                         child: Text(s.deleteButton,
                             style: AppTypography.labelLarge.copyWith(
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                                 color: Colors.white)),
                       ),
                     ),

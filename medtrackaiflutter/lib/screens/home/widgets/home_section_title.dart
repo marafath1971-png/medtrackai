@@ -50,7 +50,6 @@ class HomeSectionTitle extends StatelessWidget {
                       actionLabel!,
                       style: AppTypography.labelMedium.copyWith(
                         color: L.sub,
-                        fontWeight: FontWeight.w600,
                         fontSize: 14,
                       ),
                     ),

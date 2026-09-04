@@ -297,7 +297,6 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                       'Bioimpact timeline',
                       style: AppTypography.labelMedium.copyWith(
                         color: L.sub,
-                        fontWeight: FontWeight.w600,
                       ),
                     ),
                     const SizedBox(height: 2),

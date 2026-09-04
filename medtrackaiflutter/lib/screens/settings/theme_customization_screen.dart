@@ -164,7 +164,7 @@ class _ThemeCustomizationScreenState extends State<ThemeCustomizationScreen> {
                                 'More themes coming soon!',
                                 style: AppTypography.titleMedium.copyWith(
                                   color: L.text,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                               Text(

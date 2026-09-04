@@ -180,7 +180,7 @@ class _DashboardTabState extends State<DashboardTab> {
                       child: Text(
                         'Supply status',
                         style: AppTypography.titleLarge.copyWith(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           fontSize: 20,
                           color: AppColors.inkStrong,
                           letterSpacing: -0.4,
@@ -222,7 +222,7 @@ class _DashboardTabState extends State<DashboardTab> {
                     child: Text(
                       'AI insights',
                       style: AppTypography.titleLarge.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         fontSize: 20,
                         color: AppColors.inkStrong,
                         letterSpacing: -0.4,
@@ -297,7 +297,6 @@ class _DashboardTabState extends State<DashboardTab> {
                           'Export data as CSV',
                           style: AppTypography.labelLarge.copyWith(
                             color: L.sub,
-                            fontWeight: FontWeight.w600,
                           ),
                         ),
                       ),
@@ -396,7 +395,7 @@ class _ConnectHealthCard extends StatelessWidget {
                   Text(
                     'Connect health data',
                     style: AppTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       color: AppColors.inkStrong,
                       letterSpacing: -0.2,
                     ),

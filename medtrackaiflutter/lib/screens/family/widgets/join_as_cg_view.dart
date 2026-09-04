@@ -130,7 +130,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                 child: Text('Join as Caregiver',
                     style: AppTypography.titleLarge.copyWith(
                         fontSize: 18,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         color: L.text)),
               ),
             ]),

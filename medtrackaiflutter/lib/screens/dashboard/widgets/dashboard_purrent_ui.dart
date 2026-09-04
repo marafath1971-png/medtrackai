@@ -49,7 +49,7 @@ class DashboardPurrentTopBar extends StatelessWidget {
                     'TRENDS',
                     style: AppTypography.caption.copyWith(
                       color: AppColors.limeInk,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
                     ),
                   ),
@@ -69,7 +69,7 @@ class DashboardPurrentTopBar extends StatelessWidget {
                       Text(
                         'Hi, $display',
                         style: AppTypography.headlineMedium.copyWith(
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           color: AppColors.inkStrong,
                           letterSpacing: -0.5,
                           height: 1.05,
@@ -357,7 +357,7 @@ class _PurrentMetricCard extends StatelessWidget {
                   maxLines: 1,
                   style: AppTypography.caption.copyWith(
                     color: accent,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     fontSize: 11,
                   ),
                 ),
@@ -490,7 +490,7 @@ class _DashboardMedicationDiaryState extends State<DashboardMedicationDiary> {
           Text(
             "Medication diary",
             style: AppTypography.titleLarge.copyWith(
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               fontSize: 20,
               color: L.text,
               letterSpacing: -0.4,
@@ -706,7 +706,7 @@ class _DiaryRow extends StatelessWidget {
                 Text(
                   item.title,
                   style: AppTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     fontSize: 15,
                     color: L.text,
                   ),

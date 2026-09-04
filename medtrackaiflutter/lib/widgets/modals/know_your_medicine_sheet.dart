@@ -143,7 +143,7 @@ class KnowYourMedicineSheet extends StatelessWidget {
                                 overflow: TextOverflow.ellipsis,
                                 style: AppTypography.titleMedium.copyWith(
                                   color: L.text,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                               if (meta.isNotEmpty) ...[
@@ -175,7 +175,7 @@ class KnowYourMedicineSheet extends StatelessWidget {
                                     color: critical
                                         ? const Color(0xFF9B3D45)
                                         : const Color(0xFF3D6B45),
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ),
@@ -368,7 +368,7 @@ class _AlertBlock extends StatelessWidget {
                 title,
                 style: AppTypography.titleMedium.copyWith(
                   color: accent,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],

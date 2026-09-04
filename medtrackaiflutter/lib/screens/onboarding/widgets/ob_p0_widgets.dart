@@ -399,7 +399,7 @@ class _SoftFeatureCard extends StatelessWidget {
                   title,
                   style: AppTypography.titleMedium.copyWith(
                     color: p.text,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -485,7 +485,7 @@ class _ObScanDemoPreviewState extends State<ObScanDemoPreview>
                               'Atorvastatin 20mg',
                               style: AppTypography.titleMedium.copyWith(
                                 color: p.text,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                             const SizedBox(height: 4),
@@ -692,7 +692,6 @@ class _DemoBreakdownRow extends StatelessWidget {
             label,
             style: AppTypography.titleMedium.copyWith(
               color: p.text,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ),
@@ -750,7 +749,6 @@ class _DemoTag extends StatelessWidget {
         label,
         style: AppTypography.labelMedium.copyWith(
           color: color,
-          fontWeight: FontWeight.w600,
         ),
       ),
     );
@@ -827,7 +825,7 @@ class ObAdherenceScoreCard extends StatelessWidget {
                 '$score/100',
                 style: AppTypography.headlineMedium.copyWith(
                   color: p.text,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],

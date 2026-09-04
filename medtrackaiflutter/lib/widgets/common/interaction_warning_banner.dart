@@ -57,7 +57,7 @@ class InteractionWarningBanner extends StatelessWidget {
                     'Drug interaction',
                     style: AppTypography.labelMedium.copyWith(
                       color: const Color(0xFF9A6B1F),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.p4),

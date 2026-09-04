@@ -103,7 +103,7 @@ class _SmartStepperState extends State<SmartStepper>
                           : AppTypography.headlineMedium)
                       .copyWith(
                     fontSize: widget.isSmall ? 14 : 20,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     color: L.text,
                     letterSpacing: -0.5,
                   ),

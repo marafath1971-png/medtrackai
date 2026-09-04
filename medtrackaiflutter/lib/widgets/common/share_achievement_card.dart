@@ -169,7 +169,7 @@ class ShareAchievementCard extends StatelessWidget {
                       style: AppTypography.labelSmall.copyWith(
                         color: L.onBg.withValues(alpha: 0.4),
                         fontSize: 12,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: 0.5,
                       ),
                     ),

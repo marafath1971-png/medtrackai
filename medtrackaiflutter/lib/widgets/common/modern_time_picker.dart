@@ -182,13 +182,13 @@ class _ModernTimePickerState extends State<ModernTimePicker> {
                               style: AppTypography.titleLarge.copyWith(
                                   color: L.text,
                                   fontSize: 20,
-                                  fontWeight: FontWeight.w800))),
+                                  fontWeight: FontWeight.w700))),
                       Center(
                           child: Text("PM",
                               style: AppTypography.titleLarge.copyWith(
                                   color: L.text,
                                   fontSize: 20,
-                                  fontWeight: FontWeight.w800))),
+                                  fontWeight: FontWeight.w700))),
                     ],
                   ),
                 ),
@@ -219,7 +219,7 @@ class _ModernTimePickerState extends State<ModernTimePicker> {
                   style: AppTypography.labelLarge.copyWith(
                     fontSize: 15,
                     color: Colors.white,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),

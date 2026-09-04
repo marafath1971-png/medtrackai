@@ -307,7 +307,7 @@ class DelayBtn extends StatelessWidget {
                 child: Text(label,
                     style: AppTypography.labelLarge.copyWith(
                         fontSize: 12,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         color: current == delay
                             ? L.bg
                             : L.text.withValues(alpha: 0.7))),
@@ -431,7 +431,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                                     children: [
                                   Text(cg.name,
                                       style: AppTypography.titleLarge.copyWith(
-                                          fontWeight: FontWeight.w800,
+                                          fontWeight: FontWeight.w700,
                                           fontSize: 20,
                                           color: L.text)),
                                   const SizedBox(height: 2),
@@ -552,7 +552,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                               const SizedBox(height: AppSpacing.p12),
                               Text('Success! Caregiver added.',
                                   style: AppTypography.labelLarge.copyWith(
-                                      fontWeight: FontWeight.w800,
+                                      fontWeight: FontWeight.w700,
                                       fontSize: 15,
                                       color: L.green)),
                             ]
@@ -686,7 +686,7 @@ class AddCgStep3 extends StatelessWidget {
                                     children: [
                                   Text(cg.name,
                                       style: AppTypography.titleLarge.copyWith(
-                                          fontWeight: FontWeight.w800,
+                                          fontWeight: FontWeight.w700,
                                           fontSize: 20,
                                           color: L.text)),
                                   const SizedBox(height: 2),

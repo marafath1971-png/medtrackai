@@ -110,7 +110,7 @@ class CalAiRingHero extends StatelessWidget {
                     isAllDone ? 'All done' : 'Today',
                     style: AppTypography.headlineSmall.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       fontSize: 22,
                       letterSpacing: -0.4,
                     ),
@@ -159,7 +159,7 @@ class CalAiRingHero extends StatelessWidget {
                         '$streak',
                         style: AppTypography.titleMedium.copyWith(
                           color: streakTextColor,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           fontSize: 16,
                         ),
                       ),
@@ -233,7 +233,6 @@ class CalAiRingHero extends StatelessWidget {
                   isEmpty ? 'No meds' : '$takenCount / $total',
                   style: AppTypography.labelMedium.copyWith(
                     color: L.sub.withValues(alpha: 0.55),
-                    fontWeight: FontWeight.w600,
                     letterSpacing: 0.5,
                     fontSize: 13,
                   ),
@@ -361,7 +360,7 @@ class _TakeNextButton extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.labelLarge.copyWith(
                         color: Colors.white,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         fontSize: 15,
                       ),
                     ),
@@ -372,7 +371,6 @@ class _TakeNextButton extends StatelessWidget {
                       time!,
                       style: AppTypography.labelMedium.copyWith(
                         color: Colors.white.withValues(alpha: 0.85),
-                        fontWeight: FontWeight.w600,
                         fontSize: 13,
                       ),
                     ),

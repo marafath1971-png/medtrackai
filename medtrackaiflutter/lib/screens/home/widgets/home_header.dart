@@ -113,7 +113,7 @@ class HomeHeader extends StatelessWidget {
                             overflow: TextOverflow.ellipsis,
                             style: AppTypography.headlineSmall.copyWith(
                               color: L.text,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               letterSpacing: -0.4,
                             ),
                           ),
@@ -233,7 +233,7 @@ class _AvatarContent extends StatelessWidget {
       initial,
       style: AppTypography.titleLarge.copyWith(
         color: AppColors.limeInk,
-        fontWeight: FontWeight.w800,
+        fontWeight: FontWeight.w700,
       ),
     );
 

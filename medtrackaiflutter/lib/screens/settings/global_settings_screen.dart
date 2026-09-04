@@ -424,7 +424,7 @@ class _AccountActionTile extends StatelessWidget {
               title,
               style: AppTypography.labelLarge.copyWith(
                   color: tileColor,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   fontSize: 14,
                   letterSpacing: -0.1),
             ),

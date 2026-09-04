@@ -75,7 +75,7 @@ class RecoveryCourseTracker extends StatelessWidget {
                           '$day',
                           style: AppTypography.titleLarge.copyWith(
                             fontSize: 22,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             color: L.text,
                             height: 1.0,
                           ),
@@ -122,7 +122,7 @@ class RecoveryCourseTracker extends StatelessWidget {
                       style: AppTypography.titleMedium.copyWith(
                         color: L.text,
                         fontSize: 18,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,

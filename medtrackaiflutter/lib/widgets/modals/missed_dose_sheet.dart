@@ -175,7 +175,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
                             statusLabel,
                             style: AppTypography.labelSmall.copyWith(
                               fontSize: 11,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               color: statusColor,
                               letterSpacing: 0.5,
                             ),
@@ -199,7 +199,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
                       med.name,
                       style: AppTypography.titleLarge.copyWith(
                         color: L.text,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: -0.4,
                       ),
                     ),
@@ -257,7 +257,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
                                 style: AppTypography.labelSmall.copyWith(
                                   fontSize: 11,
                                   color: L.secondary,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                   letterSpacing: 2.0,
                                 ),
                               ),

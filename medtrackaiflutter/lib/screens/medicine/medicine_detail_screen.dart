@@ -385,7 +385,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                   '${med.dose.isNotEmpty ? med.dose : '—'} · ${med.form.isNotEmpty ? med.form : 'tablet'}',
                   style: AppTypography.labelMedium.copyWith(
                     color: L.text,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -474,7 +474,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                 child: Text(
                   'Complete the full course',
                   style: AppTypography.titleMedium.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.inkStrong,
                     letterSpacing: -0.2,
                   ),
@@ -882,7 +882,6 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
             Text(
                 fmtTime(s.h, s.m, context),
                 style: AppTypography.titleLarge.copyWith(
-                    fontWeight: FontWeight.w600,
                     color: s.enabled ? L.text : L.sub)),
             const SizedBox(width: AppSpacing.p12),
             Text(
@@ -1365,7 +1364,7 @@ class _DiagnosticCard extends StatelessWidget {
               overflow: TextOverflow.ellipsis,
               style: AppTypography.titleMedium.copyWith(
                 color: AppColors.inkStrong,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 letterSpacing: -0.2,
                 fontSize: 18,
               ),
@@ -1444,7 +1443,7 @@ class _SectionHeader extends StatelessWidget {
             label,
             style: AppTypography.titleMedium.copyWith(
               color: L.text,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               letterSpacing: -0.2,
             ),
           ),
@@ -1664,7 +1663,7 @@ class _SpecTile extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: AppTypography.titleMedium.copyWith(
               color: L.text,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               letterSpacing: -0.2,
             ),
           ),
@@ -1721,7 +1720,6 @@ class _ManagementTile extends StatelessWidget {
               ),
               title: Text(title,
                   style: AppTypography.titleMedium.copyWith(
-                      fontWeight: FontWeight.w600,
                       color: color,
                       fontSize: 15,
                       letterSpacing: -0.5)),
@@ -1765,7 +1763,7 @@ class _FormSection extends StatelessWidget {
               label,
               style: AppTypography.titleMedium.copyWith(
                 color: L.text,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 letterSpacing: -0.2,
               ),
             ),
@@ -2004,7 +2002,6 @@ class _RestockBtn extends StatelessWidget {
               label,
               style: AppTypography.labelLarge.copyWith(
                 color: L.text,
-                fontWeight: FontWeight.w600,
                 fontSize: 14,
               ),
             ),
@@ -2137,7 +2134,7 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
                         'Log Dose',
                         style: AppTypography.titleMedium.copyWith(
                           color: Colors.black,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           fontSize: 15,
                         ),
                       ),
@@ -2176,7 +2173,7 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
                             'Logged!',
                             style: AppTypography.titleMedium.copyWith(
                               color: Colors.white,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               fontSize: 15,
                             ),
                           ),

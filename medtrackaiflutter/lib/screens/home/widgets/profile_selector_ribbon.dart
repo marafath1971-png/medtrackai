@@ -113,7 +113,7 @@ class ProfileSelectorRibbon extends StatelessWidget {
                     'Enter PIN',
                     style: AppTypography.titleMedium.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.p8),

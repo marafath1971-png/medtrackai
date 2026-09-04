@@ -761,7 +761,7 @@ class _TopBar extends StatelessWidget {
                 'Scanner',
                 style: AppTypography.titleLarge.copyWith(
                   color: Colors.white,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: -0.3,
                 ),
               ),
@@ -1224,7 +1224,6 @@ class ScanSearchInput extends StatelessWidget {
                       textInputAction: TextInputAction.search,
                       style: AppTypography.titleMedium.copyWith(
                         color: Colors.white,
-                        fontWeight: FontWeight.w600,
                       ),
                       cursorColor: AppColors.lime,
                       decoration: InputDecoration(
@@ -1773,7 +1772,6 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
               textAlign: TextAlign.center,
               style: AppTypography.titleMedium.copyWith(
                 color: Colors.white,
-                fontWeight: FontWeight.w600,
                 letterSpacing: 0.5,
               ),
             ),

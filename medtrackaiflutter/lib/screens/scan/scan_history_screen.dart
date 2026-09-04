@@ -97,7 +97,7 @@ class ScanHistoryScreen extends StatelessWidget {
                                   med.name,
                                   style: AppTypography.titleMedium.copyWith(
                                     color: L.text,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w700,
                                     
                                   ),
                                 ),

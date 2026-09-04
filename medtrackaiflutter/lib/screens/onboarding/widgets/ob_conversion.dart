@@ -87,7 +87,7 @@ class ObMascotHero extends StatelessWidget {
               style: AppTypography.caption.copyWith(
                 color: AppColors.accentDeep,
                 letterSpacing: 1.1,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -98,7 +98,7 @@ class ObMascotHero extends StatelessWidget {
           textAlign: TextAlign.center,
           style: AppTypography.headlineMedium.copyWith(
             color: L.text,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             height: 1.12,
             letterSpacing: -0.6,
           ),
@@ -170,7 +170,7 @@ class ObCapabilityCard extends StatelessWidget {
                   title,
                   style: AppTypography.titleMedium.copyWith(
                     color: L.text,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 2),
@@ -238,7 +238,7 @@ class ObPersonalPlanCard extends StatelessWidget {
                 style: AppTypography.caption.copyWith(
                   color: AppColors.accentDeep,
                   letterSpacing: 1.1,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -266,7 +266,7 @@ class ObPersonalPlanCard extends StatelessWidget {
                     textAlign: TextAlign.end,
                     style: AppTypography.bodyMedium.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),

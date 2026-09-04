@@ -354,7 +354,7 @@ class ObRankInterstitial extends StatelessWidget {
                           style: AppTypography.caption.copyWith(
                             color: AppColors.accentDeep,
                             letterSpacing: 1.4,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         const SizedBox(height: 12),
@@ -372,7 +372,7 @@ class ObRankInterstitial extends StatelessWidget {
                           'Medication companion',
                           style: AppTypography.titleLarge.copyWith(
                             color: p.text,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -599,7 +599,7 @@ class _ObAccuracyBarChartState extends State<ObAccuracyBarChart>
                                       '${multiplier.toStringAsFixed(2)}×',
                                       style: AppTypography.labelMedium.copyWith(
                                         color: Colors.white,
-                                        fontWeight: FontWeight.w800,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
                                   ],
@@ -663,7 +663,7 @@ class _BarColumn extends StatelessWidget {
           pct,
           style: AppTypography.headlineSmall.copyWith(
             color: useLogo ? color : iconColor ?? color,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
           ),
         ),
         const SizedBox(height: 8),
@@ -778,7 +778,7 @@ class ObTrialFlashInterstitial extends StatelessWidget {
                         style: AppTypography.caption.copyWith(
                           color: AppColors.accentDeep,
                           letterSpacing: 1.4,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: 16),

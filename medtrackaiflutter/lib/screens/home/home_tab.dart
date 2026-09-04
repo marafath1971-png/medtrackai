@@ -451,7 +451,7 @@ class _HomeTabState extends State<HomeTab> {
                                       style:
                                           AppTypography.titleMedium.copyWith(
                                         color: AppColors.inkStrong,
-                                        fontWeight: FontWeight.w800,
+                                        fontWeight: FontWeight.w700,
                                         letterSpacing: -0.3,
                                       ),
                                     ),
@@ -470,7 +470,7 @@ class _HomeTabState extends State<HomeTab> {
                                       style:
                                           AppTypography.labelSmall.copyWith(
                                         color: AppColors.limeInk,
-                                        fontWeight: FontWeight.w800,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
                                   ),

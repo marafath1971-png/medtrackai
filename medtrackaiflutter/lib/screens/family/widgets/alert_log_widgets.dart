@@ -45,7 +45,7 @@ class AlertLogCard extends StatelessWidget {
                   Text(alert.medName,
                       style: AppTypography.titleLarge.copyWith(
                           fontSize: 15,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           color: L.text),
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1),
@@ -78,7 +78,6 @@ class AlertLogCard extends StatelessWidget {
                 Text(alert.timestamp.split(',').first,
                     style: AppTypography.labelLarge.copyWith(
                         fontSize: 11,
-                        fontWeight: FontWeight.w600,
                         color: L.sub.withValues(alpha: 0.6))),
               ],
             ),
@@ -187,7 +186,7 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
             Text('Critical alert sent',
                 style: AppTypography.labelLarge.copyWith(
                     fontSize: 11,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     color: AppColors.red)),
           ],
         ),
@@ -397,7 +396,6 @@ class _Badge extends StatelessWidget {
         child: Text(label,
             style: AppTypography.labelLarge.copyWith(
                 fontSize: 11,
-                fontWeight: FontWeight.w600,
                 color: color)),
       );
 }

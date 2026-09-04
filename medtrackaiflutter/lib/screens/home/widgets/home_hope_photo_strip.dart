@@ -55,7 +55,7 @@ class HomeHopePhotoStrip extends StatelessWidget {
                       'MADE FOR YOU',
                       style: AppTypography.caption.copyWith(
                         color: AppColors.limeInk,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: 0.9,
                       ),
                     ),
@@ -65,7 +65,7 @@ class HomeHopePhotoStrip extends StatelessWidget {
                     HopeVibe.numberOneFeel,
                     style: AppTypography.titleLarge.copyWith(
                       color: Colors.white,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: -0.4,
                       height: 1.15,
                     ),

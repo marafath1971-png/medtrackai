@@ -410,7 +410,6 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
                     'Or quickly log a meal:',
                     style: AppTypography.labelMedium.copyWith(
                       color: L.sub.withValues(alpha: 0.6),
-                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -639,7 +638,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
           'AI is parsing your log...',
           style: AppTypography.titleMedium.copyWith(
             color: L.text,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             fontSize: 16,
           ),
         ),
@@ -761,7 +760,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
           textAlign: TextAlign.center,
           style: AppTypography.titleLarge.copyWith(
             color: L.text,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             letterSpacing: -0.5,
           ),
         ),
@@ -1098,7 +1097,7 @@ class _MealChip extends StatelessWidget {
                 text,
                 style: AppTypography.labelLarge.copyWith(
                   color: L.text,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   fontSize: 13,
                   letterSpacing: 0.2,
                 ),

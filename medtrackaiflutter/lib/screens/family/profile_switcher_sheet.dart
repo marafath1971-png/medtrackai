@@ -77,7 +77,7 @@ class ProfileSwitcherSheet extends StatelessWidget {
           'Switch profile',
           style: AppTypography.headlineMedium.copyWith(
             color: L.text,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             letterSpacing: -0.5,
           ),
         ),
@@ -213,7 +213,7 @@ class _ProfileTile extends StatelessWidget {
                           name,
                           style: AppTypography.titleMedium.copyWith(
                             color: L.text,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

@@ -318,7 +318,7 @@ class _GrowthDashboardScreenState extends State<GrowthDashboardScreen> {
                   stage,
                   style: AppTypography.labelLarge.copyWith(
                     color: context.L.text,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -415,7 +415,7 @@ class _GrowthDashboardScreenState extends State<GrowthDashboardScreen> {
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.labelLarge.copyWith(
                     color: L.text,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -668,7 +668,7 @@ class _RetentionCompare extends StatelessWidget {
               '${used.round()}%',
               style: AppTypography.labelSmall.copyWith(
                 color: L.text,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ],

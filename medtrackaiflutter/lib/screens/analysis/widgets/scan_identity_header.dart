@@ -123,7 +123,7 @@ class _CompactHeader extends StatelessWidget {
                   style: AppTypography.caption.copyWith(
                     color: AppColors.accentDeep,
                     letterSpacing: 1.2,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -133,7 +133,7 @@ class _CompactHeader extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.titleMedium.copyWith(
                     color: L.text,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -179,7 +179,7 @@ class _CategoryPill extends StatelessWidget {
             category,
             style: AppTypography.labelSmall.copyWith(
               color: L.text,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],
@@ -234,7 +234,7 @@ class ScanSectionHeader extends StatelessWidget {
                 title,
                 style: AppTypography.titleMedium.copyWith(
                   color: L.text,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: -0.3,
                 ),
               ),

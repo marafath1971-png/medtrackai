@@ -124,7 +124,7 @@ class HomeDoseGroup extends StatelessWidget {
                       style.label,
                       style: AppTypography.labelMedium.copyWith(
                         color: style.ink,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: -0.1,
                       ),
                     ),

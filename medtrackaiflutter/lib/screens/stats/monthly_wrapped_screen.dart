@@ -234,7 +234,7 @@ class _WrappedPage extends StatelessWidget {
               title,
               style: AppTypography.headlineMedium.copyWith(
                 color: L.text,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
             delay: 300.ms,

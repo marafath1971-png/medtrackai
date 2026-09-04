@@ -123,7 +123,7 @@ class _ProfileTabState extends State<ProfileTab> {
                           color: AppColors.limeInk,
                           fontSize: 18,
                           letterSpacing: -0.4,
-                          fontWeight: FontWeight.w800)),
+                          fontWeight: FontWeight.w700)),
                   const SizedBox(height: AppSpacing.p4),
                   Text('Unlock AI insights, family care & unlimited scans.',
                       style: AppTypography.labelSmall.copyWith(
@@ -197,7 +197,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   Flexible(
                     child: Text(p?.name ?? 'Your Name',
                         style: AppTypography.titleLarge.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             color: L.text,
                             fontSize: 22,
                             letterSpacing: -0.5)),
@@ -217,7 +217,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       ),
                       child: Text('PRO',
                           style: AppTypography.labelSmall.copyWith(
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               fontSize: 11,
                               color: AppColors.limeInk,
                               letterSpacing: 0.5)),
@@ -622,7 +622,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   Text(
                     'MedAI 1.0.0+1',
                     style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.4),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       fontSize: 11,
                       letterSpacing: 1.0,
                     ),

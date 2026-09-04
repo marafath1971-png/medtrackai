@@ -205,7 +205,7 @@ class DoseCelebrationModal extends StatelessWidget {
                       'DOSE LOGGED ✓',
                       style: AppTypography.labelSmall.copyWith(
                         color: AppColors.success,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         fontSize: 11,
                         letterSpacing: 1.2,
                       ),
@@ -311,7 +311,7 @@ class DoseCelebrationModal extends StatelessWidget {
                                 style: AppTypography.titleLarge.copyWith(
                                   color: AppColors.limeInk,
                                   fontSize: 15,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                   letterSpacing: -0.2,
                                 ),
                               ),

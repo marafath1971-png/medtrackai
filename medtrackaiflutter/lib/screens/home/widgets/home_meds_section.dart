@@ -16,7 +16,7 @@ class HomeMedsHeader extends StatelessWidget {
         'Recently uploaded',
         style: AppTypography.titleLarge.copyWith(
           
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
           color: L.text,
           letterSpacing: -0.5,
         ),

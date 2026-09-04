@@ -107,7 +107,6 @@ class HomeScheduleEmpty extends StatelessWidget {
                   'Or enter it manually',
                   style: AppTypography.labelMedium.copyWith(
                     color: L.sub,
-                    fontWeight: FontWeight.w600,
                     decoration: TextDecoration.underline,
                   ),
                 ),

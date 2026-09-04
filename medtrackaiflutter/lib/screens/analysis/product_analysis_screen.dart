@@ -191,7 +191,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                             style: AppTypography.caption.copyWith(
                               color: AppColors.accentDeep,
                               letterSpacing: 1.1,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                           const SizedBox(height: AppSpacing.p8),
@@ -264,7 +264,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                                 'Scan again',
                                 style: AppTypography.labelMedium.copyWith(
                                   color: L.text,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
@@ -806,7 +806,7 @@ class _TopBar extends StatelessWidget {
                   'Scan result',
                   style: AppTypography.titleMedium.copyWith(
                     color: L.text,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(
@@ -875,7 +875,7 @@ class _ExpertBlock extends StatelessWidget {
                     '${perspectives[i].icon} ${perspectives[i].role}',
                     style: AppTypography.labelSmall.copyWith(
                       color: selected ? Colors.white : L.text,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -971,7 +971,7 @@ class _Dock extends StatelessWidget {
                       added ? 'Added' : 'Track medicine',
                       style: AppTypography.labelLarge.copyWith(
                         color: AppColors.limeInk,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],

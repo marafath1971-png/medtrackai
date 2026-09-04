@@ -171,7 +171,7 @@ class UnifiedHeader extends StatelessWidget implements PreferredSizeWidget {
               style: AppTypography.labelSmall.copyWith(
                 color: L.bg,
                 fontSize: 11,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 letterSpacing: 0.6,
               ),
             ),
@@ -274,7 +274,7 @@ class SliverUnifiedHeader extends StatelessWidget {
         title: Text(
           title,
           style: AppTypography.headlineMedium.copyWith(
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             color: L.text,
             letterSpacing: -0.5,
           ),

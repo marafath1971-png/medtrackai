@@ -74,7 +74,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                                 '${profile.aiConfidenceThreshold.toInt()}%',
                                 style: AppTypography.labelLarge.copyWith(
                                   color: AppColors.accent,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),

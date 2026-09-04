@@ -42,7 +42,7 @@ class PredictiveInsightCard extends StatelessWidget {
                 child: Text(
                   insight.title,
                   style: AppTypography.titleLarge.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     fontSize: 17,
                     letterSpacing: -0.5,
                     color: L.text,

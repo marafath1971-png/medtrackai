@@ -111,7 +111,7 @@ class _LockScreenState extends State<LockScreen> {
           Text(
             _isAuthenticating ? 'Authenticating…' : 'App locked',
             style: AppTypography.headlineMedium.copyWith(
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               color: L.text,
               letterSpacing: -0.4,
             ),

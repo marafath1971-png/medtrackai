@@ -305,7 +305,7 @@ class HubView extends StatelessWidget {
                     'Add guardian',
                     style: AppTypography.labelLarge.copyWith(
                       color: AppColors.limeInk,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -460,7 +460,7 @@ class HubView extends StatelessWidget {
                                             color: context.isDark
                                                 ? L.text
                                                 : AppColors.inkStrong,
-                                            fontWeight: FontWeight.w800,
+                                            fontWeight: FontWeight.w700,
                                           ),
                                         ),
                                       ],
@@ -517,7 +517,7 @@ class HubView extends StatelessWidget {
                                         color: context.isDark
                                             ? L.text
                                             : AppColors.inkStrong,
-                                        fontWeight: FontWeight.w800,
+                                        fontWeight: FontWeight.w700,
                                       ),
                                     ),
                                     const SizedBox(height: 2),
@@ -950,7 +950,7 @@ class _FamilyHeader extends StatelessWidget {
                     'CIRCLE',
                     style: AppTypography.caption.copyWith(
                       color: AppColors.limeInk,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
                     ),
                   ),
@@ -960,7 +960,7 @@ class _FamilyHeader extends StatelessWidget {
                   isActive ? 'Monitoring active' : 'Care for loved ones',
                   style: AppTypography.titleLarge.copyWith(
                     color: AppColors.inkStrong,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: -0.4,
                   ),
                 ),
@@ -1096,7 +1096,7 @@ class _CircleStatBento extends StatelessWidget {
             value,
             style: AppTypography.titleLarge.copyWith(
               color: AppColors.inkStrong,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               letterSpacing: -0.4,
               height: 1.0,
             ),

@@ -84,7 +84,7 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
               'Delete account?',
               style: AppTypography.titleLarge.copyWith(
                 color: L.text,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
               ),
             ),
           ),
@@ -169,7 +169,7 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
             'Delete forever',
             style: AppTypography.labelLarge.copyWith(
               color: _armed ? danger : L.sub.withValues(alpha: 0.4),
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),

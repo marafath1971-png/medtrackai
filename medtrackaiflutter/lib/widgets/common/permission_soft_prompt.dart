@@ -197,7 +197,7 @@ class PermissionSoftPrompt extends StatelessWidget {
                   buttonText,
                   style: AppTypography.labelLarge.copyWith(
                     color: Colors.white,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     fontSize: 16,
                   ),
                 ),

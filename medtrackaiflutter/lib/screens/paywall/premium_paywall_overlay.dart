@@ -574,7 +574,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                           '${i + 1}',
                           style: AppTypography.labelSmall.copyWith(
                             color: AppColors.limeInk,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ),
@@ -584,7 +584,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                       day,
                       style: AppTypography.labelSmall.copyWith(
                         color: const Color(0xFF1A1D26),
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         fontSize: 11,
                       ),
                     ),
@@ -643,7 +643,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                   textAlign: TextAlign.center,
                   style: AppTypography.labelSmall.copyWith(
                     color: AppColors.limeDeep,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -932,7 +932,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                           color: isSelected
                               ? AppColors.limeInk
                               : const Color(0xFF1A1D26),
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           fontSize: 18,
                           letterSpacing: -0.5,
                         ),
@@ -1188,7 +1188,7 @@ class _PaywallCTA extends StatelessWidget {
                       color: active
                           ? AppColors.limeInk
                           : AppColors.limeInk.withValues(alpha: 0.5),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       fontSize: 16,
                       letterSpacing: -0.3,
                     ),

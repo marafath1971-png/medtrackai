@@ -202,7 +202,7 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
                             'Focus mode',
                             style: AppTypography.titleMedium.copyWith(
                               color: L.text,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               letterSpacing: -0.3,
                             ),
                           ),
@@ -248,7 +248,6 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
                                     : 'ready')),
                             style: AppTypography.titleMedium.copyWith(
                               color: L.sub,
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),
@@ -349,7 +348,7 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
                                         style:
                                             AppTypography.labelLarge.copyWith(
                                           color: isSelected ? L.bg : L.text,
-                                          fontWeight: FontWeight.w800,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
                                     ),

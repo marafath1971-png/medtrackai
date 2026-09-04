@@ -57,7 +57,7 @@ class HopeSurroundBanner extends StatelessWidget {
                     style: AppTypography.caption.copyWith(
                       color: AppColors.accentDeep,
                       letterSpacing: 1.1,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: AppSpacing.p4),
@@ -67,7 +67,7 @@ class HopeSurroundBanner extends StatelessWidget {
                   style: AppTypography.titleMedium.copyWith(
                     // Pastel fill → fixed dark ink (never theme L.text).
                     color: AppColors.inkStrong,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: -0.2,
                   ),
                 ),

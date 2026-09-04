@@ -62,7 +62,7 @@ class DashboardRefHeader extends StatelessWidget {
                         initial,
                         style: AppTypography.titleMedium.copyWith(
                           color: AppColors.limeInk,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           fontSize: 16,
                         ),
                       ),

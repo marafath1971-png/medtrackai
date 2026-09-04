@@ -179,7 +179,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
                           textAlign: TextAlign.center,
                           style: AppTypography.labelMedium.copyWith(
                             color: L.sub.withValues(alpha: 0.5),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             height: 1.5,
                           ),
                         ),
@@ -235,7 +235,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
                         title,
                         style: AppTypography.titleMedium.copyWith(
                           color: L.text,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ),

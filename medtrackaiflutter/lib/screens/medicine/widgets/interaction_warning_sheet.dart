@@ -93,7 +93,6 @@ class InteractionWarningSheet extends StatelessWidget {
                       "$medicineName + $interactionName",
                       style: AppTypography.titleMedium.copyWith(
                         color: warningColor,
-                        fontWeight: FontWeight.w600,
                       ),
                     ).medAiChain(context,
                         (w) => w.animate().fade(delay: 300.ms).slideX(begin: 0.1, end: 0)),

@@ -75,7 +75,7 @@ class ObPhotoHero extends StatelessWidget {
                     badge!,
                     style: AppTypography.caption.copyWith(
                       color: AppColors.limeInk,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: 0.8,
                     ),
                   ),
@@ -90,7 +90,7 @@ class ObPhotoHero extends StatelessWidget {
                   overlayLine!,
                   style: AppTypography.titleMedium.copyWith(
                     color: Colors.white,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: -0.3,
                     height: 1.2,
                     shadows: const [

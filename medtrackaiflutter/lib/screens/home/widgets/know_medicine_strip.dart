@@ -108,7 +108,7 @@ class KnowMedicineStrip extends StatelessWidget {
                         title,
                         style: AppTypography.titleMedium.copyWith(
                           color: ink,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                       const SizedBox(height: AppSpacing.p4),
@@ -149,7 +149,7 @@ class KnowMedicineStrip extends StatelessWidget {
                                         style:
                                             AppTypography.caption.copyWith(
                                           color: accent,
-                                          fontWeight: FontWeight.w800,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
                                     ],

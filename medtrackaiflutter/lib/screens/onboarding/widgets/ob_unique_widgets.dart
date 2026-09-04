@@ -298,7 +298,6 @@ class ObPersonalAdherenceSummary extends StatelessWidget {
             'Adherence baseline',
             style: AppTypography.labelLarge.copyWith(
               color: p.sub,
-              fontWeight: FontWeight.w600,
             ),
           ),
           const SizedBox(height: 8),
@@ -315,7 +314,6 @@ class ObPersonalAdherenceSummary extends StatelessWidget {
                 ' / 100',
                 style: AppTypography.titleLarge.copyWith(
                   color: p.sub,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
               const Spacer(),

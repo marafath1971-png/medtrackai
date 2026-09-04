@@ -333,7 +333,7 @@ class ObFeedbackChip extends StatelessWidget {
                   badge,
                   style: AppTypography.labelMedium.copyWith(
                     color: badgeColor,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -426,7 +426,7 @@ class ObDualTimeSliders extends StatelessWidget {
                 Text(_fmt(value),
                     style: AppTypography.bodyMedium.copyWith(
                       color: p.accent,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     )),
               ],
             ),
@@ -598,7 +598,7 @@ class _ObPayoffBarsState extends State<ObPayoffBars>
                   textAlign: TextAlign.center,
                   style: AppTypography.labelMedium.copyWith(
                     color: ink,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               );

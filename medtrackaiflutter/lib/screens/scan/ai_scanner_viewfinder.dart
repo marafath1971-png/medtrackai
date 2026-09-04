@@ -152,7 +152,6 @@ class _AiScannerViewfinderState extends State<AiScannerViewfinder>
                     _statusTexts[_statusIndex],
                     style: AppTypography.titleMedium.copyWith(
                       color: Colors.white,
-                      fontWeight: FontWeight.w600,
                       letterSpacing: 0.5,
                     ),
                   ),

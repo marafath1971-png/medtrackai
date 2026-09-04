@@ -693,7 +693,6 @@ class SettingsRow extends StatelessWidget {
                 Text(label,
                     style: AppTypography.titleMedium.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w600,
                     )),
                 if (subtitle != null)
                   Text(subtitle!,
@@ -1056,7 +1055,7 @@ class _DoseCardState extends State<DoseCard>
                       'Mark as taken',
                       style: AppTypography.labelMedium.copyWith(
                         color: L.success,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: 0.5,
                         fontSize: 14,
                       ),
@@ -1117,7 +1116,7 @@ class _DoseCardState extends State<DoseCard>
                                 widget.med.name,
                                 style: AppTypography.labelLarge.copyWith(
                                   color: isDone ? L.text.withValues(alpha: 0.35) : L.text,
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                   fontSize: 15,
                                   letterSpacing: -0.3,
                                   decoration: isDone ? TextDecoration.lineThrough : null,
@@ -1260,7 +1259,7 @@ class _DoseCardState extends State<DoseCard>
               'Log',
               style: AppTypography.labelMedium.copyWith(
                 color: Colors.white,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 fontSize: 13,
                 letterSpacing: 0.2,
               ),

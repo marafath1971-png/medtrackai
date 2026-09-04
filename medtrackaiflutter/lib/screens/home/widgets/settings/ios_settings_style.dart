@@ -51,7 +51,7 @@ class IosSettingsSectionHeader extends StatelessWidget {
         title,
         style: AppTypography.titleMedium.copyWith(
           fontSize: 15,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
           letterSpacing: -0.2,
           height: 1.2,
           color: L.text,

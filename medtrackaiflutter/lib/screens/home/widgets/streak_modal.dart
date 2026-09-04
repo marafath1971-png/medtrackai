@@ -256,7 +256,7 @@ class _StreakModalState extends State<StreakModal> {
               Text(
                 'Your streak',
                 style: AppTypography.titleMedium.copyWith(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   color: L.text,
                   letterSpacing: -0.3,
                 ),
@@ -381,7 +381,7 @@ class _StreakModalState extends State<StreakModal> {
         Text(
           title,
           style: AppTypography.titleMedium.copyWith(
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             fontSize: 14,
             color: L.text,
             letterSpacing: -0.2,
@@ -450,7 +450,7 @@ class _MiniHeroStat extends StatelessWidget {
         Text(
           val,
           style: AppTypography.titleLarge.copyWith(
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             color: L.text,
             fontSize: 20,
             letterSpacing: -0.5,
@@ -488,7 +488,7 @@ class _StatBox extends StatelessWidget {
           Text(
             val,
             style: AppTypography.titleLarge.copyWith(
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               color: L.text,
               fontSize: 22,
               letterSpacing: -0.5,
@@ -636,7 +636,7 @@ class _AscensionTrack extends StatelessWidget {
                           Text(
                             m['l'] as String,
                             style: AppTypography.titleMedium.copyWith(
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               fontSize: 15,
                               color: achieved || isNext ? L.text : L.sub,
                             ),

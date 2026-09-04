@@ -108,7 +108,7 @@ class AppStatusBanner extends StatelessWidget {
                         title,
                         style: AppTypography.labelLarge.copyWith(
                           color: L.text,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           fontSize: 13,
                         ),
                       ),
@@ -137,7 +137,7 @@ class AppStatusBanner extends StatelessWidget {
                       retryLabel ?? 'Retry',
                       style: AppTypography.labelMedium.copyWith(
                         color: accent,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

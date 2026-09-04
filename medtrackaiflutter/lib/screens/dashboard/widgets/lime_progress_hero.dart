@@ -124,7 +124,7 @@ class _LimeProgressHeroState extends State<LimeProgressHero>
                               style: AppTypography.caption.copyWith(
                                 color: onAccent.withValues(alpha: 0.85),
                                 letterSpacing: 1.2,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                               ),
                             ),
                           ],
@@ -134,7 +134,7 @@ class _LimeProgressHeroState extends State<LimeProgressHero>
                           title,
                           style: AppTypography.headlineSmall.copyWith(
                             color: onAccent,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             height: 1.12,
                             letterSpacing: -0.5,
                           ),

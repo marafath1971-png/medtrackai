@@ -140,7 +140,7 @@ class ScanResultDetailView extends StatelessWidget {
               kindLabel.toUpperCase(),
               style: AppTypography.caption.copyWith(
                 color: AppColors.accentDeep,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 letterSpacing: 1.2,
               ),
             ),
@@ -192,7 +192,7 @@ class ScanResultDetailView extends StatelessWidget {
                   statusLabel,
                   style: AppTypography.labelSmall.copyWith(
                     color: statusInk,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -272,7 +272,7 @@ class ScanResultDetailView extends StatelessWidget {
                 'Safety first',
                 style: AppTypography.headlineSmall.copyWith(
                   color: L.text,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: -0.4,
                 ),
               ),
@@ -328,7 +328,7 @@ class ScanResultDetailView extends StatelessWidget {
           'Know your medicine',
           style: AppTypography.headlineSmall.copyWith(
             color: L.text,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
             letterSpacing: -0.4,
           ),
         ),
@@ -385,7 +385,7 @@ class ScanResultDetailView extends StatelessWidget {
                           'Did you know?',
                           style: AppTypography.labelSmall.copyWith(
                             color: L.sub,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -412,7 +412,7 @@ class ScanResultDetailView extends StatelessWidget {
             'Side-effect map',
             style: AppTypography.titleMedium.copyWith(
               color: L.text,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: AppSpacing.p12),
@@ -787,7 +787,7 @@ class _PhotoHero extends StatelessWidget {
                       category,
                       style: AppTypography.labelSmall.copyWith(
                         color: L.text,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],

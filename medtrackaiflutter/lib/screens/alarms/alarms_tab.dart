@@ -447,7 +447,7 @@ class _CountPill extends StatelessWidget {
         '$count',
         style: AppTypography.labelSmall.copyWith(
           color: AppColors.limeInk,
-          fontWeight: FontWeight.w800,
+          fontWeight: FontWeight.w700,
         ),
       ),
     );
@@ -551,7 +551,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                       'Upcoming',
                       style: AppTypography.labelSmall.copyWith(
                         color: AppColors.limeInk,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -569,7 +569,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                   fmtTime(s.h, s.m, context),
                   style: AppTypography.labelSmall.copyWith(
                     color: const Color(0xFF8A6A1A),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -598,7 +598,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                     'Logged successfully',
                     style: AppTypography.labelMedium.copyWith(
                       color: AppColors.limeInk,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ],
@@ -640,7 +640,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                         overflow: TextOverflow.ellipsis,
                         style: AppTypography.titleLarge.copyWith(
                           color: AppColors.inkStrong,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           letterSpacing: -0.4,
                         ),
                       ),
@@ -661,7 +661,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                         _diffStr,
                         style: AppTypography.labelMedium.copyWith(
                           color: AppColors.limeDeep,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                         ),
                       ),
                     ],
@@ -832,7 +832,7 @@ class _AlarmCard extends StatelessWidget {
                             color: isEnabled
                                 ? AppColors.inkStrong
                                 : L.text.withValues(alpha: 0.4),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -874,7 +874,7 @@ class _AlarmCard extends StatelessWidget {
                                       : isNext
                                           ? AppColors.limeInk
                                           : const Color(0xFF8A6A1A),
-                                  fontWeight: FontWeight.w800,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                             ),
@@ -893,7 +893,7 @@ class _AlarmCard extends StatelessWidget {
                                   'Next',
                                   style: AppTypography.labelSmall.copyWith(
                                     color: AppColors.limeInk,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                               ),
@@ -1093,7 +1093,7 @@ class _QuickAddSection extends StatelessWidget {
           Text('Your medicines',
               style: AppTypography.titleMedium.copyWith(
                 color: L.text,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 letterSpacing: -0.3,
                 fontSize: 16,
               )),

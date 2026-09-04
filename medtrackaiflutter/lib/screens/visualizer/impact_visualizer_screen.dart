@@ -643,7 +643,7 @@ class _OrganLabel extends StatelessWidget {
               textAlign: alignEnd ? TextAlign.right : TextAlign.left,
               style: AppTypography.labelSmall.copyWith(
                 color: active ? organ.color : L.sub.withValues(alpha: 0.8),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 fontSize: 11,
                 letterSpacing: 0.1,
                 shadows: active
@@ -656,7 +656,7 @@ class _OrganLabel extends StatelessWidget {
               duration: AppDurations.fast,
               style: AppTypography.bodyMedium.copyWith(
                 color: active ? L.text : L.text.withValues(alpha: 0.45),
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 fontSize: 13,
               ),
               child: Text('$pct%'),
@@ -753,7 +753,7 @@ class _OrganDetail extends StatelessWidget {
                       organ.name,
                       style: AppTypography.titleMedium.copyWith(
                         color: L.text,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     const Spacer(),
@@ -761,7 +761,7 @@ class _OrganDetail extends StatelessWidget {
                       '$pct% active',
                       style: AppTypography.labelSmall.copyWith(
                         color: organ.color,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],
@@ -894,7 +894,7 @@ class _ScrubberPanel extends StatelessWidget {
                 Text('${currentHour.toStringAsFixed(1)}h',
                     style: AppTypography.titleMedium.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: -0.5,
                     )),
                 Text('24h · cleared', style: _cap(L)),
@@ -935,7 +935,7 @@ class _ScrubberPanel extends StatelessWidget {
               value,
               style: AppTypography.titleMedium.copyWith(
                 color: L.text,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 fontSize: 15,
               ),
             ),

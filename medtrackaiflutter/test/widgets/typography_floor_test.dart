@@ -127,4 +127,55 @@ void main() {
           lessThan(FontWeight.w900.index));
     });
   });
+
+  group('weight carries hierarchy', () {
+    test('heavy weight is the exception, not the default', () {
+      // Before: w800 was the single most common weight at 319 uses, against a
+      // scale that declares it twice. When most text is extra-bold, weight
+      // stops signalling importance — everything shouts, so nothing does.
+      final counts = <String, int>{};
+
+      void walk(Directory dir) {
+        for (final e in dir.listSync()) {
+          if (e is Directory) {
+            walk(e);
+          } else if (e is File && e.path.endsWith('.dart')) {
+            for (final line in e.readAsStringSync().split('\n')) {
+              if (line.trimLeft().startsWith('//')) continue;
+              for (final m
+                  in RegExp(r'FontWeight\.(w\d00)').allMatches(line)) {
+                counts[m.group(1)!] = (counts[m.group(1)] ?? 0) + 1;
+              }
+            }
+          }
+        }
+      }
+
+      walk(Directory('lib/screens'));
+      walk(Directory('lib/widgets'));
+
+      final heavy = (counts['w800'] ?? 0) + (counts['w900'] ?? 0);
+      final total = counts.values.fold(0, (a, b) => a + b);
+
+      expect(heavy / total, lessThan(0.25),
+          reason: 'heavy weights are ${(heavy / total * 100).round()}% of all '
+              'weight declarations ($counts) — emphasis only reads as emphasis '
+              'while most text is lighter than it');
+    });
+
+    test('the scale defaults match how screens actually use it', () {
+      // titleMedium shipped at w500 and 54 of its 123 call sites overrode to
+      // w800, jumping two steps because the default was wrong for a title
+      // sitting above body text. A default nobody accepts is not a default.
+      final src = File('lib/theme/app_tokens.dart').readAsStringSync();
+
+      for (final style in ['titleMedium', 'labelMedium']) {
+        final i = src.indexOf('get $style =>');
+        expect(i, greaterThan(-1));
+        final block = src.substring(i, (i + 400).clamp(0, src.length));
+        expect(block.contains('FontWeight.w600'), isTrue,
+            reason: '$style should default to the weight its callers wanted');
+      }
+    });
+  });
 }

@@ -70,7 +70,6 @@ class DayToggle extends StatelessWidget {
                           style: AppTypography.labelLarge.copyWith(
                             color:
                                 isToday ? Colors.white : L.sub,
-                            fontWeight: FontWeight.w600,
                             
                           ),
                           child: const Text('Today'),
@@ -91,7 +90,6 @@ class DayToggle extends StatelessWidget {
                           style: AppTypography.labelLarge.copyWith(
                             color:
                                 !isToday ? Colors.white : L.sub,
-                            fontWeight: FontWeight.w600,
                             
                           ),
                           child: const Text('Yesterday'),

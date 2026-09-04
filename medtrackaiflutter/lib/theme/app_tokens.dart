@@ -146,9 +146,15 @@ class AppTypography {
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3,
       );
+  /// Row and card titles.
+  ///
+  /// Was w500, which 54 of its 123 call sites overrode to w800 — the default
+  /// was too light for a title sitting directly above body text, so screens
+  /// jumped two steps past it. w600 is the weight those sites actually wanted;
+  /// the ones that still need more can say so.
   static TextStyle get titleMedium => GoogleFonts.outfit(
         fontSize: 16,
-        fontWeight: FontWeight.w500,
+        fontWeight: FontWeight.w600,
         letterSpacing: -0.2,
       );
   static TextStyle get bodyLarge => GoogleFonts.outfit(
@@ -169,7 +175,9 @@ class AppTypography {
       );
   static TextStyle get labelMedium => GoogleFonts.outfit(
         fontSize: 12,
-        fontWeight: FontWeight.w500,
+        // w500 for the same reason as titleMedium: a label is rarely the
+        // lightest thing on a card, and 17 of 68 uses overrode it upward.
+        fontWeight: FontWeight.w600,
         letterSpacing: 0.2,
       );
   static TextStyle get labelSmall => GoogleFonts.outfit(

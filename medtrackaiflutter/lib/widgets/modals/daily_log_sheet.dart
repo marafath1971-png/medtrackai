@@ -599,7 +599,7 @@ class _DoseLogRow extends StatelessWidget {
                         child: Text(
                           dose.med.name,
                           style: AppTypography.titleMedium.copyWith(
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             fontSize: 16,
                             color: textColor,
                             letterSpacing: -0.3,
@@ -678,7 +678,7 @@ class _DoseLogRow extends StatelessWidget {
               child: Text(
                 fmtTime(dose.sched.h, dose.sched.m, context),
                 style: AppTypography.labelLarge.copyWith(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   fontSize: 12,
                   letterSpacing: 0.2,
                   color: textColor.withValues(alpha: 0.9),
@@ -729,7 +729,7 @@ class _SymptomLogRow extends StatelessWidget {
               children: [
                 Text(symptom.name,
                     style: AppTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         fontSize: 14,
                         color: L.text)),
                 Row(

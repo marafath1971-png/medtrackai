@@ -382,7 +382,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
                 label,
                 style: AppTypography.headlineSmall.copyWith(
                   color: L.text,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   letterSpacing: -0.5,
                   height: 1.2,
                 ),
@@ -413,7 +413,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
                     'Med AI',
                     style: AppTypography.labelSmall.copyWith(
                       color: L.sub,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: 1.0,
                     ),
                   ),
@@ -511,7 +511,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
                     'Med AI',
                     style: AppTypography.labelSmall.copyWith(
                       color: Colors.white70,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -570,7 +570,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
             'Habit Architecture Locked.',
             style: AppTypography.headlineSmall.copyWith(
               color: L.text,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 12),
@@ -614,7 +614,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
                 value,
                 style: AppTypography.titleMedium.copyWith(
                   color: L.text,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],

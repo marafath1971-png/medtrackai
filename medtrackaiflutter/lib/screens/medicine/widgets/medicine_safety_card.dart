@@ -91,7 +91,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                     'Know your medicine',
                     style: AppTypography.titleMedium.copyWith(
                       color: AppColors.inkStrong,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -108,7 +108,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                     s.verified,
                     style: AppTypography.labelSmall.copyWith(
                       color: const Color(0xFF3D6B45),
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -225,7 +225,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
             s.analysisFailed,
             style: AppTypography.titleMedium.copyWith(
               color: AppColors.inkStrong,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: AppSpacing.p8),
@@ -292,7 +292,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                 textAlign: TextAlign.center,
                 style: AppTypography.titleMedium.copyWith(
                   color: L.text,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               const SizedBox(height: AppSpacing.p8),
@@ -312,7 +312,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                   s.generateSafetyProfile,
                   style: AppTypography.labelMedium.copyWith(
                     color: L.text,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ],
@@ -375,7 +375,7 @@ class _SafetyBlock extends StatelessWidget {
                   cleanTitle,
                   style: AppTypography.labelMedium.copyWith(
                     color: accent,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -393,7 +393,7 @@ class _SafetyBlock extends StatelessWidget {
                     'Alert',
                     style: AppTypography.labelSmall.copyWith(
                       color: accent,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),

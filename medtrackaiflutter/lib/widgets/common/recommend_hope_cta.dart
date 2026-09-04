@@ -58,7 +58,7 @@ class RecommendHopeCta extends StatelessWidget {
                     HopeVibe.recommendTitle,
                     style: AppTypography.titleMedium.copyWith(
                       color: AppColors.inkStrong,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const SizedBox(height: 2),

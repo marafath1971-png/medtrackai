@@ -142,7 +142,7 @@ class _ComparisonCard extends StatelessWidget {
             title,
             style: AppTypography.labelLarge.copyWith(
               color: positive ? p.accent : p.sub,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 12),
@@ -316,7 +316,7 @@ class _ProjectionPainter extends CustomPainter {
           style: TextStyle(
             color: goalColor,
             fontSize: 16,
-            fontWeight: FontWeight.w800,
+            fontWeight: FontWeight.w700,
           ),
         ),
         textDirection: TextDirection.ltr,

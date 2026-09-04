@@ -64,7 +64,7 @@ class TrialCountdownCard extends StatelessWidget {
                           style: AppTypography.titleMedium.copyWith(
                             color: L.text,
                             fontSize: 16,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             letterSpacing: -0.3,
                           ),
                         ),

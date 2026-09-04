@@ -81,7 +81,7 @@ class ScanSuccessSheet extends StatelessWidget {
                   textAlign: TextAlign.center,
                   style: AppTypography.headlineSmall.copyWith(
                     color: L.text,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: -0.4,
                   ),
                 ),
@@ -178,7 +178,7 @@ class ScanSuccessSheet extends StatelessWidget {
                       HopeVibe.shareYourWin,
                       style: AppTypography.labelLarge.copyWith(
                         color: L.text,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ],

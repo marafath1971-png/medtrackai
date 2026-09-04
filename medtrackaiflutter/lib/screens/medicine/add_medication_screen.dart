@@ -70,7 +70,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     'Add medicine',
                     style: AppTypography.titleMedium.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                   const Spacer(),
@@ -170,7 +170,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                       'Schedule',
                       style: AppTypography.titleMedium.copyWith(
                         color: L.text,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                     const SizedBox(height: AppSpacing.p4),
@@ -233,7 +233,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                                   'Remind me',
                                   style: AppTypography.titleMedium.copyWith(
                                     color: L.text,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w700,
                                   ),
                                 ),
                                 const SizedBox(height: AppSpacing.p4),
@@ -309,7 +309,6 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 name,
                 style: AppTypography.titleMedium.copyWith(
                   color: L.text,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),

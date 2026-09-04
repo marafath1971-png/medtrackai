@@ -167,7 +167,6 @@ class _LiquidFillBottle extends StatelessWidget {
                               color: fillPercentage > 0.4
                                   ? Colors.white.withValues(alpha: 0.8)
                                   : L.sub,
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],

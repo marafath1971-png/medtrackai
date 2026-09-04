@@ -75,7 +75,7 @@ class WeeklyWellnessRing extends StatelessWidget {
                 Text(
                   'ADHERENCE',
                   style: AppTypography.labelSmall.copyWith(
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     color: L.sub,
                     letterSpacing: 2.0,
                   ),

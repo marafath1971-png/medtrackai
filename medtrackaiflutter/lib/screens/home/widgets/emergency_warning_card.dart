@@ -47,7 +47,6 @@ class EmergencyWarningCard extends StatelessWidget {
                   'CRITICAL MEDICAL ADVISORY',
                   style: AppTypography.labelLarge.copyWith(
                     color: Colors.white,
-                    fontWeight: FontWeight.w600,
                     letterSpacing: 1.5,
                   ),
                 ),
@@ -92,7 +91,6 @@ class EmergencyWarningCard extends StatelessWidget {
                       textAlign: TextAlign.center,
                       style: AppTypography.labelLarge.copyWith(
                         color: L.error,
-                        fontWeight: FontWeight.w600,
                         letterSpacing: 0.5,
                       ),
                     ),

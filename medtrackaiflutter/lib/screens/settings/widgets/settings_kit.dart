@@ -43,7 +43,7 @@ class SettingsSection extends StatelessWidget {
             style: AppTypography.caption.copyWith(
               color: L.sub,
               letterSpacing: 1.1,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ),

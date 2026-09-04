@@ -197,7 +197,7 @@ class ScanInsightDashboard extends StatelessWidget {
                             style: AppTypography.caption.copyWith(
                               color: accent,
                               letterSpacing: 1.2,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
@@ -207,7 +207,7 @@ class ScanInsightDashboard extends StatelessWidget {
                         profile.level.label,
                         style: AppTypography.headlineMedium.copyWith(
                           color: L.text,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           height: 1.05,
                           letterSpacing: -0.5,
                         ),
@@ -293,7 +293,7 @@ class _CautionDial extends StatelessWidget {
                 '$filled',
                 style: AppTypography.titleLarge.copyWith(
                   color: L.text,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   height: 1,
                 ),
               ),
@@ -473,7 +473,7 @@ class _Metric extends StatelessWidget {
               // A low AI match is the one metric that should give the reader
               // pause, so it is the only one allowed to shout.
               color: emphasis ? const Color(0xFFB4494A) : L.text,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: 2),
@@ -483,7 +483,6 @@ class _Metric extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
             style: AppTypography.caption.copyWith(
               color: L.sub,
-              fontWeight: FontWeight.w600,
             ),
           ),
         ],

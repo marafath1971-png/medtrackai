@@ -293,7 +293,7 @@ class _AccessoryCard extends StatelessWidget {
                 item.name,
                 style: AppTypography.titleMedium.copyWith(
                   color: L.text,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
                 textAlign: TextAlign.center,
               ),

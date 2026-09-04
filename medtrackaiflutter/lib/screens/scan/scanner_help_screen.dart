@@ -168,7 +168,7 @@ class _TipCard extends StatelessWidget {
                   title,
                   style: AppTypography.titleMedium.copyWith(
                     color: L.text,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 8),

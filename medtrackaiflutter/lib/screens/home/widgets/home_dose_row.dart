@@ -131,7 +131,7 @@ class HomeDoseRow extends StatelessWidget {
                         color: taken
                             ? L.text.withValues(alpha: 0.45)
                             : AppColors.inkStrong,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: -0.3,
                         decoration:
                             taken ? TextDecoration.lineThrough : null,
@@ -174,7 +174,7 @@ class HomeDoseRow extends StatelessWidget {
                                   : overdue
                                       ? AppColors.red
                                       : const Color(0xFF8A6A1A),
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ),

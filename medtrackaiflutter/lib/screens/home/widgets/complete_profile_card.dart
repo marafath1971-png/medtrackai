@@ -111,7 +111,7 @@ class CompleteProfileCard extends StatelessWidget {
                     child: Text(
                       '${(progress * 100).toInt()}%',
                       style: AppTypography.labelLarge.copyWith(
-                          color: L.secondary, fontWeight: FontWeight.w800),
+                          color: L.secondary, fontWeight: FontWeight.w700),
                     ),
                   ),
                 ],

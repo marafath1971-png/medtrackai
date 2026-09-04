@@ -153,7 +153,7 @@ class PatientCard extends StatelessWidget {
                                   style: AppTypography.titleLarge.copyWith(
                                       color: L.text,
                                       fontSize: 16,
-                                      fontWeight: FontWeight.w800,
+                                      fontWeight: FontWeight.w700,
                                       letterSpacing: -0.5)),
                               const SizedBox(height: 2),
                               Text('${patient['relation']} · Progress today',
@@ -224,7 +224,7 @@ class PatientCard extends StatelessWidget {
                         Text('${(adherence * 100).toInt()}%',
                             style: AppTypography.labelLarge.copyWith(
                                 color: color,
-                                fontWeight: FontWeight.w800,
+                                fontWeight: FontWeight.w700,
                                 fontSize: 12)),
                       ],
                     ),
@@ -278,7 +278,7 @@ class WeeklyAdherenceChart extends StatelessWidget {
             Text('Last 7 Days',
                 style: AppTypography.labelSmall.copyWith(
                     color: L.sub.withValues(alpha: 0.5),
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     fontSize: 11,
                     letterSpacing: 0.5)),
           ],
@@ -517,7 +517,7 @@ class InsightsContent extends StatelessWidget {
                                       style: AppTypography.headlineMedium
                                           .copyWith(
                                               fontSize: 22,
-                                              fontWeight: FontWeight.w800,
+                                              fontWeight: FontWeight.w700,
                                               color: L.text)),
                                   Text('${cg.relation} · Monitoring active',
                                       style: AppTypography.bodySmall.copyWith(

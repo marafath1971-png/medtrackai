@@ -582,7 +582,7 @@ class _SupplementResultOverlay extends StatelessWidget {
                                         style: AppTypography.labelMedium
                                             .copyWith(
                                           color: Colors.white,
-                                          fontWeight: FontWeight.w800,
+                                          fontWeight: FontWeight.w700,
                                         ),
                                       ),
                                     ],

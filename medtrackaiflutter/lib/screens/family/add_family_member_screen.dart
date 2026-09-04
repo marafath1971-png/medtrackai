@@ -492,7 +492,6 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
               _gender,
               style: AppTypography.labelMedium.copyWith(
                 color: L.text,
-                fontWeight: FontWeight.w600,
               ),
             ),
           ],

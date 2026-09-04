@@ -270,7 +270,7 @@ class MedCard extends StatelessWidget {
                           overflow: TextOverflow.ellipsis,
                           style: AppTypography.titleMedium.copyWith(
                             color: ink,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             letterSpacing: -0.3,
                           ),
                         ),
@@ -427,7 +427,7 @@ class _StatusChip extends StatelessWidget {
             label,
             style: AppTypography.caption.copyWith(
               color: color,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
               letterSpacing: 0.2,
             ),
           ),

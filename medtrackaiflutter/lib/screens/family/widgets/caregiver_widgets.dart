@@ -106,7 +106,7 @@ class _CaregiverCardState extends State<CaregiverCard> {
                         style: AppTypography.titleLarge.copyWith(
                           color: AppColors.inkStrong,
                           fontSize: 16,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           letterSpacing: -0.5,
                         ),
                         maxLines: 1,

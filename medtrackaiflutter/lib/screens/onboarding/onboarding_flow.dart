@@ -1407,7 +1407,7 @@ class _WelcomeScreen extends StatelessWidget {
                         'YOU\'RE IN',
                         style: AppTypography.caption.copyWith(
                           color: AppColors.limeInk,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           letterSpacing: 1.0,
                         ),
                       ),

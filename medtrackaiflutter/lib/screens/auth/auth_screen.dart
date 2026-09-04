@@ -620,7 +620,7 @@ class _EmailAuthSheet extends StatelessWidget {
                     isSignUp ? 'Sign up with email' : 'Sign in with email',
                     style: AppTypography.headlineSmall.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: -0.4,
                     ),
                   ),
@@ -708,7 +708,6 @@ class _EmailAuthSheet extends StatelessWidget {
                                 : "Don't have an account? Sign Up",
                             style: AppTypography.labelMedium.copyWith(
                               color: L.sub,
-                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ),

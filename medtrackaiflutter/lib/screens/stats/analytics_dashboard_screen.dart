@@ -335,7 +335,6 @@ class _NavCardBody extends StatelessWidget {
                 label,
                 style: AppTypography.labelMedium.copyWith(
                   color: sub,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
               const SizedBox(height: 2),

@@ -325,7 +325,7 @@ class ObPrimaryButton extends StatelessWidget {
               label,
               style: AppTypography.titleMedium.copyWith(
                 color: AppColors.limeInk,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 letterSpacing: -0.2,
               ),
             ),

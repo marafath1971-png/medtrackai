@@ -59,7 +59,7 @@ class HomeTodayProgress extends StatelessWidget {
                       allDone ? '✓' : '${(fraction * 100).round()}%',
                       style: AppTypography.labelLarge.copyWith(
                         color: allDone ? AppColors.limeDeep : L.text,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                       ),
                     ),
                   ),

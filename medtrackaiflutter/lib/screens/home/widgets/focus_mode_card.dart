@@ -46,7 +46,7 @@ class FocusModeCard extends StatelessWidget {
                     'Focus Mode',
                     style: AppTypography.titleMedium.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: -0.5,
                     ),
                   ),

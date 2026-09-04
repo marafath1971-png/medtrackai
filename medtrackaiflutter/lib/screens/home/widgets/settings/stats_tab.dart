@@ -117,7 +117,7 @@ class StatsTab extends StatelessWidget {
               children: [
                 Text('Your success score',
                     style: AppTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         color: AppColors.limeInk,
                         letterSpacing: -0.2)),
                 Container(
@@ -132,7 +132,7 @@ class StatsTab extends StatelessWidget {
                     style: AppTypography.labelSmall.copyWith(
                       color: AppColors.limeInk,
                       fontSize: 11,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                   ),
                 ),
@@ -211,7 +211,7 @@ class StatsTab extends StatelessWidget {
         if (predictions.isNotEmpty) ...[
           Text('Smart patterns',
               style: AppTypography.titleMedium.copyWith(
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   color: L.text,
                   letterSpacing: -0.2)),
           const SizedBox(height: AppSpacing.p12),
@@ -370,7 +370,7 @@ class StatsTab extends StatelessWidget {
                               child: Center(
                                 child: Text('${s.severity}',
                                     style: AppTypography.labelSmall.copyWith(
-                                        fontWeight: FontWeight.w800,
+                                        fontWeight: FontWeight.w700,
                                         color: color)),
                               ),
                             ),
@@ -382,7 +382,7 @@ class StatsTab extends StatelessWidget {
                                     Text(s.name,
                                         style: AppTypography.labelLarge
                                             .copyWith(
-                                                fontWeight: FontWeight.w800,
+                                                fontWeight: FontWeight.w700,
                                                 color: L.text)),
                                     if (s.notes != null && s.notes!.isNotEmpty)
                                       Text(s.notes!,
@@ -453,7 +453,7 @@ class StatsTab extends StatelessWidget {
                                     Text(m.name,
                                         style: AppTypography.labelLarge
                                             .copyWith(
-                                                fontWeight: FontWeight.w800,
+                                                fontWeight: FontWeight.w700,
                                                 color: L.text)),
                                     Text(status,
                                         style: AppTypography.labelSmall
@@ -477,7 +477,7 @@ class StatsTab extends StatelessWidget {
                                         Text('${m.count}',
                                             style: AppTypography.labelLarge
                                                 .copyWith(
-                                                    fontWeight: FontWeight.w800,
+                                                    fontWeight: FontWeight.w700,
                                                     color: L.text)),
                                         Text('left',
                                             style: AppTypography.labelSmall
@@ -513,7 +513,7 @@ class StatsTab extends StatelessWidget {
                                             style: AppTypography.labelSmall
                                                 .copyWith(
                                               color: L.text,
-                                              fontWeight: FontWeight.w800,
+                                              fontWeight: FontWeight.w700,
                                               fontSize: 11,
                                               letterSpacing: 0.5,
                                             ),

@@ -45,7 +45,7 @@ class HomeWeekStrip extends StatelessWidget {
                 monthLabel,
                 style: AppTypography.titleMedium.copyWith(
                   color: L.text,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                   fontSize: 16,
                   letterSpacing: -0.3,
                 ),
@@ -140,7 +140,7 @@ class HomeWeekStrip extends StatelessWidget {
                             color: isSelected
                                 ? AppColors.limeInk
                                 : L.text.withValues(alpha: 0.85),
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                         if (isToday && !isSelected)

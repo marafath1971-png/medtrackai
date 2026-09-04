@@ -151,7 +151,6 @@ class ContextualLoader extends StatelessWidget {
             message,
             style: AppTypography.labelLarge.copyWith(
               color: textColor.withValues(alpha: 0.7),
-              fontWeight: FontWeight.w600,
               letterSpacing: 0.5,
             ),
           ).medAiChain(

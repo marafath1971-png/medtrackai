@@ -72,7 +72,7 @@ class HomeTodayHero extends StatelessWidget {
                   style: AppTypography.caption.copyWith(
                     color: AppColors.accentDeep,
                     letterSpacing: 1.1,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
                 const SizedBox(height: 6),
@@ -80,7 +80,7 @@ class HomeTodayHero extends StatelessWidget {
                   s.headline(taken: taken, total: total, name: name),
                   style: AppTypography.titleMedium.copyWith(
                     color: L.text,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     height: 1.15,
                     letterSpacing: -0.3,
                   ),

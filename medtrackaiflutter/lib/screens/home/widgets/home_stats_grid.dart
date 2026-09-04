@@ -418,7 +418,7 @@ class _BentoSmallCard extends StatelessWidget {
                   value,
                   style: AppTypography.titleLarge.copyWith(
                     color: valueColor,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: -0.5,
                   ),
                 ),
@@ -510,7 +510,7 @@ class _NextDoseCard extends StatelessWidget {
                     dose.med.name,
                     style: AppTypography.headlineSmall.copyWith(
                       color: L.onPrimary,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                     ),
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,

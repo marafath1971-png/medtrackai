@@ -68,7 +68,7 @@ class TrendHero extends StatelessWidget {
             style: AppTypography.caption.copyWith(
               color: L.sub,
               letterSpacing: 1.2,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
           const SizedBox(height: AppSpacing.p8),
@@ -169,7 +169,7 @@ class _DeltaChip extends StatelessWidget {
             flat ? 'same' : '${points.abs()} pts',
             style: AppTypography.labelSmall.copyWith(
               color: accent,
-              fontWeight: FontWeight.w800,
+              fontWeight: FontWeight.w700,
             ),
           ),
         ],

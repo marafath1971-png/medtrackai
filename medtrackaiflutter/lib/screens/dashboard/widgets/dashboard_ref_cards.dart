@@ -105,7 +105,6 @@ class DashboardGlassAdherenceCard extends StatelessWidget {
                         'Adherence',
                         style: AppTypography.labelMedium.copyWith(
                           color: L.sub,
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
                       const SizedBox(height: 2),
@@ -303,7 +302,7 @@ class DashboardSectionTitle extends StatelessWidget {
               title,
               style: AppTypography.titleMedium.copyWith(
                 color: L.text,
-                fontWeight: FontWeight.w800,
+                fontWeight: FontWeight.w700,
                 fontSize: 17,
                 letterSpacing: -0.3,
               ),
@@ -316,7 +315,6 @@ class DashboardSectionTitle extends StatelessWidget {
                 action!,
                 style: AppTypography.labelLarge.copyWith(
                   color: L.sub,
-                  fontWeight: FontWeight.w600,
                 ),
               ),
             ),
@@ -429,7 +427,6 @@ class _HealthParamLarge extends StatelessWidget {
               title,
               style: AppTypography.labelMedium.copyWith(
                 color: L.sub,
-                fontWeight: FontWeight.w600,
                 fontSize: 12,
               ),
             ),
@@ -445,7 +442,7 @@ class _HealthParamLarge extends StatelessWidget {
                     overflow: TextOverflow.ellipsis,
                     style: AppTypography.headlineMedium.copyWith(
                       color: L.text,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: -0.5,
                     ),
                   ),
@@ -530,7 +527,7 @@ class _HealthParamSmall extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: AppTypography.titleLarge.copyWith(
                     color: L.text,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                     letterSpacing: -0.4,
                   ),
                 ),

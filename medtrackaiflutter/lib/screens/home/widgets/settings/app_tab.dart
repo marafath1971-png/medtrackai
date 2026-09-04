@@ -233,7 +233,7 @@ class _AppTabState extends State<AppTab> {
               child: Column(children: [
                 Text('Enjoying MedAI?',
                     style: AppTypography.titleLarge.copyWith(
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         color: L.text,
                         fontSize: 18)),
                 const SizedBox(height: AppSpacing.p8),

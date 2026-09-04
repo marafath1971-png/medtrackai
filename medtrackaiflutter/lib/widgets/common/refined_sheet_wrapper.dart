@@ -80,7 +80,7 @@ class RefinedSheetWrapper extends StatelessWidget {
                         title!,
                         style: AppTypography.titleLarge.copyWith(
                           fontSize: 20,
-                          fontWeight: FontWeight.w800,
+                          fontWeight: FontWeight.w700,
                           color: L.text,
                           letterSpacing: -0.3,
                         ),

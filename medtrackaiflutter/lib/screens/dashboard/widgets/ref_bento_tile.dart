@@ -87,7 +87,7 @@ class RefBentoTile extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       style: AppTypography.headlineMedium.copyWith(
                         color: L.text,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: -0.5,
                       ),
                     ),
@@ -102,7 +102,6 @@ class RefBentoTile extends StatelessWidget {
                         overflow: TextOverflow.ellipsis,
                         style: AppTypography.labelLarge.copyWith(
                           color: L.sub.withValues(alpha: 0.9),
-                          fontWeight: FontWeight.w600,
                         ),
                       ),
                     ),

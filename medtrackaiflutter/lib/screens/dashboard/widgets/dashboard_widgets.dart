@@ -450,7 +450,7 @@ class AdherenceTrendChart extends StatelessWidget {
                             color: L.sub.withValues(alpha: 0.8),
                             fontSize: 11,
                             letterSpacing: 2.0,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
                       ],
@@ -460,7 +460,7 @@ class AdherenceTrendChart extends StatelessWidget {
                       '30-Day Progress',
                       style: AppTypography.headlineSmall.copyWith(
                         color: L.text,
-                        fontWeight: FontWeight.w800,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: -1.0
                       ),
                     ),
@@ -478,7 +478,7 @@ class AdherenceTrendChart extends StatelessWidget {
                   '30D',
                   style: AppTypography.labelSmall.copyWith(
                     color: L.text,
-                    fontWeight: FontWeight.w800,
+                    fontWeight: FontWeight.w700,
                   ),
                 ),
               ),
@@ -559,14 +559,14 @@ class AdherenceTrendChart extends StatelessWidget {
                 '30 days ago',
                 style: AppTypography.labelSmall.copyWith(
                   color: L.sub.withValues(alpha: 0.45),
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
               Text(
                 'Today',
                 style: AppTypography.labelSmall.copyWith(
                   color: L.text,
-                  fontWeight: FontWeight.w800,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
@@ -657,7 +657,7 @@ class InventoryStatusCard extends StatelessWidget {
                     '${med.count}',
                     style: AppTypography.labelMedium.copyWith(
                       color: color,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       fontSize: 14,
                     ),
                     textAlign: TextAlign.right,

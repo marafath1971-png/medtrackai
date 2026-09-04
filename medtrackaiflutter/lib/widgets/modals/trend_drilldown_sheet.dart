@@ -108,7 +108,7 @@ class TrendDrilldownSheet extends StatelessWidget {
                             Text(d['date'].toString().split('-')[2],
                                 style: AppTypography.labelSmall.copyWith(
                                     fontSize: 11,
-                                    fontWeight: FontWeight.w800,
+                                    fontWeight: FontWeight.w700,
                                     color: L.sub)),
                           ] else ...[
                             const SizedBox(height: 20),

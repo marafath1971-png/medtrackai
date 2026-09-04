@@ -77,7 +77,7 @@ class _AIProtectorCardState extends State<AIProtectorCard>
                       Text('MedAI protector advisor',
                           style: AppTypography.titleLarge.copyWith(
                               fontSize: 14,
-                              fontWeight: FontWeight.w800,
+                              fontWeight: FontWeight.w700,
                               color: L.text)),
                       Text('Intelligent care analysis',
                           style: AppTypography.bodySmall.copyWith(

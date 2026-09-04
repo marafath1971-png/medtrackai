@@ -47,7 +47,7 @@ class BodyImpactCard extends StatelessWidget {
                     HopeVibe.bodyImpactTitle,
                     style: AppTypography.titleMedium.copyWith(
                       color: AppColors.inkStrong,
-                      fontWeight: FontWeight.w800,
+                      fontWeight: FontWeight.w700,
                       letterSpacing: -0.2,
                     ),
                   ),
@@ -180,7 +180,7 @@ class BodyImpactCard extends StatelessWidget {
                           'Did you know?',
                           style: AppTypography.labelSmall.copyWith(
                             color: L.text,
-                            fontWeight: FontWeight.w800,
+                            fontWeight: FontWeight.w700,
                             fontSize: 11,
                           ),
                         ),
