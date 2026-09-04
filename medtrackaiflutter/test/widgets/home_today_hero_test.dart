@@ -206,5 +206,19 @@ void main() {
       expect(before.contains('if (streak >='), isTrue,
           reason: 'a user with no streak has nothing to recommend yet');
     });
+
+    test('the orphaned widget files are gone, not just unreferenced', () {
+      // Removing the call sites left 400 lines compiling but unreachable.
+      // Dead widgets get re-imported by whoever greps for "hero" next.
+      expect(
+        File('lib/screens/dashboard/widgets/lime_progress_hero.dart')
+            .existsSync(),
+        isFalse,
+      );
+      expect(
+        File('lib/screens/dashboard/widgets/ref_bento_tile.dart').existsSync(),
+        isFalse,
+      );
+    });
   });
 }
