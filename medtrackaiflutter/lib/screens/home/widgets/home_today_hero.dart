@@ -32,12 +32,21 @@ class HomeTodayHero extends StatelessWidget {
   /// Greeting name, if known.
   final String? name;
 
+  /// Current streak in days. Absorbed from LimeProgressHero, which showed the
+  /// same taken/total this widget does and existed mainly to carry this.
+  final int streak;
+
+  /// Opens the streak detail. Null hides the streak chip entirely.
+  final VoidCallback? onStreakTap;
+
   const HomeTodayHero({
     super.key,
     required this.taken,
     required this.total,
     this.nextDose,
     this.name,
+    this.streak = 0,
+    this.onStreakTap,
   });
 
   /// Which state the day is in. Drives copy, tint and mascot together so they
@@ -101,6 +110,10 @@ class HomeTodayHero extends StatelessWidget {
                 if (total > 0) ...[
                   const SizedBox(height: AppSpacing.p12),
                   _ProgressTrack(taken: taken, total: total),
+                ],
+                if (streak > 0 && onStreakTap != null) ...[
+                  const SizedBox(height: AppSpacing.p12),
+                  _StreakChip(days: streak, onTap: onStreakTap!),
                 ],
               ],
             ),
@@ -201,6 +214,42 @@ class _ProgressTrack extends StatelessWidget {
           ),
         ],
       ],
+    );
+  }
+}
+
+/// Streak, folded in from the hero this widget replaced.
+///
+/// A chip rather than its own card: the streak is a supporting fact about the
+/// day, not a second headline competing with it.
+class _StreakChip extends StatelessWidget {
+  final int days;
+  final VoidCallback onTap;
+
+  const _StreakChip({required this.days, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(Icons.local_fire_department_rounded,
+              size: 15, color: AppColors.accentDeep),
+          const SizedBox(width: 5),
+          Text(
+            days == 1 ? '1 day streak' : '$days day streak',
+            style: AppTypography.caption.copyWith(
+              color: L.sub,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

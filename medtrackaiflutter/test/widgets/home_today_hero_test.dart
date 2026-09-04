@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/screens/home/widgets/home_today_hero.dart';
@@ -123,5 +124,87 @@ void main() {
 
     expect(done, isNot(empty),
         reason: 'a finished day and an empty app should not look the same');
+  });
+
+  group('the streak folded in from the removed hero', () {
+    testWidgets('it shows when there is one', (tester) async {
+      await tester.pumpWidget(_host(HomeTodayHero(
+        taken: 2,
+        total: 4,
+        streak: 5,
+        onStreakTap: () {},
+      )));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.text('5 day streak'), findsOneWidget);
+    });
+
+    testWidgets('one day is not pluralised', (tester) async {
+      await tester.pumpWidget(_host(HomeTodayHero(
+        taken: 1,
+        total: 2,
+        streak: 1,
+        onStreakTap: () {},
+      )));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.text('1 day streak'), findsOneWidget);
+    });
+
+    testWidgets('a zero streak is not shown at all', (tester) async {
+      // A new user does not need to be told their streak is nothing.
+      await tester.pumpWidget(_host(HomeTodayHero(
+        taken: 0,
+        total: 3,
+        streak: 0,
+        onStreakTap: () {},
+      )));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      expect(find.textContaining('streak'), findsNothing);
+    });
+
+    testWidgets('tapping it opens the streak detail', (tester) async {
+      // LimeProgressHero carried this tap target; removing that widget must
+      // not remove the route into the streak modal.
+      var taps = 0;
+      await tester.pumpWidget(_host(HomeTodayHero(
+        taken: 2,
+        total: 4,
+        streak: 9,
+        onStreakTap: () => taps++,
+      )));
+      await tester.pump(const Duration(milliseconds: 300));
+
+      await tester.tap(find.text('9 day streak'));
+      await tester.pump();
+
+      expect(taps, 1);
+    });
+  });
+
+  group('Home shows one dose summary, not three', () {
+    test('the duplicate heroes are gone from the tab', () {
+      // HomeTodayHero, LimeProgressHero and two RefBentoTiles all rendered
+      // taken/total and the next dose, stacked consecutively, which pushed the
+      // schedule itself below the fold.
+      final src = File('lib/screens/home/home_tab.dart').readAsStringSync();
+
+      expect(src.contains('LimeProgressHero('), isFalse);
+      expect(src.contains('RefBentoTile('), isFalse);
+      expect(src.contains('HomeTodayHero('), isTrue,
+          reason: 'the surviving summary must still be there');
+    });
+
+    test('the invite prompt is no longer unconditional', () {
+      // It rendered on every visit forever, competing with the schedule.
+      final src = File('lib/screens/home/home_tab.dart').readAsStringSync();
+      final i = src.indexOf('RecommendHopeCta(');
+      expect(i, greaterThan(-1));
+
+      final before = src.substring((i - 500).clamp(0, src.length), i);
+      expect(before.contains('if (streak >='), isTrue,
+          reason: 'a user with no streak has nothing to recommend yet');
+    });
   });
 }

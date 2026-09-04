@@ -7,8 +7,6 @@ import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/premium_texture.dart';
 import '../../widgets/common/recommend_hope_cta.dart';
-import '../dashboard/widgets/lime_progress_hero.dart';
-import '../dashboard/widgets/ref_bento_tile.dart';
 import '../medicine/medicine_detail_screen.dart';
 import 'dose_grouping.dart';
 import 'widgets/emergency_warning_card.dart';
@@ -199,7 +197,6 @@ class _HomeTabState extends State<HomeTab> {
 
     final groups = DoseGrouping.group(doses);
     final dosePct = doses.isEmpty ? 0.0 : takenCount / doses.length;
-    final dosesLeft = (doses.length - takenCount).clamp(0, doses.length);
     final nextDose = _nextDoseInfo(doses, takenMap, _selectedDate);
     final allDone = doses.isNotEmpty && takenCount >= doses.length;
     final showMascot = allDone || (doses.isEmpty && meds.isNotEmpty);
@@ -264,6 +261,12 @@ class _HomeTabState extends State<HomeTab> {
                       // a line identical for every user. This shows the day's
                       // actual state instead, in less vertical space.
                       sliver: SliverToBoxAdapter(
+                        // One dose summary, not three. HomeTodayHero,
+                        // LimeProgressHero and the two bento tiles all showed
+                        // taken/total and the next dose — the same numbers
+                        // stacked three deep, which is why the schedule sat
+                        // below the fold. The streak and its tap target moved
+                        // into the hero so nothing was lost with them.
                         child: HomeTodayHero(
                           taken: takenCount,
                           total: doses.length,
@@ -271,51 +274,8 @@ class _HomeTabState extends State<HomeTab> {
                               ? null
                               : '${nextDose.label} · ${nextDose.value}${nextDose.unit.isEmpty ? '' : ' ${nextDose.unit}'}',
                           name: context.read<AppState>().profile?.name,
-                        ),
-                      ),
-                    ),
-
-                    SliverPadding(
-                      padding:
-                          const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p16),
-                      sliver: SliverToBoxAdapter(
-                        child: LimeProgressHero(
-                          fraction: dosePct,
-                          taken: takenCount,
-                          total: doses.length,
                           streak: streak,
-                          showStreak: true,
-                          onTap: () => setState(() => _showStreak = true),
-                        ),
-                      ),
-                    ),
-
-                    SliverPadding(
-                      padding:
-                          const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p16),
-                      sliver: SliverToBoxAdapter(
-                        child: Row(
-                          children: [
-                            Expanded(
-                              child: RefBentoTile(
-                                label: nextDose.label,
-                                value: nextDose.value,
-                                unit: nextDose.unit,
-                                emoji: '⏰',
-                                tint: AppColors.accent,
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.p12),
-                            Expanded(
-                              child: RefBentoTile(
-                                label: AppLocalizations.of(context)!.homeDosesLeft,
-                                value: '$dosesLeft',
-                                unit: dosesLeft == 1 ? 'dose' : 'doses',
-                                emoji: '💊',
-                                tint: AppColors.infoSoft,
-                              ),
-                            ),
-                          ],
+                          onStreakTap: () => setState(() => _showStreak = true),
                         ),
                       ),
                     ),
@@ -520,6 +480,12 @@ class _HomeTabState extends State<HomeTab> {
                         ),
                       ),
 
+                    // Asked once the user has a few days behind them, not on
+                    // every visit forever. An invite prompt permanently pinned
+                    // under the schedule is a growth ask competing with the
+                    // thing the screen is for, and a user with no streak has
+                    // nothing to recommend yet.
+                    if (streak >= 3)
                     SliverPadding(
                       padding: const EdgeInsets.fromLTRB(
                           _hPad, AppSpacing.p8, _hPad, AppSpacing.p8),
