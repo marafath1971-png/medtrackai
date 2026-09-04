@@ -185,7 +185,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                                     color: isSelected ? L.bg : L.sub,
                                     fontSize: 11,
                                     fontWeight: isSelected
-                                        ? FontWeight.w900
+                                        ? FontWeight.w700
                                         : FontWeight.w600,
                                   ),
                                 ),

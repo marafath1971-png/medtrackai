@@ -70,7 +70,7 @@ class AppLoadingIndicator extends StatelessWidget {
             (text ?? 'Processing...').toUpperCase(),
             style: AppTypography.labelSmall.copyWith(
               fontSize: 11,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
               color: L.text.withValues(alpha: 0.4),
               letterSpacing: 2.0,
             ),

@@ -255,7 +255,7 @@ class _GrowthDashboardScreenState extends State<GrowthDashboardScreen> {
             style: AppTypography.labelSmall.copyWith(
               color: L.sub.withValues(alpha: 0.72),
               fontSize: 11,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
               letterSpacing: 1.6,
             ),
           ),

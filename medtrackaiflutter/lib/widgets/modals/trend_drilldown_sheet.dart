@@ -38,7 +38,7 @@ class TrendDrilldownSheet extends StatelessWidget {
               Text('30-DAY PERFORMANCE',
                   style: AppTypography.labelSmall.copyWith(
                       fontSize: 11,
-                      fontWeight: FontWeight.w900,
+                      fontWeight: FontWeight.w700,
                       color: L.sub,
                       letterSpacing: 1.2)),
               MedAiGlass(
@@ -49,7 +49,7 @@ class TrendDrilldownSheet extends StatelessWidget {
                     style: AppTypography.labelMedium.copyWith(
                         color: L.green,
                         fontSize: 13,
-                        fontWeight: FontWeight.w900)),
+                        fontWeight: FontWeight.w700)),
               ),
             ],
           ),
@@ -136,7 +136,7 @@ class TrendDrilldownSheet extends StatelessWidget {
                       Text('PATIENT INSIGHT',
                           style: AppTypography.labelSmall.copyWith(
                               fontSize: 11,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w700,
                               color: AppColors.limeDeep,
                               letterSpacing: 0.5)),
                     ],

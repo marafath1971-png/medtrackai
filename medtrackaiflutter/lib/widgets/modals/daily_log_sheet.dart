@@ -278,7 +278,7 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                         style: AppTypography.labelSmall.copyWith(
                           color: completion == 1.0 ? L.success : L.sub,
                           fontSize: 11,
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                           letterSpacing: 0.8,
                         ),
                       ),
@@ -437,7 +437,7 @@ class _SectionHeader extends StatelessWidget {
           Text(title,
               style: AppTypography.labelSmall.copyWith(
                 fontSize: 11,
-                fontWeight: FontWeight.w900,
+                fontWeight: FontWeight.w700,
                 color: L.sub,
                 letterSpacing: 1.2,
               )),
@@ -449,7 +449,7 @@ class _SectionHeader extends StatelessWidget {
             ),
             child: Text('$count',
                 style: AppTypography.labelSmall.copyWith(
-                    fontSize: 11, fontWeight: FontWeight.w900, color: L.sub)),
+                    fontSize: 11, fontWeight: FontWeight.w700, color: L.sub)),
           ),
         ],
       ),
@@ -624,7 +624,7 @@ class _DoseLogRow extends StatelessWidget {
                             'PRN',
                             style: AppTypography.labelSmall.copyWith(
                               color: taken ? Colors.white : L.accent,
-                              fontWeight: FontWeight.w900,
+                              fontWeight: FontWeight.w700,
                               fontSize: 11,
                               letterSpacing: 0.8,
                             ),

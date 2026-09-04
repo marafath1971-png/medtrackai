@@ -196,6 +196,21 @@ class AppTypography {
   /// rather than an opinion.
   static const double minFontSize = 11;
 
+  /// Heaviest weight that stays legible at [minFontSize].
+  ///
+  /// Screens override to w800 319 times and w900 66 times, against a scale
+  /// that peaks at w800 twice and centres on w600/w700. Eighteen of the w900
+  /// uses sit at 11px — the heaviest weight at the smallest size, where
+  /// Outfit's counters close up and the text reads as a dark smudge rather
+  /// than words.
+  ///
+  /// w900 is not banned: it earns its place on display sizes. It just should
+  /// not appear on a caption.
+  static const FontWeight maxWeightAtSmallSize = FontWeight.w700;
+
+  /// Sizes at or below this are treated as small text for weight purposes.
+  static const double smallTextCeiling = 13;
+
   /// Micro caption / overline — use instead of ad-hoc fontSize 9–11.
   static TextStyle get caption => GoogleFonts.outfit(
         fontSize: 11,

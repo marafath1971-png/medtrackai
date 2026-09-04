@@ -338,7 +338,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                           color: accentColor,
                           fontSize: 11,
                           fontFamily: 'Outfit',
-                          fontWeight: FontWeight.w900,
+                          fontWeight: FontWeight.w700,
                           letterSpacing: 2.0,
                         ),
                       ),
@@ -494,7 +494,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.3),
                         fontSize: 11,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: 2.2,
                       ),
                     ),
@@ -875,7 +875,7 @@ class ShareAdherenceCard extends StatelessWidget {
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.25),
                         fontSize: 11,
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: 2.0,
                       ),
                     ),

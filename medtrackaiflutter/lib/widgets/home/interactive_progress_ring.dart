@@ -154,7 +154,7 @@ class InteractiveProgressRing extends StatelessWidget {
                 'QUICK LOG',
                 style: AppTypography.labelSmall.copyWith(
                   color: L.primary,
-                  fontWeight: FontWeight.w900,
+                  fontWeight: FontWeight.w700,
                   fontSize: 11,
                   letterSpacing: 0.8,
                 ),

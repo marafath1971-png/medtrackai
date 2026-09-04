@@ -626,7 +626,7 @@ class SyncStatusBanner extends StatelessWidget {
             isSyncing ? 'SYNCING_CLOUD' : 'CLOUD_STABLE',
             style: AppTypography.labelSmall.copyWith(
               fontSize: 11,
-              fontWeight: FontWeight.w900,
+              fontWeight: FontWeight.w700,
               color: L.sub.withValues(alpha: 0.5),
               letterSpacing: 1.0,
             ),
@@ -1424,7 +1424,7 @@ class StatusBadge extends StatelessWidget {
         label,
         style: AppTypography.labelSmall.copyWith(
           color: L.bg,
-          fontWeight: FontWeight.w900,
+          fontWeight: FontWeight.w700,
           fontSize: 11,
           letterSpacing: 0.5,
         ),

@@ -312,7 +312,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                       kAppName.toUpperCase(),
                       style: AppTypography.labelSmall.copyWith(
                         color: L.text.withValues(alpha: 0.15),
-                        fontWeight: FontWeight.w900,
+                        fontWeight: FontWeight.w700,
                         letterSpacing: 4.0,
                         fontSize: 11,
                       ),

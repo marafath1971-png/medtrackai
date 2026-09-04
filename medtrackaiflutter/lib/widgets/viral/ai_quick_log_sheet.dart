@@ -456,7 +456,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
       style: AppTypography.labelSmall.copyWith(
         color: L.error,
         letterSpacing: 2.0,
-        fontWeight: FontWeight.w900,
+        fontWeight: FontWeight.w700,
         fontSize: 11,
       ),
     );
