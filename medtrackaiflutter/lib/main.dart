@@ -109,6 +109,33 @@ void main() async {
     PurchasesService.init(),
   ]);
 
+  // A release build that cannot sell anything is almost always an accident:
+  // .env is gitignored, so a clean checkout has no key, and every billing
+  // failure downstream is silent by design — the paywall just says "Not
+  // available yet" and the user cannot pay. Fail loudly at startup instead of
+  // discovering it from the revenue graph.
+  //
+  // Supply the key at build time:
+  //   flutter build appbundle --dart-define=RC_GOOGLE_KEY=goog_xxx
+  assert(() {
+    if (!PurchasesService.hasSellableKey) {
+      debugPrint('BILLING DISABLED: no valid RevenueCat key. '
+          'Pass --dart-define=RC_GOOGLE_KEY=goog_... to sell anything.');
+    }
+    return true;
+  }());
+  if (kReleaseMode && !PurchasesService.hasSellableKey) {
+    FlutterError.reportError(FlutterErrorDetails(
+      exception: StateError(
+        'Release build has no valid RevenueCat key: billing is disabled and '
+        'no user can purchase. Build with '
+        '--dart-define=RC_GOOGLE_KEY=goog_... (or RC_APPLE_KEY for iOS).',
+      ),
+      library: 'purchases',
+      context: ErrorDescription('startup billing configuration check'),
+    ));
+  }
+
   final prefs = results[2] as SharedPreferences;
   final localDataSource = LocalDataSource(prefs);
   final firestoreDataSource = FirestoreDataSource();

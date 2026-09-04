@@ -7,15 +7,40 @@ import '../core/utils/logger.dart';
 class PurchasesService {
   static bool _configured = false;
 
+  /// Compile-time keys, supplied by CI as
+  /// `--dart-define=RC_GOOGLE_KEY=goog_...`.
+  ///
+  /// These win over .env because .env is gitignored and therefore absent on a
+  /// build machine; a release built from a clean checkout would otherwise pick
+  /// up no key at all and ship with billing silently off.
+  static const String _defineApple =
+      String.fromEnvironment('RC_APPLE_KEY');
+  static const String _defineGoogle =
+      String.fromEnvironment('RC_GOOGLE_KEY');
+
   static String get _appleApiKey {
+    if (_defineApple.isNotEmpty) return _defineApple.trim();
     if (!dotenv.isInitialized) return '';
-    return (dotenv.env['RC_APPLE_KEY'] ?? dotenv.env['PURCHASES_API_KEY'] ?? '').trim();
+    return (dotenv.env['RC_APPLE_KEY'] ?? dotenv.env['PURCHASES_API_KEY'] ?? '')
+        .trim();
   }
 
   static String get _googleApiKey {
+    if (_defineGoogle.isNotEmpty) return _defineGoogle.trim();
     if (!dotenv.isInitialized) return '';
-    return (dotenv.env['RC_GOOGLE_KEY'] ?? dotenv.env['PURCHASES_API_KEY'] ?? '').trim();
+    return (dotenv.env['RC_GOOGLE_KEY'] ??
+            dotenv.env['PURCHASES_API_KEY'] ??
+            '')
+        .trim();
   }
+
+  /// Whether this binary can actually sell anything.
+  ///
+  /// Separate from [isMisconfigured], which is only meaningful after [init]
+  /// has run. This is answerable before startup and is what the release guard
+  /// asserts on.
+  static bool get hasSellableKey =>
+      _isValidKey(Platform.isAndroid ? _googleApiKey : _appleApiKey);
 
   static bool _isValidKey(String key) {
     final cleaned = key.trim();
