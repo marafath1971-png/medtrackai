@@ -12,6 +12,7 @@ import '../../core/utils/date_formatter.dart';
 import '../../core/utils/color_utils.dart';
 import '../common/app_shimmer.dart';
 import '../common/animated_pressable.dart';
+import '../../screens/app_shell.dart';
 export '../common/app_shimmer.dart';
 export '../common/animated_pressable.dart';
 export '../../theme/med_ai_ui.dart' show MedAiA11y, MedAiCTA, MedAiGlass, MedAiDepthCard, MedAiSectionHeader;
@@ -494,8 +495,14 @@ class AppToast extends StatelessWidget {
 
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
+    // Clears the whole bottom furniture, not just the nav island. 115 landed
+    // 51px inside the scan FAB, which floats 12px above an 80px island — so
+    // an error about a failed invite rendered on top of the button the user
+    // had just pressed. kShellNavIslandInset is the same figure tab content
+    // reserves, plus a gap so the toast reads as sitting above the furniture
+    // rather than touching it.
     return Positioned(
-      bottom: bottomPadding + 115,
+      bottom: bottomPadding + kShellNavIslandInset + 12,
       left: 24,
       right: 24,
       child: Center(

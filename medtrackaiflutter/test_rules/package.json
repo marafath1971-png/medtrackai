@@ -1,0 +1,13 @@
+{
+  "name": "medai-rules-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "mocha --timeout 20000 invites.test.js"
+  },
+  "dependencies": {
+    "@firebase/rules-unit-testing": "^5.0.2",
+    "firebase": "^12.18.0",
+    "mocha": "^12.0.0"
+  }
+}

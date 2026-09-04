@@ -450,10 +450,6 @@ class _AppShellState extends State<AppShell>
                     ),
                   ),
 
-                  // ── Toast ──
-                  if (toast != null)
-                    AppToast(message: toast, type: toastType ?? 'success'),
-
                   // ── Bottom navigation island ──
                   AnimatedPositioned(
                     duration: AppDurations.fast,
@@ -482,6 +478,15 @@ class _AppShellState extends State<AppShell>
                     bottom: (16 + bottomPadding + kShellNavIslandHeight + 12),
                     child: _ScanFab(onTap: _openScan),
                   ),
+
+                  // ── Toast ──
+                  //
+                  // Last in the stack so it paints over the island and the
+                  // FAB. Stacked before them, an error message was drawn
+                  // underneath the button that triggered it — the FAB sat on
+                  // top of the words explaining why the tap had failed.
+                  if (toast != null)
+                    AppToast(message: toast, type: toastType ?? 'success'),
 
                   // ── Viral Reentry Screen ──
                   if (_showReentry)

@@ -9,8 +9,22 @@ service cloud.firestore {
     }
 
     // ── Helper: Is an invite code still within its 24-hour window? ─────
+    //
+    // resource is null when the document does not exist, and dereferencing
+    // resource.data on a null resource denies the read rather than returning
+    // "not found". Creating an invite probes up to five candidate codes for
+    // collisions, so the common case — the code is free — was the case that
+    // failed, and every invite creation died in the uniqueness check.
     function isInviteValid() {
-      return request.time < resource.data.createdAt + duration.value(86400, 's');
+      return resource != null
+        && resource.data.createdAt != null
+        && request.time < resource.data.createdAt + duration.value(86400, 's');
+    }
+
+    // A caller may probe whether a code is taken. The probe reveals only
+    // existence, never contents, because a missing document has none.
+    function isOwnInvite() {
+      return resource != null && resource.data.patientUid == request.auth.uid;
     }
 
     // ── User Data (Owner & Caregiver access) ──────────────────────────
@@ -56,7 +70,10 @@ service cloud.firestore {
 
     // ── Caregiver Invites ───────────────────────────────────────────────
     match /caregiverInvites/{inviteCode} {
-      allow read:   if request.auth != null && isInviteValid();
+      // A non-existent code reads as empty, which is what the uniqueness
+      // probe needs; a live code reads for the caregiver redeeming it; and
+      // the patient can always read back their own.
+      allow read:   if request.auth != null && (isInviteValid() || isOwnInvite() || resource == null);
       allow create: if request.auth != null
                     && request.resource.data.patientUid == request.auth.uid;
       // Patient can revoke; caregiver can consume invite after joining.
