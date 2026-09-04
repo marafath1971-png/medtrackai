@@ -123,8 +123,8 @@ void main() {
 
     test('the cap is below the heaviest available weight', () {
       // A cap equal to w900 would not be a cap.
-      expect(AppTypography.maxWeightAtSmallSize.index,
-          lessThan(FontWeight.w900.index));
+      expect(AppTypography.maxWeightAtSmallSize.value,
+          lessThan(FontWeight.w900.value));
     });
   });
 
