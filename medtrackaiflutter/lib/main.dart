@@ -60,11 +60,34 @@ void main() async {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
 
-    // Initialize App Check for production security
+    // Initialize App Check for production security.
+    //
+    // The debug token was hardcoded here and committed. It only works against
+    // debug builds, but anyone with the repo could use it to pass App Check on
+    // this project, so it comes from the build now:
+    //
+    //   flutter run --dart-define=APP_CHECK_DEBUG_TOKEN=<uuid>
+    //
+    // An unset token in a debug build means App Check has no attestation to
+    // offer. With enforcement on, every Firestore read is then denied with
+    // PERMISSION_DENIED that looks exactly like a rules bug — so say so loudly
+    // rather than letting it be diagnosed as one.
+    const debugToken = String.fromEnvironment('APP_CHECK_DEBUG_TOKEN');
+    if (kDebugMode && debugToken.isEmpty) {
+      debugPrint(
+        'APP CHECK: no debug token. If App Check is enforced, every Firestore '
+        'request will fail with PERMISSION_DENIED regardless of the security '
+        'rules. Pass --dart-define=APP_CHECK_DEBUG_TOKEN=<uuid> and register '
+        'that uuid under App Check > Apps > Manage debug tokens.',
+      );
+    }
     await FirebaseAppCheck.instance.activate(
-      providerAndroid:
-          kDebugMode ? AndroidDebugProvider(debugToken: '631C02B3-4721-4D27-9DC7-8CE8D4B664E0') : AndroidPlayIntegrityProvider(),
-      providerApple: kDebugMode ? AppleDebugProvider(debugToken: '631C02B3-4721-4D27-9DC7-8CE8D4B664E0') : AppleAppAttestProvider(),
+      providerAndroid: kDebugMode
+          ? AndroidDebugProvider(debugToken: debugToken)
+          : AndroidPlayIntegrityProvider(),
+      providerApple: kDebugMode
+          ? AppleDebugProvider(debugToken: debugToken)
+          : AppleAppAttestProvider(),
     );
   } catch (e) {
     debugPrint('Firebase/AppCheck initialization failure: $e');
