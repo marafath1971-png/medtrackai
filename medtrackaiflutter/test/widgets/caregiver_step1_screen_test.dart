@@ -117,9 +117,8 @@ void main() {
     await pumpScreen(tester, relation: 'Spouse');
 
     // Every chip is a SolidSurface; exactly the selected ones are filled.
-    final surfaces = tester
-        .widgetList<SolidSurface>(find.byType(SolidSurface))
-        .toList();
+    final surfaces =
+        tester.widgetList<SolidSurface>(find.byType(SolidSurface)).toList();
     final filled = surfaces.where((s) => s.filled).toList();
 
     expect(filled, isNotEmpty,
@@ -149,8 +148,8 @@ void main() {
 
   testWidgets('the CTA fires once a name is present', (tester) async {
     var tapped = false;
-    await pumpScreen(
-        tester, onNext: () => tapped = true, nameText: 'Sarah Johnson');
+    await pumpScreen(tester,
+        onNext: () => tapped = true, nameText: 'Sarah Johnson');
 
     await tester.tap(find.text('Generate QR code'));
     await tester.pump();
@@ -247,8 +246,7 @@ void _formLeadsWithTheRequiredField() {
           reason: 'a 6x2 wrap is what pushed the form below the fold');
     });
 
-    testWidgets('the row is still tappable at accessible size',
-        (tester) async {
+    testWidgets('the row is still tappable at accessible size', (tester) async {
       await pump(tester);
 
       final avatar = find.byType(SolidSurface).first;
@@ -256,6 +254,24 @@ void _formLeadsWithTheRequiredField() {
       expect(size.height, greaterThanOrEqualTo(MedAiA11y.minTapTarget),
           reason: 'shrinking the avatars to fit one row must not take them '
               'below the minimum tap target');
+    });
+
+    testWidgets('the delay options sit side by side, not stacked',
+        (tester) async {
+      await pump(tester);
+
+      // Wrapping them without constraining their width made each option fill
+      // the column, so the four stacked into a vertical list that ran off the
+      // bottom of the screen behind the CTA. On a phone-width screen at least
+      // the first two share a line.
+      final now = tester.getRect(find.text('Now'));
+      final fifteen = tester.getRect(find.text('15 min'));
+
+      expect(now.top, equals(fifteen.top),
+          reason: 'the first two options belong on the same line');
+      expect(now.width, lessThan(200.0),
+          reason: 'an option sized to the full column width means it is '
+              'expanding instead of hugging its label');
     });
 
     testWidgets('field labels are quieter than the page title', (tester) async {

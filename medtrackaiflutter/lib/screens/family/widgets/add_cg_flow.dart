@@ -341,15 +341,17 @@ class DelayBtn extends StatelessWidget {
               padding: const EdgeInsets.symmetric(
                   vertical: AppSpacing.p12, horizontal: AppSpacing.p16),
               radius: AppRadius.xl,
-              child: Center(
-                child: Text(label,
-                    style: AppTypography.labelLarge.copyWith(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: current == delay
-                            ? L.bg
-                            : L.text.withValues(alpha: 0.7))),
-              ),
+              // No Center: inside a Wrap the constraints are unbounded, so
+              // Center expanded each option to the full width of the column
+              // and the four stacked into a vertical list that ran off the
+              // bottom of the screen behind the CTA.
+              child: Text(label,
+                  style: AppTypography.labelLarge.copyWith(
+                      fontSize: 13,
+                      fontWeight: FontWeight.w700,
+                      color: current == delay
+                          ? L.bg
+                          : L.text.withValues(alpha: 0.7))),
             )),
       );
 }
