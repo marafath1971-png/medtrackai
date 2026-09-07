@@ -244,35 +244,27 @@ class AddCgStep1 extends StatelessWidget {
                         ),
                         const SizedBox(height: AppSpacing.p24),
                         const MedAiFieldLabel(text: 'Alert after missed dose'),
-                        Row(children: [
-                          DelayBtn(
-                              delay: 0,
-                              label: 'Now',
-                              current: alertDelay,
-                              onTap: onDelayChange,
-                              L: L),
-                          const SizedBox(width: AppSpacing.p8),
-                          DelayBtn(
-                              delay: 15,
-                              label: '15 min',
-                              current: alertDelay,
-                              onTap: onDelayChange,
-                              L: L),
-                          const SizedBox(width: AppSpacing.p8),
-                          DelayBtn(
-                              delay: 30,
-                              label: '30 min',
-                              current: alertDelay,
-                              onTap: onDelayChange,
-                              L: L),
-                          const SizedBox(width: AppSpacing.p8),
-                          DelayBtn(
-                              delay: 60,
-                              label: '1 hr',
-                              current: alertDelay,
-                              onTap: onDelayChange,
-                              L: L),
-                        ]),
+                        // Wrap, not a Row of four Expanded buttons. Expanded
+                        // cannot shrink below its text, so at a 1.6x text
+                        // scale the four fixed columns overflowed the row by
+                        // 138px; the same labels also grow in translation.
+                        // These now reflow onto a second line instead.
+                        Wrap(
+                            spacing: AppSpacing.p8,
+                            runSpacing: AppSpacing.p8,
+                            children: const [
+                              (0, 'Now'),
+                              (15, '15 min'),
+                              (30, '30 min'),
+                              (60, '1 hr'),
+                            ]
+                                .map((o) => DelayBtn(
+                                    delay: o.$1,
+                                    label: o.$2,
+                                    current: alertDelay,
+                                    onTap: onDelayChange,
+                                    L: L))
+                                .toList()),
                       ]))),
           Positioned(
             // The shell Scaffold already sets resizeToAvoidBottomInset, so
@@ -331,8 +323,10 @@ class DelayBtn extends StatelessWidget {
       required this.L});
 
   @override
-  Widget build(BuildContext context) => Expanded(
-          child: Semantics(
+  // Sizes to its own label rather than an equal share of a Row: the four
+  // options live in a Wrap now so they can reflow when the text is scaled up
+  // or translated, and Expanded is not valid inside one.
+  Widget build(BuildContext context) => Semantics(
         button: true,
         label: label,
         selected: current == delay,
@@ -345,7 +339,7 @@ class DelayBtn extends StatelessWidget {
               filled: current == delay,
               showBorder: true,
               padding: const EdgeInsets.symmetric(
-                  vertical: AppSpacing.p16, horizontal: AppSpacing.p4),
+                  vertical: AppSpacing.p12, horizontal: AppSpacing.p16),
               radius: AppRadius.xl,
               child: Center(
                 child: Text(label,
@@ -357,7 +351,7 @@ class DelayBtn extends StatelessWidget {
                             : L.text.withValues(alpha: 0.7))),
               ),
             )),
-      ));
+      );
 }
 
 class AddCgStep2 extends StatefulWidget {

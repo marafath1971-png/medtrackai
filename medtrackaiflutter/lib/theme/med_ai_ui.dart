@@ -295,13 +295,21 @@ class MedAiCTA extends StatelessWidget {
                 Icon(icon, color: fg, size: 20),
                 const SizedBox(width: 8),
               ],
-              Text(
-                label,
-                style: AppTypography.labelLarge.copyWith(
-                  color: fg,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 16,
-                  letterSpacing: -0.2,
+              // Flexible, not a bare Text: a label sized by the user's text
+              // scale — or simply longer in another language — overflowed the
+              // button's own Row. It shrinks to fit before it clips.
+              Flexible(
+                child: Text(
+                  label,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: AppTypography.labelLarge.copyWith(
+                    color: fg,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 16,
+                    letterSpacing: -0.2,
+                  ),
                 ),
               ),
             ],
