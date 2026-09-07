@@ -9,6 +9,7 @@ import '../../services/auth_service.dart';
 import '../../services/gemini_service.dart';
 import '../../core/utils/logger.dart';
 import '../../core/utils/haptic_engine.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class SocialController extends ChangeNotifier {
   final IUserRepository userRepo;
@@ -126,7 +127,15 @@ class SocialController extends ChangeNotifier {
       return code;
     } catch (e) {
       appLogger.e('[SocialController] createInvite failed', error: e);
-      lastInviteError = 'failed';
+      // A permission denial is not transient and never resolves by waiting:
+      // it means the security rules reject the write, or App Check is
+      // enforced and this build has no valid attestation token. Telling the
+      // user to try again in a moment is advice that cannot come true, and it
+      // hides the one detail that makes the cause findable.
+      final code = e is FirebaseException ? e.code : '';
+      lastInviteError = (code == 'permission-denied' || code == 'unauthenticated')
+          ? 'denied'
+          : 'failed';
       return '';
     }
   }
@@ -137,6 +146,9 @@ class SocialController extends ChangeNotifier {
   static String inviteErrorMessage(String? reason) => switch (reason) {
         'signed_out' =>
           'Sign in to create an invite — the code is tied to your account.',
+        'denied' =>
+          'Invites are blocked by the server right now. This is a setup '
+              'problem on our side, not something retrying will fix.',
         _ => 'Could not create the invite. Please try again in a moment.',
       };
 

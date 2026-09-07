@@ -495,14 +495,22 @@ class AppToast extends StatelessWidget {
 
     final bottomPadding = MediaQuery.paddingOf(context).bottom;
 
-    // Clears the whole bottom furniture, not just the nav island. 115 landed
-    // 51px inside the scan FAB, which floats 12px above an 80px island — so
-    // an error about a failed invite rendered on top of the button the user
-    // had just pressed. kShellNavIslandInset is the same figure tab content
-    // reserves, plus a gap so the toast reads as sitting above the furniture
-    // rather than touching it.
+    // Clears every kind of bottom furniture, not just the nav island.
+    //
+    // The island and FAB come to kShellNavIslandInset (166). But a screen with
+    // its own pinned CTA — the caregiver form, for one — anchors that button
+    // at AppSpacing.bottomBuffer (120) and it stands ~56px tall, so it runs to
+    // 176. A toast at 178 landed 2px above it and the shadow closed the gap:
+    // the error about a failed invite sat on the button that had just failed.
+    //
+    // Taking the larger of the two and adding a real gap means the toast
+    // clears whichever furniture the screen actually has.
+    const ctaStackHeight = AppSpacing.bottomBuffer + 56;
+    const clearance =
+        kShellNavIslandInset > ctaStackHeight ? kShellNavIslandInset : ctaStackHeight;
+
     return Positioned(
-      bottom: bottomPadding + kShellNavIslandInset + 12,
+      bottom: bottomPadding + clearance + AppSpacing.p16,
       left: 24,
       right: 24,
       child: Center(

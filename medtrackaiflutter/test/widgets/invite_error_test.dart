@@ -14,6 +14,8 @@ import 'package:medai/providers/controllers/social_controller.dart';
 /// (see join_caregiver_error_test.dart) — it survived on the invite side
 /// because that sweep only covered catch blocks, not early returns.
 void main() {
+  _permissionDenialIsNotTransient();
+
   group('inviteErrorMessage', () {
     test('signed out asks the user to sign in', () {
       final msg = SocialController.inviteErrorMessage('signed_out');
@@ -78,6 +80,42 @@ void main() {
       expect(offenders, isEmpty,
           reason: 'a fabricated user count or star rating is a Play policy '
               'violation, and next to a buy button it is the worst placement');
+    });
+  });
+}
+
+/// A permission denial never resolves by waiting, so it must not be dressed as
+/// a transient failure. The generic "try again in a moment" was shown for a
+/// rules rejection and for App Check enforcement alike, both of which need a
+/// server-side fix — and it hid the one detail that made the cause findable.
+void _permissionDenialIsNotTransient() {
+  group('a denial is distinguished from a transient failure', () {
+    test('permission-denied gets its own message', () {
+      final denied = SocialController.inviteErrorMessage('denied');
+      final generic = SocialController.inviteErrorMessage('failed');
+
+      expect(denied, isNot(generic));
+      expect(denied.toLowerCase(), isNot(contains('try again in a moment')),
+          reason: 'retrying cannot fix a server-side rejection');
+    });
+
+    test('the denial message says it is not the user\'s fault', () {
+      final denied = SocialController.inviteErrorMessage('denied');
+      expect(denied.toLowerCase(), contains('our side'));
+    });
+
+    test('a transient failure still offers a retry', () {
+      expect(SocialController.inviteErrorMessage('failed').toLowerCase(),
+          contains('try again'));
+    });
+
+    test('the controller classifies firebase codes', () {
+      final src =
+          File('lib/providers/controllers/social_controller.dart')
+              .readAsStringSync();
+      expect(src.contains("'permission-denied'"), isTrue);
+      expect(src.contains("'unauthenticated'"), isTrue);
+      expect(src.contains("lastInviteError = (code =="), isTrue);
     });
   });
 }
