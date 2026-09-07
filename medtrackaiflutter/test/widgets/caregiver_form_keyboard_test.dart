@@ -28,11 +28,18 @@ void main() {
           reason: 'the pinned CTA must track the inset');
     });
 
-    test('the scroll body reserves room for the keyboard', () {
-      // Otherwise the focused field scrolls under the IME.
-      final i = form.indexOf('AppSpacing.bottomBuffer +');
-      expect(i, greaterThan(-1));
-      expect(form.substring(i, i + 120).contains('viewInsetsOf'), isTrue);
+    test('the scroll body does not double count the keyboard', () {
+      // Adding the inset to the scroll padding as well as riding the CTA on
+      // it came to ~560px of bottom padding: the auto-scroll that reveals the
+      // focused field then overshot far enough to push the form off the top
+      // of the screen, which is what the second screenshot showed.
+      final i = form.indexOf('bottom: AppSpacing.bottomBuffer + 56');
+      expect(i, greaterThan(-1),
+          reason: 'the scroll body clears the CTA only');
+
+      // The CTA still tracks the inset; only the scroll padding must not.
+      final cta = form.indexOf('bottom: MediaQuery.viewInsetsOf');
+      expect(cta, greaterThan(-1));
     });
 
     test('the padding is not const', () {

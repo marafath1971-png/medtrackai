@@ -97,20 +97,42 @@ class AddCgStep1 extends StatelessWidget {
                         left: AppSpacing.p24,
                         right: AppSpacing.p24,
                         top: AppSpacing.p12,
-                        // Clears the pinned CTA and the shell nav beneath
-                        // it, plus the keyboard when it is up — otherwise the
-                        // field being typed into sits behind the IME.
-                        bottom: 120 +
-                            AppSpacing.bottomBuffer +
-                            MediaQuery.viewInsetsOf(context).bottom),
+                        // Only what the pinned CTA and the shell nav
+                        // actually occupy.
+                        //
+                        // Adding the keyboard inset here as well double
+                        // counted it: the CTA already rides above the IME, so
+                        // the padding came to ~560px and the auto-scroll that
+                        // reveals the focused field overshot far enough to
+                        // push the whole form off the top of the screen.
+                        bottom: AppSpacing.bottomBuffer + 56),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           AddHeader(step: 1, L: L, onBack: onBack),
+                          MedAiSectionHeader(title: 'Full name *'),
+                          ValueListenableBuilder<TextEditingValue>(
+                              valueListenable: nameCtrl,
+                              builder: (context, value, child) {
+                                return MedAiTextField(
+                                  controller: nameCtrl,
+                                  hintText: 'e.g. Sarah Johnson',
+                                  textCapitalization: TextCapitalization.words,
+                                );
+                              }),
+                          const SizedBox(height: AppSpacing.p32),
                           MedAiSectionHeader(title: 'Choose avatar'),
-                          Wrap(
-                              spacing: 12,
-                              runSpacing: 12,
+                          // One scrolling row rather than a 6x2 grid.
+                          // Twelve avatars stacked two deep pushed the
+                          // relationship chips and the phone field below the
+                          // fold, so the screen opened on decoration while
+                          // the form had to be hunted for.
+                          SizedBox(
+                            height: MedAiA11y.minTapTarget + 10,
+                            child: ListView(
+                              scrollDirection: Axis.horizontal,
+                              clipBehavior: Clip.none,
+                              padding: EdgeInsets.zero,
                               children: kCgAvatars
                                   .map((a) => Semantics(
                                         button: true,
@@ -144,18 +166,14 @@ class AddCgStep1 extends StatelessWidget {
                                           ),
                                         ),
                                       ))
-                                  .toList()),
-                          const SizedBox(height: AppSpacing.p32),
-                          MedAiSectionHeader(title: 'Full name *'),
-                          ValueListenableBuilder<TextEditingValue>(
-                              valueListenable: nameCtrl,
-                              builder: (context, value, child) {
-                                return MedAiTextField(
-                                  controller: nameCtrl,
-                                  hintText: 'e.g. Sarah Johnson',
-                                  textCapitalization: TextCapitalization.words,
-                                );
-                              }),
+                                  .map((w) => Padding(
+                                        padding:
+                                            const EdgeInsets.only(right: 12),
+                                        child: w,
+                                      ))
+                                  .toList(),
+                            ),
+                          ),
                           const SizedBox(height: AppSpacing.p32),
                           MedAiSectionHeader(title: 'Relationship'),
                           Wrap(

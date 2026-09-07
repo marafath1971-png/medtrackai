@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -57,6 +58,8 @@ Widget _step1({
     );
 
 void main() {
+  _formLeadsWithTheRequiredField();
+
   late TextEditingController name;
   late TextEditingController contact;
 
@@ -184,5 +187,40 @@ void main() {
     expect(padding.bottom, greaterThan(120),
         reason: 'content scrolling under the pinned CTA and the nav island is '
             'the milder form of the same bug');
+  });
+}
+
+/// The form opened on twelve avatars stacked 6x2, which consumed the top third
+/// of the screen and pushed the required name field, the relationship chips
+/// and the phone field below the fold.
+void _formLeadsWithTheRequiredField() {
+  group('the form leads with what it needs', () {
+    late String src;
+    setUpAll(() => src =
+        File('lib/screens/family/widgets/add_cg_flow.dart').readAsStringSync());
+
+    test('the name field comes before the avatar picker', () {
+      final name = src.indexOf("MedAiSectionHeader(title: 'Full name");
+      final avatar = src.indexOf("MedAiSectionHeader(title: 'Choose avatar')");
+      expect(name, greaterThan(-1));
+      expect(avatar, greaterThan(-1));
+      expect(name, lessThan(avatar),
+          reason: 'the one required field should not sit under twelve '
+              'optional decorations');
+    });
+
+    test('the avatars are one scrolling row, not a grid', () {
+      final i = src.indexOf("MedAiSectionHeader(title: 'Choose avatar')");
+      final block = src.substring(i, i + 700);
+      expect(block.contains('scrollDirection: Axis.horizontal'), isTrue);
+      expect(block.contains('Wrap('), isFalse,
+          reason: 'a 6x2 wrap is what pushed the form below the fold');
+    });
+
+    test('the row is still tappable at accessible size', () {
+      final i = src.indexOf("MedAiSectionHeader(title: 'Choose avatar')");
+      expect(src.substring(i, i + 700).contains('MedAiA11y.minTapTarget'),
+          isTrue);
+    });
   });
 }
