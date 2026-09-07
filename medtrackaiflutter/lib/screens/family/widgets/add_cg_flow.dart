@@ -93,12 +93,16 @@ class AddCgStep1 extends StatelessWidget {
                 child: SingleChildScrollView(
                     keyboardDismissBehavior:
                         ScrollViewKeyboardDismissBehavior.onDrag,
-                    padding: const EdgeInsets.only(
+                    padding: EdgeInsets.only(
                         left: AppSpacing.p24,
                         right: AppSpacing.p24,
                         top: AppSpacing.p12,
-                        // Clear the pinned CTA *and* the shell nav beneath it.
-                        bottom: 120 + AppSpacing.bottomBuffer),
+                        // Clears the pinned CTA and the shell nav beneath
+                        // it, plus the keyboard when it is up — otherwise the
+                        // field being typed into sits behind the IME.
+                        bottom: 120 +
+                            AppSpacing.bottomBuffer +
+                            MediaQuery.viewInsetsOf(context).bottom),
                     child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -242,7 +246,13 @@ class AddCgStep1 extends StatelessWidget {
               // bottom: 0 — the CTA was completely hidden and unreachable, and
               // taps in that area hit the nav instead. Clear the island and its
               // margin so the button is visible and tappable.
-              bottom: AppSpacing.bottomBuffer,
+              // Rides above the keyboard. Pinned at a fixed offset, the CTA
+              // stayed behind the IME while the name field was focused, so
+              // the button the form exists to reach was unreachable without
+              // dismissing the keyboard first.
+              bottom: MediaQuery.viewInsetsOf(context).bottom > 0
+                  ? MediaQuery.viewInsetsOf(context).bottom + AppSpacing.p12
+                  : AppSpacing.bottomBuffer,
               left: 0,
               right: 0,
               child: MedAiGlass(

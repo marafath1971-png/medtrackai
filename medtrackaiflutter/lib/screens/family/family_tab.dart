@@ -143,6 +143,17 @@ class _FamilyTabState extends State<FamilyTab> {
                 if (code.isEmpty) {
                   // Was a flat "Check your connection" for every failure, so a
                   // signed-out user was told to debug their network.
+                  //
+                  // Skipping onboarding leaves the app usable without a
+                  // Firebase account, and an invite code is tied to a uid, so
+                  // this branch is reachable by ordinary use. Telling someone
+                  // to sign in without offering a way there is a dead end —
+                  // the Circle tab has no other route to the auth screen.
+                  if (s.social.lastInviteError == 'signed_out') {
+                    if (!context.mounted) return;
+                    context.push(AppRoutes.auth);
+                    return;
+                  }
                   s.showToast(
                     SocialController.inviteErrorMessage(
                         s.social.lastInviteError),
