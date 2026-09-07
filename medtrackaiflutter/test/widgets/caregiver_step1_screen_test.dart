@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -193,34 +192,90 @@ void main() {
 /// The form opened on twelve avatars stacked 6x2, which consumed the top third
 /// of the screen and pushed the required name field, the relationship chips
 /// and the phone field below the fold.
+///
+/// These were source greps ("does the file contain this literal?"), which is
+/// how the keyboard bug shipped twice: the assertions matched the text of the
+/// previous fix rather than checking anything rendered. They now measure the
+/// laid-out screen.
 void _formLeadsWithTheRequiredField() {
   group('the form leads with what it needs', () {
-    late String src;
-    setUpAll(() => src =
-        File('lib/screens/family/widgets/add_cg_flow.dart').readAsStringSync());
+    late TextEditingController name;
+    late TextEditingController contact;
 
-    test('the name field comes before the avatar picker', () {
-      final name = src.indexOf("MedAiSectionHeader(title: 'Full name");
-      final avatar = src.indexOf("MedAiSectionHeader(title: 'Choose avatar')");
-      expect(name, greaterThan(-1));
-      expect(avatar, greaterThan(-1));
-      expect(name, lessThan(avatar),
+    setUp(() {
+      name = TextEditingController();
+      contact = TextEditingController();
+    });
+    tearDown(() {
+      name.dispose();
+      contact.dispose();
+    });
+
+    Future<void> pump(WidgetTester tester) async {
+      await tester.pumpWidget(_host(Builder(
+          builder: (context) => _step1(
+                name: name,
+                contact: contact,
+                colors: context.L,
+              ))));
+      await tester.pump();
+    }
+
+    testWidgets('the name field comes before the avatar picker',
+        (tester) async {
+      await pump(tester);
+
+      final nameY = tester.getTopLeft(find.text('Full name')).dy;
+      final avatarY = tester.getTopLeft(find.text('Choose avatar')).dy;
+
+      expect(nameY, lessThan(avatarY),
           reason: 'the one required field should not sit under twelve '
               'optional decorations');
     });
 
-    test('the avatars are one scrolling row, not a grid', () {
-      final i = src.indexOf("MedAiSectionHeader(title: 'Choose avatar')");
-      final block = src.substring(i, i + 700);
-      expect(block.contains('scrollDirection: Axis.horizontal'), isTrue);
-      expect(block.contains('Wrap('), isFalse,
+    testWidgets('the avatars are one scrolling row, not a grid',
+        (tester) async {
+      await pump(tester);
+
+      // Every avatar shares a single row: one y, many x.
+      final tops = <double>{};
+      for (final a in ['\u{1F468}', '\u{1F469}']) {
+        if (find.text(a).evaluate().isEmpty) continue;
+        tops.add(tester.getTopLeft(find.text(a)).dy);
+      }
+      expect(tops.length, lessThanOrEqualTo(1),
           reason: 'a 6x2 wrap is what pushed the form below the fold');
     });
 
-    test('the row is still tappable at accessible size', () {
-      final i = src.indexOf("MedAiSectionHeader(title: 'Choose avatar')");
-      expect(src.substring(i, i + 700).contains('MedAiA11y.minTapTarget'),
-          isTrue);
+    testWidgets('the row is still tappable at accessible size',
+        (tester) async {
+      await pump(tester);
+
+      final avatar = find.byType(SolidSurface).first;
+      final size = tester.getSize(avatar);
+      expect(size.height, greaterThanOrEqualTo(MedAiA11y.minTapTarget),
+          reason: 'shrinking the avatars to fit one row must not take them '
+              'below the minimum tap target');
+    });
+
+    testWidgets('field labels are quieter than the page title', (tester) async {
+      await pump(tester);
+
+      final title = tester.widget<Text>(find.text('Add caregiver')).style!;
+      final label = tester.widget<Text>(find.text('Full name')).style!;
+
+      expect(label.fontSize! < title.fontSize!, isTrue,
+          reason: 'every field label rendered at headline size, so the form '
+              'read as a stack of headings with the inputs hidden between');
+    });
+
+    testWidgets('required is spelled out, not marked with an asterisk',
+        (tester) async {
+      await pump(tester);
+
+      expect(find.text('Required'), findsOneWidget);
+      expect(find.textContaining('*'), findsNothing,
+          reason: '"*" is a convention, not a word; this ships in 7 locales');
     });
   });
 }

@@ -1,5 +1,10 @@
 import 'dart:io';
+
+import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medai/screens/family/widgets/add_cg_flow.dart';
+import 'package:medai/screens/app_shell.dart' show kShellNavIslandInset;
+import 'package:medai/theme/med_ai_ui.dart';
 
 /// Three faults visible in one flow:
 ///
@@ -10,44 +15,196 @@ import 'package:flutter_test/flutter_test.dart';
 /// 3. "Sign in to create an invite" was a dead end — the Circle tab has no
 ///    other route to the auth screen, and skipping onboarding leaves the app
 ///    usable with no Firebase account, so the branch is reachable normally.
-void main() {
-  late String form;
-  late String tab;
+///
+/// The first two were "fixed" twice against source greps and shipped broken
+/// both times. The reason: the shell Scaffold already sets
+/// resizeToAvoidBottomInset, so this screen's box is ALREADY shrunk to the
+/// space above the keyboard by the time it lays out. Adding viewInsets here as
+/// well counted the keyboard twice and threw the CTA ~356px off the TOP of the
+/// screen. Only a laid-out screen catches that, so these render one.
 
+/// The Circle tab as the shell actually builds it: body shrunk for the
+/// keyboard, nav island published as MediaQuery bottom padding.
+Widget _shell(Widget child, {double keyboard = 0}) => MaterialApp(
+      theme: AppTheme.light(),
+      home: MediaQuery(
+        data: MediaQueryData(
+          size: const Size(392, 850),
+          viewInsets: EdgeInsets.only(bottom: keyboard),
+          padding: const EdgeInsets.only(bottom: kShellNavIslandInset),
+          viewPadding: const EdgeInsets.only(bottom: kShellNavIslandInset),
+        ),
+        child: Padding(
+          padding: EdgeInsets.only(bottom: keyboard),
+          child: child,
+        ),
+      ),
+    );
+
+void main() {
+  late String tab;
   setUpAll(() {
-    form = File('lib/screens/family/widgets/add_cg_flow.dart').readAsStringSync();
     tab = File('lib/screens/family/family_tab.dart').readAsStringSync();
   });
 
   group('the form survives the keyboard', () {
-    test('the CTA rides above the IME', () {
-      expect(form.contains('MediaQuery.viewInsetsOf(context).bottom'), isTrue,
-          reason: 'a fixed offset leaves the button behind the keyboard');
-      final i = form.indexOf('bottom: MediaQuery.viewInsetsOf');
-      expect(i, greaterThan(-1),
-          reason: 'the pinned CTA must track the inset');
+    late TextEditingController name;
+    late TextEditingController contact;
+
+    setUp(() {
+      name = TextEditingController(text: 'Sarah Johnson');
+      contact = TextEditingController();
+    });
+    tearDown(() {
+      name.dispose();
+      contact.dispose();
     });
 
-    test('the scroll body does not double count the keyboard', () {
-      // Adding the inset to the scroll padding as well as riding the CTA on
-      // it came to ~560px of bottom padding: the auto-scroll that reveals the
-      // focused field then overshot far enough to push the form off the top
-      // of the screen, which is what the second screenshot showed.
-      final i = form.indexOf('bottom: AppSpacing.bottomBuffer + 56');
-      expect(i, greaterThan(-1),
-          reason: 'the scroll body clears the CTA only');
+    Future<void> pump(WidgetTester tester, {required double keyboard}) async {
+      tester.view.physicalSize = const Size(392, 850);
+      tester.view.devicePixelRatio = 1.0;
+      addTearDown(tester.view.reset);
 
-      // The CTA still tracks the inset; only the scroll padding must not.
-      final cta = form.indexOf('bottom: MediaQuery.viewInsetsOf');
-      expect(cta, greaterThan(-1));
+      await tester.pumpWidget(_shell(
+        Builder(
+            builder: (c) => AddCgStep1(
+                  nameCtrl: name,
+                  contactCtrl: contact,
+                  relation: 'Spouse',
+                  avatar: '\u{1F469}',
+                  alertDelay: 30,
+                  onRelChange: (_) {},
+                  onAvatarChange: (_) {},
+                  onDelayChange: (_) {},
+                  L: c.L,
+                  onBack: () {},
+                  onNext: () async {},
+                )),
+        keyboard: keyboard,
+      ));
+      await tester.pump();
+    }
+
+    // 850 tall minus a 380px keyboard.
+    const visibleBottom = 470.0;
+
+    testWidgets('the CTA stays on screen with the keyboard up', (tester) async {
+      await pump(tester, keyboard: 380);
+
+      final cta = tester.getRect(find.text('Generate QR code'));
+
+      expect(cta.top, greaterThanOrEqualTo(0.0),
+          reason: 'double counting the inset put the CTA 356px above the top '
+              'of the screen — the blank screenshot');
+      expect(cta.bottom, lessThanOrEqualTo(visibleBottom),
+          reason: 'the CTA must sit above the keyboard, not behind it');
     });
 
-    test('the padding is not const', () {
-      // A const EdgeInsets cannot read MediaQuery; this compiled only after
-      // the const was dropped.
-      expect(form.contains('padding: const EdgeInsets.only(\n'
-          '                        left: AppSpacing.p24'), isFalse);
+    testWidgets('the CTA is still clear of the nav island with no keyboard',
+        (tester) async {
+      await pump(tester, keyboard: 0);
+
+      final cta = tester.getRect(find.text('Generate QR code'));
+
+      expect(cta.bottom, lessThan(850.0 - kShellNavIslandInset),
+          reason: 'with the keyboard down the floating nav island covers the '
+              'bottom 166px and swallows taps');
     });
+
+    testWidgets('the last field scrolls clear of the pinned CTA',
+        (tester) async {
+      await pump(tester, keyboard: 380);
+
+      final pos =
+          Scrollable.of(tester.element(find.text('Full name'))).position;
+      pos.jumpTo(pos.maxScrollExtent);
+      await tester.pump();
+
+      final cta = tester.getRect(find.text('Generate QR code'));
+      final last = tester.getRect(find.text('Alert after missed dose'));
+
+      expect(last.bottom, lessThan(cta.top),
+          reason: 'the final field must come to rest above the button, not '
+              'underneath it');
+    });
+
+    testWidgets('the form does not scroll off the top', (tester) async {
+      await pump(tester, keyboard: 380);
+
+      final pos =
+          Scrollable.of(tester.element(find.text('Full name'))).position;
+      pos.jumpTo(pos.maxScrollExtent);
+      await tester.pump();
+
+      // Overshoot past the end is dead space the user must scroll back
+      // through. Measure the genuinely last control — the delay options wrap
+      // onto two lines, so the section label is no longer the bottom of the
+      // form.
+      final last = tester.getRect(find.text('1 hr'));
+      final cta = tester.getRect(find.text('Generate QR code'));
+
+      expect(last.bottom, lessThan(cta.top),
+          reason: 'the last control must clear the pinned CTA');
+      expect(cta.top - last.bottom, lessThan(150.0),
+          reason: 'reserving nav clearance on top of an already-shrunk '
+              'viewport left a screenful of empty space below the form');
+    });
+  });
+
+  /// A large text scale is the same stress as a longer translation: the app
+  /// ships in 7 locales, and "Generate QR code" is short in English.
+  group('the form holds up when the text grows', () {
+    for (final scale in [1.0, 1.6]) {
+      for (final dark in [false, true]) {
+        testWidgets('nothing overflows at ${scale}x, dark=$dark',
+            (tester) async {
+          tester.view.physicalSize = const Size(392, 850);
+          tester.view.devicePixelRatio = 1.0;
+          addTearDown(tester.view.reset);
+
+          final name = TextEditingController(text: 'Sarah Johnson');
+          final contact = TextEditingController();
+          addTearDown(name.dispose);
+          addTearDown(contact.dispose);
+
+          await tester.pumpWidget(MaterialApp(
+            theme: dark ? AppTheme.dark() : AppTheme.light(),
+            home: MediaQuery(
+              data: MediaQueryData(
+                size: const Size(392, 850),
+                textScaler: TextScaler.linear(scale),
+                viewInsets: const EdgeInsets.only(bottom: 380),
+                padding: const EdgeInsets.only(bottom: kShellNavIslandInset),
+                viewPadding:
+                    const EdgeInsets.only(bottom: kShellNavIslandInset),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 380),
+                child: Builder(
+                    builder: (c) => AddCgStep1(
+                          nameCtrl: name,
+                          contactCtrl: contact,
+                          relation: 'Spouse',
+                          avatar: '\u{1F469}',
+                          alertDelay: 30,
+                          onRelChange: (_) {},
+                          onAvatarChange: (_) {},
+                          onDelayChange: (_) {},
+                          L: c.L,
+                          onBack: () {},
+                          onNext: () async {},
+                        )),
+              ),
+            ),
+          ));
+          await tester.pump();
+
+          expect(tester.takeException(), isNull,
+              reason: 'the CTA label and the delay buttons both overflowed '
+                  'their rows once the text was scaled up');
+        });
+      }
+    }
   });
 
   group('a signed-out user is given a way in', () {
@@ -56,7 +213,8 @@ void main() {
       expect(i, greaterThan(-1),
           reason: 'the signed-out case needs its own branch');
       expect(tab.substring(i, i + 220).contains('AppRoutes.auth'), isTrue,
-          reason: 'telling someone to sign in with no route there is a dead end');
+          reason:
+              'telling someone to sign in with no route there is a dead end');
     });
 
     test('other failures still show their message', () {
