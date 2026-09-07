@@ -47,19 +47,19 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCuUwODLNwZ-M3WI9WyuK3pOQUXkMUo5dA',
-    appId: '1:883005184689:android:0f3227f98c0b14f196e090',
-    messagingSenderId: '883005184689',
-    projectId: 'medai-3ce9c',
-    storageBucket: 'medai-3ce9c.firebasestorage.app',
+    apiKey: 'AIzaSyBUItN3wcD15myQTiHYwCheIPFar5rUHi4',
+    appId: '1:789677467574:android:986262c1eacd5466368317',
+    messagingSenderId: '789677467574',
+    projectId: 'gen-lang-client-0321454923',
+    storageBucket: 'gen-lang-client-0321454923.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyA53_LUSOvraE2_j5KIqjrc4T_tmVkg9kc',
-    appId: '1:883005184689:ios:73d1061bb98980e996e090',
-    messagingSenderId: '883005184689',
-    projectId: 'medai-3ce9c',
-    storageBucket: 'medai-3ce9c.firebasestorage.app',
+    apiKey: 'AIzaSyB2LYBTCTOyUoy-FgT-BzCbuD6qfawyn70',
+    appId: '1:789677467574:ios:614a28899790fd30368317',
+    messagingSenderId: '789677467574',
+    projectId: 'gen-lang-client-0321454923',
+    storageBucket: 'gen-lang-client-0321454923.firebasestorage.app',
     iosBundleId: 'com.medtracker.medtrackaiflutter',
   );
 

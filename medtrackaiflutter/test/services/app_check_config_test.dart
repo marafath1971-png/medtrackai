@@ -43,6 +43,9 @@ void main() {
     // rules deploys silently went nowhere near this app.
     final rc = File('.firebaserc');
     expect(rc.existsSync(), isTrue);
-    expect(rc.readAsStringSync().contains('medai-3ce9c'), isTrue);
+    // The id itself is pinned by firebase_project_consistency_test, which
+    // compares .firebaserc against what the app actually connects to. Naming
+    // a literal here just breaks on every project move.
+    expect(rc.readAsStringSync().contains('"default"'), isTrue);
   });
 }

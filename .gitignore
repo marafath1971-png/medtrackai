@@ -9,3 +9,6 @@ medtrackaiflutter/.git.disabled/
 # Firestore rules test deps
 medtrackaiflutter/test_rules/node_modules/
 medtrackaiflutter/firestore-debug.log
+
+# Backup of the previous Firebase project's config
+medtrackaiflutter/.firebase-backup-medai-3ce9c/
