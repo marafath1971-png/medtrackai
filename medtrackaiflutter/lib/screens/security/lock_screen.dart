@@ -19,7 +19,8 @@ class LockScreen extends StatefulWidget {
   State<LockScreen> createState() => _LockScreenState();
 }
 
-class _LockScreenState extends State<LockScreen> {
+class _LockScreenState extends State<LockScreen>
+    with WidgetsBindingObserver {
   bool _isAuthenticating = false;
   String? _errorMessage;
 
@@ -29,9 +30,54 @@ class _LockScreenState extends State<LockScreen> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     Future.delayed(const Duration(milliseconds: 400), () {
       if (mounted) _authenticate();
     });
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  /// The system prompt cannot be shown while the Activity is stopping, and
+  /// asking anyway leaves the app waiting 25s for a dialog that never
+  /// appeared. A call arriving during the unlock did exactly that:
+  ///
+  ///   App backgrounded
+  ///   BiometricPromptCompat: Unable to start authentication.
+  ///     Called after onSaveInstanceState()
+  ///   Biometric authentication timed out after 25s
+  ///
+  /// So the prompt is cancelled on the way out and re-offered on return
+  /// rather than left hanging.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    if (!mounted) return;
+
+    if (state == AppLifecycleState.inactive ||
+        state == AppLifecycleState.paused ||
+        state == AppLifecycleState.hidden) {
+      if (_isAuthenticating) {
+        // Invalidate the in-flight attempt so its late result cannot unlock
+        // the app after the user has switched away.
+        _attempt++;
+        BiometricService.cancelAuthentication();
+        setState(() => _isAuthenticating = false);
+      }
+      return;
+    }
+
+    if (state == AppLifecycleState.resumed &&
+        !_isAuthenticating &&
+        _errorMessage == null) {
+      // Back in the foreground with nothing in flight: offer the prompt
+      // again, rather than leaving a lock screen the user cannot dismiss.
+      _authenticate(force: true);
+    }
   }
 
   Future<void> _authenticate({bool force = false}) async {
