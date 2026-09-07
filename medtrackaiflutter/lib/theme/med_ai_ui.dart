@@ -379,6 +379,57 @@ class MedAiSwipeTabs extends StatelessWidget {
 // ────────────────────────────────────────────────────────────────
 // SECTION HEADER — clear hierarchy label + optional action
 // ────────────────────────────────────────────────────────────────
+/// A quiet label for a single form field.
+///
+/// [MedAiSectionHeader] is sized for page sections — headlineSmall, w700. On a
+/// form every field carried one, so "Full name", "Choose avatar" and
+/// "Relationship" all shouted at the same volume as the page title and the
+/// screen read as a wall of headings with the inputs hiding between them.
+/// Field labels are supporting text: small, medium weight, muted.
+class MedAiFieldLabel extends StatelessWidget {
+  final String text;
+
+  /// Rendered as a muted suffix rather than an asterisk — "*" has no meaning
+  /// to a reader who has not been taught it, and this ships in 7 locales.
+  final String? hint;
+
+  const MedAiFieldLabel({super.key, required this.text, this.hint});
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: AppSpacing.p8),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
+        children: [
+          Flexible(
+            child: Text(
+              text,
+              style: AppTypography.labelLarge.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w600,
+                letterSpacing: -0.1,
+              ),
+            ),
+          ),
+          if (hint != null) ...[
+            const SizedBox(width: AppSpacing.p8),
+            Text(
+              hint!,
+              style: AppTypography.bodySmall.copyWith(
+                color: L.sub,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
 class MedAiSectionHeader extends StatelessWidget {
   final String title;
   final String? subtitle;

@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -64,11 +61,22 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyA53_LUSOvraE2_j5KIqjrc4T_tmVkg9kc',
-    appId: '1:883005184689:ios:73d1061bb98980e996e090',
-    messagingSenderId: '883005184689',
-    projectId: 'medai-3ce9c',
-    storageBucket: 'medai-3ce9c.firebasestorage.app',
+    apiKey: 'AIzaSyB2LYBTCTOyUoy-FgT-BzCbuD6qfawyn70',
+    appId: '1:789677467574:ios:614a28899790fd30368317',
+    messagingSenderId: '789677467574',
+    projectId: 'gen-lang-client-0321454923',
+    storageBucket: 'gen-lang-client-0321454923.firebasestorage.app',
     iosBundleId: 'com.medtracker.medtrackaiflutter',
   );
+
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: 'AIzaSyB--axAS4zybfCcpdCCPKkO0vh9khBts1o',
+    appId: '1:789677467574:web:86e8caaaa05c6113368317',
+    messagingSenderId: '789677467574',
+    projectId: 'gen-lang-client-0321454923',
+    authDomain: 'gen-lang-client-0321454923.firebaseapp.com',
+    storageBucket: 'gen-lang-client-0321454923.firebasestorage.app',
+    measurementId: 'G-NJRRHBZGB9',
+  );
+
 }
