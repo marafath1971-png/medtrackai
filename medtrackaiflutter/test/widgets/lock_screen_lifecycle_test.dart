@@ -14,6 +14,8 @@ import 'package:flutter_test/flutter_test.dart';
 /// so the request was never displayed — and the app then waited out the full
 /// timeout for an answer to a dialog nobody saw.
 void main() {
+  _noRepromptLoop();
+
   late String lock;
   late String svc;
 
@@ -79,6 +81,43 @@ void main() {
       expect(svc.contains('} finally {'), isTrue);
       final i = svc.indexOf('} finally {');
       expect(svc.substring(i, i + 80).contains('_inFlight = false'), isTrue);
+    });
+  });
+}
+
+/// The first version of this fix re-prompted on every resume, which loops:
+/// showing the biometric sheet backgrounds the Activity, and the resume that
+/// follows requests another prompt. On device that logged "Biometric prompt
+/// already showing" nine times in nine seconds with the lock screen stuck.
+void _noRepromptLoop() {
+  group('resume does not loop the prompt', () {
+    late String lock;
+    setUpAll(() =>
+        lock = File('lib/screens/security/lock_screen.dart').readAsStringSync());
+
+    test('re-prompting is gated on the system having taken it away', () {
+      expect(lock.contains('_promptDismissedByLifecycle'), isTrue,
+          reason: 'an ungated resume handler re-prompts forever');
+    });
+
+    test('the gate is set only when a live prompt was cancelled', () {
+      final i = lock.indexOf('_promptDismissedByLifecycle = true');
+      expect(i, greaterThan(-1));
+      // It must sit inside the `if (_isAuthenticating)` branch, not beside it.
+      final before = lock.substring((i - 300).clamp(0, lock.length), i);
+      expect(before.contains('if (_isAuthenticating)'), isTrue);
+    });
+
+    test('the gate is cleared when it fires', () {
+      // Left set, the next unrelated resume would prompt again. Search from
+      // the lifecycle handler, not the top of the file — the field's own
+      // initialiser is also `= false`.
+      final h = lock.indexOf('didChangeAppLifecycleState');
+      final i = lock.indexOf('_promptDismissedByLifecycle = false', h);
+      expect(i, greaterThan(-1));
+      final after = lock.substring(i, i + 120);
+      expect(after.contains('_authenticate('), isTrue,
+          reason: 'clear it before re-prompting, not after');
     });
   });
 }

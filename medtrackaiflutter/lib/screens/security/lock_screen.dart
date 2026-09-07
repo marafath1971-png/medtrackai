@@ -27,6 +27,10 @@ class _LockScreenState extends State<LockScreen>
   /// Bumps on every attempt so a hung/stale auth future cannot unlock later.
   int _attempt = 0;
 
+  /// Set only when backgrounding cancelled a prompt that was actually up, so
+  /// the resume handler re-offers it exactly once rather than on every resume.
+  bool _promptDismissedByLifecycle = false;
+
   @override
   void initState() {
     super.initState();
@@ -65,6 +69,7 @@ class _LockScreenState extends State<LockScreen>
         // Invalidate the in-flight attempt so its late result cannot unlock
         // the app after the user has switched away.
         _attempt++;
+        _promptDismissedByLifecycle = true;
         BiometricService.cancelAuthentication();
         setState(() => _isAuthenticating = false);
       }
@@ -73,9 +78,16 @@ class _LockScreenState extends State<LockScreen>
 
     if (state == AppLifecycleState.resumed &&
         !_isAuthenticating &&
-        _errorMessage == null) {
-      // Back in the foreground with nothing in flight: offer the prompt
-      // again, rather than leaving a lock screen the user cannot dismiss.
+        _errorMessage == null &&
+        _promptDismissedByLifecycle) {
+      // Only re-offer when the system actually took the prompt away.
+      //
+      // Re-prompting on *every* resume loops: showing the biometric sheet
+      // itself backgrounds the Activity, so the resume that follows requests
+      // another prompt, which backgrounds it again. That logged
+      // "Biometric prompt already showing" nine times in as many seconds and
+      // left the lock screen stuck.
+      _promptDismissedByLifecycle = false;
       _authenticate(force: true);
     }
   }
