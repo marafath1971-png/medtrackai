@@ -46,6 +46,49 @@ void main() {
             'what makes SafeArea and scrollables clear it automatically');
   });
 
+  testWidgets('the island is pushed off-screen while the keyboard is up',
+      (tester) async {
+    // The island is pinned to the bottom of a box the Scaffold has already
+    // shrunk for the IME, so leaving it visible floats it up over the form
+    // the user is typing into — seen on a Pixel 7a sitting across the
+    // relationship chips. The shell slides it out by its own height and
+    // fades it, so this reproduces that offset.
+    const islandKey = Key('island');
+    const bottomPadding = 0.0;
+
+    for (final keyboardUp in [false, true]) {
+      await tester.pumpWidget(_host(
+        bottomInset: kShellNavIslandInset,
+        child: Stack(
+          children: [
+            Positioned(
+              left: 20,
+              right: 20,
+              bottom: keyboardUp
+                  ? -(kShellNavIslandInset + bottomPadding)
+                  : (16 + bottomPadding),
+              child: const SizedBox(
+                  key: islandKey, height: 80, child: Text('Home')),
+            ),
+          ],
+        ),
+      ));
+
+      final r = tester.getRect(find.byKey(islandKey));
+      final screenH =
+          tester.view.physicalSize.height / tester.view.devicePixelRatio;
+
+      if (keyboardUp) {
+        expect(r.top, greaterThanOrEqualTo(screenH),
+            reason: 'the island must be fully off the bottom edge with the '
+                'keyboard up, not floating over the form');
+      } else {
+        expect(r.bottom, lessThanOrEqualTo(screenH),
+            reason: 'with no keyboard the island must be back on screen');
+      }
+    }
+  });
+
   testWidgets('a bottom-pinned CTA sits above the island, not under it',
       (tester) async {
     const buttonKey = Key('cta');
@@ -113,7 +156,8 @@ void main() {
       child: SafeArea(
         child: ListView(
           children: [
-            for (var i = 0; i < 12; i++) SizedBox(height: 80, child: Text('$i')),
+            for (var i = 0; i < 12; i++)
+              SizedBox(height: 80, child: Text('$i')),
             const SizedBox(key: lastKey, height: 80, child: Text('last')),
           ],
         ),
@@ -126,7 +170,8 @@ void main() {
     final screenHeight = tester.getSize(find.byType(Scaffold)).height;
     final lastBottom = tester.getBottomLeft(find.byKey(lastKey)).dy;
 
-    expect(lastBottom, lessThanOrEqualTo(screenHeight - kShellNavIslandInset + 0.5),
+    expect(lastBottom,
+        lessThanOrEqualTo(screenHeight - kShellNavIslandInset + 0.5),
         reason: 'SafeArea should stop the final row under the nav island');
   });
 }

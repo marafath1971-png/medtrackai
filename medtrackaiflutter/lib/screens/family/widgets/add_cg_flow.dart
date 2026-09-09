@@ -95,6 +95,12 @@ class AddCgStep1 extends StatelessWidget {
 
     return AppScaffold(
       showAurora: context.isDark,
+      // Opt out of Scaffold resizing. The app shell's Scaffold has already
+      // shrunk this subtree for the IME; resizing again here shrank it twice
+      // and stranded the pinned CTA near the TOP of the screen with the name
+      // field behind it. With the opt-out the box keeps the height the shell
+      // gave it, so `bottom:` below measures from just above the keyboard.
+      resizeToAvoidBottomInset: false,
       body: Stack(
         children: [
           SafeArea(
@@ -267,15 +273,11 @@ class AddCgStep1 extends StatelessWidget {
                                 .toList()),
                       ]))),
           Positioned(
-            // The shell Scaffold already sets resizeToAvoidBottomInset, so
-            // by the time this screen lays out, its box has ALREADY been
-            // shrunk to the space above the keyboard. Adding viewInsets here
-            // as well counted the keyboard twice and threw the CTA ~356px
-            // off the top of the screen — that is the empty screenshot.
-            //
-            // So: no inset arithmetic. With the keyboard up, bottom: 0 is
-            // the true bottom of the visible area. With it down, the only
-            // thing to clear is the shell's floating nav island.
+            // This screen opts out of Scaffold resizing (see AppScaffold
+            // above), so its box stays full height and the IME overlays it.
+            // The CTA therefore has to clear the keyboard itself. With the
+            // keyboard down the only furniture below is the shell's floating
+            // nav island.
             bottom: keyboardUp ? AppSpacing.p12 : kShellNavIslandInset,
             left: 0,
             right: 0,

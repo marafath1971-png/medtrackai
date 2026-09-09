@@ -14,8 +14,15 @@ class AppScaffold extends StatelessWidget {
   final bool extendBody;
   final bool extendBodyBehindAppBar;
 
+  /// Null means Scaffold's own default (true). Pass false for a screen nested
+  /// inside the app shell: the shell's Scaffold has already resized for the
+  /// IME, so resizing again here shrinks the body twice and leaves anything
+  /// pinned to the bottom stranded near the top of the screen.
+  final bool? resizeToAvoidBottomInset;
+
   /// When true, paints ambient wash + optional aurora behind content.
   final bool showMeshOverlay;
+
   /// Subtle drifting color field (June 2026 "living UI" trend).
   final bool showAurora;
   final Color? backgroundColor;
@@ -28,6 +35,7 @@ class AppScaffold extends StatelessWidget {
     this.floatingActionButton,
     this.extendBody = false,
     this.extendBodyBehindAppBar = false,
+    this.resizeToAvoidBottomInset,
     this.showMeshOverlay = true,
     this.showAurora = false,
     this.backgroundColor,
@@ -41,6 +49,7 @@ class AppScaffold extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: bg,
+      resizeToAvoidBottomInset: resizeToAvoidBottomInset,
       extendBody: extendBody,
       extendBodyBehindAppBar: extendBodyBehindAppBar,
       appBar: appBar,

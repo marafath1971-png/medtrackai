@@ -23,8 +23,24 @@ import 'package:medai/theme/med_ai_ui.dart';
 /// well counted the keyboard twice and threw the CTA ~356px off the TOP of the
 /// screen. Only a laid-out screen catches that, so these render one.
 
-/// The Circle tab as the shell actually builds it: body shrunk for the
-/// keyboard, nav island published as MediaQuery bottom padding.
+/// The Circle tab as the device actually reports it.
+///
+/// This harness used to wrap the child in a Padding(bottom: keyboard) to
+/// emulate a body the shell had already shrunk, AND pass the full inset
+/// through MediaQuery. That double count is what made every assertion here
+/// agree with a screen that was visibly broken on a Pixel 7a: the CTA
+/// measured at y=24 in the test, pinned to the top of the screen, exactly as
+/// the device rendered it.
+///
+/// The shell's Scaffold sets resizeToAvoidBottomInset, so it hands this screen
+/// a body ALREADY shrunk to the space above the IME while MediaQuery still
+/// reports the full inset — both halves are modelled below.
+///
+/// The screen then sets resizeToAvoidBottomInset: false on its own
+/// AppScaffold so it is not shrunk a SECOND time; that pairing is what makes
+/// `bottom: 12` land the CTA just above the keyboard. Verified against a
+/// Pixel 7a: drop either half and the CTA jumps to the top of the screen with
+/// the name field hidden behind it.
 Widget _shell(Widget child, {double keyboard = 0}) => MaterialApp(
       theme: AppTheme.light(),
       home: MediaQuery(

@@ -322,6 +322,7 @@ class _AppShellState extends State<AppShell>
         context.select<AppState, DateTime?>((s) => s.lastSyncedAt);
 
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final keyboardUp = MediaQuery.viewInsetsOf(context).bottom > 0;
 
     return AnnotatedRegion<SystemUiOverlayStyle>(
       value: isDark ? SystemUiOverlayStyle.light : SystemUiOverlayStyle.dark,
@@ -352,9 +353,10 @@ class _AppShellState extends State<AppShell>
                         padding: MediaQuery.of(context).padding.copyWith(
                               bottom: bottomPadding + kShellNavIslandInset,
                             ),
-                        viewPadding: MediaQuery.of(context).viewPadding.copyWith(
-                              bottom: bottomPadding + kShellNavIslandInset,
-                            ),
+                        viewPadding:
+                            MediaQuery.of(context).viewPadding.copyWith(
+                                  bottom: bottomPadding + kShellNavIslandInset,
+                                ),
                       ),
                       child: MedAiSwipeTabs(
                         currentIndex: _calculateSelectedIndex(context),
@@ -371,11 +373,9 @@ class _AppShellState extends State<AppShell>
                   Builder(builder: (context) {
                     final topInset =
                         MediaQuery.of(context).padding.top + AppSpacing.p12;
-                    final showOffline =
-                        (isOffline || networkError != null) &&
-                            !_dismissedOfflineBanner;
-                    final showLowStock =
-                        lowMeds.isNotEmpty && !bannerDismissed;
+                    final showOffline = (isOffline || networkError != null) &&
+                        !_dismissedOfflineBanner;
+                    final showLowStock = lowMeds.isNotEmpty && !bannerDismissed;
 
                     if (!showOffline && !showLowStock) {
                       return const SizedBox.shrink();
@@ -425,13 +425,10 @@ class _AppShellState extends State<AppShell>
                                       .read<AppState>()
                                       .dismissLowStockBanner();
                                 },
-                              )
-                                  .animate()
-                                  .fadeIn(duration: 500.ms)
-                                  .slideY(
-                                      begin: -0.2,
-                                      end: 0,
-                                      curve: AppCurves.emilOut),
+                              ).animate().fadeIn(duration: 500.ms).slideY(
+                                  begin: -0.2,
+                                  end: 0,
+                                  curve: AppCurves.emilOut),
                             ),
                         ],
                       ),
@@ -443,24 +440,29 @@ class _AppShellState extends State<AppShell>
                     bottom: 140 + bottomPadding,
                     right: 20,
                     child: AnimatedOpacity(
-                      duration: const Duration(milliseconds: 300),
-                      opacity: isSyncing ? 1.0 : 0.0,
-                      child: SyncStatusBanner(
-                              isSyncing: isSyncing, lastSynced: lastSynced)
-                    ),
+                        duration: const Duration(milliseconds: 300),
+                        opacity: isSyncing ? 1.0 : 0.0,
+                        child: SyncStatusBanner(
+                            isSyncing: isSyncing, lastSynced: lastSynced)),
                   ),
 
                   // ── Bottom navigation island ──
+                  // Slide the island out while the keyboard is up. It is
+                  // pinned to the bottom of a box the Scaffold has already
+                  // shrunk, so it otherwise rides up the screen and floats
+                  // over the form the user is typing into.
                   AnimatedPositioned(
                     duration: AppDurations.fast,
                     curve: AppCurves.emilOut,
                     left: 20,
                     right: 20,
-                    bottom: (16 + bottomPadding),
+                    bottom: keyboardUp
+                        ? -(kShellNavIslandInset + bottomPadding)
+                        : (16 + bottomPadding),
                     child: AnimatedOpacity(
                       duration: AppDurations.micro,
                       curve: AppCurves.emilOut,
-                      opacity: 1,
+                      opacity: keyboardUp ? 0 : 1,
                       child: _buildBottomIsland(L, unseenAlerts),
                     ),
                   ),
@@ -492,13 +494,17 @@ class _AppShellState extends State<AppShell>
                   if (_showReentry)
                     Positioned.fill(
                       child: ReentryScreen(
-                        missedDoses: _missedDoses, 
-                        userName: context.select<AppState, String>((s) => s.activeProfile?.name ?? s.profile?.name ?? 'there'),
+                        missedDoses: _missedDoses,
+                        userName: context.select<AppState, String>((s) =>
+                            s.activeProfile?.name ??
+                            s.profile?.name ??
+                            'there'),
                         onDismiss: ({required bool streakSaved}) {
                           _onReentryClosed();
                           if (streakSaved) {
                             final st = context.read<AppState>();
-                            Future.delayed(const Duration(milliseconds: 300), () {
+                            Future.delayed(const Duration(milliseconds: 300),
+                                () {
                               if (mounted) {
                                 // ignore: use_build_context_synchronously
                                 StreakModal.show(context, st);
@@ -553,16 +559,19 @@ class _AppShellState extends State<AppShell>
         ),
         child: Row(
           children: [
-            _buildNavItem(0, iconPaths[0], labels[0], L, badges[0], currentIndex),
-            _buildNavItem(1, iconPaths[1], labels[1], L, badges[1], currentIndex),
-            _buildNavItem(2, iconPaths[2], labels[2], L, badges[2], currentIndex),
-            _buildNavItem(3, iconPaths[3], labels[3], L, badges[3], currentIndex),
+            _buildNavItem(
+                0, iconPaths[0], labels[0], L, badges[0], currentIndex),
+            _buildNavItem(
+                1, iconPaths[1], labels[1], L, badges[1], currentIndex),
+            _buildNavItem(
+                2, iconPaths[2], labels[2], L, badges[2], currentIndex),
+            _buildNavItem(
+                3, iconPaths[3], labels[3], L, badges[3], currentIndex),
           ],
         ),
       ),
     );
   }
-
 
   Widget _buildNavItem(int index, String iconPath, String label,
       AppThemeColors L, int cnt, int currentIndex) {
@@ -609,7 +618,8 @@ class _AppShellState extends State<AppShell>
                       AppSvgIcon(
                         assetPath: iconPath,
                         size: 22,
-                        color: selected ? L.text : L.sub.withValues(alpha: 0.45),
+                        color:
+                            selected ? L.text : L.sub.withValues(alpha: 0.45),
                       ),
                       if (cnt > 0)
                         Positioned(
