@@ -15,6 +15,7 @@ import '../../../../services/growth_tracker.dart';
 import '../../../../widgets/common/paywall_sheet.dart';
 import '../../../family/profile_switcher_sheet.dart';
 import '../../../../core/utils/haptic_engine.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class AppTab extends StatefulWidget {
   final AppState state;
@@ -43,6 +44,7 @@ class _AppTabState extends State<AppTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = widget.L;
     final profile = context.select<AppState, UserProfile?>((s) => s.profile);
 
@@ -273,9 +275,9 @@ class _AppTabState extends State<AppTab> {
         SettingsSection(
             title: 'App Info',
             child: Column(children: [
-              const SettingsModalRow(
+              SettingsModalRow(
                   icon: '💊',
-                  label: 'MedAI',
+                  label: l10n.appTitle,
                   sub: 'Version 2.0 · Premium Enabled',
                   border: true),
               SettingsModalRow(

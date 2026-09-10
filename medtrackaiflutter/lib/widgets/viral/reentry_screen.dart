@@ -6,6 +6,7 @@ import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../providers/app_state.dart';
 import '../../screens/paywall/premium_paywall_overlay.dart';
+import '../../l10n/app_localizations.dart';
 
 /// High-conversion re-entry overlay — streak save / paywall moment.
 class ReentryScreen extends StatefulWidget {
@@ -53,6 +54,7 @@ class _ReentryScreenState extends State<ReentryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final state = context.watch<AppState>();
@@ -143,7 +145,7 @@ class _ReentryScreenState extends State<ReentryScreen> {
                   _entrance(
                     reduceMotion,
                     MedAiCTA(
-                      label: 'Continue',
+                      label: l10n.onboardingContinue,
                       icon: Icons.arrow_forward_rounded,
                       onTap: () => _handleDismiss(true),
                     ),

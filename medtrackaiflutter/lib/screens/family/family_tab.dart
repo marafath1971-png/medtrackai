@@ -18,6 +18,7 @@ import 'widgets/alert_log_widgets.dart';
 import '../../widgets/common/premium_empty_state.dart';
 import '../../widgets/common/premium_texture.dart';
 import '../../core/utils/scan_safety_mapper.dart';
+import '../../l10n/app_localizations.dart';
 
 enum FamilyView {
   hub,
@@ -284,6 +285,7 @@ class HubView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final activeCount =
         state.caregivers.where((c) => c.status == "active").length;
     final unseenCount = state.missedAlerts.where((a) => !a.seen).length;
@@ -650,7 +652,7 @@ class HubView extends StatelessWidget {
                                               children: [
                                                 Icon(Icons.edit_rounded, color: L.primary),
                                                 const SizedBox(width: AppSpacing.p12),
-                                                Text('Edit Profile', style: TextStyle(color: L.text)),
+                                                Text(l10n.editProfile, style: TextStyle(color: L.text)),
                                               ],
                                             ),
                                           ),
@@ -679,7 +681,7 @@ class HubView extends StatelessWidget {
                                                   title: Text('Remove profile?', style: AppTypography.titleLarge.copyWith(color: L.text, fontWeight: FontWeight.w800)),
                                                   content: Text('This will stop all reminders for ${member.name}. History for this member will be preserved in the cloud.', style: AppTypography.bodyMedium.copyWith(color: L.sub)),
                                                   actions: [
-                                                    TextButton(onPressed: () => Navigator.pop(removeCtx), child: Text('Cancel', style: AppTypography.labelLarge.copyWith(color: L.sub))),
+                                                    TextButton(onPressed: () => Navigator.pop(removeCtx), child: Text(l10n.cancel, style: AppTypography.labelLarge.copyWith(color: L.sub))),
                                                     TextButton(
                                                       onPressed: () {
                                                         state.removeFamilyMember(member.id);
@@ -933,6 +935,7 @@ class _FamilyHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final topPad = MediaQuery.of(context).padding.top;
 
     return AnimatedContainer(
@@ -958,7 +961,7 @@ class _FamilyHeader extends StatelessWidget {
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
-                    'CIRCLE',
+                    l10n.familyTab.toUpperCase(),
                     style: AppTypography.caption.copyWith(
                       color: AppColors.limeInk,
                       fontWeight: FontWeight.w700,

@@ -7,6 +7,7 @@ import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/premium_empty_state.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ─── Top bar + greeting (Purrent + finance reference blend) ─────────────────
 
@@ -22,6 +23,7 @@ class DashboardPurrentTopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final appState = context.watch<AppState>();
     final name = (appState.activeProfile?.name ?? appState.profile?.name)?.trim();
@@ -46,7 +48,7 @@ class DashboardPurrentTopBar extends StatelessWidget {
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
-                    'TRENDS',
+                    l10n.dashboardTab.toUpperCase(),
                     style: AppTypography.caption.copyWith(
                       color: AppColors.limeInk,
                       fontWeight: FontWeight.w700,

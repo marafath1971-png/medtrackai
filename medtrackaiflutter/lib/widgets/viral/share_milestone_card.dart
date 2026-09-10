@@ -7,6 +7,7 @@ import 'dart:io';
 import '../../services/growth_tracker.dart';
 import '../../theme/app_theme.dart';
 import '../mascot_widget.dart';
+import '../../l10n/app_localizations.dart';
 
 // ══════════════════════════════════════════════
 // RARITY STREAK PLAYER CARDS
@@ -179,6 +180,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final data = widget.data;
     final int score = (data.adherencePct * 100).round();
     Color accentColor = data.adherenceColor;
@@ -449,7 +451,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                         children: [
                           Expanded(
                             child: _buildGridItem(
-                              title: 'ADHERENCE',
+                              title: l10n.adherenceLabel,
                               value: '$score%',
                               color: accentColor,
                             ),

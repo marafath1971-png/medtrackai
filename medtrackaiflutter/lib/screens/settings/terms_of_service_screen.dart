@@ -9,6 +9,7 @@ import '../../../models/constants.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/premium_page_header.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../l10n/app_localizations.dart';
 
 class TermsOfServiceScreen extends StatefulWidget {
   const TermsOfServiceScreen({super.key});
@@ -28,6 +29,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return AppScaffold(
@@ -38,7 +40,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: PremiumPageHeader(
-              title: 'Terms of Service',
+              title: l10n.termsOfService,
               subtitle: 'Last updated: June 2026',
               onBack: () => Navigator.pop(context),
             ),

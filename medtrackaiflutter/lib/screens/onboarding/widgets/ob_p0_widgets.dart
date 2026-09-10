@@ -12,6 +12,7 @@ import '../onboarding_controller.dart';
 import '../onboarding_theme.dart';
 import 'ob_photo_hero.dart';
 import 'ob_widgets.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ════════════════════════════════════════════════════════════════════════
 // P0 — Olive-style persona grid (2×2 illustrated cards)
@@ -197,6 +198,7 @@ class ObDarkInterstitial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
 
     return DecoratedBox(
@@ -295,7 +297,7 @@ class ObDarkInterstitial extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.fromLTRB(22, 12, 22, 16),
                 child: ObPrimaryButton(
-                  label: 'Continue',
+                  label: l10n.onboardingContinue,
                   onTap: onContinue,
                 ),
               ),
@@ -451,6 +453,7 @@ class _ObScanDemoPreviewState extends State<ObScanDemoPreview>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
@@ -545,7 +548,7 @@ class _ObScanDemoPreviewState extends State<ObScanDemoPreview>
                   ],
                   const SizedBox(height: 10),
                   _DemoBreakdownRow(
-                    label: 'Schedule',
+                    label: l10n.homeSchedule,
                     status: '21:00 daily',
                     statusColor: p.good,
                     p: p,

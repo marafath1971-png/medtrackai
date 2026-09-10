@@ -2,6 +2,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../theme/med_ai_ui.dart';
+import '../../../l10n/app_localizations.dart';
 
 class WeeklyWellnessRing extends StatelessWidget {
   final double adherence;
@@ -15,6 +16,7 @@ class WeeklyWellnessRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final ringColor = _getColor(adherence, L);
     final reduceMotion = MedAiA11y.reducedMotion(context);
@@ -73,7 +75,7 @@ class WeeklyWellnessRing extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'ADHERENCE',
+                  l10n.adherenceLabel,
                   style: AppTypography.labelSmall.copyWith(
                     fontWeight: FontWeight.w700,
                     color: L.sub,

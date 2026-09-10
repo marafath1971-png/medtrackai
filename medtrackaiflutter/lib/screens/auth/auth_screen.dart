@@ -16,6 +16,7 @@ import '../../widgets/shared/shared_widgets.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/med_ai_mascot.dart';
 import '../../core/utils/haptic_engine.dart';
+import '../../l10n/app_localizations.dart';
 
 // ══════════════════════════════════════════════
 // AUTH SCREEN — Sign In / Sign Up (2026)
@@ -278,6 +279,7 @@ class _AuthScreenState extends State<AuthScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final prefs = context.watch<AppState>().onboardingPrefs;
     final topPad = MediaQuery.of(context).padding.top;
@@ -374,8 +376,8 @@ class _AuthScreenState extends State<AuthScreen> {
                             color: L.sub.withValues(alpha: 0.6),
                           ),
                         ),
-                        const _LegalLink(
-                          label: 'Privacy Policy',
+                        _LegalLink(
+                          label: l10n.privacyPolicy,
                           url: kPrivacyPolicyUrl,
                         ),
                       ],

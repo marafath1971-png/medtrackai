@@ -6,6 +6,7 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/ghost_mascot.dart';
 import '../onboarding_theme.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ════════════════════════════════════════════════════════════════════════
 // OB SCAFFOLD — aurora atmosphere + glass footer CTA dock
@@ -130,6 +131,7 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 10, 16, 6),
@@ -163,7 +165,7 @@ class _TopBar extends StatelessWidget {
                 child: Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                   child: Text(
-                    'Skip',
+                    l10n.onboardingSkip,
                     style: AppTypography.labelLarge.copyWith(color: p.sub),
                   ),
                 ),

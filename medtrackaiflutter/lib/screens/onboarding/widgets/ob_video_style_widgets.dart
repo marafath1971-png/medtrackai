@@ -10,6 +10,7 @@ import '../../../widgets/common/med_ai_mascot.dart';
 import '../onboarding_theme.dart';
 import 'ob_photo_hero.dart';
 import 'ob_widgets.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ════════════════════════════════════════════════════════════════════════
 // PictureThis-inspired widgets — adapted for Med AI medication features.
@@ -301,6 +302,7 @@ class ObRankInterstitial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     return Scaffold(
       backgroundColor: p.bg,
@@ -398,7 +400,7 @@ class ObRankInterstitial extends StatelessWidget {
                     ),
                   ).obFadeUp(delayMs: 80),
                   const Spacer(),
-                  ObPrimaryButton(label: 'Continue', onTap: onContinue),
+                  ObPrimaryButton(label: l10n.onboardingContinue, onTap: onContinue),
                 ],
               ),
             ),
@@ -740,6 +742,7 @@ class ObTrialFlashInterstitial extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     return DecoratedBox(
       decoration: BoxDecoration(
@@ -815,7 +818,7 @@ class ObTrialFlashInterstitial extends StatelessWidget {
                   ),
                 ).obFadeUp(),
                 const Spacer(flex: 3),
-                ObPrimaryButton(label: 'Continue', onTap: onContinue),
+                ObPrimaryButton(label: l10n.onboardingContinue, onTap: onContinue),
               ],
             ),
           ),

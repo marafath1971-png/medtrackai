@@ -153,6 +153,7 @@ class _ProfileTabState extends State<ProfileTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = widget.state.profile;
     final L = widget.L;
     final s = AppLocalizations.of(context)!;
@@ -285,7 +286,7 @@ class _ProfileTabState extends State<ProfileTab> {
 
           // ── APP SETTINGS (GLOBAL AUTHORITY) ──────────
           SettingsSection(
-            title: 'App Settings',
+            title: l10n.settingsApp,
             child: Column(children: [
               _maybeShimmerRow(
                 reduceMotion,
@@ -572,7 +573,7 @@ class _ProfileTabState extends State<ProfileTab> {
               child: Column(children: [
                 SettingsModalRow(
                   icon: '🔐',
-                  label: 'Privacy Policy',
+                  label: l10n.privacyPolicy,
                   sub: 'How we protect your data',
                   onClick: () => widget.state.openPrivacyPolicy(),
                   first: true,
@@ -580,7 +581,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 ),
                 SettingsModalRow(
                   icon: '📜',
-                  label: 'Terms of Service',
+                  label: l10n.termsOfService,
                   sub: 'Your rights and responsibilities',
                   onClick: () => widget.state.openTermsOfService(),
                   border: true,

@@ -56,6 +56,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final theme = Theme.of(context);
     final isDark = theme.brightness == Brightness.dark;
     final s = AppLocalizations.of(context)!;
@@ -73,7 +74,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
           if (!widget.embedded)
             SliverToBoxAdapter(
               child: PremiumPageHeader(
-                title: 'Settings',
+                title: l10n.settings,
                 subtitle: 'Preferences & account',
                 onBack: Navigator.canPop(context)
                     ? () => Navigator.pop(context)
@@ -260,7 +261,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                 children: [
                   _AccountActionTile(
                     icon: Icons.privacy_tip_outlined,
-                    title: 'Privacy Policy',
+                    title: l10n.privacyPolicy,
                     onTap: () {
                       HapticEngine.selection();
                       context.push(AppRoutes.settingsPrivacy);
@@ -269,7 +270,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                   ),
                   _AccountActionTile(
                     icon: Icons.gavel_rounded,
-                    title: 'Terms of Service',
+                    title: l10n.termsOfService,
                     onTap: () {
                       HapticEngine.selection();
                       context.push(AppRoutes.settingsTerms);

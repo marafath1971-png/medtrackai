@@ -6,6 +6,7 @@ import '../../../services/share_service.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../providers/app_state.dart';
 import 'package:confetti/confetti.dart';
+import '../../../l10n/app_localizations.dart';
 
 class StreakModal extends StatefulWidget {
   final int streak;
@@ -575,6 +576,7 @@ class _AscensionTrack extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return ListView.builder(
       keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
@@ -650,7 +652,7 @@ class _AscensionTrack extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
-                                'Next',
+                                l10n.onboardingNext,
                                 style: AppTypography.labelSmall.copyWith(
                                   fontWeight: FontWeight.w700,
                                   fontSize: 11,

@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/animated_pressable.dart';
 import '../../core/utils/haptic_engine.dart';
+import '../../l10n/app_localizations.dart';
 
 class AddMedicationScreen extends StatefulWidget {
   const AddMedicationScreen({super.key});
@@ -32,6 +33,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
@@ -167,7 +169,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     const SizedBox(height: AppSpacing.p32),
 
                     Text(
-                      'Schedule',
+                      l10n.homeSchedule,
                       style: AppTypography.titleMedium.copyWith(
                         color: L.text,
                         fontWeight: FontWeight.w700,

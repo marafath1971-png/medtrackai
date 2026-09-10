@@ -15,6 +15,7 @@ import '../../widgets/common/premium_texture.dart';
 import '../../widgets/common/app_feedback.dart';
 import '../../widgets/common/premium_empty_state.dart';
 import '../../widgets/modals/know_your_medicine_sheet.dart';
+import '../../l10n/app_localizations.dart';
 
 // ══════════════════════════════════════════════════════════════════════
 // ALARMS TAB — Premium Reminders & Schedules
@@ -367,6 +368,7 @@ class _AlarmsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final topPad = MediaQuery.of(context).padding.top;
     final subtitle =
         activeCount > 0 ? '$activeCount active reminders' : 'Stay on schedule';
@@ -384,7 +386,7 @@ class _AlarmsHeader extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Alarms',
+                  l10n.alarmsTab,
                   style: AppTypography.headlineMedium.copyWith(
                     color: L.text,
                     fontWeight: FontWeight.w800,
@@ -720,6 +722,7 @@ class _AlarmCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final med = sch.med;
     final s = sch.sched;
     final isEnabled = s.enabled;
@@ -890,7 +893,7 @@ class _AlarmCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(999),
                                 ),
                                 child: Text(
-                                  'Next',
+                                  l10n.onboardingNext,
                                   style: AppTypography.labelSmall.copyWith(
                                     color: AppColors.limeInk,
                                     fontWeight: FontWeight.w700,
@@ -1086,11 +1089,12 @@ class _QuickAddSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(children: [
-          Text('Your medicines',
+          Text(l10n.homeYourMedicines,
               style: AppTypography.titleMedium.copyWith(
                 color: L.text,
                 fontWeight: FontWeight.w700,

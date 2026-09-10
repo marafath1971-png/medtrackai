@@ -6,6 +6,7 @@ import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_empty_state.dart';
 import '../../widgets/common/premium_page_header.dart';
+import '../../l10n/app_localizations.dart';
 
 class InventoryVisualizerScreen extends StatelessWidget {
   const InventoryVisualizerScreen({super.key});
@@ -20,6 +21,7 @@ class InventoryVisualizerScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final meds = context.watch<AppState>().meds;
 
@@ -30,7 +32,7 @@ class InventoryVisualizerScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             PremiumPageHeader(
-              title: 'Inventory',
+              title: l10n.inventory,
               subtitle: 'Live refill levels',
               onBack: () => Navigator.pop(context),
             ),

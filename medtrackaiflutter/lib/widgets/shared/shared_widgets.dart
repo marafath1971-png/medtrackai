@@ -13,6 +13,7 @@ import '../../core/utils/color_utils.dart';
 import '../common/app_shimmer.dart';
 import '../common/animated_pressable.dart';
 import '../../screens/app_shell.dart';
+import '../../l10n/app_localizations.dart';
 export '../common/app_shimmer.dart';
 export '../common/animated_pressable.dart';
 export '../../theme/med_ai_ui.dart' show MedAiA11y, MedAiCTA, MedAiGlass, MedAiDepthCard, MedAiSectionHeader;
@@ -980,6 +981,7 @@ class _DoseCardState extends State<DoseCard>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final medColor = hexToColor(widget.med.color);
@@ -1186,7 +1188,7 @@ class _DoseCardState extends State<DoseCard>
                                         borderRadius: BorderRadius.circular(6),
                                       ),
                                       child: Text(
-                                        'Next',
+                                        l10n.onboardingNext,
                                         style: AppTypography.labelSmall.copyWith(
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,

@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../services/share_service.dart';
+import '../../l10n/app_localizations.dart';
 
 /// A branded, Instagram-story-style achievement card with share CTA.
 /// Used for streaks, adherence milestones, and scan achievements.
@@ -56,6 +57,7 @@ class ShareAchievementCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return Dialog(
@@ -165,7 +167,7 @@ class ShareAchievementCard extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Text(
-                      'MedAI',
+                      l10n.appTitle,
                       style: AppTypography.labelSmall.copyWith(
                         color: L.onBg.withValues(alpha: 0.4),
                         fontSize: 12,

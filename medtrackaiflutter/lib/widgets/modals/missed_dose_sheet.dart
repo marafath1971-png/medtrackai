@@ -7,6 +7,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_loading_indicator.dart';
 import '../../services/gemini_service.dart';
 import '../common/refined_sheet_wrapper.dart';
+import '../../l10n/app_localizations.dart';
 
 // ══════════════════════════════════════════════
 // MISSED DOSE PROTOCOL SHEET — AI-powered guidance
@@ -104,6 +105,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final med = widget.dose.med;
     final reduceMotion = MedAiA11y.reducedMotion(context);
@@ -313,7 +315,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
               Expanded(
                 flex: 2,
                 child: MedAiCTA(
-                  label: 'Take Now',
+                  label: l10n.takeNow,
                   icon: Icons.medication_rounded,
                   fullWidth: true,
                   semanticsLabel: 'Take ${med.name} now',

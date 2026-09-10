@@ -262,6 +262,7 @@ class _MedAIAppState extends State<MedAIApp> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final accentHex = context
         .select<AppState, String?>((state) => state.profile?.accentColor);
 
@@ -275,7 +276,7 @@ class _MedAIAppState extends State<MedAIApp> {
     final router = _getRouter(appState);
 
     return MaterialApp.router(
-      title: 'MedAI',
+      title: l10n.appTitle,
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: darkTheme,
@@ -328,7 +329,7 @@ class _MedAIAppState extends State<MedAIApp> {
                     final size = MediaQuery.sizeOf(context);
                     final width = size.width > 430 ? 430.0 : size.width;
                     return Semantics(
-                      label: 'MedAI',
+                      label: l10n.appTitle,
                       child: ColoredBox(
                         color: L.meshBg,
                         child: Align(

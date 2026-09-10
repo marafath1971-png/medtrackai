@@ -13,6 +13,7 @@ import '../../../widgets/common/animated_ring_hero.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/premium_page_header.dart';
+import '../../l10n/app_localizations.dart';
 
 class AnalyticsDashboardScreen extends StatefulWidget {
   const AnalyticsDashboardScreen({super.key});
@@ -43,6 +44,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final state = context.watch<AppState>();
 
@@ -160,7 +162,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                     _NavCard(
                       L: L,
                       icon: Icons.inventory_2_rounded,
-                      label: 'Inventory',
+                      label: l10n.inventory,
                       title: 'Stock levels & refill alerts',
                       onTap: () {
                         HapticEngine.selection();

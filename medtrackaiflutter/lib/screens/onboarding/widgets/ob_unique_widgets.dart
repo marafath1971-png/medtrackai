@@ -8,6 +8,7 @@ import '../../../widgets/common/animated_pressable.dart';
 import '../onboarding_controller.dart';
 import '../onboarding_theme.dart';
 import 'ob_photo_hero.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ════════════════════════════════════════════════════════════════════════
 // Eato-inspired onboarding widgets (unique_screens_hd.pdf)
@@ -279,6 +280,7 @@ class ObPersonalAdherenceSummary extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     final score = controller.adherenceScore;
     final persona = controller.personaLabel;
@@ -344,7 +346,7 @@ class ObPersonalAdherenceSummary extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 18),
-          _SummaryRow(label: 'Profile', value: persona.label, p: p),
+          _SummaryRow(label: l10n.profile, value: persona.label, p: p),
           _SummaryRow(label: 'Med count', value: controller.medCountLabel, p: p),
           _SummaryRow(label: 'Challenge', value: controller.challengeLabel, p: p),
         ],

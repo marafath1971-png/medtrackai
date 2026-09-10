@@ -6,6 +6,7 @@ import '../../../widgets/common/animated_pressable.dart';
 import 'package:go_router/go_router.dart';
 import '../../../app/app_routes.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../l10n/app_localizations.dart';
 
 class HomeStatsGrid extends StatelessWidget {
   final AppState state;
@@ -27,6 +28,7 @@ class HomeStatsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final adherence = (state.getAdherenceScore() * 100).round();
@@ -140,7 +142,7 @@ class HomeStatsGrid extends StatelessWidget {
                   _BentoMetricCard(
                     emoji: '📦',
                     iconColor: AppColors.dangerSoft,
-                    label: 'Inventory',
+                    label: l10n.inventory,
                     value: '${state.getLowStockCount()}',
                     unit: 'low',
                     sublabel: state.getLowStockCount() == 0
@@ -467,6 +469,7 @@ class _NextDoseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final schedMin = dose.sched.h * 60 + dose.sched.m;
     final diff = schedMin - nowM;
     final timeLabel = diff <= 60
@@ -499,7 +502,7 @@ class _NextDoseCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Next dose',
+                    l10n.homeNextDose,
                     style: AppTypography.labelSmall.copyWith(
                       color: L.onPrimary.withValues(alpha: 0.75),
                       fontWeight: FontWeight.w600,
