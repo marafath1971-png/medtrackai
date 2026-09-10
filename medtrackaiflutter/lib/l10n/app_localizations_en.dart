@@ -3103,4 +3103,70 @@ class AppLocalizationsEn extends AppLocalizations {
       Object name, Object feel, Object tagline, Object invite, Object url) {
     return '$name found $feel.\n$tagline\n\n$invite$url';
   }
+
+  @override
+  String commonDayUnit(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'days',
+      one: 'day',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String statsInventoryRemaining(Object name, Object count) {
+    return '$name, $count remaining';
+  }
+
+  @override
+  String statsInventoryRemainingLowStock(Object name, Object count) {
+    return '$name, $count remaining, low stock';
+  }
+
+  @override
+  String commonShopItemEquipped(Object name) {
+    return '$name, equipped';
+  }
+
+  @override
+  String commonShopItemOwned(Object name) {
+    return '$name, owned';
+  }
+
+  @override
+  String commonShopItemCost(Object name, Object cost) {
+    return '$name, costs $cost coins';
+  }
+
+  @override
+  String settingsProfileAge(Object age) {
+    return 'Age $age';
+  }
+
+  @override
+  String get settingsProfileAgeNotSet => 'Age not set';
+
+  @override
+  String settingsProfileAgeAndGender(Object age, Object gender) {
+    return '$age · $gender';
+  }
+
+  @override
+  String focusTimerStatus(Object time, Object status) {
+    return 'Timer $time. $status';
+  }
+
+  @override
+  String get focusSessionComplete => 'Session complete';
+
+  @override
+  String get focusInhale => 'Inhale';
+
+  @override
+  String get focusExhale => 'Exhale';
+
+  @override
+  String get focusReadyToFocus => 'Ready to focus';
 }

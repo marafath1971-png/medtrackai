@@ -29,6 +29,16 @@ class ProfileTab extends StatefulWidget {
 }
 
 class _ProfileTabState extends State<ProfileTab> {
+  /// The age/gender caption. Each branch is a whole message rather than
+  /// fragments glued at runtime, so a translator can reorder or drop the
+  /// separator for their language.
+  String _ageGenderLine(AppLocalizations l10n, UserProfile? p) {
+    final hasAge = p != null && p.age.isNotEmpty;
+    final hasGender = p != null && p.gender.isNotEmpty;
+    final age = hasAge ? l10n.settingsProfileAge(p.age) : l10n.settingsProfileAgeNotSet;
+    return hasGender ? l10n.settingsProfileAgeAndGender(age, p.gender) : age;
+  }
+
   late TextEditingController _nameCtrl;
   late TextEditingController _ageCtrl;
   String? _genderInput;
@@ -228,7 +238,7 @@ class _ProfileTabState extends State<ProfileTab> {
               ),
               const SizedBox(height: AppSpacing.p8),
               Text(
-                  '${p?.age != null && p!.age.isNotEmpty ? "Age ${p.age}" : "Age not set"}${p?.gender != null && p!.gender.isNotEmpty ? " · ${p.gender}" : ""}',
+                  _ageGenderLine(l10n, p),
                   style: AppTypography.bodySmall.copyWith(
                       color: L.sub.withValues(alpha: 0.6),
                       fontWeight: FontWeight.w700)),

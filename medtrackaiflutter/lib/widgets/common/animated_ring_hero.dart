@@ -167,7 +167,7 @@ class CalAiRingHero extends StatelessWidget {
                       ),
                       const SizedBox(width: 3),
                       Text(
-                        'day${streak == 1 ? '' : 's'}',
+                        l10n.commonDayUnit(streak),
                         style: AppTypography.bodySmall.copyWith(
                           color: streakTextColor.withValues(alpha: 0.7),
                           fontWeight: FontWeight.w500,

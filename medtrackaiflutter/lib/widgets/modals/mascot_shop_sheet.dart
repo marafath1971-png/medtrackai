@@ -267,7 +267,11 @@ class _AccessoryCard extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     return Semantics(
       button: true,
-      label: '${item.name}${isEquipped ? ', equipped' : isOwned ? ', owned' : ', costs ${item.cost} coins'}',
+      label: isEquipped
+          ? l10n.commonShopItemEquipped(item.name)
+          : isOwned
+              ? l10n.commonShopItemOwned(item.name)
+              : l10n.commonShopItemCost(item.name, item.cost),
       selected: isEquipped,
       child: AnimatedPressable(
         onTap: onTap,

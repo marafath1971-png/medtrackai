@@ -42,4 +42,31 @@ void main() {
     // A key that *is* translated must still be Spanish.
     expect(es.adherenceLabel, 'ADHERENCIA');
   });
+
+  testWidgets('the plural picks a form rather than gluing on an s', (t) async {
+    final s = await load(t, 'en');
+    expect(s.commonDayUnit(1), 'day');
+    expect(s.commonDayUnit(2), 'days');
+    expect(s.commonDayUnit(0), 'days');
+    // The ICU markup itself must never reach the screen.
+    expect(s.commonDayUnit(1), isNot(contains('plural')));
+    expect(s.commonDayUnit(1), isNot(contains('{')));
+  });
+
+  testWidgets('each branch of a former ternary is a whole phrase', (t) async {
+    final s = await load(t, 'en');
+    // Selection stays in Dart; the translator gets complete sentences.
+    expect(s.statsInventoryRemaining('Aspirin', 4), contains('Aspirin'));
+    expect(s.statsInventoryRemainingLowStock('Aspirin', 4),
+        contains('low stock'));
+    expect(s.commonShopItemCost('Hat', 50), contains('50'));
+    expect(s.focusSessionComplete, isNotEmpty);
+    for (final v in [
+      s.statsInventoryRemaining('Aspirin', 4),
+      s.commonShopItemCost('Hat', 50),
+      s.focusTimerStatus('2:00', s.focusInhale),
+    ]) {
+      expect(v, isNot(contains('{')));
+    }
+  });
 }

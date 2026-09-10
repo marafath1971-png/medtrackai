@@ -94,7 +94,9 @@ class _LiquidFillBottle extends StatelessWidget {
 
     return Semantics(
       label:
-          '${med.name}, ${med.count} remaining${isLowStock ? ', low stock' : ''}',
+          isLowStock
+              ? l10n.statsInventoryRemainingLowStock(med.name, med.count)
+              : l10n.statsInventoryRemaining(med.name, med.count),
       child: MedAiDepthCard(
         padding: EdgeInsets.zero,
         radius: AppRadius.xl,

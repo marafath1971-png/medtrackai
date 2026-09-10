@@ -5742,6 +5742,90 @@ abstract class AppLocalizations {
   /// **'{name} found {feel}.\n{tagline}\n\n{invite}{url}'**
   String commonShareRecommendation(
       Object name, Object feel, Object tagline, Object invite, Object url);
+
+  /// No description provided for @commonDayUnit.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{day} other{days}}'**
+  String commonDayUnit(int count);
+
+  /// No description provided for @statsInventoryRemaining.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {count} remaining'**
+  String statsInventoryRemaining(Object name, Object count);
+
+  /// No description provided for @statsInventoryRemainingLowStock.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {count} remaining, low stock'**
+  String statsInventoryRemainingLowStock(Object name, Object count);
+
+  /// No description provided for @commonShopItemEquipped.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, equipped'**
+  String commonShopItemEquipped(Object name);
+
+  /// No description provided for @commonShopItemOwned.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, owned'**
+  String commonShopItemOwned(Object name);
+
+  /// No description provided for @commonShopItemCost.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, costs {cost} coins'**
+  String commonShopItemCost(Object name, Object cost);
+
+  /// No description provided for @settingsProfileAge.
+  ///
+  /// In en, this message translates to:
+  /// **'Age {age}'**
+  String settingsProfileAge(Object age);
+
+  /// No description provided for @settingsProfileAgeNotSet.
+  ///
+  /// In en, this message translates to:
+  /// **'Age not set'**
+  String get settingsProfileAgeNotSet;
+
+  /// No description provided for @settingsProfileAgeAndGender.
+  ///
+  /// In en, this message translates to:
+  /// **'{age} · {gender}'**
+  String settingsProfileAgeAndGender(Object age, Object gender);
+
+  /// No description provided for @focusTimerStatus.
+  ///
+  /// In en, this message translates to:
+  /// **'Timer {time}. {status}'**
+  String focusTimerStatus(Object time, Object status);
+
+  /// No description provided for @focusSessionComplete.
+  ///
+  /// In en, this message translates to:
+  /// **'Session complete'**
+  String get focusSessionComplete;
+
+  /// No description provided for @focusInhale.
+  ///
+  /// In en, this message translates to:
+  /// **'Inhale'**
+  String get focusInhale;
+
+  /// No description provided for @focusExhale.
+  ///
+  /// In en, this message translates to:
+  /// **'Exhale'**
+  String get focusExhale;
+
+  /// No description provided for @focusReadyToFocus.
+  ///
+  /// In en, this message translates to:
+  /// **'Ready to focus'**
+  String get focusReadyToFocus;
 }
 
 class _AppLocalizationsDelegate

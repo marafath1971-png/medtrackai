@@ -1,6 +1,6 @@
 # Untranslated localization keys
 
-`app_en.arb` now carries 939 keys. The six translated locales carry 176.
+`app_en.arb` now carries 953 keys. The six translated locales carry 176.
 
 Flutter's `gen-l10n` fills every missing key with the English string, so
 nothing crashes and nothing renders blank -- a Spanish user simply sees
@@ -8,12 +8,12 @@ English for these until a translator fills them in.
 
 | locale | missing keys |
 |---|---|
-| ar | 763 |
-| es | 763 |
-| he | 763 |
-| ja | 763 |
-| ko | 763 |
-| ms | 763 |
+| ar | 777 |
+| es | 777 |
+| he | 777 |
+| ja | 777 |
+| ko | 777 |
+| ms | 777 |
 
 ## Keys awaiting translation
 
@@ -105,6 +105,7 @@ English for these until a translator fills them in.
 - `commonBack` = "Back"
 - `commonByContinuingYouAgreeToOur` = "By continuing, you agree to our Terms of Service and Privacy Policy."
 - `commonConnectionIssue` = "Connection issue"
+- `commonDayUnit` = "{count, plural, =1{day} other{days}}"
 - `commonDismissInteractionWarning` = "Dismiss interaction warning"
 - `commonDrugInteraction` = "Drug interaction"
 - `commonDue` = "{label}, due {time}"
@@ -117,6 +118,9 @@ English for these until a translator fills them in.
 - `commonSetTime` = "Set Time"
 - `commonShareAchievement` = "Share Achievement"
 - `commonShareRecommendation` = "{name} found {feel}.\n{tagline}\n\n{invite}{url}"
+- `commonShopItemCost` = "{name}, costs {cost} coins"
+- `commonShopItemEquipped` = "{name}, equipped"
+- `commonShopItemOwned` = "{name}, owned"
 - `commonSnoozeNextDose30Minutes` = "Snooze next dose 30 minutes"
 - `commonSomethingWentWrong` = "Something went wrong"
 - `commonThisSectionFailedToLoadNtap` = "This section failed to load.\\nTap Resume on the recovery screen."
@@ -261,8 +265,13 @@ English for these until a translator fills them in.
 - `familyWaiting` = "Waiting"
 - `familyWaitingForCaregiverToScan` = "Waiting for caregiver to scan..."
 - `familyWeeklyAdherence` = "Weekly Adherence"
+- `focusExhale` = "Exhale"
 - `focusFocusMode` = "Focus mode"
+- `focusInhale` = "Inhale"
+- `focusReadyToFocus` = "Ready to focus"
+- `focusSessionComplete` = "Session complete"
 - `focusStartFocus` = "Start focus"
+- `focusTimerStatus` = "Timer {time}. {status}"
 - `geminiserviceDailyTip` = "Daily Tip"
 - `homeAccount` = "Account"
 - `homeAdd` = "Add"
@@ -685,6 +694,9 @@ English for these until a translator fills them in.
 - `settingsN9YourDataYourControl` = "9. Your Data, Your Control"
 - `settingsNsecurePrivateGdprCompliant` = "{kAppName}\\nSecure · Private · GDPR Compliant"
 - `settingsNsecurePrivateTransparent` = "{kAppName}\\nSecure · Private · Transparent"
+- `settingsProfileAge` = "Age {age}"
+- `settingsProfileAgeAndGender` = "{age} · {gender}"
+- `settingsProfileAgeNotSet` = "Age not set"
 - `settingsResetCache` = "Reset cache?"
 - `settingsSystem` = "System"
 - `settingsThisDevice` = "This device"
@@ -721,6 +733,8 @@ English for these until a translator fills them in.
 - `statsDaysAgo` = "{seriesCount} days ago"
 - `statsExplore` = "Explore"
 - `statsExportAClinicalPdfOfYour` = "Export a clinical PDF of your adherence & meds"
+- `statsInventoryRemaining` = "{name}, {count} remaining"
+- `statsInventoryRemainingLowStock` = "{name}, {count} remaining, low stock"
 - `statsLeft` = "{count} left"
 - `statsLongevityScore` = "Longevity Score"
 - `statsLowStock` = "Low stock"

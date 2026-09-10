@@ -16,6 +16,13 @@ class FocusModeScreen extends StatefulWidget {
 }
 
 class _FocusModeScreenState extends State<FocusModeScreen> {
+  /// Which phase the session is in, as one translatable phrase.
+  String _breathStatusLabel(AppLocalizations l10n) {
+    if (_isFinished) return l10n.focusSessionComplete;
+    if (!_isActive) return l10n.focusReadyToFocus;
+    return _isInhaling ? l10n.focusInhale : l10n.focusExhale;
+  }
+
   late ConfettiController _confettiController;
   Timer? _sessionTimer;
   Timer? _breathTimer;
@@ -222,7 +229,9 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
                         Semantics(
                           liveRegion: true,
                           label:
-                              'Timer ${_formatTime(_remainingSeconds)}. ${_isFinished ? 'Session complete' : (_isActive ? (_isInhaling ? 'Inhale' : 'Exhale') : 'Ready to focus')}',
+                              l10n.focusTimerStatus(
+                                  _formatTime(_remainingSeconds),
+                                  _breathStatusLabel(l10n)),
                           child: Text(
                             _formatTime(_remainingSeconds),
                             style: AppTypography.displayLarge.copyWith(

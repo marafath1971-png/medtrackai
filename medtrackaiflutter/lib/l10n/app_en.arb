@@ -1560,5 +1560,97 @@
         "type": "Object"
       }
     }
-  }
+  },
+  "commonDayUnit": "{count, plural, =1{day} other{days}}",
+  "@commonDayUnit": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "statsInventoryRemaining": "{name}, {count} remaining",
+  "@statsInventoryRemaining": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      },
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "statsInventoryRemainingLowStock": "{name}, {count} remaining, low stock",
+  "@statsInventoryRemainingLowStock": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      },
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "commonShopItemEquipped": "{name}, equipped",
+  "@commonShopItemEquipped": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "commonShopItemOwned": "{name}, owned",
+  "@commonShopItemOwned": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "commonShopItemCost": "{name}, costs {cost} coins",
+  "@commonShopItemCost": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      },
+      "cost": {
+        "type": "Object"
+      }
+    }
+  },
+  "settingsProfileAge": "Age {age}",
+  "@settingsProfileAge": {
+    "placeholders": {
+      "age": {
+        "type": "Object"
+      }
+    }
+  },
+  "settingsProfileAgeNotSet": "Age not set",
+  "settingsProfileAgeAndGender": "{age} · {gender}",
+  "@settingsProfileAgeAndGender": {
+    "placeholders": {
+      "age": {
+        "type": "Object"
+      },
+      "gender": {
+        "type": "Object"
+      }
+    }
+  },
+  "focusTimerStatus": "Timer {time}. {status}",
+  "@focusTimerStatus": {
+    "placeholders": {
+      "time": {
+        "type": "Object"
+      },
+      "status": {
+        "type": "Object"
+      }
+    }
+  },
+  "focusSessionComplete": "Session complete",
+  "focusInhale": "Inhale",
+  "focusExhale": "Exhale",
+  "focusReadyToFocus": "Ready to focus"
 }
