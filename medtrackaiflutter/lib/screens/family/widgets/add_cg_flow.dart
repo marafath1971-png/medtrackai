@@ -25,6 +25,7 @@ class AddHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final title = step == 1
         ? 'Add caregiver'
         : step == 2
@@ -33,7 +34,7 @@ class AddHeader extends StatelessWidget {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
       PremiumPageHeader(
         title: title,
-        subtitle: 'Step $step of 3',
+        subtitle: l10n.familyStepOf3(step),
         onBack: () {
           HapticEngine.selection();
           onBack();
@@ -41,7 +42,7 @@ class AddHeader extends StatelessWidget {
       ),
       const SizedBox(height: AppSpacing.p16),
       Semantics(
-        label: 'Step $step of 3',
+        label: l10n.familyStepOf3(step),
         child: Row(
             children: [1, 2, 3]
                 .map((n) => Expanded(
@@ -159,7 +160,7 @@ class AddCgStep1 extends StatelessWidget {
                             children: kCgAvatars
                                 .map((a) => Semantics(
                                       button: true,
-                                      label: 'Avatar $a',
+                                      label: l10n.familyAvatar2(a),
                                       selected: avatar == a,
                                       child: AnimatedPressable(
                                         onTap: () {

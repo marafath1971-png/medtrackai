@@ -167,6 +167,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
   }
 
   Future<void> _handleDelete() async {
+    final l10n = AppLocalizations.of(context)!;
     HapticEngine.heavyImpact();
     // Use the 2026 custom alert dialog instead of standard!
     showDialog(
@@ -175,7 +176,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
         backgroundColor: context.L.bg,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
         title: Text('Remove Member', style: AppTypography.headlineMedium.copyWith(fontWeight: FontWeight.w900)),
-        content: Text('Are you sure you want to remove ${widget.member.name} from your protectors? This action cannot be undone.', style: AppTypography.bodySmall),
+        content: Text(l10n.familyAreYouSureYouWantTo(widget.member.name), style: AppTypography.bodySmall),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),

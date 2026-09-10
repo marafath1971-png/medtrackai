@@ -465,6 +465,7 @@ class InsightsContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     state.fetchProtectorInsight(cg, meds, history);
     final dateKey = DateTime.now().toIso8601String().substring(0, 10);
     final historyEntries = history[dateKey] ?? [];
@@ -478,7 +479,7 @@ class InsightsContent extends StatelessWidget {
           SliverToBoxAdapter(
             child: PremiumPageHeader(
               title: cg.name,
-              subtitle: '${cg.relation} · Monitoring',
+              subtitle: l10n.familyMonitoring2(cg.relation),
               onBack: () {
                 HapticEngine.selection();
                 onBack();
@@ -521,7 +522,7 @@ class InsightsContent extends StatelessWidget {
                                               fontSize: 22,
                                               fontWeight: FontWeight.w700,
                                               color: L.text)),
-                                  Text('${cg.relation} · Monitoring active',
+                                  Text(l10n.familyMonitoringActive(cg.relation),
                                       style: AppTypography.bodySmall.copyWith(
                                           color: L.sub,
                                           fontWeight: FontWeight.w500)),
@@ -554,7 +555,7 @@ class InsightsContent extends StatelessWidget {
                   const SizedBox(height: AppSpacing.p20),
 
                   MedAiCTA(
-                    label: 'Nudge ${cg.name}',
+                    label: l10n.familyNudge(cg.name),
                     icon: Icons.notifications_active_rounded,
                     onTap: () => state.nudgePatient(cg.patientUid),
                   ),

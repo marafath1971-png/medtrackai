@@ -5309,6 +5309,439 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'STATUS'**
   String get viralStatus;
+
+  /// No description provided for @alarmsActive.
+  ///
+  /// In en, this message translates to:
+  /// **'{activeCount} active'**
+  String alarmsActive(Object activeCount);
+
+  /// No description provided for @alarmsAlarmForRemoved.
+  ///
+  /// In en, this message translates to:
+  /// **'Alarm for {name} removed'**
+  String alarmsAlarmForRemoved(Object name);
+
+  /// No description provided for @alarmsOff.
+  ///
+  /// In en, this message translates to:
+  /// **'{inactiveSchedulesCount} off'**
+  String alarmsOff(Object inactiveSchedulesCount);
+
+  /// No description provided for @alarmsReminderAt.
+  ///
+  /// In en, this message translates to:
+  /// **'{displayName} reminder at {timeLabel}'**
+  String alarmsReminderAt(Object displayName, Object timeLabel);
+
+  /// No description provided for @alarmsSetReminderFor2.
+  ///
+  /// In en, this message translates to:
+  /// **'Set reminder for {name}'**
+  String alarmsSetReminderFor2(Object name);
+
+  /// No description provided for @analysisReportedSizedByHowOften.
+  ///
+  /// In en, this message translates to:
+  /// **'{sideEffectsCount} reported — sized by how often.'**
+  String analysisReportedSizedByHowOften(Object sideEffectsCount);
+
+  /// No description provided for @authUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock {profileName}'**
+  String authUnlock(Object profileName);
+
+  /// No description provided for @authPinEntryOf4DigitsEntered.
+  ///
+  /// In en, this message translates to:
+  /// **'PIN entry, {enteredPinCount} of 4 digits entered'**
+  String authPinEntryOf4DigitsEntered(Object enteredPinCount);
+
+  /// No description provided for @dashboardN30DayAdherencePercent.
+  ///
+  /// In en, this message translates to:
+  /// **'30-day adherence {pct} percent, {statusLabel}'**
+  String dashboardN30DayAdherencePercent(Object pct, Object statusLabel);
+
+  /// No description provided for @familyAreYouSureYouWantTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to remove {name} from your protectors? This action cannot be undone.'**
+  String familyAreYouSureYouWantTo(Object name);
+
+  /// No description provided for @familyMissedMedicationAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'{unseenCount} missed medication alerts'**
+  String familyMissedMedicationAlerts(Object unseenCount);
+
+  /// No description provided for @familyProfiles.
+  ///
+  /// In en, this message translates to:
+  /// **'{profile} profiles'**
+  String familyProfiles(Object profile);
+
+  /// No description provided for @familyManage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage {name}'**
+  String familyManage(Object name);
+
+  /// No description provided for @familyThisWillStopAllRemindersFor.
+  ///
+  /// In en, this message translates to:
+  /// **'This will stop all reminders for {name}. History for this member will be preserved in the cloud.'**
+  String familyThisWillStopAllRemindersFor(Object name);
+
+  /// No description provided for @familyAlerts.
+  ///
+  /// In en, this message translates to:
+  /// **'{missedAlertsCount} alerts'**
+  String familyAlerts(Object missedAlertsCount);
+
+  /// No description provided for @familyUnlock.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock {name}'**
+  String familyUnlock(Object name);
+
+  /// No description provided for @familyStepOf3.
+  ///
+  /// In en, this message translates to:
+  /// **'Step {step} of 3'**
+  String familyStepOf3(Object step);
+
+  /// No description provided for @familyAvatar2.
+  ///
+  /// In en, this message translates to:
+  /// **'Avatar {a}'**
+  String familyAvatar2(Object a);
+
+  /// No description provided for @familyMissedDoseAlertFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed dose alert for {medName}'**
+  String familyMissedDoseAlertFor(Object medName);
+
+  /// No description provided for @familyMissedAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Missed {doseLabel} at {time}'**
+  String familyMissedAt(Object doseLabel, Object time);
+
+  /// No description provided for @familyMonitoring2.
+  ///
+  /// In en, this message translates to:
+  /// **'{relation} · Monitoring'**
+  String familyMonitoring2(Object relation);
+
+  /// No description provided for @familyMonitoringActive.
+  ///
+  /// In en, this message translates to:
+  /// **'{relation} · Monitoring active'**
+  String familyMonitoringActive(Object relation);
+
+  /// No description provided for @familyNudge.
+  ///
+  /// In en, this message translates to:
+  /// **'Nudge {name}'**
+  String familyNudge(Object name);
+
+  /// No description provided for @homeYouLoggedASevereSymptomOf.
+  ///
+  /// In en, this message translates to:
+  /// **'You logged a severe symptom of {name} (Severity: {severity}/10) recently. If you are experiencing chest pain, difficulty breathing, sudden weakness, or any life-threatening symptoms, seek medical help immediately.'**
+  String homeYouLoggedASevereSymptomOf(Object name, Object severity);
+
+  /// No description provided for @homeMarkedAsTaken.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} marked as taken.'**
+  String homeMarkedAsTaken(Object name);
+
+  /// No description provided for @homeNextDose2.
+  ///
+  /// In en, this message translates to:
+  /// **'Next dose: {name}, {timeLabel}'**
+  String homeNextDose2(Object name, Object timeLabel);
+
+  /// No description provided for @homeMeds.
+  ///
+  /// In en, this message translates to:
+  /// **'{focusCount} meds'**
+  String homeMeds(Object focusCount);
+
+  /// No description provided for @homeEnterPinFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter PIN for {name}'**
+  String homeEnterPinFor(Object name);
+
+  /// No description provided for @homeSwitchToProfile.
+  ///
+  /// In en, this message translates to:
+  /// **'Switch to {name} profile'**
+  String homeSwitchToProfile(Object name);
+
+  /// No description provided for @homeRecoveryCourseForDayOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery course for {name}, day {day} of {totalDays}'**
+  String homeRecoveryCourseForDayOf(Object name, Object day, Object totalDays);
+
+  /// No description provided for @homeMedicinesTracked.
+  ///
+  /// In en, this message translates to:
+  /// **'{select} medicines tracked'**
+  String homeMedicinesTracked(Object select);
+
+  /// No description provided for @homeRefill2.
+  ///
+  /// In en, this message translates to:
+  /// **'Refill {name}'**
+  String homeRefill2(Object name);
+
+  /// No description provided for @loadingMascot.
+  ///
+  /// In en, this message translates to:
+  /// **'{kAppName} mascot'**
+  String loadingMascot(Object kAppName);
+
+  /// No description provided for @medicineRestock2.
+  ///
+  /// In en, this message translates to:
+  /// **'Restock {name}'**
+  String medicineRestock2(Object name);
+
+  /// No description provided for @medicineAddUnitsTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Add units to {name}'**
+  String medicineAddUnitsTo(Object name);
+
+  /// No description provided for @medicineGreatJobFinishingYourCourseOf.
+  ///
+  /// In en, this message translates to:
+  /// **'Great job finishing your course of {name}. You\\\'ve successfully completed all prescribed doses.'**
+  String medicineGreatJobFinishingYourCourseOf(Object name);
+
+  /// No description provided for @scanConfidenceTargetPercent.
+  ///
+  /// In en, this message translates to:
+  /// **'Confidence target, {toInt} percent'**
+  String scanConfidenceTargetPercent(Object toInt);
+
+  /// No description provided for @scanAdded.
+  ///
+  /// In en, this message translates to:
+  /// **'Added: {date}'**
+  String scanAdded(Object date);
+
+  /// No description provided for @scanMode.
+  ///
+  /// In en, this message translates to:
+  /// **'{label} mode'**
+  String scanMode(Object label);
+
+  /// No description provided for @scanAiConfidencePercent.
+  ///
+  /// In en, this message translates to:
+  /// **'AI confidence {pct} percent'**
+  String scanAiConfidencePercent(Object pct);
+
+  /// No description provided for @scanAiConfidence.
+  ///
+  /// In en, this message translates to:
+  /// **'Ai Confidence {pct}%'**
+  String scanAiConfidence(Object pct);
+
+  /// No description provided for @scanStorage.
+  ///
+  /// In en, this message translates to:
+  /// **'Storage · {storage}'**
+  String scanStorage(Object storage);
+
+  /// No description provided for @settingsEmailUsAt.
+  ///
+  /// In en, this message translates to:
+  /// **'Email us at {kSupportEmail}'**
+  String settingsEmailUsAt(Object kSupportEmail);
+
+  /// No description provided for @settingsVersionStable.
+  ///
+  /// In en, this message translates to:
+  /// **'VERSION {kAppVersion} • STABLE'**
+  String settingsVersionStable(Object kAppVersion);
+
+  /// No description provided for @settingsViewFullPolicyOnlineAt.
+  ///
+  /// In en, this message translates to:
+  /// **'View full policy online at {kPrivacyPolicyUrl}'**
+  String settingsViewFullPolicyOnlineAt(Object kPrivacyPolicyUrl);
+
+  /// No description provided for @settingsNsecurePrivateGdprCompliant.
+  ///
+  /// In en, this message translates to:
+  /// **'{kAppName}\\nSecure · Private · GDPR Compliant'**
+  String settingsNsecurePrivateGdprCompliant(Object kAppName);
+
+  /// No description provided for @settingsViewFullTermsOnlineAt.
+  ///
+  /// In en, this message translates to:
+  /// **'View full terms online at {kTermsOfServiceUrl}'**
+  String settingsViewFullTermsOnlineAt(Object kTermsOfServiceUrl);
+
+  /// No description provided for @settingsNsecurePrivateTransparent.
+  ///
+  /// In en, this message translates to:
+  /// **'{kAppName}\\nSecure · Private · Transparent'**
+  String settingsNsecurePrivateTransparent(Object kAppName);
+
+  /// No description provided for @settingsTypeToConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Type {confirmWord} to confirm'**
+  String settingsTypeToConfirm(Object confirmWord);
+
+  /// No description provided for @socialInviteAFriendOrCaregiverTo.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite a friend or caregiver to build accountability together. Your current streak is {myStreak} days.'**
+  String socialInviteAFriendOrCaregiverTo(Object myStreak);
+
+  /// No description provided for @socialSlideOf6.
+  ///
+  /// In en, this message translates to:
+  /// **'Slide {currentSlide} of 6'**
+  String socialSlideOf6(Object currentSlide);
+
+  /// No description provided for @statsLeft.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} left'**
+  String statsLeft(Object count);
+
+  /// No description provided for @statsSlideOf3.
+  ///
+  /// In en, this message translates to:
+  /// **'Slide {currentPage} of 3'**
+  String statsSlideOf3(Object currentPage);
+
+  /// No description provided for @statsDayCurrentStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{streak} day current streak'**
+  String statsDayCurrentStreak(Object streak);
+
+  /// No description provided for @statsDaysAgo.
+  ///
+  /// In en, this message translates to:
+  /// **'{seriesCount} days ago'**
+  String statsDaysAgo(Object seriesCount);
+
+  /// No description provided for @visualizerShowOrganMapFor.
+  ///
+  /// In en, this message translates to:
+  /// **'Show organ map for {name}'**
+  String visualizerShowOrganMapFor(Object name);
+
+  /// No description provided for @visualizerPercentActiveTapForDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, {pct} percent active. Tap for detail.'**
+  String visualizerPercentActiveTapForDetail(Object name, Object pct);
+
+  /// No description provided for @visualizerActive.
+  ///
+  /// In en, this message translates to:
+  /// **'{pct}% active'**
+  String visualizerActive(Object pct);
+
+  /// No description provided for @visualizerTimeSinceDoseHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Time since dose {toStringAsFixed} hours'**
+  String visualizerTimeSinceDoseHours(Object toStringAsFixed);
+
+  /// No description provided for @biohackingHowAffectsYourBody.
+  ///
+  /// In en, this message translates to:
+  /// **'How {medName} affects your body'**
+  String biohackingHowAffectsYourBody(Object medName);
+
+  /// No description provided for @biohackingTimeH.
+  ///
+  /// In en, this message translates to:
+  /// **'Time: {toStringAsFixed}h'**
+  String biohackingTimeH(Object toStringAsFixed);
+
+  /// No description provided for @commonDue.
+  ///
+  /// In en, this message translates to:
+  /// **'{label}, due {time}'**
+  String commonDue(Object label, Object time);
+
+  /// No description provided for @modalsOfDosesLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'{takenCount} of {allDosesToShowCount} doses logged'**
+  String modalsOfDosesLogged(Object takenCount, Object allDosesToShowCount);
+
+  /// No description provided for @modalsSeverity10.
+  ///
+  /// In en, this message translates to:
+  /// **'Severity: {severity}/10'**
+  String modalsSeverity10(Object severity);
+
+  /// No description provided for @modalsLogged.
+  ///
+  /// In en, this message translates to:
+  /// **'{medName} Logged'**
+  String modalsLogged(Object medName);
+
+  /// No description provided for @modalsMoreOpenMedicineDetailsToRead.
+  ///
+  /// In en, this message translates to:
+  /// **'+{itemsCount} more — open medicine details to read all'**
+  String modalsMoreOpenMedicineDetailsToRead(Object itemsCount);
+
+  /// No description provided for @modalsDoseFor.
+  ///
+  /// In en, this message translates to:
+  /// **'{statusLabel} dose for {name}'**
+  String modalsDoseFor(Object statusLabel, Object name);
+
+  /// No description provided for @modalsWas.
+  ///
+  /// In en, this message translates to:
+  /// **'was {schedTime}'**
+  String modalsWas(Object schedTime);
+
+  /// No description provided for @modalsAvg.
+  ///
+  /// In en, this message translates to:
+  /// **'{value}% AVG'**
+  String modalsAvg(Object value);
+
+  /// No description provided for @viralLog.
+  ///
+  /// In en, this message translates to:
+  /// **'Log {text}'**
+  String viralLog(Object text);
+
+  /// No description provided for @viralDayStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'🔥 {streak}-day streak'**
+  String viralDayStreak(Object streak);
+
+  /// No description provided for @commonShareRecommendation.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} found {feel}.\n{tagline}\n\n{invite}{url}'**
+  String commonShareRecommendation(
+      Object name, Object feel, Object tagline, Object invite, Object url);
 }
 
 class _AppLocalizationsDelegate

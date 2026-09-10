@@ -46,7 +46,7 @@ class CourseCompletionDialog extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.p8),
               Text(
-                'Great job finishing your course of ${med.name}. You\'ve successfully completed all prescribed doses.',
+                l10n.medicineGreatJobFinishingYourCourseOf(med.name),
                 textAlign: TextAlign.center,
                 style:
                     AppTypography.bodyMedium.copyWith(color: L.sub, height: 1.5),

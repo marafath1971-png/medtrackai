@@ -170,7 +170,7 @@ class _AlarmsTabState extends State<AlarmsTab> {
                           Expanded(
                             child: MedAiSectionHeader(
                               title: l10n.alarmsReminders,
-                              subtitle: '$activeCount active',
+                              subtitle: l10n.alarmsActive(activeCount),
                             ),
                           ),
                           _CountPill(count: activeCount, L: L),
@@ -210,7 +210,7 @@ class _AlarmsTabState extends State<AlarmsTab> {
                                   AppFeedback.undo(
                                     context,
                                     message:
-                                        'Alarm for ${sch.med.name} removed',
+                                        l10n.alarmsAlarmForRemoved(sch.med.name),
                                     onUndo: () {
                                       state.addSchedule(removedSch.med.id,
                                           removedSch.sched);
@@ -255,7 +255,7 @@ class _AlarmsTabState extends State<AlarmsTab> {
                       padding: const EdgeInsets.fromLTRB(AppSpacing.p24, AppSpacing.p40, AppSpacing.p24, AppSpacing.p16),
                       child: MedAiSectionHeader(
                         title: l10n.alarmsPaused,
-                        subtitle: '${inactiveSchedules.length} off',
+                        subtitle: l10n.alarmsOff(inactiveSchedules.length),
                       ),
                     ),
                   ),
@@ -285,7 +285,7 @@ class _AlarmsTabState extends State<AlarmsTab> {
                                   AppFeedback.undo(
                                     context,
                                     message:
-                                        'Alarm for ${sch.med.name} removed',
+                                        l10n.alarmsAlarmForRemoved(sch.med.name),
                                     onUndo: () {
                                       state.addSchedule(removedSch.med.id,
                                           removedSch.sched);
@@ -758,7 +758,7 @@ class _AlarmCard extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: AppSpacing.p12),
         child: Semantics(
           button: true,
-          label: '$displayName reminder at $timeLabel',
+          label: l10n.alarmsReminderAt(displayName, timeLabel),
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: () {
@@ -1204,7 +1204,7 @@ class _MedPickerSheet extends StatelessWidget {
             final med = meds[i];
             return Semantics(
               button: true,
-              label: 'Set reminder for ${med.name}',
+              label: l10n.alarmsSetReminderFor2(med.name),
               child: AnimatedPressable(
                 onTap: () => onPick(med),
                 scaleFactor: 0.985,

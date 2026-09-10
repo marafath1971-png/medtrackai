@@ -939,5 +939,626 @@
   "viralAdherenceScore": "ADHERENCE SCORE",
   "viralTotalLogs": "TOTAL LOGS",
   "viralShieldLevel": "SHIELD LEVEL",
-  "viralStatus": "STATUS"
+  "viralStatus": "STATUS",
+  "alarmsActive": "{activeCount} active",
+  "@alarmsActive": {
+    "placeholders": {
+      "activeCount": {
+        "type": "Object"
+      }
+    }
+  },
+  "alarmsAlarmForRemoved": "Alarm for {name} removed",
+  "@alarmsAlarmForRemoved": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "alarmsOff": "{inactiveSchedulesCount} off",
+  "@alarmsOff": {
+    "placeholders": {
+      "inactiveSchedulesCount": {
+        "type": "Object"
+      }
+    }
+  },
+  "alarmsReminderAt": "{displayName} reminder at {timeLabel}",
+  "@alarmsReminderAt": {
+    "placeholders": {
+      "displayName": {
+        "type": "Object"
+      },
+      "timeLabel": {
+        "type": "Object"
+      }
+    }
+  },
+  "alarmsSetReminderFor2": "Set reminder for {name}",
+  "@alarmsSetReminderFor2": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "analysisReportedSizedByHowOften": "{sideEffectsCount} reported — sized by how often.",
+  "@analysisReportedSizedByHowOften": {
+    "placeholders": {
+      "sideEffectsCount": {
+        "type": "Object"
+      }
+    }
+  },
+  "authUnlock": "Unlock {profileName}",
+  "@authUnlock": {
+    "placeholders": {
+      "profileName": {
+        "type": "Object"
+      }
+    }
+  },
+  "authPinEntryOf4DigitsEntered": "PIN entry, {enteredPinCount} of 4 digits entered",
+  "@authPinEntryOf4DigitsEntered": {
+    "placeholders": {
+      "enteredPinCount": {
+        "type": "Object"
+      }
+    }
+  },
+  "dashboardN30DayAdherencePercent": "30-day adherence {pct} percent, {statusLabel}",
+  "@dashboardN30DayAdherencePercent": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      },
+      "statusLabel": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyAreYouSureYouWantTo": "Are you sure you want to remove {name} from your protectors? This action cannot be undone.",
+  "@familyAreYouSureYouWantTo": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyMissedMedicationAlerts": "{unseenCount} missed medication alerts",
+  "@familyMissedMedicationAlerts": {
+    "placeholders": {
+      "unseenCount": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyProfiles": "{profile} profiles",
+  "@familyProfiles": {
+    "placeholders": {
+      "profile": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyManage": "Manage {name}",
+  "@familyManage": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyThisWillStopAllRemindersFor": "This will stop all reminders for {name}. History for this member will be preserved in the cloud.",
+  "@familyThisWillStopAllRemindersFor": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyAlerts": "{missedAlertsCount} alerts",
+  "@familyAlerts": {
+    "placeholders": {
+      "missedAlertsCount": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyUnlock": "Unlock {name}",
+  "@familyUnlock": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyStepOf3": "Step {step} of 3",
+  "@familyStepOf3": {
+    "placeholders": {
+      "step": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyAvatar2": "Avatar {a}",
+  "@familyAvatar2": {
+    "placeholders": {
+      "a": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyMissedDoseAlertFor": "Missed dose alert for {medName}",
+  "@familyMissedDoseAlertFor": {
+    "placeholders": {
+      "medName": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyMissedAt": "Missed {doseLabel} at {time}",
+  "@familyMissedAt": {
+    "placeholders": {
+      "doseLabel": {
+        "type": "Object"
+      },
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyMonitoring2": "{relation} · Monitoring",
+  "@familyMonitoring2": {
+    "placeholders": {
+      "relation": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyMonitoringActive": "{relation} · Monitoring active",
+  "@familyMonitoringActive": {
+    "placeholders": {
+      "relation": {
+        "type": "Object"
+      }
+    }
+  },
+  "familyNudge": "Nudge {name}",
+  "@familyNudge": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "homeYouLoggedASevereSymptomOf": "You logged a severe symptom of {name} (Severity: {severity}/10) recently. If you are experiencing chest pain, difficulty breathing, sudden weakness, or any life-threatening symptoms, seek medical help immediately.",
+  "@homeYouLoggedASevereSymptomOf": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      },
+      "severity": {
+        "type": "Object"
+      }
+    }
+  },
+  "homeMarkedAsTaken": "{name} marked as taken.",
+  "@homeMarkedAsTaken": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "homeNextDose2": "Next dose: {name}, {timeLabel}",
+  "@homeNextDose2": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      },
+      "timeLabel": {
+        "type": "Object"
+      }
+    }
+  },
+  "homeMeds": "{focusCount} meds",
+  "@homeMeds": {
+    "placeholders": {
+      "focusCount": {
+        "type": "Object"
+      }
+    }
+  },
+  "homeEnterPinFor": "Enter PIN for {name}",
+  "@homeEnterPinFor": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "homeSwitchToProfile": "Switch to {name} profile",
+  "@homeSwitchToProfile": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "homeRecoveryCourseForDayOf": "Recovery course for {name}, day {day} of {totalDays}",
+  "@homeRecoveryCourseForDayOf": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      },
+      "day": {
+        "type": "Object"
+      },
+      "totalDays": {
+        "type": "Object"
+      }
+    }
+  },
+  "homeMedicinesTracked": "{select} medicines tracked",
+  "@homeMedicinesTracked": {
+    "placeholders": {
+      "select": {
+        "type": "Object"
+      }
+    }
+  },
+  "homeRefill2": "Refill {name}",
+  "@homeRefill2": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "loadingMascot": "{kAppName} mascot",
+  "@loadingMascot": {
+    "placeholders": {
+      "kAppName": {
+        "type": "Object"
+      }
+    }
+  },
+  "medicineRestock2": "Restock {name}",
+  "@medicineRestock2": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "medicineAddUnitsTo": "Add units to {name}",
+  "@medicineAddUnitsTo": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "medicineGreatJobFinishingYourCourseOf": "Great job finishing your course of {name}. You\\'ve successfully completed all prescribed doses.",
+  "@medicineGreatJobFinishingYourCourseOf": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "scanConfidenceTargetPercent": "Confidence target, {toInt} percent",
+  "@scanConfidenceTargetPercent": {
+    "placeholders": {
+      "toInt": {
+        "type": "Object"
+      }
+    }
+  },
+  "scanAdded": "Added: {date}",
+  "@scanAdded": {
+    "placeholders": {
+      "date": {
+        "type": "Object"
+      }
+    }
+  },
+  "scanMode": "{label} mode",
+  "@scanMode": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      }
+    }
+  },
+  "scanAiConfidencePercent": "AI confidence {pct} percent",
+  "@scanAiConfidencePercent": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "scanAiConfidence": "Ai Confidence {pct}%",
+  "@scanAiConfidence": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "scanStorage": "Storage · {storage}",
+  "@scanStorage": {
+    "placeholders": {
+      "storage": {
+        "type": "Object"
+      }
+    }
+  },
+  "settingsEmailUsAt": "Email us at {kSupportEmail}",
+  "@settingsEmailUsAt": {
+    "placeholders": {
+      "kSupportEmail": {
+        "type": "Object"
+      }
+    }
+  },
+  "settingsVersionStable": "VERSION {kAppVersion} • STABLE",
+  "@settingsVersionStable": {
+    "placeholders": {
+      "kAppVersion": {
+        "type": "Object"
+      }
+    }
+  },
+  "settingsViewFullPolicyOnlineAt": "View full policy online at {kPrivacyPolicyUrl}",
+  "@settingsViewFullPolicyOnlineAt": {
+    "placeholders": {
+      "kPrivacyPolicyUrl": {
+        "type": "Object"
+      }
+    }
+  },
+  "settingsNsecurePrivateGdprCompliant": "{kAppName}\\nSecure · Private · GDPR Compliant",
+  "@settingsNsecurePrivateGdprCompliant": {
+    "placeholders": {
+      "kAppName": {
+        "type": "Object"
+      }
+    }
+  },
+  "settingsViewFullTermsOnlineAt": "View full terms online at {kTermsOfServiceUrl}",
+  "@settingsViewFullTermsOnlineAt": {
+    "placeholders": {
+      "kTermsOfServiceUrl": {
+        "type": "Object"
+      }
+    }
+  },
+  "settingsNsecurePrivateTransparent": "{kAppName}\\nSecure · Private · Transparent",
+  "@settingsNsecurePrivateTransparent": {
+    "placeholders": {
+      "kAppName": {
+        "type": "Object"
+      }
+    }
+  },
+  "settingsTypeToConfirm": "Type {confirmWord} to confirm",
+  "@settingsTypeToConfirm": {
+    "placeholders": {
+      "confirmWord": {
+        "type": "Object"
+      }
+    }
+  },
+  "socialInviteAFriendOrCaregiverTo": "Invite a friend or caregiver to build accountability together. Your current streak is {myStreak} days.",
+  "@socialInviteAFriendOrCaregiverTo": {
+    "placeholders": {
+      "myStreak": {
+        "type": "Object"
+      }
+    }
+  },
+  "socialSlideOf6": "Slide {currentSlide} of 6",
+  "@socialSlideOf6": {
+    "placeholders": {
+      "currentSlide": {
+        "type": "Object"
+      }
+    }
+  },
+  "statsLeft": "{count} left",
+  "@statsLeft": {
+    "placeholders": {
+      "count": {
+        "type": "Object"
+      }
+    }
+  },
+  "statsSlideOf3": "Slide {currentPage} of 3",
+  "@statsSlideOf3": {
+    "placeholders": {
+      "currentPage": {
+        "type": "Object"
+      }
+    }
+  },
+  "statsDayCurrentStreak": "{streak} day current streak",
+  "@statsDayCurrentStreak": {
+    "placeholders": {
+      "streak": {
+        "type": "Object"
+      }
+    }
+  },
+  "statsDaysAgo": "{seriesCount} days ago",
+  "@statsDaysAgo": {
+    "placeholders": {
+      "seriesCount": {
+        "type": "Object"
+      }
+    }
+  },
+  "visualizerShowOrganMapFor": "Show organ map for {name}",
+  "@visualizerShowOrganMapFor": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "visualizerPercentActiveTapForDetail": "{name}, {pct} percent active. Tap for detail.",
+  "@visualizerPercentActiveTapForDetail": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      },
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "visualizerActive": "{pct}% active",
+  "@visualizerActive": {
+    "placeholders": {
+      "pct": {
+        "type": "Object"
+      }
+    }
+  },
+  "visualizerTimeSinceDoseHours": "Time since dose {toStringAsFixed} hours",
+  "@visualizerTimeSinceDoseHours": {
+    "placeholders": {
+      "toStringAsFixed": {
+        "type": "Object"
+      }
+    }
+  },
+  "biohackingHowAffectsYourBody": "How {medName} affects your body",
+  "@biohackingHowAffectsYourBody": {
+    "placeholders": {
+      "medName": {
+        "type": "Object"
+      }
+    }
+  },
+  "biohackingTimeH": "Time: {toStringAsFixed}h",
+  "@biohackingTimeH": {
+    "placeholders": {
+      "toStringAsFixed": {
+        "type": "Object"
+      }
+    }
+  },
+  "commonDue": "{label}, due {time}",
+  "@commonDue": {
+    "placeholders": {
+      "label": {
+        "type": "Object"
+      },
+      "time": {
+        "type": "Object"
+      }
+    }
+  },
+  "modalsOfDosesLogged": "{takenCount} of {allDosesToShowCount} doses logged",
+  "@modalsOfDosesLogged": {
+    "placeholders": {
+      "takenCount": {
+        "type": "Object"
+      },
+      "allDosesToShowCount": {
+        "type": "Object"
+      }
+    }
+  },
+  "modalsSeverity10": "Severity: {severity}/10",
+  "@modalsSeverity10": {
+    "placeholders": {
+      "severity": {
+        "type": "Object"
+      }
+    }
+  },
+  "modalsLogged": "{medName} Logged",
+  "@modalsLogged": {
+    "placeholders": {
+      "medName": {
+        "type": "Object"
+      }
+    }
+  },
+  "modalsMoreOpenMedicineDetailsToRead": "+{itemsCount} more — open medicine details to read all",
+  "@modalsMoreOpenMedicineDetailsToRead": {
+    "placeholders": {
+      "itemsCount": {
+        "type": "Object"
+      }
+    }
+  },
+  "modalsDoseFor": "{statusLabel} dose for {name}",
+  "@modalsDoseFor": {
+    "placeholders": {
+      "statusLabel": {
+        "type": "Object"
+      },
+      "name": {
+        "type": "Object"
+      }
+    }
+  },
+  "modalsWas": "was {schedTime}",
+  "@modalsWas": {
+    "placeholders": {
+      "schedTime": {
+        "type": "Object"
+      }
+    }
+  },
+  "modalsAvg": "{value}% AVG",
+  "@modalsAvg": {
+    "placeholders": {
+      "value": {
+        "type": "Object"
+      }
+    }
+  },
+  "viralLog": "Log {text}",
+  "@viralLog": {
+    "placeholders": {
+      "text": {
+        "type": "Object"
+      }
+    }
+  },
+  "viralDayStreak": "🔥 {streak}-day streak",
+  "@viralDayStreak": {
+    "placeholders": {
+      "streak": {
+        "type": "Object"
+      }
+    }
+  },
+  "commonShareRecommendation": "{name} found {feel}.\n{tagline}\n\n{invite}{url}",
+  "@commonShareRecommendation": {
+    "placeholders": {
+      "name": {
+        "type": "Object"
+      },
+      "feel": {
+        "type": "Object"
+      },
+      "tagline": {
+        "type": "Object"
+      },
+      "invite": {
+        "type": "Object"
+      },
+      "url": {
+        "type": "Object"
+      }
+    }
+  }
 }

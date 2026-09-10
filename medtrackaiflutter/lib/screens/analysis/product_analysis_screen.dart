@@ -496,7 +496,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                           ScanSectionHeader(
                             title: l10n.analysisSideEffectMap,
                             subtitle:
-                                '${p.sideEffects.length} reported — sized by how often.',
+                                l10n.analysisReportedSizedByHowOften(p.sideEffects.length),
                             icon: Icons.monitor_heart_outlined,
                             tint: AppColors.pastelSun,
                           ),

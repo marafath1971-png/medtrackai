@@ -2747,4 +2747,365 @@ class AppLocalizationsEs extends AppLocalizations {
 
   @override
   String get viralStatus => 'STATUS';
+
+  @override
+  String alarmsActive(Object activeCount) {
+    return '$activeCount active';
+  }
+
+  @override
+  String alarmsAlarmForRemoved(Object name) {
+    return 'Alarm for $name removed';
+  }
+
+  @override
+  String alarmsOff(Object inactiveSchedulesCount) {
+    return '$inactiveSchedulesCount off';
+  }
+
+  @override
+  String alarmsReminderAt(Object displayName, Object timeLabel) {
+    return '$displayName reminder at $timeLabel';
+  }
+
+  @override
+  String alarmsSetReminderFor2(Object name) {
+    return 'Set reminder for $name';
+  }
+
+  @override
+  String analysisReportedSizedByHowOften(Object sideEffectsCount) {
+    return '$sideEffectsCount reported — sized by how often.';
+  }
+
+  @override
+  String authUnlock(Object profileName) {
+    return 'Unlock $profileName';
+  }
+
+  @override
+  String authPinEntryOf4DigitsEntered(Object enteredPinCount) {
+    return 'PIN entry, $enteredPinCount of 4 digits entered';
+  }
+
+  @override
+  String dashboardN30DayAdherencePercent(Object pct, Object statusLabel) {
+    return '30-day adherence $pct percent, $statusLabel';
+  }
+
+  @override
+  String familyAreYouSureYouWantTo(Object name) {
+    return 'Are you sure you want to remove $name from your protectors? This action cannot be undone.';
+  }
+
+  @override
+  String familyMissedMedicationAlerts(Object unseenCount) {
+    return '$unseenCount missed medication alerts';
+  }
+
+  @override
+  String familyProfiles(Object profile) {
+    return '$profile profiles';
+  }
+
+  @override
+  String familyManage(Object name) {
+    return 'Manage $name';
+  }
+
+  @override
+  String familyThisWillStopAllRemindersFor(Object name) {
+    return 'This will stop all reminders for $name. History for this member will be preserved in the cloud.';
+  }
+
+  @override
+  String familyAlerts(Object missedAlertsCount) {
+    return '$missedAlertsCount alerts';
+  }
+
+  @override
+  String familyUnlock(Object name) {
+    return 'Unlock $name';
+  }
+
+  @override
+  String familyStepOf3(Object step) {
+    return 'Step $step of 3';
+  }
+
+  @override
+  String familyAvatar2(Object a) {
+    return 'Avatar $a';
+  }
+
+  @override
+  String familyMissedDoseAlertFor(Object medName) {
+    return 'Missed dose alert for $medName';
+  }
+
+  @override
+  String familyMissedAt(Object doseLabel, Object time) {
+    return 'Missed $doseLabel at $time';
+  }
+
+  @override
+  String familyMonitoring2(Object relation) {
+    return '$relation · Monitoring';
+  }
+
+  @override
+  String familyMonitoringActive(Object relation) {
+    return '$relation · Monitoring active';
+  }
+
+  @override
+  String familyNudge(Object name) {
+    return 'Nudge $name';
+  }
+
+  @override
+  String homeYouLoggedASevereSymptomOf(Object name, Object severity) {
+    return 'You logged a severe symptom of $name (Severity: $severity/10) recently. If you are experiencing chest pain, difficulty breathing, sudden weakness, or any life-threatening symptoms, seek medical help immediately.';
+  }
+
+  @override
+  String homeMarkedAsTaken(Object name) {
+    return '$name marked as taken.';
+  }
+
+  @override
+  String homeNextDose2(Object name, Object timeLabel) {
+    return 'Next dose: $name, $timeLabel';
+  }
+
+  @override
+  String homeMeds(Object focusCount) {
+    return '$focusCount meds';
+  }
+
+  @override
+  String homeEnterPinFor(Object name) {
+    return 'Enter PIN for $name';
+  }
+
+  @override
+  String homeSwitchToProfile(Object name) {
+    return 'Switch to $name profile';
+  }
+
+  @override
+  String homeRecoveryCourseForDayOf(Object name, Object day, Object totalDays) {
+    return 'Recovery course for $name, day $day of $totalDays';
+  }
+
+  @override
+  String homeMedicinesTracked(Object select) {
+    return '$select medicines tracked';
+  }
+
+  @override
+  String homeRefill2(Object name) {
+    return 'Refill $name';
+  }
+
+  @override
+  String loadingMascot(Object kAppName) {
+    return '$kAppName mascot';
+  }
+
+  @override
+  String medicineRestock2(Object name) {
+    return 'Restock $name';
+  }
+
+  @override
+  String medicineAddUnitsTo(Object name) {
+    return 'Add units to $name';
+  }
+
+  @override
+  String medicineGreatJobFinishingYourCourseOf(Object name) {
+    return 'Great job finishing your course of $name. You\\\'ve successfully completed all prescribed doses.';
+  }
+
+  @override
+  String scanConfidenceTargetPercent(Object toInt) {
+    return 'Confidence target, $toInt percent';
+  }
+
+  @override
+  String scanAdded(Object date) {
+    return 'Added: $date';
+  }
+
+  @override
+  String scanMode(Object label) {
+    return '$label mode';
+  }
+
+  @override
+  String scanAiConfidencePercent(Object pct) {
+    return 'AI confidence $pct percent';
+  }
+
+  @override
+  String scanAiConfidence(Object pct) {
+    return 'Ai Confidence $pct%';
+  }
+
+  @override
+  String scanStorage(Object storage) {
+    return 'Storage · $storage';
+  }
+
+  @override
+  String settingsEmailUsAt(Object kSupportEmail) {
+    return 'Email us at $kSupportEmail';
+  }
+
+  @override
+  String settingsVersionStable(Object kAppVersion) {
+    return 'VERSION $kAppVersion • STABLE';
+  }
+
+  @override
+  String settingsViewFullPolicyOnlineAt(Object kPrivacyPolicyUrl) {
+    return 'View full policy online at $kPrivacyPolicyUrl';
+  }
+
+  @override
+  String settingsNsecurePrivateGdprCompliant(Object kAppName) {
+    return '$kAppName\\nSecure · Private · GDPR Compliant';
+  }
+
+  @override
+  String settingsViewFullTermsOnlineAt(Object kTermsOfServiceUrl) {
+    return 'View full terms online at $kTermsOfServiceUrl';
+  }
+
+  @override
+  String settingsNsecurePrivateTransparent(Object kAppName) {
+    return '$kAppName\\nSecure · Private · Transparent';
+  }
+
+  @override
+  String settingsTypeToConfirm(Object confirmWord) {
+    return 'Type $confirmWord to confirm';
+  }
+
+  @override
+  String socialInviteAFriendOrCaregiverTo(Object myStreak) {
+    return 'Invite a friend or caregiver to build accountability together. Your current streak is $myStreak days.';
+  }
+
+  @override
+  String socialSlideOf6(Object currentSlide) {
+    return 'Slide $currentSlide of 6';
+  }
+
+  @override
+  String statsLeft(Object count) {
+    return '$count left';
+  }
+
+  @override
+  String statsSlideOf3(Object currentPage) {
+    return 'Slide $currentPage of 3';
+  }
+
+  @override
+  String statsDayCurrentStreak(Object streak) {
+    return '$streak day current streak';
+  }
+
+  @override
+  String statsDaysAgo(Object seriesCount) {
+    return '$seriesCount days ago';
+  }
+
+  @override
+  String visualizerShowOrganMapFor(Object name) {
+    return 'Show organ map for $name';
+  }
+
+  @override
+  String visualizerPercentActiveTapForDetail(Object name, Object pct) {
+    return '$name, $pct percent active. Tap for detail.';
+  }
+
+  @override
+  String visualizerActive(Object pct) {
+    return '$pct% active';
+  }
+
+  @override
+  String visualizerTimeSinceDoseHours(Object toStringAsFixed) {
+    return 'Time since dose $toStringAsFixed hours';
+  }
+
+  @override
+  String biohackingHowAffectsYourBody(Object medName) {
+    return 'How $medName affects your body';
+  }
+
+  @override
+  String biohackingTimeH(Object toStringAsFixed) {
+    return 'Time: ${toStringAsFixed}h';
+  }
+
+  @override
+  String commonDue(Object label, Object time) {
+    return '$label, due $time';
+  }
+
+  @override
+  String modalsOfDosesLogged(Object takenCount, Object allDosesToShowCount) {
+    return '$takenCount of $allDosesToShowCount doses logged';
+  }
+
+  @override
+  String modalsSeverity10(Object severity) {
+    return 'Severity: $severity/10';
+  }
+
+  @override
+  String modalsLogged(Object medName) {
+    return '$medName Logged';
+  }
+
+  @override
+  String modalsMoreOpenMedicineDetailsToRead(Object itemsCount) {
+    return '+$itemsCount more — open medicine details to read all';
+  }
+
+  @override
+  String modalsDoseFor(Object statusLabel, Object name) {
+    return '$statusLabel dose for $name';
+  }
+
+  @override
+  String modalsWas(Object schedTime) {
+    return 'was $schedTime';
+  }
+
+  @override
+  String modalsAvg(Object value) {
+    return '$value% AVG';
+  }
+
+  @override
+  String viralLog(Object text) {
+    return 'Log $text';
+  }
+
+  @override
+  String viralDayStreak(Object streak) {
+    return '🔥 $streak-day streak';
+  }
+
+  @override
+  String commonShareRecommendation(
+      Object name, Object feel, Object tagline, Object invite, Object url) {
+    return '$name found $feel.\n$tagline\n\n$invite$url';
+  }
 }

@@ -92,7 +92,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
           ),
           const SizedBox(height: 24),
           Text(
-            'Unlock ${widget.profileName}',
+            l10n.authUnlock(widget.profileName),
             style: AppTypography.headlineLarge.copyWith(
               color: L.text,
               fontWeight: FontWeight.w800,
@@ -114,7 +114,7 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
           }),
           const SizedBox(height: 48),
           Semantics(
-            label: 'PIN entry, ${_enteredPin.length} of 4 digits entered',
+            label: l10n.authPinEntryOf4DigitsEntered(_enteredPin.length),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: List.generate(4, (i) {

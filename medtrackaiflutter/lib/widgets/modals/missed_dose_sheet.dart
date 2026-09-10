@@ -156,7 +156,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
           Row(
             children: [
               Semantics(
-                label: '$statusLabel dose for ${med.name}',
+                label: l10n.modalsDoseFor(statusLabel, med.name),
                 child: statusIcon,
               ),
               const SizedBox(width: 14),
@@ -185,7 +185,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          'was $schedTime',
+                          l10n.modalsWas(schedTime),
                           style: AppTypography.labelMedium.copyWith(
                             fontFamily: 'Courier',
                             fontSize: 13,

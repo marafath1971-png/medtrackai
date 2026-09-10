@@ -96,6 +96,7 @@ class ProfileSelectorRibbon extends StatelessWidget {
   }
 
   void _showPinGateDialog(BuildContext context, ManagedProfile member, AppState state) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final pinController = TextEditingController();
     showDialog(
@@ -119,7 +120,7 @@ class ProfileSelectorRibbon extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.p8),
                   Text(
-                    'Enter PIN for ${member.name}',
+                    l10n.homeEnterPinFor(member.name),
                     style: AppTypography.labelSmall.copyWith(
                       color: L.sub.withValues(alpha: 0.6),
                     ),
@@ -195,11 +196,12 @@ class _ProfileAvatar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return Semantics(
       button: true,
       selected: isSelected,
-      label: 'Switch to $name profile',
+      label: l10n.homeSwitchToProfile(name),
       child: AnimatedPressable(
         onTap: () {
           HapticEngine.selection();

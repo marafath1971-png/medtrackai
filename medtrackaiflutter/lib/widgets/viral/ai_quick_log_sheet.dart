@@ -1072,10 +1072,11 @@ class _MealChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return Semantics(
       button: true,
-      label: 'Log $text',
+      label: l10n.viralLog(text),
       child: AnimatedPressable(
         onTap: onTap,
         child: Container(

@@ -491,7 +491,7 @@ class StatsTab extends StatelessWidget {
                                     const SizedBox(width: AppSpacing.p16),
                                     Semantics(
                                       button: true,
-                                      label: 'Refill ${m.name}',
+                                      label: l10n.homeRefill2(m.name),
                                       child: AnimatedPressable(
                                         onTap: () =>
                                             state.refillMedication(m.id),

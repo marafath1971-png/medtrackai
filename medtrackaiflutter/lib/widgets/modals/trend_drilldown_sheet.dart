@@ -47,7 +47,7 @@ class TrendDrilldownSheet extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                 radius: AppRadius.xl,
-                child: Text('${(avgAdherence * 100).round()}% AVG',
+                child: Text(l10n.modalsAvg((avgAdherence * 100).round()),
                     style: AppTypography.labelMedium.copyWith(
                         color: L.green,
                         fontSize: 13,

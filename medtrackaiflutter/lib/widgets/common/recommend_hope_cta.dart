@@ -4,6 +4,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../../services/share_service.dart';
 import '../../theme/med_ai_ui.dart';
 import 'animated_pressable.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Always-on “recommend & share” surround — shown before and after pay
 /// so users feel Med AI is worth recommending as their #1 companion.
@@ -14,6 +15,7 @@ class RecommendHopeCta extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final name = (userName != null && userName!.trim().isNotEmpty)
         ? userName!.trim()
         : 'I';
@@ -22,9 +24,9 @@ class RecommendHopeCta extends StatelessWidget {
       onTap: () {
         HapticEngine.selection();
         ShareService.shareText(
-          '$name found ${HopeVibe.numberOneFeel}.\n'
-          '${HopeVibe.tagline}\n\n'
-          '${HopeVibe.shareInviteMessage}${ShareService.downloadUrl}',
+          l10n.commonShareRecommendation(name, HopeVibe.numberOneFeel,
+              HopeVibe.tagline, HopeVibe.shareInviteMessage,
+              ShareService.downloadUrl),
           subject: 'Med AI — worth recommending',
         );
       },

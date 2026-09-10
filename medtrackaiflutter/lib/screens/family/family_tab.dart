@@ -422,7 +422,7 @@ class HubView extends StatelessWidget {
                       if (unseenCount > 0)
                         Semantics(
                           button: true,
-                          label: '$unseenCount missed medication alerts',
+                          label: l10n.familyMissedMedicationAlerts(unseenCount),
                           child: AnimatedPressable(
                             onTap: onMarkSeen,
                             scaleFactor: 0.985,
@@ -467,7 +467,7 @@ class HubView extends StatelessWidget {
                                           ),
                                         ),
                                         Text(
-                                          '$unseenCount missed medication alerts',
+                                          l10n.familyMissedMedicationAlerts(unseenCount),
                                           style: AppTypography.titleMedium
                                               .copyWith(
                                             color: context.isDark
@@ -591,7 +591,7 @@ class HubView extends StatelessWidget {
                         if (state.profile?.familyMembers.isNotEmpty ?? false) ...[
                           MedAiSectionHeader(
                             title: l10n.familyManaging,
-                            subtitle: '${state.profile!.familyMembers.length} profiles',
+                            subtitle: l10n.familyProfiles(state.profile!.familyMembers.length),
                           ),
                           SizedBox(
                             height: 70,
@@ -623,7 +623,7 @@ class HubView extends StatelessWidget {
                                     showDialog(
                                       context: context,
                                       builder: (ctx) => SimpleDialog(
-                                        title: Text('Manage ${member.name}', style: TextStyle(color: L.text, fontWeight: FontWeight.bold)),
+                                        title: Text(l10n.familyManage(member.name), style: TextStyle(color: L.text, fontWeight: FontWeight.bold)),
                                         backgroundColor: L.card,
                                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: BorderSide(color: L.border.withValues(alpha: 0.1))),
                                         children: [
@@ -679,7 +679,7 @@ class HubView extends StatelessWidget {
                                                   backgroundColor: L.card,
                                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: BorderSide(color: L.border.withValues(alpha: 0.1))),
                                                   title: Text(l10n.familyRemoveProfile, style: AppTypography.titleLarge.copyWith(color: L.text, fontWeight: FontWeight.w800)),
-                                                  content: Text('This will stop all reminders for ${member.name}. History for this member will be preserved in the cloud.', style: AppTypography.bodyMedium.copyWith(color: L.sub)),
+                                                  content: Text(l10n.familyThisWillStopAllRemindersFor(member.name), style: AppTypography.bodyMedium.copyWith(color: L.sub)),
                                                   actions: [
                                                     TextButton(onPressed: () => Navigator.pop(removeCtx), child: Text(l10n.cancel, style: AppTypography.labelLarge.copyWith(color: L.sub))),
                                                     TextButton(
@@ -792,7 +792,7 @@ class HubView extends StatelessWidget {
                       if (state.missedAlerts.isNotEmpty) ...[
                         MedAiSectionHeader(
                           title: l10n.familyRecentActivity,
-                          subtitle: '${state.missedAlerts.length} alerts',
+                          subtitle: l10n.familyAlerts(state.missedAlerts.length),
                         ),
                         ListView.builder(
   keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,

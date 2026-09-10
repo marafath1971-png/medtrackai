@@ -102,7 +102,7 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
           ),
           const SizedBox(height: AppSpacing.p16),
           Text(
-            'Type ${DeleteAccountDialog.confirmWord} to confirm',
+            l10n.settingsTypeToConfirm(DeleteAccountDialog.confirmWord),
             style: AppTypography.caption.copyWith(
               color: L.sub,
               fontWeight: FontWeight.w700,

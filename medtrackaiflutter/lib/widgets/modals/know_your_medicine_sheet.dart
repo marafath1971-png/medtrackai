@@ -351,6 +351,7 @@ class _AlertBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return Container(
       width: double.infinity,
@@ -413,7 +414,7 @@ class _AlertBlock extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.p4),
               child: Text(
-                '+${items.length - 5} more — open medicine details to read all',
+                l10n.modalsMoreOpenMedicineDetailsToRead(items.length - 5),
                 style: AppTypography.labelSmall.copyWith(
                   color: accent,
                   fontWeight: FontWeight.w700,

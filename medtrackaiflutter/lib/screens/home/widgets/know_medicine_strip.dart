@@ -67,7 +67,7 @@ class KnowMedicineStrip extends StatelessWidget {
               m.intakeInstructions != 'None')))
         (icon: Icons.restaurant_rounded, label: l10n.homeHowToTake),
       if (focus.length > 1)
-        (icon: Icons.medication_rounded, label: '${focus.length} meds'),
+        (icon: Icons.medication_rounded, label: l10n.homeMeds(focus.length)),
     ];
 
     return Column(

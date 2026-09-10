@@ -451,7 +451,7 @@ class _MedSelector extends StatelessWidget {
           return Semantics(
             button: true,
             selected: selected,
-            label: 'Show organ map for ${med.name}',
+            label: l10n.visualizerShowOrganMapFor(med.name),
             child: GestureDetector(
               onTap: () => onSelect(i),
               child: AnimatedContainer(
@@ -626,13 +626,14 @@ class _OrganLabel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final active = activation > 0.08;
     final pct = (activation * 100).round();
 
     return Semantics(
       button: true,
-      label: '${organ.name}, $pct percent active. Tap for detail.',
+      label: l10n.visualizerPercentActiveTapForDetail(organ.name, pct),
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: onTap,
@@ -725,6 +726,7 @@ class _OrganDetail extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final pct = (activation * 100).round();
     return MedAiGlass(
@@ -761,7 +763,7 @@ class _OrganDetail extends StatelessWidget {
                     ),
                     const Spacer(),
                     Text(
-                      '$pct% active',
+                      l10n.visualizerActive(pct),
                       style: AppTypography.labelSmall.copyWith(
                         color: organ.color,
                         fontWeight: FontWeight.w700,
@@ -861,7 +863,7 @@ class _ScrubberPanel extends StatelessWidget {
                 Expanded(
                   child: Semantics(
                     label:
-                        'Time since dose ${currentHour.toStringAsFixed(1)} hours',
+                        l10n.visualizerTimeSinceDoseHours(currentHour.toStringAsFixed(1)),
                     child: SliderTheme(
                       data: SliderThemeData(
                         trackHeight: 6,

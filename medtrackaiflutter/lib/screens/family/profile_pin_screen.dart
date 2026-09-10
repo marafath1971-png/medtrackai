@@ -85,7 +85,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
                   ),
                   const SizedBox(height: AppSpacing.p16),
                   Text(
-                    'Unlock ${widget.profile.name}',
+                    l10n.familyUnlock(widget.profile.name),
                     style: AppTypography.headlineLarge.copyWith(
                       color: L.text,
                       fontWeight: FontWeight.w800,

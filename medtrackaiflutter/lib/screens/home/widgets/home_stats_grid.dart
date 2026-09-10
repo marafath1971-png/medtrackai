@@ -479,7 +479,7 @@ class _NextDoseCard extends StatelessWidget {
     final emojiInner = Text(doseEmoji, style: const TextStyle(fontSize: 26));
 
     return Semantics(
-      label: 'Next dose: ${dose.med.name}, $timeLabel',
+      label: l10n.homeNextDose2(dose.med.name, timeLabel),
       child: MedAiDepthCard(
         color: Colors.black,
         padding: const EdgeInsets.all(AppSpacing.p16),

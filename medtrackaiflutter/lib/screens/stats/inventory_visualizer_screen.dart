@@ -153,7 +153,7 @@ class _LiquidFillBottle extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            '${med.count} left',
+                            l10n.statsLeft(med.count),
                             style: AppTypography.headlineMedium.copyWith(
                               color: fillPercentage > 0.4
                                   ? Colors.white

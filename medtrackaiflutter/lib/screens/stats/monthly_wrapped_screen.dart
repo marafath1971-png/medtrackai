@@ -87,13 +87,13 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
               children: [
                 PremiumPageHeader(
                   title: l10n.statsMonthlyWrapped,
-                  subtitle: 'Slide ${_currentPage + 1} of 3',
+                  subtitle: l10n.statsSlideOf3(_currentPage + 1),
                   onBack: () => Navigator.pop(context),
                 ),
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 24),
                   child: Semantics(
-                    label: 'Slide ${_currentPage + 1} of 3',
+                    label: l10n.statsSlideOf3(_currentPage + 1),
                     child: Row(
                       children: List.generate(3, (index) {
                         return Expanded(

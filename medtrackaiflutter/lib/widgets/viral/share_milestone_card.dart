@@ -850,7 +850,7 @@ class ShareAdherenceCard extends StatelessWidget {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            '🔥 $streak-day streak',
+                            l10n.viralDayStreak(streak),
                             style: const TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,

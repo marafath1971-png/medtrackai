@@ -7,6 +7,7 @@ import '../../../services/smart_alert_service.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/modals/know_your_medicine_sheet.dart';
 import 'home_dose_row.dart';
+import '../../../l10n/app_localizations.dart';
 
 class HomeDoseGroup extends StatelessWidget {
   final String title;
@@ -164,10 +165,11 @@ class HomeDoseGroup extends StatelessWidget {
   }
 
   void _showUndoSnackbar(BuildContext context, DoseItem d) {
+    final l10n = AppLocalizations.of(context)!;
     SmartAlertService.show(
       context,
       title: 'Dose logged',
-      message: '${d.med.name} marked as taken.',
+      message: l10n.homeMarkedAsTaken(d.med.name),
       type: AlertType.success,
       icon: Icons.check_circle_rounded,
     );

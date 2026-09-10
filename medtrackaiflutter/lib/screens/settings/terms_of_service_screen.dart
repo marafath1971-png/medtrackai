@@ -153,7 +153,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'View full terms online at $kTermsOfServiceUrl',
+                              l10n.settingsViewFullTermsOnlineAt(kTermsOfServiceUrl),
                               style: AppTypography.bodySmall.copyWith(
                                 color: L.accent,
                                 fontWeight: FontWeight.w600,
@@ -177,7 +177,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
                             color: L.sub.withValues(alpha: 0.3), size: 32),
                         const SizedBox(height: 12),
                         Text(
-                          '$kAppName\nSecure · Private · Transparent',
+                          l10n.settingsNsecurePrivateTransparent(kAppName),
                           textAlign: TextAlign.center,
                           style: AppTypography.labelMedium.copyWith(
                             color: L.sub.withValues(alpha: 0.5),

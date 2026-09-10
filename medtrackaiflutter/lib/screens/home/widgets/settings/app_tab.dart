@@ -291,7 +291,7 @@ class _AppTabState extends State<AppTab> {
                   icon: 'ℹ️',
                   iconBg: AppColors.pastelMint,
                   label:
-                      '${context.select<AppState, int>((s) => s.meds.length)} medicines tracked',
+                      l10n.homeMedicinesTracked(context.select<AppState, int>((s) => s.meds.length)),
                   sub: 'Smart reminders active',
                   border: true),
               SettingsModalRow(

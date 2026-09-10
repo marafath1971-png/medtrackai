@@ -100,7 +100,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
         ],
       ),
       child: Semantics(
-        label: '30-day adherence $pct percent, $statusLabel',
+        label: l10n.dashboardN30DayAdherencePercent(pct, statusLabel),
         child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

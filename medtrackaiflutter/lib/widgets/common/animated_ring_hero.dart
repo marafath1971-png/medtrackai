@@ -318,6 +318,7 @@ class _TakeNextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final isDark = context.isDark;
     final btnColor = isDark
@@ -325,7 +326,7 @@ class _TakeNextButton extends StatelessWidget {
         : AppColors.eatoNavy;
     return Semantics(
       button: true,
-      label: time == null ? label : '$label, due $time',
+      label: time == null ? label : l10n.commonDue(label, time!),
       child: Material(
         color: Colors.transparent,
         child: InkWell(

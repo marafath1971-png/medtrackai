@@ -51,7 +51,7 @@ class _MedBuddiesScreenState extends State<MedBuddiesScreen> {
                     PremiumEmptyState(
                       title: l10n.socialNoBuddiesConnectedYet,
                       subtitle:
-                          'Invite a friend or caregiver to build accountability together. Your current streak is $myStreak days.',
+                          l10n.socialInviteAFriendOrCaregiverTo(myStreak),
                       mascotFeature: 'community',
                       icon: Icons.groups_rounded,
                       actionLabel: 'Invite buddy',

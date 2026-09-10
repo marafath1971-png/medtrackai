@@ -33,7 +33,7 @@ class RecoveryCourseTracker extends StatelessWidget {
         Semantics(
           button: true,
           label:
-              'Recovery course for ${medicine.name}, day $day of $totalDays',
+              l10n.homeRecoveryCourseForDayOf(medicine.name, day, totalDays),
           child: MedAiDepthCard(
           accentGlow: false,
           onTap: onTap,

@@ -285,7 +285,7 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '$takenCount of ${allDosesToShow.length} doses logged',
+                        l10n.modalsOfDosesLogged(takenCount, allDosesToShow.length),
                         style: AppTypography.titleLarge.copyWith(
                           color: L.text,
                           fontSize: 17,
@@ -737,7 +737,7 @@ class _SymptomLogRow extends StatelessWidget {
                         color: L.text)),
                 Row(
                   children: [
-                    Text('Severity: ${symptom.severity}/10',
+                    Text(l10n.modalsSeverity10(symptom.severity),
                         style: AppTypography.bodySmall
                             .copyWith(fontSize: 12, color: L.sub)),
                   ],

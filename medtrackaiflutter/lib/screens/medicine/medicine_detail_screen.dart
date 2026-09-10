@@ -572,6 +572,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
   }
 
   Widget _buildQuickActions(Medicine med, AppState state, AppThemeColors L) {
+    final l10n = AppLocalizations.of(context)!;
     final isLow = med.count <= med.refillAt;
     return Row(
       children: [
@@ -579,7 +580,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
         Expanded(
           child: Semantics(
             button: true,
-            label: 'Restock ${med.name}',
+            label: l10n.medicineRestock2(med.name),
             child: AnimatedPressable(
               onTap: () => _showRestockSheet(med, state, L),
               child: Container(
@@ -639,6 +640,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
   }
 
   void _showRestockSheet(Medicine med, AppState state, AppThemeColors L) {
+    final l10n = AppLocalizations.of(context)!;
     HapticEngine.selection();
     int addAmount = 30;
     showModalBottomSheet(
@@ -651,7 +653,7 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text('Add units to ${med.name}',
+              Text(l10n.medicineAddUnitsTo(med.name),
                   style: AppTypography.bodySmall
                       .copyWith(color: L.sub, fontWeight: FontWeight.w500)),
               const SizedBox(height: AppSpacing.p32),

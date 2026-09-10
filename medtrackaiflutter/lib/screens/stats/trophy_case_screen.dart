@@ -63,7 +63,7 @@ class TrophyCaseScreen extends StatelessWidget {
           children: [
             PremiumPageHeader(
               title: l10n.statsTrophyCase,
-              subtitle: '$streak day current streak',
+              subtitle: l10n.statsDayCurrentStreak(streak),
               onBack: () => Navigator.pop(context),
             ),
             Padding(

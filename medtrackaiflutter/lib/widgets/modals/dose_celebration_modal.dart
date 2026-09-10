@@ -235,7 +235,7 @@ class DoseCelebrationModal extends StatelessWidget {
                         child: _InteractiveButton(
                           onTap: () {
                             ShareService.shareAchievement(
-                              title: '$medName Logged',
+                              title: l10n.modalsLogged(medName),
                               subtitle:
                                   'Staying consistent with my medication!',
                               emoji: '💊',

@@ -57,7 +57,7 @@ class EmergencyWarningCard extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.p16),
           Text(
-            'You logged a severe symptom of ${symptom.name} (Severity: ${symptom.severity}/10) recently. If you are experiencing chest pain, difficulty breathing, sudden weakness, or any life-threatening symptoms, seek medical help immediately.',
+            l10n.homeYouLoggedASevereSymptomOf(symptom.name, symptom.severity),
             style: AppTypography.bodyMedium.copyWith(
               color: Colors.white.withValues(alpha: 0.9),
               fontWeight: FontWeight.w600,

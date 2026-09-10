@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../theme/med_ai_ui.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ConfidenceMeter extends StatelessWidget {
   final double confidence;
@@ -14,6 +15,7 @@ class ConfidenceMeter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final pct = (confidence * 100).toInt();
@@ -30,7 +32,7 @@ class ConfidenceMeter extends StatelessWidget {
     final fillWidth = 200.0 * confidence.clamp(0.0, 1.0);
 
     return Semantics(
-      label: 'AI confidence $pct percent',
+      label: l10n.scanAiConfidencePercent(pct),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -41,7 +43,7 @@ class ConfidenceMeter extends StatelessWidget {
               Icon(Icons.auto_awesome_rounded, color: barColor, size: 14),
               const SizedBox(width: 6),
               Text(
-                'Ai Confidence $pct%',
+                l10n.scanAiConfidence(pct),
                 style: AppTypography.labelMedium.copyWith(
                   color: labelColor,
                   fontWeight: FontWeight.w700,

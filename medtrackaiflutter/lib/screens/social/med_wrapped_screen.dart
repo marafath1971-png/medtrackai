@@ -233,7 +233,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
                   padding: const EdgeInsets.symmetric(
                       horizontal: 16.0, vertical: 12.0),
                   child: Semantics(
-                    label: 'Slide ${_currentSlide + 1} of 6',
+                    label: l10n.socialSlideOf6(_currentSlide + 1),
                     child: Row(
                       children: List.generate(6, (index) {
                         return Expanded(

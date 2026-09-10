@@ -473,7 +473,7 @@ class ScanResultDetailView extends StatelessWidget {
                   if (result.storage.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.p12),
                     Text(
-                      'Storage · ${result.storage}',
+                      l10n.scanStorage(result.storage),
                       style: AppTypography.labelMedium.copyWith(
                         color: L.text,
                         fontWeight: FontWeight.w700,

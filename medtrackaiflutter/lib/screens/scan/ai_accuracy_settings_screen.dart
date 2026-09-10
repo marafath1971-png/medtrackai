@@ -86,7 +86,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                         Semantics(
                           slider: true,
                           label:
-                              'Confidence target, ${profile.aiConfidenceThreshold.toInt()} percent',
+                              l10n.scanConfidenceTargetPercent(profile.aiConfidenceThreshold.toInt()),
                           child: SliderTheme(
                             data: SliderTheme.of(context).copyWith(
                               activeTrackColor: AppColors.accent,

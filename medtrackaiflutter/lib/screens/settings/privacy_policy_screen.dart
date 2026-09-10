@@ -177,7 +177,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              'View full policy online at $kPrivacyPolicyUrl',
+                              l10n.settingsViewFullPolicyOnlineAt(kPrivacyPolicyUrl),
                               style: AppTypography.bodySmall.copyWith(
                                 color: L.accent,
                                 fontWeight: FontWeight.w600,
@@ -201,7 +201,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                             color: L.sub.withValues(alpha: 0.3), size: 32),
                         const SizedBox(height: 12),
                         Text(
-                          '$kAppName\nSecure · Private · GDPR Compliant',
+                          l10n.settingsNsecurePrivateGdprCompliant(kAppName),
                           textAlign: TextAlign.center,
                           style: AppTypography.labelMedium.copyWith(
                             color: L.sub.withValues(alpha: 0.5),

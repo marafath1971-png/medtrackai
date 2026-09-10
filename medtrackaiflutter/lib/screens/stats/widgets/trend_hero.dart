@@ -124,7 +124,7 @@ class TrendHero extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('${series.length} days ago',
+                Text(l10n.statsDaysAgo(series.length),
                     style: AppTypography.caption.copyWith(color: L.sub)),
                 Text(l10n.dashboardToday,
                     style: AppTypography.caption.copyWith(color: L.sub)),

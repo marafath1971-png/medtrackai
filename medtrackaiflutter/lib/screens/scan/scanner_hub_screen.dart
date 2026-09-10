@@ -977,11 +977,12 @@ class _ModePill extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final on = current == mode;
     return Semantics(
       button: true,
       selected: on,
-      label: '$label mode',
+      label: l10n.scanMode(label),
       child: BouncingButton(
         scaleFactor: 0.95,
         onTap: () {

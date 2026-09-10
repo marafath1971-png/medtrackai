@@ -418,7 +418,7 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                 children: [
                   Text(l10n.biohackingN0hOnset, style: TextStyle(color: L.sub.withValues(alpha: 0.5), fontSize: 11)),
                   Text(
-                    'Time: ${_currentTime.toStringAsFixed(1)}h',
+                    l10n.biohackingTimeH(_currentTime.toStringAsFixed(1)),
                     style: TextStyle(color: L.text, fontWeight: FontWeight.bold, fontSize: 13),
                   ),
                   Text(l10n.biohackingN24hResidual, style: TextStyle(color: L.sub.withValues(alpha: 0.5), fontSize: 11)),

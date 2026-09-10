@@ -53,7 +53,7 @@ class InteractiveBodyMap extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           Text(
-            'How $medName affects your body',
+            l10n.biohackingHowAffectsYourBody(medName),
             style: AppTypography.bodySmall.copyWith(
               color: L.sub,
             ),

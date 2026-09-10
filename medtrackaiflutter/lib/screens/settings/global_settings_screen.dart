@@ -292,7 +292,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                           SmartAlertService.show(
                             context,
                             title: l10n.homeContactSupport,
-                            message: 'Email us at $kSupportEmail',
+                            message: l10n.settingsEmailUsAt(kSupportEmail),
                             type: AlertType.info,
                           );
                         }
@@ -320,7 +320,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      'VERSION $kAppVersion • STABLE',
+                      l10n.settingsVersionStable(kAppVersion),
                       style: AppTypography.labelSmall.copyWith(
                         color: L.text.withValues(alpha: 0.1),
                         fontWeight: FontWeight.w700,

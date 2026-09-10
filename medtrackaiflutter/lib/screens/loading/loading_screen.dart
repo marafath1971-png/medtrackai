@@ -35,11 +35,11 @@ class LoadingScreen extends StatelessWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const GhostMascot(
+              GhostMascot(
                 asset: MedAiAssets.mascotMedsBottle,
                 size: 132,
                 showGlow: true,
-                semanticLabel: '$kAppName mascot',
+                semanticLabel: l10n.loadingMascot(kAppName),
               ),
               const SizedBox(height: AppSpacing.p24),
 

@@ -15,11 +15,13 @@ class AlertLogCard extends StatelessWidget {
   const AlertLogCard(
       {super.key, required this.alert, required this.L, required this.onTap});
   @override
-  Widget build(BuildContext context) => Padding(
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
         padding: const EdgeInsets.only(bottom: AppSpacing.p12),
         child: Semantics(
         button: true,
-        label: 'Missed dose alert for ${alert.medName}',
+        label: l10n.familyMissedDoseAlertFor(alert.medName),
         child: MedAiDepthCard(
           padding: const EdgeInsets.all(AppSpacing.p16),
           accentGlow: false,
@@ -51,7 +53,7 @@ class AlertLogCard extends StatelessWidget {
                       overflow: TextOverflow.ellipsis,
                       maxLines: 1),
                   const SizedBox(height: 2),
-                  Text('Missed ${alert.doseLabel} at ${alert.time}',
+                  Text(l10n.familyMissedAt(alert.doseLabel, alert.time),
                       style: AppTypography.bodySmall.copyWith(
                           color: L.sub,
                           fontWeight: FontWeight.w600,
@@ -89,6 +91,7 @@ class AlertLogCard extends StatelessWidget {
         ),
       ),
     );
+  }
 }
 
 class EscalationDemoView extends StatefulWidget {
@@ -357,7 +360,7 @@ class AlertDetailView extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                           color: L.text)),
                   const SizedBox(height: AppSpacing.p4),
-                  Text('Missed ${alert.doseLabel} at ${alert.time}',
+                  Text(l10n.familyMissedAt(alert.doseLabel, alert.time),
                       style: AppTypography.bodySmall.copyWith(
                           fontSize: 15,
                           color: L.sub,

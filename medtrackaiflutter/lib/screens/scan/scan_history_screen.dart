@@ -105,7 +105,7 @@ class ScanHistoryScreen extends StatelessWidget {
                                 ),
                                 const SizedBox(height: AppSpacing.p4),
                                 Text(
-                                  'Added: $date',
+                                  l10n.scanAdded(date),
                                   style: AppTypography.bodySmall.copyWith(
                                     color: L.sub,
                                     fontWeight: FontWeight.w500,
