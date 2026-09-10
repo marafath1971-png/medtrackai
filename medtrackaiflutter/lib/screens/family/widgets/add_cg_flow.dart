@@ -377,10 +377,22 @@ class AddCgStep2 extends StatefulWidget {
 class _AddCgStep2State extends State<AddCgStep2> {
   String _scanState = 'idle';
 
+  /// Held so dispose() can detach the listener. Reading the Provider from
+  /// dispose() throws "Looking up a deactivated widget's ancestor is unsafe" —
+  /// the element is already deactivated by then, so the listener was never
+  /// removed and the exception surfaced while finalizing the tree.
+  AppState? _state;
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) => _checkStatus());
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _state = Provider.of<AppState>(context, listen: false);
   }
 
   void _checkStatus() {
@@ -431,8 +443,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
 
   @override
   void dispose() {
-    Provider.of<AppState>(context, listen: false)
-        .removeListener(_onStateChange);
+    _state?.removeListener(_onStateChange);
     super.dispose();
   }
 
@@ -532,7 +543,16 @@ class _AddCgStep2State extends State<AddCgStep2> {
                             horizontal: AppSpacing.p24,
                             vertical: AppSpacing.p16),
                         radius: AppRadius.l,
-                        child: Text(cg.inviteCode ?? '------',
+                        // widget.inviteCode, not cg.inviteCode: the QR above
+                        // and the copy button below both encode
+                        // widget.inviteCode, so reading a different field here
+                        // would show the user a code that is not the one they
+                        // copy or that the caregiver scans. They agree today;
+                        // this keeps one source of truth if they ever stop.
+                        child: Text(
+                            widget.inviteCode.isEmpty
+                                ? '------'
+                                : widget.inviteCode,
                             style: AppTypography.displayLarge.copyWith(
                                 fontSize: 34,
                                 fontWeight: FontWeight.w800,
