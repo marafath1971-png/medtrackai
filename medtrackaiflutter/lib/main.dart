@@ -212,8 +212,35 @@ class MedAIApp extends StatefulWidget {
   State<MedAIApp> createState() => _MedAIAppState();
 }
 
+/// Sentinel meaning "no authStateChanges emission seen yet".
+///
+/// Distinct from `null`, which is a real value the stream emits before Firebase
+/// has restored a stored session.
+const String kNoUidSeenYet = '\u0000uninitialised';
+
+/// Whether an auth-state emission should trigger a full reload.
+///
+/// Extracted so the cold-start ordering is testable without Firebase. The bug
+/// it encodes: on a cold start `loadProfile()` runs before Firebase restores
+/// the session, so the repository sees no auth and returns the LOCAL profile.
+/// The app then comes up as a different person than the signed-in account, and
+/// anything keyed to the uid — invite codes especially — fails as signed-out.
+/// Gaining a uid must always reload, whatever phase we are in.
+bool shouldReloadForAuthChange({
+  required String? previousUid,
+  required String? currentUid,
+  required AppPhase phase,
+}) {
+  if (previousUid == currentUid) return false;
+  // A uid appearing (or changing to a different account) always re-resolves.
+  if (currentUid != null) return true;
+  // Losing a uid only matters once the app is running; the signed-out cold
+  // start has already loaded once from bootstrap.
+  return previousUid != kNoUidSeenYet && phase == AppPhase.app;
+}
+
 class _MedAIAppState extends State<MedAIApp> {
-  String? _lastKnownUid;
+  String? _lastKnownUid = kNoUidSeenYet;
   GoRouter? _router;
   AppState? _lastAppState;
 
@@ -258,7 +285,8 @@ class _MedAIAppState extends State<MedAIApp> {
       supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, child) {
         final L = context.L;
-        final phase = context.select<AppState, AppPhase>((state) => state.phase);
+        final phase =
+            context.select<AppState, AppPhase>((state) => state.phase);
 
         return StreamBuilder<User?>(
           stream: FirebaseAuth.instance.authStateChanges(),
@@ -266,8 +294,23 @@ class _MedAIAppState extends State<MedAIApp> {
             final currentUid = authSnap.data?.uid;
 
             if (currentUid != _lastKnownUid) {
+              final previous = _lastKnownUid;
               _lastKnownUid = currentUid;
-              if (phase == AppPhase.app) {
+
+              // Reload whenever a real uid appears, not only while already in
+              // AppPhase.app. On a cold start loadProfile() runs before
+              // Firebase has restored the session, so the repository sees no
+              // auth and falls back to the LOCAL profile; the app comes up as
+              // a different person than the account that is signed in, and
+              // anything keyed to the uid (invite codes) fails as signed-out.
+              //
+              // Skip the very first emission when it carries no uid: that is
+              // the genuine signed-out start, and loadFromStorage has already
+              // run once from bootstrap.
+              if (shouldReloadForAuthChange(
+                  previousUid: previous,
+                  currentUid: currentUid,
+                  phase: phase)) {
                 final appState = context.read<AppState>();
                 Future.microtask(() => appState.loadFromStorage());
               }
@@ -310,4 +353,3 @@ class _MedAIAppState extends State<MedAIApp> {
     );
   }
 }
-
