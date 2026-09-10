@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/domain/entities/entities.dart';
 import 'package:medai/screens/scan/widgets/scan_result_detail_view.dart';
 import 'package:medai/theme/med_ai_ui.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// The screen a user sees after scanning a medicine — it decides what they
 /// believe about a pill they are about to take.
@@ -14,6 +15,8 @@ import 'package:medai/theme/med_ai_ui.dart';
 /// The result view is a tall column; give it a real scroll viewport so the
 /// test surface does not overflow before assertions run.
 Widget _host(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       home: Scaffold(
         body: SingleChildScrollView(child: child),

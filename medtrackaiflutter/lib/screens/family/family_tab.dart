@@ -303,7 +303,7 @@ class HubView extends StatelessWidget {
               ),
               child: Semantics(
                 button: true,
-                label: 'Add guardian',
+                label: l10n.familyAddGuardian,
                 child: FloatingActionButton.extended(
                   onPressed: onAddCg,
                   backgroundColor: AppColors.limeDeep,
@@ -315,7 +315,7 @@ class HubView extends StatelessWidget {
                   icon: const Icon(Icons.person_add_rounded,
                       color: AppColors.limeInk, size: 20),
                   label: Text(
-                    'Add guardian',
+                    l10n.familyAddGuardian,
                     style: AppTypography.labelLarge.copyWith(
                       color: AppColors.limeInk,
                       fontWeight: FontWeight.w700,
@@ -350,7 +350,7 @@ class HubView extends StatelessWidget {
                           children: [
                             Expanded(
                               child: _CircleStatBento(
-                                label: 'Protectors',
+                                label: l10n.familyProtectors,
                                 value: '$activeCount',
                                 icon: Icons.shield_outlined,
                                 L: L,
@@ -359,7 +359,7 @@ class HubView extends StatelessWidget {
                             const SizedBox(width: AppSpacing.p12),
                             Expanded(
                               child: _CircleStatBento(
-                                label: 'Monitoring',
+                                label: l10n.familyMonitoring,
                                 value: unseenCount > 0 ? 'Urgent' : 'Secure',
                                 icon: unseenCount > 0
                                     ? Icons.warning_amber_rounded
@@ -400,14 +400,14 @@ class HubView extends StatelessWidget {
                             child: Row(
                               children: [
                                 _CompactPivotPill(
-                                  label: 'Family',
+                                  label: l10n.familyFamily,
                                   active: pivot == 1,
                                   onTap: () => onPivotChanged(1),
                                   L: L,
                                 ),
                                 const SizedBox(width: AppSpacing.p4),
                                 _CompactPivotPill(
-                                  label: 'Care',
+                                  label: l10n.familyCare,
                                   active: pivot == 0,
                                   onTap: () => onPivotChanged(0),
                                   L: L,
@@ -457,7 +457,7 @@ class HubView extends StatelessWidget {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          'Urgent monitoring',
+                                          l10n.familyUrgentMonitoring,
                                           style: AppTypography.labelSmall
                                               .copyWith(
                                             color: context.isDark
@@ -525,7 +525,7 @@ class HubView extends StatelessWidget {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
-                                      'Know your medicine',
+                                      l10n.analysisKnowYourMedicine,
                                       style: AppTypography.titleMedium.copyWith(
                                         color: context.isDark
                                             ? L.text
@@ -535,7 +535,7 @@ class HubView extends StatelessWidget {
                                     ),
                                     const SizedBox(height: 2),
                                     Text(
-                                      'Sensitive meds in this circle — caregivers should review warnings before dose time.',
+                                      l10n.familySensitiveMedsInThisCircleCaregivers,
                                       style: AppTypography.bodySmall.copyWith(
                                         color: context.isDark
                                             ? L.sub
@@ -574,7 +574,7 @@ class HubView extends StatelessWidget {
                                   onDashboard(Caregiver(
                                     id: 0,
                                     name: p['name'] ?? 'Patient',
-                                    relation: p['relation'] ?? 'Family',
+                                    relation: p['relation'] ?? l10n.familyFamily,
                                     patientUid: p['uid'],
                                     addedAt: p['addedAt'] ?? 'just now',
                                     avatar: p['avatar'] ?? 'P',
@@ -590,7 +590,7 @@ class HubView extends StatelessWidget {
                         // ACCOUNT SECURITY / MY CAREGIVERS
                         if (state.profile?.familyMembers.isNotEmpty ?? false) ...[
                           MedAiSectionHeader(
-                            title: 'Managing',
+                            title: l10n.familyManaging,
                             subtitle: '${state.profile!.familyMembers.length} profiles',
                           ),
                           SizedBox(
@@ -636,7 +636,7 @@ class HubView extends StatelessWidget {
                                               children: [
                                                 Icon(Icons.swap_horiz_rounded, color: L.primary),
                                                 const SizedBox(width: AppSpacing.p12),
-                                                Text('Switch to Profile', style: TextStyle(color: L.text)),
+                                                Text(l10n.familySwitchToProfile, style: TextStyle(color: L.text)),
                                               ],
                                             ),
                                           ),
@@ -666,7 +666,7 @@ class HubView extends StatelessWidget {
                                               children: [
                                                 Icon(Icons.picture_as_pdf_rounded, color: L.primary),
                                                 const SizedBox(width: AppSpacing.p12),
-                                                Text('Generate Adherence PDF', style: TextStyle(color: L.text)),
+                                                Text(l10n.familyGenerateAdherencePdf, style: TextStyle(color: L.text)),
                                               ],
                                             ),
                                           ),
@@ -678,7 +678,7 @@ class HubView extends StatelessWidget {
                                                 builder: (removeCtx) => AlertDialog(
                                                   backgroundColor: L.card,
                                                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: BorderSide(color: L.border.withValues(alpha: 0.1))),
-                                                  title: Text('Remove profile?', style: AppTypography.titleLarge.copyWith(color: L.text, fontWeight: FontWeight.w800)),
+                                                  title: Text(l10n.familyRemoveProfile, style: AppTypography.titleLarge.copyWith(color: L.text, fontWeight: FontWeight.w800)),
                                                   content: Text('This will stop all reminders for ${member.name}. History for this member will be preserved in the cloud.', style: AppTypography.bodyMedium.copyWith(color: L.sub)),
                                                   actions: [
                                                     TextButton(onPressed: () => Navigator.pop(removeCtx), child: Text(l10n.cancel, style: AppTypography.labelLarge.copyWith(color: L.sub))),
@@ -687,17 +687,17 @@ class HubView extends StatelessWidget {
                                                         state.removeFamilyMember(member.id);
                                                         Navigator.pop(removeCtx);
                                                       },
-                                                      child: Text('Remove', style: AppTypography.labelLarge.copyWith(color: AppColors.red, fontWeight: FontWeight.w700)),
+                                                      child: Text(l10n.familyRemove, style: AppTypography.labelLarge.copyWith(color: AppColors.red, fontWeight: FontWeight.w700)),
                                                     ),
                                                   ],
                                                 ),
                                               );
                                             },
-                                            child: const Row(
+                                            child: Row(
                                               children: [
                                                 Icon(Icons.delete_forever_rounded, color: AppColors.red),
                                                 SizedBox(width: AppSpacing.p12),
-                                                Text('Remove Profile', style: TextStyle(color: AppColors.red)),
+                                                Text(l10n.familyRemoveProfile2, style: TextStyle(color: AppColors.red)),
                                               ],
                                             ),
                                           ),
@@ -791,7 +791,7 @@ class HubView extends StatelessWidget {
                       // ALERT LOG
                       if (state.missedAlerts.isNotEmpty) ...[
                         MedAiSectionHeader(
-                          title: 'Recent activity',
+                          title: l10n.familyRecentActivity,
                           subtitle: '${state.missedAlerts.length} alerts',
                         ),
                         ListView.builder(
@@ -840,8 +840,9 @@ class HubView extends StatelessWidget {
 
   Widget _buildEmptyState(
       BuildContext context, AppThemeColors L, VoidCallback onAddCg) {
+    final l10n = AppLocalizations.of(context)!;
     return PremiumEmptyState(
-      title: 'No guardians found',
+      title: l10n.familyNoGuardiansFound,
       subtitle:
           'Invite family or medical professionals to monitor your medication safety.',
       mascotFeature: 'caregiver',
@@ -853,8 +854,9 @@ class HubView extends StatelessWidget {
 
   Widget _buildEmptyMonitoringState(
       BuildContext context, AppThemeColors L, VoidCallback onJoin) {
+    final l10n = AppLocalizations.of(context)!;
     return PremiumEmptyState(
-      title: 'Protect your family',
+      title: l10n.familyProtectYourFamily,
       subtitle:
           'Join as a caregiver to see real-time health updates for your loved ones.',
       mascotFeature: 'family',
@@ -983,14 +985,14 @@ class _FamilyHeader extends StatelessWidget {
           ),
           _CircleIconBtn(
             icon: Icons.link_rounded,
-            label: 'Join family circle',
+            label: l10n.familyJoinFamilyCircle,
             onTap: onJoin,
             L: L,
           ),
           const SizedBox(width: AppSpacing.p8),
           _CircleIconBtn(
             icon: Icons.person_add_rounded,
-            label: 'Invite guardian',
+            label: l10n.familyInviteGuardian,
             onTap: onAdd,
             L: L,
           ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../../../models/product_analysis.dart';
 import '../../../theme/med_ai_ui.dart';
+import '../../../l10n/app_localizations.dart';
 
 
 /// How much caution a medicine calls for, and why.
@@ -155,6 +156,7 @@ class ScanInsightDashboard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final accent = profile.color(L);
 
@@ -193,7 +195,7 @@ class ScanInsightDashboard extends StatelessWidget {
                           ),
                           const SizedBox(width: 6),
                           Text(
-                            'AT A GLANCE',
+                            l10n.analysisAtAGlance,
                             style: AppTypography.caption.copyWith(
                               color: accent,
                               letterSpacing: 1.2,
@@ -406,6 +408,7 @@ class _MetricStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return Container(
@@ -421,7 +424,7 @@ class _MetricStrip extends StatelessWidget {
         children: [
           _Metric(
             value: '$confidencePct%',
-            label: 'AI match',
+            label: l10n.analysisAiMatch,
             emphasis: confidencePct < 60,
           ),
           _Divider(L: L),
@@ -434,12 +437,12 @@ class _MetricStrip extends StatelessWidget {
           _Divider(L: L),
           _Metric(
             value: '${profile.sideEffectCount}',
-            label: 'Side effects',
+            label: l10n.analysisSideEffects,
           ),
           _Divider(L: L),
           _Metric(
             value: profile.evidenceStrong ? 'Strong' : 'Mixed',
-            label: 'Evidence',
+            label: l10n.analysisEvidence,
           ),
         ],
       ),

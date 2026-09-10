@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/screens/scan/scanner_hub_screen.dart';
 import 'package:medai/theme/med_ai_ui.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// The scanner search field types in white.
 ///
@@ -46,6 +47,8 @@ Color _over(Color fg, Color bg) {
 }
 
 Widget _host(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       home: Scaffold(body: Center(child: child)),
     );

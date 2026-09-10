@@ -66,7 +66,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             PremiumPageHeader(
-              title: 'Analytics',
+              title: l10n.dashboardAnalytics,
               subtitle: 'Your medication insights',
               onBack: canPop ? () => Navigator.pop(context) : null,
             ),
@@ -131,7 +131,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                         const SizedBox(width: 12),
                         Expanded(
                           child: _StatMiniCard(
-                            title: 'Symptoms',
+                            title: l10n.statsSymptoms,
                             value: '$totalSymptoms',
                             subtitle: 'Total logs',
                             icon: Icons.monitor_heart_outlined,
@@ -146,7 +146,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
 
                   const SizedBox(height: 28),
 
-                  const MedAiSectionHeader(title: 'Trend analysis'),
+                  MedAiSectionHeader(title: l10n.statsTrendAnalysis),
                   const SizedBox(height: 4),
                   _analyticsEntrance(
                     _TrendGraph(L: L, trend: state.getTrendData()),
@@ -155,7 +155,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
 
                   const SizedBox(height: 28),
 
-                  const MedAiSectionHeader(title: 'Explore'),
+                  MedAiSectionHeader(title: l10n.statsExplore),
                   const SizedBox(height: 4),
 
                   _analyticsEntrance(
@@ -163,7 +163,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                       L: L,
                       icon: Icons.inventory_2_rounded,
                       label: l10n.inventory,
-                      title: 'Stock levels & refill alerts',
+                      title: l10n.statsStockLevelsRefillAlerts,
                       onTap: () {
                         HapticEngine.selection();
                         context.push(AppRoutes.statsInventory);
@@ -177,8 +177,8 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                     _NavCard(
                       L: L,
                       icon: Icons.play_arrow_rounded,
-                      label: 'Monthly wrapped',
-                      title: 'View your stats',
+                      label: l10n.statsMonthlyWrapped,
+                      title: l10n.statsViewYourStats,
                       filled: true,
                       onTap: () {
                         HapticEngine.heavyImpact();
@@ -193,8 +193,8 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                     _NavCard(
                       L: L,
                       icon: Icons.groups_rounded,
-                      label: 'Social',
-                      title: 'Med buddies & leaderboards',
+                      label: l10n.statsSocial,
+                      title: l10n.statsMedBuddiesLeaderboards,
                       onTap: () {
                         HapticEngine.heavyImpact();
                         context.push(AppRoutes.statsBuddies);
@@ -208,8 +208,8 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
                     _NavCard(
                       L: L,
                       icon: Icons.emoji_events_rounded,
-                      label: 'Achievements',
-                      title: 'Trophy case',
+                      label: l10n.statsAchievements,
+                      title: l10n.statsTrophyCase,
                       onTap: () {
                         HapticEngine.heavyImpact();
                         context.push(AppRoutes.statsTrophy);
@@ -449,6 +449,7 @@ class _TrendGraphState extends State<_TrendGraph> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = widget.L;
     final week = widget.trend.length > 7
         ? widget.trend.sublist(widget.trend.length - 7)
@@ -462,7 +463,7 @@ class _TrendGraphState extends State<_TrendGraph> {
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
     return Semantics(
-      label: 'Weekly performance trend chart',
+      label: l10n.statsWeeklyPerformanceTrendChart,
       child: MedAiDepthCard(
         padding: const EdgeInsets.all(20),
         child: SizedBox(
@@ -474,7 +475,7 @@ class _TrendGraphState extends State<_TrendGraph> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    'Weekly performance',
+                    l10n.statsWeeklyPerformance,
                     style: AppTypography.titleMedium.copyWith(
                       color: L.text,
                       fontWeight: FontWeight.w700,
@@ -540,9 +541,10 @@ class _DoctorReportCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Semantics(
       button: true,
-      label: 'Share medication report with your doctor',
+      label: l10n.statsShareMedicationReportWithYourDoctor,
       child: AnimatedPressable(
         onTap: onTap,
         child: MedAiDepthCard(
@@ -566,7 +568,7 @@ class _DoctorReportCard extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Share with your doctor',
+                      l10n.statsShareWithYourDoctor,
                       style: AppTypography.titleMedium.copyWith(
                         color: L.text,
                         fontWeight: FontWeight.w700,
@@ -574,7 +576,7 @@ class _DoctorReportCard extends StatelessWidget {
                     ),
                     const SizedBox(height: 2),
                     Text(
-                      'Export a clinical PDF of your adherence & meds',
+                      l10n.statsExportAClinicalPdfOfYour,
                       style: AppTypography.bodySmall
                           .copyWith(color: L.sub, height: 1.3),
                     ),

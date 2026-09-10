@@ -7,6 +7,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../common/app_loading_indicator.dart';
 import '../common/refined_sheet_wrapper.dart';
 import '../common/animated_pressable.dart';
+import '../../l10n/app_localizations.dart';
 
 class AskAiSheet extends StatefulWidget {
   final List<HealthInsight> contextInsights;
@@ -49,12 +50,13 @@ class _AskAiSheetState extends State<AskAiSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return RefinedSheetWrapper(
-      title: 'AI Health Coach',
+      title: l10n.modalsAiHealthCoach,
       icon: Semantics(
-        label: 'AI coach icon',
+        label: l10n.modalsAiCoachIcon,
         child: Container(
           width: MedAiA11y.minTapTarget,
           height: MedAiA11y.minTapTarget,
@@ -81,7 +83,7 @@ class _AskAiSheetState extends State<AskAiSheet> {
                         padding: const EdgeInsets.symmetric(
                             vertical: 48, horizontal: 32),
                         child: Text(
-                          'Ask me anything about your current health insights or medications.',
+                          l10n.modalsAskMeAnythingAboutYourCurrent,
                           textAlign: TextAlign.center,
                           style: AppTypography.bodySmall.copyWith(
                               color: L.sub,
@@ -139,12 +141,12 @@ class _AskAiSheetState extends State<AskAiSheet> {
               padding: const EdgeInsets.only(bottom: 16, top: 8),
               child: Semantics(
                 liveRegion: true,
-                label: 'Coach is thinking',
+                label: l10n.modalsCoachIsThinking2,
                 child: Row(
                   children: [
                     const AppLoadingIndicator(size: 14),
                     const SizedBox(width: 8),
-                    Text('Coach is thinking…',
+                    Text(l10n.modalsCoachIsThinking,
                         style: AppTypography.labelLarge.copyWith(
                             color: L.accent,
                             fontSize: 12,
@@ -155,7 +157,7 @@ class _AskAiSheetState extends State<AskAiSheet> {
             ),
           const SizedBox(height: 8),
           Semantics(
-            label: 'Ask a question',
+            label: l10n.modalsAskAQuestion,
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
@@ -164,13 +166,13 @@ class _AskAiSheetState extends State<AskAiSheet> {
                     controller: _controller,
                     autofocus: true,
                     onSubmitted: (_) => _sendMessage(),
-                    hintText: 'Ask a question...',
+                    hintText: l10n.modalsAskAQuestion2,
                   ),
                 ),
                 const SizedBox(width: 8),
                 Semantics(
                   button: true,
-                  label: 'Send message',
+                  label: l10n.iosuiSendMessage,
                   child: AnimatedPressable(
                     onTap: _sendMessage,
                     child: Container(

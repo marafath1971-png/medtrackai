@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/theme/med_ai_ui.dart';
 import 'package:medai/widgets/common/solid_surface.dart';
 import 'package:medai/widgets/modals/ask_ai_sheet.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// The AI chat sheet, rendered whole and driven through a real send.
 ///
@@ -24,6 +25,8 @@ double _contrast(Color a, Color b) {
 }
 
 Widget _host(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       home: Scaffold(body: child),
     );

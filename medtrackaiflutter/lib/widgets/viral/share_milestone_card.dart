@@ -335,7 +335,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        'MEDAI MILESTONE // SHIELD',
+                        l10n.viralMedaiMilestoneShield,
                         style: TextStyle(
                           color: accentColor,
                           fontSize: 11,
@@ -351,8 +351,8 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                           borderRadius: BorderRadius.circular(4),
                           border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 0.5),
                         ),
-                        child: const Text(
-                          '[SECURE_v2.026]',
+                        child: Text(
+                          l10n.viralSecureV2026,
                           style: TextStyle(
                             color: Colors.white30,
                             fontSize: 11,
@@ -431,7 +431,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            'DAY COMPLIANCE STREAK',
+                            l10n.viralDayComplianceStreak,
                             style: TextStyle(
                               color: Colors.white.withValues(alpha: 0.5),
                               fontSize: 11,
@@ -459,7 +459,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                           const SizedBox(width: 10),
                           Expanded(
                             child: _buildGridItem(
-                              title: 'TOTAL LOGS',
+                              title: l10n.viralTotalLogs,
                               value: '${data.totalDoses} doses',
                               color: Colors.white,
                             ),
@@ -471,7 +471,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                         children: [
                           Expanded(
                             child: _buildGridItem(
-                              title: 'SHIELD LEVEL',
+                              title: l10n.viralShieldLevel,
                               value: data.tier.name.toUpperCase(),
                               color: accentColor,
                             ),
@@ -479,7 +479,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                           const SizedBox(width: 10),
                           Expanded(
                             child: _buildGridItem(
-                              title: 'STATUS',
+                              title: l10n.viralStatus,
                               value: score >= 90 ? 'OPTIMAL' : 'STABLE',
                               color: score >= 90 ? AppColors.green : AppColors.amber,
                             ),
@@ -492,7 +492,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                   // 5. Card Footer
                   Center(
                     child: Text(
-                      'JOIN THE ROUTINE AT MEDAI.APP 💊',
+                      l10n.viralJoinTheRoutineAtMedaiApp,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.3),
                         fontSize: 11,
@@ -686,6 +686,7 @@ class ShareAdherenceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final score = (adherencePct * 100).round();
     final isOptimal = adherencePct >= 0.9;
     final accentColor = isOptimal ? AppColors.green : AppColors.amber;
@@ -770,7 +771,7 @@ class ShareAdherenceCard extends StatelessWidget {
                       ),
                       const Spacer(),
                       Text(
-                        'HEALTH REPORT',
+                        l10n.viralHealthReport,
                         style: TextStyle(
                           color: Colors.white.withValues(alpha: 0.3),
                           letterSpacing: 2,
@@ -799,8 +800,8 @@ class ShareAdherenceCard extends StatelessWidget {
                               height: 1.0,
                             ),
                           ),
-                          const Text(
-                            'ADHERENCE SCORE',
+                          Text(
+                            l10n.viralAdherenceScore,
                             style: TextStyle(
                               color: Color(0xFF6B7280),
                               letterSpacing: 2.0,
@@ -873,7 +874,7 @@ class ShareAdherenceCard extends StatelessWidget {
                   // Footer
                   Center(
                     child: Text(
-                      'JOIN THE ROUTINE AT MEDAI.APP 💊',
+                      l10n.viralJoinTheRoutineAtMedaiApp,
                       style: TextStyle(
                         color: Colors.white.withValues(alpha: 0.25),
                         fontSize: 11,

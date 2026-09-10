@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import '../../theme/app_theme.dart';
+import '../../l10n/app_localizations.dart';
 
 class ModernTimePicker extends StatefulWidget {
   final TimeOfDay initialTime;
@@ -50,6 +51,7 @@ class _ModernTimePickerState extends State<ModernTimePicker> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return Container(
@@ -215,7 +217,7 @@ class _ModernTimePickerState extends State<ModernTimePicker> {
               ),
               child: Center(
                 child: Text(
-                  "Set Time",
+                  l10n.commonSetTime,
                   style: AppTypography.labelLarge.copyWith(
                     fontSize: 15,
                     color: Colors.white,

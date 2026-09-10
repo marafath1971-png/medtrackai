@@ -6,6 +6,7 @@ import 'package:medai/core/constants/med_ai_assets.dart';
 import 'package:medai/models/constants.dart';
 import 'package:medai/screens/loading/loading_screen.dart';
 import 'package:medai/widgets/common/ghost_mascot.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// The loading and lock screens are the two surfaces every user sees before
 /// they can do anything — a cold start and a locked app. Both showed generic
@@ -16,7 +17,11 @@ void main() {
   group('LoadingScreen', () {
     testWidgets('shows an animated mascot, not a stock illustration',
         (tester) async {
-      await tester.pumpWidget(const MaterialApp(home: LoadingScreen()));
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const LoadingScreen(),
+      ));
       await tester.pump(const Duration(milliseconds: 600));
 
       final mascot = tester.widget<GhostMascot>(find.byType(GhostMascot));
@@ -27,7 +32,11 @@ void main() {
     });
 
     testWidgets('still names the app and its state', (tester) async {
-      await tester.pumpWidget(const MaterialApp(home: LoadingScreen()));
+      await tester.pumpWidget(MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: const LoadingScreen(),
+      ));
       await tester.pump(const Duration(milliseconds: 600));
 
       // Renamed: the wordmark follows kAppName rather than a literal, so

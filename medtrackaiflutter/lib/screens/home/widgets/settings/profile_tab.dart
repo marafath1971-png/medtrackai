@@ -216,7 +216,7 @@ class _ProfileTabState extends State<ProfileTab> {
                         ),
                         borderRadius: BorderRadius.circular(4),
                       ),
-                      child: Text('PRO',
+                      child: Text(l10n.homePro,
                           style: AppTypography.labelSmall.copyWith(
                               fontWeight: FontWeight.w700,
                               fontSize: 11,
@@ -312,12 +312,12 @@ class _ProfileTabState extends State<ProfileTab> {
                 title: s.editProfile,
                 child: Column(children: [
                   SettingsEditField(
-                      label: 'Name',
+                      label: l10n.homeName,
                       ctrl: _nameCtrl,
                       placeholder: 'Your name',
                       L: L),
                   SettingsEditField(
-                      label: 'Age',
+                      label: l10n.homeAge,
                       ctrl: _ageCtrl,
                       placeholder: 'e.g. 35',
                       L: L,
@@ -325,7 +325,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       border: false),
                 ])),
             SettingsSection(
-                title: 'Gender',
+                title: l10n.homeGender,
                 child: Column(
                     children: genders
                         .asMap()
@@ -341,7 +341,7 @@ class _ProfileTabState extends State<ProfileTab> {
                             border: e.key < genders.length - 1))
                         .toList())),
             SettingsSection(
-                title: 'Primary Goal',
+                title: l10n.homePrimaryGoal,
                 child: Column(
                     children: goals
                         .asMap()
@@ -405,31 +405,31 @@ class _ProfileTabState extends State<ProfileTab> {
             const SizedBox(height: AppSpacing.p24),
           ] else ...[
             SettingsSection(
-                title: 'Your Info',
+                title: l10n.homeYourInfo,
                 child: Column(children: [
                   SettingsModalRow(
                       icon: '🎯',
-                      label: 'Health Goal',
+                      label: l10n.homeHealthGoal,
                       sub: p?.goal ?? 'Not set',
                       first: true,
                       border: true),
                   SettingsModalRow(
                       icon: '🩺',
-                      label: 'Conditions',
+                      label: l10n.homeConditions,
                       sub: p?.conditions.isNotEmpty == true
                           ? p!.conditions.join(", ")
                           : 'Not set',
                       border: true),
                   SettingsModalRow(
                       icon: '🎂',
-                      label: 'Age',
+                      label: l10n.homeAge,
                       sub: p?.age != null && p!.age.isNotEmpty
                           ? '${p.age} years old'
                           : 'Not set',
                       border: true),
                   SettingsModalRow(
                       icon: '🧬',
-                      label: 'Gender',
+                      label: l10n.homeGender,
                       sub: p?.gender ?? 'Not set',
                       last: true,
                       border: false),
@@ -440,12 +440,12 @@ class _ProfileTabState extends State<ProfileTab> {
                 child: _upgradeCard(L, reduceMotion, context),
               ),
             SettingsSection(
-              title: 'Subscription',
+              title: l10n.homeSubscription,
               child: Column(children: [
                 if (widget.state.isPremium)
                   SettingsModalRow(
                     icon: '💳',
-                    label: 'Manage Subscription',
+                    label: l10n.homeManageSubscription,
                     sub: 'View or cancel your plan',
                     onClick: () => widget.state.manageSubscription(),
                     first: true,
@@ -453,7 +453,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   ),
                 SettingsModalRow(
                   icon: '🔄',
-                  label: 'Restore Purchases',
+                  label: l10n.homeRestorePurchases,
                   sub: 'Already paid? Restore here',
                   onClick: () => widget.state.restorePurchases(),
                   first: !widget.state.isPremium,
@@ -464,11 +464,11 @@ class _ProfileTabState extends State<ProfileTab> {
             ),
             // Moved to top as primary section
             SettingsSection(
-              title: 'Data & Reports',
+              title: l10n.homeDataReports,
               child: Column(children: [
                 SettingsModalRow(
                   icon: Icons.assignment_rounded,
-                  label: 'Clinical PDF Report',
+                  label: l10n.homeClinicalPdfReport,
                   sub: 'Generate a summary for your doctor',
                   onClick: () async {
                     final ok = await ExportService.exportAdherenceReport(
@@ -482,7 +482,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 ),
                 SettingsModalRow(
                   icon: '🎬',
-                  label: 'Med Wrapped 2026',
+                  label: l10n.homeMedWrapped2026,
                   sub: 'View your yearly consistency slideshow',
                   onClick: () {
                     HapticEngine.selection();
@@ -492,7 +492,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 ),
                 SettingsModalRow(
                   icon: '📊',
-                  label: 'Export CSV Data',
+                  label: l10n.homeExportCsvData,
                   sub: 'Download raw history for backup',
                   onClick: () => widget.state.exportDataCSV(),
                   last: true,
@@ -501,13 +501,13 @@ class _ProfileTabState extends State<ProfileTab> {
               ]),
             ),
             SettingsSection(
-              title: 'Account',
+              title: l10n.homeAccount,
               child: Column(
                 children: [
                   if (AuthService.isLoggedIn) ...[
                     SettingsModalRow(
                       icon: '🚪',
-                      label: 'Sign Out',
+                      label: l10n.homeSignOut,
                       sub: AuthService.email,
                       onClick: () {
                         HapticEngine.selection();
@@ -518,7 +518,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     ),
                     SettingsModalRow(
                       icon: '🗑️',
-                      label: 'Delete Account',
+                      label: l10n.homeDeleteAccount,
                       // Says what is lost, not just that something is. This
                       // row sits directly under Sign Out at identical weight,
                       // and only one of the two is recoverable.
@@ -531,14 +531,14 @@ class _ProfileTabState extends State<ProfileTab> {
                   ] else ...[
                     SettingsModalRow(
                       icon: '🌐',
-                      label: 'Sign in with Google',
+                      label: l10n.homeSignInWithGoogle,
                       onClick: () => widget.state.signInWithGoogle(),
                       first: true,
                       border: true,
                     ),
                     SettingsModalRow(
                       icon: Icons.apple_rounded,
-                      label: 'Sign in with Apple',
+                      label: l10n.homeSignInWithApple,
                       onClick: () => widget.state.signInWithApple(),
                       last: true,
                       border: false,
@@ -548,11 +548,11 @@ class _ProfileTabState extends State<ProfileTab> {
               ),
             ),
             SettingsSection(
-              title: 'Support & Feedback',
+              title: l10n.homeSupportFeedback,
               child: Column(children: [
                 SettingsModalRow(
                   icon: '💬',
-                  label: 'Contact Support',
+                  label: l10n.homeContactSupport,
                   sub: 'Get help with your account',
                   onClick: () => widget.state.contactSupport(),
                   first: true,
@@ -560,7 +560,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 ),
                 SettingsModalRow(
                   icon: '⭐',
-                  label: 'Rate MedAI',
+                  label: l10n.homeRateMedai,
                   sub: 'Help us improve for others',
                   onClick: () => widget.state.requestReview(),
                   last: true,
@@ -569,7 +569,7 @@ class _ProfileTabState extends State<ProfileTab> {
               ]),
             ),
             SettingsSection(
-              title: 'Legal & Privacy',
+              title: l10n.homeLegalPrivacy,
               child: Column(children: [
                 SettingsModalRow(
                   icon: '🔐',
@@ -588,7 +588,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 ),
                 SettingsModalRow(
                   icon: 'ℹ️',
-                  label: 'Open Source Licenses',
+                  label: l10n.homeOpenSourceLicenses,
                   sub: 'Software that makes MedAI possible',
                   onClick: () => showLicensePage(context: context),
                   last: true,
@@ -598,12 +598,12 @@ class _ProfileTabState extends State<ProfileTab> {
             ),
             if (kDebugMode)
               SettingsSection(
-                title: 'Developer Options',
+                title: l10n.homeDeveloperOptions,
                 child: Column(
                   children: [
                     SettingsModalRow(
                       icon: '🚀',
-                      label: 'Growth & Analytics Dashboard',
+                      label: l10n.homeGrowthAnalyticsDashboard,
                       sub: 'Funnel analytics and mock simulator',
                       onClick: () {
                         HapticEngine.selection();
@@ -621,7 +621,7 @@ class _ProfileTabState extends State<ProfileTab> {
               child: Column(
                 children: [
                   Text(
-                    'MedAI 1.0.0+1',
+                    l10n.homeMedai1001,
                     style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.4),
                       fontWeight: FontWeight.w700,
                       fontSize: 11,
@@ -630,7 +630,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   ),
                   const SizedBox(height: AppSpacing.p4),
                   Text(
-                    'Made by the MedAI team',
+                    l10n.homeMadeByTheMedaiTeam,
                     style: AppTypography.labelSmall.copyWith(
                       color: L.sub.withValues(alpha: 0.3),
                       fontWeight: FontWeight.w600,

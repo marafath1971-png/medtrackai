@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../theme/med_ai_ui.dart';
 import 'animated_pressable.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Compact top strip for offline / network error states in [AppShell].
 class AppStatusBanner extends StatelessWidget {
@@ -62,6 +63,7 @@ class AppStatusBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return Semantics(
       liveRegion: true,
@@ -146,7 +148,7 @@ class AppStatusBanner extends StatelessWidget {
                   const SizedBox(width: AppSpacing.p4),
                   Semantics(
                     button: true,
-                    label: 'Dismiss',
+                    label: l10n.appshelldartDismiss,
                     child: AnimatedPressable(
                       onTap: () {
                         HapticEngine.selection();

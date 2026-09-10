@@ -6,6 +6,7 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/premium_page_header.dart';
+import '../../../l10n/app_localizations.dart';
 
 class AlertLogCard extends StatelessWidget {
   final MissedAlert alert;
@@ -102,6 +103,7 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
   int _step = 1;
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = widget.L;
     return AppScaffold(
       showAurora: true,
@@ -109,7 +111,7 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           PremiumPageHeader(
-            title: 'Escalation protocol',
+            title: l10n.familyEscalationProtocol,
             subtitle: 'Missed dose safety simulation',
             onBack: () {
               HapticEngine.selection();
@@ -124,7 +126,7 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                        'Safety simulation of how missed doses trigger household alerts.',
+                        l10n.familySafetySimulationOfHowMissedDoses,
                         style: AppTypography.bodySmall
                             .copyWith(color: L.sub, fontSize: 14)),
                     const SizedBox(height: AppSpacing.p32),
@@ -133,7 +135,7 @@ class _EscalationDemoViewState extends State<EscalationDemoView> {
                     Row(children: [
                       Expanded(
                         child: MedAiCTA(
-                          label: 'Previous',
+                          label: l10n.familyPrevious,
                           secondary: true,
                           fullWidth: true,
                           enabled: _step > 1,
@@ -312,13 +314,14 @@ class AlertDetailView extends StatelessWidget {
       {super.key, required this.alert, required this.L, required this.onBack});
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AppScaffold(
       showAurora: true,
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           PremiumPageHeader(
-            title: 'Critical alert',
+            title: l10n.familyCriticalAlert,
             subtitle: alert.medName,
             onBack: () {
               HapticEngine.selection();
@@ -361,7 +364,7 @@ class AlertDetailView extends StatelessWidget {
                           fontWeight: FontWeight.w500)),
                   const SizedBox(height: AppSpacing.p24),
                   Row(mainAxisAlignment: MainAxisAlignment.center, children: [
-                    _Badge(label: 'Critical', color: L.error),
+                    _Badge(label: l10n.familyCritical, color: L.error),
                     const SizedBox(width: AppSpacing.p8),
                     _Badge(
                         label: alert.timestamp.split(',').first, color: L.sub),
@@ -370,7 +373,7 @@ class AlertDetailView extends StatelessWidget {
               ),
             ),
             const SizedBox(height: AppSpacing.p32),
-            const MedAiSectionHeader(title: 'Safety protocol'),
+            MedAiSectionHeader(title: l10n.familySafetyProtocol),
             const SizedBox(height: AppSpacing.p16),
             EscalationTimeline(activeStep: 4, L: L),
                 ],

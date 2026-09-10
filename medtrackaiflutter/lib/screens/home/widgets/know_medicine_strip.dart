@@ -6,6 +6,7 @@ import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/interaction_warning_banner.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Home awareness strip — interaction banner + today’s “know before take” cue
 /// with icon chips for the kinds of important info waiting.
@@ -16,6 +17,7 @@ class KnowMedicineStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final meds = context.select<AppState, List<Medicine>>((s) => s.meds);
     final critical = meds.where((m) => m.hasCriticalSafetyAlerts).toList();
     final briefing = meds.where((m) => m.needsPreTakeBriefing).toList();
@@ -56,14 +58,14 @@ class KnowMedicineStrip extends StatelessWidget {
 
     final chips = <({IconData icon, String label})>[
       if (focus.any((m) => m.aiSafetyProfile?.warnings.isNotEmpty == true))
-        (icon: Icons.priority_high_rounded, label: 'Warning'),
+        (icon: Icons.priority_high_rounded, label: l10n.homeWarning),
       if (focus.any((m) => m.aiSafetyProfile?.interactions.isNotEmpty == true))
-        (icon: Icons.science_outlined, label: 'Interaction'),
+        (icon: Icons.science_outlined, label: l10n.homeInteraction),
       if (focus.any((m) =>
           m.aiSafetyProfile?.foodRules.isNotEmpty == true ||
           (m.intakeInstructions.isNotEmpty &&
               m.intakeInstructions != 'None')))
-        (icon: Icons.restaurant_rounded, label: 'How to take'),
+        (icon: Icons.restaurant_rounded, label: l10n.homeHowToTake),
       if (focus.length > 1)
         (icon: Icons.medication_rounded, label: '${focus.length} meds'),
     ];

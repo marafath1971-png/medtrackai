@@ -4,12 +4,14 @@ import 'package:go_router/go_router.dart';
 import '../../../app/app_routes.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../l10n/app_localizations.dart';
 
 class FocusModeCard extends StatelessWidget {
   const FocusModeCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final icon = Container(
       width: MedAiA11y.minTapTarget,
@@ -26,7 +28,7 @@ class FocusModeCard extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: 'Focus mode. Breathe, relax, and center yourself.',
+      label: l10n.homeFocusModeBreatheRelaxAndCenter,
       child: MedAiDepthCard(
         accentGlow: false,
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p20),
@@ -43,7 +45,7 @@ class FocusModeCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Focus Mode',
+                    l10n.focusFocusMode,
                     style: AppTypography.titleMedium.copyWith(
                       color: L.text,
                       fontWeight: FontWeight.w700,
@@ -52,7 +54,7 @@ class FocusModeCard extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.p4),
                   Text(
-                    'Breathe, relax, and center yourself.',
+                    l10n.homeBreatheRelaxAndCenterYourself,
                     style: AppTypography.bodySmall.copyWith(
                       color: L.sub.withValues(alpha: 0.8),
                     ),

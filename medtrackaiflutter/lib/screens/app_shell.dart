@@ -682,6 +682,7 @@ class LowStockBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final firstName = meds.isNotEmpty ? meds.first.name : '';
 
@@ -718,7 +719,7 @@ class LowStockBanner extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'Running low',
+                  l10n.appshelldartRunningLow,
                   style: AppTypography.labelMedium.copyWith(
                     fontWeight: FontWeight.w700,
                     color: L.error,
@@ -742,7 +743,7 @@ class LowStockBanner extends StatelessWidget {
           ),
           Semantics(
             button: true,
-            label: 'Dismiss',
+            label: l10n.appshelldartDismiss,
             child: AnimatedPressable(
               onTap: onDismiss,
               behavior: HitTestBehavior.opaque,
@@ -782,11 +783,12 @@ class _ScanFab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return Semantics(
       button: true,
-      label: 'Add a medicine by scanning',
+      label: l10n.appshelldartAddAMedicineByScanning,
       child: AnimatedPressable(
         onTap: onTap,
         behavior: HitTestBehavior.opaque,

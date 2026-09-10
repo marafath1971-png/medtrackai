@@ -8,6 +8,7 @@ import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/premium_page_header.dart';
+import '../../l10n/app_localizations.dart';
 
 class AiAccuracySettingsScreen extends StatefulWidget {
   const AiAccuracySettingsScreen({super.key});
@@ -20,6 +21,7 @@ class AiAccuracySettingsScreen extends StatefulWidget {
 class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final state = context.watch<AppState>();
@@ -34,7 +36,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: PremiumPageHeader(
-              title: 'AI Accuracy',
+              title: l10n.scanAiAccuracy,
               subtitle: 'Fine-tune scan recognition',
               onBack: () {
                 HapticEngine.selection();
@@ -46,7 +48,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                MedAiSectionHeader(title: 'Recognition Threshold'),
+                MedAiSectionHeader(title: l10n.scanRecognitionThreshold),
                 _entrance(
                   reduceMotion,
                   MedAiDepthCard(
@@ -57,7 +59,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
-                              'Confidence Target',
+                              l10n.scanConfidenceTarget,
                               style: AppTypography.titleMedium.copyWith(
                                 color: L.text,
                                 fontWeight: FontWeight.w700,
@@ -112,10 +114,10 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text('Faster',
+                            Text(l10n.scanFaster,
                                 style: AppTypography.labelSmall
                                     .copyWith(color: L.sub)),
-                            Text('More Accurate',
+                            Text(l10n.scanMoreAccurate,
                                 style: AppTypography.labelSmall
                                     .copyWith(color: L.sub)),
                           ],
@@ -125,7 +127,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                   ),
                 ),
                 const SizedBox(height: 32),
-                MedAiSectionHeader(title: 'Processing Modes'),
+                MedAiSectionHeader(title: l10n.scanProcessingModes),
                 _entrance(
                   reduceMotion,
                   MedAiDepthCard(
@@ -133,7 +135,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                     child: Column(
                       children: [
                         _SwitchTile(
-                          title: 'Deep Semantic Analysis',
+                          title: l10n.scanDeepSemanticAnalysis,
                           subtitle:
                               'Uses Gemini Pro for advanced label parsing',
                           value: profile.aiDeepAnalysis,
@@ -149,7 +151,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                             indent: 16,
                             endIndent: 16),
                         _SwitchTile(
-                          title: 'Auto-Crop Images',
+                          title: l10n.scanAutoCropImages,
                           subtitle:
                               'Automatically frames the pill or bottle',
                           value: profile.aiAutoCrop,
@@ -165,7 +167,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                             indent: 16,
                             endIndent: 16),
                         _SwitchTile(
-                          title: 'Clinical Mode',
+                          title: l10n.scanClinicalMode,
                           subtitle:
                               'Prioritize NDC codes and FDA databases',
                           value: profile.aiClinicalMode,
@@ -181,7 +183,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                             indent: 16,
                             endIndent: 16),
                         _SwitchTile(
-                          title: 'Privacy Mode (No Logging)',
+                          title: l10n.scanPrivacyModeNoLogging,
                           subtitle:
                               'Do not save scan history or images locally',
                           value: profile.aiPrivacyMode,

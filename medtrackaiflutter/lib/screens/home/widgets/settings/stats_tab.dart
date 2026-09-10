@@ -9,6 +9,7 @@ import '../../../../core/utils/refill_helper.dart';
 import 'settings_shared.dart';
 import '../../../stats/widgets/weekly_wellness_ring.dart';
 import '../../../stats/widgets/predictive_insight_card.dart';
+import '../../../../l10n/app_localizations.dart';
 
 class StatsTab extends StatelessWidget {
   final AppState state;
@@ -22,6 +23,7 @@ class StatsTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     // Select only what we need for bulk calculations if necessary,
     // but better to use cached getters if we added them.
     // We already have getStreak() and getAdherenceScore().
@@ -115,7 +117,7 @@ class StatsTab extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Your success score',
+                Text(l10n.homeYourSuccessScore,
                     style: AppTypography.titleMedium.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.limeInk,
@@ -128,7 +130,7 @@ class StatsTab extends StatelessWidget {
                     borderRadius: BorderRadius.circular(999),
                   ),
                   child: Text(
-                    "On track",
+                    l10n.homeOnTrack,
                     style: AppTypography.labelSmall.copyWith(
                       color: AppColors.limeInk,
                       fontSize: 11,
@@ -209,7 +211,7 @@ class StatsTab extends StatelessWidget {
 
         // 🧠 AI PREDICTIVE INSIGHTS (Phase 5.0)
         if (predictions.isNotEmpty) ...[
-          Text('Smart patterns',
+          Text(l10n.homeSmartPatterns,
               style: AppTypography.titleMedium.copyWith(
                   fontWeight: FontWeight.w700,
                   color: L.text,
@@ -224,7 +226,7 @@ class StatsTab extends StatelessWidget {
 
         // 📊 WEEKLY WELLNESS RING (Phase 5.0)
         SettingsSection(
-            title: 'Precision Overview',
+            title: l10n.homePrecisionOverview,
             child: Container(
               padding: const EdgeInsets.all(AppSpacing.p24),
               decoration: BoxDecoration(
@@ -252,7 +254,7 @@ class StatsTab extends StatelessWidget {
           childAspectRatio: 1.25,
           children: [
             SettingsStatCard(
-                    label: 'Doses Taken',
+                    label: l10n.homeDosesTaken,
                     val: '$taken',
                     sub: 'of $total total',
                     emoji: '✅',
@@ -261,7 +263,7 @@ class StatsTab extends StatelessWidget {
                 .fade(delay: 100.ms)
                 .slideY(begin: 0.2, end: 0),
             SettingsStatCard(
-                    label: '7-Day Rate',
+                    label: l10n.homeN7DayRate,
                     val: '$last7Adh%',
                     sub: 'Last 7 days',
                     emoji: '📈',
@@ -270,7 +272,7 @@ class StatsTab extends StatelessWidget {
                 .fade(delay: 200.ms)
                 .slideY(begin: 0.2, end: 0),
             SettingsStatCard(
-                    label: 'Current Streak',
+                    label: l10n.homeCurrentStreak,
                     val: '${streak}d',
                     sub: 'days in a row',
                     emoji: '🔥',
@@ -293,7 +295,7 @@ class StatsTab extends StatelessWidget {
 
         // Weekly Bar Chart
         SettingsSection(
-            title: 'This Week',
+            title: l10n.homeThisWeek,
             child: Container(
               padding: const EdgeInsets.all(AppSpacing.p24),
               decoration: BoxDecoration(
@@ -333,11 +335,11 @@ class StatsTab extends StatelessWidget {
 
         // Symptom Trends (Phase 13: Live Integration)
         SettingsSection(
-            title: 'Health Story',
+            title: l10n.homeHealthStory,
             child: state.symptoms.isEmpty
                 ? PremiumEmptyState(
                     compact: true,
-                    title: 'No symptoms recorded',
+                    title: l10n.homeNoSymptomsRecorded,
                     subtitle: 'Log how you feel to build your health story.',
                     mascotFeature: 'calm',
                     icon: Icons.monitor_heart_outlined,
@@ -405,11 +407,11 @@ class StatsTab extends StatelessWidget {
 
         // Inventory Forecast (Phase 14: Stock Integration)
         SettingsSection(
-            title: 'Inventory Forecast',
+            title: l10n.homeInventoryForecast,
             child: state.meds.isEmpty
                 ? PremiumEmptyState(
                     compact: true,
-                    title: 'No medications tracked',
+                    title: l10n.homeNoMedicationsTracked,
                     subtitle:
                         'Add your first medicine to start building your daily precision log.',
                     mascotFeature: 'add_med',
@@ -479,7 +481,7 @@ class StatsTab extends StatelessWidget {
                                                 .copyWith(
                                                     fontWeight: FontWeight.w700,
                                                     color: L.text)),
-                                        Text('left',
+                                        Text(l10n.homeLeft,
                                             style: AppTypography.labelSmall
                                                 .copyWith(
                                                     color: L.sub,
@@ -509,7 +511,7 @@ class StatsTab extends StatelessWidget {
                                                     .withValues(alpha: 0.1)),
                                           ),
                                           child: Text(
-                                            'Refill',
+                                            l10n.homeRefill,
                                             style: AppTypography.labelSmall
                                                 .copyWith(
                                               color: L.text,

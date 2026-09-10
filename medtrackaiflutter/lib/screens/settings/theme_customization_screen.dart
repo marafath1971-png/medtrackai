@@ -8,6 +8,7 @@ import '../../widgets/common/premium_page_header.dart';
 import '../../widgets/common/premium_illustration_banner.dart';
 import '../../core/constants/premium_graphics.dart';
 import '../../services/dynamic_icon_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class ThemeCustomizationScreen extends StatefulWidget {
   const ThemeCustomizationScreen({super.key});
@@ -48,6 +49,7 @@ class _ThemeCustomizationScreenState extends State<ThemeCustomizationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final tileWidth =
@@ -60,7 +62,7 @@ class _ThemeCustomizationScreenState extends State<ThemeCustomizationScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           PremiumPageHeader(
-            title: 'App Appearance',
+            title: l10n.homeAppAppearance,
             subtitle: 'Icons and visual style',
             onBack: () {
               HapticEngine.selection();
@@ -77,7 +79,7 @@ class _ThemeCustomizationScreenState extends State<ThemeCustomizationScreen> {
                   padding: EdgeInsets.all(14),
                 ),
                 const SizedBox(height: 16),
-                  const MedAiSectionHeader(title: 'App Icons'),
+                  MedAiSectionHeader(title: l10n.settingsAppIcons),
                   const SizedBox(height: 16),
                   Wrap(
                     spacing: 16,
@@ -161,14 +163,14 @@ class _ThemeCustomizationScreenState extends State<ThemeCustomizationScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'More themes coming soon!',
+                                l10n.settingsMoreThemesComingSoon,
                                 style: AppTypography.titleMedium.copyWith(
                                   color: L.text,
                                   fontWeight: FontWeight.w700,
                                 ),
                               ),
                               Text(
-                                'Unlock exclusive aesthetics with streaks.',
+                                l10n.settingsUnlockExclusiveAestheticsWithStreaks,
                                 style: AppTypography.labelLarge.copyWith(
                                   color: L.sub,
                                   fontWeight: FontWeight.w500,

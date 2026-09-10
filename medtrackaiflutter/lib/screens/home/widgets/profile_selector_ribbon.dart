@@ -7,6 +7,7 @@ import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ProfileSelectorRibbon extends StatelessWidget {
   const ProfileSelectorRibbon({super.key});
@@ -314,10 +315,11 @@ class _AddProfileButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return Semantics(
       button: true,
-      label: 'Add family profile',
+      label: l10n.homeAddFamilyProfile,
       child: AnimatedPressable(
         onTap: onTap,
         child: Container(
@@ -347,7 +349,7 @@ class _AddProfileButton extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.p8),
             Text(
-              'Add',
+              l10n.homeAdd,
               style: AppTypography.labelSmall.copyWith(
                 fontSize: 12,
                 color: L.sub.withValues(alpha: 0.8),

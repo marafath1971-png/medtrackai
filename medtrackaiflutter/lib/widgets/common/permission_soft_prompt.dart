@@ -4,6 +4,7 @@ import '../../theme/med_ai_ui.dart';
 import 'animated_pressable.dart';
 import 'app_bottom_sheet.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../l10n/app_localizations.dart';
 
 class PermissionSoftPrompt extends StatelessWidget {
   final String title;
@@ -129,6 +130,7 @@ class PermissionSoftPrompt extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final primaryColor = color ?? L.accent;
 
@@ -214,7 +216,7 @@ class PermissionSoftPrompt extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: Text(
-                'Not Now',
+                l10n.commonNotNow,
                 style: AppTypography.bodyMedium.copyWith(
                   color: L.sub.withValues(alpha: 0.6),
                   fontWeight: FontWeight.w600,

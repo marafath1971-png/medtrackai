@@ -21,6 +21,7 @@ import 'widgets/ob_photo_hero.dart';
 import 'widgets/ob_video_style_widgets.dart';
 import 'widgets/ob_unique_widgets.dart';
 import 'onboarding_l10n.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Lightweight option descriptor for question steps.
 class _Opt {
@@ -1363,6 +1364,7 @@ class _WelcomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     return Scaffold(
       backgroundColor: p.bg,
@@ -1423,7 +1425,7 @@ class _WelcomeScreen extends StatelessWidget {
                   ).obFadeUp(),
                   const SizedBox(height: 28),
                   ObPrimaryButton(
-                      label: 'Begin my success', onTap: onContinue),
+                      label: l10n.onboardingBeginMySuccess, onTap: onContinue),
                 ],
               ),
             ),

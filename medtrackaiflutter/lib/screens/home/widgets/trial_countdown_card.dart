@@ -6,12 +6,14 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../providers/app_state.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../services/remote_config_service.dart';
+import '../../../l10n/app_localizations.dart';
 
 class TrialCountdownCard extends StatelessWidget {
   const TrialCountdownCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = Provider.of<AppState>(context);
     final profile = state.profile;
 
@@ -91,7 +93,7 @@ class TrialCountdownCard extends StatelessWidget {
                       boxShadow: AppShadows.soft,
                     ),
                     child: Text(
-                      'Go Pro',
+                      l10n.homeGoPro,
                       style: AppTypography.labelMedium.copyWith(
                         color: L.bg,
                         fontSize: 12,
@@ -132,7 +134,7 @@ class TrialCountdownCard extends StatelessWidget {
                       const SizedBox(width: AppSpacing.p8),
                       Expanded(
                         child: Text(
-                          'Unlock unlimited scans, interaction checks, and more with Pro.',
+                          l10n.homeUnlockUnlimitedScansInteractionChecksAnd,
                           style: AppTypography.bodySmall.copyWith(
                             color: L.sub,
                             fontSize: 12,

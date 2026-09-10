@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_theme.dart';
 import 'package:medai/widgets/common/animated_pressable.dart';
+import '../../../l10n/app_localizations.dart';
 
 class SimulateMissCard extends StatefulWidget {
   final AppThemeColors L;
@@ -15,6 +16,7 @@ class _SimulateMissCardState extends State<SimulateMissCard> {
   bool _simulating = false;
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = widget.L;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.p20),
@@ -37,10 +39,10 @@ class _SimulateMissCardState extends State<SimulateMissCard> {
               child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                Text('Test Alert Cycle',
+                Text(l10n.familyTestAlertCycle,
                     style: AppTypography.labelLarge
                         .copyWith(fontWeight: FontWeight.w700, color: L.text)),
-                Text('Simulate a missed dose alert',
+                Text(l10n.familySimulateAMissedDoseAlert,
                     style: AppTypography.labelSmall.copyWith(color: L.sub)),
               ])),
           AnimatedPressable(

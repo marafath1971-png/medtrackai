@@ -305,7 +305,7 @@ class _AuthScreenState extends State<AuthScreen> {
                     tag: 'medai-logo',
                     child: MedAiMascot(
                       size: 72,
-                      semanticLabel: 'Med AI mascot',
+                      semanticLabel: l10n.authMedAiMascot,
                     ),
                   ).entranceHero(),
                   const SizedBox(height: 28),
@@ -332,7 +332,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   const SizedBox(height: 28),
                   if (Theme.of(context).platform == TargetPlatform.iOS) ...[
                     _SocialAuthBtn(
-                      label: 'Continue with Apple',
+                      label: l10n.authContinueWithApple,
                       icon: Icons.apple_rounded,
                       variant: _SocialVariant.dark,
                       loading: _loadingApple,
@@ -341,14 +341,14 @@ class _AuthScreenState extends State<AuthScreen> {
                     const SizedBox(height: 12),
                   ],
                   _SocialAuthBtn(
-                    label: 'Continue with Google',
+                    label: l10n.authContinueWithGoogle,
                     imageAsset: 'assets/images/google_logo.png',
                     loading: _loading,
                     onTap: _googleSignIn,
                   ).entranceCard(3),
                   const SizedBox(height: 12),
                   _SocialAuthBtn(
-                    label: 'Continue with Email',
+                    label: l10n.authContinueWithEmail,
                     icon: Icons.mail_outline_rounded,
                     onTap: _showEmailSheet,
                   ).entranceCard(4),
@@ -359,18 +359,18 @@ class _AuthScreenState extends State<AuthScreen> {
                       alignment: WrapAlignment.center,
                       children: [
                         Text(
-                          'By continuing, you agree to our ',
+                          l10n.authByContinuingYouAgreeToOur,
                           style: AppTypography.bodySmall.copyWith(
                             fontSize: 12,
                             color: L.sub.withValues(alpha: 0.6),
                           ),
                         ),
-                        const _LegalLink(
-                          label: 'Terms',
+                        _LegalLink(
+                          label: l10n.authTerms,
                           url: kTermsOfServiceUrl,
                         ),
                         Text(
-                          ' and ',
+                          l10n.authAnd,
                           style: AppTypography.bodySmall.copyWith(
                             fontSize: 12,
                             color: L.sub.withValues(alpha: 0.6),
@@ -387,7 +387,7 @@ class _AuthScreenState extends State<AuthScreen> {
                   Center(
                     child: Semantics(
                       button: true,
-                      label: 'Have an invite code',
+                      label: l10n.authHaveAnInviteCode2,
                       child: AnimatedPressable(
                         onTap: _enterInviteCode,
                         hitTestPadding: const EdgeInsets.all(8),
@@ -397,7 +397,7 @@ class _AuthScreenState extends State<AuthScreen> {
                             vertical: 8,
                           ),
                           child: Text(
-                            'Have an invite code?',
+                            l10n.authHaveAnInviteCode,
                             style: AppTypography.bodySmall.copyWith(
                               fontSize: 13,
                               color: L.accent,
@@ -579,6 +579,7 @@ class _EmailAuthSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
 
@@ -629,7 +630,7 @@ class _EmailAuthSheet extends StatelessWidget {
                   const SizedBox(height: 20),
                   _AuthField(
                     controller: emailCtrl,
-                    label: 'Email address',
+                    label: l10n.authEmailAddress,
                     keyboardType: TextInputType.emailAddress,
                     autofillHints: const [AutofillHints.email],
                     L: L,
@@ -637,7 +638,7 @@ class _EmailAuthSheet extends StatelessWidget {
                   const SizedBox(height: 12),
                   _AuthField(
                     controller: passCtrl,
-                    label: 'Password',
+                    label: l10n.authPassword,
                     obscure: !showPass,
                     autofillHints: isSignUp
                         ? const [AutofillHints.newPassword]
@@ -665,12 +666,12 @@ class _EmailAuthSheet extends StatelessWidget {
                       alignment: AlignmentDirectional.centerEnd,
                       child: Semantics(
                         button: true,
-                        label: 'Forgot password',
+                        label: l10n.authForgotPassword2,
                         child: AnimatedPressable(
                           onTap: onForgot,
                           hitTestPadding: const EdgeInsets.all(4),
                           child: Text(
-                            'Forgot password?',
+                            l10n.authForgotPassword,
                             style: AppTypography.labelMedium.copyWith(
                               color: AppColors.limeDeep,
                               fontWeight: FontWeight.w700,

@@ -57,7 +57,7 @@ class DashboardPurrentTopBar extends StatelessWidget {
                   ),
                 ),
                 const Spacer(),
-                _MenuPill(label: 'Menu', onTap: onMenu),
+                _MenuPill(label: l10n.dashboardMenu, onTap: onMenu),
               ],
             ),
             const SizedBox(height: AppSpacing.p16),
@@ -79,7 +79,7 @@ class DashboardPurrentTopBar extends StatelessWidget {
                       ),
                       const SizedBox(height: AppSpacing.p4),
                       Text(
-                        'Your week at a glance',
+                        l10n.dashboardYourWeekAtAGlance,
                         style: AppTypography.bodyMedium.copyWith(
                           color: AppColors.grey600,
                           fontWeight: FontWeight.w600,
@@ -243,6 +243,7 @@ class DashboardPurrentMetricGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final avgDaily = dosesWeek > 0 ? (dosesWeek / 7).toStringAsFixed(1) : '0';
     final adherenceSpark = weeklyAdherence.isNotEmpty
         ? weeklyAdherence.map((v) => v.clamp(0.0, 1.0)).toList()
@@ -269,7 +270,7 @@ class DashboardPurrentMetricGrid extends StatelessWidget {
           const SizedBox(width: AppSpacing.p8),
           Expanded(
             child: _PurrentMetricCard(
-              title: 'Doses',
+              title: l10n.dashboardDoses,
               value: '$dosesWeek',
               subtitle: 'this week',
               accent: AppColors.infoSoft,
@@ -280,7 +281,7 @@ class DashboardPurrentMetricGrid extends StatelessWidget {
           const SizedBox(width: AppSpacing.p8),
           Expanded(
             child: _PurrentMetricCard(
-              title: 'Daily avg',
+              title: l10n.dashboardDailyAvg,
               value: avgDaily,
               subtitle: 'per day',
               accent: AppColors.warningSoft,
@@ -481,6 +482,7 @@ class _DashboardMedicationDiaryState extends State<DashboardMedicationDiary> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final items = _buildItems();
 
@@ -490,7 +492,7 @@ class _DashboardMedicationDiaryState extends State<DashboardMedicationDiary> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Medication diary",
+            l10n.dashboardMedicationDiary,
             style: AppTypography.titleLarge.copyWith(
               fontWeight: FontWeight.w700,
               fontSize: 20,
@@ -507,7 +509,7 @@ class _DashboardMedicationDiaryState extends State<DashboardMedicationDiary> {
           if (items.isEmpty)
             PremiumEmptyState(
               compact: true,
-              title: 'No doses logged',
+              title: l10n.dashboardNoDosesLogged,
               subtitle: 'Nothing recorded for this period yet.',
               mascotFeature: 'missed',
               icon: Icons.event_note_rounded,

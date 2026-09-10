@@ -5,6 +5,7 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../l10n/app_localizations.dart';
 
 class JoinAsCaregiverView extends StatefulWidget {
   final AppState state;
@@ -96,6 +97,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = widget.L;
     return AppScaffold(
         showAurora: context.isDark,
@@ -106,7 +108,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
             child: Row(children: [
               Semantics(
                 button: true,
-                label: 'Close',
+                label: l10n.familyClose,
                 child: AnimatedPressable(
                   onTap: () {
                     HapticEngine.selection();
@@ -127,7 +129,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
               ),
               const SizedBox(width: AppSpacing.p16),
               Expanded(
-                child: Text('Join as Caregiver',
+                child: Text(l10n.familyJoinAsCaregiver,
                     style: AppTypography.titleLarge.copyWith(
                         fontSize: 18,
                         fontWeight: FontWeight.w700,
@@ -145,13 +147,13 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                            'Scan the QR code or enter the invite code to start monitoring.',
+                            l10n.familyScanTheQrCodeOrEnter,
                             style: AppTypography.bodySmall.copyWith(
                                 fontSize: 14, color: L.sub, height: 1.5)),
                         const SizedBox(height: AppSpacing.p32),
                         Center(
                           child: Semantics(
-                            label: 'QR code scanner',
+                            label: l10n.familyQrCodeScanner,
                             child: MedAiDepthCard(
                               padding: EdgeInsets.zero,
                               radius: AppRadius.squircle,
@@ -189,7 +191,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                         ),
                         const SizedBox(height: AppSpacing.p32),
                         Center(
-                            child: Text('OR ENTER CODE',
+                            child: Text(l10n.familyOrEnterCode,
                                 style: AppTypography.labelLarge.copyWith(
                                     fontSize: 11,
                                     fontWeight: FontWeight.w700,
@@ -198,7 +200,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                         const SizedBox(height: AppSpacing.p12),
                         Semantics(
                           textField: true,
-                          label: 'Invite code',
+                          label: l10n.familyInviteCode,
                           child: MedAiTextField(
                             controller: _codeCtrl,
                             hintText: '000000',
@@ -235,7 +237,7 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                         ],
                         const SizedBox(height: AppSpacing.p40),
                         MedAiCTA(
-                          label: 'Verify and Join',
+                          label: l10n.familyVerifyAndJoin,
                           loading: _isChecking,
                           semanticsLabel: 'Verify invite code and join care team',
                           onTap: _isChecking

@@ -61,6 +61,7 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final S = AppLocalizations.of(context)!;
@@ -98,7 +99,7 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                 id: 'prn_${e.medId}_${e.time}',
                 h: _parseHour(e.time),
                 m: _parseMinute(e.time),
-                label: 'PRN',
+                label: l10n.modalsPrn,
                 days: const []),
             key: 'PRN-${e.medId}-${e.time}',
           );
@@ -146,7 +147,7 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
               children: [
                 Semantics(
                   button: true,
-                  label: 'Previous day',
+                  label: l10n.modalsPreviousDay,
                   child: AnimatedPressable(
                     onTap: () {
                       HapticEngine.light();
@@ -184,7 +185,7 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                 ),
                 Semantics(
                   button: true,
-                  label: 'Next day',
+                  label: l10n.modalsNextDay,
                   enabled: !_selectedDate.isAfter(
                       DateTime.now().subtract(const Duration(hours: 1))),
                   child: AnimatedPressable(
@@ -303,10 +304,10 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
 
           // --- MEDICATIONS SECTION ---
           _SectionHeader(
-              title: 'MEDICATIONS', count: allDosesToShow.length, L: L),
+              title: l10n.modalsMedications, count: allDosesToShow.length, L: L),
           if (allDosesToShow.isEmpty)
             PremiumEmptyState(
-              title: 'No doses scheduled',
+              title: l10n.modalsNoDosesScheduled,
               subtitle: 'Check back later or add a PRN dose to see logs here.',
               mascotFeature: 'missed',
               icon: Icons.event_available_rounded,
@@ -352,7 +353,7 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
 
           // --- SYMPTOMS SECTION ---
           _SectionHeader(
-              title: 'SYMPTOMS & LOGS', count: todaySymptoms.length, L: L),
+              title: l10n.modalsSymptomsLogs, count: todaySymptoms.length, L: L),
           if (todaySymptoms.isEmpty)
             _EmptyState(message: 'No symptoms logged for this day.', L: L)
           else
@@ -478,6 +479,7 @@ class _DoseLogRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final isPrnBadge = isPrn;
     final medColor = hexToColor(dose.med.color);
 
@@ -621,7 +623,7 @@ class _DoseLogRow extends StatelessWidget {
                             ),
                           ),
                           child: Text(
-                            'PRN',
+                            l10n.modalsPrn,
                             style: AppTypography.labelSmall.copyWith(
                               color: taken ? Colors.white : L.accent,
                               fontWeight: FontWeight.w700,
@@ -649,7 +651,7 @@ class _DoseLogRow extends StatelessWidget {
             if (isPrnBadge && onUndo != null) ...[
               Semantics(
                 button: true,
-                label: 'Remove PRN dose',
+                label: l10n.modalsRemovePrnDose,
                 child: AnimatedPressable(
                   onTap: onUndo,
                   child: Container(
@@ -703,6 +705,7 @@ class _SymptomLogRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -747,7 +750,7 @@ class _SymptomLogRow extends StatelessWidget {
               HapticEngine.selection();
               onDelete();
             },
-            tooltip: 'Delete symptom',
+            tooltip: l10n.modalsDeleteSymptom,
             icon: Icon(Icons.delete_outline_rounded, size: 18, color: L.sub),
             padding: EdgeInsets.zero,
             constraints: const BoxConstraints(),
@@ -765,8 +768,9 @@ class _EmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return PremiumEmptyState(
-      title: 'Nothing here yet',
+      title: l10n.modalsNothingHereYet,
       subtitle: message,
       mascotFeature: 'home',
       icon: Icons.inbox_outlined,

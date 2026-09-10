@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/screens/stats/widgets/trend_hero.dart';
 import 'package:medai/theme/med_ai_ui.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// The Trends tab opened on "Adherence 0% / All time" and "Symptoms 0 / Total
 /// logs" — two flat tiles above a list of navigation cards. Nothing on it
@@ -9,6 +10,8 @@ import 'package:medai/theme/med_ai_ui.dart';
 /// which is the only question the tab exists for, and a 30-day series was
 /// already being computed by getTrendData() and left unused.
 Widget _host(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       home: Scaffold(body: SingleChildScrollView(child: child)),
     );

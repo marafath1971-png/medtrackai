@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/screens/family/widgets/add_cg_flow.dart';
 import 'package:medai/theme/med_ai_ui.dart';
 import 'package:medai/widgets/common/solid_surface.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// Step 1 of the add-caregiver flow, rendered whole.
 ///
@@ -29,6 +30,8 @@ double _contrast(Color a, Color b) {
 }
 
 Widget _host(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       home: child,
     );

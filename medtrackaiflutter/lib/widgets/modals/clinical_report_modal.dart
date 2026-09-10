@@ -47,6 +47,7 @@ class _ClinicalReportModalState extends State<ClinicalReportModal> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final s = AppLocalizations.of(context)!;
     final reduceMotion = MedAiA11y.reducedMotion(context);
@@ -75,17 +76,17 @@ class _ClinicalReportModalState extends State<ClinicalReportModal> {
     }
 
     return RefinedSheetWrapper(
-      title: 'Value Realization',
+      title: l10n.modalsValueRealization,
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
       child: Column(
         children: [
           Semantics(
-            label: 'Clinical report ready',
+            label: l10n.modalsClinicalReportReady,
             child: heroIcon,
           ),
           const SizedBox(height: 24),
           Text(
-            'Clinical Report Ready',
+            l10n.modalsClinicalReportReady,
             style: AppTypography.titleLarge
                 .copyWith(fontWeight: FontWeight.w800, color: L.text),
           ),
@@ -114,7 +115,7 @@ class _ClinicalReportModalState extends State<ClinicalReportModal> {
               'Daily logging checklist & notes'),
           const SizedBox(height: 32),
           MedAiCTA(
-            label: 'Generate PDF Report',
+            label: l10n.modalsGeneratePdfReport,
             icon: Icons.picture_as_pdf_rounded,
             loading: _isGenerating,
             semanticsLabel: 'Generate PDF clinical report',

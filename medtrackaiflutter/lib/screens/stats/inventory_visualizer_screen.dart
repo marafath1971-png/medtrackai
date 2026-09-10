@@ -40,7 +40,7 @@ class InventoryVisualizerScreen extends StatelessWidget {
               child: meds.isEmpty
                   ? Center(
                       child: PremiumEmptyState(
-                        title: 'No medications to track',
+                        title: l10n.statsNoMedicationsToTrack,
                         subtitle: 'Add meds from Home to see inventory levels.',
                         mascotFeature: 'refill',
                         icon: Icons.inventory_2_outlined,
@@ -85,6 +85,7 @@ class _LiquidFillBottle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final fillPercentage =
         med.totalCount > 0 ? (med.count / med.totalCount).clamp(0.0, 1.0) : 0.0;
     final isLowStock = med.count <= med.refillAt;
@@ -145,7 +146,7 @@ class _LiquidFillBottle extends StatelessWidget {
                             Icon(Icons.warning_rounded,
                                 color: L.error,
                                 size: 20,
-                                semanticLabel: 'Low stock'),
+                                semanticLabel: l10n.statsLowStock),
                         ],
                       ),
                       Column(

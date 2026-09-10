@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/med_ai_ui.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// The single confirmation for permanent account deletion.
 ///
@@ -67,6 +68,7 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     const danger = Color(0xFFB4494A);
 
@@ -81,7 +83,7 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
           const SizedBox(width: AppSpacing.p8),
           Expanded(
             child: Text(
-              'Delete account?',
+              l10n.settingsDeleteAccount,
               style: AppTypography.titleLarge.copyWith(
                 color: L.text,
                 fontWeight: FontWeight.w700,
@@ -95,9 +97,7 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'This permanently erases your medication history, schedules and '
-            'health records from this device and our servers. It cannot be '
-            'undone, and support cannot restore it.',
+            l10n.settingsThisPermanentlyErasesYourMedicationHistory,
             style: AppTypography.bodySmall.copyWith(color: L.sub, height: 1.5),
           ),
           const SizedBox(height: AppSpacing.p16),
@@ -149,7 +149,7 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
         TextButton(
           onPressed: () => Navigator.pop(context, false),
           child: Text(
-            'Keep my account',
+            l10n.settingsKeepMyAccount,
             style: AppTypography.labelLarge.copyWith(
               color: L.text,
               fontWeight: FontWeight.w700,
@@ -166,7 +166,7 @@ class _DeleteAccountDialogState extends State<DeleteAccountDialog> {
                 }
               : null,
           child: Text(
-            'Delete forever',
+            l10n.settingsDeleteForever,
             style: AppTypography.labelLarge.copyWith(
               color: _armed ? danger : L.sub.withValues(alpha: 0.4),
               fontWeight: FontWeight.w700,

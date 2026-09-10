@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/shared/shared_widgets.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ─────────────────────────────────────────────────────────────
 // DAY TOGGLE — Cal AI style Today/Yesterday switcher.
@@ -17,6 +18,7 @@ class DayToggle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
@@ -72,7 +74,7 @@ class DayToggle extends StatelessWidget {
                                 isToday ? Colors.white : L.sub,
                             
                           ),
-                          child: const Text('Today'),
+                          child: Text(l10n.dashboardToday),
                         ),
                       ),
                     ),
@@ -92,7 +94,7 @@ class DayToggle extends StatelessWidget {
                                 !isToday ? Colors.white : L.sub,
                             
                           ),
-                          child: const Text('Yesterday'),
+                          child: Text(l10n.homeYesterday),
                         ),
                       ),
                     ),

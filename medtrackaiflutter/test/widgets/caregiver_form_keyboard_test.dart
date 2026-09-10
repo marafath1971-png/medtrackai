@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/screens/family/widgets/add_cg_flow.dart';
 import 'package:medai/screens/app_shell.dart' show kShellNavIslandInset;
 import 'package:medai/theme/med_ai_ui.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// Three faults visible in one flow:
 ///
@@ -42,6 +43,8 @@ import 'package:medai/theme/med_ai_ui.dart';
 /// Pixel 7a: drop either half and the CTA jumps to the top of the screen with
 /// the name field hidden behind it.
 Widget _shell(Widget child, {double keyboard = 0}) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       home: MediaQuery(
         data: MediaQueryData(
@@ -184,6 +187,8 @@ void main() {
           addTearDown(contact.dispose);
 
           await tester.pumpWidget(MaterialApp(
+            localizationsDelegates: AppLocalizations.localizationsDelegates,
+            supportedLocales: AppLocalizations.supportedLocales,
             theme: dark ? AppTheme.dark() : AppTheme.light(),
             home: MediaQuery(
               data: MediaQueryData(

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../theme/app_theme.dart';
 import '../../../providers/app_state.dart';
+import '../../../l10n/app_localizations.dart';
 
 class AIProtectorCard extends StatefulWidget {
   final Caregiver cg;
@@ -40,6 +41,7 @@ class _AIProtectorCardState extends State<AIProtectorCard>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final insight = widget.state.protectorInsights[widget.cg.patientUid];
     final isLoading = insight == null;
     final L = context.L;
@@ -74,12 +76,12 @@ class _AIProtectorCardState extends State<AIProtectorCard>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('MedAI protector advisor',
+                      Text(l10n.familyMedaiProtectorAdvisor,
                           style: AppTypography.titleLarge.copyWith(
                               fontSize: 14,
                               fontWeight: FontWeight.w700,
                               color: L.text)),
-                      Text('Intelligent care analysis',
+                      Text(l10n.familyIntelligentCareAnalysis,
                           style: AppTypography.bodySmall.copyWith(
                               fontSize: 11,
                               color: L.sub,
@@ -113,7 +115,7 @@ class _AIProtectorCardState extends State<AIProtectorCard>
                       color: AppColors.limeDeep.withValues(alpha: 0.55),
                       size: 14),
                   const SizedBox(width: AppSpacing.p8),
-                  Text('Patterns analyzed across last 7 days',
+                  Text(l10n.familyPatternsAnalyzedAcrossLast7Days,
                       style: AppTypography.bodySmall.copyWith(
                           fontSize: 11,
                           color: L.sub,

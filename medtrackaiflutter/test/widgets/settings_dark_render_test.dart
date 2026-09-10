@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/screens/settings/widgets/settings_kit.dart';
 import 'package:medai/theme/med_ai_ui.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// settings_contrast_test reasons about token pairs by reading source. That
 /// catches a card declared white next to theme-driven text, but it cannot
@@ -25,6 +26,8 @@ double _ratio(Color fg, Color bg) {
 }
 
 Widget _dark(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.dark(),
       home: Scaffold(
         backgroundColor: AppTheme.dark().scaffoldBackgroundColor,

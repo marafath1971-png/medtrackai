@@ -22,6 +22,7 @@ import '../../screens/paywall/premium_paywall_overlay.dart';
 import '../../services/remote_config_service.dart';
 import '../../widgets/modals/scan_success_sheet.dart';
 import 'widgets/scan_result_detail_view.dart';
+import '../../l10n/app_localizations.dart';
 
 // ══════════════════════════════════════════════
 // PILL IDENTIFIER SCANNER — Cal AI Style
@@ -274,6 +275,7 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       backgroundColor: Colors.black,
       body: Stack(
@@ -316,7 +318,7 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
                     children: [
                       Semantics(
                         button: true,
-                        label: 'Close',
+                        label: l10n.familyClose,
                         child: AnimatedPressable(
                           onTap: () => Navigator.pop(context),
                           child: Container(
@@ -344,7 +346,7 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Pill Identifier',
+                              l10n.scanPillIdentifier,
                               style: AppTypography.headlineMedium.copyWith(
                                 color: Colors.white,
                                 fontWeight: FontWeight.w800,
@@ -353,7 +355,7 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
                               ),
                             ),
                             Text(
-                              'Shape, color & imprint',
+                              l10n.scanShapeColorImprint,
                               style: AppTypography.bodySmall.copyWith(
                                 color: Colors.white.withValues(alpha: 0.72),
                                 fontWeight: FontWeight.w500,
@@ -414,7 +416,7 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
                   ),
                   const SizedBox(height: 6),
                   Text(
-                    'Shape · Color · Imprint',
+                    l10n.scanShapeColorImprint2,
                     style: AppTypography.bodySmall.copyWith(
                       color: Colors.white.withValues(alpha: 0.5),
                       fontWeight: FontWeight.w500,
@@ -592,6 +594,7 @@ class _PillResultOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final botPad = MediaQuery.paddingOf(context).bottom;
     return Positioned.fill(
@@ -664,7 +667,7 @@ class _PillResultOverlay extends StatelessWidget {
                         Expanded(
                           child: Semantics(
                             button: true,
-                            label: 'Track medicine',
+                            label: l10n.scanTrackMedicine,
                             child: AnimatedPressable(
                               onTap: () => _addToMedicines(context),
                               child: Container(
@@ -685,7 +688,7 @@ class _PillResultOverlay extends StatelessWidget {
                                           color: Colors.white, size: 20),
                                       const SizedBox(width: AppSpacing.p8),
                                       Text(
-                                        'Track medicine',
+                                        l10n.scanTrackMedicine,
                                         style: AppTypography.labelMedium
                                             .copyWith(
                                           color: Colors.white,
@@ -702,7 +705,7 @@ class _PillResultOverlay extends StatelessWidget {
                         const SizedBox(width: 10),
                         Semantics(
                           button: true,
-                          label: 'Scan another',
+                          label: l10n.scanScanAnother,
                           child: AnimatedPressable(
                             onTap: onScanAnother,
                             child: Container(

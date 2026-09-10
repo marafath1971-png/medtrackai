@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/screens/home/widgets/home_today_hero.dart';
 import 'package:medai/theme/med_ai_ui.dart';
 import 'package:medai/widgets/common/ghost_mascot.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// Home opened on a 168px stock photograph of a salad, captioned
 /// "MADE FOR YOU · Your #1 plan for medication success".
@@ -13,6 +14,8 @@ import 'package:medai/widgets/common/ghost_mascot.dart';
 /// pushed the actual schedule below the fold. HomeTodayHero replaces it with
 /// the day's real state in less vertical space.
 Widget _host(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       home: Scaffold(body: SingleChildScrollView(child: child)),
     );

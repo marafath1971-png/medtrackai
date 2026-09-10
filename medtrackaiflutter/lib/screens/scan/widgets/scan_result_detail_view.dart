@@ -9,6 +9,7 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/shared/shared_widgets.dart' show MedImage;
 import 'premium_scan_result_chrome.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Post-scan medicine result — 100% premium redesign matching reference
 /// wellness UI (pastel tiles, large %, soft cards, airy spacing).
@@ -57,6 +58,7 @@ class ScanResultDetailView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final name = result.name.isNotEmpty ? result.name : 'Unknown product';
@@ -102,7 +104,7 @@ class ScanResultDetailView extends StatelessWidget {
             alignment: AlignmentDirectional.centerEnd,
             child: Semantics(
               button: true,
-              label: 'Close results',
+              label: l10n.scanCloseResults,
               child: AnimatedPressable(
                 onTap: onClose,
                 child: Container(
@@ -209,7 +211,7 @@ class ScanResultDetailView extends StatelessWidget {
             caption: result.identified
                 ? 'Smart match based on your scan — verify with a pharmacist when unsure.'
                 : 'Not confirmed yet — try another angle or search by name.',
-            title: 'Scan confidence',
+            title: l10n.scanScanConfidence,
           ),
           60.ms,
         ),
@@ -223,7 +225,7 @@ class ScanResultDetailView extends StatelessWidget {
           _in(
             reduceMotion,
             ScanSoftSection(
-              title: 'Not confirmed yet',
+              title: l10n.scanNotConfirmedYet,
               subtitle: 'Let’s get you a sharper match.',
               tint: AppColors.pastelSun,
               icon: Icons.search_rounded,
@@ -231,9 +233,7 @@ class ScanResultDetailView extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Try a straight-on photo of the label in good light, or '
-                    'scan another angle. You can still track it manually and '
-                    'fill in the details yourself.',
+                    l10n.scanTryAStraightOnPhotoOf,
                     style: AppTypography.bodyMedium.copyWith(
                       color: L.text.withValues(alpha: 0.88),
                       height: 1.5,
@@ -241,7 +241,7 @@ class ScanResultDetailView extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.p12),
                   MedAiCTA(
-                    label: 'Scan again',
+                    label: l10n.analysisScanAgain,
                     icon: Icons.qr_code_scanner_rounded,
                     secondary: true,
                     fullWidth: false,
@@ -269,7 +269,7 @@ class ScanResultDetailView extends StatelessWidget {
               ),
               const SizedBox(width: AppSpacing.p8),
               Text(
-                'Safety first',
+                l10n.analysisSafetyFirst,
                 style: AppTypography.headlineSmall.copyWith(
                   color: L.text,
                   fontWeight: FontWeight.w700,
@@ -285,7 +285,7 @@ class ScanResultDetailView extends StatelessWidget {
           _in(
             reduceMotion,
             ScanSoftSection(
-              title: 'Important warnings',
+              title: l10n.scanImportantWarnings,
               subtitle: 'Know before you take — you’ve got this.',
               tint: AppColors.pastelPink,
               icon: Icons.priority_high_rounded,
@@ -307,7 +307,7 @@ class ScanResultDetailView extends StatelessWidget {
           _in(
             reduceMotion,
             ScanSoftSection(
-              title: 'Interactions',
+              title: l10n.analysisInteractions,
               subtitle: 'Check against what you already take.',
               tint: AppColors.pastelSun,
               icon: Icons.link_off_rounded,
@@ -325,7 +325,7 @@ class ScanResultDetailView extends StatelessWidget {
 
         const SizedBox(height: AppSpacing.p24),
         Text(
-          'Know your medicine',
+          l10n.analysisKnowYourMedicine,
           style: AppTypography.headlineSmall.copyWith(
             color: L.text,
             fontWeight: FontWeight.w700,
@@ -334,7 +334,7 @@ class ScanResultDetailView extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.p4),
         Text(
-          'Details built for you — clear, trusted, and ready to track.',
+          l10n.scanDetailsBuiltForYouClearTrusted,
           style: AppTypography.bodySmall.copyWith(color: L.sub, height: 1.4),
         ),
 
@@ -382,7 +382,7 @@ class ScanResultDetailView extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Did you know?',
+                          l10n.medicineDidYouKnow,
                           style: AppTypography.labelSmall.copyWith(
                             color: L.sub,
                             fontWeight: FontWeight.w700,
@@ -409,7 +409,7 @@ class ScanResultDetailView extends StatelessWidget {
         if (_sideEffectBubbles.isNotEmpty) ...[
           const SizedBox(height: AppSpacing.p24),
           Text(
-            'Side-effect map',
+            l10n.analysisSideEffectMap,
             style: AppTypography.titleMedium.copyWith(
               color: L.text,
               fontWeight: FontWeight.w700,
@@ -428,7 +428,7 @@ class ScanResultDetailView extends StatelessWidget {
           _in(
             reduceMotion,
             ScanSoftSection(
-              title: 'How to take',
+              title: l10n.homeHowToTake,
               subtitle: 'Timing and instructions for confidence.',
               tint: AppColors.pastelSky,
               icon: Icons.schedule_rounded,
@@ -443,7 +443,7 @@ class ScanResultDetailView extends StatelessWidget {
           _in(
             reduceMotion,
             ScanSoftSection(
-              title: 'Pack & course',
+              title: l10n.scanPackCourse,
               tint: AppColors.pastelMint,
               icon: Icons.inventory_2_outlined,
               child: _BulletLines(lines: _packLines),
@@ -457,7 +457,7 @@ class ScanResultDetailView extends StatelessWidget {
           _in(
             reduceMotion,
             ScanSoftSection(
-              title: 'About',
+              title: l10n.scanAbout,
               tint: AppColors.pastelMint,
               icon: Icons.menu_book_rounded,
               child: Column(
@@ -502,7 +502,7 @@ class ScanResultDetailView extends StatelessWidget {
           _in(
             reduceMotion,
             ScanSoftSection(
-              title: 'Regulatory',
+              title: l10n.scanRegulatory,
               tint: const Color(0xFFF3F0EA),
               icon: Icons.verified_outlined,
               child: _BulletLines(lines: _regulatoryLines),
@@ -513,7 +513,7 @@ class ScanResultDetailView extends StatelessWidget {
 
         const SizedBox(height: AppSpacing.p24),
         Text(
-          'AI identification — always verify with your pharmacist or prescriber.',
+          l10n.analysisAiIdentificationAlwaysVerifyWithYour,
           textAlign: TextAlign.center,
           style: AppTypography.bodySmall.copyWith(
             color: L.sub.withValues(alpha: 0.9),
@@ -529,13 +529,13 @@ class ScanResultDetailView extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 MedAiCTA(
-                  label: 'Track medicine',
+                  label: l10n.scanTrackMedicine,
                   icon: Icons.add_rounded,
                   onTap: onAddToMedicines,
                 ),
                 const SizedBox(height: AppSpacing.p12),
                 MedAiCTA(
-                  label: 'Scan another',
+                  label: l10n.scanScanAnother,
                   secondary: true,
                   onTap: onScanAnother,
                 ),
@@ -857,9 +857,10 @@ class _BodyImpactPremium extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return ScanSoftSection(
-      title: 'How this supports you',
+      title: l10n.analysisHowThisSupportsYou,
       subtitle: 'Body systems & timing',
       tint: AppColors.pastelMint,
       icon: Icons.monitor_heart_outlined,

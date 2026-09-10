@@ -9,6 +9,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/animated_pressable.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_page_header.dart';
+import '../../l10n/app_localizations.dart';
 
 class AddDependentScreen extends StatefulWidget {
   const AddDependentScreen({super.key});
@@ -99,6 +100,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return AppScaffold(
@@ -110,7 +112,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: PremiumPageHeader(
-              title: 'Add Caregiver',
+              title: l10n.familyAddCaregiver,
               subtitle: 'Invite someone to help with care',
               onBack: () {
                 HapticEngine.selection();
@@ -122,7 +124,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p24, vertical: AppSpacing.p12),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-                const MedAiSectionHeader(title: 'Avatar'),
+                MedAiSectionHeader(title: l10n.familyAvatar),
                 const SizedBox(height: AppSpacing.p12),
                 SizedBox(
                   height: 88,
@@ -236,14 +238,14 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Critical Profile',
+                              l10n.familyCriticalProfile,
                               style: AppTypography.labelMedium.copyWith(
                                 color: L.text,
                                 fontWeight: FontWeight.w900,
                               ),
                             ),
                             Text(
-                              'Prioritize notifications and alerts',
+                              l10n.familyPrioritizeNotificationsAndAlerts,
                               style: AppTypography.labelSmall.copyWith(
                                 color: L.sub.withValues(alpha: 0.6),
                               ),
@@ -253,7 +255,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                       ),
                       Semantics(
                         toggled: _isCritical,
-                        label: 'Critical profile',
+                        label: l10n.familyCriticalProfile,
                         child: Switch.adaptive(
                           value: _isCritical,
                           activeTrackColor: L.error,
@@ -278,7 +280,7 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                 ),
                 const SizedBox(height: AppSpacing.p40),
                 MedAiCTA(
-                  label: 'Save Caregiver',
+                  label: l10n.familySaveCaregiver,
                   loading: _isSaving,
                   semanticsLabel: 'Save caregiver profile',
                   onTap: _isSaving ? null : _save,

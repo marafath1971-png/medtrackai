@@ -4,6 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../models/constants.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Medical disclaimer modal — shown once on first app launch.
 /// Required for legal compliance in all markets.
@@ -41,6 +42,7 @@ class MedicalDisclaimerModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return Dialog(
@@ -88,7 +90,7 @@ class MedicalDisclaimerModal extends StatelessWidget {
               const SizedBox(height: 24),
 
               Text(
-                'Important Health Notice',
+                l10n.commonImportantHealthNotice,
                 textAlign: TextAlign.center,
                 style: AppTypography.headlineLarge.copyWith(
                   color: L.text,
@@ -156,7 +158,7 @@ class MedicalDisclaimerModal extends StatelessWidget {
                   ),
                   child: Center(
                     child: Text(
-                      'I Understand & Accept',
+                      l10n.commonIUnderstandAccept,
                       style: AppTypography.labelLarge.copyWith(
                         color: L.bg,
                         fontSize: 16,
@@ -179,7 +181,7 @@ class MedicalDisclaimerModal extends StatelessWidget {
               const SizedBox(height: 12),
 
               Text(
-                'By continuing, you agree to our Terms of Service and Privacy Policy.',
+                l10n.commonByContinuingYouAgreeToOur,
                 textAlign: TextAlign.center,
                 style: AppTypography.bodySmall.copyWith(
                   color: L.sub,

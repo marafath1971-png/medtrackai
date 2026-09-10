@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../domain/entities/medicine.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/color_utils.dart';
+import '../../../l10n/app_localizations.dart';
 
 class RecoveryCourseTracker extends StatelessWidget {
   final Medicine medicine;
@@ -17,6 +18,7 @@ class RecoveryCourseTracker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final day = medicine.currentCourseDay;
@@ -107,7 +109,7 @@ class RecoveryCourseTracker extends StatelessWidget {
                         borderRadius: BorderRadius.circular(AppRadius.s),
                       ),
                       child: Text(
-                        'Short-term course',
+                        l10n.homeShortTermCourse,
                         style: AppTypography.labelSmall.copyWith(
                           color: L.red,
                           fontSize: 11,
@@ -129,7 +131,7 @@ class RecoveryCourseTracker extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.p4),
                     Text(
-                      'Recovery mode active',
+                      l10n.homeRecoveryModeActive,
                       style: AppTypography.bodySmall.copyWith(
                         color: L.sub,
                         fontSize: 13,

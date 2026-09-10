@@ -103,7 +103,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
               delegate: SliverChildListDelegate([
               // ── LOCALIZATION BLOCK ───────────────────────
               _IndustrialSection(
-                label: 'Localization',
+                label: l10n.settingsLocalization,
                 icon: Icons.language_rounded,
                 L: L,
                 children: [
@@ -187,14 +187,14 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                     L: L,
                   ),
                   _ToggleTile(
-                    title: 'Diabetes Metrics',
+                    title: l10n.settingsDiabetesMetrics,
                     subtitle: 'Synchronize blood glucose logs',
                     value: _profile.diabetesMode,
                     onChanged: (v) => _save(_profile.copyWith(diabetesMode: v)),
                     L: L,
                   ),
                   _ToggleTile(
-                    title: 'Hypertension Tracking',
+                    title: l10n.settingsHypertensionTracking,
                     subtitle: 'Synchronize systolic/diastolic logs',
                     value: _profile.hypertensionMode,
                     onChanged: (v) =>
@@ -209,12 +209,12 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
 
               // ── VITAL CONNECTIVITY BLOCK ─────────────────
               _IndustrialSection(
-                label: 'Vital connectivity',
+                label: l10n.settingsVitalConnectivity,
                 icon: Icons.favorite_rounded,
                 L: L,
                 children: [
                   _ToggleTile(
-                    title: 'Auto-Sync Health',
+                    title: l10n.settingsAutoSyncHealth,
                     subtitle: 'Keep vitals synchronized in background',
                     value: context.watch<AppState>().healthAutoSync,
                     onChanged: (v) =>
@@ -236,13 +236,13 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
               // by different code. Account-level actions now live only where
               // the account does; this page keeps device-local state.
               _IndustrialSection(
-                label: 'This device',
+                label: l10n.settingsThisDevice,
                 icon: Icons.phone_iphone_rounded,
                 L: L,
                 children: [
                   _AccountActionTile(
                     icon: Icons.cleaning_services_rounded,
-                    title: 'Clear Local Cache',
+                    title: l10n.settingsClearLocalCache,
                     subtitle: 'Free up space and refresh local state',
                     isLast: true,
                     onTap: () => _confirmReset(context, L),
@@ -255,7 +255,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
 
               // ── SYSTEM BLOCK ─────────────────────────────
               _IndustrialSection(
-                label: 'System',
+                label: l10n.settingsSystem,
                 icon: Icons.settings_rounded,
                 L: L,
                 children: [
@@ -279,7 +279,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                   ),
                   _AccountActionTile(
                     icon: Icons.support_agent_rounded,
-                    title: 'Support & Feedback',
+                    title: l10n.homeSupportFeedback,
                     subtitle: 'Get help or send us feedback',
                     isLast: true,
                     onTap: () async {
@@ -291,7 +291,7 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
                         if (context.mounted) {
                           SmartAlertService.show(
                             context,
-                            title: 'Contact Support',
+                            title: l10n.homeContactSupport,
                             message: 'Email us at $kSupportEmail',
                             type: AlertType.info,
                           );

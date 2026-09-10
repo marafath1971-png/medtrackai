@@ -53,7 +53,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                 children: [
                   Semantics(
                     button: true,
-                    label: 'Close',
+                    label: l10n.familyClose,
                     child: AnimatedPressable(
                       onTap: () => Navigator.of(context).pop(),
                       child: Container(
@@ -69,7 +69,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                   ),
                   const Spacer(),
                   Text(
-                    'Add medicine',
+                    l10n.medicineAddMedicine,
                     style: AppTypography.titleMedium.copyWith(
                       color: L.text,
                       fontWeight: FontWeight.w700,
@@ -94,7 +94,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'What are you taking?',
+                      l10n.medicineWhatAreYouTaking,
                       style: AppTypography.displaySmall.copyWith(
                         color: L.text,
                         fontWeight: FontWeight.w800,
@@ -105,16 +105,16 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     ),
                     const SizedBox(height: AppSpacing.p8),
                     Text(
-                      'Search or type the medicine name to get started.',
+                      l10n.medicineSearchOrTypeTheMedicineName,
                       style: AppTypography.bodyMedium.copyWith(color: L.sub),
                     ),
                     const SizedBox(height: AppSpacing.p24),
 
                     // Name input
                     MedAiLabeledField(
-                      label: 'Medication name',
+                      label: l10n.medicineMedicationName,
                       controller: _nameController,
-                      hintText: 'e.g. Lisinopril',
+                      hintText: l10n.medicineEGLisinopril,
                       textCapitalization: TextCapitalization.words,
                       onChanged: (val) {
                         setState(() => _showSuggestions = val.isNotEmpty);
@@ -177,7 +177,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     ),
                     const SizedBox(height: AppSpacing.p4),
                     Text(
-                      'When do you take this?',
+                      l10n.medicineWhenDoYouTakeThis,
                       style: AppTypography.bodySmall.copyWith(color: L.sub),
                     ),
                     const SizedBox(height: AppSpacing.p16),
@@ -232,7 +232,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Remind me',
+                                  l10n.medicineRemindMe,
                                   style: AppTypography.titleMedium.copyWith(
                                     color: L.text,
                                     fontWeight: FontWeight.w700,
@@ -240,7 +240,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                                 ),
                                 const SizedBox(height: AppSpacing.p4),
                                 Text(
-                                  'Get a notification when it’s time',
+                                  l10n.medicineGetANotificationWhenItS,
                                   style: AppTypography.bodySmall
                                       .copyWith(color: L.sub),
                                 ),
@@ -262,7 +262,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     const SizedBox(height: AppSpacing.p40),
 
                     MedAiCTA(
-                      label: 'Add medication',
+                      label: l10n.medicineAddMedication,
                       icon: Icons.check_rounded,
                       onTap: () {
                         HapticEngine.success();

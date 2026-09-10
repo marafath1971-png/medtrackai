@@ -5,6 +5,7 @@ import '../../core/utils/scan_safety_mapper.dart';
 import '../../domain/entities/medicine.dart';
 import '../../theme/med_ai_ui.dart';
 import '../common/animated_pressable.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Pre-take "Know your medicine" gate — danger / sensitive info before logging.
 ///
@@ -42,6 +43,7 @@ class KnowYourMedicineSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final profile = med.aiSafetyProfile;
     final critical = med.hasCriticalSafetyAlerts;
@@ -205,7 +207,7 @@ class KnowYourMedicineSheet extends StatelessWidget {
                           const SizedBox(width: AppSpacing.p12),
                           Expanded(
                             child: Text(
-                              'Sensitive alerts on file — read these before you take this dose.',
+                              l10n.modalsSensitiveAlertsOnFileReadThese,
                               style: AppTypography.bodyMedium.copyWith(
                                 color: L.text,
                                 fontWeight: FontWeight.w700,
@@ -221,7 +223,7 @@ class KnowYourMedicineSheet extends StatelessWidget {
                   if (warnings.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.p16),
                     _AlertBlock(
-                      title: 'Warnings',
+                      title: l10n.modalsWarnings,
                       items: warnings,
                       tint: AppColors.pastelSun,
                       accent: const Color(0xFF9A6B1F),
@@ -231,7 +233,7 @@ class KnowYourMedicineSheet extends StatelessWidget {
                   if (interactions.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.p12),
                     _AlertBlock(
-                      title: 'Interactions',
+                      title: l10n.analysisInteractions,
                       items: interactions,
                       tint: AppColors.pastelPink,
                       accent: const Color(0xFF9B3D45),
@@ -241,7 +243,7 @@ class KnowYourMedicineSheet extends StatelessWidget {
                   if (foodRules.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.p12),
                     _AlertBlock(
-                      title: 'Before you take',
+                      title: l10n.modalsBeforeYouTake,
                       items: foodRules,
                       tint: AppColors.pastelMint,
                       accent: const Color(0xFF3D6B45),
@@ -251,7 +253,7 @@ class KnowYourMedicineSheet extends StatelessWidget {
                   if (tips.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.p12),
                     _AlertBlock(
-                      title: 'Good to know',
+                      title: l10n.modalsGoodToKnow,
                       items: tips.take(3).toList(),
                       tint: AppColors.pastelMint,
                       accent: L.text.withValues(alpha: 0.7),
@@ -261,7 +263,7 @@ class KnowYourMedicineSheet extends StatelessWidget {
 
                   const SizedBox(height: AppSpacing.p16),
                   Text(
-                    'AI guidance — always verify with your pharmacist or doctor.',
+                    l10n.modalsAiGuidanceAlwaysVerifyWithYour,
                     textAlign: TextAlign.center,
                     style: AppTypography.labelSmall.copyWith(
                       color: L.sub.withValues(alpha: 0.85),
@@ -301,7 +303,7 @@ class KnowYourMedicineSheet extends StatelessWidget {
                 const SizedBox(height: AppSpacing.p8),
                 Semantics(
                   button: true,
-                  label: 'Not now',
+                  label: l10n.commonNotNow,
                   child: AnimatedPressable(
                     onTap: () {
                       HapticEngine.selection();
@@ -314,7 +316,7 @@ class KnowYourMedicineSheet extends StatelessWidget {
                         minHeight: MedAiA11y.minTapTarget,
                       ),
                       child: Text(
-                        'Not now',
+                        l10n.commonNotNow,
                         style: AppTypography.labelMedium.copyWith(
                           color: L.sub,
                           fontWeight: FontWeight.w700,

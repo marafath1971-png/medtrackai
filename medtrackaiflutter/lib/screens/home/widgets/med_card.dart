@@ -9,6 +9,7 @@ import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/shared/shared_widgets.dart' show MedImage;
+import '../../../l10n/app_localizations.dart';
 
 /// Soft pastel medicine cabinet row — name, dose, and icon-led important
 /// cues (warnings, how-to-take, next dose, body impact) so users feel hooked
@@ -145,6 +146,7 @@ class MedCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final showGeneric = context
         .select<AppState, bool>((s) => s.profile?.showGenericNames ?? false);
@@ -176,7 +178,7 @@ class MedCard extends StatelessWidget {
         ? 'Important safety alert'
         : isLow
             ? 'Low stock, refill soon'
-            : 'On track';
+            : l10n.homeOnTrack;
     final doseSpoken = med.dose.isNotEmpty ? ', ${med.dose}' : '';
     final cueSpoken = cues.map((c) => c.text).join('. ');
     final semanticLabel = '$displayName$doseSpoken. $statusWord. $cueSpoken';
@@ -288,34 +290,34 @@ class MedCard extends StatelessWidget {
                           runSpacing: 6,
                           children: [
                             if (hasDanger)
-                              const _StatusChip(
-                                label: 'Important',
+                              _StatusChip(
+                                label: l10n.homeImportant,
                                 color: AppColors.red,
                                 icon: Icons.priority_high_rounded,
                               ),
                             if (isLow)
-                              const _StatusChip(
-                                label: 'Refill',
+                              _StatusChip(
+                                label: l10n.homeRefill,
                                 color: AppColors.amber,
                                 icon: Icons.inventory_2_rounded,
                               ),
                             if (!hasDanger && !isLow)
-                              const _StatusChip(
-                                label: 'On track',
+                              _StatusChip(
+                                label: l10n.homeOnTrack,
                                 color: AppColors.successSoft,
                                 icon: Icons.check_rounded,
                               ),
                             if (hasBody)
-                              const _StatusChip(
-                                label: 'Body impact',
+                              _StatusChip(
+                                label: l10n.homeBodyImpact2,
                                 color: AppColors.accentDeep,
                                 icon: Icons.monitor_heart_outlined,
                               ),
                             if (profile?.foodRules.isNotEmpty == true ||
                                 (med.intakeInstructions.isNotEmpty &&
                                     med.intakeInstructions != 'None'))
-                              const _StatusChip(
-                                label: 'How to take',
+                              _StatusChip(
+                                label: l10n.homeHowToTake,
                                 color: AppColors.inkStrong,
                                 icon: Icons.restaurant_rounded,
                               ),

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -7,13 +8,36 @@ import 'package:flutter_test/flutter_test.dart';
 ///
 /// The hosted pages are generated from the Dart screens, so parity is checked
 /// by section title rather than by byte: the wording lives in one place.
+/// The section titles are localized, so the screens name an ARB key rather
+/// than the English text. Resolve those keys against the English template so
+/// this still compares the words a reader actually sees.
+Map<String, String> _arb() {
+  final raw = File('lib/l10n/app_en.arb').readAsStringSync();
+  final decoded = jsonDecode(raw) as Map<String, dynamic>;
+  return {
+    for (final e in decoded.entries)
+      if (!e.key.startsWith('@') && e.value is String)
+        e.key: e.value as String,
+  };
+}
+
 List<String> _titles(String dart) {
-  final re =
+  final arb = _arb();
+  final literal =
       RegExp(r"title:\s*'((?:[^'\\]|\\.)*)'\s*,\s*(?:body|content|text):");
-  return re
-      .allMatches(dart)
-      .map((m) => m.group(1)!.replaceAll(r"\'", "'"))
-      .toList();
+  final key =
+      RegExp(r"title:\s*l10n\.(\w+)\s*,\s*(?:body|content|text):");
+  final out = <String>[
+    for (final m in literal.allMatches(dart)) m.group(1)!.replaceAll(r"\'", "'"),
+  ];
+  for (final m in key.allMatches(dart)) {
+    final v = arb[m.group(1)!];
+    expect(v, isNotNull,
+        reason: 'the screen references l10n.${m.group(1)} but app_en.arb '
+            'has no such key');
+    out.add(v!);
+  }
+  return out;
 }
 
 /// Undo the HTML entity escaping applied when the pages were generated, so a

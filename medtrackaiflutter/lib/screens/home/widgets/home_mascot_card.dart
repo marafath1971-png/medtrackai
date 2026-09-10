@@ -10,6 +10,7 @@ import '../../../widgets/modals/mascot_shop_sheet.dart';
 import '../../../widgets/mascot_widget.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../services/gemini_service.dart';
+import '../../../l10n/app_localizations.dart';
 
 class HomeMascotCard extends StatefulWidget {
   const HomeMascotCard({super.key});
@@ -166,6 +167,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final streak = context.select<AppState, int>((s) => s.getStreak());
@@ -188,7 +190,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
           right: 0,
           child: Semantics(
             button: true,
-            label: 'Mascot shop',
+            label: l10n.homeMascotShop,
             child: AnimatedPressable(
               onTap: () => MascotShopSheet.show(context),
               child: Container(
@@ -231,7 +233,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
 
     return Semantics(
       button: true,
-      label: 'MedAI companion. Tap for a new coaching message.',
+      label: l10n.homeMedaiCompanionTapForANew,
       child: MedAiDepthCard(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p16),
         onTap: _onTap,
@@ -266,7 +268,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                             mainAxisSize: MainAxisSize.min,
                             children: [
                               Text(
-                                'Coaching',
+                                l10n.homeCoaching,
                                 style: AppTypography.labelSmall.copyWith(
                                   color: L.accent.withValues(alpha: 0.8),
                                   fontSize: 11,
@@ -299,7 +301,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                             Row(
                               children: [
                                 Text(
-                                  'MedAI companion',
+                                  l10n.homeMedaiCompanion,
                                   style: AppTypography.labelSmall.copyWith(
                                     color: L.accent,
                                     fontSize: 11,
@@ -326,7 +328,7 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                                           size: 7, color: L.accent),
                                       const SizedBox(width: 2.5),
                                       Text(
-                                        'Live',
+                                        l10n.homeLive,
                                         style: AppTypography.labelSmall.copyWith(
                                           color: L.accent,
                                           fontSize: 11,

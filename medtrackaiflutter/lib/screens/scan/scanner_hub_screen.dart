@@ -27,6 +27,7 @@ import '../../widgets/common/app_feedback.dart';
 import 'scan_history_screen.dart';
 import 'ai_accuracy_settings_screen.dart';
 import 'scanner_help_screen.dart';
+import '../../l10n/app_localizations.dart';
 
 enum ScanMode { camera, barcode, search, voice }
 
@@ -724,6 +725,7 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
@@ -732,7 +734,7 @@ class _TopBar extends StatelessWidget {
           // Back Button
           Semantics(
             button: true,
-            label: 'Close scanner',
+            label: l10n.scanCloseScanner,
             child: AnimatedPressable(
               onTap: onClose,
               child: ClipRRect(
@@ -758,7 +760,7 @@ class _TopBar extends StatelessWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Scanner',
+                l10n.scanScanner,
                 style: AppTypography.titleLarge.copyWith(
                   color: Colors.white,
                   fontWeight: FontWeight.w700,
@@ -766,7 +768,7 @@ class _TopBar extends StatelessWidget {
                 ),
               ),
               Text(
-                'AI medicine recognition',
+                l10n.scanAiMedicineRecognition,
                 style: AppTypography.labelSmall.copyWith(
                   color: Colors.white.withValues(alpha: 0.72),
                   fontWeight: FontWeight.w600,
@@ -778,7 +780,7 @@ class _TopBar extends StatelessWidget {
           // Menu Button
           Semantics(
             button: true,
-            label: 'Scanner options',
+            label: l10n.scanScannerOptions,
             child: AnimatedPressable(
               onTap: () {
                 HapticEngine.selection();
@@ -848,6 +850,7 @@ class _BottomControls extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       padding: EdgeInsets.fromLTRB(24, 0, 24, botPad + 32),
       child: Column(
@@ -869,13 +872,13 @@ class _BottomControls extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      _ModePill(icon: Icons.camera_alt_rounded, label: 'Scan Meds', mode: ScanMode.camera, current: mode, onTap: onModeSelect),
+                      _ModePill(icon: Icons.camera_alt_rounded, label: l10n.scanScanMeds, mode: ScanMode.camera, current: mode, onTap: onModeSelect),
                       const SizedBox(width: 4),
-                      _ModePill(icon: Icons.qr_code_scanner_rounded, label: 'Barcode', mode: ScanMode.barcode, current: mode, onTap: onModeSelect),
+                      _ModePill(icon: Icons.qr_code_scanner_rounded, label: l10n.scanBarcode, mode: ScanMode.barcode, current: mode, onTap: onModeSelect),
                       const SizedBox(width: 4),
-                      _ModePill(icon: Icons.search_rounded, label: 'Search', mode: ScanMode.search, current: mode, onTap: onModeSelect),
+                      _ModePill(icon: Icons.search_rounded, label: l10n.dashboardSearch, mode: ScanMode.search, current: mode, onTap: onModeSelect),
                       const SizedBox(width: 4),
-                      _ModePill(icon: Icons.mic_rounded, label: 'Voice', mode: ScanMode.voice, current: mode, onTap: onModeSelect),
+                      _ModePill(icon: Icons.mic_rounded, label: l10n.scanVoice, mode: ScanMode.voice, current: mode, onTap: onModeSelect),
                     ],
                   ),
                 ),
@@ -930,7 +933,7 @@ class _BottomControls extends StatelessWidget {
                 // Gallery Button
                 Semantics(
                   button: true,
-                  label: 'Choose from library',
+                  label: l10n.scanChooseFromLibrary,
                   child: AnimatedPressable(
                     onTap: onGalleryTap,
                     child: ClipRRect(
@@ -1168,11 +1171,12 @@ class ScanSearchInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          'Search',
+          l10n.dashboardSearch,
           style: AppTypography.displaySmall.copyWith(
             color: Colors.white,
             fontWeight: FontWeight.w800,
@@ -1182,7 +1186,7 @@ class ScanSearchInput extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         Text(
-          'Manually search for any medicine or supplement.',
+          l10n.scanManuallySearchForAnyMedicineOr,
           style: AppTypography.bodyMedium.copyWith(
             color: Colors.white.withValues(alpha: 0.6),
           ),
@@ -1234,7 +1238,7 @@ class ScanSearchInput extends StatelessWidget {
                         // light fill behind white text.
                         filled: true,
                         fillColor: Colors.transparent,
-                        hintText: 'Metformin, Vitamin C...',
+                        hintText: l10n.scanMetforminVitaminC,
                         hintStyle: AppTypography.titleMedium.copyWith(
                           color: Colors.white.withValues(alpha: 0.45),
                           fontWeight: FontWeight.w500,
@@ -1245,7 +1249,7 @@ class ScanSearchInput extends StatelessWidget {
                   ),
                   Semantics(
                     button: true,
-                    label: 'Search medication',
+                    label: l10n.scanSearchMedication,
                     child: AnimatedPressable(
                       onTap: onSubmit,
                       child: Container(
@@ -1823,6 +1827,7 @@ class _ScannerMenuSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
@@ -1844,7 +1849,7 @@ class _ScannerMenuSheet extends StatelessWidget {
               const IOSGrabber(),
               const SizedBox(height: 8),
               Text(
-                'Scanner Options',
+                l10n.scanScannerOptions,
                 style: AppTypography.titleLarge.copyWith(
                   color: L.text,
                   fontWeight: FontWeight.w700,
@@ -1859,7 +1864,7 @@ class _ScannerMenuSheet extends StatelessWidget {
                   children: [
                     IOSGroupedRow(
                       icon: Icons.history_rounded,
-                      title: 'Scan History',
+                      title: l10n.scanScanHistory,
                       subtitle: 'View your previously scanned medications',
                       showChevron: true,
                       onTap: () {
@@ -1873,7 +1878,7 @@ class _ScannerMenuSheet extends StatelessWidget {
                     ),
                     IOSGroupedRow(
                       icon: Icons.auto_awesome_rounded,
-                      title: 'AI Accuracy Settings',
+                      title: l10n.scanAiAccuracySettings,
                       subtitle: 'Adjust confidence thresholds for recognition',
                       showChevron: true,
                       onTap: () {
@@ -1888,7 +1893,7 @@ class _ScannerMenuSheet extends StatelessWidget {
                     ),
                     IOSGroupedRow(
                       icon: Icons.help_outline_rounded,
-                      title: 'Help & Tips',
+                      title: l10n.scanHelpTips,
                       subtitle: 'Learn how to scan perfectly every time',
                       showChevron: true,
                       onTap: () {

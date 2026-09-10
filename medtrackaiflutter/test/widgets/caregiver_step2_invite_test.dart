@@ -15,6 +15,7 @@ import 'package:medai/screens/family/widgets/add_cg_flow.dart';
 import 'package:medai/services/link_service.dart';
 import 'package:medai/theme/med_ai_ui.dart';
 import 'package:medai/widgets/common/animated_pressable.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// Step 2 of the add-caregiver flow — the screen the whole flow exists to
 /// reach. It had no test coverage at all while three separate layout bugs were
@@ -71,6 +72,8 @@ void main() {
       ChangeNotifierProvider<AppState>.value(
         value: appState,
         child: MaterialApp(
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
           theme: AppTheme.light(),
           home: Builder(
             builder: (context) => AddCgStep2(

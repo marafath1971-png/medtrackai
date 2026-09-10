@@ -13,6 +13,7 @@ import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/premium_page_header.dart';
+import '../../l10n/app_localizations.dart';
 
 class AddFamilyMemberScreen extends StatefulWidget {
   const AddFamilyMemberScreen({super.key});
@@ -159,6 +160,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return AppScaffold(
@@ -170,7 +172,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: PremiumPageHeader(
-              title: 'Add Member',
+              title: l10n.familyAddMember,
               subtitle: 'Build your care circle',
               onBack: () {
                 HapticEngine.selection();
@@ -187,7 +189,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                     children: [
                       Semantics(
                         button: true,
-                        label: 'Add profile photo',
+                        label: l10n.familyAddProfilePhoto,
                         child: AnimatedPressable(
                           onTap: _pickImage,
                           child: Container(
@@ -221,7 +223,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                       ),
                       const SizedBox(height: AppSpacing.p8),
                       Text(
-                        'Tap to add photo',
+                        l10n.familyTapToAddPhoto,
                         style: TextStyle(
                             color: L.sub.withValues(alpha: 0.4), fontSize: 11),
                       ),
@@ -341,7 +343,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Critical Care Member',
+                              l10n.familyCriticalCareMember,
                               style: AppTypography.labelMedium.copyWith(
                                 fontWeight: FontWeight.w900,
                                 color: L.text,
@@ -349,7 +351,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                             ),
                             const SizedBox(height: AppSpacing.p4),
                             Text(
-                              'Prioritize alerts and monitoring',
+                              l10n.familyPrioritizeAlertsAndMonitoring,
                               style: AppTypography.labelSmall.copyWith(
                                 color: L.sub.withValues(alpha: 0.6),
                               ),
@@ -359,7 +361,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                       ),
                       Semantics(
                         toggled: _isCritical,
-                        label: 'Critical care member',
+                        label: l10n.familyCriticalCareMember,
                         child: Switch.adaptive(
                           value: _isCritical,
                           activeTrackColor: L.text,
@@ -383,7 +385,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                 ),
                 const SizedBox(height: AppSpacing.p40),
                 MedAiCTA(
-                  label: 'Save Profile',
+                  label: l10n.familySaveProfile,
                   loading: _isSaving,
                   semanticsLabel: 'Save family member profile',
                   onTap: _isSaving ? null : _handleSave,

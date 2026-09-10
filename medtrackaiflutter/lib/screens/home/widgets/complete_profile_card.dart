@@ -6,12 +6,14 @@ import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../models/constants.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CompleteProfileCard extends StatelessWidget {
   const CompleteProfileCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = context.watch<AppState>();
     final profile = state.profile;
     if (profile == null) return const SizedBox.shrink();
@@ -19,7 +21,7 @@ class CompleteProfileCard extends StatelessWidget {
     final List<_ProfileTask> tasks = [
       _ProfileTask(
         id: 'age',
-        title: 'Add your age',
+        title: l10n.homeAddYourAge,
         subtitle: 'For better health insights',
         icon: Icons.cake_rounded,
         isDone: profile.age.isNotEmpty,
@@ -27,7 +29,7 @@ class CompleteProfileCard extends StatelessWidget {
       ),
       _ProfileTask(
         id: 'gender',
-        title: 'Set your gender',
+        title: l10n.homeSetYourGender,
         subtitle: 'Personalises your guidance',
         icon: Icons.person_outline_rounded,
         isDone: profile.gender.isNotEmpty,
@@ -36,7 +38,7 @@ class CompleteProfileCard extends StatelessWidget {
       ),
       _ProfileTask(
         id: 'forgetting',
-        title: 'When do you forget?',
+        title: l10n.homeWhenDoYouForget,
         subtitle: 'Optimises your reminders',
         icon: Icons.psychology_rounded,
         isDone: profile.forgetting.isNotEmpty,
@@ -45,7 +47,7 @@ class CompleteProfileCard extends StatelessWidget {
       ),
       _ProfileTask(
         id: 'doctor',
-        title: 'Doctor visits',
+        title: l10n.homeDoctorVisits,
         subtitle: 'Track your medical frequency',
         icon: Icons.medical_services_outlined,
         isDone: profile.doctorVisits.isNotEmpty,
@@ -54,7 +56,7 @@ class CompleteProfileCard extends StatelessWidget {
       ),
       _ProfileTask(
         id: 'motivation',
-        title: 'What motivates you?',
+        title: l10n.homeWhatMotivatesYou,
         subtitle: profile.motivation.isEmpty
             ? 'Personalised encouragement'
             : profile.motivation.join(', '),
@@ -90,12 +92,12 @@ class CompleteProfileCard extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Complete Your Profile',
+                          l10n.homeCompleteYourProfile,
                           style: AppTypography.titleLarge.copyWith(fontSize: 18),
                         ),
                         const SizedBox(height: AppSpacing.p4),
                         Text(
-                          'Unlock more personalised insights',
+                          l10n.homeUnlockMorePersonalisedInsights,
                           style: AppTypography.bodySmall.copyWith(color: L.sub),
                         ),
                       ],

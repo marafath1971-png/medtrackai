@@ -16,6 +16,7 @@ import '../../services/remote_config_service.dart';
 import '../../theme/med_ai_ui.dart';
 import '../common/animated_pressable.dart';
 import '../shared/shared_widgets.dart' show DopamineBurstOverlay;
+import '../../l10n/app_localizations.dart';
 
 // ══════════════════════════════════════════════
 // AI QUICK LOG SHEET
@@ -295,6 +296,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final bottom = MediaQuery.of(context).viewInsets.bottom;
     final reduceMotion = MedAiA11y.reducedMotion(context);
@@ -350,14 +352,14 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        'AI Quick Log',
+                        l10n.viralAiQuickLog,
                         style: AppTypography.titleLarge.copyWith(
                           color: L.text,
                           fontWeight: FontWeight.w900,
                         ),
                       ),
                       Text(
-                        'Just tell me what you took',
+                        l10n.viralJustTellMeWhatYouTook,
                         style: AppTypography.bodySmall.copyWith(
                           color: L.sub.withValues(alpha: 0.6),
                           fontSize: 13,
@@ -407,7 +409,7 @@ class _AiQuickLogSheetState extends State<AiQuickLogSheet>
                 Align(
                   alignment: AlignmentDirectional.centerStart,
                   child: Text(
-                    'Or quickly log a meal:',
+                    l10n.viralOrQuicklyLogAMeal,
                     style: AppTypography.labelMedium.copyWith(
                       color: L.sub.withValues(alpha: 0.6),
                     ),

@@ -6,6 +6,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_page_header.dart';
 import '../../widgets/common/animated_pressable.dart';
+import '../../l10n/app_localizations.dart';
 
 class PinVerificationScreen extends StatefulWidget {
   final String correctPin;
@@ -64,13 +65,14 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
     Widget body = Column(
       children: [
         PremiumPageHeader(
-          title: 'Enter PIN',
+          title: l10n.authEnterPin,
           subtitle: widget.profileName,
           onBack: () => Navigator.pop(context, false),
         ),

@@ -7,6 +7,7 @@ import '../../../widgets/common/premium_empty_state.dart';
 import '../../../widgets/shared/shared_widgets.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/smoothing_text.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ══════════════════════════════════════════════════
 // TIMELINE PILL SELECTOR — Animated Sliding Pill
@@ -123,6 +124,7 @@ class LatencyHeatmap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (latencyData.isEmpty) return _buildEmptyState(L);
 
     return Column(
@@ -133,7 +135,7 @@ class LatencyHeatmap extends StatelessWidget {
             const Text('⏱️', style: TextStyle(fontSize: 16)),
             const SizedBox(width: AppSpacing.p8),
             Text(
-              'Timing consistency',
+              l10n.dashboardTimingConsistency,
               style: AppTypography.titleMedium.copyWith(
                 fontSize: 15,
                 color: L.text,
@@ -293,6 +295,7 @@ class HealthCoachCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (insights.isEmpty) return _buildEmptyState(L);
 
     return Column(
@@ -346,7 +349,7 @@ class HealthCoachCard extends StatelessWidget {
                     ),
                     Semantics(
                       button: true,
-                      label: 'Refresh AI insights',
+                      label: l10n.dashboardRefreshAiInsights,
                       child: AnimatedPressable(
                         onTap: onRetry,
                         child: Icon(Icons.refresh_rounded,
@@ -421,6 +424,7 @@ class AdherenceTrendChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (trendData.isEmpty) return _buildEmptyState(L);
 
     return Container(
@@ -445,7 +449,7 @@ class AdherenceTrendChart extends StatelessWidget {
                             size: 16, color: L.sub.withValues(alpha: 0.8)),
                         const SizedBox(width: AppSpacing.p8),
                         Text(
-                          'Adherence trend',
+                          l10n.dashboardAdherenceTrend,
                           style: AppTypography.labelSmall.copyWith(
                             color: L.sub.withValues(alpha: 0.8),
                             fontSize: 11,
@@ -457,7 +461,7 @@ class AdherenceTrendChart extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.p8),
                     Text(
-                      '30-Day Progress',
+                      l10n.dashboardN30DayProgress,
                       style: AppTypography.headlineSmall.copyWith(
                         color: L.text,
                         fontWeight: FontWeight.w700,
@@ -556,14 +560,14 @@ class AdherenceTrendChart extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                '30 days ago',
+                l10n.dashboardN30DaysAgo,
                 style: AppTypography.labelSmall.copyWith(
                   color: L.sub.withValues(alpha: 0.45),
                   fontWeight: FontWeight.w700,
                 ),
               ),
               Text(
-                'Today',
+                l10n.dashboardToday,
                 style: AppTypography.labelSmall.copyWith(
                   color: L.text,
                   fontWeight: FontWeight.w700,
@@ -601,11 +605,12 @@ class InventoryStatusCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final trackedMeds = meds.where((m) => m.count > 0).toList();
     if (trackedMeds.isEmpty) {
       return PremiumEmptyState(
         compact: true,
-        title: 'No inventory tracked',
+        title: l10n.dashboardNoInventoryTracked,
         subtitle: 'Set pill counts on your medicines to see refill levels here.',
         mascotFeature: 'refill',
         icon: Icons.inventory_2_outlined,
@@ -732,6 +737,7 @@ class _SmartLoadingInsightsState extends State<SmartLoadingInsights> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = widget.L;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.p20),
@@ -756,7 +762,7 @@ class _SmartLoadingInsightsState extends State<SmartLoadingInsights> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Analyzing your data',
+                  l10n.dashboardAnalyzingYourData,
                   style: AppTypography.titleMedium.copyWith(
                     color: L.text,
                     fontWeight: FontWeight.w700,

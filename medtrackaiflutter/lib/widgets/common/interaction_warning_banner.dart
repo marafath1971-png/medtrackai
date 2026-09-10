@@ -6,6 +6,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
 import 'animated_pressable.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Shown after adding a medicine when a drug–drug interaction is detected.
 class InteractionWarningBanner extends StatelessWidget {
@@ -13,6 +14,7 @@ class InteractionWarningBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = context.watch<AppState>();
     final warning = state.interactionWarning;
     final medName = state.interactionWarningMedName;
@@ -54,7 +56,7 @@ class InteractionWarningBanner extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Drug interaction',
+                    l10n.commonDrugInteraction,
                     style: AppTypography.labelMedium.copyWith(
                       color: const Color(0xFF9A6B1F),
                       fontWeight: FontWeight.w700,
@@ -82,7 +84,7 @@ class InteractionWarningBanner extends StatelessWidget {
             ),
             Semantics(
               button: true,
-              label: 'Dismiss interaction warning',
+              label: l10n.commonDismissInteractionWarning,
               child: AnimatedPressable(
                 onTap: () {
                   HapticEngine.selection();

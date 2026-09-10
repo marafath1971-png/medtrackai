@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../theme/med_ai_ui.dart';
+import '../../l10n/app_localizations.dart';
 
 class AiScannerViewfinder extends StatefulWidget {
   const AiScannerViewfinder({super.key});
@@ -64,6 +65,7 @@ class _AiScannerViewfinderState extends State<AiScannerViewfinder>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     
     return Scaffold(
@@ -74,7 +76,7 @@ class _AiScannerViewfinderState extends State<AiScannerViewfinder>
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.close, color: AppColors.white),
-          tooltip: 'Close scanner',
+          tooltip: l10n.scanCloseScanner,
           onPressed: () => Navigator.of(context).pop(),
         ),
       ),

@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../theme/med_ai_ui.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Compact today progress — one calm row, no hero glow.
 class HomeTodayProgress extends StatelessWidget {
@@ -19,6 +20,7 @@ class HomeTodayProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final fraction = total == 0 ? 0.0 : (taken / total).clamp(0.0, 1.0);
     final allDone = total > 0 && taken >= total;
@@ -71,7 +73,7 @@ class HomeTodayProgress extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Today',
+                      l10n.dashboardToday,
                       style: AppTypography.labelSmall.copyWith(
                         color: L.sub,
                         fontWeight: FontWeight.w600,

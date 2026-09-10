@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../theme/med_ai_ui.dart';
 import '../shared/shared_widgets.dart';
 import 'med_ai_logo.dart';
+import '../../l10n/app_localizations.dart';
 
 class UnifiedHeader extends StatelessWidget implements PreferredSizeWidget {
   final Widget? leading;
@@ -48,6 +49,7 @@ class UnifiedHeader extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final topPad = MediaQuery.of(context).padding.top;
     final motion = MedAiA11y.motion(context, AppDurations.micro);
@@ -69,7 +71,7 @@ class UnifiedHeader extends StatelessWidget implements PreferredSizeWidget {
               if (showBack) ...[
                 Semantics(
                   button: true,
-                  label: 'Back',
+                  label: l10n.commonBack,
                   child: AnimatedPressable(
                     onTap: onBack ?? () => Navigator.maybePop(context),
                     child: Container(
@@ -239,6 +241,7 @@ class SliverUnifiedHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return SliverAppBar(
       expandedHeight: expandedHeight,
@@ -252,7 +255,7 @@ class SliverUnifiedHeader extends StatelessWidget {
               child: HeaderActionBtn(
                 onTap: onBack!,
                 backgroundColor: L.bg.withValues(alpha: 0.6),
-                semanticsLabel: 'Back',
+                semanticsLabel: l10n.commonBack,
                 child: const Icon(Icons.arrow_back_ios_new_rounded, size: 16),
               ),
             )

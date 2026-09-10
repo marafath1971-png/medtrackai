@@ -8,6 +8,7 @@ import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../services/biometric_service.dart';
+import '../../l10n/app_localizations.dart';
 
 class ProfileSwitcherSheet extends StatelessWidget {
   const ProfileSwitcherSheet({super.key});
@@ -52,6 +53,7 @@ class ProfileSwitcherSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final state = context.watch<AppState>();
@@ -74,7 +76,7 @@ class ProfileSwitcherSheet extends StatelessWidget {
           ),
         ),
         Text(
-          'Switch profile',
+          l10n.familySwitchProfile,
           style: AppTypography.headlineMedium.copyWith(
             color: L.text,
             fontWeight: FontWeight.w700,
@@ -83,7 +85,7 @@ class ProfileSwitcherSheet extends StatelessWidget {
         ),
         const SizedBox(height: AppSpacing.p8),
         Text(
-          'Manage schedules for your family',
+          l10n.familyManageSchedulesForYourFamily,
           style: AppTypography.bodyMedium.copyWith(color: L.sub),
         ),
         const SizedBox(height: AppSpacing.p24),
@@ -113,7 +115,7 @@ class ProfileSwitcherSheet extends StatelessWidget {
         const SizedBox(height: AppSpacing.p12),
         Semantics(
           button: true,
-          label: 'Add dependent',
+          label: l10n.familyAddDependent,
           child: MedAiDepthCard(
             padding: const EdgeInsets.all(AppSpacing.p16),
             radius: AppRadius.l,
@@ -135,7 +137,7 @@ class ProfileSwitcherSheet extends StatelessWidget {
                 ),
                 const SizedBox(width: AppSpacing.p16),
                 Text(
-                  'Add dependent',
+                  l10n.familyAddDependent,
                   style: AppTypography.bodyLarge.copyWith(
                       color: L.text, fontWeight: FontWeight.w700),
                 ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../theme/med_ai_ui.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Apple Health–style adherence ring hero for Trends tab.
 class DashboardAdherenceHero extends StatefulWidget {
@@ -64,6 +65,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final pct = (widget.adherence * 100).round();
     final week = widget.trendData.length >= 7
@@ -173,7 +175,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                     ),
                     const SizedBox(height: AppSpacing.p8),
                     Text(
-                      '7-day trend below',
+                      l10n.dashboardN7DayTrendBelow,
                       style: AppTypography.bodySmall.copyWith(
                         color: AppColors.grey600,
                         fontWeight: FontWeight.w600,

@@ -253,7 +253,7 @@ class ObDarkInterstitial extends StatelessWidget {
                       ).obFadeUp(),
                       const SizedBox(height: 22),
                       Text(
-                        'How Med AI helps you\nstay on track',
+                        l10n.onboardingHowMedAiHelpsYouNstay,
                         textAlign: TextAlign.center,
                         style: AppTypography.headlineLarge.copyWith(
                           color: p.text,
@@ -264,7 +264,7 @@ class ObDarkInterstitial extends StatelessWidget {
                       ).obFadeUp(delayMs: 40),
                       const SizedBox(height: 8),
                       Text(
-                        'Three quiet moves. One calm routine.',
+                        l10n.onboardingThreeQuietMovesOneCalmRoutine,
                         style: AppTypography.bodyMedium.copyWith(color: p.sub),
                       ).obFadeUp(delayMs: 60),
                       const SizedBox(height: 22),
@@ -315,10 +315,11 @@ class _SoftCircleIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     return Semantics(
       button: true,
-      label: 'Go back',
+      label: l10n.onboardingGoBack,
       child: AnimatedPressable(
         onTap: () {
           HapticEngine.light();
@@ -485,7 +486,7 @@ class _ObScanDemoPreviewState extends State<ObScanDemoPreview>
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Atorvastatin 20mg',
+                              l10n.onboardingAtorvastatin20mg,
                               style: AppTypography.titleMedium.copyWith(
                                 color: p.text,
                                 fontWeight: FontWeight.w700,
@@ -504,7 +505,7 @@ class _ObScanDemoPreviewState extends State<ObScanDemoPreview>
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  '94% match · Identified',
+                                  l10n.onboardingN94MatchIdentified,
                                   style: AppTypography.bodySmall.copyWith(
                                     color: p.good,
                                     fontWeight: FontWeight.w600,
@@ -528,7 +529,7 @@ class _ObScanDemoPreviewState extends State<ObScanDemoPreview>
                   ),
                   const SizedBox(height: 14),
                   _DemoBreakdownRow(
-                    label: 'Interactions',
+                    label: l10n.analysisInteractions,
                     status: '1 flagged',
                     statusColor: p.bad,
                     expanded: _expanded,
@@ -555,7 +556,7 @@ class _ObScanDemoPreviewState extends State<ObScanDemoPreview>
                   ),
                   const SizedBox(height: 10),
                   _DemoBreakdownRow(
-                    label: 'Refill',
+                    label: l10n.homeRefill,
                     status: '12 days left',
                     statusColor: const Color(0xFFF5A623),
                     p: p,
@@ -768,6 +769,7 @@ class ObAdherenceScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     final score = controller.adherenceScore;
     final persona = controller.personaLabel;
@@ -820,7 +822,7 @@ class ObAdherenceScoreCard extends StatelessWidget {
           Row(
             children: [
               Text(
-                'Your score',
+                l10n.onboardingYourScore,
                 style: AppTypography.bodyMedium.copyWith(color: p.sub),
               ),
               const Spacer(),

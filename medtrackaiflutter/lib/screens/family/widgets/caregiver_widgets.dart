@@ -4,6 +4,7 @@ import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/color_utils.dart';
 import '../../../widgets/shared/shared_widgets.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CaregiverCard extends StatefulWidget {
   final Caregiver cg;
@@ -23,6 +24,7 @@ class CaregiverCard extends StatefulWidget {
 class _CaregiverCardState extends State<CaregiverCard> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final cg = widget.cg;
     final L = widget.L;
     final isActive = cg.status == 'active';
@@ -127,14 +129,14 @@ class _CaregiverCardState extends State<CaregiverCard> {
                           if (isActive) ...[
                             const SizedBox(width: AppSpacing.p8),
                             _StatusPill(
-                              label: 'Active',
+                              label: l10n.familyActive,
                               color: AppColors.limeDeep,
                               L: L,
                             ),
                           ] else ...[
                             const SizedBox(width: AppSpacing.p8),
                             _StatusPill(
-                              label: 'Waiting',
+                              label: l10n.familyWaiting,
                               color: AppColors.grey600,
                               L: L,
                             ),

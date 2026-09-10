@@ -1069,7 +1069,7 @@ class _DoseCardState extends State<DoseCard>
                     Icon(Icons.check_rounded, color: L.success, size: 22),
                     const SizedBox(width: 12),
                     Text(
-                      'Mark as taken',
+                      l10n.sharedMarkAsTaken,
                       style: AppTypography.labelMedium.copyWith(
                         color: L.success,
                         fontWeight: FontWeight.w700,

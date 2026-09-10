@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/screens/app_shell.dart';
 import 'package:medai/theme/med_ai_ui.dart';
 import 'package:medai/widgets/shared/shared_widgets.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// The invite error rendered on top of the "Generate QR code" button and under
 /// the scan FAB: bottom was a bare 115, while the furniture it had to clear is
@@ -12,6 +13,8 @@ import 'package:medai/widgets/shared/shared_widgets.dart';
 void main() {
   testWidgets('the toast clears the nav island and the FAB', (tester) async {
     await tester.pumpWidget(MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       home: const Scaffold(
         body: Stack(

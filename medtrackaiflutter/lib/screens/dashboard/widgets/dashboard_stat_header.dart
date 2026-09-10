@@ -4,6 +4,7 @@ import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/app_theme.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
+import '../../../l10n/app_localizations.dart';
 
 class DashboardStatHeader extends StatelessWidget {
   final VoidCallback onDailyLog;
@@ -12,6 +13,7 @@ class DashboardStatHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return Padding(
@@ -25,7 +27,7 @@ class DashboardStatHeader extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Analytics',
+                    l10n.dashboardAnalytics,
                     style: AppTypography.headlineMedium.copyWith(
                       color: L.text,
                       fontWeight: FontWeight.w800,
@@ -35,7 +37,7 @@ class DashboardStatHeader extends StatelessWidget {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    'Adherence & health trends',
+                    l10n.dashboardAdherenceHealthTrends,
                     style: AppTypography.bodySmall.copyWith(
                       color: L.sub,
                       fontWeight: FontWeight.w500,
@@ -47,7 +49,7 @@ class DashboardStatHeader extends StatelessWidget {
             _IconCircleBtn(
               icon: Icons.add_rounded,
               onTap: onDailyLog,
-              semanticLabel: 'Open daily log',
+              semanticLabel: l10n.dashboardOpenDailyLog,
             ),
           ],
         ),

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/theme/med_ai_ui.dart';
 import 'package:medai/widgets/common/solid_surface.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// [SolidSurface] is the one place the "content must contrast with its fill"
 /// rule lives. Three screens each had their own private copy after
@@ -29,6 +30,8 @@ double _contrast(Color a, Color b) {
 
 Widget _host(Widget child, {Brightness brightness = Brightness.light}) =>
     MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: brightness == Brightness.light
           ? AppTheme.light()
           : AppTheme.dark(),

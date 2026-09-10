@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../onboarding_theme.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ════════════════════════════════════════════════════════════════════════
 // EATO-STYLE ONBOARDING COMPONENTS
@@ -138,6 +139,7 @@ class _ObWeightRulerState extends State<ObWeightRuler> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     final unit = _metric ? 'kg' : 'lbs';
     return Column(
@@ -200,7 +202,7 @@ class _ObWeightRulerState extends State<ObWeightRuler> {
         ),
         const SizedBox(height: 4),
         Text(
-          'Slide the ruler',
+          l10n.onboardingSlideTheRuler,
           style: AppTypography.labelMedium.copyWith(
             color: p.sub.withValues(alpha: 0.7),
           ),
@@ -391,6 +393,7 @@ class ObDualTimeSliders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     Widget row({
       required String emoji,
@@ -459,7 +462,7 @@ class ObDualTimeSliders extends StatelessWidget {
       children: [
         row(
           emoji: '🌅',
-          label: 'I usually wake up',
+          label: l10n.onboardingIUsuallyWakeUp,
           value: wakeHour,
           min: 4,
           max: 12,
@@ -467,7 +470,7 @@ class ObDualTimeSliders extends StatelessWidget {
         ),
         row(
           emoji: '🌙',
-          label: 'I usually go to sleep',
+          label: l10n.onboardingIUsuallyGoToSleep,
           value: sleepHour,
           min: 19,
           max: 23,

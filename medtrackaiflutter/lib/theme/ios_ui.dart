@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'med_ai_ui.dart';
+import '../l10n/app_localizations.dart';
 
 /// iOS Human-Interface-Guidelines idiom kit, tuned to the app's dark
 /// "premium" palette. These primitives give the AI chat and scan-result
@@ -313,6 +314,7 @@ class IOSComposer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return Container(
       decoration: BoxDecoration(
@@ -347,7 +349,7 @@ class IOSComposer extends StatelessWidget {
               const SizedBox(width: 8),
               Semantics(
                 button: true,
-                label: 'Send message',
+                label: l10n.iosuiSendMessage,
                 child: GestureDetector(
                   onTap: enabled ? () => onSubmit(controller.text) : null,
                   child: Container(

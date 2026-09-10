@@ -8,6 +8,7 @@ import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/premium_empty_state.dart';
 import '../../../widgets/common/premium_page_header.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../l10n/app_localizations.dart';
 
 class MedBuddiesScreen extends StatefulWidget {
   const MedBuddiesScreen({super.key});
@@ -27,6 +28,7 @@ class _MedBuddiesScreenState extends State<MedBuddiesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = context.watch<AppState>();
     final myStreak = state.getStreak();
 
@@ -37,7 +39,7 @@ class _MedBuddiesScreenState extends State<MedBuddiesScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             PremiumPageHeader(
-              title: 'Med buddies',
+              title: l10n.socialMedBuddies,
               subtitle: 'Social accountability',
               onBack: () => Navigator.pop(context),
             ),
@@ -47,7 +49,7 @@ class _MedBuddiesScreenState extends State<MedBuddiesScreen> {
                 children: [
                   _entrance(
                     PremiumEmptyState(
-                      title: 'No buddies connected yet',
+                      title: l10n.socialNoBuddiesConnectedYet,
                       subtitle:
                           'Invite a friend or caregiver to build accountability together. Your current streak is $myStreak days.',
                       mascotFeature: 'community',

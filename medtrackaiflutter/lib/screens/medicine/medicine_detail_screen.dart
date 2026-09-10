@@ -16,6 +16,7 @@ import '../../widgets/common/refined_sheet_wrapper.dart';
 import 'widgets/body_impact_card.dart';
 import 'widgets/inline_ai_coach.dart';
 import 'widgets/medicine_safety_card.dart';
+import '../../l10n/app_localizations.dart';
 // ══════════════════════════════════════════════════════════════════════
 // MEDICINE DETAIL SCREEN — premium cream / pastel hub
 // ══════════════════════════════════════════════════════════════════════
@@ -1531,6 +1532,7 @@ class _HistoryMatrix extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final history = context.select<AppState, Map<String, List<DoseEntry>>>((s) => s.history);
     
@@ -1590,7 +1592,7 @@ class _HistoryMatrix extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('28 DAY ACTIVITY LOG',
+            Text(l10n.medicineN28DayActivityLog,
                 style: AppTypography.labelSmall.copyWith(
                     fontSize: 11,
                     color: L.sub.withValues(alpha: 0.7),
@@ -1600,11 +1602,11 @@ class _HistoryMatrix extends StatelessWidget {
               children: [
                 Container(width: 8, height: 8, decoration: BoxDecoration(color: L.fill.withValues(alpha: 0.3), borderRadius: BorderRadius.circular(2))),
                 const SizedBox(width: AppSpacing.p4),
-                Text('Missed', style: AppTypography.labelSmall.copyWith(fontSize: 11, color: L.sub, fontWeight: FontWeight.w500)),
+                Text(l10n.medicineMissed, style: AppTypography.labelSmall.copyWith(fontSize: 11, color: L.sub, fontWeight: FontWeight.w500)),
                 const SizedBox(width: AppSpacing.p12),
                 Container(width: 8, height: 8, decoration: BoxDecoration(color: medColor, borderRadius: BorderRadius.circular(2))),
                 const SizedBox(width: AppSpacing.p4),
-                Text('Taken', style: AppTypography.labelSmall.copyWith(fontSize: 11, color: L.text, fontWeight: FontWeight.w500)),
+                Text(l10n.medicineTaken, style: AppTypography.labelSmall.copyWith(fontSize: 11, color: L.text, fontWeight: FontWeight.w500)),
               ],
             ),
           ],
@@ -1801,10 +1803,11 @@ class _ModernTextField extends StatelessWidget {
       this.isLast = false});
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return MedAiLabeledField(
       label: label,
       initialValue: value,
-      hintText: 'None',
+      hintText: l10n.medicineNone,
       keyboardType: keyboard,
       onChanged: onChanged,
     );
@@ -1820,6 +1823,7 @@ class _ColorPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     const colors = ['#FF3B30', '#FF9F0A', '#FFD60A', '#34C759', '#00C7BE', '#32ADE6', '#007AFF', '#5856D6', '#AF52DE', '#FF2D55'];
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: AppSpacing.p16),
@@ -1828,7 +1832,7 @@ class _ColorPicker extends StatelessWidget {
         children: [
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
-            child: Text("ACCENT COLOR", style: AppTypography.labelSmall.copyWith(color: L.sub, fontWeight: FontWeight.w600, letterSpacing: 1.0, fontSize: 11)),
+            child: Text(l10n.medicineAccentColor, style: AppTypography.labelSmall.copyWith(color: L.sub, fontWeight: FontWeight.w600, letterSpacing: 1.0, fontSize: 11)),
           ),
           const SizedBox(height: AppSpacing.p12),
           SizedBox(
@@ -1889,6 +1893,7 @@ class _CategoryPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     const categories = ['Tablet', 'Antibiotic', 'Vitamin', 'Painkiller', 'Sleep', 'Liquid', 'Cream', 'Inhaler', 'Injection'];
     const tints = [
       AppColors.pastelSky,
@@ -1909,7 +1914,7 @@ class _CategoryPicker extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
             child: Text(
-              'CATEGORY',
+              l10n.medicineCategory,
               style: AppTypography.labelSmall.copyWith(
                 color: L.sub,
                 fontWeight: FontWeight.w700,
@@ -2054,6 +2059,7 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final L = context.L;
     return Semantics(
@@ -2131,7 +2137,7 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
                       ),
                       const SizedBox(width: AppSpacing.p8),
                       Text(
-                        'Log Dose',
+                        l10n.homeLogDose,
                         style: AppTypography.titleMedium.copyWith(
                           color: Colors.black,
                           fontWeight: FontWeight.w700,
@@ -2153,7 +2159,7 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
                           ),
                           const SizedBox(width: AppSpacing.p12),
                           Text(
-                            'Logging...',
+                            l10n.medicineLogging,
                             style: AppTypography.titleMedium.copyWith(
                               color: Colors.black87,
                               fontWeight: FontWeight.w700,
@@ -2170,7 +2176,7 @@ class _AnimatedLogDoseButtonState extends State<_AnimatedLogDoseButton>
                               color: Colors.white, size: 20),
                           const SizedBox(width: AppSpacing.p8),
                           Text(
-                            'Logged!',
+                            l10n.medicineLogged,
                             style: AppTypography.titleMedium.copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,

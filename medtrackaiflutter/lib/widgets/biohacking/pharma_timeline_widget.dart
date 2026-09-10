@@ -5,6 +5,7 @@ import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../services/growth_tracker.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import '../../l10n/app_localizations.dart';
 
 class PharmaTimelineWidget extends StatefulWidget {
   final String medName;
@@ -252,6 +253,7 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     
     // Check if pharmacokinetic data is valid/present
@@ -294,7 +296,7 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Bioimpact timeline',
+                      l10n.biohackingBioimpactTimeline,
                       style: AppTypography.labelMedium.copyWith(
                         color: L.sub,
                       ),
@@ -316,7 +318,7 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                       icon: const Icon(Icons.videocam_rounded),
                       color: L.sub,
                       onPressed: _triggerRecordModePlay,
-                      tooltip: 'Record Mode',
+                      tooltip: l10n.biohackingRecordMode,
                     ),
                     IconButton(
                       icon: Icon(_isPlaying
@@ -340,7 +342,7 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                 TextButton.icon(
                   onPressed: () => setState(() => _recordMode = false),
                   icon: const Icon(Icons.close_rounded, size: 16, color: Colors.white60),
-                  label: const Text('Exit Record Mode', style: TextStyle(color: Colors.white60, fontSize: 12)),
+                  label: Text(l10n.biohackingExitRecordMode, style: TextStyle(color: Colors.white60, fontSize: 12)),
                 ),
               ],
             ),
@@ -414,12 +416,12 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text('0h (Onset)', style: TextStyle(color: L.sub.withValues(alpha: 0.5), fontSize: 11)),
+                  Text(l10n.biohackingN0hOnset, style: TextStyle(color: L.sub.withValues(alpha: 0.5), fontSize: 11)),
                   Text(
                     'Time: ${_currentTime.toStringAsFixed(1)}h',
                     style: TextStyle(color: L.text, fontWeight: FontWeight.bold, fontSize: 13),
                   ),
-                  Text('24h (Residual)', style: TextStyle(color: L.sub.withValues(alpha: 0.5), fontSize: 11)),
+                  Text(l10n.biohackingN24hResidual, style: TextStyle(color: L.sub.withValues(alpha: 0.5), fontSize: 11)),
                 ],
               ),
               SliderTheme(
@@ -462,13 +464,13 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'General Information Tag',
+                      Text(
+                        l10n.biohackingGeneralInformationTag,
                         style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold),
                       ),
                       Semantics(
                         button: true,
-                        label: 'Dismiss organ info',
+                        label: l10n.biohackingDismissOrganInfo,
                         child: GestureDetector(
                           onTap: () =>
                               setState(() => _selectedOrganTooltip = null),
@@ -481,8 +483,8 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                   const SizedBox(height: 6),
                   Text(_selectedOrganTooltip!, style: AppTypography.bodySmall.copyWith(color: L.text)),
                   const SizedBox(height: 6),
-                  const Text(
-                    'Disclaimer: Visualizer is for educational purposes and maps standard pharmacokinetics. Seek medical advice for personalized biology.',
+                  Text(
+                    l10n.biohackingDisclaimerVisualizerIsForEducationalPurposes,
                     style: TextStyle(color: Colors.white24, fontSize: 11, fontStyle: FontStyle.italic),
                   ),
                 ],

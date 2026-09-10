@@ -11,6 +11,7 @@ import '../../core/utils/result.dart';
 import 'package:provider/provider.dart';
 import '../../providers/controllers/medication_controller.dart';
 import '../../providers/app_state.dart';
+import '../../l10n/app_localizations.dart';
 
 class ChatMessage {
   final String text;
@@ -136,6 +137,7 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return AppScaffold(
@@ -143,7 +145,7 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
       body: Column(
         children: [
           PremiumPageHeader(
-            title: 'AI Assistant',
+            title: l10n.analysisAiAssistant,
             subtitle: widget.product.name,
             onBack: () {
               HapticEngine.selection();
@@ -182,7 +184,7 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
           IOSComposer(
             controller: _controller,
             autofocus: true,
-            hintText: 'Ask about interactions, timing…',
+            hintText: l10n.analysisAskAboutInteractionsTiming,
             onSubmit: _sendMessage,
           ),
         ],

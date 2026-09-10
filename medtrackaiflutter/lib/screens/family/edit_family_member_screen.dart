@@ -10,6 +10,7 @@ import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/premium_page_header.dart';
+import '../../l10n/app_localizations.dart';
 
 class EditFamilyMemberScreen extends StatefulWidget {
   final ManagedProfile member;
@@ -196,6 +197,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return AppScaffold(
@@ -207,7 +209,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
         slivers: [
           SliverToBoxAdapter(
             child: PremiumPageHeader(
-              title: 'Edit Member',
+              title: l10n.familyEditMember,
               subtitle: widget.member.name,
               onBack: () {
                 HapticEngine.selection();
@@ -215,7 +217,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
               },
               trailing: Semantics(
                 button: true,
-                label: 'Remove member',
+                label: l10n.familyRemoveMember,
                 child: AnimatedPressable(
                   onTap: _handleDelete,
                   child: Container(
@@ -248,7 +250,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
                 children: [
                   Semantics(
                     button: true,
-                    label: 'Change profile photo',
+                    label: l10n.familyChangeProfilePhoto,
                     child: AnimatedPressable(
                       onTap: _pickImage,
                       child: Container(
@@ -282,7 +284,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
                   ),
                   const SizedBox(height: AppSpacing.p8),
                   Text(
-                    'Tap to change photo',
+                    l10n.familyTapToChangePhoto,
                     style: TextStyle(color: L.sub.withValues(alpha: 0.4), fontSize: 11),
                   ),
                   const SizedBox(height: AppSpacing.p12),
@@ -421,13 +423,13 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Critical Care Member',
+                          l10n.familyCriticalCareMember,
                           style: AppTypography.labelMedium.copyWith(
                               fontWeight: FontWeight.w900, color: L.text),
                         ),
                         const SizedBox(height: AppSpacing.p4),
                         Text(
-                          'Prioritize alerts and monitoring',
+                          l10n.familyPrioritizeAlertsAndMonitoring,
                           style: AppTypography.labelSmall
                               .copyWith(color: L.sub.withValues(alpha: 0.6)),
                         ),
@@ -436,7 +438,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
                   ),
                   Semantics(
                     toggled: _isCritical,
-                    label: 'Critical care member',
+                    label: l10n.familyCriticalCareMember,
                     child: Switch.adaptive(
                       value: _isCritical,
                       activeTrackColor: L.text,
@@ -449,7 +451,7 @@ class _EditFamilyMemberScreenState extends State<EditFamilyMemberScreen> {
             const SizedBox(height: AppSpacing.p40),
 
             MedAiCTA(
-              label: 'Update member',
+              label: l10n.familyUpdateMember,
               loading: _isSaving,
               semanticsLabel: 'Save family member changes',
               onTap: _isSaving ? null : _handleSave,

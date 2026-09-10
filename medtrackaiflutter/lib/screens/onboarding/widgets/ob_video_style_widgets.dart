@@ -80,6 +80,7 @@ class ObCinematicSplash extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
@@ -97,10 +98,10 @@ class ObCinematicSplash extends StatelessWidget {
           children: [
             if (!reduceMotion)
               SizedBox(
-                child: const MedAiMascot(
+                child: MedAiMascot(
                   size: 100,
                   animate: false,
-                  semanticLabel: 'Med AI',
+                  semanticLabel: l10n.onboardingMedAi,
                 ),
               )
                   .animate()
@@ -112,16 +113,16 @@ class ObCinematicSplash extends StatelessWidget {
                     curve: AppCurves.smooth,
                   )
             else
-              const MedAiMascot(
+              MedAiMascot(
                 size: 100,
                 animate: false,
-                semanticLabel: 'Med AI',
+                semanticLabel: l10n.onboardingMedAi,
               ),
             const SizedBox(height: 28),
             Builder(
               builder: (_) {
                 final title = Text(
-                  'Med AI',
+                  l10n.onboardingMedAi,
                   style: AppTypography.headlineLarge.copyWith(
                     color: p.text,
                     fontWeight: FontWeight.w800,
@@ -352,7 +353,7 @@ class ObRankInterstitial extends StatelessWidget {
                     child: Column(
                       children: [
                         Text(
-                          'YOUR #1 PLAN',
+                          l10n.onboardingYour1Plan,
                           style: AppTypography.caption.copyWith(
                             color: AppColors.accentDeep,
                             letterSpacing: 1.4,
@@ -371,7 +372,7 @@ class ObRankInterstitial extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Medication companion',
+                          l10n.onboardingMedicationCompanion,
                           style: AppTypography.titleLarge.copyWith(
                             color: p.text,
                             fontWeight: FontWeight.w700,
@@ -380,7 +381,7 @@ class ObRankInterstitial extends StatelessWidget {
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Scan. Know. Never miss a dose.',
+                          l10n.onboardingScanKnowNeverMissADose,
                           textAlign: TextAlign.center,
                           style: AppTypography.bodyMedium.copyWith(
                             color: p.sub,
@@ -392,7 +393,7 @@ class ObRankInterstitial extends StatelessWidget {
                   ).obFadeUp(),
                   const SizedBox(height: 20),
                   Text(
-                    'Built for people managing more than one medicine',
+                    l10n.onboardingBuiltForPeopleManagingMoreThan,
                     textAlign: TextAlign.center,
                     style: AppTypography.bodySmall.copyWith(
                       color: AppColors.inkStrong.withValues(alpha: 0.72),
@@ -530,6 +531,7 @@ class _ObAccuracyBarChartState extends State<ObAccuracyBarChart>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     final multiplier = widget.ourScore / widget.otherScore;
 
@@ -554,7 +556,7 @@ class _ObAccuracyBarChartState extends State<ObAccuracyBarChart>
                   children: [
                     Expanded(
                       child: _BarColumn(
-                        label: 'Other apps',
+                        label: l10n.onboardingOtherApps,
                         score: widget.otherScore,
                         progress: t,
                         color: p.sub.withValues(alpha: 0.35),
@@ -569,7 +571,7 @@ class _ObAccuracyBarChartState extends State<ObAccuracyBarChart>
                         alignment: Alignment.topCenter,
                         children: [
                           _BarColumn(
-                            label: 'Med AI',
+                            label: l10n.onboardingMedAi,
                             score: widget.ourScore,
                             progress: t,
                             color: p.accent,
@@ -777,7 +779,7 @@ class ObTrialFlashInterstitial extends StatelessWidget {
                   child: Column(
                     children: [
                       Text(
-                        'FREE TRIAL',
+                        l10n.onboardingFreeTrial,
                         style: AppTypography.caption.copyWith(
                           color: AppColors.accentDeep,
                           letterSpacing: 1.4,
@@ -807,7 +809,7 @@ class ObTrialFlashInterstitial extends StatelessWidget {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        'Full access. Cancel anytime.',
+                        l10n.onboardingFullAccessCancelAnytime,
                         textAlign: TextAlign.center,
                         style: AppTypography.bodyMedium.copyWith(
                           color: p.sub,

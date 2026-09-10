@@ -6,6 +6,7 @@ import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
+import '../../l10n/app_localizations.dart';
 
 class FocusModeScreen extends StatefulWidget {
   const FocusModeScreen({super.key});
@@ -133,6 +134,7 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
@@ -199,7 +201,7 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
                       Expanded(
                         child: Center(
                           child: Text(
-                            'Focus mode',
+                            l10n.focusFocusMode,
                             style: AppTypography.titleMedium.copyWith(
                               color: L.text,
                               fontWeight: FontWeight.w700,
@@ -359,7 +361,7 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
                           ),
                           const SizedBox(height: 40),
                           MedAiCTA(
-                            label: 'Start focus',
+                            label: l10n.focusStartFocus,
                             fullWidth: false,
                             semanticsLabel: 'Start focus session',
                             onTap: _startSession,
@@ -367,7 +369,7 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
                         ],
                         if (_isFinished) ...[
                           MedAiCTA(
-                            label: 'Done',
+                            label: l10n.familyDone,
                             secondary: true,
                             fullWidth: false,
                             onTap: () {

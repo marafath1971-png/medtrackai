@@ -10,6 +10,7 @@ import '../../services/review_service.dart';
 import '../../services/share_service.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/med_ai_animation.dart';
+import '../../l10n/app_localizations.dart';
 
 class DoseCelebrationModal extends StatelessWidget {
   final String medName;
@@ -33,6 +34,7 @@ class DoseCelebrationModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final particleCount = reduceMotion ? 0 : 12;
@@ -202,7 +204,7 @@ class DoseCelebrationModal extends StatelessWidget {
                       ),
                     ),
                     child: Text(
-                      'DOSE LOGGED ✓',
+                      l10n.modalsDoseLogged,
                       style: AppTypography.labelSmall.copyWith(
                         color: AppColors.success,
                         fontWeight: FontWeight.w700,
@@ -256,7 +258,7 @@ class DoseCelebrationModal extends StatelessWidget {
                                     color: L.text, size: 16),
                                 const SizedBox(width: 8),
                                 Text(
-                                  'Share',
+                                  l10n.modalsShare,
                                   style: AppTypography.labelLarge.copyWith(
                                     color: L.text,
                                     fontSize: 13,
@@ -307,7 +309,7 @@ class DoseCelebrationModal extends StatelessWidget {
                             ),
                             child: Center(
                               child: Text(
-                                'Awesome!',
+                                l10n.modalsAwesome,
                                 style: AppTypography.titleLarge.copyWith(
                                   color: AppColors.limeInk,
                                   fontSize: 15,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/app_theme.dart';
+import '../../l10n/app_localizations.dart';
 
 class InteractiveBodyMap extends StatelessWidget {
   final List<String> activeSystems;
@@ -14,6 +15,7 @@ class InteractiveBodyMap extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
     return Container(
@@ -40,7 +42,7 @@ class InteractiveBodyMap extends StatelessWidget {
               Icon(Icons.accessibility_new_rounded, color: L.accent, size: 20),
               const SizedBox(width: 8),
               Text(
-                'Target organs',
+                l10n.biohackingTargetOrgans,
                 style: AppTypography.titleMedium.copyWith(
                   color: L.text,
                   fontWeight: FontWeight.w700,

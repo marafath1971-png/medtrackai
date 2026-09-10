@@ -6,10 +6,13 @@ import 'package:medai/screens/loading/loading_screen.dart';
 import 'package:medai/theme/med_ai_ui.dart';
 import 'package:medai/widgets/common/app_loading_indicator.dart';
 import 'package:medai/widgets/common/ghost_mascot.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// The splash is the first thing seen on every cold start, and it shipped with
 /// the pre-rename wordmark hardcoded while kAppName already said otherwise.
 Widget _host() => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       home: const LoadingScreen(),
     );

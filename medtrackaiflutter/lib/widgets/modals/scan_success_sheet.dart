@@ -5,6 +5,7 @@ import '../../domain/entities/medicine.dart';
 import '../../services/share_service.dart';
 import '../../theme/med_ai_ui.dart';
 import '../common/animated_pressable.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Post-scan success moment — hope, trust, worth-it, share.
 /// Returns `'home'`, `'detail'`, or null if dismissed.
@@ -27,6 +28,7 @@ class ScanSuccessSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final bottom = MediaQuery.paddingOf(context).bottom;
     final hasReminder = med.schedule.isNotEmpty;
@@ -103,19 +105,19 @@ class ScanSuccessSheet extends StatelessWidget {
               Expanded(
                 child: _TrustChip(
                   icon: Icons.shield_rounded,
-                  label: 'Safety saved',
+                  label: l10n.modalsSafetySaved,
                   tint: AppColors.pastelSky,
                 ),
               ),
               const SizedBox(width: AppSpacing.p8),
               // Only promise a reminder when a schedule actually exists —
-              // claiming "Reminder on" for an as-needed med with no schedule
+              // claiming l10n.modalsReminderOn for an as-needed med with no schedule
               // would be a false trust signal on the app's core moment.
               Expanded(
                 child: hasReminder
                     ? _TrustChip(
                         icon: Icons.schedule_rounded,
-                        label: 'Reminder on',
+                        label: l10n.modalsReminderOn,
                         tint: AppColors.pastelSun,
                       )
                     : _TrustChip(
@@ -128,7 +130,7 @@ class ScanSuccessSheet extends StatelessWidget {
               Expanded(
                 child: _TrustChip(
                   icon: Icons.favorite_rounded,
-                  label: 'Made for you',
+                  label: l10n.homeMadeForYou,
                   tint: AppColors.pastelMint,
                 ),
               ),
@@ -136,7 +138,7 @@ class ScanSuccessSheet extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.p24),
           MedAiCTA(
-            label: 'See it on Home',
+            label: l10n.modalsSeeItOnHome,
             icon: Icons.home_rounded,
             onTap: () {
               HapticEngine.selection();
@@ -145,7 +147,7 @@ class ScanSuccessSheet extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.p12),
           MedAiCTA(
-            label: 'Review medicine details',
+            label: l10n.modalsReviewMedicineDetails,
             secondary: true,
             icon: Icons.menu_book_rounded,
             onTap: () {
@@ -156,7 +158,7 @@ class ScanSuccessSheet extends StatelessWidget {
           const SizedBox(height: AppSpacing.p12),
           Semantics(
             button: true,
-            label: 'Share your win',
+            label: l10n.modalsShareYourWin,
             child: AnimatedPressable(
               onTap: () async {
                 HapticEngine.selection();

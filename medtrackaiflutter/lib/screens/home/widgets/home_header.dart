@@ -6,6 +6,7 @@ import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/premium_texture.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Reference header — avatar, greeting, live dose line, settings.
 class HomeHeader extends StatelessWidget {
@@ -22,6 +23,7 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final userName =
         state.activeProfile?.name ?? state.profile?.name ?? 'there';
@@ -137,7 +139,7 @@ class HomeHeader extends StatelessWidget {
             _IconCircleBtn(
               icon: Icons.settings_outlined,
               onTap: onOpenSettings,
-              semanticLabel: 'Open settings',
+              semanticLabel: l10n.homeOpenSettings,
               showBadge: state.unseenAlertsCount > 0 ||
                   state.getLowStockCount() > 0,
             ),

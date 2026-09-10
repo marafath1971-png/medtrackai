@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../theme/med_ai_ui.dart';
 import 'animated_pressable.dart';
+import '../../l10n/app_localizations.dart';
 
 class RefinedSheetWrapper extends StatelessWidget {
   final Widget child;
@@ -21,6 +22,7 @@ class RefinedSheetWrapper extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final bottomInset = MediaQuery.of(context).viewInsets.bottom;
     final bottomPadding = MediaQuery.of(context).padding.bottom;
@@ -88,7 +90,7 @@ class RefinedSheetWrapper extends StatelessWidget {
                     ),
                     Semantics(
                       button: true,
-                      label: 'Close',
+                      label: l10n.familyClose,
                       child: AnimatedPressable(
                         onTap: () => Navigator.pop(context),
                         child: Container(

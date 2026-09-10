@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../theme/med_ai_ui.dart';
 import 'animated_pressable.dart';
+import '../../l10n/app_localizations.dart';
 
 class PremiumPageHeader extends StatelessWidget {
   final String title;
@@ -20,6 +21,7 @@ class PremiumPageHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return SafeArea(
       bottom: false,
@@ -35,7 +37,7 @@ class PremiumPageHeader extends StatelessWidget {
             if (onBack != null) ...[
               Semantics(
                 button: true,
-                label: 'Back',
+                label: l10n.commonBack,
                 child: AnimatedPressable(
                   onTap: () {
                     HapticEngine.selection();

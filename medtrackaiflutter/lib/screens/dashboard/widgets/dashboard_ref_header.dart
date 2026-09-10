@@ -5,6 +5,7 @@ import '../../../core/utils/haptic_engine.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
+import '../../../l10n/app_localizations.dart';
 
 class DashboardRefHeader extends StatelessWidget {
   final VoidCallback onDailyLog;
@@ -18,6 +19,7 @@ class DashboardRefHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final appState = context.watch<AppState>();
     final name = (appState.activeProfile?.name ?? appState.profile?.name)?.trim();
@@ -88,7 +90,7 @@ class DashboardRefHeader extends StatelessWidget {
             const SizedBox(width: AppSpacing.p12),
             _GlassIconBtn(
               icon: Icons.search_rounded,
-              label: 'Search',
+              label: l10n.dashboardSearch,
               onTap: onSearch ?? onDailyLog,
             ),
             const SizedBox(width: AppSpacing.p8),

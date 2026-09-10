@@ -99,6 +99,7 @@ class _AlarmsTabState extends State<AlarmsTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final allSchedules = context
         .select<AppState, List<ScheduledMed>>((s) => s.getAllSchedules());
     final meds = context.select<AppState, List<Medicine>>((s) => s.meds);
@@ -168,7 +169,7 @@ class _AlarmsTabState extends State<AlarmsTab> {
                         children: [
                           Expanded(
                             child: MedAiSectionHeader(
-                              title: 'Reminders',
+                              title: l10n.alarmsReminders,
                               subtitle: '$activeCount active',
                             ),
                           ),
@@ -253,7 +254,7 @@ class _AlarmsTabState extends State<AlarmsTab> {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(AppSpacing.p24, AppSpacing.p40, AppSpacing.p24, AppSpacing.p16),
                       child: MedAiSectionHeader(
-                        title: 'Paused',
+                        title: l10n.alarmsPaused,
                         subtitle: '${inactiveSchedules.length} off',
                       ),
                     ),
@@ -408,7 +409,7 @@ class _AlarmsHeader extends StatelessWidget {
           if (onAdd != null)
             Semantics(
               button: true,
-              label: 'Add reminder',
+              label: l10n.alarmsAddReminder,
               child: AnimatedPressable(
                 onTap: onAdd!,
                 child: PremiumTextureCard(
@@ -502,6 +503,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final med = widget.sch.med as Medicine;
     final s = widget.sch.sched as ScheduleEntry;
     final L = widget.L;
@@ -550,7 +552,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Upcoming',
+                      l10n.alarmsUpcoming,
                       style: AppTypography.labelSmall.copyWith(
                         color: AppColors.limeInk,
                         fontWeight: FontWeight.w700,
@@ -597,7 +599,7 @@ class _NextDoseHeroState extends State<_NextDoseHero> {
                           curve: AppCurves.emilOut),
                   const SizedBox(height: AppSpacing.p8),
                   Text(
-                    'Logged successfully',
+                    l10n.alarmsLoggedSuccessfully,
                     style: AppTypography.labelMedium.copyWith(
                       color: AppColors.limeInk,
                       fontWeight: FontWeight.w700,
@@ -945,13 +947,14 @@ class _SwipeToConfirmState extends State<_SwipeToConfirm> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return LayoutBuilder(
       builder: (context, constraints) {
         final maxOffset = constraints.maxWidth - _knobSize - _trackPad * 2;
         final progress = (_offset / maxOffset).clamp(0.0, 1.0);
 
         return Semantics(
-          label: 'Slide to record dose',
+          label: l10n.alarmsSlideToRecordDose2,
           slider: true,
           child: Container(
           height: 60,
@@ -980,7 +983,7 @@ class _SwipeToConfirmState extends State<_SwipeToConfirm> {
                   opacity:
                       _confirmed ? 0 : (1.0 - progress * 1.6).clamp(0, 1.0),
                   child: Text(
-                    'Slide to record dose →',
+                    l10n.alarmsSlideToRecordDose,
                     style: AppTypography.labelMedium.copyWith(color: widget.L.text.withValues(alpha: 0.65),
                       fontWeight: FontWeight.w700
                     ),
@@ -990,7 +993,7 @@ class _SwipeToConfirmState extends State<_SwipeToConfirm> {
               if (_confirmed)
                 Center(
                   child: Text(
-                    '✓ Dose Recorded',
+                    l10n.alarmsDoseRecorded,
                     style: AppTypography.labelMedium.copyWith(
                       color: widget.L.text,
                       fontWeight: FontWeight.w700
@@ -1065,8 +1068,9 @@ class _EmptyAlarmsState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return PremiumEmptyState(
-      title: 'No reminders yet',
+      title: l10n.alarmsNoRemindersYet,
       subtitle: hasMeds
           ? 'Set reminders so you never miss a dose. Tap + to get started.'
           : 'Add medications first, then come back to set reminders.',
@@ -1129,6 +1133,7 @@ class _MedAlarmTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       decoration: BoxDecoration(
         color: L.card,
@@ -1154,7 +1159,7 @@ class _MedAlarmTile extends StatelessWidget {
                 fontSize: 16,
                 fontWeight: FontWeight.w700,
                 letterSpacing: -0.3)),
-        subtitle: Text('Needs schedule',
+        subtitle: Text(l10n.alarmsNeedsSchedule,
             style: AppTypography.bodySmall.copyWith(
                 color: L.sub,
                 fontSize: 12,
@@ -1178,8 +1183,9 @@ class _MedPickerSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return RefinedSheetWrapper(
-      title: 'Set reminder for',
+      title: l10n.alarmsSetReminderFor,
       child: ConstrainedBox(
         constraints: BoxConstraints(
             maxHeight: MediaQuery.of(context).size.height * 0.55),
@@ -1288,6 +1294,7 @@ class _AddAlarmSheetState extends State<_AddAlarmSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return RefinedSheetWrapper(
       title: widget.scheduleIndex != null ? 'Edit Reminder' : 'New Reminder',
@@ -1342,7 +1349,7 @@ class _AddAlarmSheetState extends State<_AddAlarmSheet> {
 
           // ── Quick label chips ──
           Text(
-            'Label',
+            l10n.alarmsLabel,
             style: AppTypography.titleMedium.copyWith(
               color: L.text,
               fontWeight: FontWeight.w700,
@@ -1400,7 +1407,7 @@ class _AddAlarmSheetState extends State<_AddAlarmSheet> {
           MedAiCTA(
             label: widget.scheduleIndex != null
                 ? 'Save changes'
-                : 'Add reminder',
+                : l10n.alarmsAddReminder,
             onTap: () {
               HapticEngine.success();
               if (widget.scheduleIndex != null) {
@@ -1434,7 +1441,7 @@ class _AddAlarmSheetState extends State<_AddAlarmSheet> {
             },
             semanticsLabel: widget.scheduleIndex != null
                 ? 'Save reminder changes'
-                : 'Add reminder',
+                : l10n.alarmsAddReminder,
           ),
         ],
       ),

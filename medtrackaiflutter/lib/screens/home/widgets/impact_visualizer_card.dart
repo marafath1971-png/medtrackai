@@ -4,12 +4,14 @@ import 'package:go_router/go_router.dart';
 import '../../../app/app_routes.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/haptic_engine.dart';
+import '../../../l10n/app_localizations.dart';
 
 class ImpactVisualizerCard extends StatelessWidget {
   const ImpactVisualizerCard({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     final icon = Container(
@@ -32,7 +34,7 @@ class ImpactVisualizerCard extends StatelessWidget {
 
     return Semantics(
       button: true,
-      label: 'Body impact visualizer. Visualize medication absorption.',
+      label: l10n.homeBodyImpactVisualizerVisualizeMedicationAbsorption,
       child: MedAiDepthCard(
         padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p20),
         onTap: () {
@@ -48,7 +50,7 @@ class ImpactVisualizerCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Body Impact 🧬',
+                    l10n.homeBodyImpact,
                     style: AppTypography.titleMedium.copyWith(
                       color: L.text,
                       fontWeight: FontWeight.w700,
@@ -57,7 +59,7 @@ class ImpactVisualizerCard extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.p4),
                   Text(
-                    'Visualize medication absorption 🚀',
+                    l10n.homeVisualizeMedicationAbsorption,
                     style: AppTypography.bodySmall.copyWith(
                       color: L.sub.withValues(alpha: 0.8),
                       fontWeight: FontWeight.w700,

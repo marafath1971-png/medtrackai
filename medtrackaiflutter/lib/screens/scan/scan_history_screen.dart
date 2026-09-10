@@ -11,12 +11,14 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/premium_empty_state.dart';
 import '../../../widgets/common/premium_page_header.dart';
+import '../../l10n/app_localizations.dart';
 
 class ScanHistoryScreen extends StatelessWidget {
   const ScanHistoryScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final state = context.watch<AppState>();
@@ -38,7 +40,7 @@ class ScanHistoryScreen extends StatelessWidget {
         slivers: [
           SliverToBoxAdapter(
             child: PremiumPageHeader(
-              title: 'Scan History',
+              title: l10n.scanScanHistory,
               subtitle: 'Your recent medication scans',
               onBack: () => Navigator.pop(context),
             ),
@@ -49,7 +51,7 @@ class ScanHistoryScreen extends StatelessWidget {
                 child: _entrance(
                   reduceMotion,
                   PremiumEmptyState(
-                    title: 'No history yet',
+                    title: l10n.scanNoHistoryYet,
                     subtitle: 'Medications you scan will appear here.',
                     mascotFeature: 'scan',
                     icon: Icons.qr_code_scanner_rounded,

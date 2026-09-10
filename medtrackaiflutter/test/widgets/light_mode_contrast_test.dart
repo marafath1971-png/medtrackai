@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/theme/med_ai_ui.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// Three shipped bugs had the same shape: a widget tinted a surface dark and
 /// coloured its content to match, but [MedAiGlass] discards its tint in light
@@ -33,6 +34,8 @@ double _contrast(Color a, Color b) {
 }
 
 Widget _lightHost(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       home: Scaffold(body: Center(child: child)),
     );

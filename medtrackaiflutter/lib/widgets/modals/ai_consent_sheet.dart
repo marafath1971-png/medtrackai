@@ -32,7 +32,7 @@ class AIConsentSheet extends StatelessWidget {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
 
     Widget icon = Semantics(
-      label: 'Security icon',
+      label: l10n.modalsSecurityIcon,
       child: Container(
         width: MedAiA11y.minTapTarget,
         height: MedAiA11y.minTapTarget,
@@ -65,7 +65,7 @@ class AIConsentSheet extends StatelessWidget {
               Center(child: icon),
               const SizedBox(height: 24),
               Text(
-                'AI Data Processing',
+                l10n.modalsAiDataProcessing,
                 style: AppTypography.titleMedium.copyWith(
                   fontSize: 24,
                   fontWeight: FontWeight.w800,
@@ -75,7 +75,7 @@ class AIConsentSheet extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               Text(
-                'Med AI uses Google Gemini AI to analyze your imagery and data. By hitting continue, you agree to securely share your photo and prompts with our AI processing partner.',
+                l10n.modalsMedAiUsesGoogleGeminiAi,
                 style: AppTypography.bodyMedium.copyWith(
                   color: L.sub,
                   height: 1.5,

@@ -55,12 +55,12 @@ class _AppTabState extends State<AppTab> {
       padding: const EdgeInsets.fromLTRB(0, AppSpacing.p4, 0, AppSpacing.p40),
       child: Column(children: [
         SettingsSection(
-            title: 'Notifications',
+            title: l10n.homeNotifications,
             child: Column(children: [
               SettingsModalRow(
                   icon: '🔔',
                   iconBg: AppColors.dangerSoft.withValues(alpha: 0.1),
-                  label: 'Dose Reminders',
+                  label: l10n.homeDoseReminders,
                   sub: 'Get notified when it\'s time',
                   right: AppToggle(
                       value: profile?.notifPerm ?? true,
@@ -80,7 +80,7 @@ class _AppTabState extends State<AppTab> {
               SettingsModalRow(
                   icon: '🔊',
                   iconBg: AppColors.warningSoft.withValues(alpha: 0.1),
-                  label: 'Reminder Sound',
+                  label: l10n.homeReminderSound,
                   sub: 'Play a sound with notifications',
                   right: AppToggle(
                       value: profile?.notifSound ?? true,
@@ -95,7 +95,7 @@ class _AppTabState extends State<AppTab> {
               SettingsModalRow(
                   icon: '⚡',
                   iconBg: AppColors.warningSoft.withValues(alpha: 0.1),
-                  label: 'Haptics',
+                  label: l10n.homeHaptics,
                   sub: 'Vibrate on taps and dose logging',
                   right: AppToggle(
                       value: profile?.hapticsEnabled ?? true,
@@ -113,7 +113,7 @@ class _AppTabState extends State<AppTab> {
               SettingsModalRow(
                   icon: '🔁',
                   iconBg: AppColors.dangerSoft.withValues(alpha: 0.1),
-                  label: 'Persistent Alarms',
+                  label: l10n.homePersistentAlarms,
                   sub: 'Ring until you respond (for critical meds)',
                   right: AppToggle(
                       value: profile?.reminderStyle == 'persistent',
@@ -129,7 +129,7 @@ class _AppTabState extends State<AppTab> {
               SettingsModalRow(
                   icon: '⏰',
                   iconBg: AppColors.pastelSky,
-                  label: 'Refill Alerts',
+                  label: l10n.homeRefillAlerts,
                   sub: 'Alert when meds run low',
                   right: AppToggle(
                       value: profile?.notifRefill ?? true,
@@ -143,7 +143,7 @@ class _AppTabState extends State<AppTab> {
                   border: false),
             ])),
         SettingsSection(
-            title: 'Reminder Timing',
+            title: l10n.homeReminderTiming,
             child: Column(
                 children: _leadOpts.asMap().entries.map((e) {
               final o = e.value;
@@ -157,22 +157,22 @@ class _AppTabState extends State<AppTab> {
                   border: e.key < _leadOpts.length - 1);
             }).toList())),
         SettingsSection(
-            title: 'Caregiver & Profiles',
+            title: l10n.homeCaregiverProfiles,
             child: SettingsModalRow(
                 icon: '👨‍👩‍👧',
                 iconBg: AppColors.successSoft.withValues(alpha: 0.1),
-                label: 'Family & Dependents',
+                label: l10n.homeFamilyDependents,
                 sub: 'Manage meds for loved ones',
                 onClick: () {
                   ProfileSwitcherSheet.show(context);
                 },
                 border: false)),
         SettingsSection(
-            title: 'Aesthetics & Theme',
+            title: l10n.homeAestheticsTheme,
             child: SettingsModalRow(
                 icon: '✨',
                 iconBg: AppColors.pastelMint,
-                label: 'App Appearance',
+                label: l10n.homeAppAppearance,
                 sub: 'Custom icons and themes',
                 onClick: () {
                   HapticEngine.heavyImpact();
@@ -180,11 +180,11 @@ class _AppTabState extends State<AppTab> {
                 },
                 border: false)),
         SettingsSection(
-            title: 'Health & Wellness',
+            title: l10n.homeHealthWellness,
             child: SettingsModalRow(
                 icon: '❤️',
                 iconBg: AppColors.pinkSystem.withValues(alpha: 0.1),
-                label: 'Connect Health Data',
+                label: l10n.dashboardConnectHealthData,
                 sub: context.select<AppState, bool>((s) => s.health.isConnected)
                     ? 'Synced with ${defaultTargetPlatform == TargetPlatform.iOS ? 'Apple Health' : 'Health Connect'}'
                     : 'Sync vitals and activity data',
@@ -196,7 +196,7 @@ class _AppTabState extends State<AppTab> {
                       if (v) {
                         PermissionSoftPrompt.show(
                           context: context,
-                          title: 'Health Data Access',
+                          title: l10n.homeHealthDataAccess,
                           explanation: 'Sync your vitals, sleep, and activity data for better insights.',
                           icon: Icons.favorite_rounded,
                           buttonText: 'Connect Health',
@@ -210,11 +210,11 @@ class _AppTabState extends State<AppTab> {
                     }),
                 border: false)),
         SettingsSection(
-            title: 'Security',
+            title: l10n.homeSecurity,
             child: SettingsModalRow(
                 icon: '🔐',
                 iconBg: L.text.withValues(alpha: 0.1),
-                label: 'Biometric Lock',
+                label: l10n.homeBiometricLock,
                 sub: 'Unlock with FaceID / Fingerprint',
                 right: AppToggle(
                     value: profile?.biometricEnabled ?? false,
@@ -228,18 +228,18 @@ class _AppTabState extends State<AppTab> {
                     }),
                 border: false)),
         SettingsSection(
-            title: 'Support & Feedback',
+            title: l10n.homeSupportFeedback,
             child: MedAiGlass(
               padding: const EdgeInsets.all(AppSpacing.p24),
               radius: AppRadius.xl,
               child: Column(children: [
-                Text('Enjoying MedAI?',
+                Text(l10n.homeEnjoyingMedai,
                     style: AppTypography.titleLarge.copyWith(
                         fontWeight: FontWeight.w700,
                         color: L.text,
                         fontSize: 18)),
                 const SizedBox(height: AppSpacing.p8),
-                Text('Your feedback helps us improve for everyone.',
+                Text(l10n.homeYourFeedbackHelpsUsImproveFor,
                     style: AppTypography.bodySmall
                         .copyWith(color: L.sub, fontWeight: FontWeight.w600)),
                 const SizedBox(height: AppSpacing.p20),
@@ -255,7 +255,7 @@ class _AppTabState extends State<AppTab> {
                 ),
                 const SizedBox(height: AppSpacing.p24),
                 MedAiCTA(
-                  label: 'Invite friends — give a free month',
+                  label: l10n.homeInviteFriendsGiveAFreeMonth,
                   semanticsLabel:
                       'Invite friends to MedAI and give them a free month',
                   onTap: () async {
@@ -273,7 +273,7 @@ class _AppTabState extends State<AppTab> {
               ]),
             )),
         SettingsSection(
-            title: 'App Info',
+            title: l10n.homeAppInfo,
             child: Column(children: [
               SettingsModalRow(
                   icon: '💊',
@@ -283,7 +283,7 @@ class _AppTabState extends State<AppTab> {
               SettingsModalRow(
                   icon: '🛡️',
                   iconBg: AppColors.green.withValues(alpha: 0.1),
-                  label: 'Privacy',
+                  label: l10n.homePrivacy,
                   sub: 'Your data stays on this device',
                   onClick: () => context.push(AppRoutes.settingsPrivacy),
                   border: true),
@@ -297,7 +297,7 @@ class _AppTabState extends State<AppTab> {
               SettingsModalRow(
                   icon: '🗑️',
                   iconBg: AppColors.dangerSoft.withValues(alpha: 0.1),
-                  label: 'Delete Account',
+                  label: l10n.homeDeleteAccount,
                   sub: 'Erase all medicines and history — permanent',
                   // This row had its own dialog whose "Delete" button showed
                   // "Account scheduled for deletion within 30 days." and then

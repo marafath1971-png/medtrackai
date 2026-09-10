@@ -4,6 +4,7 @@ import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/shared/shared_widgets.dart';
 import '../../../widgets/viral/ai_quick_log_sheet.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ─────────────────────────────────────────────────────────────
 // AI QUICK LOG FAB — glowing "Log Dose" pill button.
@@ -21,9 +22,10 @@ class _AiQuickLogFabState extends State<AiQuickLogFab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Semantics(
       button: true,
-      label: 'Log dose with AI',
+      label: l10n.homeLogDoseWithAi,
       child: AnimatedPressable(
         onTapDown: (_) {
           HapticEngine.selection();
@@ -79,7 +81,7 @@ class _AiQuickLogFabState extends State<AiQuickLogFab> {
                     color: AppColors.black.withValues(alpha: 0.75), size: 14),
                 const SizedBox(width: AppSpacing.p8),
                 Text(
-                  'Log Dose',
+                  l10n.homeLogDose,
                   style: AppTypography.labelLarge.copyWith(
                     color: AppColors.black,
                     fontWeight: FontWeight.w900,

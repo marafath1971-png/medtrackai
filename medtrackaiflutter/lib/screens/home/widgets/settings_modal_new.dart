@@ -29,6 +29,7 @@ class _SettingsModalState extends State<SettingsModal> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = context.read<AppState>();
     final L = context.L;
     final s = AppLocalizations.of(context)!;
@@ -68,7 +69,7 @@ class _SettingsModalState extends State<SettingsModal> {
           Positioned.fill(
             child: Semantics(
               button: true,
-              label: 'Close settings',
+              label: l10n.homeCloseSettings,
               child: GestureDetector(
                 onTap: widget.onClose,
                 child: Container(
@@ -135,7 +136,7 @@ class _SettingsModalState extends State<SettingsModal> {
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    'Made for you — manage with confidence',
+                                    l10n.homeMadeForYouManageWithConfidence,
                                     style: AppTypography.bodySmall.copyWith(
                                       color: L.sub,
                                       fontWeight: FontWeight.w500,
@@ -146,7 +147,7 @@ class _SettingsModalState extends State<SettingsModal> {
                             ),
                             Semantics(
                               button: true,
-                              label: 'Close settings',
+                              label: l10n.homeCloseSettings,
                               child: AnimatedPressable(
                                 onTap: widget.onClose,
                                 child: Container(
@@ -212,7 +213,7 @@ class _SettingsModalState extends State<SettingsModal> {
                               const SizedBox(width: AppSpacing.p12),
                               Expanded(
                                 child: Text(
-                                  'Your success settings — reminders, safety, and share.',
+                                  l10n.homeYourSuccessSettingsRemindersSafetyAnd,
                                   style: AppTypography.bodySmall.copyWith(
                                     color: L.text.withValues(alpha: 0.85),
                                     fontWeight: FontWeight.w600,

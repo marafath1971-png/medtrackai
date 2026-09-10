@@ -8,6 +8,7 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/ghost_mascot.dart';
 import '../../../widgets/common/premium_texture.dart';
+import '../../../l10n/app_localizations.dart';
 
 class HomeScheduleEmpty extends StatelessWidget {
   final bool hasMeds;
@@ -21,6 +22,7 @@ class HomeScheduleEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final title =
@@ -88,7 +90,7 @@ class HomeScheduleEmpty extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: Text(
-                  'Scan a medicine',
+                  l10n.homeScanAMedicine,
                   style: AppTypography.labelMedium.copyWith(
                     color: Colors.white,
                     fontWeight: FontWeight.w700,
@@ -104,7 +106,7 @@ class HomeScheduleEmpty extends StatelessWidget {
                 padding:
                     const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p8),
                 child: Text(
-                  'Or enter it manually',
+                  l10n.homeOrEnterItManually,
                   style: AppTypography.labelMedium.copyWith(
                     color: L.sub,
                     decoration: TextDecoration.underline,

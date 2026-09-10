@@ -43,6 +43,7 @@ class _DataTabState extends State<DataTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = widget.L;
     final s = AppLocalizations.of(context)!;
     final reduceMotion = MedAiA11y.reducedMotion(context);
@@ -65,7 +66,7 @@ class _DataTabState extends State<DataTab> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Your data',
+            Text(l10n.homeYourData,
                 style: AppTypography.titleMedium.copyWith(
                     fontWeight: FontWeight.w700,
                     color: L.text,

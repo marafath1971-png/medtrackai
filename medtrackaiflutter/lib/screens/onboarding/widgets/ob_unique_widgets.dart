@@ -68,6 +68,7 @@ class _ObLongTermResultsChartState extends State<ObLongTermResultsChart>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     return AnimatedBuilder(
       animation: _ctrl,
@@ -98,9 +99,9 @@ class _ObLongTermResultsChartState extends State<ObLongTermResultsChart>
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _LegendDot(color: p.bad.withValues(alpha: 0.7), label: 'Memory only'),
+                  _LegendDot(color: p.bad.withValues(alpha: 0.7), label: l10n.onboardingMemoryOnly),
                   const SizedBox(width: 16),
-                  _LegendDot(color: p.accent, label: 'Med AI plan'),
+                  _LegendDot(color: p.accent, label: l10n.onboardingMedAiPlan),
                 ],
               ),
             ],
@@ -297,7 +298,7 @@ class ObPersonalAdherenceSummary extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Text(
-            'Adherence baseline',
+            l10n.onboardingAdherenceBaseline,
             style: AppTypography.labelLarge.copyWith(
               color: p.sub,
             ),
@@ -347,8 +348,8 @@ class ObPersonalAdherenceSummary extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           _SummaryRow(label: l10n.profile, value: persona.label, p: p),
-          _SummaryRow(label: 'Med count', value: controller.medCountLabel, p: p),
-          _SummaryRow(label: 'Challenge', value: controller.challengeLabel, p: p),
+          _SummaryRow(label: l10n.onboardingMedCount, value: controller.medCountLabel, p: p),
+          _SummaryRow(label: l10n.onboardingChallenge, value: controller.challengeLabel, p: p),
         ],
       ),
     );
@@ -411,6 +412,7 @@ class ObYesNoChoice extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     return Row(
       children: [
@@ -426,7 +428,7 @@ class ObYesNoChoice extends StatelessWidget {
         const SizedBox(width: 12),
         Expanded(
           child: _YesNoBtn(
-            label: 'Yes',
+            label: l10n.onboardingYes,
             selected: selectedId == 'yes',
             filled: true,
             p: p,

@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 import '../../../theme/med_ai_ui.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Identity block at the top of a scan result.
 ///
@@ -89,6 +90,7 @@ class _CompactHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return Container(
@@ -119,7 +121,7 @@ class _CompactHeader extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'IDENTIFIED',
+                  l10n.analysisIdentified,
                   style: AppTypography.caption.copyWith(
                     color: AppColors.accentDeep,
                     letterSpacing: 1.2,

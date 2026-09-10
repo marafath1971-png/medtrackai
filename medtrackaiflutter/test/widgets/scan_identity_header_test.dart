@@ -4,12 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/screens/analysis/widgets/scan_identity_header.dart';
 import 'package:medai/theme/med_ai_ui.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// Voice search and name search produce a result with no photo. The old header
 /// still reserved a 16:11 slot for one — about 370px of empty gradient behind a
 /// faded pill glyph, at the very top of the screen, saying nothing. A scan of
 /// "Metformin" opened on a blank blue rectangle.
 Widget _host(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       home: Scaffold(body: SingleChildScrollView(child: child)),
     );

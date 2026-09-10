@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../domain/entities/predictive_insight.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/shared/shared_widgets.dart';
+import '../../../l10n/app_localizations.dart';
 
 class PredictiveInsightCard extends StatelessWidget {
   final PredictiveInsight insight;
@@ -11,6 +12,7 @@ class PredictiveInsightCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final color = _getColor(insight.type, L);
 
@@ -72,7 +74,7 @@ class PredictiveInsightCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  'ADJUST NOTIFICATIONS',
+                  l10n.statsAdjustNotifications,
                   style: AppTypography.labelSmall.copyWith(
                     color: L.text,
                     fontWeight: FontWeight.w700,

@@ -84,6 +84,7 @@ class _DashboardTabState extends State<DashboardTab> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final s = AppLocalizations.of(context);
     if (s == null) return const SizedBox.shrink();
@@ -178,7 +179,7 @@ class _DashboardTabState extends State<DashboardTab> {
                     child: Padding(
                       padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.gutter, AppSpacing.gutter, AppSpacing.p8),
                       child: Text(
-                        'Supply status',
+                        l10n.dashboardSupplyStatus,
                         style: AppTypography.titleLarge.copyWith(
                           fontWeight: FontWeight.w700,
                           fontSize: 20,
@@ -220,7 +221,7 @@ class _DashboardTabState extends State<DashboardTab> {
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.gutter, AppSpacing.gutter, AppSpacing.p8),
                     child: Text(
-                      'AI insights',
+                      l10n.dashboardAiInsights,
                       style: AppTypography.titleLarge.copyWith(
                         fontWeight: FontWeight.w700,
                         fontSize: 20,
@@ -294,7 +295,7 @@ class _DashboardTabState extends State<DashboardTab> {
                           );
                         },
                         child: Text(
-                          'Export data as CSV',
+                          l10n.dashboardExportDataAsCsv,
                           style: AppTypography.labelLarge.copyWith(
                             color: L.sub,
                           ),
@@ -354,6 +355,7 @@ class _ConnectHealthCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return GestureDetector(
       onTap: onConnect,
@@ -393,7 +395,7 @@ class _ConnectHealthCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Connect health data',
+                    l10n.dashboardConnectHealthData,
                     style: AppTypography.titleMedium.copyWith(
                       fontWeight: FontWeight.w700,
                       color: AppColors.inkStrong,
@@ -402,7 +404,7 @@ class _ConnectHealthCard extends StatelessWidget {
                   ),
                   const SizedBox(height: AppSpacing.p4),
                   Text(
-                    'Sync steps and heart rate alongside your meds.',
+                    l10n.dashboardSyncStepsAndHeartRateAlongside,
                     style: AppTypography.bodySmall.copyWith(
                       color: AppColors.grey600,
                       height: 1.3,

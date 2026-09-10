@@ -4,6 +4,7 @@ import '../../../../theme/med_ai_ui.dart';
 import '../../../../domain/entities/body_impact.dart';
 import '../../../widgets/biohacking/pharma_timeline_widget.dart';
 import '../../../widgets/biohacking/interactive_body_map.dart';
+import '../../../l10n/app_localizations.dart';
 
 class BodyImpactCard extends StatelessWidget {
   final BodyImpactSummary impact;
@@ -19,6 +20,7 @@ class BodyImpactCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
@@ -131,7 +133,7 @@ class BodyImpactCard extends StatelessWidget {
                 ],
                 if (onAskAIPressed != null)
                   MedAiCTA(
-                    label: 'Ask AI Assistant About This',
+                    label: l10n.medicineAskAiAssistantAboutThis,
                     icon: Icons.chat_bubble_outline_rounded,
                     secondary: true,
                     onTap: onAskAIPressed,

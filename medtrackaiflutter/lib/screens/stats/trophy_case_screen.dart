@@ -7,6 +7,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_page_header.dart';
 import '../../widgets/viral/share_milestone_card.dart';
+import '../../l10n/app_localizations.dart';
 
 class TrophyCaseScreen extends StatelessWidget {
   const TrophyCaseScreen({super.key});
@@ -21,6 +22,7 @@ class TrophyCaseScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final state = context.watch<AppState>();
     final streak = state.getStreak();
@@ -60,14 +62,14 @@ class TrophyCaseScreen extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             PremiumPageHeader(
-              title: 'Trophy case',
+              title: l10n.statsTrophyCase,
               subtitle: '$streak day current streak',
               onBack: () => Navigator.pop(context),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(
                   horizontal: AppSpacing.screenPadding),
-              child: const MedAiSectionHeader(title: 'Your badges'),
+              child: MedAiSectionHeader(title: l10n.statsYourBadges),
             ),
             Expanded(
               child: GridView.builder(
@@ -105,7 +107,7 @@ class TrophyCaseScreen extends StatelessWidget {
               child: _entrance(
                 context,
                 MedAiCTA(
-                  label: 'Share to Instagram / TikTok',
+                  label: l10n.statsShareToInstagramTiktok,
                   icon: Icons.ios_share_rounded,
                   onTap: () {
                     HapticEngine.heavyImpact();

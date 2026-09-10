@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../../theme/med_ai_ui.dart';
+import '../../../l10n/app_localizations.dart';
 
 class InteractionWarningSheet extends StatelessWidget {
   final String medicineName;
@@ -29,6 +30,7 @@ class InteractionWarningSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     // Using a soft amber/warning tint
@@ -80,7 +82,7 @@ class InteractionWarningSheet extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      "Wait! Interaction Alert",
+                      l10n.medicineWaitInteractionAlert,
                       style: AppTypography.headlineSmall.copyWith(
                         color: L.text,
                         fontWeight: FontWeight.w700,
@@ -134,7 +136,7 @@ class InteractionWarningSheet extends StatelessWidget {
             children: [
               Expanded(
                 child: MedAiCTA(
-                  label: "Got it",
+                  label: l10n.medicineGotIt,
                   secondary: true,
                   onTap: () => Navigator.of(context).pop(),
                 ),
@@ -142,7 +144,7 @@ class InteractionWarningSheet extends StatelessWidget {
               const SizedBox(width: AppSpacing.p12),
               Expanded(
                 child: MedAiCTA(
-                  label: "Adjust Time",
+                  label: l10n.medicineAdjustTime,
                   icon: Icons.access_time_filled,
                   onTap: () {
                     Navigator.of(context).pop();

@@ -69,7 +69,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
               delegate: SliverChildListDelegate([
                 _buildCard(
                   icon: Icons.local_hospital_rounded,
-                  title: 'Medical Disclaimer',
+                  title: l10n.settingsMedicalDisclaimer,
                   content:
                       '$kAppName is a medication tracking and health information tool ONLY. It does NOT provide medical diagnoses, clinical advice, or treatment recommendations. All AI-generated insights are for informational purposes only and may be inaccurate.\n\nAlways consult a licensed physician, pharmacist, or qualified healthcare professional before making any medical decision. Do not use this app as a substitute for professional medical advice. In an emergency, call your local emergency services immediately (e.g. 911, 999, 112).',
                   accent: AppColors.red,
@@ -78,7 +78,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 ),
                 _buildCard(
                   icon: Icons.shield_rounded,
-                  title: '1. Information We Collect',
+                  title: l10n.settingsN1InformationWeCollect,
                   content:
                       'We collect only what is necessary to operate the app:\n\n• Account data: email address, display name, profile photo (if provided)\n• Health data: medication names, dosages, schedules, adherence logs, and vitals you manually enter or import from Apple Health / Google Health Connect\n• Device data: device model, OS version, crash logs (via Firebase Crashlytics)\n• Usage data: feature interactions, scan counts, and session duration (via Firebase Analytics) — fully anonymised\n• Camera/microphone: used only in real-time during scanning or voice input; images are processed and not stored permanently without your consent\n• We do NOT collect: government IDs, precise location (unless you grant permission), financial data, or contact lists.',
                   delay: 100,
@@ -86,7 +86,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 ),
                 _buildCard(
                   icon: Icons.auto_awesome_rounded,
-                  title: '2. AI & Scan Processing',
+                  title: l10n.settingsN2AiScanProcessing,
                   content:
                       'When you scan a medicine or use the AI assistant, your image or query is sent to Google\'s Gemini API for processing. This data is:\n\n• Transmitted over TLS encryption\n• Processed by Google under their Privacy Policy (policies.google.com)\n• Not used to train public AI models\n• Not linked to your identity — requests are anonymous\n\nGemini API responses are informational only. Medai does not verify AI-generated medical content for clinical accuracy.',
                   delay: 150,
@@ -94,7 +94,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 ),
                 _buildCard(
                   icon: Icons.people_rounded,
-                  title: '3. Family & Caregiver Sharing',
+                  title: l10n.settingsN3FamilyCaregiverSharing,
                   content:
                       'If you add a family member or caregiver to your Circle, you explicitly grant them permission to view your medication schedule and adherence logs. You can revoke this access at any time from the Family Hub.\n\nShared data is encrypted in transit and at rest. Caregivers cannot modify your medication data without your consent.',
                   delay: 200,
@@ -102,7 +102,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 ),
                 _buildCard(
                   icon: Icons.business_rounded,
-                  title: '4. Third-Party Services',
+                  title: l10n.settingsN4ThirdPartyServices,
                   content:
                       'We integrate the following third-party services:\n\n• Firebase (Google) — Authentication, database, storage, analytics, crash reporting\n• RevenueCat — In-app purchase management\n• Google Gemini API — AI analysis engine\n• Apple HealthKit / Google Health Connect — Health data sync (opt-in only)\n\nEach service operates under its own privacy policy. We do not sell your data to advertisers or data brokers.',
                   delay: 250,
@@ -110,7 +110,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 ),
                 _buildCard(
                   icon: Icons.lock_clock_rounded,
-                  title: '5. Data Retention',
+                  title: l10n.settingsN5DataRetention,
                   content:
                       '• Active account data: retained as long as your account exists\n• Deleted account data: permanently erased within 30 days of account deletion request\n• Anonymised analytics: retained for up to 24 months for product improvement\n• Crash logs: retained for 90 days\n\nYou can request immediate deletion at any time from Settings → Delete Account Permanently.',
                   delay: 300,
@@ -118,7 +118,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 ),
                 _buildCard(
                   icon: Icons.security_rounded,
-                  title: '6. Security',
+                  title: l10n.settingsN6Security,
                   content:
                       'Your data is protected using:\n\n• AES-256 encryption for stored data\n• TLS 1.3 for all data in transit\n• Firebase Security Rules limiting data access\n• Biometric lock (FaceID / Fingerprint) for app access\n• Optional PIN lock\n\nNo security system is 100% infallible. In the event of a data breach, we will notify affected users within 72 hours as required by GDPR.',
                   delay: 350,
@@ -126,7 +126,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 ),
                 _buildCard(
                   icon: Icons.gavel_rounded,
-                  title: '7. Your Rights (GDPR / CCPA)',
+                  title: l10n.settingsN7YourRightsGdprCcpa,
                   content:
                       'Depending on your region, you have the right to:\n\n• Access: Request a copy of your personal data\n• Rectification: Correct inaccurate data\n• Erasure: Request deletion of your account and all associated data\n• Portability: Export your data as a CSV or PDF report\n• Objection: Opt out of analytics data collection at any time from Settings\n• Withdraw consent: Remove Health Connect / HealthKit access at any time\n\nTo exercise any right, contact us at $kSupportEmail',
                   delay: 400,
@@ -142,7 +142,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 ),
                 _buildCard(
                   icon: Icons.cloud_off_rounded,
-                  title: '9. Your Data, Your Control',
+                  title: l10n.settingsN9YourDataYourControl,
                   content:
                       'You own your data at all times. You may:\n\n• Export your full health history as a clinical PDF or CSV report\n• Delete your account and all data permanently\n• Revoke Health integration access\n• Disable analytics from Settings → Privacy\n\nWe comply with GDPR (EU), CCPA (California), PIPEDA (Canada), and follow HIPAA-equivalent security practices.',
                   delay: 500,
@@ -150,7 +150,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 ),
                 _buildCard(
                   icon: Icons.email_rounded,
-                  title: '10. Contact & Updates',
+                  title: l10n.settingsN10ContactUpdates,
                   content:
                       'For privacy enquiries, data requests, or concerns:\n\n📧 $kSupportEmail\n🌐 $kPrivacyPolicyUrl\n\nWe may update this Privacy Policy from time to time. We will notify you of material changes via in-app notification. Continued use of the app after changes constitutes acceptance.',
                   delay: 550,
@@ -160,7 +160,7 @@ class _PrivacyPolicyScreenState extends State<PrivacyPolicyScreen> {
                 _entrance(
                   Semantics(
                     button: true,
-                    label: 'View full privacy policy online',
+                    label: l10n.settingsViewFullPrivacyPolicyOnline,
                     child: MedAiGlass(
                       onTap: () async {
                         HapticEngine.selection();

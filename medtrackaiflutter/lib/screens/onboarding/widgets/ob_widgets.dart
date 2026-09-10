@@ -155,7 +155,7 @@ class _TopBar extends StatelessWidget {
           if (onSkip != null)
             Semantics(
               button: true,
-              label: 'Skip onboarding',
+              label: l10n.onboardingSkipOnboarding,
               child: AnimatedPressable(
                 onTap: () {
                   HapticEngine.light();
@@ -195,12 +195,13 @@ class _CircleIcon extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (onTap == null) {
       return const SizedBox(width: AppA11y.minTapTargetCompact, height: AppA11y.minTapTargetCompact);
     }
     return Semantics(
       button: true,
-      label: 'Go back',
+      label: l10n.onboardingGoBack,
       child: AnimatedPressable(
         onTap: onTap,
         scaleFactor: 0.94,

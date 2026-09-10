@@ -5,6 +5,7 @@ import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../common/refined_sheet_wrapper.dart';
 import 'daily_log_sheet.dart';
+import '../../l10n/app_localizations.dart';
 
 class TrendDrilldownSheet extends StatelessWidget {
   final AppState state;
@@ -22,12 +23,13 @@ class TrendDrilldownSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final trendData = state.getTrendData();
     final avgAdherence = state.getAdherenceScore();
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
     return RefinedSheetWrapper(
-      title: 'Health Trends',
+      title: l10n.modalsHealthTrends,
       padding: const EdgeInsets.fromLTRB(24, 0, 24, 32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -35,7 +37,7 @@ class TrendDrilldownSheet extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('30-DAY PERFORMANCE',
+              Text(l10n.modalsN30DayPerformance,
                   style: AppTypography.labelSmall.copyWith(
                       fontSize: 11,
                       fontWeight: FontWeight.w700,
@@ -55,7 +57,7 @@ class TrendDrilldownSheet extends StatelessWidget {
           ),
           const SizedBox(height: 32),
           Semantics(
-            label: '30 day adherence chart',
+            label: l10n.modalsN30DayAdherenceChart,
             child: SizedBox(
               height: 180,
               child: Row(
@@ -133,7 +135,7 @@ class TrendDrilldownSheet extends StatelessWidget {
                       Icon(Icons.auto_awesome_rounded,
                           color: AppColors.limeDeep, size: 18),
                       const SizedBox(width: 10),
-                      Text('PATIENT INSIGHT',
+                      Text(l10n.modalsPatientInsight,
                           style: AppTypography.labelSmall.copyWith(
                               fontSize: 11,
                               fontWeight: FontWeight.w700,
@@ -164,7 +166,7 @@ class TrendDrilldownSheet extends StatelessWidget {
           _entrance(
             context,
             MedAiCTA(
-              label: 'View Detailed Daily Log',
+              label: l10n.modalsViewDetailedDailyLog,
               icon: Icons.history_rounded,
               secondary: true,
               semanticsLabel: 'View detailed daily log',

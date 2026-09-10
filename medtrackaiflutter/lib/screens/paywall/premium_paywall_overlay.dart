@@ -20,6 +20,7 @@ import '../../services/notification_service.dart';
 import '../../services/purchases_service.dart';
 import '../../services/remote_config_service.dart';
 import '../../screens/onboarding/widgets/ob_video_style_widgets.dart';
+import '../../l10n/app_localizations.dart';
 
 // ══════════════════════════════════════════════════════════════
 // PREMIUM PAYWALL OVERLAY — 2026 conversion + store compliance
@@ -275,6 +276,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final bottomPad = MediaQuery.of(context).padding.bottom;
     final reduceMotion = MedAiA11y.reducedMotion(context);
@@ -287,7 +289,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
       // was presented over the scanner, taking the app down with it.
       explicitChildNodes: true,
       namesRoute: true,
-      label: 'Med AI Pro subscription',
+      label: l10n.paywallMedAiProSubscription,
       child: ClipRRect(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(32)),
         child: DecoratedBox(
@@ -344,7 +346,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                           const Spacer(),
                           Semantics(
                             button: true,
-                            label: 'Close paywall',
+                            label: l10n.paywallClosePaywall,
                             child: AnimatedPressable(
                               onTap: _dismiss,
                               scaleFactor: 0.92,
@@ -394,7 +396,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
-                                  'Wait — not ready for a year? Try Med AI Pro by the week. Cancel anytime.',
+                                  l10n.paywallWaitNotReadyForAYear,
                                   style: AppTypography.bodySmall.copyWith(
                                     color: const Color(0xFF1A1D26),
                                     fontWeight: FontWeight.w600,

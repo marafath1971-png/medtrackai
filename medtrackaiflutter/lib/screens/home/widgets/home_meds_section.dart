@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/premium_empty_state.dart';
+import '../../../l10n/app_localizations.dart';
 
 
 class HomeMedsHeader extends StatelessWidget {
@@ -9,11 +10,12 @@ class HomeMedsHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.p12),
       child: Text(
-        'Recently uploaded',
+        l10n.homeRecentlyUploaded,
         style: AppTypography.titleLarge.copyWith(
           
           fontWeight: FontWeight.w700,
@@ -31,8 +33,9 @@ class HomeMedsEmptyState extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return PremiumEmptyState(
-      title: 'No medications',
+      title: l10n.homeNoMedications,
       subtitle:
           'Add your first medicine to start tracking your daily precision log.',
       mascotFeature: 'add_med',

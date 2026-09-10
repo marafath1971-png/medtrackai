@@ -172,7 +172,7 @@ class _ReentryScreenState extends State<ReentryScreen> {
                   _entrance(
                     reduceMotion,
                     MedAiCTA(
-                      label: 'Get premium freezes',
+                      label: l10n.viralGetPremiumFreezes,
                       icon: Icons.star_rounded,
                       onTap: () {
                         HapticEngine.selection();
@@ -185,7 +185,7 @@ class _ReentryScreenState extends State<ReentryScreen> {
                   ),
                   const SizedBox(height: 12),
                   MedAiCTA(
-                    label: 'Start new streak',
+                    label: l10n.viralStartNewStreak,
                     secondary: true,
                     onTap: () => _handleDismiss(false),
                   ),

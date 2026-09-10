@@ -212,7 +212,7 @@ class ShareAchievementCard extends StatelessWidget {
                     ),
                     child: Center(
                       child: Text(
-                        'Close',
+                        l10n.familyClose,
                         style: AppTypography.labelLarge.copyWith(
                           color: L.onBg.withValues(alpha: 0.7),
                           fontSize: 15,
@@ -249,7 +249,7 @@ class ShareAchievementCard extends StatelessWidget {
                             color: AppColors.black, size: 18),
                         const SizedBox(width: 8),
                         Text(
-                          'Share Achievement',
+                          l10n.commonShareAchievement,
                           style: AppTypography.labelLarge.copyWith(
                             color: AppColors.black,
                             fontSize: 15,

@@ -13,6 +13,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/mesh_gradient.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../theme/med_ai_ui.dart';
+import '../../l10n/app_localizations.dart';
 
 class MedWrappedScreen extends StatefulWidget {
   const MedWrappedScreen({super.key});
@@ -217,6 +218,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
@@ -256,7 +258,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
                   child: RepaintBoundary(
                     key: _shareKey,
                     child: Semantics(
-                      label: 'Tap left to go back, right to go forward',
+                      label: l10n.socialTapLeftToGoBackRight,
                       child: GestureDetector(
                         onTapUp: _onTapSlide,
                         child: PageView(
@@ -266,27 +268,27 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
                             _buildSlide(
                               accentColor: L.green,
                               number: '2026',
-                              label: 'Your year in consistency, quantified.',
+                              label: l10n.socialYourYearInConsistencyQuantified,
                               subtext: 'Let\'s review your biohacking journey.',
                             ),
                             _buildSlide(
                               accentColor: L.accent,
                               number: '$_totalDoses',
                               label:
-                                  'Total doses logged and verified by AI.',
+                                  l10n.socialTotalDosesLoggedAndVerifiedBy,
                               subtext: 'Every single microdose matters.',
                             ),
                             _buildSlide(
                               accentColor: L.amber,
                               number: '$_longestStreak',
                               label:
-                                  'Day streak was your maximum momentum.',
+                                  l10n.socialDayStreakWasYourMaximumMomentum,
                               subtext: 'Building permanent neural habits.',
                             ),
                             _buildSlide(
                               accentColor: L.error,
                               number: '$_adherenceScore%',
-                              label: 'Overall adherence score this year.',
+                              label: l10n.socialOverallAdherenceScoreThisYear,
                               subtext: 'Above 90% is clinical perfection.',
                             ),
                             _buildArchetypeSlide(),
@@ -323,7 +325,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
                     children: [
                       Expanded(
                         child: MedAiCTA(
-                          label: 'Close',
+                          label: l10n.familyClose,
                           secondary: true,
                           semanticsLabel: 'Close wrapped summary',
                           onTap: () => Navigator.of(context).pop(),
@@ -332,7 +334,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
                       const SizedBox(width: 16),
                       Expanded(
                         child: MedAiCTA(
-                          label: 'Share Wrapped',
+                          label: l10n.socialShareWrapped,
                           icon: Icons.ios_share_rounded,
                           semanticsLabel: 'Share your Med AI wrapped summary',
                           onTap: _shareWrapped,

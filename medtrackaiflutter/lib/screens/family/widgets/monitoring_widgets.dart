@@ -11,6 +11,7 @@ import '../../../widgets/common/paywall_sheet.dart';
 import '../../../widgets/common/premium_page_header.dart';
 import '../../../widgets/shared/shared_widgets.dart';
 import 'ai_protector_card.dart';
+import '../../../l10n/app_localizations.dart';
 
 int _calculateStreak(
     Map<String, List<DoseEntry>> history, List<Medicine> meds) {
@@ -250,6 +251,7 @@ class WeeklyAdherenceChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final Map<String, double> weekData = {};
     for (int i = 6; i >= 0; i--) {
       final date = DateTime.now().subtract(Duration(days: i));
@@ -271,11 +273,11 @@ class WeeklyAdherenceChart extends StatelessWidget {
       children: [
         Row(
           children: [
-            Text('Weekly Adherence',
+            Text(l10n.familyWeeklyAdherence,
                 style: AppTypography.titleLarge.copyWith(
                     fontSize: 16, fontWeight: FontWeight.w800, color: L.text)),
             const Spacer(),
-            Text('Last 7 Days',
+            Text(l10n.familyLast7Days,
                 style: AppTypography.labelSmall.copyWith(
                     color: L.sub.withValues(alpha: 0.5),
                     fontWeight: FontWeight.w700,

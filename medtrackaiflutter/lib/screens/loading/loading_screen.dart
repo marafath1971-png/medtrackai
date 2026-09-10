@@ -6,6 +6,7 @@ import '../../models/constants.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/ghost_mascot.dart';
+import '../../l10n/app_localizations.dart';
 
 /// The first thing anyone sees on every cold start.
 ///
@@ -23,6 +24,7 @@ class LoadingScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return AppScaffold(
@@ -58,7 +60,7 @@ class LoadingScreen extends StatelessWidget {
               const SizedBox(height: AppSpacing.p8),
 
               Text(
-                'Preparing your health workspace',
+                l10n.loadingPreparingYourHealthWorkspace,
                 style: AppTypography.bodySmall.copyWith(
                   color: L.sub,
                   fontWeight: FontWeight.w500,

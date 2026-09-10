@@ -3,6 +3,7 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 
 import '../../../theme/med_ai_ui.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// A week-over-week reading of adherence, with the 30-day shape behind it.
 ///
@@ -45,6 +46,7 @@ class TrendHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final pct = (thisWeek * 100).round();
     final up = deltaPoints > 0;
@@ -64,7 +66,7 @@ class TrendHero extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            'THIS WEEK',
+            l10n.homeThisWeek,
             style: AppTypography.caption.copyWith(
               color: L.sub,
               letterSpacing: 1.2,
@@ -124,7 +126,7 @@ class TrendHero extends StatelessWidget {
               children: [
                 Text('${series.length} days ago',
                     style: AppTypography.caption.copyWith(color: L.sub)),
-                Text('Today',
+                Text(l10n.dashboardToday,
                     style: AppTypography.caption.copyWith(color: L.sub)),
               ],
             ),

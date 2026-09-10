@@ -18,6 +18,7 @@ import '../paywall/premium_paywall_overlay.dart';
 import '../scan/widgets/premium_scan_result_chrome.dart';
 import 'widgets/scan_identity_header.dart';
 import 'widgets/scan_insight_dashboard.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Premium scan result — 100% redesigned to match reference wellness UI.
 class ProductAnalysisScreen extends StatefulWidget {
@@ -136,6 +137,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final botPad = MediaQuery.paddingOf(context).bottom;
     final p = widget.product;
@@ -187,7 +189,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                         // its place.
                         if (widget.imageFile != null) ...[
                           Text(
-                            'Know your medicine',
+                            l10n.analysisKnowYourMedicine,
                             style: AppTypography.caption.copyWith(
                               color: AppColors.accentDeep,
                               letterSpacing: 1.1,
@@ -261,7 +263,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                                     BorderRadius.circular(AppRadius.max),
                               ),
                               child: Text(
-                                'Scan again',
+                                l10n.analysisScanAgain,
                                 style: AppTypography.labelMedium.copyWith(
                                   color: L.text,
                                   fontWeight: FontWeight.w700,
@@ -314,8 +316,8 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const ScanSectionHeader(
-                            title: 'Safety first',
+                          ScanSectionHeader(
+                            title: l10n.analysisSafetyFirst,
                             subtitle: 'Important alerts — know before you take.',
                             icon: Icons.shield_outlined,
                             tint: AppColors.pastelPink,
@@ -323,7 +325,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                           const SizedBox(height: AppSpacing.p16),
                           if (p.allergyAlerts.isNotEmpty) ...[
                             ScanSoftSection(
-                              title: 'Allergy alerts',
+                              title: l10n.analysisAllergyAlerts,
                               tint: AppColors.pastelPink,
                               icon: Icons.warning_amber_rounded,
                               child: Column(
@@ -350,7 +352,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                           ],
                           if (p.childSafetyAlert?.isNotEmpty ?? false) ...[
                             ScanSoftSection(
-                              title: 'Child safety',
+                              title: l10n.analysisChildSafety,
                               subtitle:
                                   'Clear guidance to protect little ones.',
                               tint: AppColors.pastelSun,
@@ -368,7 +370,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                           ],
                           if (p.pregnancyAlert?.isNotEmpty ?? false) ...[
                             ScanSoftSection(
-                              title: 'Pregnancy & nursing',
+                              title: l10n.analysisPregnancyNursing,
                               subtitle:
                                   'Decide with confidence — ask your clinician.',
                               tint: AppColors.pastelMint,
@@ -386,7 +388,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                           ],
                           if (p.skincareNotes?.isNotEmpty ?? false)
                             ScanSoftSection(
-                              title: 'Skincare notes',
+                              title: l10n.analysisSkincareNotes,
                               subtitle: 'Patch-test tips for careful routines.',
                               tint: AppColors.pastelMint,
                               icon: Icons.spa_rounded,
@@ -418,8 +420,8 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const ScanSectionHeader(
-                          title: 'Quick insights',
+                        ScanSectionHeader(
+                          title: l10n.analysisQuickInsights,
                           subtitle: 'Tap any card to understand more.',
                           icon: Icons.bolt_rounded,
                           tint: AppColors.pastelSky,
@@ -432,7 +434,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                         ScanInsightGrid(
                           tiles: [
                             ScanInsightTile(
-                              label: 'Timing',
+                              label: l10n.analysisTiming,
                               value: p.timing.isNotEmpty
                                   ? p.timing
                                   : 'As directed',
@@ -440,7 +442,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                               icon: Icons.schedule_rounded,
                             ),
                             ScanInsightTile(
-                              label: 'Evidence',
+                              label: l10n.analysisEvidence,
                               value: p.scientificEvidence.isNotEmpty
                                   ? (p.scientificEvidence.length > 42
                                       ? '${p.scientificEvidence.substring(0, 42)}…'
@@ -452,7 +454,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                             if (p.halalStatus.isNotEmpty &&
                                 p.halalStatus.toLowerCase() != 'unknown')
                               ScanInsightTile(
-                                label: 'Halal',
+                                label: l10n.analysisHalal,
                                 value: p.halalStatus,
                                 tint: AppColors.pastelSun,
                                 icon: Icons.verified_outlined,
@@ -462,7 +464,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                             // "None", turning missing data into a reassurance.
                             if (p.allergyRiskLevel.isNotEmpty)
                               ScanInsightTile(
-                                label: 'Allergy risk',
+                                label: l10n.analysisAllergyRisk,
                                 value: p.allergyRiskLevel,
                                 tint: p.allergyRiskLevel == 'High'
                                     ? AppColors.pastelPink
@@ -492,7 +494,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           ScanSectionHeader(
-                            title: 'Side-effect map',
+                            title: l10n.analysisSideEffectMap,
                             subtitle:
                                 '${p.sideEffects.length} reported — sized by how often.',
                             icon: Icons.monitor_heart_outlined,
@@ -557,7 +559,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                   sliver: SliverToBoxAdapter(
                     child: _enter(
                       ScanSoftSection(
-                        title: 'Overview',
+                        title: l10n.analysisOverview,
                         tint: AppColors.pastelSky,
                         icon: Icons.info_outline_rounded,
                         child: Text(
@@ -582,7 +584,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                   sliver: SliverToBoxAdapter(
                     child: _enter(
                       ScanSoftSection(
-                        title: 'How this supports you',
+                        title: l10n.analysisHowThisSupportsYou,
                         tint: AppColors.pastelMint,
                         icon: Icons.biotech_rounded,
                         child: Text(
@@ -612,7 +614,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                         children: [
                           if (p.benefits.isNotEmpty)
                             ScanSoftSection(
-                              title: 'Benefits',
+                              title: l10n.analysisBenefits,
                               tint: AppColors.pastelMint,
                               icon: Icons.favorite_outline_rounded,
                               child: _bulletList(p.benefits, L),
@@ -624,7 +626,7 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                           if (p.foodInteractions.isNotEmpty ||
                               p.medicineInteractions.isNotEmpty)
                             ScanSoftSection(
-                              title: 'Interactions',
+                              title: l10n.analysisInteractions,
                               subtitle: 'Food & medicine — check before stacking.',
                               tint: AppColors.pastelSun,
                               icon: Icons.link_off_rounded,
@@ -668,9 +670,9 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                   AppSpacing.gutter,
                   0,
                 ),
-                sliver: const SliverToBoxAdapter(
+                sliver: SliverToBoxAdapter(
                   child: Text(
-                    'AI identification — always verify with your pharmacist or prescriber.',
+                    l10n.analysisAiIdentificationAlwaysVerifyWithYour,
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 12,
@@ -773,6 +775,7 @@ class _TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final top = MediaQuery.paddingOf(context).top;
     return Padding(
@@ -803,14 +806,14 @@ class _TopBar extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Scan result',
+                  l10n.analysisScanResult,
                   style: AppTypography.titleMedium.copyWith(
                     color: L.text,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
                 Text(
-                  'Smart · trusted · built for you',
+                  l10n.analysisSmartTrustedBuiltForYou,
                   style: AppTypography.bodySmall.copyWith(color: L.sub),
                 ),
               ],
@@ -835,6 +838,7 @@ class _ExpertBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final idx = selectedIdx.clamp(0, perspectives.length - 1);
     final current = perspectives[idx];
@@ -842,8 +846,8 @@ class _ExpertBlock extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const ScanSectionHeader(
-          title: 'Expert perspectives',
+        ScanSectionHeader(
+          title: l10n.analysisExpertPerspectives,
           subtitle: 'The same medicine, four professional lenses.',
           icon: Icons.groups_2_outlined,
           tint: AppColors.pastelLilac,

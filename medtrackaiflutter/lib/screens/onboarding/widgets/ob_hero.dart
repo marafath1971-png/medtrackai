@@ -7,6 +7,7 @@ import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/med_ai_mascot.dart';
 import '../onboarding_theme.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ════════════════════════════════════════════════════════════════════════
 // MASCOT HERO — animated Med AI character with soft halo + caption.
@@ -18,6 +19,7 @@ class ObMascotHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     return Center(
       child: Stack(
@@ -49,7 +51,7 @@ class ObMascotHero extends StatelessWidget {
             child: MedAiMascot(
               size: size,
               animate: animate,
-              semanticLabel: 'Med AI assistant',
+              semanticLabel: l10n.onboardingMedAiAssistant,
             ),
           ),
         ],
@@ -453,10 +455,11 @@ class _ObCommitOrbState extends State<ObCommitOrb>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final p = ObPalette.of(context);
     return Semantics(
       button: true,
-      label: 'Hold to commit to your health goal',
+      label: l10n.onboardingHoldToCommitToYourHealth,
       child: GestureDetector(
         onTapDown: _down,
         onTapUp: _up,
@@ -488,7 +491,7 @@ class _ObCommitOrbState extends State<ObCommitOrb>
               ],
             );
           },
-          child: const MedAiMascot(size: 124, semanticLabel: 'Hold to commit'),
+          child: MedAiMascot(size: 124, semanticLabel: l10n.onboardingHoldToCommit),
         ),
         ),
       ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/screens/app_shell.dart';
 import 'package:medai/theme/app_theme.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// The shell floats an 80px nav island over `Positioned.fill` content and
 /// reserves no layout space, so anything a tab pinned to the bottom ended up
@@ -15,6 +16,8 @@ import 'package:medai/theme/app_theme.dart';
 /// contract.
 Widget _host({required double bottomInset, required Widget child}) {
   return MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
     theme: AppTheme.light(),
     home: MediaQuery(
       data: MediaQueryData(padding: EdgeInsets.only(bottom: bottomInset)),

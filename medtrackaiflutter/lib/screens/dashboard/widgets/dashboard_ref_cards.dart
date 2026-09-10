@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../../theme/med_ai_ui.dart';
+import '../../../l10n/app_localizations.dart';
 
 class DashboardMedAlert extends StatelessWidget {
   final int pendingCount;
@@ -78,6 +79,7 @@ class DashboardGlassAdherenceCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final pct = (adherence * 100).round();
     final week = trendData.length >= 7
@@ -135,7 +137,7 @@ class DashboardGlassAdherenceCard extends StatelessWidget {
             const SizedBox(height: AppSpacing.p16),
             if (week.isEmpty)
               Text(
-                'Log doses to unlock your weekly trend',
+                l10n.dashboardLogDosesToUnlockYourWeekly,
                 style: AppTypography.bodySmall.copyWith(color: L.sub),
               )
             else
@@ -219,6 +221,7 @@ class DashboardHealthParamsGrid extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return Padding(
       padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p16, AppSpacing.gutter, 0),
@@ -228,7 +231,7 @@ class DashboardHealthParamsGrid extends StatelessWidget {
             children: [
               Expanded(
                 child: _HealthParamLarge(
-                  title: 'Day streak',
+                  title: l10n.dashboardDayStreak,
                   value: '$streak',
                   unit: 'days',
                   child: _PulseSparkline(color: L.amber),
@@ -237,7 +240,7 @@ class DashboardHealthParamsGrid extends StatelessWidget {
               const SizedBox(width: AppSpacing.p12),
               Expanded(
                 child: _HealthParamLarge(
-                  title: 'Heart rate',
+                  title: l10n.dashboardHeartRate,
                   value: healthConnected ? '${heartRate.toInt()}' : '--',
                   unit: 'BPM',
                   child: _HeartWaveform(
@@ -255,7 +258,7 @@ class DashboardHealthParamsGrid extends StatelessWidget {
             children: [
               Expanded(
                 child: _HealthParamSmall(
-                  title: 'Doses this week',
+                  title: l10n.dashboardDosesThisWeek,
                   value: '$dosesWeek',
                   unit: dosesWeek == 1 ? 'dose' : 'doses',
                   icon: Icons.medication_rounded,
@@ -264,7 +267,7 @@ class DashboardHealthParamsGrid extends StatelessWidget {
               const SizedBox(width: AppSpacing.p12),
               Expanded(
                 child: _HealthParamSmall(
-                  title: 'Steps today',
+                  title: l10n.dashboardStepsToday,
                   value: healthConnected ? '${steps.toInt()}' : '--',
                   unit: 'steps',
                   icon: Icons.directions_walk_rounded,

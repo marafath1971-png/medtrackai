@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/common/animated_pressable.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Reference-style week picker — month title + 7 day pills.
 class HomeWeekStrip extends StatelessWidget {
@@ -29,6 +30,7 @@ class HomeWeekStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final start = _weekStart(selectedDate);
     final days = List.generate(7, (i) => start.add(Duration(days: i)));
@@ -53,13 +55,13 @@ class HomeWeekStrip extends StatelessWidget {
             ),
             _ArrowBtn(
               icon: Icons.chevron_left_rounded,
-              label: 'Previous week',
+              label: l10n.homePreviousWeek,
               onTap: () => _shiftWeek(context, -1),
             ),
             const SizedBox(width: AppSpacing.p4),
             _ArrowBtn(
               icon: Icons.chevron_right_rounded,
-              label: 'Next week',
+              label: l10n.homeNextWeek,
               onTap: () => _shiftWeek(context, 1),
             ),
           ],

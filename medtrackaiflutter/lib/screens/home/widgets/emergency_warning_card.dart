@@ -5,6 +5,7 @@ import '../../../core/utils/haptic_engine.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/app_theme.dart';
 import '../../../widgets/shared/shared_widgets.dart';
+import '../../../l10n/app_localizations.dart';
 
 // ─────────────────────────────────────────────────────────────
 // EMERGENCY WARNING CARD — shown after a severe (≥8/10) symptom
@@ -16,6 +17,7 @@ class EmergencyWarningCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.p20),
@@ -44,7 +46,7 @@ class EmergencyWarningCard extends StatelessWidget {
               const SizedBox(width: AppSpacing.p16),
               Expanded(
                 child: Text(
-                  'CRITICAL MEDICAL ADVISORY',
+                  l10n.homeCriticalMedicalAdvisory,
                   style: AppTypography.labelLarge.copyWith(
                     color: Colors.white,
                     letterSpacing: 1.5,
@@ -85,7 +87,7 @@ class EmergencyWarningCard extends StatelessWidget {
                   const SizedBox(width: AppSpacing.p12),
                   Flexible(
                     child: Text(
-                      'CALL EMERGENCY SERVICES (911)',
+                      l10n.homeCallEmergencyServices911,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                       textAlign: TextAlign.center,

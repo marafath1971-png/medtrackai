@@ -236,7 +236,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
                           const AppLoadingIndicator(size: 16),
                           const SizedBox(width: 12),
                           Text(
-                            'Pharmacist AI thinking...',
+                            l10n.modalsPharmacistAiThinking,
                             style: AppTypography.labelSmall.copyWith(
                               color: L.secondary,
                               fontSize: 11,
@@ -255,7 +255,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
                                   size: 16, color: L.secondary),
                               const SizedBox(width: 8),
                               Text(
-                                'AI ADVICE',
+                                l10n.modalsAiAdvice,
                                 style: AppTypography.labelSmall.copyWith(
                                   fontSize: 11,
                                   color: L.secondary,
@@ -283,9 +283,9 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
           const SizedBox(height: 12),
           Semantics(
             label:
-                'Informational only. Always consult your doctor or pharmacist for advice.',
+                l10n.modalsInformationalOnlyAlwaysConsultYourDoctor2,
             child: Text(
-              '⚠️ Informational only. Always consult your doctor or pharmacist for advice.',
+              l10n.modalsInformationalOnlyAlwaysConsultYourDoctor,
               style: AppTypography.bodySmall.copyWith(
                 fontSize: 11,
                 color: L.sub,
@@ -299,7 +299,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
             children: [
               Expanded(
                 child: MedAiCTA(
-                  label: 'Skip Dose',
+                  label: l10n.modalsSkipDose,
                   secondary: true,
                   fullWidth: true,
                   semanticsLabel: 'Skip ${med.name} dose',

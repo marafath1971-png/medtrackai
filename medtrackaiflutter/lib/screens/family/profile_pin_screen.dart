@@ -7,6 +7,7 @@ import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_page_header.dart';
+import '../../l10n/app_localizations.dart';
 
 class ProfilePinScreen extends StatefulWidget {
   final ManagedProfile profile;
@@ -56,13 +57,14 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
 
     return AppScaffold(
       body: Column(
         children: [
           PremiumPageHeader(
-            title: 'Enter PIN',
+            title: l10n.authEnterPin,
             subtitle: widget.profile.name,
             onBack: () => Navigator.pop(context, false),
           ),
@@ -92,7 +94,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
                   ),
                   const SizedBox(height: AppSpacing.p8),
                   Text(
-                    'Enter profile PIN to switch',
+                    l10n.familyEnterProfilePinToSwitch,
                     style: AppTypography.bodyMedium.copyWith(
                       color: L.sub,
                       fontWeight: FontWeight.w500,
@@ -123,7 +125,7 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
                   ),
                   if (_error) ...[
                     const SizedBox(height: AppSpacing.p16),
-                    Text('Incorrect PIN', style: TextStyle(color: L.error)),
+                    Text(l10n.familyIncorrectPin, style: TextStyle(color: L.error)),
                   ],
                   const Spacer(),
                   _buildNumpad(L),

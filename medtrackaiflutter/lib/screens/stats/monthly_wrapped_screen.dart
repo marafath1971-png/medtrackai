@@ -7,6 +7,7 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/premium_page_header.dart';
+import '../../l10n/app_localizations.dart';
 
 class MonthlyWrappedScreen extends StatefulWidget {
   const MonthlyWrappedScreen({super.key});
@@ -50,6 +51,7 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final state = context.watch<AppState>();
     final reduceMotion = MedAiA11y.reducedMotion(context);
@@ -84,7 +86,7 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
             child: Column(
               children: [
                 PremiumPageHeader(
-                  title: 'Monthly wrapped',
+                  title: l10n.statsMonthlyWrapped,
                   subtitle: 'Slide ${_currentPage + 1} of 3',
                   onBack: () => Navigator.pop(context),
                 ),
@@ -123,7 +125,7 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
                 const SizedBox(height: 8),
                 Expanded(
                   child: Semantics(
-                    label: 'Tap right to go forward, left to go back',
+                    label: l10n.statsTapRightToGoForwardLeft,
                     child: GestureDetector(
                       onTapUp: (details) {
                         final screenWidth =
@@ -149,7 +151,7 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
                         children: [
                           _WrappedPage(
                             L: L,
-                            title: 'You took',
+                            title: l10n.statsYouTook,
                             value: '$totalDoses',
                             subtitle: 'Doses this month.',
                             bottomText:
@@ -158,7 +160,7 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
                           ),
                           _WrappedPage(
                             L: L,
-                            title: 'Your longest streak',
+                            title: l10n.statsYourLongestStreak,
                             value: '$streak Days',
                             subtitle: 'Unstoppable Energy ⚡',
                             bottomText: 'You are literally glowing.',
@@ -166,7 +168,7 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
                           ),
                           _WrappedPage(
                             L: L,
-                            title: 'Longevity Score',
+                            title: l10n.statsLongevityScore,
                             value: '$adherence%',
                             subtitle: scoreTag,
                             bottomText: scoreNote,
@@ -211,6 +213,7 @@ class _WrappedPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
     Widget withMotion(Widget child, {Duration delay = Duration.zero}) {
@@ -283,7 +286,7 @@ class _WrappedPage extends StatelessWidget {
             const SizedBox(height: 24),
             withMotion(
               MedAiCTA(
-                label: 'Share to IG Story',
+                label: l10n.statsShareToIgStory,
                 icon: Icons.ios_share_rounded,
                 onTap: onShare,
                 semanticsLabel: 'Share monthly wrapped to Instagram story',

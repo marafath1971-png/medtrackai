@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/screens/settings/widgets/delete_account_dialog.dart';
 import 'package:medai/theme/med_ai_ui.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// Permanent account deletion had two confirmations with different safety,
 /// and which one a user got depended on how they navigated:
@@ -17,6 +18,8 @@ import 'package:medai/theme/med_ai_ui.dart';
 /// Both now delegate here, and the destructive button stays disabled until the
 /// word DELETE is typed.
 Widget _host(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       home: Scaffold(body: child),
     );

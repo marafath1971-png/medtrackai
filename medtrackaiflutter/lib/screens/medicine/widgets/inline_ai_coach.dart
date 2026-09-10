@@ -6,6 +6,7 @@ import '../../../../widgets/common/animated_pressable.dart';
 import '../../../../domain/entities/entities.dart';
 import '../../../../services/gemini_service.dart';
 import '../../../../core/utils/haptic_engine.dart';
+import '../../../l10n/app_localizations.dart';
 
 class InlineAiCoach extends StatefulWidget {
   final Medicine medicine;
@@ -112,6 +113,7 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     // Suggest prompt chips
@@ -160,7 +162,7 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            'MedAI Coach',
+                            l10n.medicineMedaiCoach,
                             style: AppTypography.titleMedium.copyWith(
                               color: L.text,
                               fontWeight: FontWeight.w700,
@@ -181,7 +183,7 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
                     ),
                     Semantics(
                       button: true,
-                      label: 'Close',
+                      label: l10n.familyClose,
                       child: AnimatedPressable(
                         onTap: () => Navigator.pop(context),
                         child: Container(
@@ -277,7 +279,7 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
                 child: IOSComposer(
                   controller: _controller,
                   autofocus: true,
-                  hintText: 'Ask a question…',
+                  hintText: l10n.medicineAskAQuestion,
                   onSubmit: _sendMessage,
                 ),
               ),

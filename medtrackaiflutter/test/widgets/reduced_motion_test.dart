@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/screens/medicine/widgets/interaction_warning_sheet.dart';
 import 'package:medai/theme/med_ai_ui.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// Safety and consent surfaces staggered their entrance over as much as
 /// 800ms, revealing the action buttons last. Under reduced motion the content
@@ -9,7 +10,11 @@ import 'package:medai/theme/med_ai_ui.dart';
 Widget _host({required bool disableAnimations, required Widget child}) {
   return MediaQuery(
     data: MediaQueryData(disableAnimations: disableAnimations),
-    child: MaterialApp(home: Scaffold(body: SingleChildScrollView(child: child))),
+    child: MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
+      home: Scaffold(body: SingleChildScrollView(child: child)),
+    ),
   );
 }
 

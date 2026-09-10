@@ -8,12 +8,14 @@ import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/premium_page_header.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/common/app_feedback.dart';
+import '../../l10n/app_localizations.dart';
 
 class ScannerHelpScreen extends StatelessWidget {
   const ScannerHelpScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
@@ -25,7 +27,7 @@ class ScannerHelpScreen extends StatelessWidget {
         slivers: [
           SliverToBoxAdapter(
             child: PremiumPageHeader(
-              title: 'Scanning Tips',
+              title: l10n.scanScanningTips,
               subtitle: 'Get better results in every scan',
               onBack: () {
                 HapticEngine.selection();
@@ -57,7 +59,7 @@ class ScannerHelpScreen extends StatelessWidget {
               delegate: SliverChildListDelegate([
                 _TipCard(
                   icon: Icons.lightbulb_outline_rounded,
-                  title: 'Good Lighting is Key',
+                  title: l10n.scanGoodLightingIsKey,
                   description:
                       'Make sure the pill or bottle is well-lit. Avoid strong shadows or reflections on glossy labels.',
                   delay: 0,
@@ -66,7 +68,7 @@ class ScannerHelpScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 _TipCard(
                   icon: Icons.center_focus_strong_rounded,
-                  title: 'Keep it Centered',
+                  title: l10n.scanKeepItCentered,
                   description:
                       'Place the medication right in the middle of the brackets. Hold your phone steady until the scan completes.',
                   delay: 100,
@@ -75,7 +77,7 @@ class ScannerHelpScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 _TipCard(
                   icon: Icons.qr_code_scanner_rounded,
-                  title: 'Scan the NDC or Barcode',
+                  title: l10n.scanScanTheNdcOrBarcode,
                   description:
                       'For the highest accuracy, scan the barcode or the NDC number on the side of the prescription bottle.',
                   delay: 200,
@@ -84,7 +86,7 @@ class ScannerHelpScreen extends StatelessWidget {
                 const SizedBox(height: 16),
                 _TipCard(
                   icon: Icons.mic_rounded,
-                  title: 'Try Voice Mode',
+                  title: l10n.scanTryVoiceMode,
                   description:
                       'If you can\'t scan the label, try using Voice Mode to simply speak the name of the medication.',
                   delay: 300,
@@ -95,7 +97,7 @@ class ScannerHelpScreen extends StatelessWidget {
                   child: _entrance(
                     reduceMotion,
                     MedAiCTA(
-                      label: 'Contact Support',
+                      label: l10n.homeContactSupport,
                       fullWidth: false,
                       onTap: () {
                         HapticEngine.selection();

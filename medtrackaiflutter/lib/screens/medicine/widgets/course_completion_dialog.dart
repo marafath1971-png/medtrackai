@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../domain/entities/entities.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
+import '../../../l10n/app_localizations.dart';
 
 class CourseCompletionDialog extends StatelessWidget {
   final Medicine med;
@@ -21,6 +22,7 @@ class CourseCompletionDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return Dialog(
       backgroundColor: Colors.transparent,
@@ -38,7 +40,7 @@ class CourseCompletionDialog extends StatelessWidget {
                   style: AppTypography.headlineLarge.copyWith(fontSize: 64)),
               const SizedBox(height: AppSpacing.p16),
               Text(
-                'Course Completed!',
+                l10n.medicineCourseCompleted,
                 style: AppTypography.titleLarge
                     .copyWith(fontWeight: FontWeight.w800, color: L.text),
               ),
@@ -69,10 +71,10 @@ class CourseCompletionDialog extends StatelessWidget {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Achievement Unlocked',
+                          Text(l10n.medicineAchievementUnlocked,
                               style: AppTypography.labelMedium.copyWith(
                                   fontWeight: FontWeight.w800, color: L.green)),
-                          Text('100% Adherence for this course',
+                          Text(l10n.medicineN100AdherenceForThisCourse,
                               style: AppTypography.labelSmall
                                   .copyWith(color: L.sub.withValues(alpha: 0.8))),
                         ],
@@ -83,7 +85,7 @@ class CourseCompletionDialog extends StatelessWidget {
               ),
               const SizedBox(height: AppSpacing.p24),
               MedAiCTA(
-                label: 'ARCHIVE & FINISH',
+                label: l10n.medicineArchiveFinish,
                 onTap: () {
                   Navigator.pop(context);
                   onArchive();
@@ -93,14 +95,14 @@ class CourseCompletionDialog extends StatelessWidget {
               const SizedBox(height: AppSpacing.p12),
               Semantics(
                 button: true,
-                label: 'Close',
+                label: l10n.familyClose,
                 child: AnimatedPressable(
                   onTap: () => Navigator.pop(context),
                   child: SizedBox(
                     height: MedAiA11y.minTapTarget,
                     child: Center(
                       child: Text(
-                        'Close',
+                        l10n.familyClose,
                         style: AppTypography.labelLarge
                             .copyWith(color: L.sub, fontWeight: FontWeight.w600),
                       ),

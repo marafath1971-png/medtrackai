@@ -23,6 +23,7 @@ import '../../widgets/modals/scan_success_sheet.dart';
 import 'widgets/scan_result_detail_view.dart';
 import 'package:go_router/go_router.dart';
 import '../../app/app_routes.dart';
+import '../../l10n/app_localizations.dart';
 
 // ══════════════════════════════════════════════
 // HOOK E: SUPPLEMENT INTERACTION SCANNER (Viral)
@@ -244,6 +245,7 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     
     return Scaffold(
@@ -322,7 +324,7 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
               children: [
                 Semantics(
                   button: true,
-                  label: 'Close',
+                  label: l10n.familyClose,
                   child: AnimatedPressable(
                     onTap: () => Navigator.pop(context),
                     child: Container(
@@ -352,7 +354,7 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                       const Icon(Icons.bolt_rounded, color: AppColors.accent, size: 16),
                       const SizedBox(width: 8),
                       Text(
-                        'Synergy scanner',
+                        l10n.scanSynergyScanner,
                         style: AppTypography.labelSmall.copyWith(
                           color: L.text,
                           fontWeight: FontWeight.w700,
@@ -485,6 +487,7 @@ class _SupplementResultOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final botPad = MediaQuery.paddingOf(context).bottom;
 
@@ -557,7 +560,7 @@ class _SupplementResultOverlay extends StatelessWidget {
                         Expanded(
                           child: Semantics(
                             button: true,
-                            label: 'Track medicine',
+                            label: l10n.scanTrackMedicine,
                             child: AnimatedPressable(
                               onTap: () => _addToMedicines(context),
                               child: Container(
@@ -578,7 +581,7 @@ class _SupplementResultOverlay extends StatelessWidget {
                                           color: Colors.white, size: 20),
                                       const SizedBox(width: AppSpacing.p8),
                                       Text(
-                                        'Track medicine',
+                                        l10n.scanTrackMedicine,
                                         style: AppTypography.labelMedium
                                             .copyWith(
                                           color: Colors.white,
@@ -595,7 +598,7 @@ class _SupplementResultOverlay extends StatelessWidget {
                         const SizedBox(width: 10),
                         Semantics(
                           button: true,
-                          label: 'Scan another',
+                          label: l10n.scanScanAnother,
                           child: AnimatedPressable(
                             onTap: onDismiss,
                             child: Container(

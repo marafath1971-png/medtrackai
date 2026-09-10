@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import '../../core/utils/logger.dart';
+import '../../l10n/app_localizations.dart';
 
 class GlobalErrorBoundary extends StatefulWidget {
   final Widget child;
@@ -91,6 +92,7 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_hasError) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -109,20 +111,20 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
                       color: Colors.white70,
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      'Something went wrong',
+                    Text(
+                      l10n.commonSomethingWentWrong,
                       textAlign: TextAlign.center,
                       style: _titleStyle,
                     ),
                     const SizedBox(height: 12),
-                    const Text(
-                      "We've hit a temporary issue. Your data is safe — resume to keep going.",
+                    Text(
+                      l10n.commonWeVeHitATemporaryIssue,
                       textAlign: TextAlign.center,
                       style: _bodyStyle,
                     ),
                     const SizedBox(height: 48),
                     _ActionButton(
-                      label: 'RESUME SESSION',
+                      label: l10n.commonResumeSession,
                       onTap: () {
                         setState(() {
                           _hasError = false;
@@ -133,7 +135,7 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
                     ),
                     const SizedBox(height: 16),
                     _ActionButton(
-                      label: 'RESTART APP',
+                      label: l10n.commonRestartApp,
                       onTap: () => SystemNavigator.pop(),
                       primary: false,
                     ),

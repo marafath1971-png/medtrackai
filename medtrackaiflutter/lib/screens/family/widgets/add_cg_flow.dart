@@ -14,6 +14,7 @@ import '../../../widgets/common/animated_pressable.dart';
 import '../../../widgets/common/app_feedback.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../screens/app_shell.dart' show kShellNavIslandInset;
+import '../../../l10n/app_localizations.dart';
 
 class AddHeader extends StatelessWidget {
   final int step;
@@ -91,6 +92,7 @@ class AddCgStep1 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final keyboardUp = MediaQuery.viewInsetsOf(context).bottom > 0;
 
     return AppScaffold(
@@ -137,7 +139,7 @@ class AddCgStep1 extends StatelessWidget {
                             builder: (context, value, child) {
                               return MedAiTextField(
                                 controller: nameCtrl,
-                                hintText: 'e.g. Sarah Johnson',
+                                hintText: l10n.familyEGSarahJohnson,
                                 textCapitalization: TextCapitalization.words,
                               );
                             }),
@@ -293,7 +295,7 @@ class AddCgStep1 extends StatelessWidget {
                   valueListenable: nameCtrl,
                   builder: (context, value, child) {
                     return MedAiCTA(
-                      label: 'Generate QR code',
+                      label: l10n.familyGenerateQrCode,
                       icon: Icons.qr_code_rounded,
                       enabled: value.text.trim().isNotEmpty,
                       semanticsLabel: 'Generate QR code for caregiver',
@@ -449,6 +451,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final cg = widget.cg;
     final L = widget.L;
 
@@ -502,7 +505,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                       ),
                       const SizedBox(height: AppSpacing.p32),
                       Center(
-                        child: Text('Scan from caregiver app',
+                        child: Text(l10n.familyScanFromCaregiverApp,
                             style: AppTypography.labelLarge.copyWith(
                                 fontSize: 13,
                                 color: L.sub.withValues(alpha: 0.6),
@@ -511,7 +514,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                       const SizedBox(height: AppSpacing.p24),
                       Center(
                           child: Semantics(
-                        label: 'QR code for caregiver invite',
+                        label: l10n.familyQrCodeForCaregiverInvite,
                         child: MedAiDepthCard(
                           padding: const EdgeInsets.all(AppSpacing.p20),
                           radius: AppRadius.squircle,
@@ -531,7 +534,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                       )),
                       const SizedBox(height: AppSpacing.p40),
                       Center(
-                          child: Text('Or use invite code',
+                          child: Text(l10n.familyOrUseInviteCode,
                               style: AppTypography.labelLarge.copyWith(
                                   fontSize: 11,
                                   fontWeight: FontWeight.w700,
@@ -563,7 +566,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                       Center(
                           child: Semantics(
                         button: true,
-                        label: 'Copy invite code',
+                        label: l10n.familyCopyInviteCode,
                         child: AnimatedPressable(
                           onTap: () {
                             HapticEngine.selection();
@@ -582,7 +585,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                                 Icon(Icons.copy_rounded,
                                     color: L.text, size: 16),
                                 const SizedBox(width: AppSpacing.p8),
-                                Text('Copy code',
+                                Text(l10n.familyCopyCode,
                                     style: AppTypography.labelLarge.copyWith(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w700,
@@ -608,7 +611,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                                       height: 28,
                                       shape: BoxShape.circle)),
                               const SizedBox(height: AppSpacing.p16),
-                              Text('Waiting for caregiver to scan...',
+                              Text(l10n.familyWaitingForCaregiverToScan,
                                   style: AppTypography.labelLarge.copyWith(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 14,
@@ -617,7 +620,7 @@ class _AddCgStep2State extends State<AddCgStep2> {
                               Icon(Icons.check_circle_rounded,
                                   color: L.green, size: 36),
                               const SizedBox(height: AppSpacing.p12),
-                              Text('Success! Caregiver added.',
+                              Text(l10n.familySuccessCaregiverAdded,
                                   style: AppTypography.labelLarge.copyWith(
                                       fontWeight: FontWeight.w700,
                                       fontSize: 15,
@@ -703,6 +706,7 @@ class AddCgStep3 extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return AppScaffold(
         showAurora: context.isDark,
         body: SafeArea(
@@ -771,7 +775,7 @@ class AddCgStep3 extends StatelessWidget {
                               decoration: BoxDecoration(
                                   color: L.green.withValues(alpha: 0.1),
                                   borderRadius: BorderRadius.circular(99)),
-                              child: Text('Active',
+                              child: Text(l10n.familyActive,
                                   style: AppTypography.labelSmall.copyWith(
                                       fontWeight: FontWeight.w700,
                                       color: L.green)),
@@ -781,7 +785,7 @@ class AddCgStep3 extends StatelessWidget {
                         delay: 200.ms,
                       ),
                       const SizedBox(height: AppSpacing.p24),
-                      MedAiSectionHeader(title: 'They can now:'),
+                      MedAiSectionHeader(title: l10n.familyTheyCanNow),
                       _entrance(
                         context,
                         MedAiDepthCard(
@@ -790,20 +794,20 @@ class AddCgStep3 extends StatelessWidget {
                               children: [
                                 HowItWorksRow(
                                     emoji: '📈',
-                                    title: 'See your daily adherence',
+                                    title: l10n.familySeeYourDailyAdherence,
                                     desc: 'Live dashboard with today\'s doses',
                                     isLast: false,
                                     L: L),
                                 HowItWorksRow(
                                     emoji: '🚨',
-                                    title: 'Get missed-dose alerts',
+                                    title: l10n.familyGetMissedDoseAlerts,
                                     desc:
                                         'Notified after ${cg.alertDelay} min if you miss a dose',
                                     isLast: false,
                                     L: L),
                                 HowItWorksRow(
                                     emoji: '🔬',
-                                    title: 'View your medicine list',
+                                    title: l10n.familyViewYourMedicineList,
                                     desc: 'All your medications at a glance',
                                     isLast: true,
                                     L: L),
@@ -815,7 +819,7 @@ class AddCgStep3 extends StatelessWidget {
                       _entrance(
                         context,
                         MedAiCTA(
-                          label: 'Done',
+                          label: l10n.familyDone,
                           semanticsLabel: 'Finish adding caregiver',
                           onTap: () {
                             HapticEngine.light();

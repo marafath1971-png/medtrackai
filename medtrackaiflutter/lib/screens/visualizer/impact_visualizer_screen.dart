@@ -9,6 +9,7 @@ import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_page_header.dart';
 import '../../core/utils/haptic_engine.dart';
+import '../../l10n/app_localizations.dart';
 
 /// Which pharmacokinetic phase an organ's activity tracks.
 ///
@@ -329,6 +330,7 @@ class _ImpactVisualizerScreenState extends State<ImpactVisualizerScreen>
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final profile = _profile;
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
@@ -343,7 +345,7 @@ class _ImpactVisualizerScreenState extends State<ImpactVisualizerScreen>
         child: Column(
           children: [
             PremiumPageHeader(
-              title: 'Organ impact map',
+              title: l10n.visualizerOrganImpactMap,
               subtitle: 'How your medicine moves through the body',
               onBack: () => Navigator.pop(context),
             ),
@@ -411,6 +413,7 @@ class _MedSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     if (isDemo || meds.isEmpty) {
       return Padding(
@@ -421,7 +424,7 @@ class _MedSelector extends StatelessWidget {
             const SizedBox(width: 8),
             Expanded(
               child: Text(
-                'Showing a sample medicine. Scan or analyse a medicine to see your own organ map.',
+                l10n.visualizerShowingASampleMedicineScanOr,
                 style: AppTypography.bodySmall.copyWith(
                   color: L.sub,
                   fontSize: 11,
@@ -806,6 +809,7 @@ class _ScrubberPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return Padding(
       padding: const EdgeInsets.fromLTRB(16, 4, 16, 16),
@@ -889,7 +893,7 @@ class _ScrubberPanel extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('0h · dose',
+                Text(l10n.visualizerN0hDose,
                     style: _cap(L)),
                 Text('${currentHour.toStringAsFixed(1)}h',
                     style: AppTypography.titleMedium.copyWith(
@@ -897,12 +901,12 @@ class _ScrubberPanel extends StatelessWidget {
                       fontWeight: FontWeight.w700,
                       letterSpacing: -0.5,
                     )),
-                Text('24h · cleared', style: _cap(L)),
+                Text(l10n.visualizerN24hCleared, style: _cap(L)),
               ],
             ),
             const SizedBox(height: 8),
             Text(
-              'Illustrative model based on typical pharmacokinetics — not medical advice.',
+              l10n.visualizerIllustrativeModelBasedOnTypicalPharmacokinetics,
               textAlign: TextAlign.center,
               style: AppTypography.bodySmall.copyWith(
                 color: L.sub.withValues(alpha: 0.55),

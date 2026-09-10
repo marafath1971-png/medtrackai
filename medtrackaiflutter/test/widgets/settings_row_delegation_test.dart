@@ -3,6 +3,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/screens/home/widgets/settings/settings_shared.dart';
 import 'package:medai/screens/settings/widgets/settings_kit.dart';
 import 'package:medai/theme/med_ai_ui.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// SettingsModalRow and SettingsRow were two row implementations of the same
 /// thing, which is how the settings surface ended up with a hardcoded white
@@ -10,6 +11,8 @@ import 'package:medai/theme/med_ai_ui.dart';
 /// there is a single definition; it keeps its own emoji resolution and
 /// first/last/border grouping so none of the 38 call sites had to change.
 Widget _host(Widget child) => MaterialApp(
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       theme: AppTheme.light(),
       home: Scaffold(body: Column(children: [child])),
     );

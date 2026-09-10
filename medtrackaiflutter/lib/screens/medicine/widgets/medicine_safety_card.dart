@@ -44,6 +44,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final s = AppLocalizations.of(context)!;
     final reduceMotion = MedAiA11y.reducedMotion(context);
@@ -88,7 +89,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                 const SizedBox(width: AppSpacing.p12),
                 Expanded(
                   child: Text(
-                    'Know your medicine',
+                    l10n.analysisKnowYourMedicine,
                     style: AppTypography.titleMedium.copyWith(
                       color: AppColors.inkStrong,
                       fontWeight: FontWeight.w700,
@@ -183,7 +184,7 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                       borderRadius: BorderRadius.circular(AppRadius.l),
                     ),
                     child: Text(
-                      'No special safety alerts found for this medication.',
+                      l10n.medicineNoSpecialSafetyAlertsFoundFor,
                       style: AppTypography.bodyMedium.copyWith(
                         color: L.text,
                         height: 1.4,
@@ -349,6 +350,7 @@ class _SafetyBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final cleanTitle =
         title.replaceAll(RegExp(r'[^\w\s&/-]'), '').trim();
@@ -390,7 +392,7 @@ class _SafetyBlock extends StatelessWidget {
                     borderRadius: BorderRadius.circular(AppRadius.max),
                   ),
                   child: Text(
-                    'Alert',
+                    l10n.medicineAlert,
                     style: AppTypography.labelSmall.copyWith(
                       color: accent,
                       fontWeight: FontWeight.w700,

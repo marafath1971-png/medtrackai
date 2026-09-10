@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:medai/l10n/app_localizations.dart';
 
 /// The paywall wrapped its sheet in `Semantics(scopesRoute: true)` without
 /// `explicitChildNodes: true`. Flutter asserts on that combination in
@@ -18,6 +19,8 @@ void main() {
   testWidgets('scopesRoute without explicitChildNodes throws', (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: Semantics(
             scopesRoute: true,
@@ -38,6 +41,8 @@ void main() {
       (tester) async {
     await tester.pumpWidget(
       MaterialApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
         home: Scaffold(
           body: Semantics(
             scopesRoute: true,

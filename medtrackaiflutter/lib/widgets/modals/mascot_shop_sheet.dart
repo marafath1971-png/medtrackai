@@ -7,6 +7,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../../providers/app_state.dart';
 import '../common/animated_pressable.dart';
 import '../common/app_feedback.dart';
+import '../../l10n/app_localizations.dart';
 
 class MascotAccessory {
   final String id;
@@ -112,6 +113,7 @@ class _MascotShopSheetState extends State<MascotShopSheet> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
     final bottomPadding = MediaQuery.of(context).padding.bottom;
@@ -132,7 +134,7 @@ class _MascotShopSheetState extends State<MascotShopSheet> {
                 children: [
                   const SizedBox(height: 12),
                   Semantics(
-                    label: 'Sheet handle',
+                    label: l10n.modalsSheetHandle,
                     child: Container(
                       width: 40,
                       height: 4,
@@ -152,7 +154,7 @@ class _MascotShopSheetState extends State<MascotShopSheet> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Mascot Wardrobe',
+                                l10n.modalsMascotWardrobe,
                                 style: AppTypography.headlineMedium.copyWith(
                                   color: L.text,
                                   fontWeight: FontWeight.w900,
@@ -160,7 +162,7 @@ class _MascotShopSheetState extends State<MascotShopSheet> {
                                 ),
                               ),
                               Text(
-                                'Customize your AI buddy',
+                                l10n.modalsCustomizeYourAiBuddy,
                                 style: AppTypography.bodyMedium.copyWith(
                                   color: L.sub,
                                   fontWeight: FontWeight.w500,
@@ -262,6 +264,7 @@ class _AccessoryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Semantics(
       button: true,
       label: '${item.name}${isEquipped ? ', equipped' : isOwned ? ', owned' : ', costs ${item.cost} coins'}',
@@ -310,7 +313,7 @@ class _AccessoryCard extends StatelessWidget {
                     borderRadius: BorderRadius.circular(AppRadius.xl),
                   ),
                   child: Text(
-                    'EQUIPPED',
+                    l10n.modalsEquipped,
                     style: AppTypography.labelSmall.copyWith(
                       color: L.bg,
                       fontWeight: FontWeight.w900,
@@ -319,7 +322,7 @@ class _AccessoryCard extends StatelessWidget {
                 )
               else if (isOwned)
                 Text(
-                  'OWNED',
+                  l10n.modalsOwned,
                   style: AppTypography.labelSmall.copyWith(
                     color: L.text,
                     fontWeight: FontWeight.w900,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
 import '../../theme/med_ai_ui.dart';
 import 'med_ai_mascot.dart';
+import '../../l10n/app_localizations.dart';
 
 // ─────────────────────────────────────────────────────────────
 // CAL AI RING HERO — premium circular progress hero
@@ -40,6 +41,7 @@ class CalAiRingHero extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final isDark = context.isDark;
     final isAllDone = total > 0 && dosePct >= 1.0;
@@ -186,9 +188,9 @@ class CalAiRingHero extends StatelessWidget {
                       width: 0.8,
                     ),
                   ),
-                  child: const MedAiMascot(
+                  child: MedAiMascot(
                     size: 54,
-                    semanticLabel: 'Med AI assistant',
+                    semanticLabel: l10n.onboardingMedAiAssistant,
                   ),
                 ),
             ],
@@ -392,10 +394,11 @@ class _SnoozeNextButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return Semantics(
       button: true,
-      label: 'Snooze next dose 30 minutes',
+      label: l10n.commonSnoozeNextDose30Minutes,
       child: Material(
         color: Colors.transparent,
         child: InkWell(

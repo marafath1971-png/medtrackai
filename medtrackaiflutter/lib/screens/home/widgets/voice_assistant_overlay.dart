@@ -6,6 +6,7 @@ import '../../../providers/app_state.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
+import '../../../l10n/app_localizations.dart';
 
 class VoiceAssistantOverlay extends StatelessWidget {
   final VoidCallback? onDismiss;
@@ -13,6 +14,7 @@ class VoiceAssistantOverlay extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final state = context.watch<AppState>();
     if (!state.isVoiceActive) return const SizedBox.shrink();
 
@@ -78,7 +80,7 @@ class VoiceAssistantOverlay extends StatelessWidget {
                 const Spacer(),
                 Semantics(
                   button: true,
-                  label: 'Close voice assistant',
+                  label: l10n.homeCloseVoiceAssistant,
                   child: AnimatedPressable(
                     onTap: () {
                       HapticEngine.selection();

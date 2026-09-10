@@ -60,7 +60,7 @@ class HomeStatsGrid extends StatelessWidget {
                   _BentoMetricCard(
                     emoji: '📈',
                     iconColor: L.primary,
-                    label: 'Daily Progress',
+                    label: l10n.homeDailyProgress,
                     value: '${(dosePct * 100).round()}%',
                     unit: 'complete',
                     sublabel: '$takenCount of ${doses.length} doses taken',
@@ -163,7 +163,7 @@ class HomeStatsGrid extends StatelessWidget {
                   _BentoMetricCard(
                     emoji: '✨',
                     iconColor: AppColors.warningSoft,
-                    label: 'Mood',
+                    label: l10n.homeMood,
                     value: state.getMoodSummary(
                       good: 'Good',
                       stable: 'Stable',

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../../core/constants/premium_photos.dart';
 import '../../../theme/med_ai_ui.dart';
+import '../../../l10n/app_localizations.dart';
 
 /// Home first-viewport hope plane — taller photo + brand line (minimal).
 class HomeHopePhotoStrip extends StatelessWidget {
@@ -9,6 +10,7 @@ class HomeHopePhotoStrip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return ClipRRect(
       borderRadius: BorderRadius.circular(AppRadius.xl),
       child: SizedBox(
@@ -52,7 +54,7 @@ class HomeHopePhotoStrip extends StatelessWidget {
                       borderRadius: BorderRadius.circular(999),
                     ),
                     child: Text(
-                      'MADE FOR YOU',
+                      l10n.homeMadeForYou,
                       style: AppTypography.caption.copyWith(
                         color: AppColors.limeInk,
                         fontWeight: FontWeight.w700,
