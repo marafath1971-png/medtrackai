@@ -75,6 +75,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   String? toast;
   String? toastType;
   bool lowStockBannerDismissed = false;
+
   /// True when a connectivity probe fails — drives [AppStatusBanner] in shell.
   bool isOffline = false;
   String? networkErrorMessage;
@@ -170,7 +171,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   void addDependent(ManagedProfile dependent) {
     if (profile != null) {
-      final updatedFamily = List<ManagedProfile>.from(profile!.familyMembers)..add(dependent);
+      final updatedFamily = List<ManagedProfile>.from(profile!.familyMembers)
+        ..add(dependent);
       saveProfile(profile!.copyWith(familyMembers: updatedFamily));
       safeNotifyListeners();
     }
@@ -227,6 +229,11 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     // 1. Clear existing
     await NotificationService.cancelAll();
 
+    // Open a shared pending-notification allowance for this pass. iOS caps
+    // pending notifications per app, not per profile, so the primary user and
+    // every dependent draw down the same budget.
+    NotificationService.beginSchedulingPass();
+
     // 2. Schedule Primary (Me)
     final myMeds = await medRepo.getMedicines(profileId: null);
     final myStreak = getStreak();
@@ -241,7 +248,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       await NotificationService.scheduleAll(memberMeds,
           profileName: member.name, currentStreak: 0, persistent: persistent);
     }
-    
+
     // 4. Global Morning Summary (Primary only for now)
     await NotificationService.scheduleMorningSummary(
       totalDoses: myMeds.length,
@@ -276,7 +283,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
           if (profile?.appIcon != null && profile?.appIcon != 'default') {
             await DynamicIconService.setIcon(profile!.appIcon);
           }
-          
+
           _startMissedDoseTimer();
           checkFamilyMissedDoses();
         }
@@ -303,10 +310,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       med.loadData(profileId: profile?.id),
       wellness.loadData(profileId: profile?.id),
     ]);
-    
+
     await _rescheduleNotifications();
     safeNotifyListeners();
-    showToast(profile == null ? 'Switched to Primary' : 'Switched to ${profile.name}');
+    showToast(profile == null
+        ? 'Switched to Primary'
+        : 'Switched to ${profile.name}');
   }
 
   // ── Medication Proxies ─────────────────────────────────────────────
@@ -340,16 +349,19 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         // Sync to OS Health / Native Widgets
         OSHealthService.logDose(
           medName: dose.med.name,
-          dosageAmount: double.tryParse(dose.med.dose.replaceAll(RegExp(r'[^0-9.]'), '')) ?? 1.0,
+          dosageAmount: double.tryParse(
+                  dose.med.dose.replaceAll(RegExp(r'[^0-9.]'), '')) ??
+              1.0,
           takenAt: DateTime.now(),
         );
 
         // Sync Native OS Widget
         NativeWidgetService.syncWidgetData(
           streak: newStreak,
-          nextMedName: "Next Scheduled Dose", // Could compute exactly from meds list
+          nextMedName:
+              "Next Scheduled Dose", // Could compute exactly from meds list
           nextMedTime: "Check App",
-          mascotMood: "Happy", 
+          mascotMood: "Happy",
         );
 
         // Evaluate Gamification Milestones
@@ -403,12 +415,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     final dateKey =
         "${targetDate.year}-${targetDate.month.toString().padLeft(2, '0')}-${targetDate.day.toString().padLeft(2, '0')}";
     await med.skipDose(dose, dateKey);
-    
+
     // Task Phase 2.4: Telemetry Alert for Critical Meds
     if (dose.med.isCritical) {
       await social.notifyCaregiversOfMissedDose(dose.med);
     }
-    
+
     safeNotifyListeners();
     await _rescheduleNotifications();
   }
@@ -480,10 +492,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     _missedDoseTimer?.cancel();
     return auth.logout();
   }
+
   Future<void> signOut() {
     _missedDoseTimer?.cancel();
     return auth.logout();
   }
+
   Future<void> signInWithGoogle() => auth.signInWithGoogle();
   Future<void> signInWithApple() => auth.signInWithApple();
 
@@ -505,32 +519,34 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> removeFamilyMember(String memberId) async {
     var p = profile;
     if (p == null) return;
-    
+
     // Safety check: Don't remove if they have active meds?
     // For now, allow but warn in UI.
-    final updatedMembers = p.familyMembers.where((m) => m.id != memberId).toList();
+    final updatedMembers =
+        p.familyMembers.where((m) => m.id != memberId).toList();
     await auth.saveProfile(p.copyWith(familyMembers: updatedMembers));
-    
+
     // If we were viewing this profile, switch back to primary
     if (_activeProfile?.id == memberId) {
       await switchProfile(null);
     } else {
       await _rescheduleNotifications();
     }
-    
+
     showToast('Profile removed');
   }
 
   Future<void> updateFamilyMember(ManagedProfile member) async {
     var p = profile;
     if (p == null) return;
-    final updatedMembers = p.familyMembers.map((m) => m.id == member.id ? member : m).toList();
+    final updatedMembers =
+        p.familyMembers.map((m) => m.id == member.id ? member : m).toList();
     await auth.saveProfile(p.copyWith(familyMembers: updatedMembers));
-    
+
     if (_activeProfile?.id == member.id) {
-       _activeProfile = member;
+      _activeProfile = member;
     }
-    
+
     await _rescheduleNotifications();
     safeNotifyListeners();
   }
@@ -557,7 +573,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     for (var member in profile!.familyMembers) {
       final memberMeds = await medRepo.getMedicines(profileId: member.id);
       final memberHistory = await medRepo.getHistory(profileId: member.id);
-      final memberTakenToday = await medRepo.getTakenToday(profileId: member.id);
+      final memberTakenToday =
+          await medRepo.getTakenToday(profileId: member.id);
       final dayHistory = memberHistory[todayStr] ?? [];
 
       for (var med in memberMeds) {
@@ -565,22 +582,29 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
           if (!sched.enabled) continue;
           if (!sched.days.contains(dayOfWeek)) continue;
 
-          final schedTime = DateTime(now.year, now.month, now.day, sched.h, sched.m);
+          final schedTime =
+              DateTime(now.year, now.month, now.day, sched.h, sched.m);
           if (schedTime.isBefore(now)) {
             final key = '${med.id}_${sched.id}';
-            final timeStr = '${sched.h.toString().padLeft(2, '0')}:${sched.m.toString().padLeft(2, '0')}';
-            final takenInHistory = dayHistory.any((e) => e.medId == med.id && e.time == timeStr);
+            final timeStr =
+                '${sched.h.toString().padLeft(2, '0')}:${sched.m.toString().padLeft(2, '0')}';
+            final takenInHistory =
+                dayHistory.any((e) => e.medId == med.id && e.time == timeStr);
             final takenInToday = memberTakenToday[key] ?? false;
 
             if (!takenInHistory && !takenInToday) {
-              final alertId = '${member.id}_${med.id}_${sched.id}_$todayStr'.hashCode;
-              final alreadyExists = social.missedAlerts.any((a) => a.id == alertId);
+              final alertId =
+                  '${member.id}_${med.id}_${sched.id}_$todayStr'.hashCode;
+              final alreadyExists =
+                  social.missedAlerts.any((a) => a.id == alertId);
 
               if (!alreadyExists) {
                 final ampm = sched.h >= 12 ? 'PM' : 'AM';
                 final hr = sched.h % 12 == 0 ? 12 : sched.h % 12;
-                final timeLabel = sched.m == 0 ? '$hr$ampm' : '$hr:${sched.m.toString().padLeft(2, '0')}$ampm';
-                
+                final timeLabel = sched.m == 0
+                    ? '$hr$ampm'
+                    : '$hr:${sched.m.toString().padLeft(2, '0')}$ampm';
+
                 final alert = MissedAlert(
                   id: alertId,
                   medName: "${member.name}'s $timeLabel dose is available",
@@ -610,7 +634,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> exportProfileDataPDF(ManagedProfile member) async {
     final memberMeds = await medRepo.getMedicines(profileId: member.id);
     final memberHistory = await medRepo.getHistory(profileId: member.id);
-    final success = await ExportService.exportAdherenceReportForMember(this, member, memberMeds, memberHistory);
+    final success = await ExportService.exportAdherenceReportForMember(
+        this, member, memberMeds, memberHistory);
     if (!success) {
       toast = 'Doctor Reports require MedAI Premium.';
       toastType = 'error';
@@ -622,6 +647,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     GrowthTracker.trackAccountCreated();
     return auth.completeOnboarding(profile);
   }
+
   void skipAuth() => auth.skipAuth();
 
   /// Stash the onboarding-built profile until the user authenticates.
@@ -746,7 +772,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   // ── Voice Assistant (Phase 2.3) ────────────────────────────────────
-  
+
   Future<void> processVoiceCommand(String transcript) async {
     final res = await GeminiService.parseVoiceCommand(
         transcript: transcript, meds: meds);
@@ -772,12 +798,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         }
         final medicine = meds[medicineIdx];
 
-        final doses =
-            med.getDoses().where((d) => d.med.id == medId).toList();
+        final doses = med.getDoses().where((d) => d.med.id == medId).toList();
         if (doses.isNotEmpty) {
           if (action == 'take') {
-            final schedIdx =
-                medicine.schedule.indexWhere((s) => s.enabled);
+            final schedIdx = medicine.schedule.indexWhere((s) => s.enabled);
             if (schedIdx != -1) {
               await takeDose(medId, schedIdx);
             } else if (medicine.schedule.isNotEmpty) {
@@ -891,17 +915,19 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     if (p != null && p.streakFreezes > 0) {
       final updatedProfile = p.copyWith(streakFreezes: p.streakFreezes - 1);
       await saveProfile(updatedProfile);
-      
+
       // Find the last missed date to freeze
       // Let's assume they missed yesterday since this pops up usually.
       // If today is missed and it's late, maybe today.
       final now = DateTime.now();
-      String dateToFreeze = "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
-      
+      String dateToFreeze =
+          "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
+
       // Look back up to 7 days to find the first missed day that isn't already frozen
       for (int i = 0; i < 7; i++) {
         final date = now.subtract(Duration(days: i));
-        final key = "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
+        final key =
+            "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')}";
         final dayOfWeek = date.weekday % 7;
         // Slots, not medicines — `taken` below counts dose entries, so a
         // twice-daily medicine gave rate = 2/1 and a genuinely missed day
@@ -914,11 +940,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
                     .where((s) => s.enabled && s.days.contains(dayOfWeek))
                     .length);
         if (scheduledForDay == 0) continue;
-        
+
         final taken = med.history[key]?.where((e) => e.taken).length ?? 0;
         final rate = taken / scheduledForDay;
-        
-        if (rate < 0.8 && i > 0) { // i > 0 means past days
+
+        if (rate < 0.8 && i > 0) {
+          // i > 0 means past days
           dateToFreeze = key;
           break; // found the missed day
         }
@@ -953,11 +980,14 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       return 0; // First time ever opening? No missed doses.
     }
 
-    final yesterdayStr = DateTime.now().subtract(const Duration(days: 1)).toIso8601String().substring(0, 10);
-    
+    final yesterdayStr = DateTime.now()
+        .subtract(const Duration(days: 1))
+        .toIso8601String()
+        .substring(0, 10);
+
     // Evaluate yesterday's history
     final yesterdayDoses = history[yesterdayStr] ?? [];
-    
+
     int missed = 0;
     if (yesterdayDoses.isEmpty) {
       // Simplification: assume they missed all scheduled meds if no history
@@ -997,7 +1027,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     safeNotifyListeners();
   }
 
-  void recordDose(DoseItem dose, {DateTime? date}) => toggleDose(dose, date: date);
+  void recordDose(DoseItem dose, {DateTime? date}) =>
+      toggleDose(dose, date: date);
   Future<void> logPrnDose(int medId, String label, String time) =>
       med.logPrnDose(medId, label, time);
   String getDoseGuidance(Medicine m) => med.getDoseGuidance(m);
@@ -1047,8 +1078,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   List<Map<String, dynamic>> getLatencyData() => med.getLatencyHistory();
-  
-  DateTime? get lastSyncedAt => null; 
+
+  DateTime? get lastSyncedAt => null;
   int getAdherenceForMed(int medId) => med.getAdherenceForMed(medId);
   ({int taken, int total}) getHistoryCountForMed(int medId) =>
       med.getHistoryCountForMed(medId);
@@ -1131,7 +1162,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       : null;
 
   Future<void> saveSymptom(Symptom s) => wellness.logSymptom(s, med.meds);
-  Future<void> getSymptoms() => wellness.loadData(profileId: _activeProfile?.id);
+  Future<void> getSymptoms() =>
+      wellness.loadData(profileId: _activeProfile?.id);
 
   // ── AI SAFETY ──────────────────────────────────────────────────────
   Future<Result<AISafetyProfile>> analyzeMedicineSafety(Medicine m) =>
@@ -1188,10 +1220,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     final now = DateTime.now();
     return "${now.year}-${now.month.toString().padLeft(2, '0')}-${now.day.toString().padLeft(2, '0')}";
   }
+
   String timeContext() {
     final now = DateTime.now();
     return 'Current Time: ${now.hour}:${now.minute.toString().padLeft(2, "0")} on day ${now.weekday % 7} (0=Sun, 6=Sat)';
   }
+
   String fmtTime(int h, int m) =>
       '${h % 12 == 0 ? 12 : h % 12}:${m.toString().padLeft(2, '0')} ${h >= 12 ? 'PM' : 'AM'}';
   int dayIdx() => DateTime.now().weekday % 7;
@@ -1218,12 +1252,13 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       } else {
         mood = 'happy';
       }
-      
+
       final todayDoses = getDoses();
       // Simple approximation: pick the first one
-      final nextMedName = todayDoses.isNotEmpty ? todayDoses.first.med.name : 'All Done! 🎉';
-      final nextMedTime = todayDoses.isNotEmpty 
-          ? '${todayDoses.first.sched.h}:${todayDoses.first.sched.m.toString().padLeft(2, '0')}' 
+      final nextMedName =
+          todayDoses.isNotEmpty ? todayDoses.first.med.name : 'All Done! 🎉';
+      final nextMedTime = todayDoses.isNotEmpty
+          ? '${todayDoses.first.sched.h}:${todayDoses.first.sched.m.toString().padLeft(2, '0')}'
           : '--:--';
 
       NativeWidgetService.syncWidgetData(
@@ -1304,7 +1339,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       }
       if (targetSched == null) return;
 
-      final dose = DoseItem(med: targetMed, sched: targetSched, key: '${targetMed.id}-${targetSched.label}');
+      final dose = DoseItem(
+          med: targetMed,
+          sched: targetSched,
+          key: '${targetMed.id}-${targetSched.label}');
 
       if (action == 'take') {
         // Only toggle if not already taken today
@@ -1318,15 +1356,14 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         final now = DateTime.now();
         final snoozeTime = now.add(const Duration(minutes: 10));
         await NotificationService.scheduleOneOffReminder(
-          id: dose.hashCode.remainder(0x7FFFFFFF), 
-          title: '⏰ Snoozed: Time for ${targetMed.name}', 
-          body: '${targetMed.dose} · $label', 
-          scheduledDate: snoozeTime,
-          payload: '${targetMed.id}|$h|$m|$label'
-        );
+            id: dose.hashCode.remainder(0x7FFFFFFF),
+            title: '⏰ Snoozed: Time for ${targetMed.name}',
+            body: '${targetMed.dose} · $label',
+            scheduledDate: snoozeTime,
+            payload: '${targetMed.id}|$h|$m|$label');
         showToast('Reminding you in 10 minutes');
       }
-    } catch(e) {
+    } catch (e) {
       appLogger.e('[AppState] Error handling notification action: $e');
     }
   }
@@ -1350,10 +1387,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   // ── VOICE ASSISTANT ───────────────────────────────────────────────
-  
+
   Future<void> activateVoiceAssistant() async {
     if (isVoiceActive) return;
-    
+
     isVoiceActive = true;
     voiceStatus = 'listening';
     voiceTranscript = 'Listening...';

@@ -9,10 +9,25 @@ import 'package:flutter_timezone/flutter_timezone.dart';
 import 'dart:math';
 import '../core/config/notification_copy.dart';
 import '../core/utils/logger.dart';
+import 'notification_budget.dart';
 
 // ══════════════════════════════════════════════
 // LOCAL NOTIFICATION SERVICE
 // ══════════════════════════════════════════════
+
+/// A dose occurrence awaiting scheduling, held while the budget planner decides
+/// which of its notifications fit.
+class _DoseSlot {
+  final Medicine med;
+  final ScheduleEntry sched;
+  final int day;
+
+  const _DoseSlot({
+    required this.med,
+    required this.sched,
+    required this.day,
+  });
+}
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin _plugin =
@@ -22,12 +37,12 @@ class NotificationService {
 
   // Premium Haptic Feedback Profile for dynamic triggers
   static final Int64List _premiumHeartbeatVibration = Int64List.fromList([
-    0,   // No delay
-    40,  // Short pulse
+    0, // No delay
+    40, // Short pulse
     100, // Short pause
-    60,  // Stronger pulse
+    60, // Stronger pulse
     200, // Pause
-    40,  // Echo pulse
+    40, // Echo pulse
   ]);
 
   static Future<void> init() async {
@@ -96,6 +111,41 @@ class NotificationService {
     return true;
   }
 
+  /// Resolves the next wall-clock occurrence of a weekly dose slot.
+  ///
+  /// [dayIdx] follows the app's convention where 0 is Sunday. A slot that has
+  /// already passed today — or that the user has already marked taken — rolls
+  /// to next week so it doesn't fire immediately.
+  ///
+  /// Shared by the scheduler and the budget planner so both agree on exactly
+  /// when a dose lands; [now] is injectable for tests.
+  static DateTime nextOccurrence({
+    required int dayIdx,
+    required int hour,
+    required int minute,
+    bool isTakenToday = false,
+    DateTime? now,
+  }) {
+    final current = now ?? DateTime.now();
+    final targetWeekday = dayIdx == 0 ? 7 : dayIdx;
+
+    var baseDate =
+        DateTime(current.year, current.month, current.day, hour, minute);
+    var daysUntilTarget = (targetWeekday - current.weekday + 7) % 7;
+
+    // Scheduled for today but already taken, or already past: push a week out
+    // so it doesn't ring again today.
+    if (daysUntilTarget == 0 && (isTakenToday || baseDate.isBefore(current))) {
+      daysUntilTarget = 7;
+    }
+
+    var scheduledDate = baseDate.add(Duration(days: daysUntilTarget));
+    if (scheduledDate.isBefore(current)) {
+      scheduledDate = scheduledDate.add(const Duration(days: 7));
+    }
+    return scheduledDate;
+  }
+
   static Future<void> scheduleWeeklyReminder({
     required Medicine med,
     required ScheduleEntry sched,
@@ -109,6 +159,7 @@ class NotificationService {
     bool showMedicationNames = true,
     required int currentStreak,
     bool persistent = false,
+    bool scheduleEscalation = true,
   }) async {
     bool useSound = enableSound;
     bool useVibration = enableVibration;
@@ -165,57 +216,39 @@ class NotificationService {
     final details =
         NotificationDetails(android: androidDetails, iOS: iosDetails);
 
-    final now = DateTime.now();
-    int targetWeekday = dayIdx == 0 ? 7 : dayIdx;
-
-    // Calculate base scheduled date
-    var baseDate = DateTime(now.year, now.month, now.day, sched.h, sched.m);
-    int daysUntilTarget = (targetWeekday - now.weekday + 7) % 7;
-
-    // If it's scheduled for today, but the user already marked it as taken today,
-    // we must push the baseDate +7 days into the future so it doesn't ring today at all.
-    bool pushToNextWeek = false;
-    if (daysUntilTarget == 0) {
-      if (isTakenToday) {
-        pushToNextWeek = true;
-      } else if (baseDate.isBefore(now)) {
-        pushToNextWeek = true;
-      }
-    }
-
-    if (pushToNextWeek) {
-      daysUntilTarget = 7;
-    }
-
-    baseDate = baseDate.add(Duration(days: daysUntilTarget));
-
-    // Single notification logic (March 11th style)
-    var scheduledDate = baseDate;
-    if (scheduledDate.isBefore(now)) {
-      scheduledDate = scheduledDate.add(const Duration(days: 7));
-    }
+    final scheduledDate = nextOccurrence(
+      dayIdx: dayIdx,
+      hour: sched.h,
+      minute: sched.m,
+      isTakenToday: isTakenToday,
+    );
 
     try {
       final payload = '${med.id}|${sched.h}|${sched.m}|${sched.label}';
-      
+
       final prefix = profileName != null ? '$profileName: ' : '';
-      final title = showMedicationNames 
-          ? '💊 ${prefix}Time to take ${med.name}' 
+      final title = showMedicationNames
+          ? '💊 ${prefix}Time to take ${med.name}'
           : '💊 ${prefix}Time for your ${sched.label} dose';
 
-      String body = showMedicationNames ? '${med.dose} · ${sched.label}' : 'Tap to record or snooze';
+      String body = showMedicationNames
+          ? '${med.dose} · ${sched.label}'
+          : 'Tap to record or snooze';
       if (sched.ritual != Ritual.none && showMedicationNames) {
         body = '${med.dose} · ${_getRitualMessage(sched.ritual)}';
       }
-      
+
       // Inject Smart / Style-Rich Messaging
       final random = Random();
       if (currentStreak >= 3) {
-        body += '\n\n${NotificationCopy.motivationalTips[random.nextInt(NotificationCopy.motivationalTips.length)]}';
+        body +=
+            '\n\n${NotificationCopy.motivationalTips[random.nextInt(NotificationCopy.motivationalTips.length)]}';
       } else if (currentStreak == 0) {
-        body += '\n\n${NotificationCopy.gentleNudges[random.nextInt(NotificationCopy.gentleNudges.length)]}';
+        body +=
+            '\n\n${NotificationCopy.gentleNudges[random.nextInt(NotificationCopy.gentleNudges.length)]}';
       } else {
-        body += '\n\n${NotificationCopy.firmReminders[random.nextInt(NotificationCopy.firmReminders.length)]}';
+        body +=
+            '\n\n${NotificationCopy.firmReminders[random.nextInt(NotificationCopy.firmReminders.length)]}';
       }
 
       await _plugin.zonedSchedule(
@@ -239,13 +272,15 @@ class NotificationService {
       }
 
       // Schedule Caregiver Escalation 2 hours later
-      await scheduleCaregiverEscalation(
-        med: med,
-        sched: sched,
-        doseDate: scheduledDate,
-        baseNotifId: notifId,
-        profileName: profileName,
-      );
+      if (scheduleEscalation) {
+        await scheduleCaregiverEscalation(
+          med: med,
+          sched: sched,
+          doseDate: scheduledDate,
+          baseNotifId: notifId,
+          profileName: profileName,
+        );
+      }
     } catch (e) {
       await _plugin.show(
         id: notifId.remainder(0x7FFFFFFF),
@@ -286,7 +321,47 @@ class NotificationService {
   static Future<void> cancelAll() => _plugin.cancelAll();
   static Future<void> cancel(int id) => _plugin.cancel(id: id);
 
-  static Future<void> scheduleAll(List<Medicine> meds, {String? profileName, bool showMedicationNames = true, required int currentStreak, bool persistent = false}) async {
+  /// Remaining pending-notification allowance for the current reschedule pass.
+  ///
+  /// iOS enforces its 64-notification cap per *app*, but [scheduleAll] runs
+  /// once per profile (the user, then each dependent). A per-call budget would
+  /// therefore let three profiles request 3x the cap between them, so the
+  /// allowance is shared and drawn down across the whole pass.
+  static int _remainingBudget =
+      kIosPendingNotificationLimit - kReservedNotificationSlots;
+
+  /// Furthest-out dose reminder that actually fit, across the current pass.
+  static DateTime? _scheduledHorizon;
+
+  /// True when the last reschedule could not fit every dose reminder, meaning
+  /// reminders stop at [reminderHorizonDate].
+  static bool notificationsTruncated = false;
+
+  /// How far ahead dose reminders are actually guaranteed after the last
+  /// reschedule, or null when the full week fit.
+  static DateTime? get reminderHorizonDate => _scheduledHorizon;
+
+  /// Opens a reschedule pass, resetting the shared allowance. Call once before
+  /// the per-profile [scheduleAll] calls.
+  static void beginSchedulingPass() {
+    _remainingBudget =
+        kIosPendingNotificationLimit - kReservedNotificationSlots;
+    _scheduledHorizon = null;
+    notificationsTruncated = false;
+  }
+
+  static Future<void> scheduleAll(List<Medicine> meds,
+      {String? profileName,
+      bool showMedicationNames = true,
+      required int currentStreak,
+      bool persistent = false}) async {
+    // Enumerate every notification this profile would like, then let the
+    // planner decide which survive the remaining allowance. Without this the
+    // OS silently drops whatever exceeds the cap — and since it keeps the 64
+    // soonest, the casualties are later-week dose reminders.
+    final candidates = <PlannedNotification>[];
+    final scheduleKeys = <int, _DoseSlot>{};
+
     for (var med in meds) {
       for (int i = 0; i < med.schedule.length; i++) {
         final sched = med.schedule[i];
@@ -310,21 +385,82 @@ class NotificationService {
           final notifId =
               Object.hash(profileHash, med.id, i, day).toUnsigned(31);
 
-          await scheduleWeeklyReminder(
-            med: med,
-            sched: sched,
+          final fireAt = nextOccurrence(
             dayIdx: day,
-            notifId: notifId,
-            enableSound: true,
-            enableVibration: true,
-            isTakenToday: false,
-            profileName: profileName,
-            showMedicationNames: showMedicationNames,
-            currentStreak: currentStreak,
-            persistent: persistent,
+            hour: sched.h,
+            minute: sched.m,
           );
+
+          scheduleKeys[notifId] = _DoseSlot(med: med, sched: sched, day: day);
+          candidates.add(PlannedNotification(
+            kind: NotificationKind.doseReminder,
+            scheduledDate: fireAt,
+            notifId: notifId,
+          ));
+          if (currentStreak > 0) {
+            candidates.add(PlannedNotification(
+              kind: NotificationKind.streakNudge,
+              scheduledDate: fireAt.add(const Duration(hours: 1)),
+              notifId: notifId,
+            ));
+          }
+          candidates.add(PlannedNotification(
+            kind: NotificationKind.caregiverEscalation,
+            scheduledDate: fireAt.add(const Duration(hours: 2)),
+            notifId: notifId,
+          ));
         }
       }
+    }
+
+    if (exceedsBudget(candidates, limit: _remainingBudget)) {
+      notificationsTruncated = true;
+    }
+
+    final selected = planNotifications(candidates, limit: _remainingBudget);
+    _remainingBudget -= selected.length;
+
+    // Only the reminders that survived are real; a dropped one will not fire.
+    final keptReminders = selected
+        .where((n) => n.kind == NotificationKind.doseReminder)
+        .map((n) => n.notifId)
+        .toSet();
+    final keptNudges = selected
+        .where((n) => n.kind == NotificationKind.streakNudge)
+        .map((n) => n.notifId)
+        .toSet();
+    final keptEscalations = selected
+        .where((n) => n.kind == NotificationKind.caregiverEscalation)
+        .map((n) => n.notifId)
+        .toSet();
+
+    final horizon = reminderHorizon(selected);
+    if (horizon != null &&
+        (_scheduledHorizon == null || horizon.isAfter(_scheduledHorizon!))) {
+      _scheduledHorizon = horizon;
+    }
+
+    for (final entry in scheduleKeys.entries) {
+      final notifId = entry.key;
+      if (!keptReminders.contains(notifId)) continue;
+      final slot = entry.value;
+
+      await scheduleWeeklyReminder(
+        med: slot.med,
+        sched: slot.sched,
+        dayIdx: slot.day,
+        notifId: notifId,
+        enableSound: true,
+        enableVibration: true,
+        isTakenToday: false,
+        profileName: profileName,
+        showMedicationNames: showMedicationNames,
+        // Suppressing the nudge here is what actually frees the slot the
+        // planner reclaimed; passing the real streak would re-add it.
+        currentStreak: keptNudges.contains(notifId) ? currentStreak : 0,
+        persistent: persistent,
+        scheduleEscalation: keptEscalations.contains(notifId),
+      );
     }
   }
 
@@ -357,7 +493,10 @@ class NotificationService {
     await _plugin.show(
       id: (med.id + 100000).remainder(0x7FFFFFFF),
       title: title ?? NotificationCopy.refillTitle,
-      body: body ?? NotificationCopy.refillBody.replaceAll('{medName}', med.name).replaceAll('{count}', med.count.toString()),
+      body: body ??
+          NotificationCopy.refillBody
+              .replaceAll('{medName}', med.name)
+              .replaceAll('{count}', med.count.toString()),
       notificationDetails: details,
     );
   }
@@ -370,9 +509,11 @@ class NotificationService {
       importance: Importance.high,
       priority: Priority.high,
     );
-    const iosDetails = DarwinNotificationDetails(presentAlert: true, presentSound: true);
-    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
-    
+    const iosDetails =
+        DarwinNotificationDetails(presentAlert: true, presentSound: true);
+    const details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+
     final prefix = profileName != null ? '$profileName: ' : '';
     await _plugin.show(
       id: 999000,
@@ -398,7 +539,8 @@ class NotificationService {
     );
     const iosDetails =
         DarwinNotificationDetails(presentAlert: true, presentSound: true);
-    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
+    const details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
     await _plugin.show(
       id: 999001,
       title: title,
@@ -407,20 +549,26 @@ class NotificationService {
     );
   }
 
-  static Future<void> scheduleStreakNudge({required int streak, required int id, required DateTime targetDate}) async {
+  static Future<void> scheduleStreakNudge(
+      {required int streak,
+      required int id,
+      required DateTime targetDate}) async {
     final random = Random();
-    final copy = NotificationCopy.streakNudges[random.nextInt(NotificationCopy.streakNudges.length)]
+    final copy = NotificationCopy
+        .streakNudges[random.nextInt(NotificationCopy.streakNudges.length)]
         .replaceAll('{streak}', streak.toString());
-    
+
     const androidDetails = AndroidNotificationDetails(
       'streak_nudges',
       'Streak Nudges',
       importance: Importance.defaultImportance,
       priority: Priority.defaultPriority,
     );
-    const iosDetails = DarwinNotificationDetails(presentAlert: true, presentSound: true);
-    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
-    
+    const iosDetails =
+        DarwinNotificationDetails(presentAlert: true, presentSound: true);
+    const details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+
     await _plugin.zonedSchedule(
       id: id,
       title: 'Keep it up! 🏆',
@@ -431,16 +579,19 @@ class NotificationService {
     );
   }
 
-  static Future<void> scheduleReEngagement({required DateTime targetDate}) async {
+  static Future<void> scheduleReEngagement(
+      {required DateTime targetDate}) async {
     const androidDetails = AndroidNotificationDetails(
       're_engagement',
       'Re-engagement',
       importance: Importance.low,
       priority: Priority.low,
     );
-    const iosDetails = DarwinNotificationDetails(presentAlert: true, presentSound: false);
-    const details = NotificationDetails(android: androidDetails, iOS: iosDetails);
-    
+    const iosDetails =
+        DarwinNotificationDetails(presentAlert: true, presentSound: false);
+    const details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+
     await _plugin.zonedSchedule(
       id: 888002,
       title: NotificationCopy.reEngagementTitle,
@@ -472,7 +623,7 @@ class NotificationService {
     String? profileName,
   }) async {
     final escalationDate = doseDate.add(const Duration(hours: 2));
-    
+
     // Only schedule if the escalation time is still in the future
     if (escalationDate.isBefore(DateTime.now())) return;
 
@@ -498,13 +649,15 @@ class NotificationService {
       interruptionLevel: InterruptionLevel.critical,
     );
 
-    final details = NotificationDetails(android: androidDetails, iOS: iosDetails);
-    
+    final details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+
     final prefix = profileName != null ? '$profileName: ' : '';
     await _plugin.zonedSchedule(
       id: (baseNotifId + 1000000).remainder(0x7FFFFFFF),
       title: '🚨 CAREGIVER ESCALATION 🚨',
-      body: '$prefix You missed your critical dose of ${med.name}. An alert has been escalated to your caregiver network.',
+      body:
+          '$prefix You missed your critical dose of ${med.name}. An alert has been escalated to your caregiver network.',
       scheduledDate: tz.TZDateTime.from(escalationDate, tz.local),
       notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -561,8 +714,10 @@ class NotificationService {
       category: AndroidNotificationCategory.alarm,
       actions: <AndroidNotificationAction>[
         AndroidNotificationAction('take', 'Take Now', showsUserInterface: true),
-        AndroidNotificationAction('snooze_10', 'Snooze 10m', showsUserInterface: true),
-        AndroidNotificationAction('skip', 'Skip', showsUserInterface: true, cancelNotification: true),
+        AndroidNotificationAction('snooze_10', 'Snooze 10m',
+            showsUserInterface: true),
+        AndroidNotificationAction('skip', 'Skip',
+            showsUserInterface: true, cancelNotification: true),
       ],
     );
 
@@ -590,15 +745,19 @@ class NotificationService {
   }) async {
     final now = DateTime.now();
     final dayIdx = now.weekday % 7;
-    
-    final applicableMeds = meds.where((m) => m.schedule.any((s) => s.enabled && s.days.contains(dayIdx) && s.ritual == mealRitual)).toList();
-    
+
+    final applicableMeds = meds
+        .where((m) => m.schedule.any((s) =>
+            s.enabled && s.days.contains(dayIdx) && s.ritual == mealRitual))
+        .toList();
+
     if (applicableMeds.isEmpty) return;
-    
+
     final androidDetails = AndroidNotificationDetails(
       'dynamic_triggers',
       'Dynamic Triggers',
-      channelDescription: 'Personalized triggers based on your logging activity',
+      channelDescription:
+          'Personalized triggers based on your logging activity',
       importance: Importance.max,
       priority: Priority.max,
       vibrationPattern: _premiumHeartbeatVibration,
@@ -610,16 +769,18 @@ class NotificationService {
       presentSound: true,
       interruptionLevel: InterruptionLevel.timeSensitive,
     );
-    final details = NotificationDetails(android: androidDetails, iOS: iosDetails);
-    
+    final details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+
     // Schedule 30 mins after logging the meal
-    final scheduledDate = now.add(const Duration(minutes: 30)); 
-    
+    final scheduledDate = now.add(const Duration(minutes: 30));
+
     final prefix = profileName.isNotEmpty ? '$profileName: ' : '';
     await _plugin.zonedSchedule(
       id: 777001,
       title: '🍽️ $prefix${mealRitual.displayName} Follow-up',
-      body: 'You recently logged a meal. Time to take your post-meal medications!',
+      body:
+          'You recently logged a meal. Time to take your post-meal medications!',
       scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
       notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
@@ -643,15 +804,17 @@ class NotificationService {
       presentSound: true,
       interruptionLevel: InterruptionLevel.timeSensitive,
     );
-    final details = NotificationDetails(android: androidDetails, iOS: iosDetails);
-    
+    final details =
+        NotificationDetails(android: androidDetails, iOS: iosDetails);
+
     // Schedule 2 hours after intake
-    final scheduledDate = DateTime.now().add(const Duration(hours: 2)); 
-    
+    final scheduledDate = DateTime.now().add(const Duration(hours: 2));
+
     await _plugin.zonedSchedule(
       id: 777002,
       title: 'How are you feeling? ✨',
-      body: 'You took ${med.name} a couple hours ago. Log any side effects if needed.',
+      body:
+          'You took ${med.name} a couple hours ago. Log any side effects if needed.',
       scheduledDate: tz.TZDateTime.from(scheduledDate, tz.local),
       notificationDetails: details,
       androidScheduleMode: AndroidScheduleMode.exactAllowWhileIdle,
