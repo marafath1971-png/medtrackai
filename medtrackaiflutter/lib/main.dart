@@ -262,7 +262,6 @@ class _MedAIAppState extends State<MedAIApp> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     final accentHex = context
         .select<AppState, String?>((state) => state.profile?.accentColor);
 
@@ -276,7 +275,11 @@ class _MedAIAppState extends State<MedAIApp> {
     final router = _getRouter(appState);
 
     return MaterialApp.router(
-      title: l10n.appTitle,
+      // onGenerateTitle, not title: the localization lookup needs a context
+      // BELOW this MaterialApp. Reading it in the enclosing build() — which is
+      // where it used to be — has no Localizations ancestor, so the null check
+      // threw on every launch and the app opened to a black screen.
+      onGenerateTitle: (context) => AppLocalizations.of(context)!.appTitle,
       debugShowCheckedModeBanner: false,
       theme: lightTheme,
       darkTheme: darkTheme,
@@ -328,6 +331,9 @@ class _MedAIAppState extends State<MedAIApp> {
                   builder: (context) {
                     final size = MediaQuery.sizeOf(context);
                     final width = size.width > 430 ? 430.0 : size.width;
+                    // Resolved here, not in the enclosing build: this context
+                    // is below MaterialApp.router, so Localizations exists.
+                    final l10n = AppLocalizations.of(context)!;
                     return Semantics(
                       label: l10n.appTitle,
                       child: ColoredBox(

@@ -92,69 +92,83 @@ class _GlobalErrorBoundaryState extends State<GlobalErrorBoundary> {
 
   @override
   Widget build(BuildContext context) {
-    final l10n = AppLocalizations.of(context)!;
     if (_hasError) {
       return MaterialApp(
         debugShowCheckedModeBanner: false,
-        home: Scaffold(
-          backgroundColor: const Color(0xFF12141C),
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 32),
-            child: SafeArea(
-              child: Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(
-                      Icons.sentiment_dissatisfied_rounded,
-                      size: 64,
-                      color: Colors.white70,
-                    ),
-                    const SizedBox(height: 24),
-                    Text(
-                      l10n.commonSomethingWentWrong,
-                      textAlign: TextAlign.center,
-                      style: _titleStyle,
-                    ),
-                    const SizedBox(height: 12),
-                    Text(
-                      l10n.commonWeVeHitATemporaryIssue,
-                      textAlign: TextAlign.center,
-                      style: _bodyStyle,
-                    ),
-                    const SizedBox(height: 48),
-                    _ActionButton(
-                      label: l10n.commonResumeSession,
-                      onTap: () {
-                        setState(() {
-                          _hasError = false;
-                          _lastError = null;
-                        });
-                      },
-                      primary: true,
-                    ),
-                    const SizedBox(height: 16),
-                    _ActionButton(
-                      label: l10n.commonRestartApp,
-                      onTap: () => SystemNavigator.pop(),
-                      primary: false,
-                    ),
-                    if (_lastError != null) ...[
+        // The lookup MUST happen inside this MaterialApp.
+        //
+        // This boundary is mounted above MaterialApp in runApp(), so the
+        // enclosing context has no Localizations and no Directionality
+        // ancestor. Reading l10n there threw on null, ErrorWidget.builder took
+        // over, and its fallback Text — also lacking Directionality — rendered
+        // nothing: a pure black screen.
+        //
+        // Same failure the plain TextStyles above already guard against. The
+        // recovery UI must depend on nothing that can itself fail.
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(builder: (context) {
+          final l10n = AppLocalizations.of(context)!;
+          return Scaffold(
+            backgroundColor: const Color(0xFF12141C),
+            body: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 32),
+              child: SafeArea(
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(
+                        Icons.sentiment_dissatisfied_rounded,
+                        size: 64,
+                        color: Colors.white70,
+                      ),
                       const SizedBox(height: 24),
                       Text(
-                        _lastError.toString().split('\n').first,
-                        style: _metaStyle,
-                        maxLines: 3,
-                        overflow: TextOverflow.ellipsis,
+                        l10n.commonSomethingWentWrong,
                         textAlign: TextAlign.center,
+                        style: _titleStyle,
                       ),
+                      const SizedBox(height: 12),
+                      Text(
+                        l10n.commonWeVeHitATemporaryIssue,
+                        textAlign: TextAlign.center,
+                        style: _bodyStyle,
+                      ),
+                      const SizedBox(height: 48),
+                      _ActionButton(
+                        label: l10n.commonResumeSession,
+                        onTap: () {
+                          setState(() {
+                            _hasError = false;
+                            _lastError = null;
+                          });
+                        },
+                        primary: true,
+                      ),
+                      const SizedBox(height: 16),
+                      _ActionButton(
+                        label: l10n.commonRestartApp,
+                        onTap: () => SystemNavigator.pop(),
+                        primary: false,
+                      ),
+                      if (_lastError != null) ...[
+                        const SizedBox(height: 24),
+                        Text(
+                          _lastError.toString().split('\n').first,
+                          style: _metaStyle,
+                          maxLines: 3,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
                     ],
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ),
+          );
+        }),
       );
     }
 
