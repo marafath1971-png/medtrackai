@@ -12,7 +12,10 @@ void main() {
       age: '42',
       gender: 'other',
       conditions: const ['diabetes', 'hypertension'],
-      allergies: const ['penicillin'],
+      // A display label, not the legacy 'penicillin' option id: UserProfile
+      // now normalizes allergies on read, so an id would come back as
+      // 'Penicillin' and this would be asserting the pre-fix behaviour.
+      allergies: const ['Penicillin'],
       breakfastTime: const {'h': 7, 'm': 30},
       lunchTime: const {'h': 12, 'm': 15},
       dinnerTime: const {'h': 19, 'm': 0},

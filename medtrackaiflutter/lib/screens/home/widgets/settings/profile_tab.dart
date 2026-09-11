@@ -6,6 +6,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../../providers/app_state.dart';
 import '../../../settings/widgets/delete_account_dialog.dart';
 import '../../../../theme/med_ai_ui.dart';
+import 'allergy_editor.dart';
 import '../../../../widgets/common/animated_pressable.dart';
 import '../../../../services/auth_service.dart';
 import '../../../../services/export_service.dart';
@@ -35,7 +36,8 @@ class _ProfileTabState extends State<ProfileTab> {
   String _ageGenderLine(AppLocalizations l10n, UserProfile? p) {
     final hasAge = p != null && p.age.isNotEmpty;
     final hasGender = p != null && p.gender.isNotEmpty;
-    final age = hasAge ? l10n.settingsProfileAge(p.age) : l10n.settingsProfileAgeNotSet;
+    final age =
+        hasAge ? l10n.settingsProfileAge(p.age) : l10n.settingsProfileAgeNotSet;
     return hasGender ? l10n.settingsProfileAgeAndGender(age, p.gender) : age;
   }
 
@@ -44,6 +46,7 @@ class _ProfileTabState extends State<ProfileTab> {
   String? _genderInput;
   String? _goalInput;
   String? _countryInput;
+  late List<String> _allergiesInput;
   bool _editing = false;
 
   final genders = ["Male", "Female", "Non-binary", "Prefer not to say"];
@@ -65,6 +68,7 @@ class _ProfileTabState extends State<ProfileTab> {
     _genderInput = p?.gender;
     _goalInput = p?.goal;
     _countryInput = p?.country;
+    _allergiesInput = List<String>.from(p?.allergies ?? const []);
   }
 
   @override
@@ -74,8 +78,7 @@ class _ProfileTabState extends State<ProfileTab> {
     super.dispose();
   }
 
-  Widget _maybeShimmerRow(
-      bool reduceMotion, Widget row, AppThemeColors L) {
+  Widget _maybeShimmerRow(bool reduceMotion, Widget row, AppThemeColors L) {
     return row;
   }
 
@@ -200,49 +203,47 @@ class _ProfileTabState extends State<ProfileTab> {
         ),
         const SizedBox(width: AppSpacing.p20),
         Expanded(
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-              Row(
-                children: [
-                  Flexible(
-                    child: Text(p?.name ?? 'Your Name',
-                        style: AppTypography.titleLarge.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: L.text,
-                            fontSize: 22,
-                            letterSpacing: -0.5)),
-                  ),
-                  if (widget.state.isPremium) ...[
-                    const SizedBox(width: AppSpacing.p8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: AppSpacing.p8, vertical: 2),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [AppColors.lime, AppColors.limeDeep],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        ),
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                      child: Text(l10n.homePro,
-                          style: AppTypography.labelSmall.copyWith(
-                              fontWeight: FontWeight.w700,
-                              fontSize: 11,
-                              color: AppColors.limeInk,
-                              letterSpacing: 0.5)),
-                    ),
-                  ],
-                ],
+            child:
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+          Row(
+            children: [
+              Flexible(
+                child: Text(p?.name ?? 'Your Name',
+                    style: AppTypography.titleLarge.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: L.text,
+                        fontSize: 22,
+                        letterSpacing: -0.5)),
               ),
-              const SizedBox(height: AppSpacing.p8),
-              Text(
-                  _ageGenderLine(l10n, p),
-                  style: AppTypography.bodySmall.copyWith(
-                      color: L.sub.withValues(alpha: 0.6),
-                      fontWeight: FontWeight.w700)),
-            ])),
+              if (widget.state.isPremium) ...[
+                const SizedBox(width: AppSpacing.p8),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.p8, vertical: 2),
+                  decoration: BoxDecoration(
+                    gradient: const LinearGradient(
+                      colors: [AppColors.lime, AppColors.limeDeep],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                    borderRadius: BorderRadius.circular(4),
+                  ),
+                  child: Text(l10n.homePro,
+                      style: AppTypography.labelSmall.copyWith(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 11,
+                          color: AppColors.limeInk,
+                          letterSpacing: 0.5)),
+                ),
+              ],
+            ],
+          ),
+          const SizedBox(height: AppSpacing.p8),
+          Text(_ageGenderLine(l10n, p),
+              style: AppTypography.bodySmall.copyWith(
+                  color: L.sub.withValues(alpha: 0.6),
+                  fontWeight: FontWeight.w700)),
+        ])),
         if (!_editing)
           Semantics(
             button: true,
@@ -256,13 +257,12 @@ class _ProfileTabState extends State<ProfileTab> {
               child: Container(
                 constraints:
                     const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
                 decoration: BoxDecoration(
                     color: L.fill.withValues(alpha: 0.5),
                     borderRadius: BorderRadius.circular(12),
-                    border:
-                        Border.all(color: L.border.withValues(alpha: 0.1))),
+                    border: Border.all(color: L.border.withValues(alpha: 0.1))),
                 child: Text(s.edit,
                     style: AppTypography.labelLarge.copyWith(
                         fontWeight: FontWeight.w700,
@@ -282,7 +282,7 @@ class _ProfileTabState extends State<ProfileTab> {
     }
 
     return SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(0, AppSpacing.p4, 0, AppSpacing.p40),
@@ -365,6 +365,13 @@ class _ProfileTabState extends State<ProfileTab> {
                             last: e.key == goals.length - 1,
                             border: e.key < goals.length - 1))
                         .toList())),
+            SettingsSection(
+                title: 'Medication allergies',
+                child: AllergyEditor(
+                  allergies: _allergiesInput,
+                  onChanged: (next) => setState(() => _allergiesInput = next),
+                  L: L,
+                )),
             // Removed redundant country selector from edit form to consolidate in Global Settings
             Row(children: [
               Expanded(
@@ -380,6 +387,8 @@ class _ProfileTabState extends State<ProfileTab> {
                       _genderInput = p?.gender;
                       _goalInput = p?.goal;
                       _countryInput = p?.country;
+                      _allergiesInput =
+                          List<String>.from(p?.allergies ?? const []);
                     });
                   },
                 ),
@@ -392,11 +401,13 @@ class _ProfileTabState extends State<ProfileTab> {
                   semanticsLabel: 'Save profile changes',
                   onTap: () {
                     HapticEngine.success();
+                    final allergies = normalizeAllergies(_allergiesInput);
                     final newProfile = p?.copyWith(
                             name: _nameCtrl.text,
                             age: _ageCtrl.text,
                             gender: _genderInput,
                             goal: _goalInput,
+                            allergies: allergies,
                             country: _countryInput) ??
                         UserProfile(
                             name: _nameCtrl.text,
@@ -405,6 +416,7 @@ class _ProfileTabState extends State<ProfileTab> {
                             goal: _goalInput ?? '',
                             avatar: '😊',
                             conditions: const [],
+                            allergies: allergies,
                             notifPerm: true);
                     widget.state.saveProfile(newProfile);
                     setState(() => _editing = false);
@@ -431,6 +443,13 @@ class _ProfileTabState extends State<ProfileTab> {
                           : 'Not set',
                       border: true),
                   SettingsModalRow(
+                      icon: '⚠️',
+                      label: 'Allergies',
+                      sub: p?.allergies.isNotEmpty == true
+                          ? p!.allergies.join(", ")
+                          : 'None recorded',
+                      border: true),
+                  SettingsModalRow(
                       icon: '🎂',
                       label: l10n.homeAge,
                       sub: p?.age != null && p!.age.isNotEmpty
@@ -446,7 +465,8 @@ class _ProfileTabState extends State<ProfileTab> {
                 ])),
             if (!widget.state.isPremium)
               Padding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.p16, 0, AppSpacing.p16, AppSpacing.p24),
+                padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.p16, 0, AppSpacing.p16, AppSpacing.p24),
                 child: _upgradeCard(L, reduceMotion, context),
               ),
             SettingsSection(
@@ -481,8 +501,8 @@ class _ProfileTabState extends State<ProfileTab> {
                   label: l10n.homeClinicalPdfReport,
                   sub: 'Generate a summary for your doctor',
                   onClick: () async {
-                    final ok = await ExportService.exportAdherenceReport(
-                        widget.state);
+                    final ok =
+                        await ExportService.exportAdherenceReport(widget.state);
                     if (!ok && context.mounted) {
                       PaywallSheet.show(context);
                     }
@@ -632,7 +652,8 @@ class _ProfileTabState extends State<ProfileTab> {
                 children: [
                   Text(
                     l10n.homeMedai1001,
-                    style: AppTypography.labelSmall.copyWith(color: L.sub.withValues(alpha: 0.4),
+                    style: AppTypography.labelSmall.copyWith(
+                      color: L.sub.withValues(alpha: 0.4),
                       fontWeight: FontWeight.w700,
                       fontSize: 11,
                       letterSpacing: 1.0,

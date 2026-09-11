@@ -1,3 +1,4 @@
+export 'allergy.dart';
 export 'enums.dart';
 export 'medicine.dart';
 export 'user_profile.dart';

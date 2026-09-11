@@ -1,3 +1,4 @@
+import 'allergy.dart';
 import 'caregiver.dart';
 import 'managed_profile.dart';
 
@@ -7,7 +8,7 @@ class UserProfile {
   final String gender;
   final String goal;
   final String targetUser; // Myself, Family, Both
-  final String height; 
+  final String height;
   final String weight;
   final List<String> conditions;
   final List<String> allergies;
@@ -60,7 +61,7 @@ class UserProfile {
   final int nudgeCount;
   final List<Caregiver> caregiverContacts;
   final List<ManagedProfile> familyMembers;
-  
+
   // ── AI Scanner Settings ───────────────────────────
   final double aiConfidenceThreshold;
   final bool aiDeepAnalysis;
@@ -201,7 +202,10 @@ class UserProfile {
         height: j['height'] ?? '',
         weight: j['weight'] ?? '',
         conditions: List<String>.from(j['conditions'] ?? []),
-        allergies: List<String>.from(j['allergies'] ?? []),
+        // Normalized on read so profiles written by older builds — which
+        // stored raw option ids and a literal "none" — are corrected without a
+        // data migration. These strings go straight into the safety prompt.
+        allergies: normalizeAllergies(List<String>.from(j['allergies'] ?? [])),
         medCount: j['medCount'] ?? '',
         forgetting: j['forgetting'] ?? '',
         currentMethods: j['current_methods'] ?? '',
@@ -255,7 +259,8 @@ class UserProfile {
             .map((c) => Caregiver.fromJson(Map<String, dynamic>.from(c as Map)))
             .toList(),
         familyMembers: (j['familyMembers'] as List? ?? [])
-            .map((m) => ManagedProfile.fromJson(Map<String, dynamic>.from(m as Map)))
+            .map((m) =>
+                ManagedProfile.fromJson(Map<String, dynamic>.from(m as Map)))
             .toList(),
         aiConfidenceThreshold: (j['aiConfidenceThreshold'] ?? 85.0).toDouble(),
         aiDeepAnalysis: j['aiDeepAnalysis'] ?? true,
@@ -378,7 +383,8 @@ class UserProfile {
         nudgeCount: nudgeCount ?? this.nudgeCount,
         caregiverContacts: caregiverContacts ?? this.caregiverContacts,
         familyMembers: familyMembers ?? this.familyMembers,
-        aiConfidenceThreshold: aiConfidenceThreshold ?? this.aiConfidenceThreshold,
+        aiConfidenceThreshold:
+            aiConfidenceThreshold ?? this.aiConfidenceThreshold,
         aiDeepAnalysis: aiDeepAnalysis ?? this.aiDeepAnalysis,
         aiAutoCrop: aiAutoCrop ?? this.aiAutoCrop,
         aiClinicalMode: aiClinicalMode ?? this.aiClinicalMode,

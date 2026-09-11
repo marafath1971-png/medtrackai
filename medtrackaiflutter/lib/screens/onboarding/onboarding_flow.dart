@@ -53,20 +53,62 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
 
   /// Analytics ids, one per step index. Keep in sync with [_stepWidget].
   static const List<String> _stepNames = [
-    'welcome', 'rank_intro', 'social_gallery', 'attribution', 'goal',
-    'longterm_results', 'persona', 'gender', 'birth_year', 'weight',
-    'conditions', 'privacy_reassurance', 'med_count', 'medcount_payoff',
-    'supplements', 'interaction_education', 'allergies', 'timing',
-    'challenge', 'miss_frequency', 'empathy_stat', 'miss_triggers',
-    'work_schedule', 'sleep_schedule', 'relate_forget', 'relate_refill',
-    'relate_mixing', 'relate_guilt', 'payoff_bars', 'comparison_reminders',
-    'dark_interstitial', 'pill_knowledge', 'scan_intro',
-    'comparison_organizer', 'accuracy_chart', 'interaction_known',
-    'diagnose', 'family_safety', 'thriving', 'drives_intro', 'motivation',
-    'success', 'projection', 'comparison_2x', 'social_proof',
-    'personal_summary', 'commit', 'reminder_intensity', 'first_med_method',
-    'notifications', 'att_permission', 'rating', 'plan_loader',
-    'plan_ready', 'trial_flash', 'welcome_done',
+    'welcome',
+    'rank_intro',
+    'social_gallery',
+    'attribution',
+    'goal',
+    'longterm_results',
+    'persona',
+    'gender',
+    'birth_year',
+    'weight',
+    'conditions',
+    'privacy_reassurance',
+    'med_count',
+    'medcount_payoff',
+    'supplements',
+    'interaction_education',
+    'allergies',
+    'timing',
+    'challenge',
+    'miss_frequency',
+    'empathy_stat',
+    'miss_triggers',
+    'work_schedule',
+    'sleep_schedule',
+    'relate_forget',
+    'relate_refill',
+    'relate_mixing',
+    'relate_guilt',
+    'payoff_bars',
+    'comparison_reminders',
+    'dark_interstitial',
+    'pill_knowledge',
+    'scan_intro',
+    'comparison_organizer',
+    'accuracy_chart',
+    'interaction_known',
+    'diagnose',
+    'family_safety',
+    'thriving',
+    'drives_intro',
+    'motivation',
+    'success',
+    'projection',
+    'comparison_2x',
+    'social_proof',
+    'personal_summary',
+    'commit',
+    'reminder_intensity',
+    'first_med_method',
+    'notifications',
+    'att_permission',
+    'rating',
+    'plan_loader',
+    'plan_ready',
+    'trial_flash',
+    'welcome_done',
   ];
 
   /// Fraction of the *enabled* steps completed.
@@ -117,9 +159,9 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
   /// intent: it is the step that calls _complete() and presents the paywall,
   /// so the set should say so rather than depend on the guard.
   static const Set<int> _shortFlowSteps = {
-    0,  // welcome
-    4,  // goal              -> paywall headline
-    6,  // persona           -> role
+    0, // welcome
+    4, // goal              -> paywall headline
+    6, // persona           -> role
     10, // conditions        -> profile
     12, // med_count         -> medCount
     17, // timing            -> schedule
@@ -249,7 +291,8 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     // actually added their first med (the aha). We drop a marker + persist the
     // goal so the shell can show the same personalized paywall post-activation.
     // Users who skip the paywall entirely still never see it (skipPaywall).
-    final deferPaywall = RemoteConfigService.getBool('paywall_after_activation');
+    final deferPaywall =
+        RemoteConfigService.getBool('paywall_after_activation');
     var deferred = false;
     if (deferPaywall && !skipPaywall && !state.isPremium) {
       try {
@@ -285,7 +328,8 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       'understand' => 'Understand my medicine',
       _ => '',
     };
-    final targetUser = switch (_c.single('persona') ?? _c.single('managing_for')) {
+    final targetUser =
+        switch (_c.single('persona') ?? _c.single('managing_for')) {
       'caregiver' || 'loved_one' => 'Family',
       'family_leader' || 'me_family' => 'Both',
       _ => 'Myself',
@@ -297,7 +341,9 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       gender: _c.single('gender') ?? '',
       medCount: _c.medCountLabel == 'Not set' ? '' : _c.medCountLabel,
       challenge: _c.challengeLabel == 'Not set' ? '' : _c.challengeLabel,
-      allergies: _c.multi('allergies').toList(),
+      // Map option ids to display labels and drop the "none" sentinel — these
+      // strings are fed to the scanner's allergy cross-reference prompt.
+      allergies: normalizeAllergies(_c.multi('allergies')),
       conditions: _c.multi('conditions').toList(),
     );
   }
@@ -431,7 +477,11 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       (id: 'never_miss', label: _obt('ob_neverMissADose'), emoji: '💊'),
       (id: 'family', label: "Manage my family's meds", emoji: '👨‍👩‍👧'),
       (id: 'condition', label: _obt('ob_trackAHealthCondition'), emoji: '❤️'),
-      (id: 'understand', label: _obt('ob_understandMyMedications'), emoji: '🔍'),
+      (
+        id: 'understand',
+        label: _obt('ob_understandMyMedications'),
+        emoji: '🔍'
+      ),
     ];
     return AnimatedBuilder(
       animation: _c,
@@ -624,8 +674,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
               const SizedBox(height: 6),
               ObHeadline(
                 'When is your *birth year*?',
-                subtitle:
-                    _obt('ob_ageCanChangeHowMedicationsWorkWe'),
+                subtitle: _obt('ob_ageCanChangeHowMedicationsWorkWe'),
               ).obFadeUp(),
               const SizedBox(height: 14),
               ObYearWheelPicker(
@@ -658,8 +707,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
               const SizedBox(height: 6),
               ObHeadline(
                 "What's your *weight*?",
-                subtitle:
-                    _obt('ob_someDosagesAndInteractionRisksAr'),
+                subtitle: _obt('ob_someDosagesAndInteractionRisksAr'),
               ).obFadeUp(),
               const SizedBox(height: 18),
               ObWeightRuler(
@@ -773,8 +821,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
             overlayLine: 'Long-term adherence, not luck.',
           ),
           title: _obt('ob_medAiCreatesLongTermResults'),
-          subtitle:
-              _obt('ob_76OfMembersMaintainStrongAdheren'),
+          subtitle: _obt('ob_76OfMembersMaintainStrongAdheren'),
         );
 
       // ░░ PHASE B — YOUR PROFILE (6–16) ░░
@@ -784,8 +831,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         return _question(
           id: 'gender',
           title: "What's your *gender*?",
-          subtitle:
-              _obt('ob_medicationEffectsAndDosingCanDif'),
+          subtitle: _obt('ob_medicationEffectsAndDosingCanDif'),
           multi: false,
           options: [
             _Opt('male', _obt('ob_male'), emoji: '👨'),
@@ -818,8 +864,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         return _info(
           hero: const ObMascot(feature: 'safety', size: 100),
           title: _obt('ob_thanksForSharing'),
-          subtitle:
-              _obt('ob_yourHealthDataIsEncryptedAndNeve'),
+          subtitle: _obt('ob_yourHealthDataIsEncryptedAndNeve'),
         );
       case 12:
         return _question(
@@ -869,10 +914,10 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 15:
         return _info(
-          hero: const ObHeroIllustration(scene: ObHeroScene.diagnose, height: 200),
+          hero: const ObHeroIllustration(
+              scene: ObHeroScene.diagnose, height: 200),
           title: _obt('ob_hiddenInteractionRisks'),
-          subtitle:
-              _obt('ob_4In10SupplementUsersHaveAtLeastO'),
+          subtitle: _obt('ob_4In10SupplementUsersHaveAtLeastO'),
           extra: const [
             ObStatBlock(
               stat: '4 in 10',
@@ -928,7 +973,8 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           multi: false,
           options: [
             _Opt('often', _obt('ob_often'), sub: _obt('ob_aFewTimesAWeek')),
-            _Opt('sometimes', _obt('ob_sometimes'), sub: _obt('ob_aFewTimesAMonth')),
+            _Opt('sometimes', _obt('ob_sometimes'),
+                sub: _obt('ob_aFewTimesAMonth')),
             _Opt('rarely', _obt('ob_rarely'), sub: _obt('ob_onceInAWhile')),
             _Opt('never', _obt('ob_almostNever'), sub: _obt('ob_iRarelySlip')),
           ],
@@ -997,8 +1043,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         return _info(
           hero: const ObPayoffBars(),
           title: _obt('ob_loseTheAnxietyNotYourStreak'),
-          subtitle:
-              _obt('ob_78OfMembersReportLessMedicationS'),
+          subtitle: _obt('ob_78OfMembersReportLessMedicationS'),
         );
       case 29:
         return _info(
@@ -1041,8 +1086,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         return _info(
           hero: const ObScanIntro(),
           title: _obt('ob_seeWhatAScanReveals'),
-          subtitle:
-              _obt('ob_medAiIdentifiesYourPillFlagsInte'),
+          subtitle: _obt('ob_medAiIdentifiesYourPillFlagsInte'),
           extra: const [ObScanDemoPreview()],
         );
       case 33:
@@ -1067,8 +1111,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         return _info(
           hero: const ObAccuracyBarChart(),
           title: _obt('ob_identifyPillsMoreAccurately'),
-          subtitle:
-              _obt('ob_medAiSScannerOutperformsGenericP'),
+          subtitle: _obt('ob_medAiSScannerOutperformsGenericP'),
         );
       case 35:
         return _question(
@@ -1085,22 +1128,19 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         return _info(
           hero: const ObHeroIllustration(scene: ObHeroScene.scanHow),
           title: "Know what's *wrong* with your regimen",
-          subtitle:
-              _obt('ob_diagnoseInteractionRisksInstantl'),
+          subtitle: _obt('ob_diagnoseInteractionRisksInstantl'),
         );
       case 37:
         return _info(
           hero: const ObHeroIllustration(scene: ObHeroScene.family),
           title: _obt('ob_keepLovedOnesSafeFromAnywhere'),
-          subtitle:
-              _obt('ob_getNotifiedIfSomeoneYouCareForMi'),
+          subtitle: _obt('ob_getNotifiedIfSomeoneYouCareForMi'),
         );
       case 38:
         return _info(
           hero: const ObHeroIllustration(scene: ObHeroScene.thriving),
           title: _obt('ob_keepYourHealthThriving'),
-          subtitle:
-              _obt('ob_getPersonalizedRemindersScanInsi'),
+          subtitle: _obt('ob_getPersonalizedRemindersScanInsi'),
         );
 
       // ░░ PHASE E — MOTIVATION & PROJECTION (39–46) ░░
@@ -1172,7 +1212,8 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 45:
         return _info(
-          hero: const ObHeroIllustration(scene: ObHeroScene.routine, height: 200),
+          hero:
+              const ObHeroIllustration(scene: ObHeroScene.routine, height: 200),
           title: _obt('ob_personalSummaryFromYourAnswers'),
           subtitle: _obt('ob_yourBaselineBeforeMedAiStartsHel'),
           extra: [ObPersonalAdherenceSummary(controller: _c)],
@@ -1204,17 +1245,16 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         return _info(
           hero: const ObHeroIllustration(scene: ObHeroScene.scan, height: 200),
           title: _obt('ob_turnOnReminders'),
-          subtitle:
-              _obt('ob_thisIsHowMedAiMakesSureYouNeverM'),
+          subtitle: _obt('ob_thisIsHowMedAiMakesSureYouNeverM'),
           cta: _obt('ob_enableReminders'),
           onCta: _requestNotifications,
         );
       case 50:
         return _info(
-          hero: const ObHeroIllustration(scene: ObHeroScene.finish, height: 200),
+          hero:
+              const ObHeroIllustration(scene: ObHeroScene.finish, height: 200),
           title: _obt('ob_oneLastPermission'),
-          subtitle:
-              _obt('ob_allowingTrackingHelpsUsKeepMedAi'),
+          subtitle: _obt('ob_allowingTrackingHelpsUsKeepMedAi'),
           cta: _obt('ob_continue'),
           onCta: _requestTracking,
         );
@@ -1313,7 +1353,8 @@ class _CommitScreen extends StatelessWidget {
           const SizedBox(height: 20),
           ObHeadline(
             'Commit to your *health* for the next 90 days',
-            subtitle: ObL10n.of(context).t('ob_tapAndHoldTheMedAiLogoToLockInYo'),
+            subtitle:
+                ObL10n.of(context).t('ob_tapAndHoldTheMedAiLogoToLockInYo'),
           ),
           const SizedBox(height: 40),
           ObCommitOrb(onComplete: onComplete),
@@ -1417,9 +1458,7 @@ class _WelcomeScreen extends StatelessWidget {
                   ),
                   const Spacer(),
                   ObHeadline(
-                    name == null
-                        ? 'Welcome to *Med AI*'
-                        : 'Welcome, *$name*',
+                    name == null ? 'Welcome to *Med AI*' : 'Welcome, *$name*',
                     subtitle:
                         'Every dose is a quiet win. Your plan starts now.',
                   ).obFadeUp(),

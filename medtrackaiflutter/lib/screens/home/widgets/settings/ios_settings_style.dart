@@ -312,7 +312,7 @@ Color iosSettingsIconColor(dynamic icon, Color? iconBg) {
   final token = icon is String ? icon : null;
   return switch (token) {
     '🗑️' || '🚪' => IosSettingsTokens.systemRed,
-    '🔔' || '⚡' || '⏰' => IosSettingsTokens.systemOrange,
+    '🔔' || '⚡' || '⏰' || '⚠️' => IosSettingsTokens.systemOrange,
     '🛡️' || '🔐' => AppColors.accentDeep,
     '❤️' || '🩺' => IosSettingsTokens.systemPink,
     '✨' || '🚀' || '🎬' => IosSettingsTokens.systemPurple,
@@ -360,6 +360,7 @@ IconData? iosSettingsResolveIcon(dynamic icon) {
     '📄' => Icons.picture_as_pdf_rounded,
     '📥' => Icons.download_rounded,
     '⚖️' => Icons.gavel_rounded,
+    '⚠️' => Icons.warning_amber_rounded,
     _ => null,
   };
 }
