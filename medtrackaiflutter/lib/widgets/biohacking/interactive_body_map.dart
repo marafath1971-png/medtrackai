@@ -17,7 +17,8 @@ class InteractiveBodyMap extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final L = context.L;
-    final reduceMotion = MediaQuery.maybeOf(context)?.disableAnimations ?? false;
+    final reduceMotion =
+        MediaQuery.maybeOf(context)?.disableAnimations ?? false;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(vertical: 22, horizontal: 12),
@@ -67,7 +68,7 @@ class InteractiveBodyMap extends StatelessWidget {
                 // Base Silhouette
                 Positioned.fill(
                   child: CustomPaint(
-                    painter: _BodySilhouettePainter(),
+                    painter: _BodySilhouettePainter(ink: L.text),
                   ),
                 ),
                 // Scanning Laser Effect
@@ -117,7 +118,9 @@ class InteractiveBodyMap extends StatelessWidget {
     if (sys.contains('renal') || sys.contains('kidney')) {
       addNode('Kidneys', 0.5, 0.55, const Color(0xFFBF5AF2)); // Purple
     }
-    if (sys.contains('musculoskeletal') || sys.contains('joints') || sys.contains('hematologic')) {
+    if (sys.contains('musculoskeletal') ||
+        sys.contains('joints') ||
+        sys.contains('hematologic')) {
       addNode('Joints/Blood', 0.5, 0.7, AppColors.accent);
     }
 
@@ -262,70 +265,86 @@ class _GlowingNode extends StatelessWidget {
 }
 
 class _BodySilhouettePainter extends CustomPainter {
+  /// The silhouette was hardcoded to white at 5% opacity — a dark-theme
+  /// assumption. This card renders on L.card, which is near-white in light
+  /// mode, so the whole body was invisible: only the laser bar and the node
+  /// chips (which carry their own colours) showed up, leaving an empty panel.
+  final Color ink;
+
+  const _BodySilhouettePainter({required this.ink});
+
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.05)
+      ..color = ink.withValues(alpha: 0.07)
       ..style = PaintingStyle.fill;
 
     final borderPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.1)
+      ..color = ink.withValues(alpha: 0.30)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.5;
 
     final path = Path();
-    
+
     // Abstract Human Silhouette using bezier curves
     final w = size.width;
     final h = size.height;
-    
+
     // Head
-    path.addOval(Rect.fromCircle(center: Offset(w * 0.5, h * 0.1), radius: w * 0.15));
-    
+    path.addOval(
+        Rect.fromCircle(center: Offset(w * 0.5, h * 0.1), radius: w * 0.15));
+
     // Neck and Shoulders
     path.moveTo(w * 0.45, h * 0.18);
-    path.quadraticBezierTo(w * 0.4, h * 0.22, w * 0.25, h * 0.22); // Left shoulder
-    path.quadraticBezierTo(w * 0.15, h * 0.22, w * 0.15, h * 0.3); // Left upper arm
+    path.quadraticBezierTo(
+        w * 0.4, h * 0.22, w * 0.25, h * 0.22); // Left shoulder
+    path.quadraticBezierTo(
+        w * 0.15, h * 0.22, w * 0.15, h * 0.3); // Left upper arm
     path.lineTo(w * 0.15, h * 0.5); // Left arm
     path.quadraticBezierTo(w * 0.15, h * 0.55, w * 0.2, h * 0.55); // Left hand
     path.lineTo(w * 0.25, h * 0.3); // Inner left arm
-    
+
     // Torso
     path.lineTo(w * 0.3, h * 0.55); // Left waist
     path.lineTo(w * 0.25, h * 0.9); // Left leg
     path.quadraticBezierTo(w * 0.25, h * 0.95, w * 0.35, h * 0.95); // Left foot
     path.lineTo(w * 0.45, h * 0.6); // Crotch left
-    
-    path.quadraticBezierTo(w * 0.5, h * 0.55, w * 0.55, h * 0.6); // Crotch right
-    
+
+    path.quadraticBezierTo(
+        w * 0.5, h * 0.55, w * 0.55, h * 0.6); // Crotch right
+
     path.lineTo(w * 0.65, h * 0.95); // Right leg
     path.quadraticBezierTo(w * 0.75, h * 0.95, w * 0.75, h * 0.9); // Right foot
     path.lineTo(w * 0.7, h * 0.55); // Right waist
-    
+
     // Inner right arm
-    path.lineTo(w * 0.75, h * 0.3); 
+    path.lineTo(w * 0.75, h * 0.3);
     path.lineTo(w * 0.85, h * 0.55); // Right hand
     path.quadraticBezierTo(w * 0.9, h * 0.55, w * 0.9, h * 0.5); // Right arm
     path.lineTo(w * 0.9, h * 0.3); // Right upper arm
-    path.quadraticBezierTo(w * 0.9, h * 0.22, w * 0.75, h * 0.22); // Right shoulder
+    path.quadraticBezierTo(
+        w * 0.9, h * 0.22, w * 0.75, h * 0.22); // Right shoulder
     path.quadraticBezierTo(w * 0.6, h * 0.22, w * 0.55, h * 0.18); // Neck
     path.close();
 
     canvas.drawPath(path, paint);
     canvas.drawPath(path, borderPaint);
-    
+
     // Draw some techy grid lines inside
     final gridPaint = Paint()
-      ..color = Colors.white.withValues(alpha: 0.02)
+      ..color = ink.withValues(alpha: 0.06)
       ..style = PaintingStyle.stroke
       ..strokeWidth = 1.0;
-      
-    for(int i = 0; i < 10; i++) {
-       canvas.drawLine(Offset(0, h * (i/10)), Offset(w, h * (i/10)), gridPaint);
-       canvas.drawLine(Offset(w * (i/10), 0), Offset(w * (i/10), h), gridPaint);
+
+    for (int i = 0; i < 10; i++) {
+      canvas.drawLine(
+          Offset(0, h * (i / 10)), Offset(w, h * (i / 10)), gridPaint);
+      canvas.drawLine(
+          Offset(w * (i / 10), 0), Offset(w * (i / 10), h), gridPaint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
+  bool shouldRepaint(covariant _BodySilhouettePainter oldDelegate) =>
+      oldDelegate.ink != ink;
 }

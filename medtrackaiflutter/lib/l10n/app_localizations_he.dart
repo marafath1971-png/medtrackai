@@ -3165,4 +3165,11 @@ class AppLocalizationsHe extends AppLocalizations {
 
   @override
   String get focusReadyToFocus => 'Ready to focus';
+
+  @override
+  String get biohackingNoTimelineData => 'Timeline not available';
+
+  @override
+  String get biohackingNoTimelineDataBody =>
+      'We don\'t have pharmacokinetic data for this medicine, so there\'s no absorption timeline to show.';
 }

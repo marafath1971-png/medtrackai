@@ -1652,5 +1652,7 @@
   "focusSessionComplete": "Session complete",
   "focusInhale": "Inhale",
   "focusExhale": "Exhale",
-  "focusReadyToFocus": "Ready to focus"
+  "focusReadyToFocus": "Ready to focus",
+  "biohackingNoTimelineData": "Timeline not available",
+  "biohackingNoTimelineDataBody": "We don't have pharmacokinetic data for this medicine, so there's no absorption timeline to show."
 }

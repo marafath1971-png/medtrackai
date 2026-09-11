@@ -5826,6 +5826,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ready to focus'**
   String get focusReadyToFocus;
+
+  /// No description provided for @biohackingNoTimelineData.
+  ///
+  /// In en, this message translates to:
+  /// **'Timeline not available'**
+  String get biohackingNoTimelineData;
+
+  /// No description provided for @biohackingNoTimelineDataBody.
+  ///
+  /// In en, this message translates to:
+  /// **'We don\'t have pharmacokinetic data for this medicine, so there\'s no absorption timeline to show.'**
+  String get biohackingNoTimelineDataBody;
 }
 
 class _AppLocalizationsDelegate

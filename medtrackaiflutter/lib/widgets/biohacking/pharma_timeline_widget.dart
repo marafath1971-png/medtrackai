@@ -4,7 +4,6 @@ import 'package:flutter/material.dart';
 import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../services/growth_tracker.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import '../../l10n/app_localizations.dart';
 
 class PharmaTimelineWidget extends StatefulWidget {
@@ -35,7 +34,7 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
   bool _isPlaying = false;
   Timer? _playbackTimer;
   String? _selectedOrganTooltip;
-  
+
   late AnimationController _glowController;
 
   @override
@@ -57,7 +56,7 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
   // Calculate drug concentration based on pharmacokinetic parameters
   double _calculateConcentration(double timeHours) {
     if (widget.durationHours <= 0) return 0.0;
-    
+
     final onsetHours = widget.onsetMinutes / 60.0;
     final peak = widget.peakHours;
     final duration = widget.durationHours;
@@ -89,7 +88,8 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
         _isPlaying = true;
         if (_currentTime >= 24.0) _currentTime = 0.0;
       });
-      _playbackTimer = Timer.periodic(const Duration(milliseconds: 100), (timer) {
+      _playbackTimer =
+          Timer.periodic(const Duration(milliseconds: 100), (timer) {
         setState(() {
           _currentTime += 0.5;
           if (_currentTime >= 24.0) {
@@ -129,22 +129,35 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
     final Set<String> active = {};
     for (var org in widget.targetOrgans) {
       final o = org.toLowerCase();
-      if (o.contains('brain') || o.contains('nervous') || o.contains('cognitive')) {
+      if (o.contains('brain') ||
+          o.contains('nervous') ||
+          o.contains('cognitive')) {
         active.add('brain');
       }
-      if (o.contains('heart') || o.contains('cardio') || o.contains('vascular')) {
+      if (o.contains('heart') ||
+          o.contains('cardio') ||
+          o.contains('vascular')) {
         active.add('heart');
       }
-      if (o.contains('stomach') || o.contains('digestive') || o.contains('gut') || o.contains('gastro')) {
+      if (o.contains('stomach') ||
+          o.contains('digestive') ||
+          o.contains('gut') ||
+          o.contains('gastro')) {
         active.add('stomach');
       }
-      if (o.contains('liver') || o.contains('hepatic') || o.contains('metabol')) {
+      if (o.contains('liver') ||
+          o.contains('hepatic') ||
+          o.contains('metabol')) {
         active.add('liver');
       }
-      if (o.contains('kidney') || o.contains('renal') || o.contains('urinary')) {
+      if (o.contains('kidney') ||
+          o.contains('renal') ||
+          o.contains('urinary')) {
         active.add('kidneys');
       }
-      if (o.contains('blood') || o.contains('circulat') || o.contains('systemic')) {
+      if (o.contains('blood') ||
+          o.contains('circulat') ||
+          o.contains('systemic')) {
         active.add('bloodstream');
       }
     }
@@ -190,7 +203,15 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
     );
   }
 
+  /// Shown when there is no pharmacokinetic data to plot.
+  ///
+  /// This used to be a shimmering loading skeleton — grey bars and a 200x260
+  /// grey block, animating on a repeat. But `durationHours <= 0` is a terminal
+  /// state, not a transient one: scan_safety_mapper defaults it to 0 when the
+  /// AI returns no pharmacokinetics, and nothing ever fills it in. So the card
+  /// promised "loading, wait" forever. Say the data is absent instead.
   Widget _buildNoDataPlaceholder(AppThemeColors L) {
+    final l10n = AppLocalizations.of(context)!;
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.all(18),
@@ -203,48 +224,28 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    height: 12,
-                    width: 140,
-                    decoration: BoxDecoration(color: L.sub.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
+              Icon(Icons.timeline_rounded,
+                  size: 18, color: L.sub.withValues(alpha: 0.7)),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  l10n.biohackingNoTimelineData,
+                  style: AppTypography.labelMedium.copyWith(
+                    color: L.text,
+                    fontWeight: FontWeight.w700,
                   ),
-                  const SizedBox(height: 8),
-                  Container(
-                    height: 18,
-                    width: 100,
-                    decoration: BoxDecoration(color: L.sub.withValues(alpha: 0.2), borderRadius: BorderRadius.circular(4)),
-                  ),
-                ],
+                ),
               ),
             ],
-          ).medAiChain(
-              context,
-              (w) => w
-                  .animate(onPlay: (c) => c.repeat(reverse: true))
-                  .shimmer(
-                      duration: 1500.ms,
-                      color: L.sub.withValues(alpha: 0.1))),
-          const SizedBox(height: 32),
-          Center(
-            child: Container(
-              width: 200,
-              height: 260,
-              decoration: BoxDecoration(
-                color: L.sub.withValues(alpha: 0.1),
-                borderRadius: BorderRadius.circular(20),
-              ),
-            ).medAiChain(
-                context,
-                (w) => w
-                    .animate(onPlay: (c) => c.repeat(reverse: true))
-                    .shimmer(
-                        duration: 1500.ms,
-                        color: L.sub.withValues(alpha: 0.1))),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            l10n.biohackingNoTimelineDataBody,
+            style: AppTypography.bodySmall.copyWith(
+              color: L.sub,
+              height: 1.4,
+            ),
           ),
         ],
       ),
@@ -255,7 +256,7 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final L = context.L;
-    
+
     // Check if pharmacokinetic data is valid/present
     if (widget.durationHours <= 0) {
       return _buildNoDataPlaceholder(L);
@@ -266,9 +267,17 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
 
     // Compute glow intensity per organ
     final Map<String, double> organGlows = {};
-    for (var org in ['brain', 'heart', 'stomach', 'liver', 'kidneys', 'bloodstream']) {
+    for (var org in [
+      'brain',
+      'heart',
+      'stomach',
+      'liver',
+      'kidneys',
+      'bloodstream'
+    ]) {
       if (activeOrgans.contains(org)) {
-        organGlows[org] = currentConcentration * (0.8 + 0.2 * _glowController.value);
+        organGlows[org] =
+            currentConcentration * (0.8 + 0.2 * _glowController.value);
       } else {
         organGlows[org] = 0.0;
       }
@@ -280,7 +289,8 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
         color: _recordMode ? Colors.black : L.fill.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(24),
         border: Border.all(
-          color: _recordMode ? Colors.white10 : L.border.withValues(alpha: 0.08),
+          color:
+              _recordMode ? Colors.white10 : L.border.withValues(alpha: 0.08),
           width: 1.0,
         ),
       ),
@@ -341,8 +351,10 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                 _buildBlurredMedName(L),
                 TextButton.icon(
                   onPressed: () => setState(() => _recordMode = false),
-                  icon: const Icon(Icons.close_rounded, size: 16, color: Colors.white60),
-                  label: Text(l10n.biohackingExitRecordMode, style: TextStyle(color: Colors.white60, fontSize: 12)),
+                  icon: const Icon(Icons.close_rounded,
+                      size: 16, color: Colors.white60),
+                  label: Text(l10n.biohackingExitRecordMode,
+                      style: TextStyle(color: Colors.white60, fontSize: 12)),
                 ),
               ],
             ),
@@ -373,35 +385,50 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                     Positioned(
                       top: 55,
                       left: 85,
-                      child: _buildOrganTapTarget('Brain', 'Cognitive center. Regulates systemic autonomic safety.', L),
+                      child: _buildOrganTapTarget(
+                          'Brain',
+                          'Cognitive center. Regulates systemic autonomic safety.',
+                          L),
                     ),
                   // Heart (x: 95, y: 110)
                   if (activeOrgans.contains('heart'))
                     Positioned(
                       top: 95,
                       left: 80,
-                      child: _buildOrganTapTarget('Heart', 'Cardiovascular engine. Drives cellular delivery.', L),
+                      child: _buildOrganTapTarget(
+                          'Heart',
+                          'Cardiovascular engine. Drives cellular delivery.',
+                          L),
                     ),
                   // Stomach (x: 100, y: 132)
                   if (activeOrgans.contains('stomach'))
                     Positioned(
                       top: 118,
                       left: 85,
-                      child: _buildOrganTapTarget('Stomach', 'Absorption gateway. Drives initial bioavailability.', L),
+                      child: _buildOrganTapTarget(
+                          'Stomach',
+                          'Absorption gateway. Drives initial bioavailability.',
+                          L),
                     ),
                   // Liver (x: 92, y: 127)
                   if (activeOrgans.contains('liver'))
                     Positioned(
                       top: 115,
                       left: 77,
-                      child: _buildOrganTapTarget('Liver', 'Metabolic refinery. Handles drug clearance rates.', L),
+                      child: _buildOrganTapTarget(
+                          'Liver',
+                          'Metabolic refinery. Handles drug clearance rates.',
+                          L),
                     ),
                   // Kidneys (x: 92, 108, y: 142)
                   if (activeOrgans.contains('kidneys'))
                     Positioned(
                       top: 130,
                       left: 80,
-                      child: _buildOrganTapTarget('Kidneys', 'Renal filtration system. Manages drug excretion.', L),
+                      child: _buildOrganTapTarget(
+                          'Kidneys',
+                          'Renal filtration system. Manages drug excretion.',
+                          L),
                     ),
                 ],
               ],
@@ -416,12 +443,19 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(l10n.biohackingN0hOnset, style: TextStyle(color: L.sub.withValues(alpha: 0.5), fontSize: 11)),
+                  Text(l10n.biohackingN0hOnset,
+                      style: TextStyle(
+                          color: L.sub.withValues(alpha: 0.5), fontSize: 11)),
                   Text(
                     l10n.biohackingTimeH(_currentTime.toStringAsFixed(1)),
-                    style: TextStyle(color: L.text, fontWeight: FontWeight.bold, fontSize: 13),
+                    style: TextStyle(
+                        color: L.text,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13),
                   ),
-                  Text(l10n.biohackingN24hResidual, style: TextStyle(color: L.sub.withValues(alpha: 0.5), fontSize: 11)),
+                  Text(l10n.biohackingN24hResidual,
+                      style: TextStyle(
+                          color: L.sub.withValues(alpha: 0.5), fontSize: 11)),
                 ],
               ),
               SliderTheme(
@@ -466,7 +500,10 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                     children: [
                       Text(
                         l10n.biohackingGeneralInformationTag,
-                        style: TextStyle(color: Colors.white38, fontSize: 11, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            color: Colors.white38,
+                            fontSize: 11,
+                            fontWeight: FontWeight.bold),
                       ),
                       Semantics(
                         button: true,
@@ -474,18 +511,22 @@ class _PharmaTimelineWidgetState extends State<PharmaTimelineWidget>
                         child: GestureDetector(
                           onTap: () =>
                               setState(() => _selectedOrganTooltip = null),
-                          child: Icon(Icons.close_rounded,
-                              size: 14, color: L.sub),
+                          child:
+                              Icon(Icons.close_rounded, size: 14, color: L.sub),
                         ),
                       ),
                     ],
                   ),
                   const SizedBox(height: 6),
-                  Text(_selectedOrganTooltip!, style: AppTypography.bodySmall.copyWith(color: L.text)),
+                  Text(_selectedOrganTooltip!,
+                      style: AppTypography.bodySmall.copyWith(color: L.text)),
                   const SizedBox(height: 6),
                   Text(
                     l10n.biohackingDisclaimerVisualizerIsForEducationalPurposes,
-                    style: TextStyle(color: Colors.white24, fontSize: 11, fontStyle: FontStyle.italic),
+                    style: TextStyle(
+                        color: Colors.white24,
+                        fontSize: 11,
+                        fontStyle: FontStyle.italic),
                   ),
                 ],
               ),
@@ -562,7 +603,7 @@ class SilhouettePainter extends CustomPainter {
     final armR = Path()
       ..moveTo(center.dx + 22, center.dy - 35)
       ..lineTo(center.dx + 36, center.dy + 15);
-    
+
     final Paint armPaint = Paint()
       ..color = Colors.white.withValues(alpha: 0.08)
       ..style = PaintingStyle.stroke
@@ -577,8 +618,10 @@ class SilhouettePainter extends CustomPainter {
       ..style = PaintingStyle.stroke
       ..strokeWidth = 8
       ..strokeCap = StrokeCap.round;
-    canvas.drawLine(Offset(center.dx - 10, center.dy + 25), Offset(center.dx - 12, center.dy + 80), legPaint);
-    canvas.drawLine(Offset(center.dx + 10, center.dy + 25), Offset(center.dx + 12, center.dy + 80), legPaint);
+    canvas.drawLine(Offset(center.dx - 10, center.dy + 25),
+        Offset(center.dx - 12, center.dy + 80), legPaint);
+    canvas.drawLine(Offset(center.dx + 10, center.dy + 25),
+        Offset(center.dx + 12, center.dy + 80), legPaint);
 
     // Draw glowing zones for active organs
     void drawGlow(Offset pos, double radius, Color color, double intensity) {
@@ -595,24 +638,31 @@ class SilhouettePainter extends CustomPainter {
     }
 
     if (activeOrgans.contains('brain')) {
-      drawGlow(Offset(center.dx, center.dy - 60), 6, const Color(0xFF00FFCC), organGlows['brain'] ?? 0);
+      drawGlow(Offset(center.dx, center.dy - 60), 6, const Color(0xFF00FFCC),
+          organGlows['brain'] ?? 0);
     }
     if (activeOrgans.contains('heart')) {
-      drawGlow(Offset(center.dx - 5, center.dy - 20), 5, const Color(0xFFFF3B30), organGlows['heart'] ?? 0);
+      drawGlow(Offset(center.dx - 5, center.dy - 20), 5,
+          const Color(0xFFFF3B30), organGlows['heart'] ?? 0);
     }
     if (activeOrgans.contains('stomach')) {
-      drawGlow(Offset(center.dx, center.dy + 2), 6, const Color(0xFFFFCC00), organGlows['stomach'] ?? 0);
+      drawGlow(Offset(center.dx, center.dy + 2), 6, const Color(0xFFFFCC00),
+          organGlows['stomach'] ?? 0);
     }
     if (activeOrgans.contains('liver')) {
-      drawGlow(Offset(center.dx - 8, center.dy - 3), 5, const Color(0xFFFF9500), organGlows['liver'] ?? 0);
+      drawGlow(Offset(center.dx - 8, center.dy - 3), 5, const Color(0xFFFF9500),
+          organGlows['liver'] ?? 0);
     }
     if (activeOrgans.contains('kidneys')) {
-      drawGlow(Offset(center.dx - 8, center.dy + 12), 4, kidneyGlow, organGlows['kidneys'] ?? 0);
-      drawGlow(Offset(center.dx + 8, center.dy + 12), 4, kidneyGlow, organGlows['kidneys'] ?? 0);
+      drawGlow(Offset(center.dx - 8, center.dy + 12), 4, kidneyGlow,
+          organGlows['kidneys'] ?? 0);
+      drawGlow(Offset(center.dx + 8, center.dy + 12), 4, kidneyGlow,
+          organGlows['kidneys'] ?? 0);
     }
     if (activeOrgans.contains('bloodstream')) {
       final outlineGlow = Paint()
-        ..color = const Color(0xFF00E5FF).withValues(alpha: (organGlows['bloodstream'] ?? 0) * 0.25)
+        ..color = const Color(0xFF00E5FF)
+            .withValues(alpha: (organGlows['bloodstream'] ?? 0) * 0.25)
         ..style = PaintingStyle.stroke
         ..strokeWidth = 8
         ..maskFilter = const MaskFilter.blur(BlurStyle.normal, 8);
