@@ -8,6 +8,7 @@ import '../../core/utils/haptic_engine.dart';
 import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_page_header.dart';
 import '../../l10n/app_localizations.dart';
+import '../../core/utils/pin_unlock.dart';
 
 class ProfilePinScreen extends StatefulWidget {
   final ManagedProfile profile;
@@ -44,8 +45,14 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
     }
   }
 
-  void _verifyPin() {
-    if (_enteredPin == widget.profile.pin) {
+  Future<void> _verifyPin() async {
+    final ok = await verifyAndUpgradePin(
+      context,
+      profile: widget.profile,
+      entered: _enteredPin,
+    );
+    if (!mounted) return;
+    if (ok) {
       Navigator.pop(context, true);
     } else {
       setState(() {
@@ -74,7 +81,8 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
               child: Column(
                 children: [
                   const Spacer(),
-                  Text(widget.profile.avatar, style: const TextStyle(fontSize: 64))
+                  Text(widget.profile.avatar,
+                          style: const TextStyle(fontSize: 64))
                       .medAiChain(
                     context,
                     (w) => w.animate().scaleXY(
@@ -105,7 +113,8 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: List.generate(4, (index) {
                       return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: AppSpacing.p12),
+                        margin: const EdgeInsets.symmetric(
+                            horizontal: AppSpacing.p12),
                         width: 20,
                         height: 20,
                         decoration: BoxDecoration(
@@ -116,7 +125,9 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
                           border: Border.all(
                             color: _error
                                 ? L.error
-                                : (_enteredPin.length > index ? L.primary : L.border),
+                                : (_enteredPin.length > index
+                                    ? L.primary
+                                    : L.border),
                             width: 2,
                           ),
                         ),
@@ -125,7 +136,8 @@ class _ProfilePinScreenState extends State<ProfilePinScreen> {
                   ),
                   if (_error) ...[
                     const SizedBox(height: AppSpacing.p16),
-                    Text(l10n.familyIncorrectPin, style: TextStyle(color: L.error)),
+                    Text(l10n.familyIncorrectPin,
+                        style: TextStyle(color: L.error)),
                   ],
                   const Spacer(),
                   _buildNumpad(L),

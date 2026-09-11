@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/pin_service.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'package:go_router/go_router.dart';
@@ -76,7 +77,9 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
             : _relationCtrl.text.trim(),
         avatar: _selectedAvatar.codePoint.toString(),
         isCritical: _isCritical,
-        pin: pinVal.isEmpty ? null : pinVal,
+        // Stored as a PBKDF2 hash — never the raw PIN, which syncs to
+        // Firestore with the rest of the profile.
+        pin: pinVal.isEmpty ? null : PinService.hashPin(pinVal),
       );
 
       await context.read<AppState>().addFamilyMember(newProfile);
@@ -121,7 +124,8 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p24, vertical: AppSpacing.p12),
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.p24, vertical: AppSpacing.p12),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 MedAiSectionHeader(title: l10n.familyAvatar),
@@ -147,9 +151,10 @@ class _AddDependentScreenState extends State<AddDependentScreen> {
                             setState(() => _selectedAvatar = avatar);
                           },
                           child: AnimatedContainer(
-                            duration: MedAiA11y.motion(
-                                context, AppDurations.micro),
-                            margin: const EdgeInsetsDirectional.only(end: AppSpacing.p12),
+                            duration:
+                                MedAiA11y.motion(context, AppDurations.micro),
+                            margin: const EdgeInsetsDirectional.only(
+                                end: AppSpacing.p12),
                             width: 72,
                             constraints: const BoxConstraints(
                                 minHeight: MedAiA11y.minTapTarget),

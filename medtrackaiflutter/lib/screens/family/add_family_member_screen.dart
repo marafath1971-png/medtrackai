@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../services/pin_service.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 import 'dart:io';
@@ -135,7 +136,9 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
         gender: _gender,
         notes: _notesController.text.trim(),
         isCritical: _isCritical,
-        pin: pinVal.isEmpty ? null : pinVal,
+        // Stored as a PBKDF2 hash — never the raw PIN, which syncs to
+        // Firestore with the rest of the profile.
+        pin: pinVal.isEmpty ? null : PinService.hashPin(pinVal),
         photoPath: _photoPath,
       );
 
@@ -181,7 +184,8 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
             ),
           ),
           SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p24, vertical: AppSpacing.p12),
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.p24, vertical: AppSpacing.p12),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
                 Center(
@@ -276,8 +280,7 @@ class _AddFamilyMemberScreenState extends State<AddFamilyMemberScreen> {
                         });
                       },
                       child: AnimatedContainer(
-                        duration:
-                            MedAiA11y.motion(context, AppDurations.micro),
+                        duration: MedAiA11y.motion(context, AppDurations.micro),
                         decoration: BoxDecoration(
                           color: isSelected ? L.text : L.card,
                           borderRadius: BorderRadius.circular(20),

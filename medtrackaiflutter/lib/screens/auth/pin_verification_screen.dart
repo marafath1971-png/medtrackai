@@ -7,6 +7,7 @@ import '../../widgets/common/app_scaffold.dart';
 import '../../widgets/common/premium_page_header.dart';
 import '../../widgets/common/animated_pressable.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/pin_service.dart';
 
 class PinVerificationScreen extends StatefulWidget {
   final String correctPin;
@@ -51,9 +52,12 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
   }
 
   void _verify() {
-    if (_enteredPin == widget.correctPin) {
+    // [correctPin] may be a PBKDF2 hash or, on a profile not yet upgraded, a
+    // legacy plaintext PIN. PinService handles both; the caller re-saves the
+    // hashed form once this returns true.
+    if (PinService.verifyPin(_enteredPin, widget.correctPin)) {
       HapticEngine.success();
-      Navigator.pop(context, true);
+      Navigator.pop(context, _enteredPin);
     } else {
       HapticEngine.error();
       setState(() {
@@ -77,107 +81,111 @@ class _PinVerificationScreenState extends State<PinVerificationScreen> {
           onBack: () => Navigator.pop(context, false),
         ),
         const Spacer(),
-          Container(
-            width: 72,
-            height: 72,
-            alignment: Alignment.center,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: AppColors.pastelMint,
-              border: Border.all(
-                color: AppColors.limeDeep.withValues(alpha: 0.35),
-              ),
-            ),
-            child: const Icon(Icons.lock_rounded, size: 32, color: AppColors.limeInk),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            l10n.authUnlock(widget.profileName),
-            style: AppTypography.headlineLarge.copyWith(
-              color: L.text,
-              fontWeight: FontWeight.w800,
-              letterSpacing: -0.6,
+        Container(
+          width: 72,
+          height: 72,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: AppColors.pastelMint,
+            border: Border.all(
+              color: AppColors.limeDeep.withValues(alpha: 0.35),
             ),
           ),
-          const SizedBox(height: 8),
-          Semantics(
-            liveRegion: true,
-            child: Text(
-              _isError ? 'Incorrect PIN. Try again.' : 'Enter 4-digit PIN',
-              style: AppTypography.bodyLarge.copyWith(
-                color: _isError ? L.error : L.sub,
-              ),
+          child: const Icon(Icons.lock_rounded,
+              size: 32, color: AppColors.limeInk),
+        ),
+        const SizedBox(height: 24),
+        Text(
+          l10n.authUnlock(widget.profileName),
+          style: AppTypography.headlineLarge.copyWith(
+            color: L.text,
+            fontWeight: FontWeight.w800,
+            letterSpacing: -0.6,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Semantics(
+          liveRegion: true,
+          child: Text(
+            _isError ? 'Incorrect PIN. Try again.' : 'Enter 4-digit PIN',
+            style: AppTypography.bodyLarge.copyWith(
+              color: _isError ? L.error : L.sub,
             ),
-          ).let((w) {
-            if (reduceMotion || !_isError) return w;
-            return w.animate().shake(hz: 8, curve: Curves.easeInOut);
-          }),
-          const SizedBox(height: 48),
-          Semantics(
-            label: l10n.authPinEntryOf4DigitsEntered(_enteredPin.length),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(4, (i) {
-                final isFilled = i < _enteredPin.length;
-                return AnimatedContainer(
-                  duration: MedAiA11y.motion(context, AppDurations.micro),
-                  curve: AppCurves.emilOut,
-                  margin: const EdgeInsets.symmetric(horizontal: 10),
-                  width: 16,
-                  height: 16,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
+          ),
+        ).let((w) {
+          if (reduceMotion || !_isError) return w;
+          return w.animate().shake(hz: 8, curve: Curves.easeInOut);
+        }),
+        const SizedBox(height: 48),
+        Semantics(
+          label: l10n.authPinEntryOf4DigitsEntered(_enteredPin.length),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: List.generate(4, (i) {
+              final isFilled = i < _enteredPin.length;
+              return AnimatedContainer(
+                duration: MedAiA11y.motion(context, AppDurations.micro),
+                curve: AppCurves.emilOut,
+                margin: const EdgeInsets.symmetric(horizontal: 10),
+                width: 16,
+                height: 16,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: isFilled
+                      ? (_isError ? L.error : AppColors.limeDeep)
+                      : Colors.transparent,
+                  border: Border.all(
                     color: isFilled
                         ? (_isError ? L.error : AppColors.limeDeep)
-                        : Colors.transparent,
-                    border: Border.all(
-                      color: isFilled
-                          ? (_isError ? L.error : AppColors.limeDeep)
-                          : L.border.withValues(alpha: 0.6),
-                      width: 2,
-                    ),
+                        : L.border.withValues(alpha: 0.6),
+                    width: 2,
                   ),
-                );
-              }),
-            ),
+                ),
+              );
+            }),
           ),
-          const Spacer(),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(32, 0, 32, 24),
-            child: GridView.count(
-              shrinkWrap: true,
-              crossAxisCount: 3,
-              mainAxisSpacing: 16,
-              crossAxisSpacing: 16,
-              childAspectRatio: 1.15,
-              physics: const NeverScrollableScrollPhysics(),
-              children: [
-                for (var i = 1; i <= 9; i++)
-                  _KeypadButton(
-                    label: i.toString(),
-                    onTap: () => _onDigit(i.toString()),
-                    L: L,
-                  ),
-                const SizedBox.shrink(),
+        ),
+        const Spacer(),
+        Padding(
+          padding: const EdgeInsets.fromLTRB(32, 0, 32, 24),
+          child: GridView.count(
+            shrinkWrap: true,
+            crossAxisCount: 3,
+            mainAxisSpacing: 16,
+            crossAxisSpacing: 16,
+            childAspectRatio: 1.15,
+            physics: const NeverScrollableScrollPhysics(),
+            children: [
+              for (var i = 1; i <= 9; i++)
                 _KeypadButton(
-                  label: '0',
-                  onTap: () => _onDigit('0'),
+                  label: i.toString(),
+                  onTap: () => _onDigit(i.toString()),
                   L: L,
                 ),
-                _KeypadButton(
-                  icon: Icons.backspace_rounded,
-                  onTap: _onBackspace,
-                  semanticsLabel: 'Delete',
-                  L: L,
-                ),
-              ],
-            ),
+              const SizedBox.shrink(),
+              _KeypadButton(
+                label: '0',
+                onTap: () => _onDigit('0'),
+                L: L,
+              ),
+              _KeypadButton(
+                icon: Icons.backspace_rounded,
+                onTap: _onBackspace,
+                semanticsLabel: 'Delete',
+                L: L,
+              ),
+            ],
           ),
-        ],
+        ),
+      ],
     );
 
     if (!reduceMotion) {
-      body = body.animate().fadeIn().slideY(begin: 0.06, end: 0, curve: AppCurves.emilOut);
+      body = body
+          .animate()
+          .fadeIn()
+          .slideY(begin: 0.06, end: 0, curve: AppCurves.emilOut);
     }
 
     return AppScaffold(

@@ -8,6 +8,7 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../core/utils/pin_unlock.dart';
 
 class ProfileSelectorRibbon extends StatelessWidget {
   const ProfileSelectorRibbon({super.key});
@@ -21,16 +22,19 @@ class ProfileSelectorRibbon extends StatelessWidget {
     final L = context.L;
 
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p8),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.p16, vertical: AppSpacing.p8),
       child: MedAiGlass(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p4, vertical: AppSpacing.p8),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.p4, vertical: AppSpacing.p8),
         radius: 20,
         child: SizedBox(
           height: 42,
           child: Row(
             children: [
               Padding(
-                padding: const EdgeInsetsDirectional.only(start: AppSpacing.p12),
+                padding:
+                    const EdgeInsetsDirectional.only(start: AppSpacing.p12),
                 child: Icon(
                   Icons.people_alt_rounded,
                   size: 16,
@@ -40,10 +44,12 @@ class ProfileSelectorRibbon extends StatelessWidget {
               const SizedBox(width: AppSpacing.p8),
               Expanded(
                 child: ListView.builder(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   scrollDirection: Axis.horizontal,
                   physics: const BouncingScrollPhysics(),
-                  itemCount: familyMembers.length + 2, // Primary + Members + Add
+                  itemCount:
+                      familyMembers.length + 2, // Primary + Members + Add
                   itemBuilder: (context, index) {
                     // 1. Primary Profile ("Me")
                     if (index == 0) {
@@ -82,7 +88,8 @@ class ProfileSelectorRibbon extends StatelessWidget {
                     return _AddProfileButton(
                       onTap: () {
                         HapticEngine.selection();
-                        context.push(AppRoutes.familyAddMemberPath(dialog: true));
+                        context
+                            .push(AppRoutes.familyAddMemberPath(dialog: true));
                       },
                     );
                   },
@@ -95,7 +102,8 @@ class ProfileSelectorRibbon extends StatelessWidget {
     );
   }
 
-  void _showPinGateDialog(BuildContext context, ManagedProfile member, AppState state) {
+  void _showPinGateDialog(
+      BuildContext context, ManagedProfile member, AppState state) {
     final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final pinController = TextEditingController();
@@ -109,56 +117,61 @@ class ProfileSelectorRibbon extends StatelessWidget {
             padding: const EdgeInsets.all(AppSpacing.p24),
             radius: 28,
             child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    'Enter PIN',
-                    style: AppTypography.titleMedium.copyWith(
-                      color: L.text,
-                      fontWeight: FontWeight.w700,
-                    ),
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'Enter PIN',
+                  style: AppTypography.titleMedium.copyWith(
+                    color: L.text,
+                    fontWeight: FontWeight.w700,
                   ),
-                  const SizedBox(height: AppSpacing.p8),
-                  Text(
-                    l10n.homeEnterPinFor(member.name),
-                    style: AppTypography.labelSmall.copyWith(
-                      color: L.sub.withValues(alpha: 0.6),
-                    ),
+                ),
+                const SizedBox(height: AppSpacing.p8),
+                Text(
+                  l10n.homeEnterPinFor(member.name),
+                  style: AppTypography.labelSmall.copyWith(
+                    color: L.sub.withValues(alpha: 0.6),
                   ),
-                  const SizedBox(height: AppSpacing.p20),
-                  MedAiTextField(
-                    controller: pinController,
-                    keyboardType: TextInputType.number,
-                    obscureText: true,
-                    maxLength: 4,
-                    textAlign: TextAlign.center,
-                    autofocus: true,
-                    style: TextStyle(
-                      color: L.text,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      letterSpacing: 8,
-                    ),
-                    hintText: '••••',
-                    onChanged: (val) {
-                      if (val.length == 4) {
-                        if (val == member.pin) {
-                          HapticEngine.selection();
-                          Navigator.of(context).pop();
-                          state.switchProfile(member);
-                        } else {
-                          HapticEngine.error();
-                          pinController.clear();
-                          state.showToast('Incorrect PIN', type: 'error');
-                        }
-                      }
-                    },
+                ),
+                const SizedBox(height: AppSpacing.p20),
+                MedAiTextField(
+                  controller: pinController,
+                  keyboardType: TextInputType.number,
+                  obscureText: true,
+                  maxLength: 4,
+                  textAlign: TextAlign.center,
+                  autofocus: true,
+                  style: TextStyle(
+                    color: L.text,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 8,
                   ),
-                  const SizedBox(height: AppSpacing.p16),
-                ],
-              ),
+                  hintText: '••••',
+                  onChanged: (val) async {
+                    if (val.length != 4) return;
+                    final ok = await verifyAndUpgradePin(
+                      context,
+                      profile: member,
+                      entered: val,
+                    );
+                    if (!context.mounted) return;
+                    if (ok) {
+                      HapticEngine.selection();
+                      Navigator.of(context).pop();
+                      state.switchProfile(member);
+                    } else {
+                      HapticEngine.error();
+                      pinController.clear();
+                      state.showToast('Incorrect PIN', type: 'error');
+                    }
+                  },
+                ),
+                const SizedBox(height: AppSpacing.p16),
+              ],
             ),
-          );
+          ),
+        );
       },
     );
   }
@@ -208,104 +221,111 @@ class _ProfileAvatar extends StatelessWidget {
           onTap();
         },
         child: AnimatedContainer(
-          duration: MedAiA11y.motion(context, const Duration(milliseconds: 250)),
+          duration:
+              MedAiA11y.motion(context, const Duration(milliseconds: 250)),
           curve: Curves.easeOutQuart,
           margin: const EdgeInsets.symmetric(horizontal: AppSpacing.p4),
           constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p4),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          color: isSelected ? L.accent : Colors.transparent,
-          border: Border.all(
-            color: isSelected
-                ? L.accent
-                : (isCritical
-                    ? L.error.withValues(alpha: 0.35)
-                    : L.border.withValues(alpha: 0.35)),
-            width: 0.5,
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.p12, vertical: AppSpacing.p4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: isSelected ? L.accent : Colors.transparent,
+            border: Border.all(
+              color: isSelected
+                  ? L.accent
+                  : (isCritical
+                      ? L.error.withValues(alpha: 0.35)
+                      : L.border.withValues(alpha: 0.35)),
+              width: 0.5,
+            ),
           ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              clipBehavior: Clip.none,
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  width: 28,
-                  height: 28,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: isSelected ? Colors.white.withValues(alpha: 0.2) : L.card,
-                    border: Border.all(
-                      color: isSelected 
-                          ? Colors.white.withValues(alpha: 0.3) 
-                          : L.border.withValues(alpha: 0.1),
-                      width: 0.5,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Stack(
+                clipBehavior: Clip.none,
+                alignment: Alignment.center,
+                children: [
+                  Container(
+                    width: 28,
+                    height: 28,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: isSelected
+                          ? Colors.white.withValues(alpha: 0.2)
+                          : L.card,
+                      border: Border.all(
+                        color: isSelected
+                            ? Colors.white.withValues(alpha: 0.3)
+                            : L.border.withValues(alpha: 0.1),
+                        width: 0.5,
+                      ),
+                    ),
+                    child: Center(
+                      child: photoPath != null &&
+                              photoPath!.isNotEmpty &&
+                              File(photoPath!).existsSync()
+                          ? ClipOval(
+                              child: Image.file(
+                                File(photoPath!),
+                                width: 28,
+                                height: 28,
+                                fit: BoxFit.cover,
+                              ),
+                            )
+                          : (avatar != null && avatar!.isNotEmpty
+                              ? (int.tryParse(avatar!) != null
+                                  ? Icon(
+                                      Icons.person_rounded,
+                                      size: 16,
+                                      color: isSelected ? Colors.white : L.text,
+                                    )
+                                  : Text(
+                                      avatar!,
+                                      style: const TextStyle(fontSize: 16),
+                                    ))
+                              : Text(
+                                  name.isNotEmpty ? name[0].toUpperCase() : '?',
+                                  style: TextStyle(
+                                    color: isSelected ? Colors.white : L.text,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 13,
+                                  ),
+                                )),
                     ),
                   ),
-                  child: Center(
-                    child: photoPath != null && photoPath!.isNotEmpty && File(photoPath!).existsSync()
-                        ? ClipOval(
-                            child: Image.file(
-                              File(photoPath!),
-                              width: 28,
-                              height: 28,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : (avatar != null && avatar!.isNotEmpty
-                            ? (int.tryParse(avatar!) != null
-                                ? Icon(
-                                    Icons.person_rounded,
-                                    size: 16,
-                                    color: isSelected ? Colors.white : L.text,
-                                  )
-                                : Text(
-                                    avatar!,
-                                    style: const TextStyle(fontSize: 16),
-                                  ))
-                            : Text(
-                                name.isNotEmpty ? name[0].toUpperCase() : '?',
-                                style: TextStyle(
-                                  color: isSelected ? Colors.white : L.text,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 13,
-                                ),
-                              )),
-                  ),
-                ),
-                if (isCritical)
-                  PositionedDirectional(
-                    top: -2,
-                    end: -2,
-                    child: ExcludeSemantics(
-                      child: Container(
-                        width: 6,
-                        height: 6,
-                        decoration: const BoxDecoration(
-                          color: AppColors.red,
-                          shape: BoxShape.circle,
+                  if (isCritical)
+                    PositionedDirectional(
+                      top: -2,
+                      end: -2,
+                      child: ExcludeSemantics(
+                        child: Container(
+                          width: 6,
+                          height: 6,
+                          decoration: const BoxDecoration(
+                            color: AppColors.red,
+                            shape: BoxShape.circle,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-              ],
-            ),
-            const SizedBox(width: AppSpacing.p8),
-            Text(
-              name,
-              style: AppTypography.labelSmall.copyWith(
-                fontSize: 12,
-                color: isSelected ? Colors.white : L.text.withValues(alpha: 0.8),
-                fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                ],
               ),
-            ),
-          ],
+              const SizedBox(width: AppSpacing.p8),
+              Text(
+                name,
+                style: AppTypography.labelSmall.copyWith(
+                  fontSize: 12,
+                  color:
+                      isSelected ? Colors.white : L.text.withValues(alpha: 0.8),
+                  fontWeight: isSelected ? FontWeight.w800 : FontWeight.w600,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
-    ),
     );
   }
 }
@@ -326,42 +346,42 @@ class _AddProfileButton extends StatelessWidget {
         onTap: onTap,
         child: Container(
           margin: const EdgeInsets.symmetric(horizontal: AppSpacing.p4),
-          constraints:
-              const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p4),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(18),
-          color: L.fill.withValues(alpha: 0.15),
-          border: Border.all(
-            color: L.border.withValues(alpha: 0.1),
-            width: 1,
+          constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.p12, vertical: AppSpacing.p4),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            color: L.fill.withValues(alpha: 0.15),
+            border: Border.all(
+              color: L.border.withValues(alpha: 0.1),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: L.fill.withValues(alpha: 0.3),
+                ),
+                child: Icon(Icons.add_rounded, color: L.sub, size: 14),
+              ),
+              const SizedBox(width: AppSpacing.p8),
+              Text(
+                l10n.homeAdd,
+                style: AppTypography.labelSmall.copyWith(
+                  fontSize: 12,
+                  color: L.sub.withValues(alpha: 0.8),
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ],
           ),
         ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Container(
-              width: 24,
-              height: 24,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: L.fill.withValues(alpha: 0.3),
-              ),
-              child: Icon(Icons.add_rounded, color: L.sub, size: 14),
-            ),
-            const SizedBox(width: AppSpacing.p8),
-            Text(
-              l10n.homeAdd,
-              style: AppTypography.labelSmall.copyWith(
-                fontSize: 12,
-                color: L.sub.withValues(alpha: 0.8),
-                fontWeight: FontWeight.w600,
-              ),
-            ),
-          ],
-        ),
       ),
-    ),
     );
   }
 }

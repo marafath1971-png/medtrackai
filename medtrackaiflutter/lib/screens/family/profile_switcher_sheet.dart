@@ -9,6 +9,7 @@ import '../../theme/med_ai_ui.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../services/biometric_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../../services/pin_service.dart';
 
 class ProfileSwitcherSheet extends StatelessWidget {
   const ProfileSwitcherSheet({super.key});
@@ -23,8 +24,8 @@ class ProfileSwitcherSheet extends StatelessWidget {
     );
   }
 
-  void _switchProfile(
-      BuildContext context, ManagedProfile? profile, String? requiredPin) async {
+  void _switchProfile(BuildContext context, ManagedProfile? profile,
+      String? requiredPin) async {
     final state = context.read<AppState>();
 
     if (requiredPin != null && requiredPin.isNotEmpty) {
@@ -34,14 +35,25 @@ class ProfileSwitcherSheet extends StatelessWidget {
 
       if (!bioSuccess) {
         if (!context.mounted) return;
-        final pinSuccess = await context.push<bool>(
+        // Returns the PIN the user entered (not the stored value) so a legacy
+        // plaintext record can be upgraded to a hash now that it is known.
+        final enteredPin = await context.push<String>(
           AppRoutes.authPinVerify,
           extra: PinVerificationRouteArgs(
             correctPin: requiredPin,
             profileName: profile?.name ?? '',
           ),
         );
-        if (pinSuccess != true) return;
+        if (enteredPin == null || enteredPin.isEmpty) return;
+        if (profile != null && PinService.needsRehash(profile.pin)) {
+          try {
+            await state.updateFamilyMember(
+              profile.copyWith(pin: PinService.hashPin(enteredPin)),
+            );
+          } catch (_) {
+            // Unlock already succeeded; retried on the next unlock.
+          }
+        }
       }
     }
 
@@ -138,8 +150,8 @@ class ProfileSwitcherSheet extends StatelessWidget {
                 const SizedBox(width: AppSpacing.p16),
                 Text(
                   l10n.familyAddDependent,
-                  style: AppTypography.bodyLarge.copyWith(
-                      color: L.text, fontWeight: FontWeight.w700),
+                  style: AppTypography.bodyLarge
+                      .copyWith(color: L.text, fontWeight: FontWeight.w700),
                 ),
               ],
             ),
@@ -232,8 +244,7 @@ class _ProfileTile extends StatelessWidget {
                 ],
               ),
             ),
-            if (isActive)
-              Icon(Icons.check_circle_rounded, color: L.primary),
+            if (isActive) Icon(Icons.check_circle_rounded, color: L.primary),
           ],
         ),
       ),

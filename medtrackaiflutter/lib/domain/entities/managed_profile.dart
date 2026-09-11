@@ -5,7 +5,7 @@ class ManagedProfile {
   final String id;
   final String name;
   final String relation; // e.g., 'Child', 'Parent', 'Spouse'
-  final String avatar;   // Emoji or icon name
+  final String avatar; // Emoji or icon name
   final String? colorAccent;
   final bool isCritical; // Prioritize alerts for this member
   final DateTime? dateOfBirth;
@@ -50,7 +50,8 @@ class ManagedProfile {
         avatar: j['avatar'] ?? '👤',
         colorAccent: j['colorAccent'],
         isCritical: j['isCritical'] ?? false,
-        dateOfBirth: j['dateOfBirth'] != null ? DateTime.parse(j['dateOfBirth']) : null,
+        dateOfBirth:
+            j['dateOfBirth'] != null ? DateTime.parse(j['dateOfBirth']) : null,
         gender: j['gender'],
         notes: j['notes'],
         pin: j['pin'],
@@ -69,6 +70,10 @@ class ManagedProfile {
     String? notes,
     String? pin,
     String? photoPath,
+
+    /// `pin` is null-coalesced like every other field, so passing null cannot
+    /// clear it. Set this to remove the PIN instead.
+    bool clearPin = false,
   }) =>
       ManagedProfile(
         id: id ?? this.id,
@@ -80,7 +85,7 @@ class ManagedProfile {
         dateOfBirth: dateOfBirth ?? this.dateOfBirth,
         gender: gender ?? this.gender,
         notes: notes ?? this.notes,
-        pin: pin ?? this.pin,
+        pin: clearPin ? null : (pin ?? this.pin),
         photoPath: photoPath ?? this.photoPath,
       );
 }
