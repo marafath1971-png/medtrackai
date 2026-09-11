@@ -77,10 +77,41 @@ class SocialController extends ChangeNotifier {
     _monitoringSub = userRepo.getMonitoringPatientsStream().listen((patients) {
       _monitoredPatients = patients;
       notifyListeners();
+      _backfillAccessGrants(patients, uid);
     }, onError: (e) {
       appLogger.e('[SocialController] Monitoring stream error', error: e);
     });
   }
+
+  /// Re-issues the uid-keyed access grant for relationships formed before
+  /// grants existed.
+  ///
+  /// Those caregivers joined when `isActiveCaregiver()` read the cgId-keyed
+  /// roster — a lookup that could never match — so they have a monitoring entry
+  /// but no grant, and would stay locked out of the patient's data after the
+  /// rule started requiring one. The write is idempotent (merge on a fixed doc
+  /// id), so repeating it on every load costs one no-op write per patient and
+  /// needs no migration or version flag.
+  void _backfillAccessGrants(
+      List<Map<String, dynamic>> patients, String caregiverUid) {
+    for (final p in patients) {
+      final patientUid = p['uid'] as String?;
+      if (patientUid == null || patientUid.isEmpty) continue;
+      if (_grantsBackfilled.contains(patientUid)) continue;
+      _grantsBackfilled.add(patientUid);
+
+      final cgId = p['cgId'] as int? ?? 0;
+      // Best-effort: a failure here leaves the caregiver exactly as they were,
+      // and the next load retries.
+      userRepo
+          .activatePatientCaregiver(patientUid, cgId, caregiverUid)
+          .catchError((e) => appLogger
+              .w('[SocialController] access grant backfill failed: $e'));
+    }
+  }
+
+  /// Patients whose grant this session already re-issued.
+  final Set<String> _grantsBackfilled = {};
 
   /// Why an invite could not be created.
   ///
@@ -92,6 +123,10 @@ class SocialController extends ChangeNotifier {
   /// fixed on the join side of this flow.
   String? lastInviteError;
 
+  /// [patientName] and [patientAvatar] are accepted but deliberately unused:
+  /// the invite document no longer carries identifying information, because it
+  /// is readable by anyone holding the code. The caregiver resolves the real
+  /// name from the patient's profile once their access grant exists.
   Future<String> createInvite(
       Caregiver cg, String? patientName, String? patientAvatar) async {
     lastInviteError = null;
@@ -109,12 +144,7 @@ class SocialController extends ChangeNotifier {
       }
 
       final cgWithCode = cg.copyWith(inviteCode: code);
-      await userRepo.createInvite(
-        uid,
-        cgWithCode,
-        patientName: patientName,
-        patientAvatar: patientAvatar,
-      );
+      await userRepo.createInvite(uid, cgWithCode);
 
       final idx = _caregivers.indexWhere((c) => c.id == cg.id);
       if (idx != -1) {
@@ -133,9 +163,10 @@ class SocialController extends ChangeNotifier {
       // user to try again in a moment is advice that cannot come true, and it
       // hides the one detail that makes the cause findable.
       final code = e is FirebaseException ? e.code : '';
-      lastInviteError = (code == 'permission-denied' || code == 'unauthenticated')
-          ? 'denied'
-          : 'failed';
+      lastInviteError =
+          (code == 'permission-denied' || code == 'unauthenticated')
+              ? 'denied'
+              : 'failed';
       return '';
     }
   }
@@ -181,13 +212,22 @@ class SocialController extends ChangeNotifier {
       return;
     }
 
-    final patientProfile = await userRepo.getOtherProfile(patientUid);
-    final patientName =
-        patientProfile?.name ?? invite['patientName'] as String? ?? 'Member';
-    final patientAvatar =
-        patientProfile?.avatar ?? invite['patientAvatar'] as String? ?? '👤';
     final relation = invite['relation'] as String? ?? 'Family';
     final cgId = invite['cgId'] as int? ?? 0;
+
+    // Activate first. The invite no longer carries the patient's name, and the
+    // security rule only permits reading their profile once this grant exists
+    // — so the order matters: reading first would be denied and fall back to a
+    // placeholder.
+    await userRepo.activatePatientCaregiver(patientUid, cgId, caregiverUid);
+
+    final patientProfile = await userRepo.getOtherProfile(patientUid);
+    final patientName = patientProfile?.name.isNotEmpty == true
+        ? patientProfile!.name
+        : 'Member';
+    final patientAvatar = patientProfile?.avatar.isNotEmpty == true
+        ? patientProfile!.avatar
+        : '👤';
 
     final patientEntry = {
       'uid': patientUid,
@@ -199,7 +239,6 @@ class SocialController extends ChangeNotifier {
     };
 
     await userRepo.addMonitoringPatient(patientEntry);
-    await userRepo.activatePatientCaregiver(patientUid, cgId, caregiverUid);
     await userRepo.deleteInvite(normalized);
 
     _monitoredPatients = [..._monitoredPatients, patientEntry];
@@ -247,7 +286,8 @@ class SocialController extends ChangeNotifier {
           .httpsCallable('nudgePatient')
           .call({'patientUid': uid});
     } catch (e) {
-      appLogger.e('[Social] nudgePatient function failed, writing directly', error: e);
+      appLogger.e('[Social] nudgePatient function failed, writing directly',
+          error: e);
       await userRepo.nudgePatient(uid);
     }
   }

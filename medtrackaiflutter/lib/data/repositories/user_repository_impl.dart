@@ -181,20 +181,16 @@ class UserRepositoryImpl implements IUserRepository {
   @override
   Future<void> saveFcmToken(String token) async {
     if (_hasAuth) {
-      await firestoreDataSource.saveFcmToken(_uid!, token).catchError(_logSyncError);
+      await firestoreDataSource
+          .saveFcmToken(_uid!, token)
+          .catchError(_logSyncError);
     }
   }
 
   // ── Invites ────────────────────────────────────────────────────────
   @override
-  Future<void> createInvite(String patientUid, Caregiver cg,
-      {String? patientName, String? patientAvatar}) async {
-    await firestoreDataSource.createInvite(
-      patientUid,
-      cg,
-      patientName: patientName,
-      patientAvatar: patientAvatar,
-    );
+  Future<void> createInvite(String patientUid, Caregiver cg) async {
+    await firestoreDataSource.createInvite(patientUid, cg);
   }
 
   @override
@@ -202,10 +198,13 @@ class UserRepositoryImpl implements IUserRepository {
     final data = await firestoreDataSource.getInvite(code);
     if (data == null) return null;
     return Caregiver(
-      id: data['cgId'] as int,
-      name: data['cgName'] as String,
-      relation: data['relation'] as String,
-      patientUid: data['patientUid'] as String,
+      id: data['cgId'] as int? ?? 0,
+      // The invite no longer carries the caregiver's name — it is identifying
+      // information readable by anyone holding the code. The real name comes
+      // from the patient's own roster.
+      name: '',
+      relation: data['relation'] as String? ?? 'Family',
+      patientUid: data['patientUid'] as String? ?? '',
       status: 'pending',
     );
   }
@@ -270,7 +269,9 @@ class UserRepositoryImpl implements IUserRepository {
       if (localCgs != null) {
         for (final j in (localCgs as List)) {
           final cg = Caregiver.fromJson(j);
-          firestoreDataSource.upsertCaregiver(_uid!, cg).catchError(_logSyncError);
+          firestoreDataSource
+              .upsertCaregiver(_uid!, cg)
+              .catchError(_logSyncError);
         }
       }
       // Streak
@@ -320,9 +321,20 @@ class UserRepositoryImpl implements IUserRepository {
   @override
   Future<void> activatePatientCaregiver(
       String patientUid, int cgId, String caregiverUid) async {
+    // Awaited without catchError: the caregiver's subsequent profile read is
+    // only permitted once this grant exists, so swallowing a failure here
+    // would leave them joined but unable to see anything.
     await firestoreDataSource
         .activatePatientCaregiver(patientUid, cgId, caregiverUid)
-        .withHardenedTimeout(taskName: 'activatePatientCaregiver')
+        .withHardenedTimeout(taskName: 'activatePatientCaregiver');
+  }
+
+  @override
+  Future<void> revokeCaregiverAccess(String caregiverUid) async {
+    if (!_hasAuth) return;
+    await firestoreDataSource
+        .revokeCaregiverAccess(_uid!, caregiverUid)
+        .withHardenedTimeout(taskName: 'revokeCaregiverAccess')
         .catchError(_logSyncError);
   }
 }

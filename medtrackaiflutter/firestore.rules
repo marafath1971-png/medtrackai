@@ -3,9 +3,15 @@ service cloud.firestore {
   match /databases/{database}/documents {
 
     // ── Helper: Is the caller an active caregiver of this user? ────────
+    // The `caregivers` roster is keyed by the numeric cgId, but a rule can only
+    // get() a document by a known path — it cannot query for the slot whose
+    // joinedCaregiverUid matches the caller. Reading that roster by uid could
+    // therefore never match, and every caregiver read was silently denied.
+    // Activation writes a uid-keyed grant under caregiverAccess; that is what
+    // this reads.
     function isActiveCaregiver(userId) {
-      return exists(/databases/$(database)/documents/users/$(userId)/caregivers/$(request.auth.uid))
-        && get(/databases/$(database)/documents/users/$(userId)/caregivers/$(request.auth.uid)).data.status == 'active';
+      return exists(/databases/$(database)/documents/users/$(userId)/caregiverAccess/$(request.auth.uid))
+        && get(/databases/$(database)/documents/users/$(userId)/caregiverAccess/$(request.auth.uid)).data.status == 'active';
     }
 
     // ── Helper: Is an invite code still within its 24-hour window? ─────
@@ -52,6 +58,23 @@ service cloud.firestore {
         );
       }
 
+      // Access grants, keyed by caregiver uid. A caregiver may create their own
+      // grant when redeeming an invite; only the patient may revoke. The grant
+      // carries no patient data — it exists solely so isActiveCaregiver() has a
+      // document it can address by path.
+      match /caregiverAccess/{caregiverUid} {
+        allow read: if request.auth != null
+                    && (request.auth.uid == userId
+                        || request.auth.uid == caregiverUid);
+        allow create: if request.auth != null
+                      && request.auth.uid == caregiverUid
+                      && request.resource.data.status == 'active';
+        allow update: if request.auth != null && request.auth.uid == userId;
+        allow delete: if request.auth != null
+                      && (request.auth.uid == userId
+                          || request.auth.uid == caregiverUid);
+      }
+
       // Monitoring List: Owned by the caregiver to track their patients
       match /monitoring/{patientId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
@@ -74,12 +97,29 @@ service cloud.firestore {
       // probe needs; a live code reads for the caregiver redeeming it; and
       // the patient can always read back their own.
       allow read:   if request.auth != null && (isInviteValid() || isOwnInvite() || resource == null);
+
+      // The payload shape is pinned rather than merely conventional. This
+      // document is readable by anyone holding the code — including someone
+      // with no relationship to the patient — so an identifying field added
+      // here later would be exposed to them. hasOnly() makes that a rejected
+      // write instead of a silent leak, and createdAt is forced to
+      // request.time so the 24-hour window cannot be backdated.
       allow create: if request.auth != null
-                    && request.resource.data.patientUid == request.auth.uid;
-      // Patient can revoke; caregiver can consume invite after joining.
+                    && request.resource.data.patientUid == request.auth.uid
+                    && request.resource.data.keys().hasOnly(
+                         ['patientUid', 'cgId', 'relation', 'createdAt'])
+                    && request.resource.data.createdAt == request.time;
+
+      // No update clause: invites are immutable, and reissuing means a new
+      // code.
+      //
+      // Deletion is the patient revoking, or the caregiver consuming the
+      // invite once their access grant exists. The previous `|| isInviteValid()`
+      // was true of every pending invite, so ANY signed-in user could delete
+      // ANY live invite and silently break a stranger's onboarding.
       allow delete: if request.auth != null && (
         resource.data.patientUid == request.auth.uid
-        || isInviteValid()
+        || isActiveCaregiver(resource.data.patientUid)
       );
     }
 

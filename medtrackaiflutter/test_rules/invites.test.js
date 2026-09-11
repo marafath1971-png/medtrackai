@@ -5,7 +5,7 @@ import {
   assertFails,
   assertSucceeds,
 } from '@firebase/rules-unit-testing';
-import { doc, getDoc, setDoc, deleteDoc } from 'firebase/firestore';
+import { doc, getDoc, setDoc, deleteDoc, serverTimestamp } from 'firebase/firestore';
 
 let env;
 
@@ -42,13 +42,17 @@ describe('caregiverInvites', () => {
   });
 
   it('the patient can create their own invite', async () => {
+    // The payload is pinned by the create rule: only patientUid, cgId,
+    // relation and createdAt, with createdAt forced to request.time. This
+    // fixture used to carry cgName and a client clock, both of which the rule
+    // now rejects — the invite is readable by anyone holding the code, so a
+    // name in it is a leak and a client timestamp is a backdatable window.
     const db = env.authenticatedContext(PATIENT).firestore();
     await assertSucceeds(setDoc(doc(db, 'caregiverInvites/CODE1'), {
       patientUid: PATIENT,
       cgId: 'cg1',
-      cgName: 'Arafat',
       relation: 'Spouse',
-      createdAt: new Date(),
+      createdAt: serverTimestamp(),
     }));
   });
 

@@ -110,12 +110,27 @@ void _permissionDenialIsNotTransient() {
     });
 
     test('the controller classifies firebase codes', () {
-      final src =
-          File('lib/providers/controllers/social_controller.dart')
-              .readAsStringSync();
+      // Asserted on the source because the classification happens inside a
+      // catch block that needs a live FirebaseException to reach.
+      //
+      // The third assertion used to match the literal
+      // `lastInviteError = (code ==`, which broke the moment dart format
+      // wrapped that expression onto two lines — a formatting change, not a
+      // behavioural one. Match the pieces that carry the meaning instead, with
+      // whitespace collapsed, so a reflow cannot fail this and a real removal
+      // still does.
+      final src = File('lib/providers/controllers/social_controller.dart')
+          .readAsStringSync()
+          .replaceAll(RegExp(r'\s+'), ' ');
+
       expect(src.contains("'permission-denied'"), isTrue);
       expect(src.contains("'unauthenticated'"), isTrue);
-      expect(src.contains("lastInviteError = (code =="), isTrue);
+      expect(
+        src.contains(
+            "lastInviteError = (code == 'permission-denied' || code == 'unauthenticated') ? 'denied' : 'failed'"),
+        isTrue,
+        reason: 'the denial classification must survive, however it is wrapped',
+      );
     });
   });
 }

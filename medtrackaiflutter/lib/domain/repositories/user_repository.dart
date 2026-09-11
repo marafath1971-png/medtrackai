@@ -18,8 +18,7 @@ abstract class IUserRepository {
   Future<String> getLanguage();
   Future<void> saveLanguage(String language);
 
-  Future<void> createInvite(String patientUid, Caregiver cg,
-      {String? patientName, String? patientAvatar});
+  Future<void> createInvite(String patientUid, Caregiver cg);
   Future<Caregiver?> getInvite(String code);
   Future<Map<String, dynamic>?> getRawInvite(String code);
   Future<void> deleteInvite(String code);
@@ -40,4 +39,7 @@ abstract class IUserRepository {
   Future<void> addMonitoringPatient(Map<String, dynamic> patient);
   Future<void> activatePatientCaregiver(
       String patientUid, int cgId, String caregiverUid);
+
+  /// Clears a caregiver's uid-keyed access grant on the current user.
+  Future<void> revokeCaregiverAccess(String caregiverUid);
 }

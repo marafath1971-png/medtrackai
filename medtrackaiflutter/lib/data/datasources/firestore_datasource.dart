@@ -42,6 +42,15 @@ class FirestoreDataSource {
   CollectionReference _caregivers(String uid) =>
       _userDoc(uid).collection('caregivers');
 
+  /// Uid-keyed access grants, read by the `isActiveCaregiver()` security rule.
+  ///
+  /// Separate from `caregivers` for two reasons: [saveCaregivers] clears and
+  /// rewrites that roster wholesale, which would delete a grant stored there,
+  /// and the roster is listed in the UI, where a uid-keyed entry would show up
+  /// as a phantom caregiver.
+  CollectionReference _caregiverAccess(String uid) =>
+      _userDoc(uid).collection('caregiverAccess');
+
   // ── Profile ────────────────────────────────────────────────────────
   Future<UserProfile?> getProfile(String uid) async {
     try {
@@ -73,8 +82,9 @@ class FirestoreDataSource {
   Future<List<Medicine>> getMedicines(String uid, {String? profileId}) async {
     try {
       // 🛡️ HARDENING: Timeout fallback
-      final snap =
-          await _meds(uid, profileId: profileId).get().timeout(const Duration(seconds: 5));
+      final snap = await _meds(uid, profileId: profileId)
+          .get()
+          .timeout(const Duration(seconds: 5));
       return snap.docs
           .map((d) => Medicine.fromJson(d.data() as Map<String, dynamic>))
           .toList();
@@ -83,11 +93,13 @@ class FirestoreDataSource {
     }
   }
 
-  Future<void> saveMedicine(String uid, Medicine med, {String? profileId}) async {
+  Future<void> saveMedicine(String uid, Medicine med,
+      {String? profileId}) async {
     await _meds(uid, profileId: profileId).doc('${med.id}').set(med.toJson());
   }
 
-  Future<void> deleteMedicine(String uid, int medId, {String? profileId}) async {
+  Future<void> deleteMedicine(String uid, int medId,
+      {String? profileId}) async {
     await _meds(uid, profileId: profileId).doc('$medId').delete();
   }
 
@@ -142,7 +154,8 @@ class FirestoreDataSource {
     }
   }
 
-  Future<void> saveDayHistory(String uid, String dateKey, List<DoseEntry> entries,
+  Future<void> saveDayHistory(
+      String uid, String dateKey, List<DoseEntry> entries,
       {String? profileId}) async {
     await _history(uid, profileId: profileId)
         .doc(dateKey)
@@ -150,10 +163,12 @@ class FirestoreDataSource {
   }
 
   // ── Taken Today ────────────────────────────────────────────────────
-  Future<Map<String, bool>> getTakenToday(String uid, {String? profileId}) async {
+  Future<Map<String, bool>> getTakenToday(String uid,
+      {String? profileId}) async {
     try {
       if (profileId != null) {
-        final doc = await _userDoc(uid).collection('dependents').doc(profileId).get();
+        final doc =
+            await _userDoc(uid).collection('dependents').doc(profileId).get();
         final data = doc.data();
         return Map<String, bool>.from(data?['takenToday'] as Map? ?? {});
       }
@@ -331,21 +346,24 @@ class FirestoreDataSource {
   }
 
   // ── Invites ────────────────────────────────────────────────────────
-  Future<void> createInvite(
-    String patientUid,
-    Caregiver cg, {
-    String? patientName,
-    String? patientAvatar,
-  }) async {
+  /// Writes the invite document.
+  ///
+  /// Deliberately carries no identifying information. The invite has to be
+  /// readable by someone who has no relationship with the patient yet — that
+  /// read is how they learn the patientUid — so knowledge of the code is the
+  /// only authentication factor available. Anything stored here is readable by
+  /// anyone holding a leaked or shoulder-surfed code. The caregiver resolves
+  /// the patient's real name from their profile after activation instead.
+  ///
+  /// The shape is pinned by the `caregiverInvites` create rule, so adding an
+  /// identifying field here will be rejected rather than silently exposed.
+  Future<void> createInvite(String patientUid, Caregiver cg) async {
     final inviteCode = cg.inviteCode;
     if (inviteCode == null || inviteCode.isEmpty) return;
     await _db.collection('caregiverInvites').doc(inviteCode).set({
       'patientUid': patientUid,
       'cgId': cg.id,
-      'cgName': cg.name,
       'relation': cg.relation,
-      'patientName': patientName,
-      'patientAvatar': patientAvatar,
       'createdAt': FieldValue.serverTimestamp(),
     });
   }
@@ -372,6 +390,24 @@ class FirestoreDataSource {
       'status': 'active',
       'joinedCaregiverUid': caregiverUid,
     }, SetOptions(merge: true));
+
+    // The roster above is keyed by the numeric cgId, but a security rule can
+    // only get() a document by a known path — it cannot query for the slot
+    // whose joinedCaregiverUid matches the caller. Without this uid-keyed
+    // grant, isActiveCaregiver() could never match and every caregiver read of
+    // the patient's profile, medicines, history and symptoms was denied.
+    await _caregiverAccess(patientUid).doc(caregiverUid).set({
+      'status': 'active',
+      'cgId': cgId,
+      'grantedAt': FieldValue.serverTimestamp(),
+    }, SetOptions(merge: true));
+  }
+
+  /// Removes a caregiver's access grant. Revoking must clear this too, or the
+  /// rule keeps granting reads after the roster entry is gone.
+  Future<void> revokeCaregiverAccess(
+      String patientUid, String caregiverUid) async {
+    await _caregiverAccess(patientUid).doc(caregiverUid).delete();
   }
 
   Future<void> nudgePatient(String patientUid) async {
