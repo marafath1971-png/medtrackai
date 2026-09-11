@@ -16,6 +16,7 @@ import '../../../../widgets/common/paywall_sheet.dart';
 import '../../../family/profile_switcher_sheet.dart';
 import '../../../../core/utils/haptic_engine.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../models/constants.dart';
 
 class AppTab extends StatefulWidget {
   final AppState state;
@@ -49,7 +50,7 @@ class _AppTabState extends State<AppTab> {
     final profile = context.select<AppState, UserProfile?>((s) => s.profile);
 
     return SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(0, AppSpacing.p4, 0, AppSpacing.p40),
@@ -120,8 +121,8 @@ class _AppTabState extends State<AppTab> {
                       onChanged: (v) {
                         final s = context.read<AppState>();
                         if (s.profile != null) {
-                          s.saveProfile(s.profile!
-                              .copyWith(reminderStyle: v ? 'persistent' : 'normal'));
+                          s.saveProfile(s.profile!.copyWith(
+                              reminderStyle: v ? 'persistent' : 'normal'));
                           s.refreshNotifications();
                         }
                       }),
@@ -197,11 +198,13 @@ class _AppTabState extends State<AppTab> {
                         PermissionSoftPrompt.show(
                           context: context,
                           title: l10n.homeHealthDataAccess,
-                          explanation: 'Sync your vitals, sleep, and activity data for better insights.',
+                          explanation:
+                              'Sync your vitals, sleep, and activity data for better insights.',
                           icon: Icons.favorite_rounded,
                           buttonText: 'Connect Health',
                           permission: null,
-                          fallbackExplanation: 'Enable Health Access in settings.',
+                          fallbackExplanation:
+                              'Enable Health Access in settings.',
                           onGranted: () => s.health.connect(),
                         );
                       } else {
@@ -247,9 +250,9 @@ class _AppTabState extends State<AppTab> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: List.generate(5, (i) {
                     return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p4),
-                      child: Icon(Icons.star_rounded,
-                          color: L.text, size: 32),
+                      padding:
+                          const EdgeInsets.symmetric(horizontal: AppSpacing.p4),
+                      child: Icon(Icons.star_rounded, color: L.text, size: 32),
                     );
                   }),
                 ),
@@ -278,7 +281,15 @@ class _AppTabState extends State<AppTab> {
               SettingsModalRow(
                   icon: '💊',
                   label: l10n.appTitle,
-                  sub: 'Version 2.0 · Premium Enabled',
+                  // Both halves of this were fabricated. It read
+                  // "Version 2.0 · Premium Enabled" as a constant: the version
+                  // did not match pubspec (1.0.0+1), and the plan was asserted
+                  // rather than checked, so a free account was told it was
+                  // premium on the same screen whose Biometric Lock toggle
+                  // then opened the paywall.
+                  sub: context.select<AppState, bool>((s) => s.isPremium)
+                      ? 'Version $kAppVersion · Premium'
+                      : 'Version $kAppVersion · Free plan',
                   border: true),
               SettingsModalRow(
                   icon: '🛡️',
@@ -290,8 +301,8 @@ class _AppTabState extends State<AppTab> {
               SettingsModalRow(
                   icon: 'ℹ️',
                   iconBg: AppColors.pastelMint,
-                  label:
-                      l10n.homeMedicinesTracked(context.select<AppState, int>((s) => s.meds.length)),
+                  label: l10n.homeMedicinesTracked(
+                      context.select<AppState, int>((s) => s.meds.length)),
                   sub: 'Smart reminders active',
                   border: true),
               SettingsModalRow(
