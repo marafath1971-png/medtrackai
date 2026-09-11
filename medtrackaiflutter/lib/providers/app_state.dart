@@ -79,7 +79,6 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   /// True when a connectivity probe fails — drives [AppStatusBanner] in shell.
   bool isOffline = false;
   String? networkErrorMessage;
-  bool isLocked = false;
   String? pendingCelebrationMedName;
   int? pendingMilestoneAnimation;
   int? pendingDetailMedId;
@@ -200,7 +199,17 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   bool get darkMode => auth.darkMode;
   String get language => auth.language;
-  bool get isLockedApp => isLocked;
+
+  /// Whether the app is showing its lock screen.
+  ///
+  /// This delegates to AuthController rather than holding its own field.
+  /// There used to be two: AuthController._isLocked, seeded from
+  /// profile.biometricEnabled on login and on profile load, and a plain
+  /// `AppState.isLocked = false` that the shell actually rendered from.
+  /// Nothing bridged them, so a cold start always came up unlocked no matter
+  /// what the user had chosen — the setting was written, then never read.
+  bool get isLocked => auth.isLocked;
+  set isLocked(bool v) => auth.isLocked = v;
 
   bool get isBackgrounded =>
       _lifecycleState == AppLifecycleState.paused ||
@@ -685,7 +694,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
+  /// Locks the app when backgrounded — but only if the user asked for it.
+  ///
+  /// This used to set the flag unconditionally, so every user was locked out
+  /// on every backgrounding whether or not they had enabled biometric lock.
   void lockApp() {
+    if (!biometricEnabled) return;
     isLocked = true;
     notifyListeners();
   }
