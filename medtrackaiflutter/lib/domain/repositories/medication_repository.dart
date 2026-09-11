@@ -16,10 +16,8 @@ abstract class IMedicationRepository {
       {String? onlyDateKey, String? profileId});
 
   Future<Map<String, bool>> getTakenToday({String? profileId});
-  Future<void> saveTakenToday(Map<String, bool> takenToday, {String? profileId});
-
-  Future<List<Map<String, dynamic>>> getPendingActions();
-  Future<void> savePendingActions(List<Map<String, dynamic>> actions);
+  Future<void> saveTakenToday(Map<String, bool> takenToday,
+      {String? profileId});
 
   Future<Result<AISafetyProfile>> analyzeMedicineSafety(Medicine m);
   Future<SharedPreferences> getPrefs();

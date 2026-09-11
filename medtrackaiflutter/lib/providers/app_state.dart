@@ -288,7 +288,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
           checkFamilyMissedDoses();
         }
 
-        _syncPendingActions();
+        // Startup already ran the merging loads above; only settle the flag.
+        _syncPendingActions(skipReload: true);
         safeNotifyListeners();
       } catch (e, stack) {
         appLogger.e('[AppState] Critical load failure',
@@ -1368,21 +1369,45 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
-  Future<void> _syncPendingActions() async {
-    if (auth.isAuthenticated) {
-      try {
-        // await medRepo.syncToCloud();
-        // await userRepo.syncToCloud();
-        appLogger.i('[AppState] Offline actions synced to cloud successfully.');
-        if (isOffline || networkErrorMessage != null) {
-          isOffline = false;
-          networkErrorMessage = null;
-          safeNotifyListeners();
-        }
-      } catch (e) {
-        appLogger.e('[AppState] Error during offline sync: $e');
-        setNetworkError('Sync failed. Your data is safe on this device.');
+  /// Reconciles local writes that never reached Firestore — doses logged while
+  /// offline, medicines added on a dropped connection.
+  ///
+  /// This deliberately does NOT call the repositories' `syncToCloud()`. That
+  /// is a one-shot bulk upload of the entire local dataset, intended for first
+  /// sign-in when Firestore is empty; running it here would re-upload
+  /// everything on every resume. Instead it re-runs the normal loads, whose
+  /// merge steps diff local against cloud and push only what is genuinely
+  /// missing. Reconciliation is therefore idempotent and proportional to the
+  /// backlog rather than the library size.
+  ///
+  /// [skipReload] is set by the startup path, which has just loaded and only
+  /// needs the offline flag settled.
+  Future<void> _syncPendingActions({bool skipReload = false}) async {
+    if (!auth.isAuthenticated) return;
+
+    // Nothing to reconcile and nothing to clear — avoid a pointless round-trip
+    // on every foreground.
+    if (skipReload && !isOffline && networkErrorMessage == null) return;
+
+    try {
+      if (!skipReload) {
+        // Each of these merges local↔cloud and re-pushes local-only records.
+        await Future.wait([
+          med.loadData(profileId: _activeProfile?.id),
+          social.loadData(),
+        ]);
       }
+
+      if (isOffline || networkErrorMessage != null) {
+        isOffline = false;
+        networkErrorMessage = null;
+        safeNotifyListeners();
+      }
+      appLogger.i('[AppState] Offline actions reconciled with cloud.');
+    } catch (e) {
+      // Local data remains authoritative; the next resume retries.
+      appLogger.e('[AppState] Error during offline sync: $e');
+      setNetworkError('Sync failed. Your data is safe on this device.');
     }
   }
 

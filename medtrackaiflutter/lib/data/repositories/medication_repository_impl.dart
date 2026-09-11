@@ -26,6 +26,31 @@ import '../../services/gemini_service.dart';
 void _logSyncError(Object e) => appLogger.w(
     '[Sync] Firestore write failed (local saved; will re-push on next merge): $e');
 
+/// Reconciles the cloud and local taken-today maps.
+///
+/// Local wins on conflict because it is the only side that can hold an action
+/// the other has not seen: a dose logged while offline exists nowhere else.
+/// Taking the cloud map wholesale — as this used to — silently discarded that
+/// dose, and the user watched a dose they had logged flip back to untaken.
+///
+/// Cloud-only keys are preserved so a dose taken on another device survives.
+Map<String, bool> mergeTakenToday({
+  required Map<String, bool> cloud,
+  required Map<String, bool> local,
+}) =>
+    {...cloud, ...local};
+
+/// True when [merged] holds anything the cloud is missing or disagrees with,
+/// meaning the reconciliation still has to be written back. Without this the
+/// local-only entries would be re-merged on every single load and never
+/// actually persist.
+bool takenTodayNeedsPush({
+  required Map<String, bool> cloud,
+  required Map<String, bool> merged,
+}) =>
+    merged.entries
+        .any((e) => !cloud.containsKey(e.key) || cloud[e.key] != e.value);
+
 class MedicationRepositoryImpl implements IMedicationRepository {
   final LocalDataSource localDataSource;
   final FirestoreDataSource firestoreDataSource;
@@ -112,8 +137,8 @@ class MedicationRepositoryImpl implements IMedicationRepository {
     final idx = meds.indexWhere((m) => m.id == med.id);
     if (idx != -1) {
       meds[idx] = med;
-      await localDataSource
-          .setJson(key, meds.map((m) => m.toJson()).toList(), encrypt: true);
+      await localDataSource.setJson(key, meds.map((m) => m.toJson()).toList(),
+          encrypt: true);
       if (_hasAuth) {
         firestoreDataSource
             .saveMedicine(_uid!, med, profileId: profileId)
@@ -131,7 +156,9 @@ class MedicationRepositoryImpl implements IMedicationRepository {
     await localDataSource.setJson(key, meds.map((m) => m.toJson()).toList(),
         encrypt: true);
     if (_hasAuth) {
-      firestoreDataSource.deleteMedicine(_uid!, id, profileId: profileId).catchError(_logSyncError);
+      firestoreDataSource
+          .deleteMedicine(_uid!, id, profileId: profileId)
+          .catchError(_logSyncError);
     }
   }
 
@@ -152,7 +179,8 @@ class MedicationRepositoryImpl implements IMedicationRepository {
           if (!merged.containsKey(entry.key) || entry.key == today) {
             merged[entry.key] = entry.value;
             firestoreDataSource
-                .saveDayHistory(_uid!, entry.key, entry.value, profileId: profileId)
+                .saveDayHistory(_uid!, entry.key, entry.value,
+                    profileId: profileId)
                 .catchError(_logSyncError);
           }
         }
@@ -171,7 +199,8 @@ class MedicationRepositoryImpl implements IMedicationRepository {
   }
 
   Map<String, List<DoseEntry>> _loadLocalHistory(String? profileId) {
-    final j = localDataSource.getJson(_key('history', profileId), decrypt: true);
+    final j =
+        localDataSource.getJson(_key('history', profileId), decrypt: true);
     if (j == null) return {};
     return (j as Map<String, dynamic>).map(
       (k, v) =>
@@ -191,12 +220,14 @@ class MedicationRepositoryImpl implements IMedicationRepository {
       if (onlyDateKey != null) {
         final dayEntries = history[onlyDateKey] ?? [];
         firestoreDataSource
-            .saveDayHistory(_uid!, onlyDateKey, dayEntries, profileId: profileId)
+            .saveDayHistory(_uid!, onlyDateKey, dayEntries,
+                profileId: profileId)
             .catchError(_logSyncError);
       } else {
         for (final entry in history.entries) {
           firestoreDataSource
-              .saveDayHistory(_uid!, entry.key, entry.value, profileId: profileId)
+              .saveDayHistory(_uid!, entry.key, entry.value,
+                  profileId: profileId)
               .catchError(_logSyncError);
         }
       }
@@ -207,23 +238,40 @@ class MedicationRepositoryImpl implements IMedicationRepository {
   @override
   Future<Map<String, bool>> getTakenToday({String? profileId}) async {
     final key = _key('takenToday', profileId);
+    final localJson = localDataSource.getJson(key, decrypt: true);
+    final Map<String, bool> local =
+        localJson == null ? {} : Map<String, bool>.from(localJson);
+
     if (_hasAuth) {
       try {
         final cloud = await firestoreDataSource
             .getTakenToday(_uid!, profileId: profileId)
             .withHardenedTimeout(taskName: 'getTakenToday');
         if (cloud.isNotEmpty) {
-          await localDataSource.setJson(key, cloud, encrypt: true);
-          return cloud;
+          final merged = mergeTakenToday(cloud: cloud, local: local);
+          if (takenTodayNeedsPush(cloud: cloud, merged: merged)) {
+            firestoreDataSource
+                .saveTakenToday(_uid!, merged, profileId: profileId)
+                .catchError(_logSyncError);
+          }
+
+          await localDataSource.setJson(key, merged, encrypt: true);
+          return merged;
+        }
+
+        // Cloud is empty but local is not: this is a fresh cloud record, so
+        // seed it instead of leaving the local state unsynced forever.
+        if (local.isNotEmpty) {
+          firestoreDataSource
+              .saveTakenToday(_uid!, local, profileId: profileId)
+              .catchError(_logSyncError);
         }
       } catch (e) {
         // Fallback to local on terminal timeout/error
         appLogger.w('[MedRepo] takenToday fetch failed: $e');
       }
     }
-    final j = localDataSource.getJson(key, decrypt: true);
-    if (j == null) return {};
-    return Map<String, bool>.from(j);
+    return local;
   }
 
   @override
@@ -236,18 +284,6 @@ class MedicationRepositoryImpl implements IMedicationRepository {
           .saveTakenToday(_uid!, takenToday, profileId: profileId)
           .catchError(_logSyncError);
     }
-  }
-
-  @override
-  Future<List<Map<String, dynamic>>> getPendingActions() async {
-    final j = localDataSource.getJson('pendingActions', decrypt: true);
-    if (j == null) return [];
-    return List<Map<String, dynamic>>.from(j);
-  }
-
-  @override
-  Future<void> savePendingActions(List<Map<String, dynamic>> actions) async {
-    await localDataSource.setJson('pendingActions', actions, encrypt: true);
   }
 
   // ── Offline-to-Cloud Sync ──────────────────────────────────────────
