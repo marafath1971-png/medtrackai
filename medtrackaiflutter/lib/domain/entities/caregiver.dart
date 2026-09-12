@@ -71,6 +71,4 @@ class Caregiver {
         patientUid: patientUid,
         inviteCode: inviteCode ?? this.inviteCode,
       );
-
-  String get inviteUrl => 'https://medai-3ce9c.web.app/join?code=$inviteCode';
 }
