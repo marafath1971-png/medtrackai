@@ -6,6 +6,7 @@ import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/animated_pressable.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../../core/utils/invite_link.dart';
 
 class JoinAsCaregiverView extends StatefulWidget {
   final AppState state;
@@ -43,7 +44,6 @@ class JoinAsCaregiverView extends StatefulWidget {
     }
     return 'Could not join. Check your connection and try again.';
   }
-
 }
 
 class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
@@ -121,7 +121,8 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                     decoration: BoxDecoration(
                       color: L.card,
                       shape: BoxShape.circle,
-                      border: Border.all(color: L.border.withValues(alpha: 0.12)),
+                      border:
+                          Border.all(color: L.border.withValues(alpha: 0.12)),
                     ),
                     child: Icon(Icons.close_rounded, color: L.text, size: 22),
                   ),
@@ -142,12 +143,12 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                   keyboardDismissBehavior:
                       ScrollViewKeyboardDismissBehavior.onDrag,
                   physics: const BouncingScrollPhysics(),
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p24),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: AppSpacing.p24),
                   child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                            l10n.familyScanTheQrCodeOrEnter,
+                        Text(l10n.familyScanTheQrCodeOrEnter,
                             style: AppTypography.bodySmall.copyWith(
                                 fontSize: 14, color: L.sub, height: 1.5)),
                         const SizedBox(height: AppSpacing.p32),
@@ -164,22 +165,30 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                                 decoration: BoxDecoration(
                                   borderRadius:
                                       BorderRadius.circular(AppRadius.squircle),
-                                  border: Border.all(color: L.green, width: 2.5),
+                                  border:
+                                      Border.all(color: L.green, width: 2.5),
                                 ),
                                 child: ClipRRect(
-                                  borderRadius:
-                                      BorderRadius.circular(AppRadius.squircle - 2),
+                                  borderRadius: BorderRadius.circular(
+                                      AppRadius.squircle - 2),
                                   child: MobileScanner(
                                     controller: _scannerCtrl,
                                     onDetect: (capture) {
                                       final barcodes = capture.barcodes;
                                       for (final barcode in barcodes) {
                                         if (barcode.rawValue != null) {
-                                          final raw = barcode.rawValue!;
-                                          final code = raw.contains('code=')
-                                              ? raw.split('code=').last
-                                              : raw;
-                                          if (!_isChecking) _checkCode(code);
+                                          // Shares its parser with the encoder
+                                          // (invite_link.dart). The old
+                                          // split('code=') returned the whole
+                                          // URL untouched for any payload
+                                          // without that exact substring, so a
+                                          // /j/<code> link scanned here was
+                                          // passed on as if it were the code.
+                                          final code = parseInviteCode(
+                                              barcode.rawValue!);
+                                          if (code != null && !_isChecking) {
+                                            _checkCode(code);
+                                          }
                                         }
                                       }
                                     },
@@ -239,7 +248,8 @@ class _JoinAsCaregiverViewState extends State<JoinAsCaregiverView> {
                         MedAiCTA(
                           label: l10n.familyVerifyAndJoin,
                           loading: _isChecking,
-                          semanticsLabel: 'Verify invite code and join care team',
+                          semanticsLabel:
+                              'Verify invite code and join care team',
                           onTap: _isChecking
                               ? null
                               : () => _checkCode(_codeCtrl.text),

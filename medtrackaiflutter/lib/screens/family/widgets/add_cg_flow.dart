@@ -15,6 +15,7 @@ import '../../../widgets/common/app_feedback.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../screens/app_shell.dart' show kShellNavIslandInset;
 import '../../../l10n/app_localizations.dart';
+import '../../../core/utils/invite_link.dart';
 
 class AddHeader extends StatelessWidget {
   final int step;
@@ -521,9 +522,23 @@ class _AddCgStep2State extends State<AddCgStep2> {
                           radius: AppRadius.squircle,
                           accentGlow: false,
                           color: Colors.white,
+                          // Encodes the join *link*, not the bare code. The
+                          // caregiver being invited does not have the app yet,
+                          // so the QR has to be openable by their phone's own
+                          // camera; a bare "AB3K9P" scans as meaningless text.
+                          //
+                          // Error correction is raised to M because the
+                          // payload is now a URL rather than six characters,
+                          // and these get scanned off a screen at an angle.
+                          // The white quiet zone is required by the spec —
+                          // without it a scanner can fail to find the symbol
+                          // against a coloured card.
                           child: QrImageView(
-                            data: widget.inviteCode,
+                            data: inviteJoinUrl(widget.inviteCode),
                             size: 220,
+                            padding: const EdgeInsets.all(AppSpacing.p12),
+                            backgroundColor: Colors.white,
+                            errorCorrectionLevel: QrErrorCorrectLevel.M,
                             eyeStyle: const QrEyeStyle(
                                 eyeShape: QrEyeShape.square,
                                 color: Color(0xFF1C1C1E)),
