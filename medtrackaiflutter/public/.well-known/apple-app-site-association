@@ -3,10 +3,14 @@
     "apps": [],
     "details": [
       {
-        "appID": "TEAMID.com.medai.app",
+        "appID": "REPLACE_WITH_APPLE_TEAM_ID.com.medtracker.medtrackaiflutter",
         "paths": [
+          "/j",
+          "/j/*",
           "/join",
-          "/join/*"
+          "/join/*",
+          "/r/*",
+          "/ref/*"
         ]
       }
     ]

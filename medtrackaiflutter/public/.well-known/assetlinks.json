@@ -2,9 +2,9 @@
   "relation": ["delegate_permission/common.handle_all_urls"],
   "target": {
     "namespace": "android_app",
-    "package_name": "com.medai.app",
+    "package_name": "com.medtracker.medtrackaiflutter",
     "sha256_cert_fingerprints": [
-      "XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX:XX"
+      "REPLACE_WITH_UPLOAD_KEY_SHA256"
     ]
   }
 }]
