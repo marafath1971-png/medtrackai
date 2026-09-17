@@ -120,6 +120,28 @@ void main() {
       expect(ent.contains('applinks:$kInviteHostname'), isTrue);
     });
 
+    test('the entitlements file is actually wired into the build', () {
+      // An entitlements file Xcode never reads is inert. Runner.entitlements
+      // sat unreferenced by project.pbxproj, so neither associated-domains nor
+      // App Attest reached the binary — the file looked right and did nothing.
+      final pbx = _read('ios/Runner.xcodeproj/project.pbxproj');
+
+      expect(pbx.contains('CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;'),
+          isTrue,
+          reason: 'project.pbxproj does not reference Runner.entitlements, so '
+              'every key in it is ignored at build time');
+
+      // Debug, Release and Profile: a release-only wiring still breaks
+      // TestFlight, and a debug-only one breaks the App Store build.
+      expect(
+          RegExp(r'CODE_SIGN_ENTITLEMENTS = Runner/Runner\.entitlements;')
+              .allMatches(pbx)
+              .length,
+          3,
+          reason: 'all three Runner configurations must carry the entitlements '
+              'path, or attestation silently differs between build types');
+    });
+
     test('the association file names this bundle id', () {
       final aasa = jsonDecode(
               _read('public/.well-known/apple-app-site-association'))

@@ -15,5 +15,16 @@
 	<array>
 		<string>applinks:medai.app</string>
 	</array>
+	<!-- App Attest. main.dart activates AppleAppAttestProvider() for release
+	     builds, and functions/index.js sets enforceAppCheck: true globally, so
+	     without this key iOS can produce no attestation token and every
+	     callable (geminiProxy — i.e. every AI path) is rejected server-side.
+	     Android needs no equivalent; Play Integrity is entitlement-free.
+
+	     "production" is correct for both App Store and TestFlight builds.
+	     Xcode automatically substitutes the development attestation service
+	     for debug builds, so this value does not need to change per config. -->
+	<key>com.apple.developer.devicecheck.appattest-environment</key>
+	<string>production</string>
 </dict>
 </plist>
