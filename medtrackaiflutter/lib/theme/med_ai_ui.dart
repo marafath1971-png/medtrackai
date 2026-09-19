@@ -23,9 +23,19 @@ abstract final class MedAiA11y {
   static const double minTapTarget = 48;
   static const double minTapTargetCompact = 44;
 
+  /// Smallest dynamic-type scale the app renders at.
+  static const double minTextScale = 0.85;
+
+  /// Largest dynamic-type scale the app renders at.
+  ///
+  /// Named so layout tests can assert against the same bound the clamp
+  /// applies: a test hardcoding 1.35 would silently stop testing the real
+  /// worst case the moment this changed.
+  static const double maxTextScale = 1.35;
+
   /// Clamp dynamic type so layouts stay usable (iOS HIG guidance).
   static MediaQueryData clampTextScale(MediaQueryData mq) {
-    final scale = mq.textScaler.scale(1.0).clamp(0.85, 1.35);
+    final scale = mq.textScaler.scale(1.0).clamp(minTextScale, maxTextScale);
     return mq.copyWith(textScaler: TextScaler.linear(scale));
   }
 

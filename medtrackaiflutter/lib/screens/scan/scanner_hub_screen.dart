@@ -402,7 +402,7 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
             top: topPad,
             left: 0,
             right: 0,
-            child: _TopBar(
+            child: ScannerTopBar(
               onClose: widget.onClose,
             ).medAiChain(
               context,
@@ -719,9 +719,17 @@ class _CornersPainter extends CustomPainter {
 // ══════════════════════════════════════════════
 // TOP BAR
 // ══════════════════════════════════════════════
-class _TopBar extends StatelessWidget {
+/// The scanner's header: back button, title block, options button.
+///
+/// Public (rather than `_TopBar`) so a widget test can mount it on its own.
+/// The screen around it builds a MobileScannerController, an ImagePicker and
+/// a SpeechToText in its field initializers, all of which need platform
+/// channels — so mounting the whole screen to check a layout is not practical,
+/// and the layout is what regresses.
+@visibleForTesting
+class ScannerTopBar extends StatelessWidget {
   final VoidCallback onClose;
-  const _TopBar({required this.onClose});
+  const ScannerTopBar({super.key, required this.onClose});
 
   @override
   Widget build(BuildContext context) {
@@ -755,26 +763,42 @@ class _TopBar extends StatelessWidget {
             ),
           ),
           
-          // Premium title block
-          Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                l10n.scanScanner,
-                style: AppTypography.titleLarge.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  letterSpacing: -0.3,
+          // Premium title block.
+          //
+          // Expanded, not a bare Column: the Row is spaceBetween with two
+          // fixed 44px buttons, so an unflexed child is asked for its full
+          // intrinsic width regardless of what is left. "AI medicine
+          // recognition" overflowed a 320px screen by 81px at default text
+          // size and 169px at the maximum scale the app allows, striping the
+          // camera preview. The ellipsis is the last resort after the text
+          // has been given every spare pixel — not a way to hide the problem.
+          Expanded(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  l10n.scanScanner,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.titleLarge.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.3,
+                  ),
                 ),
-              ),
-              Text(
-                l10n.scanAiMedicineRecognition,
-                style: AppTypography.labelSmall.copyWith(
-                  color: Colors.white.withValues(alpha: 0.72),
-                  fontWeight: FontWeight.w600,
+                Text(
+                  l10n.scanAiMedicineRecognition,
+                  textAlign: TextAlign.center,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: Colors.white.withValues(alpha: 0.72),
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           
           // Menu Button
