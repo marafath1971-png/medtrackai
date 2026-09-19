@@ -55,7 +55,11 @@ List<String> _declaredAssetEntries() {
       out.add(item.group(1)!);
       continue;
     }
-    // A non-list, non-blank line ends the block.
+    // Comments sit inside the block — the entry explaining why .env is no
+    // longer bundled is itself a run of them, which previously ended the scan
+    // and left this returning nothing.
+    if (line.trimLeft().startsWith('#')) continue;
+    // A non-list, non-comment, non-blank line ends the block.
     if (line.trim().isNotEmpty) break;
   }
   return out;
@@ -85,7 +89,14 @@ void main() {
 
     for (final file in _bundledFiles()) {
       // Only text-shaped config files can be scanned meaningfully.
-      const scannable = ['.env', '.json', '.yaml', '.yml', '.properties', '.txt'];
+      const scannable = [
+        '.env',
+        '.json',
+        '.yaml',
+        '.yml',
+        '.properties',
+        '.txt'
+      ];
       final name = file.path.split('/').last;
       final isEnv = name == '.env' || name.startsWith('.env');
       if (!isEnv && !scannable.any((e) => file.path.endsWith(e))) continue;
@@ -122,9 +133,19 @@ void main() {
 
     expect(entries, isNotEmpty,
         reason: 'could not read `flutter: assets:` out of pubspec.yaml');
-    expect(entries, contains('.env'),
-        reason: '.env is the asset this guard exists for; if it stopped being '
-            'bundled that is good news, but update this test deliberately');
+  });
+
+  test('.env is not bundled', () {
+    // This is the fix, not an incidental detail: the Dart change stopped the
+    // app *reading* the key, but the asset entry was what put it inside the
+    // artifact. Verified by extracting it from a real build:
+    //   unzip -p app-debug.apk assets/flutter_assets/.env  ->  GEMINI_API_KEY=AQ.A...
+    //
+    // If something needs .env at runtime again, the value belongs in
+    // --dart-define, not back on this list.
+    expect(_declaredAssetEntries(), isNot(contains('.env')),
+        reason: 'everything under `flutter: assets:` is copied verbatim into '
+            'the build; .env carries live credentials');
   });
 
   test('the scanner actually detects a planted secret', () {
@@ -147,7 +168,9 @@ void main() {
     // them would train people to ignore this test.
     final pattern = RegExp('^\\s*([A-Za-z0-9_]*$_secretKeyPattern[A-Za-z0-9_]*)'
         r'\s*[=:]\s*(.+)$');
-    expect(pattern.firstMatch('GOOGLE_WEB_CLIENT_ID=8830051234-abc.apps.googleusercontent.com'),
+    expect(
+        pattern.firstMatch(
+            'GOOGLE_WEB_CLIENT_ID=8830051234-abc.apps.googleusercontent.com'),
         isNull);
   });
 }

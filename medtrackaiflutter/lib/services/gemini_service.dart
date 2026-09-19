@@ -1201,7 +1201,13 @@ Do not use markdown formatting like bolding or bullet points unless absolutely n
     for (final config in _standardModels) {
       final modelName = config['model']!;
 
-      if (_isLoggedIn) {
+      // Same rule the rest of the service uses (`useProxy` in
+      // analyzeProductInsight): a local key means the developer wants the
+      // direct SDK, and the proxy serves keyless clients. Release builds have
+      // no key, so production always takes the proxy.
+      final useProxy = _isLoggedIn && _apiKey.isEmpty;
+
+      if (useProxy) {
         try {
           final text = (await geminiTransport.callProxy(
             prompt: prompt,
@@ -1216,7 +1222,6 @@ Do not use markdown formatting like bolding or bullet points unless absolutely n
         }
       }
 
-      // Debug-only: a key exists just when --dart-define supplied one.
       if (_apiKey.isNotEmpty) {
         try {
           final model = _getModel(modelName, apiVersion: config['version']!);
