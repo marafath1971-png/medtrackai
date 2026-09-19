@@ -13,9 +13,18 @@
 /// stops the two ends drifting apart.
 library;
 
-/// Domain that serves the App Links association files
-/// (`public/.well-known/`), so this URL opens the app rather than a web page.
-const String kInviteHost = 'https://medai.app';
+/// Bare domain that serves the App Links association files
+/// (`public/.well-known/`).
+///
+/// Three other places restate this and cannot import it — the Android
+/// manifest's `<data android:host>`, the iOS `applinks:` entitlement, and the
+/// hosted association files themselves. `test/core/deep_link_config_test.dart`
+/// reads those files and asserts they still agree with this constant, because
+/// a mismatch is invisible: the link just opens a browser.
+const String kInviteHostname = 'medai.app';
+
+/// Domain that serves the App Links association files, as an origin.
+const String kInviteHost = 'https://$kInviteHostname';
 
 /// The shareable, scannable link for [code].
 String inviteJoinUrl(String code) =>

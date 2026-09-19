@@ -1005,8 +1005,15 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
     int missed = 0;
     if (yesterdayDoses.isEmpty) {
-      // Simplification: assume they missed all scheduled meds if no history
-      missed = activeMeds.length;
+      // No log for yesterday. What was *due* is the only honest answer here:
+      // count the slots actually scheduled for that weekday, not the number of
+      // medicines. Counting medicines charged a 4-med user 4 missed doses on a
+      // day their schedule was empty — and since ReentryScreen treats any
+      // non-zero count as "Streak lost...", it took a streak away for a day
+      // that asked nothing of them. A day with nothing due yields 0 and the
+      // streak stands, matching how getStreak() already skips such days.
+      missed = getDoses(date: DateTime.now().subtract(const Duration(days: 1)))
+          .length;
     } else {
       for (final dose in yesterdayDoses) {
         if (!dose.taken) missed++;

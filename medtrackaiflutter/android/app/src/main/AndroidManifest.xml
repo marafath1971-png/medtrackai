@@ -70,6 +70,28 @@
             <intent-filter>
                 <action android:name="androidx.health.ACTION_SHOW_PERMISSIONS_RATIONALE" />
             </intent-filter>
+
+            <!-- App Links: caregiver invites (/j, /join) and referrals (/r, /ref).
+                 android:autoVerify makes Android fetch
+                 https://medai.app/.well-known/assetlinks.json at install time and
+                 check this package name against the signing certificate of the
+                 installed APK. Both halves have to agree or the link silently
+                 opens a browser instead of the app — which is exactly what
+                 shipped: the association file named com.medai.app while the app
+                 has always been com.medtracker.medtrackaiflutter.
+
+                 The host is duplicated from kInviteHost (lib/core/utils/invite_link.dart);
+                 a manifest cannot read a Dart constant, so deep_link_config_test.dart
+                 asserts the two agree. -->
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" android:host="medai.app" android:pathPrefix="/j" />
+                <data android:scheme="https" android:host="medai.app" android:pathPrefix="/join" />
+                <data android:scheme="https" android:host="medai.app" android:pathPrefix="/r" />
+                <data android:scheme="https" android:host="medai.app" android:pathPrefix="/ref" />
+            </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.
              This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->

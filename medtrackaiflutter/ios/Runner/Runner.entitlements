@@ -6,5 +6,25 @@
 	<array>
 		<string>Default</string>
 	</array>
+	<!-- Universal Links. Without this key iOS never fetches the association
+	     file, so https://medai.app/j?code=... opens Safari instead of the app
+	     and a caregiver invite cannot be redeemed. Pairs with
+	     public/.well-known/apple-app-site-association, whose appID must be
+	     <TeamID>.com.medtracker.medtrackaiflutter. -->
+	<key>com.apple.developer.associated-domains</key>
+	<array>
+		<string>applinks:medai.app</string>
+	</array>
+	<!-- App Attest. main.dart activates AppleAppAttestProvider() for release
+	     builds, and functions/index.js sets enforceAppCheck: true globally, so
+	     without this key iOS can produce no attestation token and every
+	     callable (geminiProxy — i.e. every AI path) is rejected server-side.
+	     Android needs no equivalent; Play Integrity is entitlement-free.
+
+	     "production" is correct for both App Store and TestFlight builds.
+	     Xcode automatically substitutes the development attestation service
+	     for debug builds, so this value does not need to change per config. -->
+	<key>com.apple.developer.devicecheck.appattest-environment</key>
+	<string>production</string>
 </dict>
 </plist>
