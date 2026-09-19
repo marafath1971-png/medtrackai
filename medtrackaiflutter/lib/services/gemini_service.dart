@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'dart:convert';
 import 'package:google_generative_ai/google_generative_ai.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter/foundation.dart';
 import '../domain/entities/entities.dart';
 import '../core/utils/result.dart';
@@ -25,12 +24,28 @@ class GeminiService {
   static GeminiEnvironment get _env =>
       geminiEnvironment ??= LiveGeminiEnvironment(
         isLoggedInFn: () => AuthService.isLoggedIn,
-        apiKeyFn: () =>
-            (kDebugMode && dotenv.isInitialized
-                ? dotenv.env['GEMINI_API_KEY']
-                : null) ??
-            '',
+        apiKeyFn: () => debugDirectApiKey,
       );
+
+  /// A Gemini key for local development only, supplied at build time:
+  ///
+  ///   flutter run --dart-define=GEMINI_API_KEY=your_key_here
+  ///
+  /// This used to be read from `.env`, which pubspec ships as a Flutter asset
+  /// — so the key was packaged verbatim into every APK and extractable from
+  /// the artifact by anyone. The `kDebugMode` gate stopped release builds
+  /// *using* it; it did nothing to stop them *carrying* it.
+  ///
+  /// `String.fromEnvironment` is resolved by the compiler and is absent from a
+  /// build that does not pass it, so a release build has no key to leak. In
+  /// production every request goes through the `geminiProxy` Cloud Function,
+  /// which holds the real key as a Secret Manager secret.
+  ///
+  /// Note this also selects the transport: `useProxy` is
+  /// `_isLoggedIn && _apiKey.isEmpty`, so setting this locally bypasses the
+  /// proxy. Leave it unset to exercise the path production actually uses.
+  static const String debugDirectApiKey =
+      kDebugMode ? String.fromEnvironment('GEMINI_API_KEY') : '';
 
   static String get _apiKey => _env.apiKey;
 

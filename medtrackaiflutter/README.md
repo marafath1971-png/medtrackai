@@ -58,9 +58,15 @@ MedAI follows a **Premium Dark/Light** aesthetic:
 3. **Configure Environment**:
    Create a `.env` file (see `.env.example` for the full key list):
    ```env
-   GEMINI_API_KEY=your_key_here
    PURCHASES_API_KEY=your_revenuecat_key
    GOOGLE_WEB_CLIENT_ID=...
+   ```
+   Do **not** put `GEMINI_API_KEY` in `.env` — pubspec ships that file as a
+   Flutter asset, so it would be packaged into the APK. Production calls the
+   `geminiProxy` Cloud Function, which holds the key in Secret Manager. For
+   local work against the direct SDK:
+   ```bash
+   flutter run --dart-define=GEMINI_API_KEY=your_key_here
    ```
 4. **Add Firebase config** (gitignored — not in the repo, add your own):
    - `android/app/google-services.json`

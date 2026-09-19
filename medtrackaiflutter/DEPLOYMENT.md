@@ -5,7 +5,10 @@ This document outlines the standard procedures for building and deploying the Me
 ## Prerequisites
 Before building for production, ensure the following are configured:
 1. **Firebase Configuration**: Both `google-services.json` (Android) and `GoogleService-Info.plist` (iOS) must be present in their respective platform directories.
-2. **Environment Variables**: A `.env` file must be present at the root of the project with valid production keys (e.g., `GEMINI_API_KEY`).
+2. **Environment Variables**: A `.env` file must be present at the root of the project with valid production keys (e.g., `PURCHASES_API_KEY`). It must **not** contain `GEMINI_API_KEY` — pubspec ships `.env` as a Flutter asset, so any key in it is extractable from the built APK. The Gemini key belongs in Secret Manager, read by the `geminiProxy` Cloud Function:
+   ```bash
+   firebase functions:secrets:set GEMINI_API_KEY --project gen-lang-client-0321454923
+   ```
 3. **App Icons & Splash Screens**: Ensure all launch icons are generated via `flutter pub run flutter_launcher_icons`.
 
 ## Environment Configurations
