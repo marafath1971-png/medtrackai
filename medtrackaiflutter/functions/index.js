@@ -213,7 +213,12 @@ exports.takeDose = onCall(async (request) => {
 exports.geminiProxy = onCall({ secrets: ['GEMINI_API_KEY'] }, async (request) => {
     if (!request.auth) throw new HttpsError('unauthenticated', 'Must be authenticated');
 
-    const { prompt, model = 'gemini-1.5-flash', isImage = false, imageBase64 } = request.data;
+    // Default matches GeminiService._standardModels in the client
+    // (lib/services/gemini_service.dart). Every current caller passes `model`
+    // explicitly, so this default is only reached by a caller that forgets —
+    // and it pointed at gemini-1.5-flash, two generations behind, which would
+    // have answered with quietly worse results rather than failing.
+    const { prompt, model = 'gemini-2.5-flash', isImage = false, imageBase64 } = request.data;
     const apiKey = process.env.GEMINI_API_KEY;
     const uid = request.auth.uid;
 
