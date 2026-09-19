@@ -17,6 +17,27 @@ import '../models/product_analysis.dart';
 // GEMINI SERVICE — FREE AI ENGINE
 // ══════════════════════════════════════════════
 
+/// Missed-dose advice, plus whether it actually came from the AI.
+///
+/// getMissedDoseAdvice falls back to static rules when the model is
+/// unreachable. That fallback is sound advice, so it is not an error — but a
+/// caller that cannot tell the two apart will present generic guidance as if
+/// it were reasoned about this specific medicine.
+class MissedDoseAdvice {
+  const MissedDoseAdvice._(this.text, this.isAiGenerated);
+
+  /// Advice returned by the model for this specific medicine and timing.
+  const MissedDoseAdvice.ai(String text) : this._(text, true);
+
+  /// Static rules, used when the model could not be reached.
+  const MissedDoseAdvice.fallback(String text) : this._(text, false);
+
+  final String text;
+
+  /// False when [text] came from the built-in rules rather than the model.
+  final bool isAiGenerated;
+}
+
 class GeminiService {
   /// Branch inputs, read through a seam so tests can pick the proxy or the
   /// direct-SDK path without Firebase auth or a .env file. Falls back to the
@@ -1160,6 +1181,60 @@ Do not use markdown formatting like bolding or bullet points unless absolutely n
   // ─────────────────────────────────────────────────────────────────
 
   /// Allows a user to ask a follow-up question regarding a health insight.
+  /// Runs [prompt] through the proxy, falling back to the direct SDK only
+  /// when a key is present (debug builds).
+  ///
+  /// Three text-only callers each did `_getModel('gemini-1.5-flash')` and
+  /// nothing else. That is the direct-SDK path, and release builds have no
+  /// key — so in production those calls could only ever throw, while the
+  /// model name was two generations behind everything else in the app.
+  ///
+  /// Mirrors the proxy-first shape getProtectorInsight already uses. Throws
+  /// on total failure so each caller decides what the user should see;
+  /// swallowing that decision here is what hid the breakage.
+  static Future<String> _generateText(
+    String prompt, {
+    Duration timeout = const Duration(seconds: 20),
+  }) async {
+    Object? lastError;
+
+    for (final config in _standardModels) {
+      final modelName = config['model']!;
+
+      if (_isLoggedIn) {
+        try {
+          final text = (await geminiTransport.callProxy(
+            prompt: prompt,
+            model: modelName,
+            timeout: timeout,
+          ))
+              .trim();
+          if (text.isNotEmpty) return text;
+        } catch (e) {
+          lastError = e;
+          appLogger.w('[GeminiService] proxy failed for $modelName: $e');
+        }
+      }
+
+      // Debug-only: a key exists just when --dart-define supplied one.
+      if (_apiKey.isNotEmpty) {
+        try {
+          final model = _getModel(modelName, apiVersion: config['version']!);
+          final response = await model
+              .generateContent([Content.text(prompt)]).timeout(timeout);
+          final text = response.text?.trim() ?? '';
+          if (text.isNotEmpty) return text;
+        } catch (e) {
+          lastError = e;
+          appLogger.w('[GeminiService] direct SDK failed for $modelName: $e');
+        }
+      }
+    }
+
+    throw lastError ??
+        StateError('No AI transport available: not signed in and no API key.');
+  }
+
   static Future<Result<String>> askFollowUp(
       String question, List<HealthInsight> context) async {
     final contextPrompt = context
@@ -1185,10 +1260,7 @@ Rules:
 ''';
 
     try {
-      final model = _getModel('gemini-1.5-flash');
-      final response = await model.generateContent(
-          [Content.text(prompt)]).timeout(const Duration(seconds: 20));
-      final text = response.text?.trim() ?? '';
+      final text = await _generateText(prompt);
       if (text.isEmpty) {
         return const Error(
             ServerFailure("The AI Coach is speechless. Please try again."));
@@ -1205,7 +1277,13 @@ Rules:
   // ─────────────────────────────────────────────────────────────────
 
   /// Checks if [newMed] has any interactions with [existingMeds].
-  /// Returns a short warning string if a risk is found, null if safe.
+  ///
+  /// Returns a warning string when a risk is found, and null when the check
+  /// ran and found nothing. **Throws** when the check could not run at all —
+  /// the two are not the same, and this used to return null for both, so a
+  /// failed check was indistinguishable from a clean result on a
+  /// drug-interaction warning. Callers must surface the failure rather than
+  /// present silence as safety.
   static Future<String?> checkInteractions({
     required Medicine newMed,
     required List<Medicine> existingMeds,
@@ -1229,18 +1307,12 @@ Rules:
 - Do NOT include disclaimers, explanations, or extra text. Just the single warning line or "SAFE".
 ''';
 
-    try {
-      final model = _getModel('gemini-1.5-flash');
-      final response = await model.generateContent(
-          [Content.text(prompt)]).timeout(const Duration(seconds: 15));
-      final text = response.text?.trim() ?? '';
-      if (text.isEmpty || text.toUpperCase() == 'SAFE') return null;
-      return text;
-    } catch (e) {
-      // Fail silently — interaction check is a background enhancement
-      appLogger.e('[GeminiService] getProtectorInsight failed: $e');
-      return null;
-    }
+    // No try/catch: a failure to check must reach the caller. The previous
+    // body swallowed it and returned null, which reads as "no interaction".
+    final text =
+        await _generateText(prompt, timeout: const Duration(seconds: 15));
+    if (text.isEmpty || text.toUpperCase() == 'SAFE') return null;
+    return text;
   }
 
   // ─────────────────────────────────────────────────────────────────
@@ -1248,7 +1320,7 @@ Rules:
   // ─────────────────────────────────────────────────────────────────
 
   /// Returns clinical AI advice for a missed dose based on the med type and time elapsed.
-  static Future<String> getMissedDoseAdvice({
+  static Future<MissedDoseAdvice> getMissedDoseAdvice({
     required Medicine med,
     required int minutesMissedBy,
     required int nextDoseInMinutes,
@@ -1281,15 +1353,18 @@ Example: "Take your dose now — it's only been ${hoursLate}h and you have ${nex
 ''';
 
     try {
-      final model = _getModel('gemini-1.5-flash');
-      final response = await model.generateContent(
-          [Content.text(prompt)]).timeout(const Duration(seconds: 15));
-      return response.text?.trim() ??
-          _defaultMissedDoseAdvice(minutesMissedBy, nextDoseInMinutes);
+      final text =
+          await _generateText(prompt, timeout: const Duration(seconds: 15));
+      if (text.isNotEmpty) return MissedDoseAdvice.ai(text);
     } catch (e) {
       appLogger.w('[GeminiService] Missed dose advice failed: $e');
-      return _defaultMissedDoseAdvice(minutesMissedBy, nextDoseInMinutes);
     }
+    // Unlike the interaction check, degrading silently is defensible here: the
+    // static rules are sound advice, not an absence of a warning. The caller
+    // is still told which it got, so the UI need not imply the text was
+    // tailored to this medicine when it was not.
+    return MissedDoseAdvice.fallback(
+        _defaultMissedDoseAdvice(minutesMissedBy, nextDoseInMinutes));
   }
 
   static String _defaultMissedDoseAdvice(

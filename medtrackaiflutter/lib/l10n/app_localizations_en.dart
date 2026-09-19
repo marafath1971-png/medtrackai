@@ -2626,6 +2626,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get modalsAiAdvice => 'AI ADVICE';
 
   @override
+  String get modalsGeneralGuidance => 'GENERAL GUIDANCE';
+
+  @override
   String get modalsInformationalOnlyAlwaysConsultYourDoctor =>
       '⚠️ Informational only. Always consult your doctor or pharmacist for advice.';
 

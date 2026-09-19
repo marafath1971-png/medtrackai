@@ -44,6 +44,9 @@ class MissedDoseProtocolSheet extends StatefulWidget {
 
 class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
   String? _aiAdvice;
+  /// False when [_aiAdvice] is the built-in rule of thumb rather than advice
+  /// about this specific medicine. The card must not claim the AI produced it.
+  bool _adviceIsAi = true;
   bool _loading = true;
 
   @override
@@ -66,7 +69,8 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
 
     if (mounted) {
       setState(() {
-        _aiAdvice = advice;
+        _aiAdvice = advice.text;
+        _adviceIsAi = advice.isAiGenerated;
         _loading = false;
       });
     }
@@ -223,7 +227,8 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
             Semantics(
               label: _loading
                   ? 'Loading AI advice'
-                  : 'AI advice: ${_aiAdvice ?? ''}',
+                  : '${_adviceIsAi ? 'AI advice' : 'General guidance'}: '
+                      '${_aiAdvice ?? ''}',
               liveRegion: true,
               child: MedAiDepthCard(
                 padding: const EdgeInsets.all(20),
@@ -251,11 +256,17 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
                         children: [
                           Row(
                             children: [
-                              Icon(Icons.auto_awesome_rounded,
-                                  size: 16, color: L.secondary),
+                              Icon(
+                                  _adviceIsAi
+                                      ? Icons.auto_awesome_rounded
+                                      : Icons.menu_book_rounded,
+                                  size: 16,
+                                  color: L.secondary),
                               const SizedBox(width: 8),
                               Text(
-                                l10n.modalsAiAdvice,
+                                _adviceIsAi
+                                    ? l10n.modalsAiAdvice
+                                    : l10n.modalsGeneralGuidance,
                                 style: AppTypography.labelSmall.copyWith(
                                   fontSize: 11,
                                   color: L.secondary,

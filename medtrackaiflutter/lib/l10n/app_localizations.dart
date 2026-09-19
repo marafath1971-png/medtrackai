@@ -5082,6 +5082,12 @@ abstract class AppLocalizations {
   /// **'AI ADVICE'**
   String get modalsAiAdvice;
 
+  /// Header on the missed-dose card when the AI could not be reached and the text is the built-in rule of thumb rather than advice about this specific medicine.
+  ///
+  /// In en, this message translates to:
+  /// **'GENERAL GUIDANCE'**
+  String get modalsGeneralGuidance;
+
   /// No description provided for @modalsInformationalOnlyAlwaysConsultYourDoctor.
   ///
   /// In en, this message translates to:

@@ -902,6 +902,10 @@
   "modalsSheetHandle": "Sheet handle",
   "modalsPharmacistAiThinking": "Pharmacist AI thinking...",
   "modalsAiAdvice": "AI ADVICE",
+  "modalsGeneralGuidance": "GENERAL GUIDANCE",
+  "@modalsGeneralGuidance": {
+    "description": "Header on the missed-dose card when the AI could not be reached and the text is the built-in rule of thumb rather than advice about this specific medicine."
+  },
   "modalsInformationalOnlyAlwaysConsultYourDoctor": "⚠️ Informational only. Always consult your doctor or pharmacist for advice.",
   "modalsInformationalOnlyAlwaysConsultYourDoctor2": "Informational only. Always consult your doctor or pharmacist for advice.",
   "modalsSkipDose": "Skip Dose",
