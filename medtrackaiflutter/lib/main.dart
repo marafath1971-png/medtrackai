@@ -7,6 +7,7 @@ import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:firebase_app_check/firebase_app_check.dart';
 import 'package:firebase_performance/firebase_performance.dart';
@@ -59,6 +60,24 @@ void main() async {
   try {
     await Firebase.initializeApp(
         options: DefaultFirebaseOptions.currentPlatform);
+
+    // Offline persistence, set before anything can touch Firestore.
+    //
+    // Firestore applies settings only up to its first use and ignores them
+    // afterwards, so this has to run ahead of every read and write. It used to
+    // live in the FirestoreDataSource constructor, which worked only because
+    // main() happened to build that object before anything else reached
+    // Firestore — an ordering nothing enforced, and one that a startup task
+    // added later could have quietly broken. Here it is unconditional.
+    //
+    // Persistence is what lets a dose logged with no signal reach the server
+    // later: the write sits in the on-disk queue and replays on reconnect.
+    // The mobile SDKs enable it by default, but web does not, and the default
+    // cache is capped — so both are pinned explicitly rather than inherited.
+    FirebaseFirestore.instance.settings = const Settings(
+      persistenceEnabled: true,
+      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
+    );
 
     // Initialize App Check for production security.
     //

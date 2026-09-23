@@ -7,14 +7,12 @@ import '../../domain/entities/entities.dart';
 // ══════════════════════════════════════════════
 
 class FirestoreDataSource {
-  FirestoreDataSource() {
-    // 🛡️ HARDENING: Explicit offline persistence + performance settings
-    _db.settings = const Settings(
-      persistenceEnabled: true,
-      cacheSizeBytes: Settings.CACHE_SIZE_UNLIMITED,
-    );
-  }
-
+  // Offline persistence is configured in main(), immediately after
+  // Firebase.initializeApp. It was set here, in this constructor, which meant
+  // it only took effect if this object happened to be built before anything
+  // else touched Firestore — true at the time, but not something this class
+  // could guarantee. Settings apply only up to Firestore's first use, so the
+  // guarantee has to come from startup order, not from a constructor.
   final FirebaseFirestore _db = FirebaseFirestore.instance;
 
   DocumentReference _userDoc(String uid) => _db.collection('users').doc(uid);
