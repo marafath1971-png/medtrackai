@@ -334,9 +334,14 @@ exports.alertMyCaregivers = onCall(async (request) => {
     const { medName } = request.data || {};
     const db = admin.firestore();
 
-    // Resolve the patient's display name for a human-readable alert.
+    // Resolve the patient's display name for a human-readable alert. The name
+    // lives at `profile.name` — saveProfile nests the UserProfile under a
+    // `profile` key and nothing writes a top-level `name`.
     const patientDoc = await db.collection('users').doc(patientUid).get();
-    const patientName = patientDoc.exists ? (patientDoc.data().name || 'Someone you care for') : 'Someone you care for';
+    const patientProfile = patientDoc.exists ? (patientDoc.data().profile || {}) : {};
+    const patientName = patientProfile.name
+        || (patientDoc.exists ? patientDoc.data().name : null)
+        || 'Someone you care for';
 
     // Active caregivers live under users/{patientUid}/caregivers, keyed by cgUid.
     const cgSnap = await db.collection('users').doc(patientUid).collection('caregivers')
@@ -390,7 +395,11 @@ exports.nudgePatient = onCall(async (request) => {
     }
 
     const cgDoc = await db.collection('users').doc(cgUid).get();
-    const cgName = cgDoc.exists ? (cgDoc.data().name || 'Your caregiver') : 'Your caregiver';
+    // Same `profile.name` nesting as every other user doc read here.
+    const cgProfile = cgDoc.exists ? (cgDoc.data().profile || {}) : {};
+    const cgName = cgProfile.name
+        || (cgDoc.exists ? cgDoc.data().name : null)
+        || 'Your caregiver';
 
     const patientDoc = await db.collection('users').doc(patientUid).get();
     const fcmToken = patientDoc.exists ? patientDoc.data().fcmToken : null;
@@ -456,8 +465,15 @@ exports.verifyInvite = onCall(async (request) => {
 
             // 2. Add Patient to Caregiver (Monitoring)
             const patientDoc = await t.get(db.collection('users').doc(patientUid));
-            const patientName = patientDoc.exists ? (patientDoc.data().name || 'Patient') : 'Patient';
-            const patientAvatar = patientDoc.exists ? (patientDoc.data().avatar || '') : '';
+            // Name and avatar live under `profile` (see saveProfile); the
+            // top-level reads are kept only as a fallback for older docs.
+            const patientProfile = patientDoc.exists ? (patientDoc.data().profile || {}) : {};
+            const patientName = patientProfile.name
+                || (patientDoc.exists ? patientDoc.data().name : null)
+                || 'Patient';
+            const patientAvatar = patientProfile.avatar
+                || (patientDoc.exists ? patientDoc.data().avatar : null)
+                || '';
 
             const monitorEntry = {
                 patientUid: patientUid,
@@ -491,9 +507,104 @@ exports.verifyInvite = onCall(async (request) => {
 //   • A dose must be >GRACE_MIN past its scheduled local time before alerting.
 //   • Only alerts during the patient's daytime (avoids 3am pushes).
 //   • Per-dose dedup marker prevents repeat alerts for the same dose/day.
-const GRACE_MIN = 90;         // minutes past scheduled time before we alert
-const DAY_START_HOUR = 7;     // don't alert before local 07:00
-const DAY_END_HOUR = 23;      // don't alert after local 23:00
+// The scheduling predicates live in their own module so they can be tested
+// without Firestore credentials (this file calls admin.initializeApp() on
+// import). See functions/missed_dose_rules.js.
+const {
+    doseTimeString,
+    handledDoseKeys,
+    isWithinAlertWindow,
+    isDoseMissed,
+    dedupMarkerId,
+    profilesToScan,
+} = require('./missed_dose_rules');
+
+/// Scans one profile's medicines for overdue, unhandled critical doses and
+/// fans out caregiver alerts.
+///
+/// A "profile" is either the account owner (profileId === null) or one of the
+/// dependents they manage. The client stores those under
+/// `users/{uid}/dependents/{profileId}/{medicines,history}`, mirroring the
+/// owner's own `users/{uid}/{medicines,history}` — so the only difference
+/// between the two cases is the collection prefix. Everything that makes this
+/// safe (the grace window, daytime gating, the isCritical filter, per-dose
+/// dedup) is identical and lives here once, so a dependent can never end up
+/// with weaker alerting rules than the owner.
+///
+/// Returns the number of alerts sent.
+async function scanProfileForMissedDoses({
+    db, patientUid, profileId, displayName, activeCgs,
+    localDow, dayKey, localMinutes,
+}) {
+    // Dependent data hangs off a subcollection; the owner's sits at the root.
+    const base = profileId
+        ? db.collection('users').doc(patientUid).collection('dependents').doc(profileId)
+        : db.collection('users').doc(patientUid);
+
+    // Load today's logged history once.
+    const histDoc = await base.collection('history').doc(dayKey).get();
+    const entries = histDoc.exists ? (histDoc.data().entries || []) : [];
+    const handled = handledDoseKeys(entries);
+
+    // Scan critical meds' schedules for overdue, unhandled doses.
+    const medsSnap = await base.collection('medicines').get();
+
+    let alerted = 0;
+
+    for (const medDoc of medsSnap.docs) {
+        const med = medDoc.data() || {};
+        if (med.isCritical !== true) continue;
+        const schedule = med.schedule || [];
+
+        for (const s of schedule) {
+            if (!isDoseMissed({
+                schedule: s, localDow, localMinutes, handled, medId: med.id,
+            })) continue;
+
+            const timeStr = doseTimeString(s);
+
+            // Dedup: one alert per patient/profile/med/dose/day.
+            const markerId = dedupMarkerId({
+                patientUid, profileId, medId: med.id, timeStr, dayKey,
+            });
+            const markerRef = db.collection('missedDoseAlerts').doc(markerId);
+            const markerDoc = await markerRef.get();
+            if (markerDoc.exists) continue;
+
+            const title = 'Missed dose alert';
+            const body = `${displayName} may have missed a dose of ${med.name || 'a critical medication'} (${timeStr}).`;
+
+            for (const cg of activeCgs.docs) {
+                const cgUserDoc = await db.collection('users').doc(cg.id).get();
+                const fcmToken = cgUserDoc.exists ? cgUserDoc.data().fcmToken : null;
+                if (!fcmToken) continue;
+                try {
+                    await admin.messaging().send({
+                        notification: { title, body },
+                        data: {
+                            type: 'missed_dose_passive',
+                            patientUid,
+                            profileId: profileId || '',
+                            medName: med.name || '',
+                        },
+                        token: fcmToken,
+                    });
+                    alerted += 1;
+                } catch (e) {
+                    console.warn(`detectMissedDoses: send to ${cg.id} failed: ${e.message}`);
+                }
+            }
+
+            // Write the dedup marker (auto-expire handled by TTL policy if configured).
+            await markerRef.set({
+                patientUid, profileId: profileId || null, medId: med.id, time: timeStr, dayKey,
+                createdAt: admin.firestore.FieldValue.serverTimestamp(),
+            });
+        }
+    }
+
+    return alerted;
+}
 
 exports.detectMissedDoses = onSchedule('every 60 minutes', async () => {
     const db = admin.firestore();
@@ -521,7 +632,7 @@ exports.detectMissedDoses = onSchedule('every 60 minutes', async () => {
         const nowUtcMs = Date.now();
         const localNow = new Date(nowUtcMs + offsetMin * 60000);
         const localHour = localNow.getUTCHours();
-        if (localHour < DAY_START_HOUR || localHour >= DAY_END_HOUR) continue;
+        if (!isWithinAlertWindow(localHour)) continue;
 
         const localDow = localNow.getUTCDay();           // 0=Sun..6=Sat (matches client weekday%7)
         const y = localNow.getUTCFullYear();
@@ -530,69 +641,29 @@ exports.detectMissedDoses = onSchedule('every 60 minutes', async () => {
         const dayKey = `${y}-${mo}-${da}`;
         const localMinutes = localHour * 60 + localNow.getUTCMinutes();
 
-        // Load today's logged history once.
-        const histDoc = await db.collection('users').doc(patientUid)
-            .collection('history').doc(dayKey).get();
-        const entries = histDoc.exists ? (histDoc.data().entries || []) : [];
-        const handled = new Set(
-            entries
-                .filter((e) => e && (e.taken === true || e.skipped === true))
-                .map((e) => `${e.medId}-${e.time}`)
-        );
+        // Fetch the active caregiver roster once and share it across every
+        // profile on the account — the caregivers are the account's, not the
+        // individual dependent's, so re-reading per profile would only add
+        // round-trips.
+        const activeCgs = await db.collection('users').doc(patientUid)
+            .collection('caregivers').where('status', '==', 'active').get();
 
-        // Scan critical meds' schedules for overdue, unhandled doses.
-        const medsSnap = await db.collection('users').doc(patientUid)
-            .collection('medicines').get();
+        // The account owner, then every dependent they manage.
+        const scans = profilesToScan(patientData);
 
-        for (const medDoc of medsSnap.docs) {
-            const med = medDoc.data() || {};
-            if (med.isCritical !== true) continue;
-            const schedule = med.schedule || [];
-
-            for (const s of schedule) {
-                if (!s || s.enabled !== true) continue;
-                if (!Array.isArray(s.days) || !s.days.includes(localDow)) continue;
-
-                const schedMinutes = (s.h || 0) * 60 + (s.m || 0);
-                if (localMinutes < schedMinutes + GRACE_MIN) continue; // not overdue yet
-
-                const timeStr = `${String(s.h || 0).padStart(2, '0')}:${String(s.m || 0).padStart(2, '0')}`;
-                if (handled.has(`${med.id}-${timeStr}`)) continue; // taken or skipped
-
-                // Dedup: one alert per patient/med/dose/day.
-                const markerId = `${patientUid}_${med.id}_${timeStr}_${dayKey}`;
-                const markerRef = db.collection('missedDoseAlerts').doc(markerId);
-                const markerDoc = await markerRef.get();
-                if (markerDoc.exists) continue;
-
-                // Fan out to active caregivers (reuse the same secure pattern).
-                const activeCgs = await db.collection('users').doc(patientUid)
-                    .collection('caregivers').where('status', '==', 'active').get();
-                const patientName = patientData.name || 'Someone you care for';
-                const title = 'Missed dose alert';
-                const body = `${patientName} may have missed a dose of ${med.name || 'a critical medication'} (${timeStr}).`;
-
-                for (const cg of activeCgs.docs) {
-                    const cgUserDoc = await db.collection('users').doc(cg.id).get();
-                    const fcmToken = cgUserDoc.exists ? cgUserDoc.data().fcmToken : null;
-                    if (!fcmToken) continue;
-                    try {
-                        await admin.messaging().send({
-                            notification: { title, body },
-                            data: { type: 'missed_dose_passive', patientUid, medName: med.name || '' },
-                            token: fcmToken,
-                        });
-                        alerted += 1;
-                    } catch (e) {
-                        console.warn(`detectMissedDoses: send to ${cg.id} failed: ${e.message}`);
-                    }
-                }
-
-                // Write the dedup marker (auto-expire handled by TTL policy if configured).
-                await markerRef.set({
-                    patientUid, medId: med.id, time: timeStr, dayKey,
-                    createdAt: admin.firestore.FieldValue.serverTimestamp(),
+        for (const scan of scans) {
+            try {
+                alerted += await scanProfileForMissedDoses({
+                    db, patientUid,
+                    profileId: scan.profileId,
+                    displayName: scan.displayName,
+                    activeCgs, localDow, dayKey, localMinutes,
                 });
+            } catch (e) {
+                // One unreadable profile must not abort the rest of the
+                // account — or the remaining dependents go unwatched.
+                console.warn(
+                    `detectMissedDoses: scan failed for ${patientUid}/${scan.profileId || 'self'}: ${e.message}`);
             }
         }
     }
