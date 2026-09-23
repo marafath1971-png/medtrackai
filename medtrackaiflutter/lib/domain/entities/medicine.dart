@@ -288,6 +288,17 @@ class Medicine {
   final bool isCritical;
   final ProductAnalysis? productAnalysis;
 
+  /// When this record last changed, used to resolve sync conflicts.
+  ///
+  /// Two devices editing the same medicine used to resolve by "whatever the
+  /// cloud happened to hold wins", which silently reverted an edit made
+  /// offline. [mergeMedicines] compares this instead, newest wins.
+  ///
+  /// Null on records written before this field existed. The merge treats null
+  /// as older than any real timestamp, so a legacy copy never beats a fresh
+  /// edit.
+  final DateTime? updatedAt;
+
   Medicine({
     required this.id,
     required this.name,
@@ -324,6 +335,7 @@ class Medicine {
     this.aiSafetyProfile,
     this.isCritical = false,
     this.productAnalysis,
+    this.updatedAt,
   });
 
   factory Medicine.empty() => Medicine(
@@ -415,6 +427,9 @@ class Medicine {
         'aiSafetyProfile': aiSafetyProfile?.toJson(),
         'isCritical': isCritical,
         'productAnalysis': productAnalysis?.toJson(),
+        // ISO-8601 in UTC: this is compared across devices in different zones,
+        // so a local-time string would order two edits wrongly.
+        'updatedAt': updatedAt?.toUtc().toIso8601String(),
       };
 
   factory Medicine.fromJson(Map<String, dynamic> j) => Medicine(
@@ -456,6 +471,10 @@ class Medicine {
         productAnalysis: j['productAnalysis'] != null
             ? ProductAnalysis.fromJson(Map<String, dynamic>.from(j['productAnalysis'] as Map))
             : null,
+        // Absent on records written before this field existed, and a corrupt
+        // value must not take down the whole load — either way it reads as
+        // null, which the merge treats as "older than anything stamped".
+        updatedAt: DateTime.tryParse(j['updatedAt'] as String? ?? '')?.toUtc(),
       );
 
   Medicine copyWith({
@@ -486,6 +505,8 @@ class Medicine {
     AISafetyProfile? aiSafetyProfile,
     bool? isCritical,
     ProductAnalysis? productAnalysis,
+    DateTime? updatedAt,
+    bool touch = true,
   }) =>
       Medicine(
         id: id,
@@ -519,5 +540,16 @@ class Medicine {
         aiSafetyProfile: aiSafetyProfile ?? this.aiSafetyProfile,
         isCritical: isCritical ?? this.isCritical,
         productAnalysis: productAnalysis ?? this.productAnalysis,
+        // Every edit in the app goes through copyWith, so stamping here is
+        // what keeps [updatedAt] honest without asking ~20 call sites to
+        // remember.
+        //
+        // `touch: false` opts out, for a rewrite that is not a user edit. The
+        // sync merge does not need it today — it passes records through
+        // untouched — but any future code that reshapes a record it did not
+        // author must use it, because re-stamping would make last-write-wins
+        // resolve in favour of whoever synced most recently rather than
+        // whoever actually edited most recently.
+        updatedAt: updatedAt ?? (touch ? DateTime.now().toUtc() : this.updatedAt),
       );
 }

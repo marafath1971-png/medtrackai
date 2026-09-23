@@ -51,6 +51,214 @@ bool takenTodayNeedsPush({
     merged.entries
         .any((e) => !cloud.containsKey(e.key) || cloud[e.key] != e.value);
 
+/// Identity of a dose entry within a single day.
+///
+/// A scheduled dose is uniquely identified by which medicine it is, the slot
+/// it belongs to and the clock time of that slot — the same `medId`/`time`
+/// pairing the server-side missed-dose detector uses to decide what has been
+/// handled. [label] is part of the key because a medicine can have two slots
+/// at the same time (a morning and an evening label can collide once a user
+/// edits a schedule), and because PRN entries carry their own label.
+String doseEntryKey(DoseEntry e) => '${e.medId}|${e.time}|${e.label}';
+
+/// True for an as-needed dose, which is appended by `logPrnDose` rather than
+/// filled into a schedule slot.
+///
+/// These are the one genuinely repeatable kind of entry: taking two rescue
+/// doses an hour apart produces two records that are both real. They are also
+/// removable — `undoPrnDose` deletes one — so they cannot be reconciled by key
+/// without either collapsing duplicates or resurrecting undone doses.
+bool isPrnEntry(DoseEntry e) => e.label.startsWith('PRN-');
+
+/// Reconciles one day's dose log from two devices.
+///
+/// The merge this replaces worked a whole day at a time: for any day the cloud
+/// lacked, and unconditionally for *today*, the local day replaced the cloud
+/// day wholesale. Both devices hold only a partial day, so that silently
+/// destroyed doses — phone A logs the 08:00 dose, phone B logs the 20:00 one,
+/// and whichever syncs last erases the other's, locally and in Firestore.
+///
+/// That is worse than it looks. This log is what adherence scores, streaks and
+/// the stats screens are computed from, and `detectMissedDoses` reads the same
+/// entries to decide which doses were handled — so a dose erased here reads as
+/// never taken, and a caregiver gets alerted about a dose the patient
+/// actually took.
+///
+/// Scheduled entries reconcile by [doseEntryKey]. On a conflict the *handled*
+/// entry wins: marking a dose taken or skipped is a deliberate act, while an
+/// untouched entry only records that nothing has happened yet. That direction
+/// fails safe — wrongly keeping a dose costs a missed alert, wrongly dropping
+/// one sends a caregiver a false alarm about medication.
+///
+/// PRN entries cannot be keyed (see [isPrnEntry]), so the side with more of
+/// them for that medicine is taken as the more complete record.
+List<DoseEntry> mergeDayEntries({
+  required List<DoseEntry> cloud,
+  required List<DoseEntry> local,
+}) {
+  final merged = <String, DoseEntry>{};
+
+  for (final e in [...cloud, ...local].where((e) => !isPrnEntry(e))) {
+    final key = doseEntryKey(e);
+    final existing = merged[key];
+    if (existing == null || (!_isHandled(existing) && _isHandled(e))) {
+      merged[key] = e;
+    }
+  }
+
+  // PRN doses are positional rather than keyed: take whichever side recorded
+  // more for a given medicine, so an undo on one device is not undone by the
+  // other's stale copy and two genuine rescue doses both survive.
+  final byMed = <int, List<DoseEntry>>{};
+  for (final side in [cloud, local]) {
+    final prn = side.where(isPrnEntry);
+    for (final group in _groupByMed(prn).entries) {
+      final existing = byMed[group.key];
+      if (existing == null || group.value.length > existing.length) {
+        byMed[group.key] = group.value;
+      }
+    }
+  }
+
+  return [...merged.values, ...byMed.values.expand((e) => e)];
+}
+
+bool _isHandled(DoseEntry e) => e.taken || e.skipped;
+
+/// Whether two days hold the same doses in the same handled state, so a
+/// reconciliation that changed nothing does not trigger a pointless write.
+/// Order-insensitive: the merge rebuilds the list and does not preserve it.
+bool _sameEntries(List<DoseEntry> a, List<DoseEntry> b) {
+  if (a.length != b.length) return false;
+  String sig(DoseEntry e) =>
+      '${doseEntryKey(e)}|${e.taken}|${e.skipped}';
+  final as = a.map(sig).toList()..sort();
+  final bs = b.map(sig).toList()..sort();
+  for (var i = 0; i < as.length; i++) {
+    if (as[i] != bs[i]) return false;
+  }
+  return true;
+}
+
+Map<int, List<DoseEntry>> _groupByMed(Iterable<DoseEntry> entries) {
+  final out = <int, List<DoseEntry>>{};
+  for (final e in entries) {
+    (out[e.medId] ??= []).add(e);
+  }
+  return out;
+}
+
+/// How long a deletion is remembered before the tombstone is dropped.
+///
+/// A tombstone has to outlive the longest realistic gap between a device
+/// deleting a medicine and every other device coming online to learn about it.
+/// 90 days covers a phone left in a drawer for a season; past that the record
+/// is almost certainly gone from every device anyway, and keeping tombstones
+/// forever would grow the key without bound.
+const Duration kTombstoneRetention = Duration(days: 90);
+
+/// The outcome of reconciling one profile's local and cloud medicine lists.
+class MedicineMergeResult {
+  /// What both sides should end up holding.
+  final List<Medicine> merged;
+
+  /// Local-only or locally-newer records the cloud has not got yet.
+  final List<Medicine> toPush;
+
+  /// Ids the cloud still carries that this device knows were deleted.
+  final List<int> toDelete;
+
+  const MedicineMergeResult({
+    required this.merged,
+    required this.toPush,
+    required this.toDelete,
+  });
+}
+
+/// Reconciles the cloud and local medicine lists.
+///
+/// The old merge was a union by id: cloud records, plus any local id the cloud
+/// did not have. That is wrong in both directions, and for a medication app
+/// both are safety issues rather than annoyances.
+///
+///  * **Deletions came back.** Deleting a medicine on phone A removed it from
+///    the cloud, but phone B still had it locally, saw an id the cloud lacked,
+///    and helpfully re-uploaded it — so it reappeared on phone A. A dose the
+///    user deliberately stopped taking reappearing on their schedule is the
+///    worst version of this bug.
+///  * **Edits were silently reverted.** On an id collision the cloud copy won
+///    unconditionally, so a dose edited offline on phone A was overwritten by
+///    phone B's stale copy the next time A loaded.
+///
+/// The fix needs two things the model did not carry: [Medicine.updatedAt], so
+/// the newer of two versions can be identified, and [tombstones], so "deleted"
+/// is distinguishable from "not yet uploaded".
+///
+/// Conflicts resolve by last-write-wins on [Medicine.updatedAt]. A record with
+/// no timestamp — written by a build before this existed — is treated as older
+/// than any stamped record, so a fresh edit always beats a legacy copy. When
+/// neither side has one the cloud wins, matching the old behaviour.
+MedicineMergeResult mergeMedicines({
+  required List<Medicine> cloud,
+  required List<Medicine> local,
+  required Map<int, DateTime> tombstones,
+}) {
+  final cloudById = {for (final m in cloud) m.id: m};
+  final localById = {for (final m in local) m.id: m};
+
+  final merged = <Medicine>[];
+  final toPush = <Medicine>[];
+  final toDelete = <int>[];
+
+  for (final id in {...cloudById.keys, ...localById.keys}) {
+    // A tombstone outranks both copies: this device watched the user delete
+    // it, which is information neither list carries.
+    if (tombstones.containsKey(id)) {
+      if (cloudById.containsKey(id)) toDelete.add(id);
+      continue;
+    }
+
+    final c = cloudById[id];
+    final l = localById[id];
+
+    if (c == null) {
+      // Local-only and not deleted — genuinely not uploaded yet.
+      merged.add(l!);
+      toPush.add(l);
+    } else if (l == null) {
+      // Cloud-only — added on another device.
+      merged.add(c);
+    } else if (_isNewer(l.updatedAt, c.updatedAt)) {
+      merged.add(l);
+      toPush.add(l);
+    } else {
+      merged.add(c);
+    }
+  }
+
+  return MedicineMergeResult(
+      merged: merged, toPush: toPush, toDelete: toDelete);
+}
+
+/// Whether [local] is strictly newer than [remote], with a null timestamp
+/// sorting older than any real one (and two nulls favouring the remote).
+bool _isNewer(DateTime? local, DateTime? remote) {
+  if (local == null) return false;
+  if (remote == null) return true;
+  return local.isAfter(remote);
+}
+
+/// Drops tombstones past [kTombstoneRetention] so the record cannot grow
+/// without bound. [now] is injectable for tests.
+Map<int, DateTime> pruneTombstones(Map<int, DateTime> tombstones,
+    {DateTime? now}) {
+  final cutoff = (now ?? DateTime.now()).subtract(kTombstoneRetention);
+  return {
+    for (final e in tombstones.entries)
+      if (e.value.isAfter(cutoff)) e.key: e.value
+  };
+}
+
 class MedicationRepositoryImpl implements IMedicationRepository {
   final LocalDataSource localDataSource;
   final FirestoreDataSource firestoreDataSource;
@@ -65,6 +273,40 @@ class MedicationRepositoryImpl implements IMedicationRepository {
   String _key(String base, String? profileId) {
     if (profileId == null) return base;
     return 'p_${profileId}_$base';
+  }
+
+  // ── Deletion tombstones ────────────────────────────────────────────
+  //
+  // A deleted medicine leaves a record of the deletion behind, because
+  // "absent locally" and "deleted" are otherwise indistinguishable: the merge
+  // reads an id the cloud has and this device does not, and cannot tell
+  // whether another device just added it or this device deleted it. Without
+  // the tombstone it guessed "added" and re-downloaded a medicine the user
+  // had deliberately removed.
+  //
+  // Stored unencrypted: an id and a timestamp are not health information, and
+  // keeping them readable means a decryption failure cannot resurrect
+  // medicines.
+
+  Map<int, DateTime> _loadTombstones(String? profileId) {
+    final raw = localDataSource.getJson(_key('medTombstones', profileId));
+    if (raw is! Map) return {};
+    final out = <int, DateTime>{};
+    raw.forEach((k, v) {
+      final id = int.tryParse('$k');
+      final at = DateTime.tryParse('$v');
+      if (id != null && at != null) out[id] = at.toUtc();
+    });
+    return out;
+  }
+
+  Future<void> _saveTombstones(
+      Map<int, DateTime> tombstones, String? profileId) async {
+    final pruned = pruneTombstones(tombstones);
+    await localDataSource.setJson(
+      _key('medTombstones', profileId),
+      pruned.map((k, v) => MapEntry('$k', v.toUtc().toIso8601String())),
+    );
   }
 
   // ── Medicines ──────────────────────────────────────────────────────
@@ -83,25 +325,43 @@ class MedicationRepositoryImpl implements IMedicationRepository {
             .getMedicines(_uid!, profileId: profileId)
             .withHardenedTimeout(taskName: 'getMedicines');
 
-        // Merge strategy
-        final cloudIds = cloudMeds.map((m) => m.id).toSet();
-        final List<Medicine> toPush =
-            localMeds.where((m) => !cloudIds.contains(m.id)).toList();
+        // Reconcile by id, resolving conflicts on updatedAt and honouring any
+        // deletion this device has recorded. See [mergeMedicines].
+        final tombstones = _loadTombstones(profileId);
+        final result = mergeMedicines(
+          cloud: cloudMeds,
+          local: localMeds,
+          tombstones: tombstones,
+        );
 
-        for (var m in toPush) {
+        for (final m in result.toPush) {
           firestoreDataSource
               .saveMedicine(_uid!, m, profileId: profileId)
               .withHardenedTimeout(taskName: 'saveMedicine')
               .catchError(_logSyncError);
-          cloudMeds.add(m);
         }
 
-        if (cloudMeds.isNotEmpty) {
-          await localDataSource.setJson(
-              key, cloudMeds.map((m) => m.toJson()).toList(),
-              encrypt: true);
+        // Apply deletions the cloud has not caught up with — either this
+        // device deleted while offline, or another device has not pushed yet.
+        for (final id in result.toDelete) {
+          firestoreDataSource
+              .deleteMedicine(_uid!, id, profileId: profileId)
+              .catchError(_logSyncError);
         }
-        return cloudMeds;
+
+        // Unconditional: an empty merged list is a real state (the user
+        // deleted their last medicine), and skipping the write when it is
+        // empty — as this used to — left the deleted record sitting in local
+        // storage to be resurrected on the next load.
+        await localDataSource.setJson(
+            key, result.merged.map((m) => m.toJson()).toList(),
+            encrypt: true);
+
+        // Prune expired tombstones opportunistically, on the one path that
+        // already touches them.
+        await _saveTombstones(tombstones, profileId);
+
+        return result.merged;
       } catch (e) {
         // Falling back to local is correct — the user keeps working offline.
         // Logging it is not optional though: a sync that keeps failing while
@@ -116,12 +376,31 @@ class MedicationRepositoryImpl implements IMedicationRepository {
   }
 
   @override
-  Future<void> addMedicine(Medicine med, {String? profileId}) async {
+  Future<void> addMedicine(Medicine medicine, {String? profileId}) async {
     final meds = await getMedicines(profileId: profileId);
     final key = _key('meds', profileId);
+
+    // Stamp on the way in. The constructors leave updatedAt null (a scan or a
+    // manual add has no reason to know about sync), but an unstamped record
+    // loses every conflict, so a medicine added here and edited on another
+    // device would silently revert to whatever that device holds.
+    final med = medicine.updatedAt == null
+        ? medicine.copyWith(updatedAt: DateTime.now().toUtc())
+        : medicine;
+
     meds.add(med);
     await localDataSource.setJson(key, meds.map((m) => m.toJson()).toList(),
         encrypt: true);
+
+    // Adding an id back clears any tombstone for it. Ids are epoch-millis so a
+    // genuine collision is implausible, but a restored backup or an undo can
+    // reintroduce one — and a surviving tombstone would have the next merge
+    // delete the medicine again the moment it synced.
+    final tombstones = _loadTombstones(profileId);
+    if (tombstones.remove(med.id) != null) {
+      await _saveTombstones(tombstones, profileId);
+    }
+
     if (_hasAuth) {
       firestoreDataSource
           .saveMedicine(_uid!, med, profileId: profileId)
@@ -131,11 +410,17 @@ class MedicationRepositoryImpl implements IMedicationRepository {
   }
 
   @override
-  Future<void> updateMedicine(Medicine med, {String? profileId}) async {
+  Future<void> updateMedicine(Medicine medicine, {String? profileId}) async {
     final meds = await getMedicines(profileId: profileId);
     final key = _key('meds', profileId);
-    final idx = meds.indexWhere((m) => m.id == med.id);
+    final idx = meds.indexWhere((m) => m.id == medicine.id);
     if (idx != -1) {
+      // An update is by definition a write, so it always advances the clock —
+      // this is what lets last-write-wins pick it over a stale cloud copy.
+      // Most callers already went through copyWith (which stamps), but not
+      // all, and a re-stamp here is harmless.
+      final med = medicine.copyWith(updatedAt: DateTime.now().toUtc());
+
       meds[idx] = med;
       await localDataSource.setJson(key, meds.map((m) => m.toJson()).toList(),
           encrypt: true);
@@ -150,11 +435,24 @@ class MedicationRepositoryImpl implements IMedicationRepository {
 
   @override
   Future<void> deleteMedicine(int id, {String? profileId}) async {
-    final meds = await getMedicines(profileId: profileId);
     final key = _key('meds', profileId);
-    meds.removeWhere((m) => m.id == id);
+
+    // Read local directly rather than via getMedicines(): that would round
+    // trip to the cloud and re-push local-only records on the way to deleting
+    // one of them, and it would fail outright while offline — precisely when
+    // the tombstone matters most.
+    final meds = _loadLocalMeds(profileId)..removeWhere((m) => m.id == id);
     await localDataSource.setJson(key, meds.map((m) => m.toJson()).toList(),
         encrypt: true);
+
+    // Record the deletion BEFORE attempting the remote one. If the Firestore
+    // call fails — offline, or the app is killed mid-write — the tombstone is
+    // what makes the next successful merge finish the job. Writing it only on
+    // success would lose exactly the deletions that need replaying.
+    final tombstones = _loadTombstones(profileId)
+      ..[id] = DateTime.now().toUtc();
+    await _saveTombstones(tombstones, profileId);
+
     if (_hasAuth) {
       firestoreDataSource
           .deleteMedicine(_uid!, id, profileId: profileId)
@@ -172,15 +470,23 @@ class MedicationRepositoryImpl implements IMedicationRepository {
         final cloudHistory = await firestoreDataSource
             .getRecentHistory(_uid!, days: 30, profileId: profileId)
             .withHardenedTimeout(taskName: 'getHistory');
-        final today = DateTime.now().toIso8601String().substring(0, 10);
         final merged = <String, List<DoseEntry>>{...cloudHistory};
 
+        // Reconcile per dose rather than per day. Replacing a whole day — as
+        // this used to, for every day the cloud lacked and unconditionally for
+        // today — discarded the doses the other device had logged, because
+        // each side only ever holds part of the day. See [mergeDayEntries].
         for (final entry in local.entries) {
-          if (!merged.containsKey(entry.key) || entry.key == today) {
-            merged[entry.key] = entry.value;
+          final cloudDay = cloudHistory[entry.key] ?? const <DoseEntry>[];
+          final day = mergeDayEntries(cloud: cloudDay, local: entry.value);
+          merged[entry.key] = day;
+
+          // Only push when the reconciliation actually adds something the
+          // cloud has not got; otherwise every load rewrites every day.
+          if (day.length != cloudDay.length ||
+              !_sameEntries(day, cloudDay)) {
             firestoreDataSource
-                .saveDayHistory(_uid!, entry.key, entry.value,
-                    profileId: profileId)
+                .saveDayHistory(_uid!, entry.key, day, profileId: profileId)
                 .catchError(_logSyncError);
           }
         }
@@ -316,8 +622,13 @@ class MedicationRepositoryImpl implements IMedicationRepository {
     }
   }
 
-  List<Medicine> _loadLocalMeds() {
-    final j = localDataSource.getJson('meds');
+  /// Reads this profile's medicines from local storage only.
+  ///
+  /// `decrypt: true` matters: [getMedicines] writes this key encrypted, so
+  /// reading it without decrypting yields null and silently reports an empty
+  /// library.
+  List<Medicine> _loadLocalMeds([String? profileId]) {
+    final j = localDataSource.getJson(_key('meds', profileId), decrypt: true);
     if (j == null) return [];
     return (j as List).map((m) => Medicine.fromJson(m)).toList();
   }
