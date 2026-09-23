@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../../domain/entities/entities.dart';
@@ -43,6 +45,28 @@ class AuthController extends ChangeNotifier {
   void setPendingOnboardingProfile(UserProfile p) {
     _pendingOnboardingProfile = p;
   }
+
+  /// Whether signing in should push this device's local data to the cloud.
+  ///
+  /// True only when the account has no cloud profile — a user who set the app
+  /// up offline or signed out, now signing in against an empty cloud. That is
+  /// the one moment the upload is safe, because there is nothing on the server
+  /// for it to overwrite; [IUserRepository.syncToCloud] replaces rather than
+  /// merges.
+  ///
+  /// A *failed* read counts as empty. It is indistinguishable from an empty
+  /// cloud from here, and syncing is the safer reading of the two: the cost of
+  /// being wrong is overwriting cloud data with a superset of itself, while
+  /// not syncing silently strands the user's caregivers, streak and settings
+  /// on one device.
+  ///
+  /// Static and pure so the rule is testable without Firebase — the rest of
+  /// [enterAppAfterAuth] reaches into AuthService statics.
+  @visibleForTesting
+  static bool shouldSyncLocalDataToCloud({
+    required bool hasCloudProfile,
+  }) =>
+      !hasCloudProfile;
 
   /// The signed-in account's name, or null if it cannot be determined.
   String? _accountDisplayName() =>
@@ -126,12 +150,29 @@ class AuthController extends ChangeNotifier {
       _language = resolved.preferredLanguage;
     }
     // Only persist for new accounts — never overwrite a returning user's data.
-    if (existing == null) {
+    if (shouldSyncLocalDataToCloud(hasCloudProfile: existing != null)) {
       try {
         await userRepo.saveProfile(resolved);
       } catch (e) {
         appLogger.e('[AuthController] saveProfile after auth failed: $e');
       }
+
+      // No cloud profile means an empty cloud, which is the one moment
+      // syncToCloud is for: everything built before signing in — caregivers,
+      // streak, theme, language — lives only on this device. Medicines and
+      // history reconcile themselves on every load, but these have no merge
+      // step, so without this they stayed local until each was next edited
+      // and silently failed to follow the user to a second device.
+      //
+      // syncToCloud was written and documented for exactly this and never
+      // called from anywhere; it was not even on IUserRepository.
+      //
+      // Deliberately not awaited: it is a background upload of data already
+      // safe on disk, and blocking here would hold the user on the auth
+      // screen behind a network round-trip. It logs its own failures.
+      unawaited(userRepo.syncToCloud().catchError((Object e) {
+        appLogger.w('[AuthController] first-sign-in cloud sync failed: $e');
+      }));
     }
     _pendingOnboardingProfile = null;
     _isLocked = resolved.biometricEnabled;

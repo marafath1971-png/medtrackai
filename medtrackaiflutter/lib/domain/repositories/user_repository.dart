@@ -18,6 +18,18 @@ abstract class IUserRepository {
   Future<String> getLanguage();
   Future<void> saveLanguage(String language);
 
+  /// Uploads everything held locally to Firestore.
+  ///
+  /// For the one moment it is meant for: a user who has been working offline
+  /// or signed out, signing in for the first time against an empty cloud.
+  /// Medicines and history reconcile themselves on every load, but profile,
+  /// caregivers, streak, theme and language have no such merge step — without
+  /// this they exist only on the device until each is next edited.
+  ///
+  /// Must only be called when the cloud is known to be empty; it overwrites
+  /// rather than merges.
+  Future<void> syncToCloud();
+
   Future<void> createInvite(String patientUid, Caregiver cg);
   Future<Caregiver?> getInvite(String code);
   Future<Map<String, dynamic>?> getRawInvite(String code);

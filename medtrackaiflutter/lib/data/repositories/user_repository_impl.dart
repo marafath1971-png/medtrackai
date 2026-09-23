@@ -255,6 +255,7 @@ class UserRepositoryImpl implements IUserRepository {
   // ── Offline-to-Cloud Sync ──────────────────────────────────────────
   /// Upload all local user data to Firestore. Called once after first sign-in
   /// when Firestore has no user document yet.
+  @override
   Future<void> syncToCloud() async {
     if (!_hasAuth) return;
     try {
