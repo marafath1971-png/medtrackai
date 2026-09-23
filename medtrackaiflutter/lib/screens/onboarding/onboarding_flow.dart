@@ -778,6 +778,10 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           title: 'Know it. *Trust it.* Succeed with it.',
           subtitle:
               'A calm plan for every dose — built around you in under a minute.',
+          // Below the headline, filling what used to be a third of a screen of
+          // empty cream above the CTA — the app asked for a tap before it had
+          // given any reason for one.
+          extra: const [ObWelcomeValueProps()],
           cta: _obt('ob_getStarted'),
           skip: false,
         );

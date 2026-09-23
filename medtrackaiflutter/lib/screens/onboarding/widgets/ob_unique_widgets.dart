@@ -8,6 +8,7 @@ import '../../../widgets/common/animated_pressable.dart';
 import '../onboarding_controller.dart';
 import '../onboarding_theme.dart';
 import 'ob_photo_hero.dart';
+import 'ob_widgets.dart';
 import '../../../l10n/app_localizations.dart';
 
 // ════════════════════════════════════════════════════════════════════════
@@ -15,18 +16,133 @@ import '../../../l10n/app_localizations.dart';
 // Cream canvas · navy CTA · gold accent · tall selection cards
 // ════════════════════════════════════════════════════════════════════════
 
-/// Laurel wreath + thumbs-up hero — "Your goal will be reached in our app."
-/// Now photo-led for a hooked first impression (cream+lime brand chip).
+/// The first screen anyone sees.
+///
+/// It used to be a 280px photo, a headline and a subtitle — then roughly a
+/// third of the screen of empty cream above the CTA. Nothing on it gave a
+/// reason to continue: the app asked for a tap before offering anything in
+/// return, which is the weakest possible opening for a paid health app.
+///
+/// This fills that space with the two things that actually move a first-run
+/// decision: evidence that other people rely on it, and a concrete statement
+/// of what it does. The photo shrinks to make room, because a smaller image
+/// plus proof outperforms a larger image alone.
 class ObLaurelWelcome extends StatelessWidget {
   const ObLaurelWelcome({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // 300, not the original 280: with the value props now carrying the lower
+    // half of the screen, a slightly taller photo closes the last of the gap
+    // above the CTA and gives the opening image more presence.
     return const ObPhotoHero(
       asset: PremiumPhotos.welcome,
-      height: 280,
+      height: 300,
       badge: 'MED AI',
       overlayLine: 'Your adherence goal — reached here.',
+    );
+  }
+}
+
+/// The capability lines, shown *below* the headline.
+///
+/// They belong after the title, not inside the hero: the first render of this
+/// put them between the photo and the headline, so the screen listed features
+/// before it had said what the app was. The [ObScaffold] `extra` slot renders
+/// after [ObHeadline], which is the correct reading order — what this is, then
+/// why it is worth a tap.
+class ObWelcomeValueProps extends StatelessWidget {
+  const ObWelcomeValueProps({super.key});
+
+  @override
+  Widget build(BuildContext context) => const _ObTrustRail();
+}
+
+/// Entrance delays for the three capability lines, so they arrive in sequence
+/// rather than the whole block landing at once. The scaffold fades the hero in
+/// at 0ms and the headline at 80ms; these continue that cadence and finish
+/// before the eye reaches the CTA.
+const List<int> _kValueLineDelays = [160, 240, 320];
+
+/// What the app does, stated as what the user gets.
+///
+/// There is deliberately **no rating and no install count** here. A five-star
+/// row and a "4.9" were removed from this codebase once already as fabricated
+/// claims — `invite_error_test.dart` guards the strings, and the comment there
+/// calls a rating above a purchase button the highest-risk placement for one.
+/// The first screen of a medication app is the same kind of placement. When
+/// there are real numbers to cite, they can go here; inventing them to fill
+/// space would trade the one thing this product cannot afford to lose.
+///
+/// The capability lines describe behaviour that exists in the app today: the
+/// pill scanner, the interaction scanner, and caregiver missed-dose alerts.
+class _ObTrustRail extends StatelessWidget {
+  const _ObTrustRail();
+
+  @override
+  Widget build(BuildContext context) {
+    const lines = [
+      (
+        icon: Icons.center_focus_strong_rounded,
+        text: 'Scan any pill to know exactly what it is',
+      ),
+      (
+        icon: Icons.shield_moon_rounded,
+        text: 'Catches risky interactions before you take them',
+      ),
+      (
+        icon: Icons.favorite_rounded,
+        text: 'Quietly tells your people if a dose is missed',
+      ),
+    ];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        for (var i = 0; i < lines.length; i++) ...[
+          if (i > 0) const SizedBox(height: 10),
+          _ObValueLine(icon: lines[i].icon, text: lines[i].text)
+              .obFadeUp(delayMs: _kValueLineDelays[i]),
+        ],
+      ],
+    );
+  }
+}
+
+/// One capability, stated as what the user gets rather than what we built.
+class _ObValueLine extends StatelessWidget {
+  final IconData icon;
+  final String text;
+
+  const _ObValueLine({required this.icon, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    final p = ObPalette.of(context);
+
+    return Row(
+      children: [
+        Container(
+          width: 26,
+          height: 26,
+          decoration: BoxDecoration(
+            color: p.accent.withValues(alpha: 0.12),
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Icon(icon, size: 15, color: p.accentInk),
+        ),
+        const SizedBox(width: 11),
+        Expanded(
+          child: Text(
+            text,
+            style: AppTypography.bodySmall.copyWith(
+              color: p.text,
+              fontWeight: FontWeight.w600,
+              height: 1.25,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
