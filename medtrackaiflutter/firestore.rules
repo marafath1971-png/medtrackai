@@ -89,6 +89,41 @@ service cloud.firestore {
         allow read, write: if request.auth != null && request.auth.uid == userId;
         allow read: if request.auth != null && isActiveCaregiver(userId);
       }
+
+      // ── Dependent profiles (family members) ─────────────────────────
+      //
+      // The app manages schedules for children and elderly relatives under
+      // users/{uid}/dependents/{profileId}, mirroring the owner's own layout.
+      // Rules do not cascade into subcollections, so without these blocks the
+      // catch-all `allow read, write: if false` at the bottom denied every
+      // dependent read and write — the caregiver persona's entire dataset.
+      //
+      // Permissions deliberately mirror the owner's own collections above: a
+      // dependent is the owner's data, not a separate principal, and an
+      // active caregiver watching the account can read it but never write.
+      //
+      // The parent doc holds the dependent's `takenToday` map (written by
+      // FirestoreDataSource.saveTakenToday, which is what creates the doc at
+      // all — it is absent until a dose is logged).
+      match /dependents/{profileId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read: if request.auth != null && isActiveCaregiver(userId);
+
+        match /medicines/{medId} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
+          allow read: if request.auth != null && isActiveCaregiver(userId);
+        }
+
+        match /history/{dateKey} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
+          allow read: if request.auth != null && isActiveCaregiver(userId);
+        }
+
+        match /symptoms/{symptomId} {
+          allow read, write: if request.auth != null && request.auth.uid == userId;
+          allow read: if request.auth != null && isActiveCaregiver(userId);
+        }
+      }
     }
 
     // ── Caregiver Invites ───────────────────────────────────────────────
