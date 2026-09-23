@@ -1077,6 +1077,23 @@ class _MedicineDetailScreenState extends State<MedicineDetailScreen> {
                       state.updateMed(med.id, count: med.count + 10);
                     },
                     L: L),
+                // Marks this medicine for the server-side missed-dose watch.
+                // `detectMissedDoses` only ever scans meds with isCritical ==
+                // true, so without this toggle the caregiver alert path can
+                // never fire for any medicine.
+                _ManagementToggleTile(
+                    icon: Icons.warning_amber_rounded,
+                    title: 'Critical medication',
+                    subtitle: 'Alert my caregivers if a dose is missed',
+                    iconColor: AppColors.red,
+                    iconBg: AppColors.pastelPink,
+                    color: L.text,
+                    value: med.isCritical,
+                    onChanged: (v) {
+                      HapticEngine.selection();
+                      state.updateMedicine(med.copyWith(isCritical: v));
+                    },
+                    L: L),
                 _ManagementTile(
                     icon: Icons.delete_outline_rounded,
                     title: 'Remove medicine',
@@ -1870,6 +1887,73 @@ class _ManagementTile extends StatelessWidget {
               trailing: Icon(Icons.chevron_right_rounded,
                   color: L.sub.withValues(alpha: 0.3), size: 24)),
         ),
+      ),
+    );
+  }
+}
+
+/// A [_ManagementTile] whose trailing affordance is a switch rather than a
+/// chevron — for settings that are state on the medicine itself instead of a
+/// destination.
+class _ManagementToggleTile extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color color;
+  final Color iconBg;
+  final Color iconColor;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+  final AppThemeColors L;
+  const _ManagementToggleTile(
+      {required this.icon,
+      required this.title,
+      required this.subtitle,
+      required this.color,
+      required this.iconBg,
+      required this.iconColor,
+      required this.value,
+      required this.onChanged,
+      required this.L});
+  @override
+  Widget build(BuildContext context) {
+    return Semantics(
+      toggled: value,
+      label: title,
+      hint: subtitle,
+      child: Container(
+        constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+        decoration: BoxDecoration(
+            border: Border(
+                bottom: BorderSide(
+                    color: L.glassBorder.withValues(alpha: 0.08),
+                    width: 0.5))),
+        child: ListTile(
+            contentPadding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.gutter, vertical: AppSpacing.p8),
+            leading: Container(
+              padding: const EdgeInsets.all(AppSpacing.p8),
+              decoration: BoxDecoration(
+                color: iconBg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Icon(icon, size: 20, color: iconColor),
+            ),
+            title: Text(title,
+                style: AppTypography.titleMedium
+                    .copyWith(color: color, fontSize: 15, letterSpacing: -0.5)),
+            subtitle: Text(subtitle,
+                style: AppTypography.labelSmall
+                    .copyWith(color: L.sub.withValues(alpha: 0.7))),
+            // The tile's own Semantics already announces the toggle; the raw
+            // Switch would otherwise be read out a second time.
+            trailing: ExcludeSemantics(
+              child: Switch.adaptive(
+                value: value,
+                activeTrackColor: AppColors.red,
+                onChanged: onChanged,
+              ),
+            )),
       ),
     );
   }
