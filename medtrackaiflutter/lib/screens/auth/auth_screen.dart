@@ -33,6 +33,46 @@ class AuthScreen extends StatefulWidget {
   /// Anything not listed falls through to "try again", so codes where retrying
   /// cannot help — a disabled account, or being rate limited — must be named
   /// explicitly or the advice is wrong.
+  /// Maps a google_sign_in failure to what the user should be told, or null
+  /// when there is nothing to say.
+  ///
+  /// The plugin reports configuration faults and user actions through the same
+  /// exception type, so without this they all collapsed into "Google sign-in
+  /// failed. Please try again." — advice that is actively wrong for the two
+  /// cases that actually shipped:
+  ///
+  ///  * `clientConfigurationError` — serverClientId was never passed to
+  ///    initialize(), so every Android tap failed. No retry could fix it.
+  ///  * `[28444] Developer console is not set up correctly` — the app's
+  ///    signing certificate (SHA-1) is not registered in the Firebase project,
+  ///    so sign-in is rejected *after* the account picker. Also unfixable by
+  ///    the user, and it looks like a rejection of their account.
+  ///
+  /// Backing out of the account picker is not a failure and gets no message.
+  @visibleForTesting
+  static String? friendlyGoogleError(Object error) {
+    final text = error.toString();
+
+    if (text.contains('canceled') || text.contains('cancelled')) return null;
+
+    // Server-side setup faults. The user cannot act on the cause, so point
+    // them at the method that does work instead of asking them to retry.
+    const unavailable =
+        'Google sign-in is unavailable right now. Please use email.';
+    if (text.contains('clientConfigurationError') ||
+        text.contains('28444') ||
+        text.contains('Developer console is not set up correctly') ||
+        text.contains('DEVELOPER_ERROR')) {
+      return unavailable;
+    }
+
+    if (text.contains('network') || text.contains('NETWORK')) {
+      return 'No internet connection. Check your network and try again.';
+    }
+
+    return 'Google sign-in failed. Please try again.';
+  }
+
   @visibleForTesting
   static String friendlyAuthError(String code) {
     switch (code) {
@@ -60,7 +100,11 @@ class AuthScreen extends StatefulWidget {
         // Retrying can never succeed; the user needs support.
         return 'This account has been disabled. Contact support.';
       case 'operation-not-allowed':
-        return 'This sign-in method is not enabled.';
+        // A server-side configuration fault, not anything the user did or can
+        // fix. The old text ("This sign-in method is not enabled") described
+        // the console setting rather than telling the person what to do, so it
+        // read as a dead end mid-signup.
+        return 'Sign-up is temporarily unavailable. Please try another method.';
       case 'requires-recent-login':
         return 'Please sign in again to continue';
       default:
@@ -144,7 +188,15 @@ class _AuthScreenState extends State<AuthScreen> {
     );
   }
 
-  Future<void> _submit() async {
+  /// Runs the email sign-in/sign-up and returns a user-facing error, or null
+  /// on success.
+  ///
+  /// Returning the message rather than only setting [_error] is what lets the
+  /// email sheet stay open and show the failure against the fields that caused
+  /// it. It previously closed the sheet *before* submitting, so an error
+  /// appeared as a banner on the screen behind — the user lost their typed
+  /// credentials and the message was detached from the form.
+  Future<String?> _submit() async {
     setState(() {
       _error = null;
       _loading = true;
@@ -158,9 +210,11 @@ class _AuthScreenState extends State<AuthScreen> {
             _emailCtrl.text.trim(), _passCtrl.text);
       }
       await _onAuthSuccess();
+      return null;
     } on FirebaseAuthException catch (e) {
-      if (!mounted) return;
-      setState(() => _error = _friendlyError(e.code));
+      final message = _friendlyError(e.code);
+      if (mounted) setState(() => _error = message);
+      return message;
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -179,7 +233,7 @@ class _AuthScreenState extends State<AuthScreen> {
       setState(() => _error = _friendlyError(e.code));
     } catch (e) {
       if (!mounted) return;
-      setState(() => _error = 'Google sign-in failed. Please try again.');
+      setState(() => _error = AuthScreen.friendlyGoogleError(e));
     } finally {
       if (mounted) setState(() => _loading = false);
     }
@@ -234,7 +288,13 @@ class _AuthScreenState extends State<AuthScreen> {
         var sheetSignUp = _isSignUp;
         var sheetShowPass = _showPass;
         var sheetLoading = _loading;
-        String? sheetError = _error;
+
+        // Deliberately NOT seeded from [_error]. That carried a failure from a
+        // different method into this one — a failed Google sign-in rendered
+        // "Google sign-in failed" inside the email sheet, and again on the
+        // sign-up screen, so the user was told the wrong thing about the
+        // method they had just switched to.
+        String? sheetError;
 
         return StatefulBuilder(
           builder: (context, setSheetState) {
@@ -260,12 +320,46 @@ class _AuthScreenState extends State<AuthScreen> {
                 setState(() => _showPass = sheetShowPass);
               },
               onSubmit: () async {
-                Navigator.pop(ctx);
+                // Validate before reaching the network so an empty field is
+                // answered instantly and in place.
+                final email = _emailCtrl.text.trim();
+                final pass = _passCtrl.text;
+                if (email.isEmpty || !email.contains('@')) {
+                  HapticEngine.alertWarning();
+                  setSheetState(
+                      () => sheetError = 'Please enter a valid email');
+                  return;
+                }
+                if (pass.length < 6) {
+                  HapticEngine.alertWarning();
+                  setSheetState(() => sheetError =
+                      'Password must be at least 6 characters');
+                  return;
+                }
+
                 setState(() {
                   _isSignUp = sheetSignUp;
                   _showPass = sheetShowPass;
                 });
-                await _submit();
+                setSheetState(() {
+                  sheetLoading = true;
+                  sheetError = null;
+                });
+
+                final error = await _submit();
+
+                // Only leave on success. A failure keeps the sheet — and the
+                // typed credentials — in place, with the message beside the
+                // fields rather than on the screen behind.
+                if (error == null) {
+                  if (ctx.mounted) Navigator.pop(ctx);
+                  return;
+                }
+                HapticEngine.alertWarning();
+                setSheetState(() {
+                  sheetLoading = false;
+                  sheetError = error;
+                });
               },
               onForgot: _forgotPassword,
             );
@@ -619,12 +713,30 @@ class _EmailAuthSheet extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Text(
-                    isSignUp ? 'Sign up with email' : 'Sign in with email',
-                    style: AppTypography.headlineSmall.copyWith(
-                      color: L.text,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: -0.4,
+                  // Cross-fade the title so switching mode reads as the same
+                  // sheet changing its mind, not a new screen appearing.
+                  AnimatedSwitcher(
+                    duration: MedAiA11y.motion(context, const Duration(milliseconds: 220)),
+                    switchInCurve: Curves.easeOutCubic,
+                    switchOutCurve: Curves.easeInCubic,
+                    transitionBuilder: (child, animation) => FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 0.25),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      ),
+                    ),
+                    child: Text(
+                      isSignUp ? 'Sign up with email' : 'Sign in with email',
+                      key: ValueKey(isSignUp),
+                      style: AppTypography.headlineSmall.copyWith(
+                        color: L.text,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: -0.4,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -660,31 +772,57 @@ class _EmailAuthSheet extends StatelessWidget {
                     ),
                     L: L,
                   ),
-                  if (!isSignUp) ...[
-                    const SizedBox(height: 8),
-                    Align(
-                      alignment: AlignmentDirectional.centerEnd,
-                      child: Semantics(
-                        button: true,
-                        label: l10n.authForgotPassword2,
-                        child: AnimatedPressable(
-                          onTap: onForgot,
-                          hitTestPadding: const EdgeInsets.all(4),
-                          child: Text(
-                            l10n.authForgotPassword,
-                            style: AppTypography.labelMedium.copyWith(
-                              color: AppColors.limeDeep,
-                              fontWeight: FontWeight.w700,
-                            ),
+                  // "Forgot password" belongs to sign-in only; size it down
+                  // rather than removing it outright so the CTA glides instead
+                  // of jumping when the mode changes.
+                  AnimatedSize(
+                    duration: MedAiA11y.motion(context, const Duration(milliseconds: 220)),
+                    curve: Curves.easeOutCubic,
+                    alignment: Alignment.topCenter,
+                    child: !isSignUp
+                        ? Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const SizedBox(height: 8),
+                              Align(
+                                alignment: AlignmentDirectional.centerEnd,
+                                child: Semantics(
+                                  button: true,
+                                  label: l10n.authForgotPassword2,
+                                  child: AnimatedPressable(
+                                    onTap: onForgot,
+                                    hitTestPadding: const EdgeInsets.all(4),
+                                    child: Text(
+                                      l10n.authForgotPassword,
+                                      style:
+                                          AppTypography.labelMedium.copyWith(
+                                        color: AppColors.limeDeep,
+                                        fontWeight: FontWeight.w700,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          )
+                        : const SizedBox.shrink(),
+                  ),
+                  // The error is the one thing here the user must not miss, so
+                  // it expands into place instead of appearing between frames.
+                  AnimatedSize(
+                    duration: MedAiA11y.motion(context, const Duration(milliseconds: 220)),
+                    curve: Curves.easeOutCubic,
+                    alignment: Alignment.topCenter,
+                    child: error == null
+                        ? const SizedBox.shrink()
+                        : Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              const SizedBox(height: 12),
+                              _AuthErrorBanner(message: error!),
+                            ],
                           ),
-                        ),
-                      ),
-                    ),
-                  ],
-                  if (error != null) ...[
-                    const SizedBox(height: 12),
-                    _AuthErrorBanner(message: error!),
-                  ],
+                  ),
                   const SizedBox(height: 20),
                   MedAiCTA(
                     label: isSignUp ? 'Create Account' : 'Sign In',
@@ -705,12 +843,16 @@ class _EmailAuthSheet extends StatelessWidget {
                         hitTestPadding: const EdgeInsets.all(8),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: Text(
-                            isSignUp
-                                ? 'Already have an account? Sign In'
-                                : "Don't have an account? Sign Up",
-                            style: AppTypography.labelMedium.copyWith(
-                              color: L.sub,
+                          child: AnimatedSwitcher(
+                            duration: MedAiA11y.motion(context, const Duration(milliseconds: 220)),
+                            child: Text(
+                              isSignUp
+                                  ? 'Already have an account? Sign In'
+                                  : "Don't have an account? Sign Up",
+                              key: ValueKey(isSignUp),
+                              style: AppTypography.labelMedium.copyWith(
+                                color: L.sub,
+                              ),
                             ),
                           ),
                         ),

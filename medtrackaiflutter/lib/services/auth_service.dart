@@ -13,6 +13,36 @@ class AuthService {
   static final _auth = FirebaseAuth.instance;
   static final _google = GoogleSignIn.instance;
 
+  /// OAuth **web** client id for this Firebase project (the `client_type: 3`
+  /// entry in google-services.json / GoogleService-Info.plist).
+  ///
+  /// google_sign_in 7.x does not read this from google-services.json: it must
+  /// be handed to [GoogleSignIn.initialize]. Without it every Android sign-in
+  /// failed with `clientConfigurationError, serverClientId must be provided`,
+  /// which — combined with Email/Password being disabled in the console —
+  /// meant a fresh install could not get past the auth wall at all.
+  ///
+  /// It is also what makes the returned idToken addressed to *our* backend, so
+  /// [GoogleAuthProvider.credential] produces a token Firebase will accept.
+  /// This is a public client identifier, not a secret.
+  static const String _serverClientId =
+      '789677467574-1csqahgeoho5oa46r3ppf6f8nqf1lc23.apps.googleusercontent.com';
+
+  /// google_sign_in 7.x requires initialize() before any other call, and
+  /// calling it twice throws — so it is done once, lazily, and the future is
+  /// reused. A failed attempt is cleared so the next tap can retry rather than
+  /// being stuck behind a permanently rejected future.
+  static Future<void>? _googleInit;
+
+  static Future<void> _ensureGoogleInitialized() {
+    return _googleInit ??= _google
+        .initialize(serverClientId: _serverClientId)
+        .catchError((Object e) {
+      _googleInit = null;
+      throw e;
+    });
+  }
+
   // Stream of auth state changes
   static Stream<User?> get authStateChanges => _auth.authStateChanges();
 
@@ -48,7 +78,7 @@ class AuthService {
   // ── Google Sign-In ─────────────────────────────────────────────────
   static Future<UserCredential?> signInWithGoogle() async {
     try {
-      await _google.initialize();
+      await _ensureGoogleInitialized();
       final googleUser = await _google.authenticate();
       final googleAuth = googleUser.authentication;
       final credential = GoogleAuthProvider.credential(

@@ -12,7 +12,12 @@
           "package_name": "com.medtracker.medtrackaiflutter"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "789677467574-1csqahgeoho5oa46r3ppf6f8nqf1lc23.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBUItN3wcD15myQTiHYwCheIPFar5rUHi4"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "789677467574-1csqahgeoho5oa46r3ppf6f8nqf1lc23.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "789677467574-rbeu9fl0o54m4dn12g3ejh9p7ui0oviv.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.medtracker.medtrackaiflutter"
+              }
+            }
+          ]
         }
       }
     }
