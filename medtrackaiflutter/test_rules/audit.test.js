@@ -162,6 +162,25 @@ describe('FINDING 3: isActiveCaregiver keying — FIXED', () => {
       { status: 'active', cgId: 1 }));
   });
 
+  it('a caregiver may update/refresh their existing active grant', async () => {
+    await seed(async (db) => {
+      await setDoc(doc(db, `users/${PATIENT}/caregiverAccess/${CAREGIVER}`), {
+        status: 'active', cgId: 1,
+      });
+    });
+    const db = env.authenticatedContext(CAREGIVER).firestore();
+    await assertSucceeds(setDoc(
+      doc(db, `users/${PATIENT}/caregiverAccess/${CAREGIVER}`),
+      { status: 'active', cgId: 1, refreshed: true }, { merge: true }));
+  });
+
+  it('a caregiver cannot set status to something other than active', async () => {
+    const db = env.authenticatedContext(CAREGIVER).firestore();
+    await assertFails(setDoc(
+      doc(db, `users/${PATIENT}/caregiverAccess/${CAREGIVER}`),
+      { status: 'revoked' }, { merge: true }));
+  });
+
   it('a caregiver cannot grant access to somebody else', async () => {
     const db = env.authenticatedContext(CAREGIVER).firestore();
     await assertFails(setDoc(

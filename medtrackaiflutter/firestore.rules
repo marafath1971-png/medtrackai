@@ -33,6 +33,28 @@ service cloud.firestore {
       return resource != null && resource.data.patientUid == request.auth.uid;
     }
 
+    // ── Helper: Has this user let the caller see their steps? ──────────
+    // A grant at users/{userId}/stepPartners/{callerUid} is the whole test;
+    // unpairing deletes it. Deliberately separate from caregiverAccess: a
+    // walking partner sees step counts and nothing else.
+    function isStepPartner(userId) {
+      return exists(/databases/$(database)/documents/users/$(userId)/stepPartners/$(request.auth.uid));
+    }
+
+    // ── Helper: Is the caller redeeming a live step invite from this user? ─
+    // The grant being created must name the invite it came from, and that
+    // invite must belong to the user whose steps are being opened up and
+    // still be inside its 24 hours. get() reads the invite as it was before
+    // the write, so the same batch can delete it.
+    function redeemsStepInvite(userId) {
+      let code = request.resource.data.get('inviteCode', '');
+      let path = /databases/$(database)/documents/stepInvites/$(code);
+      return code is string && code.size() == 6
+        && exists(path)
+        && get(path).data.ownerUid == userId
+        && request.time < get(path).data.createdAt + duration.value(86400, 's');
+    }
+
     // ── User Data (Owner & Caregiver access) ──────────────────────────
     match /users/{userId} {
       allow read, write: if request.auth != null && request.auth.uid == userId;
@@ -66,10 +88,10 @@ service cloud.firestore {
         allow read: if request.auth != null
                     && (request.auth.uid == userId
                         || request.auth.uid == caregiverUid);
-        allow create: if request.auth != null
-                      && request.auth.uid == caregiverUid
-                      && request.resource.data.status == 'active';
-        allow update: if request.auth != null && request.auth.uid == userId;
+        allow create, update: if request.auth != null && (
+          (request.auth.uid == caregiverUid && request.resource.data.status == 'active')
+          || request.auth.uid == userId
+        );
         allow delete: if request.auth != null
                       && (request.auth.uid == userId
                           || request.auth.uid == caregiverUid);
@@ -88,6 +110,54 @@ service cloud.firestore {
       match /symptoms/{symptomId} {
         allow read, write: if request.auth != null && request.auth.uid == userId;
         allow read: if request.auth != null && isActiveCaregiver(userId);
+      }
+
+      // ── Steps ────────────────────────────────────────────────────────
+      //
+      // Daily totals. The owner writes; a walking partner reads. Caregivers
+      // are deliberately not included — pairing for steps and watching
+      // someone's medication are separate consents.
+      match /stepDays/{dateKey} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+        allow read: if request.auth != null && isStepPartner(userId);
+      }
+
+      // Grants: users/{userId}/stepPartners/{partnerUid} lets partnerUid read
+      // userId's stepDays. The owner can always grant and revoke on their own
+      // data. Anyone else can create a grant for themselves only by redeeming
+      // an invite the owner issued — without that check any signed-in user
+      // could open up any other user's step history.
+      match /stepPartners/{partnerUid} {
+        allow read: if request.auth != null
+                    && (request.auth.uid == userId
+                        || request.auth.uid == partnerUid);
+        allow create, update: if request.auth != null && request.auth.uid == userId;
+        allow create: if request.auth != null
+                      && request.auth.uid == partnerUid
+                      && request.resource.data.keys().hasOnly(
+                           ['uid', 'name', 'avatar', 'inviteCode', 'since'])
+                      && request.resource.data.uid == partnerUid
+                      && request.resource.data.name is string
+                      && request.resource.data.name.size() <= 60
+                      && redeemsStepInvite(userId);
+        // Either side can end it.
+        allow delete: if request.auth != null
+                      && (request.auth.uid == userId
+                          || request.auth.uid == partnerUid);
+      }
+
+      // Cheers and nudges from a partner. The shape is pinned so this cannot
+      // become a channel for arbitrary text, and only the recipient can read
+      // or clear them.
+      match /stepCheers/{cheerId} {
+        allow read, delete: if request.auth != null && request.auth.uid == userId;
+        allow create: if request.auth != null
+                      && isStepPartner(userId)
+                      && request.resource.data.keys().hasOnly(
+                           ['fromUid', 'kind', 'createdAt'])
+                      && request.resource.data.fromUid == request.auth.uid
+                      && request.resource.data.kind in ['cheer', 'nudge']
+                      && request.resource.data.createdAt == request.time;
       }
 
       // ── Dependent profiles (family members) ─────────────────────────
@@ -156,6 +226,48 @@ service cloud.firestore {
         resource.data.patientUid == request.auth.uid
         || isActiveCaregiver(resource.data.patientUid)
       );
+    }
+
+    // ── Step partner invites ────────────────────────────────────────────
+    //
+    // Same model as caregiverInvites: a 6-character code, readable by whoever
+    // holds it for 24 hours, naming only its owner. The shape is pinned for
+    // the same reason — a name here would be shown to anyone who guesses a
+    // code.
+    match /stepInvites/{inviteCode} {
+      allow read: if request.auth != null && (
+        resource == null
+        || resource.data.ownerUid == request.auth.uid
+        || request.time < resource.data.createdAt + duration.value(86400, 's')
+      );
+      allow create: if request.auth != null
+                    && request.resource.data.ownerUid == request.auth.uid
+                    && request.resource.data.keys().hasOnly(['ownerUid', 'createdAt'])
+                    && request.resource.data.createdAt == request.time;
+      // The owner withdrawing it, or the redeemer consuming it — which is
+      // only true once their grant exists, checked against the state after
+      // the batch that creates both.
+      allow delete: if request.auth != null && (
+        resource.data.ownerUid == request.auth.uid
+        || existsAfter(/databases/$(database)/documents/users/$(resource.data.ownerUid)/stepPartners/$(request.auth.uid))
+      );
+    }
+
+    // ── Missed-dose escalation records ──────────────────────────────────
+    //
+    // Written only by Cloud Functions (detectMissedDoses creates and extends
+    // them, acknowledgeMissedDose claims them), so clients never write. Each
+    // names a patient's medicine, so reads are limited to the patient and to
+    // the caregivers the alert actually reached — list queries included, which
+    // is why this tests resource.data rather than a path segment: a caregiver
+    // asks for `alertedUids array-contains me` and the rule proves every
+    // returned doc satisfies it.
+    match /missedDoseAlerts/{alertId} {
+      allow read: if request.auth != null && (
+        resource.data.patientUid == request.auth.uid
+        || request.auth.uid in resource.data.alertedUids
+      );
+      allow write: if false;
     }
 
     // ── Deny everything else ────────────────────────────────────────────
