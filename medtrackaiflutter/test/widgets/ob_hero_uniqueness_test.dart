@@ -14,7 +14,8 @@ void main() {
   late String flow;
 
   setUpAll(() {
-    flow = File('lib/screens/onboarding/onboarding_flow.dart').readAsStringSync();
+    flow =
+        File('lib/screens/onboarding/onboarding_flow.dart').readAsStringSync();
   });
 
   test('no hero scene is used twice in the funnel', () {
@@ -46,6 +47,7 @@ void main() {
       PremiumPhotos.scanFeature,
       PremiumPhotos.routine,
       PremiumPhotos.scanHow,
+      PremiumPhotos.reminders,
       PremiumPhotos.finish,
     ]) {
       expect(File(asset).existsSync(), isTrue, reason: '$asset is missing');
@@ -62,10 +64,11 @@ void main() {
       PremiumPhotos.scanFeature,
       PremiumPhotos.routine,
       PremiumPhotos.scanHow,
+      PremiumPhotos.reminders,
       PremiumPhotos.finish,
     };
 
-    expect(assets.length, 7,
+    expect(assets.length, 8,
         reason: 'distinct scenes must not share an underlying photo');
   });
 }

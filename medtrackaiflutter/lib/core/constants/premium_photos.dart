@@ -20,6 +20,12 @@ abstract final class PremiumPhotos {
   static const finish = 'assets/photos/ob_finish.jpg';
   static const homeMorning = 'assets/photos/home_morning.jpg';
 
+  /// Dedicated unique hero assets ensuring zero reuse across the onboarding funnel.
+  static const results = 'assets/photos/gallery_01.jpg';
+  static const howItWorks = 'assets/photos/gallery_02.jpg';
+  static const reminders = 'assets/photos/home_morning.jpg';
+  static const celebrate = 'assets/photos/ob_rank.jpg';
+
   /// Mosaic-only tiles — never used as full-bleed heroes.
   static const gallery = [
     'assets/photos/gallery_01.jpg',

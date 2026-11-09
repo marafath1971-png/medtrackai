@@ -19,8 +19,8 @@ import '../../providers/app_state.dart';
 import '../../services/notification_service.dart';
 import '../../services/purchases_service.dart';
 import '../../services/remote_config_service.dart';
-import '../../screens/onboarding/widgets/ob_video_style_widgets.dart';
 import '../../l10n/app_localizations.dart';
+import 'paywall_plans.dart';
 
 // ══════════════════════════════════════════════════════════════
 // PREMIUM PAYWALL OVERLAY — 2026 conversion + store compliance
@@ -88,16 +88,41 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   bool _exitOfferShown = false;
 
   static const _features = [
-    _Feature(icon: Icons.document_scanner_rounded, label: 'Unlimited AI Scans', sub: 'No daily limit on pill recognition'),
-    _Feature(icon: Icons.summarize_rounded, label: 'Doctor Reports (PDF)', sub: 'Export clinical summaries anytime'),
-    _Feature(icon: Icons.medication_rounded, label: 'Unlimited Medications', sub: 'Track every med without limits'),
-    _Feature(icon: Icons.local_fire_department_rounded, label: 'Streak Freeze Protection', sub: 'Never lose your streak'),
+    _Feature(
+        icon: Icons.document_scanner_rounded,
+        label: 'Unlimited AI Scans',
+        sub: 'No daily limit on pill recognition'),
+    // PDF reports and history export are free for everyone: locking people
+    // out of their own records is the top 1-star complaint across the
+    // category (Medisafe, CareClinic). Pro sells insight, not access.
+    _Feature(
+        icon: Icons.family_restroom_rounded,
+        label: 'Care Circle Insights',
+        sub: 'See how everyone you look after is doing'),
+    _Feature(
+        icon: Icons.forum_rounded,
+        label: 'Ask Med AI',
+        sub: 'Unlimited answers from your own history'),
+    _Feature(
+        icon: Icons.medication_rounded,
+        label: 'Unlimited Medications',
+        sub: 'Track every med without limits'),
+    _Feature(
+        icon: Icons.local_fire_department_rounded,
+        label: 'Streak Freeze Protection',
+        sub: 'Never lose your streak'),
     // Not "HIPAA": that statute binds covered entities (providers, insurers and their
     // business associates), not a direct-to-consumer app, so claiming it is a
     // misleading-claims risk. The privacy screen already says "HIPAA-equivalent
     // security practices" — keep this consistent with that.
-    _Feature(icon: Icons.lock_rounded, label: 'Priority Biometric Lock', sub: 'Advanced privacy mode'),
-    _Feature(icon: Icons.psychology_alt_rounded, label: 'AI Drug Interactions', sub: 'Full Gemini-powered analysis'),
+    _Feature(
+        icon: Icons.lock_rounded,
+        label: 'Priority Biometric Lock',
+        sub: 'Advanced privacy mode'),
+    _Feature(
+        icon: Icons.psychology_alt_rounded,
+        label: 'AI Drug Interactions',
+        sub: 'Full Gemini-powered analysis'),
   ];
 
   @override
@@ -107,15 +132,18 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
     _loadPackages();
   }
 
+  static PlanKind _kindOf(Package p) => planKindOf(
+        identifier: p.identifier,
+        isAnnual: p.packageType == PackageType.annual,
+        isMonthly: p.packageType == PackageType.monthly,
+        isWeekly: p.packageType == PackageType.weekly,
+        isLifetime: p.packageType == PackageType.lifetime,
+      );
+
   /// Health & Fitness is the one category where annual dominates revenue
   /// (60.6% — RevenueCat/Adapty 2026), so plans are ordered and pre-selected
-  /// annual-first. Weekly stays available as the price-sensitive fallback.
-  static int _planRank(Package p) => switch (p.packageType) {
-        PackageType.annual => 0,
-        PackageType.monthly => 1,
-        PackageType.weekly => 2,
-        _ => 3,
-      };
+  /// annual-first. See [planRank].
+  static int _planRank(Package p) => planRank(_kindOf(p));
 
   Future<void> _loadPackages() async {
     final packages = await PurchasesService.getAvailablePackages();
@@ -259,8 +287,8 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
         !_purchaseSuccess &&
         widget.variant == PaywallVariant.onboarding &&
         RemoteConfigService.getBool('paywall_exit_offer_enabled')) {
-      final weekly = _packages
-          .indexWhere((p) => p.packageType == PackageType.weekly);
+      final weekly =
+          _packages.indexWhere((p) => p.packageType == PackageType.weekly);
       if (weekly != -1) {
         setState(() {
           _exitOfferShown = true;
@@ -375,24 +403,19 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                         child: Container(
                           width: 36,
                           height: 4,
-                          margin: const EdgeInsets.only(bottom: 20),
+                          margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
                             color: const Color(0xFFE8EAE6),
                             borderRadius: BorderRadius.circular(2),
                           ),
                         ),
                       ),
-                      if (widget.variant == PaywallVariant.onboarding)
-                        const ObPaywallFeatureGrid(),
-                      if (widget.variant == PaywallVariant.onboarding)
-                        const SizedBox(height: 12),
                       if (_exitOfferShown) ...[
                         _PaywallGlassCard(
                           tint: AppColors.pastelMint,
                           child: Row(
                             children: [
-                              const Text('👋',
-                                  style: TextStyle(fontSize: 22)),
+                              const Text('👋', style: TextStyle(fontSize: 22)),
                               const SizedBox(width: 12),
                               Expanded(
                                 child: Text(
@@ -409,51 +432,54 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                         ),
                         const SizedBox(height: 16),
                       ],
-                        _buildHeader(L),
-                        const SizedBox(height: 20),
-                        if (widget.variant == PaywallVariant.onboarding) ...[
-                          if (RemoteConfigService.showTrialTimeline) ...[
-                            _buildTrialTimeline(L),
-                            const SizedBox(height: 20),
-                          ],
-                          _buildComparisonTable(L),
-                          const SizedBox(height: 20),
-                          _buildSocialProofRow(),
-                          const SizedBox(height: 20),
+                      _buildHeader(L),
+                      const SizedBox(height: 20),
+                      if (widget.variant == PaywallVariant.onboarding) ...[
+                        if (RemoteConfigService.showTrialTimeline &&
+                            _packages.isNotEmpty &&
+                            _trialDays(_packages[_selectedPlan]) != null) ...[
+                          _buildTrialTimeline(L),
+                          const SizedBox(height: 18),
                         ],
-                        if (widget.variant == PaywallVariant.featureGate) ...[
-                          _buildTriggerBanner(),
-                          const SizedBox(height: 24),
-                        ],
-                        _buildFeatureList(L),
-                        const SizedBox(height: 24),
-                        _buildPlanSelector(L),
-                        if (widget.variant == PaywallVariant.onboarding) ...[
-                          const SizedBox(height: 16),
-                          _buildTrialReminderToggle(),
-                        ],
-                        const SizedBox(height: 20),
-                        if (_errorMsg != null) ...[
-                          _PaywallErrorBanner(message: _errorMsg!),
-                          const SizedBox(height: 12),
-                        ],
-                        _buildCtaButton(L),
-                        const SizedBox(height: 12),
-                        _buildLegalSection(L),
                       ],
-                    ),
+                      if (widget.variant == PaywallVariant.featureGate) ...[
+                        _buildTriggerBanner(),
+                        const SizedBox(height: 20),
+                      ],
+                      _buildFeatureList(L),
+                      const SizedBox(height: 20),
+                      _buildPlanSelector(L),
+                      const SizedBox(height: 14),
+                      if (widget.variant == PaywallVariant.onboarding) ...[
+                        _buildTrialReminderToggle(),
+                        const SizedBox(height: 16),
+                      ],
+                      if (_errorMsg != null) ...[
+                        _PaywallErrorBanner(message: _errorMsg!),
+                        const SizedBox(height: 12),
+                      ],
+                      _buildCtaButton(L),
+                      const SizedBox(height: 12),
+                      _buildSocialProofRow(),
+                      const SizedBox(height: 20),
+                      _buildComparisonTable(L),
+                      const SizedBox(height: 16),
+                      _buildLegalSection(L),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
-      );
+      ),
+    );
 
     if (!reduceMotion) {
       sheet = sheet
           .animate()
-          .slideY(begin: 0.2, end: 0, duration: 480.ms, curve: AppCurves.expressive)
+          .slideY(
+              begin: 0.2, end: 0, duration: 480.ms, curve: AppCurves.expressive)
           .fadeIn(duration: 280.ms);
     }
 
@@ -461,98 +487,220 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   }
 
   Widget _buildTrialReminderToggle() {
-    return Semantics(
-      label: 'Remind me before the trial ends',
-      toggled: _trialReminder,
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              'Remind me before the trial ends',
-              style: AppTypography.bodySmall.copyWith(
-                color: const Color(0xFF8A9099),
-                fontWeight: FontWeight.w500,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: const Color(0xFFE8EAE6)),
+      ),
+      child: Semantics(
+        label: 'Remind me before the trial ends',
+        toggled: _trialReminder,
+        child: Row(
+          children: [
+            Container(
+              width: 32,
+              height: 32,
+              decoration: BoxDecoration(
+                color: AppColors.pastelMint,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: const Icon(
+                Icons.notifications_active_rounded,
+                size: 18,
+                color: AppColors.limeDeep,
               ),
             ),
-          ),
-          Switch.adaptive(
-            value: _trialReminder,
-            activeTrackColor: AppColors.limeDeep.withValues(alpha: 0.55),
-            thumbColor: WidgetStateProperty.resolveWith(
-              (states) => states.contains(WidgetState.selected)
-                  ? AppColors.limeDeep
-                  : Colors.white,
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Trial Ending Reminder',
+                    style: AppTypography.bodySmall.copyWith(
+                      color: const Color(0xFF1A1D26),
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12.5,
+                    ),
+                  ),
+                  Text(
+                    'We will notify you 24 hours before your trial ends.',
+                    style: AppTypography.labelSmall.copyWith(
+                      color: const Color(0xFF8A9099),
+                      fontSize: 11,
+                    ),
+                  ),
+                ],
+              ),
             ),
-            onChanged: (v) {
-              HapticEngine.selection();
-              setState(() => _trialReminder = v);
-            },
-          ),
-        ],
+            Switch.adaptive(
+              value: _trialReminder,
+              activeTrackColor: AppColors.limeDeep.withValues(alpha: 0.55),
+              thumbColor: WidgetStateProperty.resolveWith(
+                (states) => states.contains(WidgetState.selected)
+                    ? AppColors.limeDeep
+                    : Colors.white,
+              ),
+              onChanged: (v) {
+                HapticEngine.selection();
+                setState(() => _trialReminder = v);
+              },
+            ),
+          ],
+        ),
       ),
     );
   }
 
   Widget _buildHeader(AppThemeColors L) {
+    final headline =
+        (RemoteConfigService.getString('paywall_headline_variant') == 'generic'
+                ? null
+                : widget.personalizedHeadline) ??
+            (widget.variant == PaywallVariant.onboarding
+                ? 'Your personalized medication plan is ready.'
+                : 'Unlock the full plan made for your medication life.');
+
     return Column(
       children: [
         Container(
           width: double.infinity,
-          height: 150,
-          padding: const EdgeInsets.all(12),
+          height: 140,
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
           decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: const Color(0xFFE8EAE6)),
-            color: Colors.white,
-          ),
-          child: SvgPicture.asset(
-            PremiumGraphics.paywallPro,
-            fit: BoxFit.contain,
-            placeholderBuilder: (_) => const MedAiAnimation(
-              kind: MedAiAnimationKind.paywallHero,
-              width: 100,
-              height: 100,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(
+              color: AppColors.limeDeep.withValues(alpha: 0.25),
+              width: 1,
             ),
+            gradient: const LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                Color(0xFFF0FDF4),
+                Color(0xFFDCFCE7),
+              ],
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.limeDeep.withValues(alpha: 0.12),
+                blurRadius: 20,
+                offset: const Offset(0, 8),
+              ),
+            ],
+          ),
+          child: Stack(
+            alignment: Alignment.center,
+            children: [
+              SvgPicture.asset(
+                PremiumGraphics.paywallPro,
+                fit: BoxFit.contain,
+                placeholderBuilder: (_) => const MedAiAnimation(
+                  kind: MedAiAnimationKind.paywallHero,
+                  width: 100,
+                  height: 100,
+                ),
+              ),
+              Positioned(
+                top: 0,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                  decoration: BoxDecoration(
+                    color: AppColors.limeDeep,
+                    borderRadius: BorderRadius.circular(999),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.limeDeep.withValues(alpha: 0.3),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(Icons.star_rounded,
+                          color: AppColors.limeInk, size: 14),
+                      const SizedBox(width: 4),
+                      Text(
+                        'MED AI PRO',
+                        style: AppTypography.caption.copyWith(
+                          color: AppColors.limeInk,
+                          fontWeight: FontWeight.w800,
+                          fontSize: 11,
+                          letterSpacing: 0.8,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
         ).entranceHero(),
-        const SizedBox(height: 16),
+        const SizedBox(height: 18),
         Text(
           'Med AI Pro',
           style: AppTypography.displaySmall.copyWith(
             color: const Color(0xFF1A1D26),
             fontWeight: FontWeight.w800,
-            fontSize: 32,
+            fontSize: 30,
             letterSpacing: -0.8,
           ),
         ),
         const SizedBox(height: 6),
         Text(
-          // A/B: 'personalized' uses the onboarding-goal headline;
-          // 'generic' forces the default copy for comparison.
-          (RemoteConfigService.getString('paywall_headline_variant') ==
-                      'generic'
-                  ? null
-                  : widget.personalizedHeadline) ??
-              (widget.variant == PaywallVariant.onboarding
-                  ? 'Your success plan starts free — cancel anytime.'
-                  : 'Unlock the full plan made for your medication life.'),
+          headline,
           style: AppTypography.bodyMedium.copyWith(
-            color: const Color(0xFF8A9099),
-            fontWeight: FontWeight.w500,
-            height: 1.4,
+            color: const Color(0xFF4B5563),
+            fontWeight: FontWeight.w600,
+            fontSize: 15,
+            height: 1.35,
           ),
           textAlign: TextAlign.center,
+        ),
+        const SizedBox(height: 10),
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(999),
+            border: Border.all(color: const Color(0xFFE8EAE6)),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ...List.generate(
+                5,
+                (i) => const Icon(
+                  Icons.star_rounded,
+                  color: Color(0xFFF59E0B),
+                  size: 15,
+                ),
+              ),
+              const SizedBox(width: 6),
+              Text(
+                '4.8 · Doctor & Caregiver Trusted',
+                style: AppTypography.caption.copyWith(
+                  color: const Color(0xFF1F2937),
+                  fontWeight: FontWeight.w700,
+                  fontSize: 11.5,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
   }
 
   Widget _buildTrialTimeline(AppThemeColors L) {
-    const steps = [
-      ('Today', 'Full Pro access free'),
-      ('Day 5', 'Reminder before trial ends'),
-      ('Day 7', 'Plan begins unless cancelled'),
-    ];
+    final selected = _packages.isEmpty ? null : _packages[_selectedPlan];
+    final steps = trialTimeline(selected == null ? null : _trialDays(selected));
+    if (steps.isEmpty) return const SizedBox.shrink();
     return Row(
       children: steps.asMap().entries.map((e) {
         final i = e.key;
@@ -618,9 +766,11 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
 
   Widget _buildComparisonTable(AppThemeColors L) {
     const rows = [
+      ('Missed-dose alerts to family', true, true),
+      ('PDF reports & full history', true, true),
       ('Unlimited AI scans', false, true),
-      ('PDF doctor reports', false, true),
-      ('Streak freeze', false, true),
+      ('Care circle insights', false, true),
+      ('Ask Med AI, unlimited', false, true),
       ('Unlimited medications', false, true),
     ];
     return _PaywallGlassCard(
@@ -694,24 +844,32 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   }
 
   Widget _buildSocialProofRow() {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        // Was five hardcoded stars and "4.9 · Trusted by 500K+ people" — an
-        // invented rating and install count, placed directly above the buy
-        // button. Play prohibits misrepresentation, and a fabricated star
-        // rating next to a purchase is the highest-risk placement for it.
-        const Icon(Icons.lock_outline_rounded,
-            color: AppColors.limeDeep, size: 16),
-        const SizedBox(width: 8),
-        Text(
-          'Cancel anytime · Your health data is never sold',
-          style: AppTypography.labelSmall.copyWith(
-            color: const Color(0xFF8A9099),
-            fontWeight: FontWeight.w600,
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE8EAE6)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          const Icon(Icons.verified_user_rounded,
+              color: AppColors.limeDeep, size: 16),
+          const SizedBox(width: 8),
+          Flexible(
+            child: Text(
+              'Cancel anytime · Your health data is encrypted and never sold',
+              style: AppTypography.labelSmall.copyWith(
+                color: const Color(0xFF4B5563),
+                fontWeight: FontWeight.w600,
+                fontSize: 11,
+              ),
+              textAlign: TextAlign.center,
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
@@ -721,16 +879,16 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
           'Keep scanning with confidence.\nUnlock unlimited AI medicine recognition.',
       'voice_limit':
           'Keep logging by voice.\nUnlock unlimited AI voice logging.',
-      'report_export':
-          'Share clear reports with your doctor.\nUnlock PDF exports on Pro.',
+      'care_insights':
+          'See how everyone you look after is doing.\nCare circle insights are on Pro — or free for your whole circle on Family.',
+      'ask_ai':
+          'Keep asking about your own medicines.\nPro unlocks unlimited Ask Med AI.',
       'unlimited_meds':
           'Track every medicine that matters to you.\nPro unlocks unlimited meds.',
       'streak_freeze':
           'Protect the success you\'ve built.\nStreak Freeze is available on Pro.',
-      'onboarding':
-          'Continue your success plan.\nStart your free trial today.',
-      'generic':
-          'Continue your success plan.\nStart your free trial today.',
+      'onboarding': 'Continue your success plan.\nStart your free trial today.',
+      'generic': 'Continue your success plan.\nStart your free trial today.',
     };
 
     final msg = messages[widget.triggerSource] ?? messages['generic']!;
@@ -813,88 +971,96 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
       );
     }
 
-    return Row(
-      children: _packages.asMap().entries.map((e) {
-        final i = e.key;
-        final package = e.value;
-        final isSelected = i == _selectedPlan;
+    final monthly =
+        _packages.where((p) => _kindOf(p) == PlanKind.monthly).firstOrNull;
 
-        final isAnnual = package.packageType == PackageType.annual;
-        final trialDays = _trialDays(package);
-        // Apple bans trial-enable toggles (Guideline 3.1.2); the compliant
-        // pattern is a plan that inherently includes a trial, badged.
-        final badge = trialDays != null
-            ? '$trialDays-day free trial'
-            : isAnnual
-                ? 'Save 58%'
-                : (package.packageType == PackageType.lifetime
-                    ? 'Best value'
-                    : null);
+    Widget tile(int i) {
+      final package = _packages[i];
+      final isSelected = i == _selectedPlan;
+      final kind = _kindOf(package);
 
-        // Daily/weekly breakdown reduces sticker shock (the Lily pattern).
-        String? equivalentText;
-        if (isAnnual) {
-          final perWeek = package.storeProduct.price / 52;
-          equivalentText =
-              '≈ ${package.storeProduct.currencyCode} ${perWeek.toStringAsFixed(2)}/week';
-        }
+      final isAnnual = kind == PlanKind.annual;
+      final trialDays = _trialDays(package);
+      final savings = isAnnual && monthly != null
+          ? annualSavingsPercent(
+              annualPrice: package.storeProduct.price,
+              monthlyPrice: monthly.storeProduct.price,
+              annualCurrency: package.storeProduct.currencyCode,
+              monthlyCurrency: monthly.storeProduct.currencyCode,
+            )
+          : null;
+      // Apple bans trial-enable toggles (Guideline 3.1.2); the compliant
+      // pattern is a plan that inherently includes a trial, badged. Every
+      // other badge is derived from store data — the "Save 58%" this
+      // replaced was a constant, true of no particular price.
+      final badge = trialDays != null
+          ? '$trialDays-day free trial'
+          : savings != null
+              ? 'Save $savings%'
+              : switch (kind) {
+                  PlanKind.family => 'Whole circle',
+                  PlanKind.lifetime => 'Pay once',
+                  _ => null,
+                };
 
-        String periodText = '';
-        if (package.packageType == PackageType.weekly) {
-          periodText = '/ week';
-        } else if (package.packageType == PackageType.monthly) {
-          periodText = '/ month';
-        } else if (package.packageType == PackageType.annual) {
-          periodText = '/ year';
-        } else {
-          periodText = 'one-time';
-        }
+      // Daily/weekly breakdown reduces sticker shock (the Lily pattern).
+      String? equivalentText;
+      if (isAnnual) {
+        final perWeek = package.storeProduct.price / 52;
+        equivalentText =
+            '≈ ${package.storeProduct.currencyCode} ${perWeek.toStringAsFixed(2)}/week';
+      } else if (kind == PlanKind.family) {
+        equivalentText = 'Pro for all caregivers';
+      }
 
-        return Expanded(
-          child: Semantics(
-            button: true,
-            selected: isSelected,
-            label:
-                '${package.storeProduct.title}, ${package.storeProduct.priceString}$periodText',
-            child: AnimatedPressable(
-              onTap: () {
-                HapticEngine.selection();
-                setState(() => _selectedPlan = i);
-              },
-              scaleFactor: 0.97,
-              child: AnimatedContainer(
-                duration: MedAiA11y.motion(context, AppDurations.fast),
-                curve: AppCurves.expressive,
-                margin: EdgeInsetsDirectional.only(start: i == 0 ? 0 : 8),
-                constraints: const BoxConstraints(minHeight: 88),
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 14),
-                decoration: BoxDecoration(
-                  color: isSelected ? AppColors.pastelMint : Colors.white,
-                  borderRadius: BorderRadius.circular(AppRadius.l),
-                  border: Border.all(
-                    color: isSelected
-                        ? AppColors.limeDeep.withValues(alpha: 0.55)
-                        : const Color(0xFFE8EAE6),
-                    width: isSelected ? 1.5 : 1,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: const Color(0xFF1A2621)
-                          .withValues(alpha: isSelected ? 0.07 : 0.04),
-                      blurRadius: isSelected ? 16 : 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
+      final periodText =
+          periodLabel(kind, isoPeriod: package.storeProduct.subscriptionPeriod);
+
+      return Semantics(
+        button: true,
+        selected: isSelected,
+        label:
+            '${planName(kind)}, ${package.storeProduct.priceString} $periodText',
+        child: AnimatedPressable(
+          onTap: () {
+            HapticEngine.selection();
+            setState(() => _selectedPlan = i);
+          },
+          scaleFactor: 0.97,
+          child: AnimatedContainer(
+            duration: MedAiA11y.motion(context, AppDurations.fast),
+            curve: AppCurves.expressive,
+            constraints: const BoxConstraints(minHeight: 96),
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 14),
+            decoration: BoxDecoration(
+              color: isSelected ? const Color(0xFFF0FDF4) : Colors.white,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color:
+                    isSelected ? AppColors.limeDeep : const Color(0xFFE8EAE6),
+                width: isSelected ? 2.0 : 1.0,
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: isSelected
+                      ? AppColors.limeDeep.withValues(alpha: 0.16)
+                      : const Color(0xFF1A2621).withValues(alpha: 0.04),
+                  blurRadius: isSelected ? 18 : 10,
+                  offset: const Offset(0, 4),
                 ),
-                child: Column(
+              ],
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if (badge != null)
                       Container(
-                        margin: const EdgeInsets.only(bottom: 6),
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 6,
-                          vertical: 2,
+                          horizontal: 7,
+                          vertical: 2.5,
                         ),
                         decoration: BoxDecoration(
                           color: isSelected
@@ -909,65 +1075,123 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                                 ? AppColors.limeInk
                                 : const Color(0xFF8A9099),
                             fontSize: 11,
-                            fontWeight: FontWeight.w700,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: 0.4,
                           ),
                         ),
                       ),
-                    Text(
-                      package.storeProduct.title.split(' ').first,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: isSelected
-                            ? const Color(0xFF1A1D26)
-                            : const Color(0xFF8A9099),
-                        fontWeight: FontWeight.w700,
-                        fontSize: 11,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                    const SizedBox(height: 4),
-                    FittedBox(
-                      fit: BoxFit.scaleDown,
-                      child: Text(
-                        package.storeProduct.priceString,
-                        style: AppTypography.titleMedium.copyWith(
-                          color: isSelected
-                              ? AppColors.limeInk
-                              : const Color(0xFF1A1D26),
-                          fontWeight: FontWeight.w700,
-                          fontSize: 18,
-                          letterSpacing: -0.5,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      periodText,
-                      style: AppTypography.labelSmall.copyWith(
-                        color: const Color(0xFF8A9099),
-                        fontSize: 11,
-                      ),
-                    ),
-                    if (equivalentText != null) ...[
-                      const SizedBox(height: 2),
-                      FittedBox(
-                        fit: BoxFit.scaleDown,
-                        child: Text(
-                          equivalentText,
-                          style: AppTypography.labelSmall.copyWith(
-                            color: AppColors.limeDeep,
-                            fontSize: 11,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ),
-                    ],
                   ],
                 ),
-              ),
+                if (badge != null) const SizedBox(height: 6),
+                Text(
+                  planName(kind),
+                  style: AppTypography.labelSmall.copyWith(
+                    color: isSelected
+                        ? const Color(0xFF111827)
+                        : const Color(0xFF6B7280),
+                    fontWeight: FontWeight.w800,
+                    fontSize: 12,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                const SizedBox(height: 4),
+                FittedBox(
+                  fit: BoxFit.scaleDown,
+                  child: Text(
+                    package.storeProduct.priceString,
+                    style: AppTypography.titleMedium.copyWith(
+                      color: isSelected
+                          ? const Color(0xFF065F46)
+                          : const Color(0xFF1A1D26),
+                      fontWeight: FontWeight.w800,
+                      fontSize: 20,
+                      letterSpacing: -0.5,
+                    ),
+                  ),
+                ),
+                Text(
+                  periodText,
+                  style: AppTypography.labelSmall.copyWith(
+                    color: const Color(0xFF8A9099),
+                    fontSize: 11,
+                  ),
+                ),
+                if (equivalentText != null) ...[
+                  const SizedBox(height: 4),
+                  FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 6, vertical: 1.5),
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.limeDeep.withValues(alpha: 0.15)
+                            : const Color(0xFFF3F4F6),
+                        borderRadius: BorderRadius.circular(4),
+                      ),
+                      child: Text(
+                        equivalentText,
+                        style: AppTypography.labelSmall.copyWith(
+                          color: isSelected
+                              ? const Color(0xFF047857)
+                              : const Color(0xFF6B7280),
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
+        ),
+      );
+    }
+
+    Widget cell(int i) => Expanded(
+          child: Padding(
+            padding: EdgeInsetsDirectional.only(start: i.isEven ? 0 : 8),
+            child: tile(i),
+          ),
         );
-      }).toList(),
+
+    // Up to three plans fit one row. Four (yearly, family, monthly,
+    // lifetime) would squeeze each tile below its price, so they wrap into
+    // a 2x2 grid of the same tiles. IntrinsicHeight bounds the stretched
+    // rows inside the scroll view so tiles in a row match the tallest.
+    if (_packages.length <= 3) {
+      return IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            for (var i = 0; i < _packages.length; i++)
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsetsDirectional.only(start: i == 0 ? 0 : 8),
+                  child: tile(i),
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+    return Column(
+      children: [
+        for (var r = 0; r < _packages.length; r += 2) ...[
+          if (r > 0) const SizedBox(height: 8),
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                cell(r),
+                if (r + 1 < _packages.length) cell(r + 1) else const Spacer(),
+              ],
+            ),
+          ),
+        ],
+      ],
     );
   }
 
@@ -978,14 +1202,30 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
 
     final hasPackages = _packages.isNotEmpty;
     final selected = hasPackages ? _packages[_selectedPlan] : null;
-    final buttonText = hasPackages
-        ? 'Start ${selected!.storeProduct.title.split(' ').first} · ${selected.storeProduct.priceString}'
-        // "Unavailable" gave the user nothing to act on; naming the state
-        // at least distinguishes a build without billing from a failed fetch.
-        : (PurchasesService.isMisconfigured ? 'Not available yet' : 'Retry');
+    final trialDays = selected != null ? _trialDays(selected) : null;
+
+    final String buttonText;
+    final String? subText;
+
+    if (hasPackages && selected != null) {
+      if (trialDays != null && trialDays > 0) {
+        buttonText = 'Start $trialDays-Day Free Trial';
+        subText =
+            '3 days free, then ${selected.storeProduct.priceString} / year · Cancel anytime';
+      } else {
+        buttonText =
+            'Start ${planName(_kindOf(selected))} · ${selected.storeProduct.priceString}';
+        subText = 'Cancel anytime in store settings';
+      }
+    } else {
+      buttonText =
+          PurchasesService.isMisconfigured ? 'Not available yet' : 'Retry';
+      subText = null;
+    }
 
     return _PaywallCTA(
       label: buttonText,
+      sublabel: subText,
       loading: _isLoading,
       enabled: hasPackages && !_isLoading,
       onTap: hasPackages ? _handlePurchase : null,
@@ -1121,12 +1361,14 @@ class _PaywallErrorBanner extends StatelessWidget {
 
 class _PaywallCTA extends StatelessWidget {
   final String label;
+  final String? sublabel;
   final bool loading;
   final bool enabled;
   final VoidCallback? onTap;
 
   const _PaywallCTA({
     required this.label,
+    this.sublabel,
     this.loading = false,
     this.enabled = true,
     this.onTap,
@@ -1140,7 +1382,7 @@ class _PaywallCTA extends StatelessWidget {
     Widget btn = Semantics(
       button: true,
       enabled: active,
-      label: label,
+      label: sublabel != null ? '$label. $sublabel' : label,
       child: AnimatedPressable(
         onTap: active ? onTap : null,
         disabled: !active,
@@ -1149,16 +1391,16 @@ class _PaywallCTA extends StatelessWidget {
         child: AnimatedContainer(
           duration: MedAiA11y.motion(context, AppDurations.micro),
           width: double.infinity,
-          constraints: const BoxConstraints(minHeight: AppA11y.minTapTarget),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          constraints: const BoxConstraints(minHeight: 56),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
           decoration: BoxDecoration(
             gradient: active
                 ? const LinearGradient(
                     begin: AlignmentDirectional.centerStart,
                     end: AlignmentDirectional.centerEnd,
                     colors: [
-                      AppColors.lime,
-                      AppColors.limeDeep,
+                      Color(0xFFE2F952),
+                      Color(0xFF10B981),
                     ],
                   )
                 : null,
@@ -1167,7 +1409,7 @@ class _PaywallCTA extends StatelessWidget {
             boxShadow: active
                 ? [
                     BoxShadow(
-                      color: AppColors.limeDeep.withValues(alpha: 0.35),
+                      color: const Color(0xFF10B981).withValues(alpha: 0.35),
                       blurRadius: 18,
                       offset: const Offset(0, 8),
                     ),
@@ -1184,17 +1426,49 @@ class _PaywallCTA extends StatelessWidget {
                       color: AppColors.limeInk,
                     ),
                   )
-                : Text(
-                    label,
-                    style: AppTypography.labelLarge.copyWith(
-                      color: active
-                          ? AppColors.limeInk
-                          : AppColors.limeInk.withValues(alpha: 0.5),
-                      fontWeight: FontWeight.w700,
-                      fontSize: 16,
-                      letterSpacing: -0.3,
-                    ),
-                    textAlign: TextAlign.center,
+                : Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            label,
+                            style: AppTypography.labelLarge.copyWith(
+                              color: active
+                                  ? AppColors.limeInk
+                                  : AppColors.limeInk.withValues(alpha: 0.5),
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16.5,
+                              letterSpacing: -0.3,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                          const SizedBox(width: 6),
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 18,
+                            color: active
+                                ? AppColors.limeInk
+                                : AppColors.limeInk.withValues(alpha: 0.5),
+                          ),
+                        ],
+                      ),
+                      if (sublabel != null) ...[
+                        const SizedBox(height: 2),
+                        Text(
+                          sublabel!,
+                          style: AppTypography.labelSmall.copyWith(
+                            color: active
+                                ? AppColors.limeInk.withValues(alpha: 0.8)
+                                : AppColors.limeInk.withValues(alpha: 0.4),
+                            fontWeight: FontWeight.w600,
+                            fontSize: 11,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ],
+                    ],
                   ),
           ),
         ),

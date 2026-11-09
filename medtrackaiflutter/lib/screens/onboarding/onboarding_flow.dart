@@ -918,9 +918,9 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
       case 5:
         return _info(
           hero: const ObPhotoHero(
-            asset: PremiumPhotos.routine,
+            asset: PremiumPhotos.results,
             height: 240,
-            badge: 'RESULTS',
+            badge: 'PROVEN RESULTS',
             overlayLine: 'Long-term adherence, not luck.',
           ),
           title: _obt('ob_medAiCreatesLongTermResults'),
@@ -1346,7 +1346,8 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
         );
       case 49:
         return _info(
-          hero: const ObHeroIllustration(scene: ObHeroScene.scan, height: 200),
+          hero: const ObHeroIllustration(
+              scene: ObHeroScene.reminders, height: 200),
           title: _obt('ob_turnOnReminders'),
           subtitle: _obt('ob_thisIsHowMedAiMakesSureYouNeverM'),
           cta: _obt('ob_enableReminders'),
@@ -1518,7 +1519,7 @@ class _WelcomeScreen extends StatelessWidget {
         fit: StackFit.expand,
         children: [
           Image.asset(
-            PremiumPhotos.finish,
+            PremiumPhotos.celebrate,
             fit: BoxFit.cover,
             filterQuality: FilterQuality.high,
             errorBuilder: (_, __, ___) => ColoredBox(color: p.bg),

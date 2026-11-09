@@ -272,7 +272,7 @@ class ObDarkInterstitial extends StatelessWidget {
                   child: Column(
                     children: [
                       const ObPhotoHero(
-                        asset: PremiumPhotos.scanHow,
+                        asset: PremiumPhotos.howItWorks,
                         height: 200,
                         badge: 'HOW IT WORKS',
                         overlayLine: 'Scan → Remind → Protect.',

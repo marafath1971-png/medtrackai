@@ -427,6 +427,7 @@ enum ObHeroScene {
   routine,
   scanHow,
   finish,
+  reminders,
 }
 
 class ObHeroIllustration extends StatelessWidget {
@@ -466,6 +467,10 @@ class ObHeroIllustration extends StatelessWidget {
       ObHeroScene.scanHow => (
           PremiumPhotos.scanHow,
           'Point, scan, and read the label in plain language.'
+        ),
+      ObHeroScene.reminders => (
+          PremiumPhotos.reminders,
+          'Gentle reminders that fit your actual schedule.'
         ),
       ObHeroScene.finish => (
           PremiumPhotos.finish,
