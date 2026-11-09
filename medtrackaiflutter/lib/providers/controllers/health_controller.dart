@@ -149,7 +149,9 @@ class HealthController extends ChangeNotifier {
       );
       if (bgData.isNotEmpty) {
         final val = bgData.last.value;
-        if (val is NumericHealthValue) _bloodGlucose = val.numericValue.toDouble();
+        if (val is NumericHealthValue) {
+          _bloodGlucose = val.numericValue.toDouble();
+        }
       }
 
       // Fetch Blood Pressure (latest)

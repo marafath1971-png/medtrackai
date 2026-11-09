@@ -155,7 +155,10 @@ class OnboardingController extends ChangeNotifier {
   ({String label, String emoji}) get personaLabel {
     return switch (_single['persona'] ?? _single['managing_for']) {
       'caregiver' || 'loved_one' => (label: 'Dedicated Caregiver', emoji: '🤝'),
-      'family_leader' || 'me_family' => (label: 'Family Health Lead', emoji: '👨‍👩‍👧'),
+      'family_leader' || 'me_family' => (
+          label: 'Family Health Lead',
+          emoji: '👨‍👩‍👧'
+        ),
       'senior' => (label: 'Health-Focused Senior', emoji: '👴'),
       _ => (label: 'Self-Manager', emoji: '🙋'),
     };

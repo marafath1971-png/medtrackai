@@ -89,8 +89,7 @@ class _ObYearWheelPickerState extends State<ObYearWheelPicker> {
                     duration: const Duration(milliseconds: 120),
                     style: TextStyle(
                       fontSize: selected ? 30 : 22,
-                      fontWeight:
-                          selected ? FontWeight.w800 : FontWeight.w500,
+                      fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
                       color: selected ? p.text : p.sub.withValues(alpha: 0.55),
                     ),
                     child: Text('$year'),

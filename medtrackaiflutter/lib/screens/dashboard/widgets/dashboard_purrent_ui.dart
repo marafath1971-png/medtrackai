@@ -26,15 +26,18 @@ class DashboardPurrentTopBar extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final appState = context.watch<AppState>();
-    final name = (appState.activeProfile?.name ?? appState.profile?.name)?.trim();
-    final display = (name != null && name.isNotEmpty) ? name.split(' ').first : 'there';
+    final name =
+        (appState.activeProfile?.name ?? appState.profile?.name)?.trim();
+    final display =
+        (name != null && name.isNotEmpty) ? name.split(' ').first : 'there';
     final showAlertDot =
         appState.unseenAlertsCount > 0 || appState.getLowStockCount() > 0;
 
     return Padding(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p12, AppSpacing.gutter, 0),
+        padding: const EdgeInsets.fromLTRB(
+            AppSpacing.gutter, AppSpacing.p12, AppSpacing.gutter, 0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -134,8 +137,8 @@ class DashboardPurrentTopBar extends StatelessWidget {
                                   decoration: BoxDecoration(
                                     color: AppColors.red,
                                     shape: BoxShape.circle,
-                                    border:
-                                        Border.all(color: Colors.white, width: 1.5),
+                                    border: Border.all(
+                                        color: Colors.white, width: 1.5),
                                   ),
                                 ),
                               ),
@@ -176,27 +179,28 @@ class _MenuPill extends StatelessWidget {
             minHeight: MedAiA11y.minTapTargetCompact,
           ),
           child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
-          decoration: BoxDecoration(
-            color: L.card,
-            borderRadius: BorderRadius.circular(999),
-            border: Border.all(color: L.border.withValues(alpha: 0.35)),
-          ),
-          alignment: Alignment.center,
-          child: Row(
-            children: [
-              Icon(Icons.grid_view_rounded, size: 16, color: L.text),
-              const SizedBox(width: AppSpacing.p8),
-              Text(
-                label,
-                style: AppTypography.labelMedium.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: L.text,
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
+            decoration: BoxDecoration(
+              color: L.card,
+              borderRadius: BorderRadius.circular(999),
+              border: Border.all(color: L.border.withValues(alpha: 0.35)),
+            ),
+            alignment: Alignment.center,
+            child: Row(
+              children: [
+                Icon(Icons.grid_view_rounded, size: 16, color: L.text),
+                const SizedBox(width: AppSpacing.p8),
+                Text(
+                  label,
+                  style: AppTypography.labelMedium.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: L.text,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
         ),
       ),
     );
@@ -208,8 +212,10 @@ class _MenuPill extends StatelessWidget {
 class DashboardPurrentMetricGrid extends StatelessWidget {
   final int streak;
   final int dosesWeek;
+
   /// Last 7 day dose counts (oldest → newest). Used for honest sparklines.
   final List<int> weeklyDoseCounts;
+
   /// Last 7 day adherence 0–1 (oldest → newest).
   final List<double> weeklyAdherence;
 
@@ -487,7 +493,8 @@ class _DashboardMedicationDiaryState extends State<DashboardMedicationDiary> {
     final items = _buildItems();
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.gutter, AppSpacing.gutter, 0),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.gutter, AppSpacing.gutter, AppSpacing.gutter, 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -546,9 +553,8 @@ class _DashboardMedicationDiaryState extends State<DashboardMedicationDiary> {
       for (final entry in entries) {
         if (!entry.taken) continue;
         final med = widget.meds.where((m) => m.id == entry.medId).firstOrNull;
-        final takenAt = entry.takenAt != null
-            ? DateTime.tryParse(entry.takenAt!)
-            : null;
+        final takenAt =
+            entry.takenAt != null ? DateTime.tryParse(entry.takenAt!) : null;
         final when = takenAt ?? DateTime.tryParse(key) ?? now;
         items.add(
           _DiaryItem(
@@ -627,8 +633,7 @@ class _DiarySegmentBar extends StatelessWidget {
                 child: AnimatedContainer(
                   duration: chipDuration,
                   curve: reduceMotion ? Curves.linear : Curves.easeOut,
-                  padding:
-                      const EdgeInsets.symmetric(vertical: AppSpacing.p12),
+                  padding: const EdgeInsets.symmetric(vertical: AppSpacing.p12),
                   decoration: BoxDecoration(
                     color: isSel ? L.card : Colors.transparent,
                     borderRadius: BorderRadius.circular(999),
@@ -742,7 +747,9 @@ class _DiaryRow extends StatelessWidget {
     final diff = DateTime.now().difference(when);
     if (diff.inMinutes < 1) return 'Just now';
     if (diff.inMinutes < 60) return '${diff.inMinutes} min ago';
-    if (diff.inHours < 24) return '${diff.inHours}h ${diff.inMinutes % 60}min ago';
+    if (diff.inHours < 24) {
+      return '${diff.inHours}h ${diff.inMinutes % 60}min ago';
+    }
     if (diff.inDays == 1) return 'Yesterday';
     return '${diff.inDays} days ago';
   }

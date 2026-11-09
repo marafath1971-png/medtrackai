@@ -66,18 +66,37 @@ class ObPhotoHero extends StatelessWidget {
                 left: 14,
                 child: Container(
                   padding:
-                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      const EdgeInsets.symmetric(horizontal: 11, vertical: 5.5),
                   decoration: BoxDecoration(
                     color: AppColors.lime,
                     borderRadius: BorderRadius.circular(999),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.limeDeep.withValues(alpha: 0.35),
+                        blurRadius: 10,
+                        offset: const Offset(0, 3),
+                      ),
+                    ],
                   ),
-                  child: Text(
-                    badge!,
-                    style: AppTypography.caption.copyWith(
-                      color: AppColors.limeInk,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.8,
-                    ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.verified_rounded,
+                        size: 11,
+                        color: AppColors.limeInk,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        badge!,
+                        style: AppTypography.caption.copyWith(
+                          color: AppColors.limeInk,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.8,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -86,22 +105,62 @@ class ObPhotoHero extends StatelessWidget {
                 left: 16,
                 right: 16,
                 bottom: 16,
-                child: Text(
-                  overlayLine!,
-                  style: AppTypography.titleMedium.copyWith(
-                    color: Colors.white,
-                    fontWeight: FontWeight.w700,
-                    letterSpacing: -0.3,
-                    height: 1.2,
-                    shadows: const [
-                      Shadow(
-                        color: Color(0x66000000),
-                        blurRadius: 8,
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.32),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      width: 0.5,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 6,
+                        height: 6,
+                        decoration: const BoxDecoration(
+                          color: AppColors.lime,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          overlayLine!,
+                          style: AppTypography.titleMedium.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.2,
+                            fontSize: 14,
+                            height: 1.25,
+                            shadows: const [
+                              Shadow(
+                                color: Color(0x66000000),
+                                blurRadius: 6,
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
+            // Subtle crisp border overlay for high-definition edge rendering
+            IgnorePointer(
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(AppRadius.xl),
+                  border: Border.all(
+                    color: Colors.white.withValues(alpha: 0.22),
+                    width: 0.8,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

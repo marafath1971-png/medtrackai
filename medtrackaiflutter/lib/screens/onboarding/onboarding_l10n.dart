@@ -16,6 +16,16 @@ class ObL10n {
 
   static const Map<String, String> _en = {
     'ob_10OrMore': '10 or more',
+    'ob_stepsTitle': 'Count your *steps* too?',
+    'ob_stepsSubtitle':
+        'Pick a daily goal. Later you can pair with a partner and count together.',
+    'ob_stepsADay': 'steps a day',
+    'ob_stepsGoalGentle': 'A gentle start',
+    'ob_stepsGoalSteady': 'A steady daily habit',
+    'ob_stepsGoalClassic': 'The classic target',
+    'ob_stepsLater': 'Not now',
+    'ob_stepsLaterSub': 'You can turn it on from the home screen',
+    'ob_stepsTurnOn': 'Turn on step counting',
     'ob_12': '1–2',
     'ob_35': '3–5',
     'ob_69': '6–9',
@@ -24,7 +34,8 @@ class ObL10n {
     'ob_aFewTimesAMonth': 'A few times a month',
     'ob_aFewTimesAWeek': 'A few times a week',
     'ob_afternoon': 'Afternoon',
-    'ob_ageCanChangeHowMedicationsWorkWe': 'Age can change how medications work — we tune safety checks to you.',
+    'ob_ageCanChangeHowMedicationsWorkWe':
+        'Age can change how medications work — we tune safety checks to you.',
     'ob_almostNever': 'Almost never',
     'ob_appStore': 'App Store',
     'ob_aspirin': 'Aspirin',
@@ -80,29 +91,39 @@ class ObL10n {
     'ob_searchByName': 'Search by name',
     'ob_shifts': 'Shifts',
     'ob_sideEffects': 'Side effects',
-    'ob_someDosagesAndInteractionRisksAr': 'Some dosages and interaction risks are weight-sensitive.',
+    'ob_someDosagesAndInteractionRisksAr':
+        'Some dosages and interaction risks are weight-sensitive.',
     'ob_sometimes': 'Sometimes',
     'ob_somewhereElse': 'Somewhere else',
     'ob_stillAsleep': 'Still asleep',
     'ob_sulfaDrugs': 'Sulfa drugs',
-    'ob_tapAndHoldTheMedAiLogoToLockInYo': 'Tap and hold the Med AI logo to lock in your goal.',
+    'ob_tapAndHoldTheMedAiLogoToLockInYo':
+        'Tap and hold the Med AI logo to lock in your goal.',
     'ob_tiktok': 'TikTok',
     'ob_yesSeveral': 'Yes, several',
-    'ob_youCanChangeThisAnytimeInSetting': 'You can change this anytime in settings.',
-    'ob_4In10SupplementUsersHaveAtLeastO': '4 in 10 supplement users have at least one risky drug interaction — most never know.',
-    'ob_76OfMembersMaintainStrongAdheren': '76% of members maintain strong adherence over 6 months — not just a first-week spike.',
-    'ob_78OfMembersReportLessMedicationS': '78% of members report less medication stress within 3 weeks.',
-    'ob_aFewQuickQuestionsSoMedAiFitsYou': 'A few quick questions so Med AI fits your meds, schedule, and goals.',
-    'ob_aFewQuickQuestionsToLockInYourMo': 'A few quick questions to lock in your motivation.',
+    'ob_youCanChangeThisAnytimeInSetting':
+        'You can change this anytime in settings.',
+    'ob_4In10SupplementUsersHaveAtLeastO':
+        '4 in 10 supplement users have at least one risky drug interaction — most never know.',
+    'ob_76OfMembersMaintainStrongAdheren':
+        '76% of members maintain strong adherence over 6 months — not just a first-week spike.',
+    'ob_78OfMembersReportLessMedicationS':
+        '78% of members report less medication stress within 3 weeks.',
+    'ob_aFewQuickQuestionsSoMedAiFitsYou':
+        'A few quick questions so Med AI fits your meds, schedule, and goals.',
+    'ob_aFewQuickQuestionsToLockInYourMo':
+        'A few quick questions to lock in your motivation.',
     'ob_aSmarterWayToStayOnTrack': 'A smarter way to *stay on track*',
     'ob_allScheduledDoses': 'All scheduled doses',
-    'ob_allowingTrackingHelpsUsKeepMedAi': 'Allowing tracking helps us keep Med AI affordable. Your health data stays private either way.',
+    'ob_allowingTrackingHelpsUsKeepMedAi':
+        'Allowing tracking helps us keep Med AI affordable. Your health data stays private either way.',
     'ob_anyConditionsYouAreManaging': 'Any conditions you are *managing*?',
     'ob_anyMedicationAllergies': 'Any medication *allergies*?',
     'ob_buildingYourPlan': 'Building your plan…',
     'ob_continue': 'Continue',
     'ob_dedicatedCaregiver': 'Dedicated Caregiver',
-    'ob_diagnoseInteractionRisksInstantl': 'Diagnose interaction risks instantly and get clear next steps.',
+    'ob_diagnoseInteractionRisksInstantl':
+        'Diagnose interaction risks instantly and get clear next steps.',
     'ob_doYouKnowIfYourMedsInteract': 'Do you know if your meds *interact*?',
     'ob_doYouRelate': 'Do you relate?',
     'ob_doYouTakeSupplementsToo': 'Do you take *supplements* too?',
@@ -110,8 +131,10 @@ class ObL10n {
     'ob_enableReminders': 'Enable reminders',
     'ob_familyHealthLead': 'Family Health Lead',
     'ob_gentle': 'Gentle',
-    'ob_getNotifiedIfSomeoneYouCareForMi': 'Get notified if someone you care for misses a critical dose — and step in when it matters.',
-    'ob_getPersonalizedRemindersScanInsi': 'Personalized reminders, scan insights, caregiver peace, and AI that has your back — so you succeed.',
+    'ob_getNotifiedIfSomeoneYouCareForMi':
+        'Get notified if someone you care for misses a critical dose — and step in when it matters.',
+    'ob_getPersonalizedRemindersScanInsi':
+        'Personalized reminders, scan insights, caregiver peace, and AI that has your back — so you succeed.',
     'ob_getStarted': 'Get started',
     'ob_giveUsARating': 'Give us a *rating*',
     'ob_hardcore': 'Hardcore',
@@ -123,28 +146,36 @@ class ObL10n {
     'ob_howOftenDoYouMissADose': 'How often do you *miss* a dose?',
     'ob_howWillYouAddYourFirstMed': 'How will you add your *first med*?',
     'ob_iFeelGuiltyWhenMyRoutineSlips': 'I feel *guilty* when my routine slips',
-    'ob_iWorryAboutMixingMedsAndSuppleme': 'I worry about *mixing* meds and supplements',
+    'ob_iWorryAboutMixingMedsAndSuppleme':
+        'I worry about *mixing* meds and supplements',
     'ob_identifyPillsMoreAccurately': 'Identify pills more *accurately*',
-    'ob_joinTheCommunityThatNeverMissesW': 'Join the community that never misses what matters.',
+    'ob_joinTheCommunityThatNeverMissesW':
+        'Join the community that never misses what matters.',
     'ob_keepLovedOnesSafeFromAnywhere': 'Keep loved ones *safe* from anywhere',
     'ob_keepYourHealthThriving': 'Your #1 path to *thriving* health',
     'ob_letSBuildYourCustomPlan': 'Let\'s build your *success plan*',
     'ob_loseTheAnxietyNotYourStreak': 'Lose the *anxiety*, not your streak',
     'ob_madeForPeopleJustLikeYou': 'Made for people *just like you*',
     'ob_managingForALovedOne': 'Managing for a loved one',
-    'ob_managingRefillsFeelsLikeAHassle': 'Managing refills feels like a *hassle*',
+    'ob_managingRefillsFeelsLikeAHassle':
+        'Managing refills feels like a *hassle*',
     'ob_meMyWholeFamily': 'Me & my whole family',
     'ob_medAiCreatesLongTermResults': 'Med AI creates *long-term* success',
-    'ob_medAiIdentifiesYourPillFlagsInte': 'Med AI identifies your pill, flags interactions, and logs your schedule instantly.',
+    'ob_medAiIdentifiesYourPillFlagsInte':
+        'Med AI identifies your pill, flags interactions, and logs your schedule instantly.',
     // Was a head-to-head competitor comparison citing an internal benchmark.
     // Without a
     // producible benchmark that is false advertising, and naming competitors
     // invites their counsel as well as Google's review. Now describes what the
     // scanner does, which the user verifies on their first scan.
-    'ob_medAiSScannerOutperformsGenericP': 'Point your camera at any label — Med AI reads the name, dose and interactions.',
-    'ob_medAiWasBuiltForRealMedicationRo': 'Built for real medication routines — so you feel safe, confident, and successful.',
-    'ob_medAiWasDesignedForPeopleLikeYou': 'Med AI was designed for people like you — and you will succeed with it.',
-    'ob_medicationEffectsAndDosingCanDif': 'Medication effects and dosing can differ by sex — this helps our AI personalize safety info.',
+    'ob_medAiSScannerOutperformsGenericP':
+        'Point your camera at any label — Med AI reads the name, dose and interactions.',
+    'ob_medAiWasBuiltForRealMedicationRo':
+        'Built for real medication routines — so you feel safe, confident, and successful.',
+    'ob_medAiWasDesignedForPeopleLikeYou':
+        'Med AI was designed for people like you — and you will succeed with it.',
+    'ob_medicationEffectsAndDosingCanDif':
+        'Medication effects and dosing can differ by sex — this helps our AI personalize safety info.',
     'ob_neverMissADose': 'Never miss a dose',
     'ob_next': 'Next',
     'ob_normal': 'Normal',
@@ -155,12 +186,14 @@ class ObL10n {
     'ob_remindersThatActuallyWork': 'Reminders that actually *work*',
     'ob_seeWhatAScanReveals': 'See what a *scan* reveals',
     'ob_selectAllThatApply': 'Select all that apply.',
-    'ob_selectAllThatApplyOurAiWillGuard': 'Select all that apply — our AI will guard against them.',
+    'ob_selectAllThatApplyOurAiWillGuard':
+        'Select all that apply — our AI will guard against them.',
     'ob_selfManager': 'Self-Manager',
     'ob_startImproving': 'Begin my success plan',
     'ob_stayingIndependent': 'Staying independent',
     'ob_thanksForSharing': 'Thanks for *sharing*',
-    'ob_thisIsHowMedAiMakesSureYouNeverM': 'This is how Med AI makes sure you never miss a dose. You can change it anytime.',
+    'ob_thisIsHowMedAiMakesSureYouNeverM':
+        'This is how Med AI makes sure you never miss a dose. You can change it anytime.',
     'ob_trackAHealthCondition': 'Track a health condition',
     'ob_trackingMyOwnMeds': 'Tracking my own meds',
     // Was a hardcoded install-count boast with no source behind it.
@@ -176,11 +209,15 @@ class ObL10n {
     'ob_whatMotivatesYouMost': 'What motivates you *most*?',
     'ob_whatUsuallyCausesAMissedDose': 'What usually *causes* a missed dose?',
     'ob_whenDoYouUsuallyTakeThem': 'When do you usually *take* them?',
-    'ob_youAre2MoreLikelyToSucceedWithMe': 'You are *2× more likely* to succeed with Med AI',
+    'ob_youAre2MoreLikelyToSucceedWithMe':
+        'You are *2× more likely* to succeed with Med AI',
     'ob_youHaveGreatPotential': 'Your success is *already forming*',
-    'ob_yourBaselineBeforeMedAiStartsHel': 'This is where you start — Med AI turns it into lasting success.',
-    'ob_yourHealthDataIsEncryptedAndNeve': 'Your health data is encrypted and never sold. We only ask so your plan is safer.',
-    'ob_yourPersonalizedPlanIsReady': 'Your *personalized success plan* is ready',
+    'ob_yourBaselineBeforeMedAiStartsHel':
+        'This is where you start — Med AI turns it into lasting success.',
+    'ob_yourHealthDataIsEncryptedAndNeve':
+        'Your health data is encrypted and never sold. We only ask so your plan is safer.',
+    'ob_yourPersonalizedPlanIsReady':
+        'Your *personalized success plan* is ready',
   };
 
   static const Map<String, String> _es = {
@@ -193,7 +230,8 @@ class ObL10n {
     'ob_aFewTimesAMonth': 'Unas veces al mes',
     'ob_aFewTimesAWeek': 'Unas veces por semana',
     'ob_afternoon': 'Tarde',
-    'ob_ageCanChangeHowMedicationsWorkWe': 'La edad puede cambiar cómo actúan los medicamentos; ajustamos las comprobaciones de seguridad a ti.',
+    'ob_ageCanChangeHowMedicationsWorkWe':
+        'La edad puede cambiar cómo actúan los medicamentos; ajustamos las comprobaciones de seguridad a ti.',
     'ob_almostNever': 'Casi nunca',
     'ob_appStore': 'App Store',
     'ob_aspirin': 'Aspirina',
@@ -249,38 +287,52 @@ class ObL10n {
     'ob_searchByName': 'Buscar por nombre',
     'ob_shifts': 'Turnos',
     'ob_sideEffects': 'Efectos secundarios',
-    'ob_someDosagesAndInteractionRisksAr': 'Algunas dosis y riesgos de interacción dependen del peso.',
+    'ob_someDosagesAndInteractionRisksAr':
+        'Algunas dosis y riesgos de interacción dependen del peso.',
     'ob_sometimes': 'A veces',
     'ob_somewhereElse': 'En otro lugar',
     'ob_stillAsleep': 'Aún durmiendo',
     'ob_sulfaDrugs': 'Sulfamidas',
-    'ob_tapAndHoldTheMedAiLogoToLockInYo': 'Mantén pulsado el logo de Med AI para fijar tu meta.',
+    'ob_tapAndHoldTheMedAiLogoToLockInYo':
+        'Mantén pulsado el logo de Med AI para fijar tu meta.',
     'ob_tiktok': 'TikTok',
     'ob_yesSeveral': 'Sí, varios',
-    'ob_youCanChangeThisAnytimeInSetting': 'Puedes cambiar esto cuando quieras en los ajustes.',
-    'ob_4In10SupplementUsersHaveAtLeastO': '4 de cada 10 personas que toman suplementos tienen al menos una interacción farmacológica peligrosa, y la mayoría nunca lo sabe.',
-    'ob_76OfMembersMaintainStrongAdheren': 'El 76% de los miembros mantiene una buena adherencia durante 6 meses, no solo un pico la primera semana.',
-    'ob_78OfMembersReportLessMedicationS': 'El 78% de los miembros nota menos estrés con la medicación en 3 semanas.',
-    'ob_aFewQuickQuestionsSoMedAiFitsYou': 'Unas preguntas rápidas para que Med AI se adapte a tus medicamentos, tu horario y tus metas.',
-    'ob_aFewQuickQuestionsToLockInYourMo': 'Unas preguntas rápidas para afianzar tu motivación.',
-    'ob_aSmarterWayToStayOnTrack': 'Una forma más inteligente de *mantener el rumbo*',
+    'ob_youCanChangeThisAnytimeInSetting':
+        'Puedes cambiar esto cuando quieras en los ajustes.',
+    'ob_4In10SupplementUsersHaveAtLeastO':
+        '4 de cada 10 personas que toman suplementos tienen al menos una interacción farmacológica peligrosa, y la mayoría nunca lo sabe.',
+    'ob_76OfMembersMaintainStrongAdheren':
+        'El 76% de los miembros mantiene una buena adherencia durante 6 meses, no solo un pico la primera semana.',
+    'ob_78OfMembersReportLessMedicationS':
+        'El 78% de los miembros nota menos estrés con la medicación en 3 semanas.',
+    'ob_aFewQuickQuestionsSoMedAiFitsYou':
+        'Unas preguntas rápidas para que Med AI se adapte a tus medicamentos, tu horario y tus metas.',
+    'ob_aFewQuickQuestionsToLockInYourMo':
+        'Unas preguntas rápidas para afianzar tu motivación.',
+    'ob_aSmarterWayToStayOnTrack':
+        'Una forma más inteligente de *mantener el rumbo*',
     'ob_allScheduledDoses': 'Todas las dosis programadas',
-    'ob_allowingTrackingHelpsUsKeepMedAi': 'Permitir el seguimiento nos ayuda a mantener Med AI asequible. Tus datos de salud siguen siendo privados igualmente.',
+    'ob_allowingTrackingHelpsUsKeepMedAi':
+        'Permitir el seguimiento nos ayuda a mantener Med AI asequible. Tus datos de salud siguen siendo privados igualmente.',
     'ob_anyConditionsYouAreManaging': '¿Alguna afección que estés *tratando*?',
     'ob_anyMedicationAllergies': '¿Alguna *alergia* a medicamentos?',
     'ob_buildingYourPlan': 'Creando tu plan…',
     'ob_continue': 'Continuar',
     'ob_dedicatedCaregiver': 'Cuidador dedicado',
-    'ob_diagnoseInteractionRisksInstantl': 'Detecta riesgos de interacción al instante y recibe pasos claros a seguir.',
-    'ob_doYouKnowIfYourMedsInteract': '¿Sabes si tus medicamentos *interactúan*?',
+    'ob_diagnoseInteractionRisksInstantl':
+        'Detecta riesgos de interacción al instante y recibe pasos claros a seguir.',
+    'ob_doYouKnowIfYourMedsInteract':
+        '¿Sabes si tus medicamentos *interactúan*?',
     'ob_doYouRelate': '¿Te identificas?',
     'ob_doYouTakeSupplementsToo': '¿Tomas *suplementos* también?',
     'ob_dosesRefillsFamilyAlerts': 'Dosis, reposiciones y alertas familiares',
     'ob_enableReminders': 'Activar recordatorios',
     'ob_familyHealthLead': 'Responsable de salud familiar',
     'ob_gentle': 'Suave',
-    'ob_getNotifiedIfSomeoneYouCareForMi': 'Recibe un aviso si alguien a quien cuidas olvida una dosis crítica, y actúa cuando importa.',
-    'ob_getPersonalizedRemindersScanInsi': 'Recibe recordatorios personalizados, análisis de escaneo y consejos de seguridad para cada medicamento.',
+    'ob_getNotifiedIfSomeoneYouCareForMi':
+        'Recibe un aviso si alguien a quien cuidas olvida una dosis crítica, y actúa cuando importa.',
+    'ob_getPersonalizedRemindersScanInsi':
+        'Recibe recordatorios personalizados, análisis de escaneo y consejos de seguridad para cada medicamento.',
     'ob_getStarted': 'Empezar',
     'ob_giveUsARating': 'Danos una *valoración*',
     'ob_hardcore': 'Intenso',
@@ -291,55 +343,75 @@ class ObL10n {
     'ob_howManyMedicationsDoYouTake': '¿Cuántos *medicamentos* tomas?',
     'ob_howOftenDoYouMissADose': '¿Con qué frecuencia *olvidas* una dosis?',
     'ob_howWillYouAddYourFirstMed': '¿Cómo añadirás tu *primer medicamento*?',
-    'ob_iFeelGuiltyWhenMyRoutineSlips': 'Me siento *culpable* cuando falla mi rutina',
-    'ob_iWorryAboutMixingMedsAndSuppleme': 'Me preocupa *mezclar* medicamentos y suplementos',
-    'ob_identifyPillsMoreAccurately': 'Identifica pastillas con más *precisión*',
-    'ob_joinTheCommunityThatNeverMissesW': 'Únete a la comunidad que nunca olvida lo que importa.',
-    'ob_keepLovedOnesSafeFromAnywhere': 'Mantén a tus seres queridos *a salvo* desde cualquier lugar',
+    'ob_iFeelGuiltyWhenMyRoutineSlips':
+        'Me siento *culpable* cuando falla mi rutina',
+    'ob_iWorryAboutMixingMedsAndSuppleme':
+        'Me preocupa *mezclar* medicamentos y suplementos',
+    'ob_identifyPillsMoreAccurately':
+        'Identifica pastillas con más *precisión*',
+    'ob_joinTheCommunityThatNeverMissesW':
+        'Únete a la comunidad que nunca olvida lo que importa.',
+    'ob_keepLovedOnesSafeFromAnywhere':
+        'Mantén a tus seres queridos *a salvo* desde cualquier lugar',
     'ob_keepYourHealthThriving': 'Mantén tu salud *floreciente*',
     'ob_letSBuildYourCustomPlan': 'Creemos tu *plan personalizado*',
     'ob_loseTheAnxietyNotYourStreak': 'Pierde la *ansiedad*, no tu racha',
     'ob_madeForPeopleJustLikeYou': 'Hecho para personas *como tú*',
     'ob_managingForALovedOne': 'Cuidando a un ser querido',
-    'ob_managingRefillsFeelsLikeAHassle': 'Gestionar las reposiciones es un *fastidio*',
+    'ob_managingRefillsFeelsLikeAHassle':
+        'Gestionar las reposiciones es un *fastidio*',
     'ob_meMyWholeFamily': 'Yo y toda mi familia',
-    'ob_medAiCreatesLongTermResults': 'Med AI genera resultados a *largo plazo*',
-    'ob_medAiIdentifiesYourPillFlagsInte': 'Med AI identifica tu pastilla, señala interacciones y registra tu horario al instante.',
-    'ob_medAiSScannerOutperformsGenericP': 'El escáner de Med AI supera a las apps genéricas de identificación de pastillas en pruebas directas.',
-    'ob_medAiWasBuiltForRealMedicationRo': 'Med AI se creó para rutinas de medicación reales, no perfectas.',
-    'ob_medAiWasDesignedForPeopleLikeYou': 'Med AI se diseñó para personas como tú.',
-    'ob_medicationEffectsAndDosingCanDif': 'Los efectos y las dosis pueden variar según el sexo; esto ayuda a nuestra IA a personalizar la información de seguridad.',
+    'ob_medAiCreatesLongTermResults':
+        'Med AI genera resultados a *largo plazo*',
+    'ob_medAiIdentifiesYourPillFlagsInte':
+        'Med AI identifica tu pastilla, señala interacciones y registra tu horario al instante.',
+    'ob_medAiSScannerOutperformsGenericP':
+        'El escáner de Med AI supera a las apps genéricas de identificación de pastillas en pruebas directas.',
+    'ob_medAiWasBuiltForRealMedicationRo':
+        'Med AI se creó para rutinas de medicación reales, no perfectas.',
+    'ob_medAiWasDesignedForPeopleLikeYou':
+        'Med AI se diseñó para personas como tú.',
+    'ob_medicationEffectsAndDosingCanDif':
+        'Los efectos y las dosis pueden variar según el sexo; esto ayuda a nuestra IA a personalizar la información de seguridad.',
     'ob_neverMissADose': 'No vuelvas a olvidar una dosis',
     'ob_next': 'Siguiente',
     'ob_normal': 'Normal',
     'ob_oneLastPermission': 'Un *último* permiso',
     'ob_onlyForCriticalDoses': 'Solo para dosis críticas',
-    'ob_personalSummaryFromYourAnswers': 'Resumen personal según tus *respuestas*',
+    'ob_personalSummaryFromYourAnswers':
+        'Resumen personal según tus *respuestas*',
     'ob_rateMedAi': 'Valorar Med AI',
     'ob_remindersThatActuallyWork': 'Recordatorios que de verdad *funcionan*',
     'ob_seeWhatAScanReveals': 'Mira lo que revela un *escaneo*',
     'ob_selectAllThatApply': 'Selecciona todo lo que corresponda.',
-    'ob_selectAllThatApplyOurAiWillGuard': 'Selecciona todo lo que corresponda: nuestra IA te protegerá contra ello.',
+    'ob_selectAllThatApplyOurAiWillGuard':
+        'Selecciona todo lo que corresponda: nuestra IA te protegerá contra ello.',
     'ob_selfManager': 'Autogestión',
     'ob_startImproving': 'Empezar a mejorar',
     'ob_stayingIndependent': 'Mantenerse independiente',
     'ob_thanksForSharing': 'Gracias por *compartir*',
-    'ob_thisIsHowMedAiMakesSureYouNeverM': 'Así es como Med AI se asegura de que nunca olvides una dosis. Puedes cambiarlo cuando quieras.',
+    'ob_thisIsHowMedAiMakesSureYouNeverM':
+        'Así es como Med AI se asegura de que nunca olvides una dosis. Puedes cambiarlo cuando quieras.',
     'ob_trackAHealthCondition': 'Controlar una afección de salud',
     'ob_trackingMyOwnMeds': 'Gestionar mis propios medicamentos',
-    'ob_trustedBy500000People': 'Todos tus medicamentos, *una* rutina tranquila',
+    'ob_trustedBy500000People':
+        'Todos tus medicamentos, *una* rutina tranquila',
     'ob_turnOnReminders': 'Activa los *recordatorios*',
     'ob_understandMyMedications': 'Entender mis medicamentos',
     'ob_welcomeToMedAi': 'Bienvenido a *Med AI*',
     'ob_whatDoesSuccessLookLike': '¿Cómo se ve el *éxito*?',
     'ob_whatDoesYourDayLookLike': '¿Cómo es tu *día*?',
     'ob_whatMotivatesYouMost': '¿Qué es lo que *más* te motiva?',
-    'ob_whatUsuallyCausesAMissedDose': '¿Qué suele *causar* una dosis olvidada?',
+    'ob_whatUsuallyCausesAMissedDose':
+        '¿Qué suele *causar* una dosis olvidada?',
     'ob_whenDoYouUsuallyTakeThem': '¿Cuándo sueles *tomarlos*?',
-    'ob_youAre2MoreLikelyToSucceedWithMe': 'Tienes *2× más probabilidades* de lograrlo con Med AI',
+    'ob_youAre2MoreLikelyToSucceedWithMe':
+        'Tienes *2× más probabilidades* de lograrlo con Med AI',
     'ob_youHaveGreatPotential': 'Tienes *gran potencial*',
-    'ob_yourBaselineBeforeMedAiStartsHel': 'Tu punto de partida antes de que Med AI empiece a ayudarte.',
-    'ob_yourHealthDataIsEncryptedAndNeve': 'Tus datos de salud están cifrados y nunca se venden. Solo lo preguntamos para que tu plan sea más seguro.',
+    'ob_yourBaselineBeforeMedAiStartsHel':
+        'Tu punto de partida antes de que Med AI empiece a ayudarte.',
+    'ob_yourHealthDataIsEncryptedAndNeve':
+        'Tus datos de salud están cifrados y nunca se venden. Solo lo preguntamos para que tu plan sea más seguro.',
     'ob_yourPersonalizedPlanIsReady': 'Tu *plan personalizado* está listo',
   };
 
@@ -353,7 +425,8 @@ class ObL10n {
     'ob_aFewTimesAMonth': '月に数回',
     'ob_aFewTimesAWeek': '週に数回',
     'ob_afternoon': '午後',
-    'ob_ageCanChangeHowMedicationsWorkWe': '年齢によって薬の効き方は変わることがあります。安全チェックをあなたに合わせて調整します。',
+    'ob_ageCanChangeHowMedicationsWorkWe':
+        '年齢によって薬の効き方は変わることがあります。安全チェックをあなたに合わせて調整します。',
     'ob_almostNever': 'ほとんどない',
     'ob_appStore': 'App Store',
     'ob_aspirin': 'アスピリン',
@@ -418,14 +491,19 @@ class ObL10n {
     'ob_tiktok': 'TikTok',
     'ob_yesSeveral': 'はい、いくつか',
     'ob_youCanChangeThisAnytimeInSetting': 'これは設定でいつでも変更できます。',
-    'ob_4In10SupplementUsersHaveAtLeastO': 'サプリ利用者の10人に4人が少なくとも1つの危険な薬物相互作用を抱えており、その多くが気づいていません。',
-    'ob_76OfMembersMaintainStrongAdheren': 'メンバーの76%が6か月にわたり高い服薬遵守を維持しています。最初の1週間だけではありません。',
-    'ob_78OfMembersReportLessMedicationS': 'メンバーの78%が3週間以内に服薬のストレスが減ったと回答しています。',
-    'ob_aFewQuickQuestionsSoMedAiFitsYou': 'Med AIをあなたの薬・スケジュール・目標に合わせるための簡単な質問です。',
+    'ob_4In10SupplementUsersHaveAtLeastO':
+        'サプリ利用者の10人に4人が少なくとも1つの危険な薬物相互作用を抱えており、その多くが気づいていません。',
+    'ob_76OfMembersMaintainStrongAdheren':
+        'メンバーの76%が6か月にわたり高い服薬遵守を維持しています。最初の1週間だけではありません。',
+    'ob_78OfMembersReportLessMedicationS':
+        'メンバーの78%が3週間以内に服薬のストレスが減ったと回答しています。',
+    'ob_aFewQuickQuestionsSoMedAiFitsYou':
+        'Med AIをあなたの薬・スケジュール・目標に合わせるための簡単な質問です。',
     'ob_aFewQuickQuestionsToLockInYourMo': 'あなたのモチベーションを固めるための簡単な質問です。',
     'ob_aSmarterWayToStayOnTrack': '*続けやすくする*、より賢い方法',
     'ob_allScheduledDoses': 'すべての予定された服用',
-    'ob_allowingTrackingHelpsUsKeepMedAi': 'トラッキングを許可すると、Med AIをお手頃に保てます。どちらを選んでも健康データは非公開のままです。',
+    'ob_allowingTrackingHelpsUsKeepMedAi':
+        'トラッキングを許可すると、Med AIをお手頃に保てます。どちらを選んでも健康データは非公開のままです。',
     'ob_anyConditionsYouAreManaging': '*管理している*病気はありますか？',
     'ob_anyMedicationAllergies': '薬の*アレルギー*はありますか？',
     'ob_buildingYourPlan': 'プランを作成中…',
@@ -439,8 +517,10 @@ class ObL10n {
     'ob_enableReminders': 'リマインダーを有効にする',
     'ob_familyHealthLead': '家族の健康リーダー',
     'ob_gentle': 'やさしい',
-    'ob_getNotifiedIfSomeoneYouCareForMi': '大切な人が重要な服用を忘れたら通知を受け取り、必要なときに手を差し伸べられます。',
-    'ob_getPersonalizedRemindersScanInsi': '薬ごとにパーソナライズされたリマインダー、スキャン分析、安全のヒントを受け取れます。',
+    'ob_getNotifiedIfSomeoneYouCareForMi':
+        '大切な人が重要な服用を忘れたら通知を受け取り、必要なときに手を差し伸べられます。',
+    'ob_getPersonalizedRemindersScanInsi':
+        '薬ごとにパーソナライズされたリマインダー、スキャン分析、安全のヒントを受け取れます。',
     'ob_getStarted': 'はじめる',
     'ob_giveUsARating': '*評価*をお願いします',
     'ob_hardcore': 'しっかり',
@@ -464,11 +544,14 @@ class ObL10n {
     'ob_managingRefillsFeelsLikeAHassle': '補充の管理は*面倒*に感じる',
     'ob_meMyWholeFamily': '自分と家族みんな',
     'ob_medAiCreatesLongTermResults': 'Med AIは*長期的な*成果を生み出します',
-    'ob_medAiIdentifiesYourPillFlagsInte': 'Med AIは錠剤を識別し、相互作用を指摘し、スケジュールを即座に記録します。',
-    'ob_medAiSScannerOutperformsGenericP': 'Med AIのスキャナーは、一般的な錠剤識別アプリを直接比較で上回ります。',
+    'ob_medAiIdentifiesYourPillFlagsInte':
+        'Med AIは錠剤を識別し、相互作用を指摘し、スケジュールを即座に記録します。',
+    'ob_medAiSScannerOutperformsGenericP':
+        'Med AIのスキャナーは、一般的な錠剤識別アプリを直接比較で上回ります。',
     'ob_medAiWasBuiltForRealMedicationRo': 'Med AIは完璧ではなく、現実の服薬習慣のために作られました。',
     'ob_medAiWasDesignedForPeopleLikeYou': 'Med AIはあなたのような人のために設計されました。',
-    'ob_medicationEffectsAndDosingCanDif': '薬の効果や用量は性別によって異なることがあります。これによりAIが安全情報を最適化します。',
+    'ob_medicationEffectsAndDosingCanDif':
+        '薬の効果や用量は性別によって異なることがあります。これによりAIが安全情報を最適化します。',
     'ob_neverMissADose': '二度と服用を忘れない',
     'ob_next': '次へ',
     'ob_normal': '標準',
@@ -499,7 +582,8 @@ class ObL10n {
     'ob_youAre2MoreLikelyToSucceedWithMe': 'Med AIなら成功する可能性が*2倍*高まります',
     'ob_youHaveGreatPotential': 'あなたには*大きな可能性*があります',
     'ob_yourBaselineBeforeMedAiStartsHel': 'Med AIが手助けを始める前のあなたの基準値です。',
-    'ob_yourHealthDataIsEncryptedAndNeve': 'あなたの健康データは暗号化され、決して販売されません。より安全なプランのためだけにお尋ねしています。',
+    'ob_yourHealthDataIsEncryptedAndNeve':
+        'あなたの健康データは暗号化され、決して販売されません。より安全なプランのためだけにお尋ねしています。',
     'ob_yourPersonalizedPlanIsReady': 'あなたの*パーソナライズされたプラン*が完成しました',
   };
 
@@ -513,7 +597,8 @@ class ObL10n {
     'ob_aFewTimesAMonth': '한 달에 몇 번',
     'ob_aFewTimesAWeek': '일주일에 몇 번',
     'ob_afternoon': '오후',
-    'ob_ageCanChangeHowMedicationsWorkWe': '나이에 따라 약의 작용이 달라질 수 있어, 안전 점검을 당신에게 맞춥니다.',
+    'ob_ageCanChangeHowMedicationsWorkWe':
+        '나이에 따라 약의 작용이 달라질 수 있어, 안전 점검을 당신에게 맞춥니다.',
     'ob_almostNever': '거의 없음',
     'ob_appStore': 'App Store',
     'ob_aspirin': '아스피린',
@@ -578,14 +663,19 @@ class ObL10n {
     'ob_tiktok': 'TikTok',
     'ob_yesSeveral': '네, 여러 개',
     'ob_youCanChangeThisAnytimeInSetting': '설정에서 언제든지 변경할 수 있습니다.',
-    'ob_4In10SupplementUsersHaveAtLeastO': '보충제 사용자 10명 중 4명은 위험한 약물 상호작용이 하나 이상 있으며, 대부분은 그 사실을 모릅니다.',
-    'ob_76OfMembersMaintainStrongAdheren': '회원의 76%가 6개월 동안 높은 복약 순응도를 유지합니다. 첫 주만 반짝하는 것이 아닙니다.',
-    'ob_78OfMembersReportLessMedicationS': '회원의 78%가 3주 이내에 복약 스트레스가 줄었다고 응답했습니다.',
-    'ob_aFewQuickQuestionsSoMedAiFitsYou': 'Med AI를 당신의 약, 일정, 목표에 맞추기 위한 간단한 질문입니다.',
+    'ob_4In10SupplementUsersHaveAtLeastO':
+        '보충제 사용자 10명 중 4명은 위험한 약물 상호작용이 하나 이상 있으며, 대부분은 그 사실을 모릅니다.',
+    'ob_76OfMembersMaintainStrongAdheren':
+        '회원의 76%가 6개월 동안 높은 복약 순응도를 유지합니다. 첫 주만 반짝하는 것이 아닙니다.',
+    'ob_78OfMembersReportLessMedicationS':
+        '회원의 78%가 3주 이내에 복약 스트레스가 줄었다고 응답했습니다.',
+    'ob_aFewQuickQuestionsSoMedAiFitsYou':
+        'Med AI를 당신의 약, 일정, 목표에 맞추기 위한 간단한 질문입니다.',
     'ob_aFewQuickQuestionsToLockInYourMo': '당신의 동기를 다지기 위한 간단한 질문입니다.',
     'ob_aSmarterWayToStayOnTrack': '*꾸준함을 유지하는* 더 똑똑한 방법',
     'ob_allScheduledDoses': '예정된 모든 복용',
-    'ob_allowingTrackingHelpsUsKeepMedAi': '추적을 허용하면 Med AI를 합리적인 가격으로 유지하는 데 도움이 됩니다. 어느 쪽이든 건강 데이터는 비공개로 유지됩니다.',
+    'ob_allowingTrackingHelpsUsKeepMedAi':
+        '추적을 허용하면 Med AI를 합리적인 가격으로 유지하는 데 도움이 됩니다. 어느 쪽이든 건강 데이터는 비공개로 유지됩니다.',
     'ob_anyConditionsYouAreManaging': '*관리 중인* 질환이 있나요?',
     'ob_anyMedicationAllergies': '약물 *알레르기*가 있나요?',
     'ob_buildingYourPlan': '플랜을 만드는 중…',
@@ -599,7 +689,8 @@ class ObL10n {
     'ob_enableReminders': '알림 켜기',
     'ob_familyHealthLead': '가족 건강 담당자',
     'ob_gentle': '부드럽게',
-    'ob_getNotifiedIfSomeoneYouCareForMi': '돌보는 사람이 중요한 복용을 놓치면 알림을 받고, 필요할 때 도와줄 수 있습니다.',
+    'ob_getNotifiedIfSomeoneYouCareForMi':
+        '돌보는 사람이 중요한 복용을 놓치면 알림을 받고, 필요할 때 도와줄 수 있습니다.',
     'ob_getPersonalizedRemindersScanInsi': '약마다 맞춤 알림, 스캔 분석, 안전 팁을 받아보세요.',
     'ob_getStarted': '시작하기',
     'ob_giveUsARating': '*평점*을 남겨주세요',
@@ -624,11 +715,15 @@ class ObL10n {
     'ob_managingRefillsFeelsLikeAHassle': '재조제 관리가 *번거롭게* 느껴져요',
     'ob_meMyWholeFamily': '나와 우리 가족 모두',
     'ob_medAiCreatesLongTermResults': 'Med AI는 *장기적인* 성과를 만듭니다',
-    'ob_medAiIdentifiesYourPillFlagsInte': 'Med AI는 알약을 식별하고, 상호작용을 표시하며, 일정을 즉시 기록합니다.',
-    'ob_medAiSScannerOutperformsGenericP': 'Med AI의 스캐너는 직접 비교 테스트에서 일반 알약 식별 앱을 능가합니다.',
-    'ob_medAiWasBuiltForRealMedicationRo': 'Med AI는 완벽한 루틴이 아니라 실제 복약 루틴을 위해 만들어졌습니다.',
+    'ob_medAiIdentifiesYourPillFlagsInte':
+        'Med AI는 알약을 식별하고, 상호작용을 표시하며, 일정을 즉시 기록합니다.',
+    'ob_medAiSScannerOutperformsGenericP':
+        'Med AI의 스캐너는 직접 비교 테스트에서 일반 알약 식별 앱을 능가합니다.',
+    'ob_medAiWasBuiltForRealMedicationRo':
+        'Med AI는 완벽한 루틴이 아니라 실제 복약 루틴을 위해 만들어졌습니다.',
     'ob_medAiWasDesignedForPeopleLikeYou': 'Med AI는 당신 같은 사람들을 위해 설계되었습니다.',
-    'ob_medicationEffectsAndDosingCanDif': '약효와 용량은 성별에 따라 다를 수 있습니다. 이는 AI가 안전 정보를 맞춤화하는 데 도움이 됩니다.',
+    'ob_medicationEffectsAndDosingCanDif':
+        '약효와 용량은 성별에 따라 다를 수 있습니다. 이는 AI가 안전 정보를 맞춤화하는 데 도움이 됩니다.',
     'ob_neverMissADose': '다시는 복용을 놓치지 마세요',
     'ob_next': '다음',
     'ob_normal': '보통',
@@ -639,12 +734,14 @@ class ObL10n {
     'ob_remindersThatActuallyWork': '정말 *효과 있는* 알림',
     'ob_seeWhatAScanReveals': '*스캔*이 무엇을 알려주는지 보기',
     'ob_selectAllThatApply': '해당하는 것을 모두 선택하세요.',
-    'ob_selectAllThatApplyOurAiWillGuard': '해당하는 것을 모두 선택하세요. AI가 그것으로부터 지켜드립니다.',
+    'ob_selectAllThatApplyOurAiWillGuard':
+        '해당하는 것을 모두 선택하세요. AI가 그것으로부터 지켜드립니다.',
     'ob_selfManager': '자기 관리',
     'ob_startImproving': '개선 시작하기',
     'ob_stayingIndependent': '독립적으로 지내기',
     'ob_thanksForSharing': '*공유*해 주셔서 감사합니다',
-    'ob_thisIsHowMedAiMakesSureYouNeverM': '이것이 Med AI가 복용을 놓치지 않도록 하는 방법입니다. 언제든 변경할 수 있습니다.',
+    'ob_thisIsHowMedAiMakesSureYouNeverM':
+        '이것이 Med AI가 복용을 놓치지 않도록 하는 방법입니다. 언제든 변경할 수 있습니다.',
     'ob_trackAHealthCondition': '건강 상태 기록하기',
     'ob_trackingMyOwnMeds': '내 약을 관리',
     'ob_trustedBy500000People': '모든 약을 *하나의* 편안한 루틴으로',
@@ -659,7 +756,8 @@ class ObL10n {
     'ob_youAre2MoreLikelyToSucceedWithMe': 'Med AI와 함께라면 성공할 가능성이 *2배* 높아집니다',
     'ob_youHaveGreatPotential': '당신에게는 *큰 잠재력*이 있습니다',
     'ob_yourBaselineBeforeMedAiStartsHel': 'Med AI가 돕기 시작하기 전 당신의 기준점입니다.',
-    'ob_yourHealthDataIsEncryptedAndNeve': '당신의 건강 데이터는 암호화되며 절대 판매되지 않습니다. 더 안전한 플랜을 위해서만 여쭤봅니다.',
+    'ob_yourHealthDataIsEncryptedAndNeve':
+        '당신의 건강 데이터는 암호화되며 절대 판매되지 않습니다. 더 안전한 플랜을 위해서만 여쭤봅니다.',
     'ob_yourPersonalizedPlanIsReady': '당신의 *맞춤 플랜*이 준비되었습니다',
   };
 
@@ -673,7 +771,8 @@ class ObL10n {
     'ob_aFewTimesAMonth': 'Beberapa kali sebulan',
     'ob_aFewTimesAWeek': 'Beberapa kali seminggu',
     'ob_afternoon': 'Tengah hari',
-    'ob_ageCanChangeHowMedicationsWorkWe': 'Umur boleh mengubah cara ubat berfungsi — kami selaraskan semakan keselamatan untuk anda.',
+    'ob_ageCanChangeHowMedicationsWorkWe':
+        'Umur boleh mengubah cara ubat berfungsi — kami selaraskan semakan keselamatan untuk anda.',
     'ob_almostNever': 'Hampir tidak pernah',
     'ob_appStore': 'App Store',
     'ob_aspirin': 'Aspirin',
@@ -729,38 +828,51 @@ class ObL10n {
     'ob_searchByName': 'Cari mengikut nama',
     'ob_shifts': 'Syif',
     'ob_sideEffects': 'Kesan sampingan',
-    'ob_someDosagesAndInteractionRisksAr': 'Sesetengah dos dan risiko interaksi sensitif kepada berat badan.',
+    'ob_someDosagesAndInteractionRisksAr':
+        'Sesetengah dos dan risiko interaksi sensitif kepada berat badan.',
     'ob_sometimes': 'Kadangkala',
     'ob_somewhereElse': 'Di tempat lain',
     'ob_stillAsleep': 'Masih tidur',
     'ob_sulfaDrugs': 'Ubat sulfa',
-    'ob_tapAndHoldTheMedAiLogoToLockInYo': 'Ketik dan tahan logo Med AI untuk mengunci matlamat anda.',
+    'ob_tapAndHoldTheMedAiLogoToLockInYo':
+        'Ketik dan tahan logo Med AI untuk mengunci matlamat anda.',
     'ob_tiktok': 'TikTok',
     'ob_yesSeveral': 'Ya, beberapa',
-    'ob_youCanChangeThisAnytimeInSetting': 'Anda boleh mengubah ini pada bila-bila masa dalam tetapan.',
-    'ob_4In10SupplementUsersHaveAtLeastO': '4 daripada 10 pengguna suplemen mempunyai sekurang-kurangnya satu interaksi ubat berisiko — kebanyakannya tidak pernah tahu.',
-    'ob_76OfMembersMaintainStrongAdheren': '76% ahli mengekalkan pematuhan yang kukuh selama 6 bulan — bukan sekadar lonjakan minggu pertama.',
-    'ob_78OfMembersReportLessMedicationS': '78% ahli melaporkan kurang tekanan ubat dalam masa 3 minggu.',
-    'ob_aFewQuickQuestionsSoMedAiFitsYou': 'Beberapa soalan ringkas supaya Med AI sesuai dengan ubat, jadual dan matlamat anda.',
-    'ob_aFewQuickQuestionsToLockInYourMo': 'Beberapa soalan ringkas untuk mengukuhkan motivasi anda.',
+    'ob_youCanChangeThisAnytimeInSetting':
+        'Anda boleh mengubah ini pada bila-bila masa dalam tetapan.',
+    'ob_4In10SupplementUsersHaveAtLeastO':
+        '4 daripada 10 pengguna suplemen mempunyai sekurang-kurangnya satu interaksi ubat berisiko — kebanyakannya tidak pernah tahu.',
+    'ob_76OfMembersMaintainStrongAdheren':
+        '76% ahli mengekalkan pematuhan yang kukuh selama 6 bulan — bukan sekadar lonjakan minggu pertama.',
+    'ob_78OfMembersReportLessMedicationS':
+        '78% ahli melaporkan kurang tekanan ubat dalam masa 3 minggu.',
+    'ob_aFewQuickQuestionsSoMedAiFitsYou':
+        'Beberapa soalan ringkas supaya Med AI sesuai dengan ubat, jadual dan matlamat anda.',
+    'ob_aFewQuickQuestionsToLockInYourMo':
+        'Beberapa soalan ringkas untuk mengukuhkan motivasi anda.',
     'ob_aSmarterWayToStayOnTrack': 'Cara lebih bijak untuk *kekal di landasan*',
     'ob_allScheduledDoses': 'Semua dos berjadual',
-    'ob_allowingTrackingHelpsUsKeepMedAi': 'Membenarkan penjejakan membantu kami memastikan Med AI mampu milik. Data kesihatan anda kekal peribadi walau apa pun.',
+    'ob_allowingTrackingHelpsUsKeepMedAi':
+        'Membenarkan penjejakan membantu kami memastikan Med AI mampu milik. Data kesihatan anda kekal peribadi walau apa pun.',
     'ob_anyConditionsYouAreManaging': 'Ada keadaan yang sedang anda *uruskan*?',
     'ob_anyMedicationAllergies': 'Ada *alahan* ubat?',
     'ob_buildingYourPlan': 'Membina pelan anda…',
     'ob_continue': 'Teruskan',
     'ob_dedicatedCaregiver': 'Penjaga berdedikasi',
-    'ob_diagnoseInteractionRisksInstantl': 'Kesan risiko interaksi serta-merta dan dapatkan langkah seterusnya yang jelas.',
-    'ob_doYouKnowIfYourMedsInteract': 'Adakah anda tahu jika ubat anda *berinteraksi*?',
+    'ob_diagnoseInteractionRisksInstantl':
+        'Kesan risiko interaksi serta-merta dan dapatkan langkah seterusnya yang jelas.',
+    'ob_doYouKnowIfYourMedsInteract':
+        'Adakah anda tahu jika ubat anda *berinteraksi*?',
     'ob_doYouRelate': 'Anda rasa sama?',
     'ob_doYouTakeSupplementsToo': 'Anda ambil *suplemen* juga?',
     'ob_dosesRefillsFamilyAlerts': 'Dos, isi semula & amaran keluarga',
     'ob_enableReminders': 'Dayakan peringatan',
     'ob_familyHealthLead': 'Ketua kesihatan keluarga',
     'ob_gentle': 'Lembut',
-    'ob_getNotifiedIfSomeoneYouCareForMi': 'Dapat pemberitahuan jika seseorang yang anda jaga terlepas dos penting — dan bertindak apabila ia penting.',
-    'ob_getPersonalizedRemindersScanInsi': 'Dapatkan peringatan diperibadikan, cerapan imbasan dan tip keselamatan untuk setiap ubat.',
+    'ob_getNotifiedIfSomeoneYouCareForMi':
+        'Dapat pemberitahuan jika seseorang yang anda jaga terlepas dos penting — dan bertindak apabila ia penting.',
+    'ob_getPersonalizedRemindersScanInsi':
+        'Dapatkan peringatan diperibadikan, cerapan imbasan dan tip keselamatan untuk setiap ubat.',
     'ob_getStarted': 'Mula',
     'ob_giveUsARating': 'Beri kami *penilaian*',
     'ob_hardcore': 'Padu',
@@ -770,41 +882,57 @@ class ObL10n {
     'ob_howDidYouHearAboutMedAi': 'Bagaimana anda *tahu* tentang Med AI?',
     'ob_howManyMedicationsDoYouTake': 'Berapa banyak *ubat* yang anda ambil?',
     'ob_howOftenDoYouMissADose': 'Berapa kerap anda *terlepas* dos?',
-    'ob_howWillYouAddYourFirstMed': 'Bagaimana anda akan menambah *ubat pertama* anda?',
-    'ob_iFeelGuiltyWhenMyRoutineSlips': 'Saya rasa *bersalah* apabila rutin saya terganggu',
-    'ob_iWorryAboutMixingMedsAndSuppleme': 'Saya risau tentang *mencampurkan* ubat dan suplemen',
+    'ob_howWillYouAddYourFirstMed':
+        'Bagaimana anda akan menambah *ubat pertama* anda?',
+    'ob_iFeelGuiltyWhenMyRoutineSlips':
+        'Saya rasa *bersalah* apabila rutin saya terganggu',
+    'ob_iWorryAboutMixingMedsAndSuppleme':
+        'Saya risau tentang *mencampurkan* ubat dan suplemen',
     'ob_identifyPillsMoreAccurately': 'Kenal pasti pil dengan lebih *tepat*',
-    'ob_joinTheCommunityThatNeverMissesW': 'Sertai komuniti yang tidak pernah terlepas perkara penting.',
-    'ob_keepLovedOnesSafeFromAnywhere': 'Pastikan orang tersayang *selamat* dari mana-mana',
+    'ob_joinTheCommunityThatNeverMissesW':
+        'Sertai komuniti yang tidak pernah terlepas perkara penting.',
+    'ob_keepLovedOnesSafeFromAnywhere':
+        'Pastikan orang tersayang *selamat* dari mana-mana',
     'ob_keepYourHealthThriving': 'Pastikan kesihatan anda *berkembang maju*',
     'ob_letSBuildYourCustomPlan': 'Mari bina *pelan tersuai* anda',
-    'ob_loseTheAnxietyNotYourStreak': 'Hilangkan *keresahan*, bukan rentetan anda',
+    'ob_loseTheAnxietyNotYourStreak':
+        'Hilangkan *keresahan*, bukan rentetan anda',
     'ob_madeForPeopleJustLikeYou': 'Dibina untuk orang *seperti anda*',
     'ob_managingForALovedOne': 'Menguruskan untuk orang tersayang',
-    'ob_managingRefillsFeelsLikeAHassle': 'Menguruskan isi semula terasa *menyusahkan*',
+    'ob_managingRefillsFeelsLikeAHassle':
+        'Menguruskan isi semula terasa *menyusahkan*',
     'ob_meMyWholeFamily': 'Saya & seluruh keluarga saya',
-    'ob_medAiCreatesLongTermResults': 'Med AI menghasilkan keputusan *jangka panjang*',
-    'ob_medAiIdentifiesYourPillFlagsInte': 'Med AI mengenal pasti pil anda, menandakan interaksi dan merekod jadual anda serta-merta.',
-    'ob_medAiSScannerOutperformsGenericP': 'Pengimbas Med AI mengatasi aplikasi pengecaman pil generik dalam ujian secara langsung.',
-    'ob_medAiWasBuiltForRealMedicationRo': 'Med AI dibina untuk rutin ubat sebenar — bukan yang sempurna.',
-    'ob_medAiWasDesignedForPeopleLikeYou': 'Med AI direka untuk orang seperti anda.',
-    'ob_medicationEffectsAndDosingCanDif': 'Kesan dan dos ubat boleh berbeza mengikut jantina — ini membantu AI kami memperibadikan maklumat keselamatan.',
+    'ob_medAiCreatesLongTermResults':
+        'Med AI menghasilkan keputusan *jangka panjang*',
+    'ob_medAiIdentifiesYourPillFlagsInte':
+        'Med AI mengenal pasti pil anda, menandakan interaksi dan merekod jadual anda serta-merta.',
+    'ob_medAiSScannerOutperformsGenericP':
+        'Pengimbas Med AI mengatasi aplikasi pengecaman pil generik dalam ujian secara langsung.',
+    'ob_medAiWasBuiltForRealMedicationRo':
+        'Med AI dibina untuk rutin ubat sebenar — bukan yang sempurna.',
+    'ob_medAiWasDesignedForPeopleLikeYou':
+        'Med AI direka untuk orang seperti anda.',
+    'ob_medicationEffectsAndDosingCanDif':
+        'Kesan dan dos ubat boleh berbeza mengikut jantina — ini membantu AI kami memperibadikan maklumat keselamatan.',
     'ob_neverMissADose': 'Jangan terlepas dos lagi',
     'ob_next': 'Seterusnya',
     'ob_normal': 'Biasa',
     'ob_oneLastPermission': 'Satu *kebenaran* terakhir',
     'ob_onlyForCriticalDoses': 'Hanya untuk dos kritikal',
-    'ob_personalSummaryFromYourAnswers': 'Ringkasan peribadi daripada *jawapan* anda',
+    'ob_personalSummaryFromYourAnswers':
+        'Ringkasan peribadi daripada *jawapan* anda',
     'ob_rateMedAi': 'Nilai Med AI',
     'ob_remindersThatActuallyWork': 'Peringatan yang benar-benar *berkesan*',
     'ob_seeWhatAScanReveals': 'Lihat apa yang *imbasan* dedahkan',
     'ob_selectAllThatApply': 'Pilih semua yang berkenaan.',
-    'ob_selectAllThatApplyOurAiWillGuard': 'Pilih semua yang berkenaan — AI kami akan melindungi anda daripadanya.',
+    'ob_selectAllThatApplyOurAiWillGuard':
+        'Pilih semua yang berkenaan — AI kami akan melindungi anda daripadanya.',
     'ob_selfManager': 'Pengurus diri',
     'ob_startImproving': 'Mula menambah baik',
     'ob_stayingIndependent': 'Kekal berdikari',
     'ob_thanksForSharing': 'Terima kasih kerana *berkongsi*',
-    'ob_thisIsHowMedAiMakesSureYouNeverM': 'Beginilah Med AI memastikan anda tidak pernah terlepas dos. Anda boleh mengubahnya bila-bila masa.',
+    'ob_thisIsHowMedAiMakesSureYouNeverM':
+        'Beginilah Med AI memastikan anda tidak pernah terlepas dos. Anda boleh mengubahnya bila-bila masa.',
     'ob_trackAHealthCondition': 'Jejak keadaan kesihatan',
     'ob_trackingMyOwnMeds': 'Menguruskan ubat saya sendiri',
     'ob_trustedBy500000People': 'Setiap ubat, *satu* rutin yang tenang',
@@ -814,12 +942,16 @@ class ObL10n {
     'ob_whatDoesSuccessLookLike': 'Bagaimana rupa *kejayaan*?',
     'ob_whatDoesYourDayLookLike': 'Bagaimana *hari* anda?',
     'ob_whatMotivatesYouMost': 'Apa yang *paling* mendorong anda?',
-    'ob_whatUsuallyCausesAMissedDose': 'Apa yang biasanya *menyebabkan* dos terlepas?',
+    'ob_whatUsuallyCausesAMissedDose':
+        'Apa yang biasanya *menyebabkan* dos terlepas?',
     'ob_whenDoYouUsuallyTakeThem': 'Bila anda biasanya *mengambilnya*?',
-    'ob_youAre2MoreLikelyToSucceedWithMe': 'Anda *2× lebih berkemungkinan* berjaya dengan Med AI',
+    'ob_youAre2MoreLikelyToSucceedWithMe':
+        'Anda *2× lebih berkemungkinan* berjaya dengan Med AI',
     'ob_youHaveGreatPotential': 'Anda mempunyai *potensi hebat*',
-    'ob_yourBaselineBeforeMedAiStartsHel': 'Garis dasar anda sebelum Med AI mula membantu.',
-    'ob_yourHealthDataIsEncryptedAndNeve': 'Data kesihatan anda disulitkan dan tidak pernah dijual. Kami hanya bertanya supaya pelan anda lebih selamat.',
+    'ob_yourBaselineBeforeMedAiStartsHel':
+        'Garis dasar anda sebelum Med AI mula membantu.',
+    'ob_yourHealthDataIsEncryptedAndNeve':
+        'Data kesihatan anda disulitkan dan tidak pernah dijual. Kami hanya bertanya supaya pelan anda lebih selamat.',
     'ob_yourPersonalizedPlanIsReady': '*Pelan diperibadikan* anda sudah sedia',
   };
 
@@ -833,7 +965,8 @@ class ObL10n {
     'ob_aFewTimesAMonth': 'بضع مرات في الشهر',
     'ob_aFewTimesAWeek': 'بضع مرات في الأسبوع',
     'ob_afternoon': 'بعد الظهر',
-    'ob_ageCanChangeHowMedicationsWorkWe': 'قد يغيّر العمر طريقة عمل الأدوية، لذا نضبط فحوصات الأمان لتناسبك.',
+    'ob_ageCanChangeHowMedicationsWorkWe':
+        'قد يغيّر العمر طريقة عمل الأدوية، لذا نضبط فحوصات الأمان لتناسبك.',
     'ob_almostNever': 'نادرًا جدًا',
     'ob_appStore': 'App Store',
     'ob_aspirin': 'الأسبرين',
@@ -889,29 +1022,38 @@ class ObL10n {
     'ob_searchByName': 'البحث بالاسم',
     'ob_shifts': 'نوبات عمل',
     'ob_sideEffects': 'آثار جانبية',
-    'ob_someDosagesAndInteractionRisksAr': 'بعض الجرعات ومخاطر التفاعل تتأثر بالوزن.',
+    'ob_someDosagesAndInteractionRisksAr':
+        'بعض الجرعات ومخاطر التفاعل تتأثر بالوزن.',
     'ob_sometimes': 'أحيانًا',
     'ob_somewhereElse': 'مكان آخر',
     'ob_stillAsleep': 'ما زلت نائمًا',
     'ob_sulfaDrugs': 'أدوية السلفا',
-    'ob_tapAndHoldTheMedAiLogoToLockInYo': 'اضغط مع الاستمرار على شعار Med AI لتثبيت هدفك.',
+    'ob_tapAndHoldTheMedAiLogoToLockInYo':
+        'اضغط مع الاستمرار على شعار Med AI لتثبيت هدفك.',
     'ob_tiktok': 'TikTok',
     'ob_yesSeveral': 'نعم، عدة',
-    'ob_youCanChangeThisAnytimeInSetting': 'يمكنك تغيير هذا في أي وقت من الإعدادات.',
-    'ob_4In10SupplementUsersHaveAtLeastO': '4 من كل 10 من مستخدمي المكمّلات لديهم تفاعل دوائي خطير واحد على الأقل، ومعظمهم لا يعلمون ذلك.',
-    'ob_76OfMembersMaintainStrongAdheren': 'يحافظ 76% من الأعضاء على التزام قوي لمدة 6 أشهر، وليس مجرد اندفاع في الأسبوع الأول.',
-    'ob_78OfMembersReportLessMedicationS': 'يفيد 78% من الأعضاء بانخفاض التوتر المرتبط بالدواء خلال 3 أسابيع.',
-    'ob_aFewQuickQuestionsSoMedAiFitsYou': 'بعض الأسئلة السريعة ليتلاءم Med AI مع أدويتك وجدولك وأهدافك.',
+    'ob_youCanChangeThisAnytimeInSetting':
+        'يمكنك تغيير هذا في أي وقت من الإعدادات.',
+    'ob_4In10SupplementUsersHaveAtLeastO':
+        '4 من كل 10 من مستخدمي المكمّلات لديهم تفاعل دوائي خطير واحد على الأقل، ومعظمهم لا يعلمون ذلك.',
+    'ob_76OfMembersMaintainStrongAdheren':
+        'يحافظ 76% من الأعضاء على التزام قوي لمدة 6 أشهر، وليس مجرد اندفاع في الأسبوع الأول.',
+    'ob_78OfMembersReportLessMedicationS':
+        'يفيد 78% من الأعضاء بانخفاض التوتر المرتبط بالدواء خلال 3 أسابيع.',
+    'ob_aFewQuickQuestionsSoMedAiFitsYou':
+        'بعض الأسئلة السريعة ليتلاءم Med AI مع أدويتك وجدولك وأهدافك.',
     'ob_aFewQuickQuestionsToLockInYourMo': 'بعض الأسئلة السريعة لترسيخ دافعك.',
     'ob_aSmarterWayToStayOnTrack': 'طريقة أذكى *للبقاء على المسار*',
     'ob_allScheduledDoses': 'كل الجرعات المجدولة',
-    'ob_allowingTrackingHelpsUsKeepMedAi': 'السماح بالتتبّع يساعدنا على إبقاء Med AI بأسعار معقولة. تبقى بياناتك الصحية خاصة في كلتا الحالتين.',
+    'ob_allowingTrackingHelpsUsKeepMedAi':
+        'السماح بالتتبّع يساعدنا على إبقاء Med AI بأسعار معقولة. تبقى بياناتك الصحية خاصة في كلتا الحالتين.',
     'ob_anyConditionsYouAreManaging': 'هل هناك أي حالات *تديرها*؟',
     'ob_anyMedicationAllergies': 'هل لديك أي *حساسية* من الأدوية؟',
     'ob_buildingYourPlan': 'جارٍ إنشاء خطتك…',
     'ob_continue': 'متابعة',
     'ob_dedicatedCaregiver': 'مقدّم رعاية متفانٍ',
-    'ob_diagnoseInteractionRisksInstantl': 'اكتشف مخاطر التفاعل فورًا واحصل على خطوات تالية واضحة.',
+    'ob_diagnoseInteractionRisksInstantl':
+        'اكتشف مخاطر التفاعل فورًا واحصل على خطوات تالية واضحة.',
     'ob_doYouKnowIfYourMedsInteract': 'هل تعرف إن كانت أدويتك *تتفاعل*؟',
     'ob_doYouRelate': 'هل تشعر بذلك؟',
     'ob_doYouTakeSupplementsToo': 'هل تتناول *مكمّلات* أيضًا؟',
@@ -919,8 +1061,10 @@ class ObL10n {
     'ob_enableReminders': 'تفعيل التذكيرات',
     'ob_familyHealthLead': 'مسؤول صحة العائلة',
     'ob_gentle': 'لطيف',
-    'ob_getNotifiedIfSomeoneYouCareForMi': 'احصل على تنبيه إذا فوّت شخص ترعاه جرعة حرجة، وتدخّل عندما يهمّ الأمر.',
-    'ob_getPersonalizedRemindersScanInsi': 'احصل على تذكيرات مخصّصة ورؤى مسح ونصائح أمان لكل دواء.',
+    'ob_getNotifiedIfSomeoneYouCareForMi':
+        'احصل على تنبيه إذا فوّت شخص ترعاه جرعة حرجة، وتدخّل عندما يهمّ الأمر.',
+    'ob_getPersonalizedRemindersScanInsi':
+        'احصل على تذكيرات مخصّصة ورؤى مسح ونصائح أمان لكل دواء.',
     'ob_getStarted': 'ابدأ',
     'ob_giveUsARating': 'امنحنا *تقييمًا*',
     'ob_hardcore': 'مكثّف',
@@ -934,7 +1078,8 @@ class ObL10n {
     'ob_iFeelGuiltyWhenMyRoutineSlips': 'أشعر *بالذنب* عندما يتعثّر روتيني',
     'ob_iWorryAboutMixingMedsAndSuppleme': 'أقلق بشأن *خلط* الأدوية والمكمّلات',
     'ob_identifyPillsMoreAccurately': 'تعرّف على الحبوب بدقة *أكبر*',
-    'ob_joinTheCommunityThatNeverMissesW': 'انضم إلى المجتمع الذي لا يفوّت ما يهم أبدًا.',
+    'ob_joinTheCommunityThatNeverMissesW':
+        'انضم إلى المجتمع الذي لا يفوّت ما يهم أبدًا.',
     'ob_keepLovedOnesSafeFromAnywhere': 'حافظ على *سلامة* أحبائك من أي مكان',
     'ob_keepYourHealthThriving': 'حافظ على *ازدهار* صحتك',
     'ob_letSBuildYourCustomPlan': 'لنبنِ *خطتك المخصّصة*',
@@ -944,11 +1089,15 @@ class ObL10n {
     'ob_managingRefillsFeelsLikeAHassle': 'إدارة إعادة التعبئة تبدو *مزعجة*',
     'ob_meMyWholeFamily': 'أنا وعائلتي بأكملها',
     'ob_medAiCreatesLongTermResults': 'يحقّق Med AI نتائج *طويلة الأمد*',
-    'ob_medAiIdentifiesYourPillFlagsInte': 'يتعرّف Med AI على حبتك، وينبّه إلى التفاعلات، ويسجّل جدولك فورًا.',
-    'ob_medAiSScannerOutperformsGenericP': 'يتفوّق ماسح Med AI على تطبيقات التعرّف العامة على الحبوب في الاختبارات المباشرة.',
-    'ob_medAiWasBuiltForRealMedicationRo': 'صُمّم Med AI لروتين دوائي واقعي، وليس مثاليًا.',
+    'ob_medAiIdentifiesYourPillFlagsInte':
+        'يتعرّف Med AI على حبتك، وينبّه إلى التفاعلات، ويسجّل جدولك فورًا.',
+    'ob_medAiSScannerOutperformsGenericP':
+        'يتفوّق ماسح Med AI على تطبيقات التعرّف العامة على الحبوب في الاختبارات المباشرة.',
+    'ob_medAiWasBuiltForRealMedicationRo':
+        'صُمّم Med AI لروتين دوائي واقعي، وليس مثاليًا.',
     'ob_medAiWasDesignedForPeopleLikeYou': 'صُمّم Med AI لأشخاص مثلك.',
-    'ob_medicationEffectsAndDosingCanDif': 'قد تختلف تأثيرات الأدوية وجرعاتها حسب الجنس، وهذا يساعد ذكاءنا الاصطناعي على تخصيص معلومات الأمان.',
+    'ob_medicationEffectsAndDosingCanDif':
+        'قد تختلف تأثيرات الأدوية وجرعاتها حسب الجنس، وهذا يساعد ذكاءنا الاصطناعي على تخصيص معلومات الأمان.',
     'ob_neverMissADose': 'لا تفوّت جرعة بعد الآن',
     'ob_next': 'التالي',
     'ob_normal': 'عادي',
@@ -959,12 +1108,14 @@ class ObL10n {
     'ob_remindersThatActuallyWork': 'تذكيرات *تنجح* فعلًا',
     'ob_seeWhatAScanReveals': 'شاهد ما يكشفه *المسح*',
     'ob_selectAllThatApply': 'اختر كل ما ينطبق.',
-    'ob_selectAllThatApplyOurAiWillGuard': 'اختر كل ما ينطبق — سيحميك ذكاؤنا الاصطناعي منها.',
+    'ob_selectAllThatApplyOurAiWillGuard':
+        'اختر كل ما ينطبق — سيحميك ذكاؤنا الاصطناعي منها.',
     'ob_selfManager': 'مدير ذاتي',
     'ob_startImproving': 'ابدأ التحسّن',
     'ob_stayingIndependent': 'البقاء مستقلًا',
     'ob_thanksForSharing': 'شكرًا على *المشاركة*',
-    'ob_thisIsHowMedAiMakesSureYouNeverM': 'هكذا يضمن Med AI ألا تفوّت جرعة أبدًا. يمكنك تغيير ذلك في أي وقت.',
+    'ob_thisIsHowMedAiMakesSureYouNeverM':
+        'هكذا يضمن Med AI ألا تفوّت جرعة أبدًا. يمكنك تغيير ذلك في أي وقت.',
     'ob_trackAHealthCondition': 'تتبّع حالة صحية',
     'ob_trackingMyOwnMeds': 'إدارة أدويتي الخاصة',
     'ob_trustedBy500000People': 'كل أدويتك في *روتين* واحد هادئ',
@@ -976,10 +1127,13 @@ class ObL10n {
     'ob_whatMotivatesYouMost': 'ما الذي *يحفّزك* أكثر؟',
     'ob_whatUsuallyCausesAMissedDose': 'ما الذي *يسبّب* عادةً تفويت جرعة؟',
     'ob_whenDoYouUsuallyTakeThem': 'متى *تتناولها* عادةً؟',
-    'ob_youAre2MoreLikelyToSucceedWithMe': 'أنت *أكثر عرضة للنجاح بمقدار 2×* مع Med AI',
+    'ob_youAre2MoreLikelyToSucceedWithMe':
+        'أنت *أكثر عرضة للنجاح بمقدار 2×* مع Med AI',
     'ob_youHaveGreatPotential': 'لديك *إمكانات كبيرة*',
-    'ob_yourBaselineBeforeMedAiStartsHel': 'خط الأساس لديك قبل أن يبدأ Med AI بمساعدتك.',
-    'ob_yourHealthDataIsEncryptedAndNeve': 'بياناتك الصحية مشفّرة ولا تُباع أبدًا. نسأل فقط لجعل خطتك أكثر أمانًا.',
+    'ob_yourBaselineBeforeMedAiStartsHel':
+        'خط الأساس لديك قبل أن يبدأ Med AI بمساعدتك.',
+    'ob_yourHealthDataIsEncryptedAndNeve':
+        'بياناتك الصحية مشفّرة ولا تُباع أبدًا. نسأل فقط لجعل خطتك أكثر أمانًا.',
     'ob_yourPersonalizedPlanIsReady': '*خطتك المخصّصة* جاهزة',
   };
 
@@ -993,7 +1147,8 @@ class ObL10n {
     'ob_aFewTimesAMonth': 'כמה פעמים בחודש',
     'ob_aFewTimesAWeek': 'כמה פעמים בשבוע',
     'ob_afternoon': 'צהריים',
-    'ob_ageCanChangeHowMedicationsWorkWe': 'הגיל יכול לשנות את אופן פעולת התרופות — אנו מכווננים את בדיקות הבטיחות עבורך.',
+    'ob_ageCanChangeHowMedicationsWorkWe':
+        'הגיל יכול לשנות את אופן פעולת התרופות — אנו מכווננים את בדיקות הבטיחות עבורך.',
     'ob_almostNever': 'כמעט אף פעם',
     'ob_appStore': 'App Store',
     'ob_aspirin': 'אספירין',
@@ -1049,38 +1204,50 @@ class ObL10n {
     'ob_searchByName': 'חיפוש לפי שם',
     'ob_shifts': 'משמרות',
     'ob_sideEffects': 'תופעות לוואי',
-    'ob_someDosagesAndInteractionRisksAr': 'חלק מהמינונים וסיכוני האינטראקציה תלויים במשקל.',
+    'ob_someDosagesAndInteractionRisksAr':
+        'חלק מהמינונים וסיכוני האינטראקציה תלויים במשקל.',
     'ob_sometimes': 'לפעמים',
     'ob_somewhereElse': 'במקום אחר',
     'ob_stillAsleep': 'עדיין ישן',
     'ob_sulfaDrugs': 'תרופות סולפה',
-    'ob_tapAndHoldTheMedAiLogoToLockInYo': 'הקש והחזק את הלוגו של Med AI כדי לנעול את המטרה שלך.',
+    'ob_tapAndHoldTheMedAiLogoToLockInYo':
+        'הקש והחזק את הלוגו של Med AI כדי לנעול את המטרה שלך.',
     'ob_tiktok': 'TikTok',
     'ob_yesSeveral': 'כן, כמה',
     'ob_youCanChangeThisAnytimeInSetting': 'אפשר לשנות זאת בכל עת בהגדרות.',
-    'ob_4In10SupplementUsersHaveAtLeastO': 'ל-4 מכל 10 משתמשי תוספים יש לפחות אינטראקציה תרופתית מסוכנת אחת — רובם אינם יודעים על כך.',
-    'ob_76OfMembersMaintainStrongAdheren': '76% מהחברים שומרים על היענות גבוהה במשך 6 חודשים — לא רק זינוק בשבוע הראשון.',
-    'ob_78OfMembersReportLessMedicationS': '78% מהחברים מדווחים על פחות מתח סביב התרופות תוך 3 שבועות.',
-    'ob_aFewQuickQuestionsSoMedAiFitsYou': 'כמה שאלות מהירות כדי ש-Med AI יתאים לתרופות, ללוח הזמנים ולמטרות שלך.',
-    'ob_aFewQuickQuestionsToLockInYourMo': 'כמה שאלות מהירות כדי לחזק את המוטיבציה שלך.',
+    'ob_4In10SupplementUsersHaveAtLeastO':
+        'ל-4 מכל 10 משתמשי תוספים יש לפחות אינטראקציה תרופתית מסוכנת אחת — רובם אינם יודעים על כך.',
+    'ob_76OfMembersMaintainStrongAdheren':
+        '76% מהחברים שומרים על היענות גבוהה במשך 6 חודשים — לא רק זינוק בשבוע הראשון.',
+    'ob_78OfMembersReportLessMedicationS':
+        '78% מהחברים מדווחים על פחות מתח סביב התרופות תוך 3 שבועות.',
+    'ob_aFewQuickQuestionsSoMedAiFitsYou':
+        'כמה שאלות מהירות כדי ש-Med AI יתאים לתרופות, ללוח הזמנים ולמטרות שלך.',
+    'ob_aFewQuickQuestionsToLockInYourMo':
+        'כמה שאלות מהירות כדי לחזק את המוטיבציה שלך.',
     'ob_aSmarterWayToStayOnTrack': 'דרך חכמה יותר *להישאר במסלול*',
     'ob_allScheduledDoses': 'כל המנות המתוזמנות',
-    'ob_allowingTrackingHelpsUsKeepMedAi': 'מתן הרשאת מעקב עוזר לנו לשמור על Med AI במחיר נגיש. נתוני הבריאות שלך נשארים פרטיים כך או כך.',
+    'ob_allowingTrackingHelpsUsKeepMedAi':
+        'מתן הרשאת מעקב עוזר לנו לשמור על Med AI במחיר נגיש. נתוני הבריאות שלך נשארים פרטיים כך או כך.',
     'ob_anyConditionsYouAreManaging': 'יש מצבים רפואיים שאתה *מנהל*?',
     'ob_anyMedicationAllergies': 'יש *אלרגיה* לתרופות?',
     'ob_buildingYourPlan': 'בונים את התוכנית שלך…',
     'ob_continue': 'המשך',
     'ob_dedicatedCaregiver': 'מטפל מסור',
-    'ob_diagnoseInteractionRisksInstantl': 'אבחן סיכוני אינטראקציה באופן מיידי וקבל צעדים ברורים להמשך.',
-    'ob_doYouKnowIfYourMedsInteract': 'האם אתה יודע אם התרופות שלך *מגיבות זו עם זו*?',
+    'ob_diagnoseInteractionRisksInstantl':
+        'אבחן סיכוני אינטראקציה באופן מיידי וקבל צעדים ברורים להמשך.',
+    'ob_doYouKnowIfYourMedsInteract':
+        'האם אתה יודע אם התרופות שלך *מגיבות זו עם זו*?',
     'ob_doYouRelate': 'מזדהה?',
     'ob_doYouTakeSupplementsToo': 'אתה נוטל *תוספים* גם כן?',
     'ob_dosesRefillsFamilyAlerts': 'מנות, חידושים והתראות משפחה',
     'ob_enableReminders': 'הפעלת תזכורות',
     'ob_familyHealthLead': 'אחראי בריאות המשפחה',
     'ob_gentle': 'עדין',
-    'ob_getNotifiedIfSomeoneYouCareForMi': 'קבל התראה אם מישהו שאתה מטפל בו מפספס מנה קריטית — והתערב כשזה חשוב.',
-    'ob_getPersonalizedRemindersScanInsi': 'קבל תזכורות מותאמות אישית, תובנות סריקה וטיפי בטיחות לכל תרופה.',
+    'ob_getNotifiedIfSomeoneYouCareForMi':
+        'קבל התראה אם מישהו שאתה מטפל בו מפספס מנה קריטית — והתערב כשזה חשוב.',
+    'ob_getPersonalizedRemindersScanInsi':
+        'קבל תזכורות מותאמות אישית, תובנות סריקה וטיפי בטיחות לכל תרופה.',
     'ob_getStarted': 'בואו נתחיל',
     'ob_giveUsARating': 'תן לנו *דירוג*',
     'ob_hardcore': 'אינטנסיבי',
@@ -1094,7 +1261,8 @@ class ObL10n {
     'ob_iFeelGuiltyWhenMyRoutineSlips': 'אני מרגיש *אשם* כשהשגרה שלי משתבשת',
     'ob_iWorryAboutMixingMedsAndSuppleme': 'אני חושש מ*ערבוב* תרופות ותוספים',
     'ob_identifyPillsMoreAccurately': 'זהה כדורים *בדיוק* רב יותר',
-    'ob_joinTheCommunityThatNeverMissesW': 'הצטרף לקהילה שלעולם לא מפספסת את מה שחשוב.',
+    'ob_joinTheCommunityThatNeverMissesW':
+        'הצטרף לקהילה שלעולם לא מפספסת את מה שחשוב.',
     'ob_keepLovedOnesSafeFromAnywhere': 'שמור על יקיריך *בטוחים* מכל מקום',
     'ob_keepYourHealthThriving': 'שמור על בריאותך *משגשגת*',
     'ob_letSBuildYourCustomPlan': 'בואו נבנה את *התוכנית המותאמת* שלך',
@@ -1104,11 +1272,15 @@ class ObL10n {
     'ob_managingRefillsFeelsLikeAHassle': 'ניהול החידושים מרגיש כמו *טרחה*',
     'ob_meMyWholeFamily': 'אני וכל המשפחה שלי',
     'ob_medAiCreatesLongTermResults': 'Med AI יוצר תוצאות *ארוכות טווח*',
-    'ob_medAiIdentifiesYourPillFlagsInte': 'Med AI מזהה את הכדור שלך, מסמן אינטראקציות ורושם את לוח הזמנים שלך באופן מיידי.',
-    'ob_medAiSScannerOutperformsGenericP': 'הסורק של Med AI עולה על אפליקציות זיהוי כדורים גנריות במבחנים ישירים.',
-    'ob_medAiWasBuiltForRealMedicationRo': 'Med AI נבנה עבור שגרת תרופות אמיתית — לא מושלמת.',
+    'ob_medAiIdentifiesYourPillFlagsInte':
+        'Med AI מזהה את הכדור שלך, מסמן אינטראקציות ורושם את לוח הזמנים שלך באופן מיידי.',
+    'ob_medAiSScannerOutperformsGenericP':
+        'הסורק של Med AI עולה על אפליקציות זיהוי כדורים גנריות במבחנים ישירים.',
+    'ob_medAiWasBuiltForRealMedicationRo':
+        'Med AI נבנה עבור שגרת תרופות אמיתית — לא מושלמת.',
     'ob_medAiWasDesignedForPeopleLikeYou': 'Med AI תוכנן עבור אנשים כמוך.',
-    'ob_medicationEffectsAndDosingCanDif': 'השפעות התרופות והמינון עשויים להשתנות לפי מין — זה עוזר ל-AI שלנו להתאים אישית מידע בטיחות.',
+    'ob_medicationEffectsAndDosingCanDif':
+        'השפעות התרופות והמינון עשויים להשתנות לפי מין — זה עוזר ל-AI שלנו להתאים אישית מידע בטיחות.',
     'ob_neverMissADose': 'אל תפספס עוד מנה',
     'ob_next': 'הבא',
     'ob_normal': 'רגיל',
@@ -1119,12 +1291,14 @@ class ObL10n {
     'ob_remindersThatActuallyWork': 'תזכורות ש*באמת עובדות*',
     'ob_seeWhatAScanReveals': 'ראה מה *סריקה* חושפת',
     'ob_selectAllThatApply': 'בחר את כל מה שרלוונטי.',
-    'ob_selectAllThatApplyOurAiWillGuard': 'בחר את כל מה שרלוונטי — ה-AI שלנו יגן עליך מפניהם.',
+    'ob_selectAllThatApplyOurAiWillGuard':
+        'בחר את כל מה שרלוונטי — ה-AI שלנו יגן עליך מפניהם.',
     'ob_selfManager': 'מנהל עצמי',
     'ob_startImproving': 'התחל להשתפר',
     'ob_stayingIndependent': 'לשמור על עצמאות',
     'ob_thanksForSharing': 'תודה על *השיתוף*',
-    'ob_thisIsHowMedAiMakesSureYouNeverM': 'כך Med AI מוודא שלעולם לא תפספס מנה. אפשר לשנות זאת בכל עת.',
+    'ob_thisIsHowMedAiMakesSureYouNeverM':
+        'כך Med AI מוודא שלעולם לא תפספס מנה. אפשר לשנות זאת בכל עת.',
     'ob_trackAHealthCondition': 'עקוב אחר מצב בריאותי',
     'ob_trackingMyOwnMeds': 'ניהול התרופות שלי',
     'ob_trustedBy500000People': 'כל התרופות, *שגרה* אחת רגועה',
@@ -1136,10 +1310,13 @@ class ObL10n {
     'ob_whatMotivatesYouMost': 'מה *הכי* מניע אותך?',
     'ob_whatUsuallyCausesAMissedDose': 'מה בדרך כלל *גורם* לפספוס מנה?',
     'ob_whenDoYouUsuallyTakeThem': 'מתי אתה בדרך כלל *נוטל אותן*?',
-    'ob_youAre2MoreLikelyToSucceedWithMe': 'הסיכוי שלך להצליח גבוה *פי 2×* עם Med AI',
+    'ob_youAre2MoreLikelyToSucceedWithMe':
+        'הסיכוי שלך להצליח גבוה *פי 2×* עם Med AI',
     'ob_youHaveGreatPotential': 'יש לך *פוטנציאל גדול*',
-    'ob_yourBaselineBeforeMedAiStartsHel': 'נקודת הבסיס שלך לפני ש-Med AI מתחיל לעזור.',
-    'ob_yourHealthDataIsEncryptedAndNeve': 'נתוני הבריאות שלך מוצפנים ולעולם אינם נמכרים. אנו שואלים רק כדי שהתוכנית שלך תהיה בטוחה יותר.',
+    'ob_yourBaselineBeforeMedAiStartsHel':
+        'נקודת הבסיס שלך לפני ש-Med AI מתחיל לעזור.',
+    'ob_yourHealthDataIsEncryptedAndNeve':
+        'נתוני הבריאות שלך מוצפנים ולעולם אינם נמכרים. אנו שואלים רק כדי שהתוכנית שלך תהיה בטוחה יותר.',
     'ob_yourPersonalizedPlanIsReady': '*התוכנית המותאמת אישית* שלך מוכנה',
   };
 

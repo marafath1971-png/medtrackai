@@ -26,7 +26,9 @@ class ScanIdentityHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (imageFile != null) return _PhotoHeader(imageFile: imageFile!, category: category);
+    if (imageFile != null) {
+      return _PhotoHeader(imageFile: imageFile!, category: category);
+    }
     return _CompactHeader(category: category, name: name);
   }
 }

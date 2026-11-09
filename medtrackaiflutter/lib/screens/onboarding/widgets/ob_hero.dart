@@ -155,7 +155,9 @@ class _ComparisonCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
-                    positive ? Icons.check_circle_rounded : Icons.cancel_rounded,
+                    positive
+                        ? Icons.check_circle_rounded
+                        : Icons.cancel_rounded,
                     size: 18,
                     color: positive ? p.good : p.bad.withValues(alpha: 0.7),
                   ),
@@ -308,7 +310,12 @@ class _ProjectionPainter extends CustomPainter {
     final endPt = pts.last;
     canvas.drawCircle(endPt, 7, Paint()..color = dot);
     canvas.drawCircle(
-        endPt, 7, Paint()..color = Colors.white.withValues(alpha: 0.9)..style = PaintingStyle.stroke..strokeWidth = 2);
+        endPt,
+        7,
+        Paint()
+          ..color = Colors.white.withValues(alpha: 0.9)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2);
 
     // Goal label near end dot.
     if (t > 0.85) {
@@ -355,7 +362,8 @@ class ObFeatureGrid extends StatelessWidget {
               decoration: BoxDecoration(
                 color: p.surface,
                 borderRadius: BorderRadius.circular(AppRadius.l),
-                border: Border.all(color: p.border.withValues(alpha: 0.6), width: 0.5),
+                border: Border.all(
+                    color: p.border.withValues(alpha: 0.6), width: 0.5),
                 boxShadow: AppShadows.soft,
               ),
               child: Column(
@@ -465,34 +473,35 @@ class _ObCommitOrbState extends State<ObCommitOrb>
         onTapUp: _up,
         onTapCancel: _up,
         child: SizedBox(
-        width: 220,
-        height: 220,
-        child: AnimatedBuilder(
-          animation: _ctrl,
-          builder: (context, child) {
-            return Stack(
-              alignment: Alignment.center,
-              children: [
-                SizedBox(
-                  width: 200,
-                  height: 200,
-                  child: CustomPaint(
-                    painter: _RingPainter(
-                      progress: _ctrl.value,
-                      track: p.border,
-                      color: p.accent,
+          width: 220,
+          height: 220,
+          child: AnimatedBuilder(
+            animation: _ctrl,
+            builder: (context, child) {
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 200,
+                    height: 200,
+                    child: CustomPaint(
+                      painter: _RingPainter(
+                        progress: _ctrl.value,
+                        track: p.border,
+                        color: p.accent,
+                      ),
                     ),
                   ),
-                ),
-                Transform.scale(
-                  scale: 1 + _ctrl.value * 0.06,
-                  child: child,
-                ),
-              ],
-            );
-          },
-          child: MedAiMascot(size: 124, semanticLabel: l10n.onboardingHoldToCommit),
-        ),
+                  Transform.scale(
+                    scale: 1 + _ctrl.value * 0.06,
+                    child: child,
+                  ),
+                ],
+              );
+            },
+            child: MedAiMascot(
+                size: 124, semanticLabel: l10n.onboardingHoldToCommit),
+          ),
         ),
       ),
     );
@@ -587,69 +596,148 @@ class _ObPlanLoaderState extends State<ObPlanLoader>
         final each = 1 / widget.steps.length;
         return Column(
           children: [
-            Text(
-              '$pct%',
-              style: AppTypography.displayMedium.copyWith(
-                color: p.accent,
-                fontWeight: FontWeight.w800,
+            // Circular hero indicator
+            Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: RadialGradient(
+                  colors: [
+                    AppColors.lime.withValues(alpha: 0.25),
+                    AppColors.limeDeep.withValues(alpha: 0.0),
+                  ],
+                ),
+              ),
+              child: Stack(
+                alignment: Alignment.center,
+                children: [
+                  SizedBox(
+                    width: 90,
+                    height: 90,
+                    child: CircularProgressIndicator(
+                      value: _ctrl.value,
+                      strokeWidth: 6,
+                      backgroundColor: p.border.withValues(alpha: 0.5),
+                      valueColor:
+                          const AlwaysStoppedAnimation(AppColors.limeDeep),
+                      strokeCap: StrokeCap.round,
+                    ),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        '$pct%',
+                        style: AppTypography.headlineMedium.copyWith(
+                          color: p.text,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                        ),
+                      ),
+                      Text(
+                        'ANALYZING',
+                        style: AppTypography.caption.copyWith(
+                          color: AppColors.limeDeep,
+                          fontWeight: FontWeight.w700,
+                          fontSize: 11,
+                          letterSpacing: 1.0,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 8),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(99),
-              child: LinearProgressIndicator(
-                value: _ctrl.value,
-                minHeight: 8,
-                backgroundColor: p.border,
-                valueColor: AlwaysStoppedAnimation(p.accent),
-              ),
-            ),
-            const SizedBox(height: 24),
+            const SizedBox(height: 28),
             ...List.generate(widget.steps.length, (i) {
               final done = _ctrl.value >= (i + 1) * each;
               final active = !done && _ctrl.value >= i * each;
               return Padding(
-                padding: const EdgeInsets.only(bottom: 14),
-                child: Row(
-                  children: [
-                    AnimatedContainer(
-                      duration: AppDurations.fast,
-                      width: 26,
-                      height: 26,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: done ? p.good : Colors.transparent,
-                        border: Border.all(
-                          color: done ? p.good : p.border,
-                          width: 2,
-                        ),
-                      ),
-                      child: done
-                          ? const Icon(Icons.check_rounded,
-                              size: 16, color: Colors.white)
+                padding: const EdgeInsets.only(bottom: 10),
+                child: AnimatedContainer(
+                  duration: AppDurations.fast,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  decoration: BoxDecoration(
+                    color: done
+                        ? p.surfaceSel
+                        : (active
+                            ? p.surface
+                            : p.surface.withValues(alpha: 0.6)),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: done
+                          ? AppColors.limeDeep.withValues(alpha: 0.4)
                           : (active
-                              ? Padding(
-                                  padding: const EdgeInsets.all(5),
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor:
-                                        AlwaysStoppedAnimation(p.accent),
-                                  ),
-                                )
-                              : null),
+                              ? AppColors.limeDeep.withValues(alpha: 0.25)
+                              : p.border),
+                      width: done ? 1.2 : 0.8,
                     ),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        widget.steps[i],
-                        style: AppTypography.titleMedium.copyWith(
-                          color: done || active ? p.text : p.sub,
-                          fontWeight:
-                              active ? FontWeight.w700 : FontWeight.w500,
+                    boxShadow: done
+                        ? [
+                            BoxShadow(
+                              color: AppColors.limeDeep.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 3),
+                            ),
+                          ]
+                        : null,
+                  ),
+                  child: Row(
+                    children: [
+                      AnimatedContainer(
+                        duration: AppDurations.fast,
+                        width: 26,
+                        height: 26,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: done
+                              ? const LinearGradient(
+                                  colors: [AppColors.lime, AppColors.limeDeep],
+                                )
+                              : null,
+                          color: done ? null : Colors.transparent,
+                          border: Border.all(
+                            color: done ? AppColors.limeDeep : p.border,
+                            width: 1.8,
+                          ),
+                        ),
+                        child: done
+                            ? const Icon(Icons.check_rounded,
+                                size: 16, color: AppColors.limeInk)
+                            : (active
+                                ? const Padding(
+                                    padding: EdgeInsets.all(5),
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation(
+                                          AppColors.limeDeep),
+                                    ),
+                                  )
+                                : null),
+                      ),
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Text(
+                          widget.steps[i],
+                          style: AppTypography.titleMedium.copyWith(
+                            fontSize: 14,
+                            color: done || active ? p.text : p.sub,
+                            fontWeight: done || active
+                                ? FontWeight.w700
+                                : FontWeight.w500,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      if (done)
+                        const Icon(
+                          Icons.done_all_rounded,
+                          size: 16,
+                          color: AppColors.limeDeep,
+                        ),
+                    ],
+                  ),
                 ),
               );
             }),

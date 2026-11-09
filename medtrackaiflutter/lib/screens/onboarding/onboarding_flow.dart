@@ -22,6 +22,7 @@ import 'widgets/ob_video_style_widgets.dart';
 import 'widgets/ob_unique_widgets.dart';
 import 'onboarding_l10n.dart';
 import '../../l10n/app_localizations.dart';
+import '../steps/widgets/step_ring.dart';
 
 /// Lightweight option descriptor for question steps.
 class _Opt {
@@ -49,7 +50,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
   /// Localized onboarding string by key (English fallback built in).
   String _obt(String k) => ObL10n.of(context).t(k);
 
-  static const int _total = 56;
+  static const int _total = 57;
 
   /// Analytics ids, one per step index. Keep in sync with [_stepWidget].
   static const List<String> _stepNames = [
@@ -103,6 +104,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     'reminder_intensity',
     'first_med_method',
     'notifications',
+    'steps_goal',
     'att_permission',
     'rating',
     'plan_loader',
@@ -141,14 +143,15 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     });
   }
 
-  /// The 12-step funnel, as indices into [_stepNames].
+  /// The 13-step funnel, as indices into [_stepNames].
   ///
   /// Chosen by tracing which answers the app actually consumes, not by taste:
   /// med_count, persona, timing and reminder intensity feed OnboardingPrefs;
   /// goal personalises the paywall headline; challenge and miss_frequency drive
   /// the adherence baseline; conditions is saved to the profile. welcome,
   /// scan_intro, personal_summary, notifications and plan_ready carry the
-  /// value story and the permission ask.
+  /// value story and the permission ask. steps_goal sets the daily step goal
+  /// and asks for step access while the user is still in a yes-saying mood.
   ///
   /// Everything else is an interstitial — including relate_forget,
   /// relate_refill, relate_mixing and relate_guilt, which are the same screen
@@ -170,12 +173,13 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     32, // scan_intro        -> the one value interstitial
     45, // personal_summary  -> reflects their answers back
     49, // notifications     -> permission at the value peak
-    53, // plan_ready        -> hand-off to the paywall
-    55, // welcome_done      -> calls _complete(), which shows the paywall
+    50, // steps_goal        -> step goal + step-counting permission
+    54, // plan_ready        -> hand-off to the paywall
+    56, // welcome_done      -> calls _complete(), which shows the paywall
   };
 
   /// Steps that Remote Config can remove from the funnel without a release.
-  /// Index 50 = ATT permission, 51 = rating request (see [_stepNames]).
+  /// Index 51 = ATT permission, 52 = rating request (see [_stepNames]).
   bool _isStepDisabled(int i) {
     // The short flow is a filter over the same steps rather than a second
     // widget tree: every screen keeps its existing index, analytics id and
@@ -184,8 +188,8 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     if (RemoteConfigService.shortOnboarding && !_shortFlowSteps.contains(i)) {
       return true;
     }
-    if (i == 50) return !RemoteConfigService.showAttStep;
-    if (i == 51) return !RemoteConfigService.showRatingStep;
+    if (i == 51) return !RemoteConfigService.showAttStep;
+    if (i == 52) return !RemoteConfigService.showRatingStep;
     return false;
   }
 
@@ -649,6 +653,101 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
                 selected: _c.isSelected(id, 'hardcore', multiSelect: false),
                 onTap: () => _c.selectSingle(id, 'hardcore'),
               ).obFadeUp(delayMs: 120),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  // ── Step counting ───────────────────────────────────────────────────────
+  bool _stepsBusy = false;
+
+  /// Saves the chosen step goal and asks the phone for step access. Choosing
+  /// "later" skips both: no goal is stored and no system prompt appears.
+  Future<void> _confirmStepsGoal() async {
+    if (_stepsBusy) return;
+    final goal = int.tryParse(_c.single('steps_goal') ?? '');
+    if (goal != null) {
+      setState(() => _stepsBusy = true);
+      final steps = context.read<AppState>().steps;
+      await steps.setGoal(goal);
+      // A refusal is fine — the Steps screen offers it again.
+      final access = await steps.enable();
+      AnalyticsService.logEvent('onboarding_steps_goal_set', parameters: {
+        'goal': goal,
+        'access': access.name,
+      });
+      if (!mounted) return;
+      setState(() => _stepsBusy = false);
+    }
+    _next();
+  }
+
+  Widget _stepsGoalStep() {
+    const id = 'steps_goal';
+    const goals = [
+      ('5000', '5,000', 'ob_stepsGoalGentle'),
+      ('7500', '7,500', 'ob_stepsGoalSteady'),
+      ('10000', '10,000', 'ob_stepsGoalClassic'),
+    ];
+    return AnimatedBuilder(
+      animation: _c,
+      builder: (context, _) {
+        final p = ObPalette.of(context);
+        final choice = _c.single(id);
+        final wantsSteps = choice != null && choice != 'later';
+        return ObScaffold(
+          progress: _progress,
+          onBack: _back,
+          onSkip: _maybeSkip,
+          ctaEnabled: choice != null && !_stepsBusy,
+          onCta: choice != null && !_stepsBusy ? _confirmStepsGoal : null,
+          ctaLabel: wantsSteps ? _obt('ob_stepsTurnOn') : _obt('ob_continue'),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const SizedBox(height: 6),
+              Center(
+                // Two rings: yours and a partner's — the feature in one glyph.
+                child: StepRing(
+                  size: 132,
+                  stroke: 11,
+                  arcs: [
+                    StepRingArc(
+                      progress: 0.72,
+                      color: AppColors.limeDeep,
+                      track: p.border.withValues(alpha: 0.5),
+                    ),
+                    StepRingArc(
+                      progress: 0.55,
+                      color: AppColors.indigo,
+                      track: p.border.withValues(alpha: 0.5),
+                    ),
+                  ],
+                  child: Icon(Icons.directions_walk_rounded,
+                      size: 32, color: p.text),
+                ),
+              ).obFadeUp(),
+              const SizedBox(height: 18),
+              ObHeadline(
+                _obt('ob_stepsTitle'),
+                subtitle: _obt('ob_stepsSubtitle'),
+              ).obFadeUp(delayMs: 40),
+              const SizedBox(height: 22),
+              for (var i = 0; i < goals.length; i++)
+                ObRadioOptionCard(
+                  label: '${goals[i].$2} ${_obt('ob_stepsADay')}',
+                  subtitle: _obt(goals[i].$3),
+                  selected: _c.isSelected(id, goals[i].$1, multiSelect: false),
+                  onTap: () => _c.selectSingle(id, goals[i].$1),
+                ).obFadeUp(delayMs: 80 + 40 * i),
+              ObRadioOptionCard(
+                label: _obt('ob_stepsLater'),
+                subtitle: _obt('ob_stepsLaterSub'),
+                selected: _c.isSelected(id, 'later', multiSelect: false),
+                onTap: () => _c.selectSingle(id, 'later'),
+              ).obFadeUp(delayMs: 200),
             ],
           ),
         );
@@ -1230,7 +1329,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           onComplete: _next,
         );
 
-      // ░░ PHASE F — SETUP, PERMISSIONS & PROOF (47–51) ░░
+      // ░░ PHASE F — SETUP, PERMISSIONS & PROOF (47–52) ░░
       case 47:
         return _reminderIntensityStep();
       case 48:
@@ -1254,6 +1353,8 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           onCta: _requestNotifications,
         );
       case 50:
+        return _stepsGoalStep();
+      case 51:
         return _info(
           hero:
               const ObHeroIllustration(scene: ObHeroScene.finish, height: 200),
@@ -1262,7 +1363,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           cta: _obt('ob_continue'),
           onCta: _requestTracking,
         );
-      case 51:
+      case 52:
         return _info(
           hero: const ObStars(count: 5),
           title: _obt('ob_giveUsARating'),
@@ -1282,13 +1383,13 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           ],
         );
 
-      // ░░ PHASE G — ANALYSIS, REVEAL & CONVERT (52–55) ░░
-      case 52:
+      // ░░ PHASE G — ANALYSIS, REVEAL & CONVERT (53–56) ░░
+      case 53:
         return _PlanLoaderScreen(
           progress: _progress,
           onDone: _next,
         );
-      case 53:
+      case 54:
         final planName = _c.name;
         final planLead = (planName != null && planName.isNotEmpty)
             ? '$planName, this'
@@ -1303,14 +1404,14 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
           subtitle:
               '$planLead is built around your routine, aiming at a ${(_c.adherenceTarget * 100).round()}% adherence target you can actually hold.',
         );
-      case 54:
+      case 55:
         return ObTrialFlashInterstitial(
           onContinue: () async {
             await _showPaywall();
             if (mounted) _next();
           },
         );
-      case 55:
+      case 56:
         return _WelcomeScreen(
           name: _c.name,
           onContinue: () {
@@ -1422,17 +1523,17 @@ class _WelcomeScreen extends StatelessWidget {
             filterQuality: FilterQuality.high,
             errorBuilder: (_, __, ___) => ColoredBox(color: p.bg),
           ),
-          const DecoratedBox(
+          DecoratedBox(
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(0x33000000),
-                  Color(0x00000000),
-                  Color(0xE6FFF8F2),
+                  const Color(0x33000000),
+                  const Color(0x00000000),
+                  p.bg.withValues(alpha: 0.95),
                 ],
-                stops: [0.0, 0.35, 0.78],
+                stops: const [0.0, 0.35, 0.76],
               ),
             ),
           ),
@@ -1449,14 +1550,32 @@ class _WelcomeScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: AppColors.lime,
                         borderRadius: BorderRadius.circular(999),
+                        boxShadow: [
+                          BoxShadow(
+                            color: AppColors.limeDeep.withValues(alpha: 0.35),
+                            blurRadius: 10,
+                            offset: const Offset(0, 3),
+                          ),
+                        ],
                       ),
-                      child: Text(
-                        'YOU\'RE IN',
-                        style: AppTypography.caption.copyWith(
-                          color: AppColors.limeInk,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: 1.0,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          const Icon(
+                            Icons.check_circle_rounded,
+                            size: 13,
+                            color: AppColors.limeInk,
+                          ),
+                          const SizedBox(width: 5),
+                          Text(
+                            'YOU\'RE IN',
+                            style: AppTypography.caption.copyWith(
+                              color: AppColors.limeInk,
+                              fontWeight: FontWeight.w800,
+                              letterSpacing: 1.0,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -1466,7 +1585,38 @@ class _WelcomeScreen extends StatelessWidget {
                     subtitle:
                         'Every dose is a quiet win. Your plan starts now.',
                   ).obFadeUp(),
-                  const SizedBox(height: 28),
+                  const SizedBox(height: 18),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                    decoration: BoxDecoration(
+                      color: p.surface.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(14),
+                      border: Border.all(
+                        color: p.border.withValues(alpha: 0.6),
+                        width: 0.8,
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.verified_rounded,
+                          size: 14,
+                          color: AppColors.limeDeep,
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          'Routine calibrated · Safety shield active',
+                          style: AppTypography.labelSmall.copyWith(
+                            color: p.text,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ).obFadeUp(delayMs: 120),
+                  const SizedBox(height: 24),
                   ObPrimaryButton(
                       label: l10n.onboardingBeginMySuccess, onTap: onContinue),
                 ],

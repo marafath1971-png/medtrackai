@@ -4,7 +4,7 @@ platform :ios do
   desc "Push a new beta build to TestFlight"
   lane :beta do
     upload_to_testflight(
-      ipa: "../build/ios/ipa/medtrackaiflutter.ipa",
+      ipa: Dir["../build/ios/ipa/*.ipa"].first || "../build/ios/ipa/Runner.ipa",
       skip_waiting_for_build_processing: true
     )
   end

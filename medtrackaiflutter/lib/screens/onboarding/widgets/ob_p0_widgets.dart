@@ -120,22 +120,48 @@ class ObPersonaCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-                width: 52,
-                height: 52,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      option.tint.withValues(alpha: 0.22),
-                      option.tint.withValues(alpha: 0.08),
-                    ],
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: 52,
+                    height: 52,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                        colors: [
+                          option.tint.withValues(alpha: 0.22),
+                          option.tint.withValues(alpha: 0.08),
+                        ],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Text(option.emoji,
+                        style: const TextStyle(fontSize: 28)),
                   ),
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                child: Text(option.emoji, style: const TextStyle(fontSize: 28)),
+                  const Spacer(),
+                  AnimatedContainer(
+                    duration: MedAiA11y.motion(context, AppDurations.micro),
+                    width: 22,
+                    height: 22,
+                    decoration: BoxDecoration(
+                      color: selected ? option.tint : Colors.transparent,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: selected
+                            ? option.tint
+                            : p.border.withValues(alpha: 0.6),
+                        width: 1.5,
+                      ),
+                    ),
+                    child: selected
+                        ? const Icon(Icons.check_rounded,
+                            size: 14, color: Colors.white)
+                        : null,
+                  ),
+                ],
               ),
               const Spacer(),
               Text(
@@ -461,7 +487,8 @@ class _ObScanDemoPreviewState extends State<ObScanDemoPreview>
     return AnimatedBuilder(
       animation: _ctrl,
       builder: (context, _) {
-        final reveal = reduceMotion ? 1.0 : Curves.easeOutCubic.transform(_ctrl.value);
+        final reveal =
+            reduceMotion ? 1.0 : Curves.easeOutCubic.transform(_ctrl.value);
         return Opacity(
           opacity: reveal,
           child: Transform.translate(
@@ -863,9 +890,8 @@ class ObAdherenceScoreCard extends StatelessWidget {
                         ? Icons.check_circle_rounded
                         : Icons.cancel_rounded,
                     size: 20,
-                    color: item.positive
-                        ? p.good
-                        : p.bad.withValues(alpha: 0.85),
+                    color:
+                        item.positive ? p.good : p.bad.withValues(alpha: 0.85),
                   ),
                   const SizedBox(width: 10),
                   Expanded(

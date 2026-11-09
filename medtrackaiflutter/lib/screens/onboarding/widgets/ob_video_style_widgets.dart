@@ -64,10 +64,8 @@ class _Bar extends StatelessWidget {
     final h = MediaQuery.sizeOf(context).height * height;
     Widget bar = Container(width: 3, height: h, color: color);
     if (animate && !MedAiA11y.reducedMotion(context)) {
-      bar = bar
-          .animate()
-          .fadeIn(duration: 500.ms)
-          .scaleY(begin: 0.9, end: 1.0, duration: 500.ms, curve: AppCurves.smooth);
+      bar = bar.animate().fadeIn(duration: 500.ms).scaleY(
+          begin: 0.9, end: 1.0, duration: 500.ms, curve: AppCurves.smooth);
     }
     return bar;
   }
@@ -103,10 +101,7 @@ class ObCinematicSplash extends StatelessWidget {
                   animate: false,
                   semanticLabel: l10n.onboardingMedAi,
                 ),
-              )
-                  .animate()
-                  .fadeIn(duration: 600.ms)
-                  .scale(
+              ).animate().fadeIn(duration: 600.ms).scale(
                     begin: const Offset(0.96, 0.96),
                     end: const Offset(1, 1),
                     duration: 600.ms,
@@ -401,7 +396,8 @@ class ObRankInterstitial extends StatelessWidget {
                     ),
                   ).obFadeUp(delayMs: 80),
                   const Spacer(),
-                  ObPrimaryButton(label: l10n.onboardingContinue, onTap: onContinue),
+                  ObPrimaryButton(
+                      label: l10n.onboardingContinue, onTap: onContinue),
                 ],
               ),
             ),
@@ -733,8 +729,7 @@ class _ArcConnectorPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_ArcConnectorPainter old) =>
-      old.progress != progress;
+  bool shouldRepaint(_ArcConnectorPainter old) => old.progress != progress;
 }
 
 /// Full-screen trial flash — soft premium (not dark cinema).
@@ -820,7 +815,8 @@ class ObTrialFlashInterstitial extends StatelessWidget {
                   ),
                 ).obFadeUp(),
                 const Spacer(flex: 3),
-                ObPrimaryButton(label: l10n.onboardingContinue, onTap: onContinue),
+                ObPrimaryButton(
+                    label: l10n.onboardingContinue, onTap: onContinue),
               ],
             ),
           ),
@@ -860,28 +856,25 @@ class ObPaywallFeatureGrid extends StatelessWidget {
                 left: cx - 28,
                 top: cy - 28,
                 child: Container(
-              width: 56,
-              height: 56,
-              decoration: BoxDecoration(
-                color: color,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: color.withValues(alpha: 0.4),
-                    blurRadius: 12,
-                    offset: const Offset(0, 4),
+                  width: 56,
+                  height: 56,
+                  decoration: BoxDecoration(
+                    color: color,
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: color.withValues(alpha: 0.4),
+                        blurRadius: 12,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
                   ),
-                ],
-              ),
-              child: Icon(icon, color: Colors.white, size: 26),
-            )
-                .animate(delay: (i * 60).ms)
-                .fadeIn(duration: 400.ms)
-                .scale(
-                  begin: const Offset(0.6, 0.6),
-                  end: const Offset(1, 1),
-                  curve: AppCurves.emilOut,
-                ),
+                  child: Icon(icon, color: Colors.white, size: 26),
+                ).animate(delay: (i * 60).ms).fadeIn(duration: 400.ms).scale(
+                      begin: const Offset(0.6, 0.6),
+                      end: const Offset(1, 1),
+                      curve: AppCurves.emilOut,
+                    ),
               );
             }),
           );
@@ -964,7 +957,7 @@ class _ShimmerBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-  final reduceMotion = MedAiA11y.reducedMotion(context);
+    final reduceMotion = MedAiA11y.reducedMotion(context);
     Widget box = Container(
       width: width,
       height: height,
@@ -974,9 +967,7 @@ class _ShimmerBox extends StatelessWidget {
       ),
     );
     if (!reduceMotion) {
-      box = box
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .shimmer(
+      box = box.animate(onPlay: (c) => c.repeat(reverse: true)).shimmer(
             duration: 1200.ms,
             color: Colors.white.withValues(alpha: 0.15),
           );

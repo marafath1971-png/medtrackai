@@ -89,7 +89,8 @@ class ObScaffold extends StatelessWidget {
                       ),
                       boxShadow: [
                         BoxShadow(
-                          color: const Color(0xFF1A2621).withValues(alpha: 0.05),
+                          color:
+                              const Color(0xFF1A2621).withValues(alpha: 0.05),
                           blurRadius: 20,
                           offset: const Offset(0, -6),
                         ),
@@ -161,9 +162,11 @@ class _TopBar extends StatelessWidget {
                   HapticEngine.light();
                   onSkip!();
                 },
-                hitTestPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                hitTestPadding:
+                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
                   child: Text(
                     l10n.onboardingSkip,
                     style: AppTypography.labelLarge.copyWith(color: p.sub),
@@ -197,7 +200,9 @@ class _CircleIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     if (onTap == null) {
-      return const SizedBox(width: AppA11y.minTapTargetCompact, height: AppA11y.minTapTargetCompact);
+      return const SizedBox(
+          width: AppA11y.minTapTargetCompact,
+          height: AppA11y.minTapTargetCompact);
     }
     return Semantics(
       button: true,
@@ -255,6 +260,12 @@ class ObProgressBar extends StatelessWidget {
                       colors: [AppColors.lime, AppColors.limeDeep],
                     ),
                     borderRadius: BorderRadius.circular(99),
+                    boxShadow: [
+                      BoxShadow(
+                        color: AppColors.limeDeep.withValues(alpha: 0.4),
+                        blurRadius: 4,
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -301,9 +312,9 @@ class ObPrimaryButton extends StatelessWidget {
               : () => HapticEngine.light(),
           scaleFactor: 0.96,
           child: Container(
-            constraints: const BoxConstraints(minHeight: AppA11y.minTapTarget),
+            constraints: const BoxConstraints(minHeight: 54),
             alignment: Alignment.center,
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
             decoration: BoxDecoration(
               gradient: active
                   ? const LinearGradient(
@@ -312,25 +323,53 @@ class ObPrimaryButton extends StatelessWidget {
                       colors: [AppColors.lime, AppColors.limeDeep],
                     )
                   : null,
-              color: active ? null : AppColors.lime.withValues(alpha: 0.45),
+              color: active ? null : AppColors.lime.withValues(alpha: 0.35),
               borderRadius: BorderRadius.circular(999),
+              border: Border.all(
+                color: active
+                    ? Colors.white.withValues(alpha: 0.35)
+                    : Colors.transparent,
+                width: 1,
+              ),
               boxShadow: active
                   ? [
                       BoxShadow(
-                        color: AppColors.limeDeep.withValues(alpha: 0.4),
-                        blurRadius: 18,
+                        color: AppColors.limeDeep.withValues(alpha: 0.38),
+                        blurRadius: 20,
                         offset: const Offset(0, 8),
                       ),
                     ]
                   : null,
             ),
-            child: Text(
-              label,
-              style: AppTypography.titleMedium.copyWith(
-                color: AppColors.limeInk,
-                fontWeight: FontWeight.w700,
-                letterSpacing: -0.2,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: AppTypography.titleMedium.copyWith(
+                    color: AppColors.limeInk,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
+                  ),
+                ),
+                if (active) ...[
+                  const SizedBox(width: 8),
+                  Container(
+                    width: 22,
+                    height: 22,
+                    decoration: BoxDecoration(
+                      color: AppColors.limeInk.withValues(alpha: 0.12),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.arrow_forward_rounded,
+                      size: 14,
+                      color: AppColors.limeInk,
+                    ),
+                  ),
+                ],
+              ],
             ),
           ),
         ),
@@ -449,7 +488,11 @@ class ObMascot extends StatelessWidget {
           duration: AppDurations.medium,
           curve: AppCurves.emilOut,
         )
-        .slideY(begin: 0.03, end: 0, duration: AppDurations.fast, curve: AppCurves.emilOut);
+        .slideY(
+            begin: 0.03,
+            end: 0,
+            duration: AppDurations.fast,
+            curve: AppCurves.emilOut);
   }
 }
 
@@ -494,29 +537,53 @@ class ObOptionCard extends StatelessWidget {
           duration: MedAiA11y.motion(context, AppDurations.fast),
           curve: AppCurves.emilOut,
           constraints: const BoxConstraints(minHeight: 64),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
             color: selected ? p.surfaceSel : p.surface,
             borderRadius: BorderRadius.circular(22),
             border: Border.all(
-              color: selected ? AppColors.limeDeep.withValues(alpha: 0.45) : p.border,
-              width: selected ? 1.5 : 1,
+              color: selected
+                  ? AppColors.limeDeep.withValues(alpha: 0.6)
+                  : p.border,
+              width: selected ? 1.6 : 1,
             ),
             boxShadow: [
               BoxShadow(
-                color: const Color(0xFF1A2621).withValues(alpha: selected ? 0.06 : 0.04),
-                blurRadius: selected ? 18 : 14,
-                offset: const Offset(0, 6),
+                color: selected
+                    ? AppColors.limeDeep.withValues(alpha: 0.10)
+                    : const Color(0xFF1A2621).withValues(alpha: 0.035),
+                blurRadius: selected ? 20 : 12,
+                offset: const Offset(0, 5),
               ),
             ],
           ),
           child: Row(
             children: [
-              if (emoji != null)
-                Text(emoji!, style: const TextStyle(fontSize: 22))
-              else if (icon != null)
-                Icon(icon, size: 22, color: AppColors.accentDeep),
-              if (emoji != null || icon != null) const SizedBox(width: 14),
+              if (emoji != null || icon != null) ...[
+                Container(
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? AppColors.lime.withValues(alpha: 0.3)
+                        : (context.isDark
+                            ? const Color(0xFF232630)
+                            : const Color(0xFFF1F3EE)),
+                    borderRadius: BorderRadius.circular(13),
+                    border: Border.all(
+                      color: selected
+                          ? AppColors.limeDeep.withValues(alpha: 0.35)
+                          : p.border.withValues(alpha: 0.6),
+                      width: 0.8,
+                    ),
+                  ),
+                  child: emoji != null
+                      ? Text(emoji!, style: const TextStyle(fontSize: 20))
+                      : Icon(icon, size: 20, color: AppColors.accentDeep),
+                ),
+                const SizedBox(width: 13),
+              ],
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -572,6 +639,8 @@ class _Marker extends StatelessWidget {
       decoration: BoxDecoration(
         gradient: selected
             ? const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
                 colors: [AppColors.lime, AppColors.limeDeep],
               )
             : null,
@@ -580,8 +649,17 @@ class _Marker extends StatelessWidget {
         borderRadius: multiSelect ? BorderRadius.circular(8) : null,
         border: Border.all(
           color: selected ? AppColors.limeDeep : p.border,
-          width: 1.5,
+          width: selected ? 1.8 : 1.5,
         ),
+        boxShadow: selected
+            ? [
+                BoxShadow(
+                  color: AppColors.limeDeep.withValues(alpha: 0.35),
+                  blurRadius: 8,
+                  offset: const Offset(0, 2),
+                ),
+              ]
+            : null,
       ),
       child: selected
           ? const Icon(Icons.check_rounded, size: 16, color: AppColors.limeInk)
@@ -720,7 +798,8 @@ extension ObEntrance on Widget {
       if (MedAiA11y.reducedMotion(context)) return this;
       return animate(delay: delayMs.ms)
           .fadeIn(duration: 350.ms, curve: AppCurves.smooth)
-          .slideY(begin: 0.04, end: 0, duration: 350.ms, curve: AppCurves.smooth);
+          .slideY(
+              begin: 0.04, end: 0, duration: 350.ms, curve: AppCurves.smooth);
     });
   }
 }

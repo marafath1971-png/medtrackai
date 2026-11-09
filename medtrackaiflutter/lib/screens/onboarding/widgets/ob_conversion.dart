@@ -362,7 +362,15 @@ abstract final class ObMascots {
 
   /// Every mascot this module can render — the list a bundling test walks.
   static const all = <String>[
-    welcome, goal, scan, remind, protect,
-    family, streak, plan, commit, done,
+    welcome,
+    goal,
+    scan,
+    remind,
+    protect,
+    family,
+    streak,
+    plan,
+    commit,
+    done,
   ];
 }

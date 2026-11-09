@@ -18,7 +18,7 @@ jobs:
           channel: 'stable'
           cache: true
       - run: flutter pub get
-      - run: flutter format --set-exit-if-changed .
+      - run: dart format --output=none --set-exit-if-changed .
       - run: flutter analyze --fatal-infos --fatal-warnings
       - run: flutter test --coverage
 
@@ -51,7 +51,11 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
       - name: Build Android AAB
-        run: flutter build appbundle --release
+        run: |
+          flutter build appbundle --release \
+            --build-number=${{ github.run_number }} \
+            --dart-define=RC_GOOGLE_KEY="${{ secrets.RC_GOOGLE_KEY }}" \
+            --dart-define=GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}"
       - name: Fastlane Deploy
         run: cd android && fastlane deploy
 
@@ -67,7 +71,6 @@ jobs:
           flutter-version: '3.24.0'
           channel: 'stable'
           cache: true
-          architecture: x64
       - uses: ruby/setup-ruby@v1
         with:
           ruby-version: '3.3'
@@ -100,7 +103,11 @@ jobs:
           security import $CERTIFICATE_PATH -P "$P12_PASSWORD" -A -t cert -f pkcs12 -k $KEYCHAIN_PATH
           security list-keychain -d user -s $KEYCHAIN_PATH
       - name: Build iOS IPA
-        run: flutter build ipa --release
+        run: |
+          flutter build ipa --release \
+            --build-number=${{ github.run_number }} \
+            --dart-define=RC_APPLE_KEY="${{ secrets.RC_APPLE_KEY }}" \
+            --dart-define=GEMINI_API_KEY="${{ secrets.GEMINI_API_KEY }}"
       - name: Fastlane Deploy
         env:
           APP_STORE_CONNECT_API_KEY_KEY_ID: ${{ secrets.ASC_KEY_ID }}

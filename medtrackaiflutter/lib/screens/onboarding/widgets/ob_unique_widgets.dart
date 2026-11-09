@@ -120,29 +120,66 @@ class _ObValueLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final p = ObPalette.of(context);
 
-    return Row(
-      children: [
-        Container(
-          width: 26,
-          height: 26,
-          decoration: BoxDecoration(
-            color: p.accent.withValues(alpha: 0.12),
-            borderRadius: BorderRadius.circular(8),
-          ),
-          child: Icon(icon, size: 15, color: p.accentInk),
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8.5),
+      decoration: BoxDecoration(
+        color: p.surface.withValues(alpha: 0.92),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: p.border.withValues(alpha: 0.65),
+          width: 0.8,
         ),
-        const SizedBox(width: 11),
-        Expanded(
-          child: Text(
-            text,
-            style: AppTypography.bodySmall.copyWith(
-              color: p.text,
-              fontWeight: FontWeight.w600,
-              height: 1.25,
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1A2621).withValues(alpha: 0.03),
+            blurRadius: 12,
+            offset: const Offset(0, 3),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 28,
+            height: 28,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  AppColors.lime.withValues(alpha: 0.3),
+                  AppColors.limeDeep.withValues(alpha: 0.14),
+                ],
+              ),
+              borderRadius: BorderRadius.circular(9),
+              border: Border.all(
+                color: AppColors.limeDeep.withValues(alpha: 0.2),
+                width: 0.5,
+              ),
+            ),
+            child: Icon(icon, size: 15, color: AppColors.limeDeep),
+          ),
+          const SizedBox(width: 11),
+          Expanded(
+            child: Text(
+              text,
+              style: AppTypography.bodySmall.copyWith(
+                color: p.text,
+                fontWeight: FontWeight.w600,
+                fontSize: 12.5,
+                height: 1.25,
+              ),
             ),
           ),
-        ),
-      ],
+          const SizedBox(width: 6),
+          Icon(
+            Icons.check_circle_rounded,
+            size: 15,
+            color: AppColors.limeDeep.withValues(alpha: 0.85),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -215,7 +252,9 @@ class _ObLongTermResultsChartState extends State<ObLongTermResultsChart>
               const SizedBox(height: 12),
               Row(
                 children: [
-                  _LegendDot(color: p.bad.withValues(alpha: 0.7), label: l10n.onboardingMemoryOnly),
+                  _LegendDot(
+                      color: p.bad.withValues(alpha: 0.7),
+                      label: l10n.onboardingMemoryOnly),
                   const SizedBox(width: 16),
                   _LegendDot(color: p.accent, label: l10n.onboardingMedAiPlan),
                 ],
@@ -280,7 +319,9 @@ class _DualLinePainter extends CustomPainter {
     }
 
     double yFor(List<double> adherences, double xFrac) {
-      final idx = (xFrac * (adherences.length - 1)).round().clamp(0, adherences.length - 1);
+      final idx = (xFrac * (adherences.length - 1))
+          .round()
+          .clamp(0, adherences.length - 1);
       final adh = adherences[idx];
       return pad + h * (1 - adh);
     }
@@ -359,19 +400,49 @@ class ObLargeGoalTile extends StatelessWidget {
         scaleFactor: 0.98,
         child: AnimatedContainer(
           duration: MedAiA11y.motion(context, AppDurations.fast),
-          constraints: const BoxConstraints(minHeight: 64),
-          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+          constraints: const BoxConstraints(minHeight: 68),
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
           decoration: BoxDecoration(
-            color: selected ? p.warmTint : p.surface,
-            borderRadius: BorderRadius.circular(16),
+            color: selected ? p.surfaceSel : p.surface,
+            borderRadius: BorderRadius.circular(20),
             border: Border.all(
-              color: selected ? p.accent : p.border,
-              width: selected ? 2 : 1,
+              color: selected
+                  ? AppColors.limeDeep.withValues(alpha: 0.6)
+                  : p.border,
+              width: selected ? 1.8 : 1,
             ),
+            boxShadow: [
+              BoxShadow(
+                color: selected
+                    ? AppColors.limeDeep.withValues(alpha: 0.10)
+                    : const Color(0xFF1A2621).withValues(alpha: 0.035),
+                blurRadius: selected ? 18 : 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
           ),
           child: Row(
             children: [
-              Text(emoji, style: const TextStyle(fontSize: 26)),
+              Container(
+                width: 44,
+                height: 44,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  color: selected
+                      ? AppColors.lime.withValues(alpha: 0.3)
+                      : (context.isDark
+                          ? const Color(0xFF232630)
+                          : const Color(0xFFF1F3EE)),
+                  borderRadius: BorderRadius.circular(14),
+                  border: Border.all(
+                    color: selected
+                        ? AppColors.limeDeep.withValues(alpha: 0.35)
+                        : p.border.withValues(alpha: 0.6),
+                    width: 0.8,
+                  ),
+                ),
+                child: Text(emoji, style: const TextStyle(fontSize: 22)),
+              ),
               const SizedBox(width: 14),
               Expanded(
                 child: Text(
@@ -379,8 +450,42 @@ class ObLargeGoalTile extends StatelessWidget {
                   style: AppTypography.titleMedium.copyWith(
                     color: p.text,
                     fontWeight: FontWeight.w700,
+                    letterSpacing: -0.2,
                   ),
                 ),
+              ),
+              const SizedBox(width: 10),
+              AnimatedContainer(
+                duration: MedAiA11y.motion(context, AppDurations.micro),
+                width: 26,
+                height: 26,
+                decoration: BoxDecoration(
+                  gradient: selected
+                      ? const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [AppColors.lime, AppColors.limeDeep],
+                        )
+                      : null,
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: selected ? AppColors.limeDeep : p.border,
+                    width: selected ? 1.8 : 1.5,
+                  ),
+                  boxShadow: selected
+                      ? [
+                          BoxShadow(
+                            color: AppColors.limeDeep.withValues(alpha: 0.35),
+                            blurRadius: 8,
+                            offset: const Offset(0, 2),
+                          ),
+                        ]
+                      : null,
+                ),
+                child: selected
+                    ? const Icon(Icons.check_rounded,
+                        size: 16, color: AppColors.limeInk)
+                    : null,
               ),
             ],
           ),
@@ -437,9 +542,12 @@ class ObPersonalAdherenceSummary extends StatelessWidget {
               ),
               const Spacer(),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                 decoration: BoxDecoration(
-                  color: score >= 70 ? p.good.withValues(alpha: 0.15) : p.accent.withValues(alpha: 0.15),
+                  color: score >= 70
+                      ? p.good.withValues(alpha: 0.15)
+                      : p.accent.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(99),
                 ),
                 child: Text(
@@ -464,8 +572,14 @@ class ObPersonalAdherenceSummary extends StatelessWidget {
           ),
           const SizedBox(height: 18),
           _SummaryRow(label: l10n.profile, value: persona.label, p: p),
-          _SummaryRow(label: l10n.onboardingMedCount, value: controller.medCountLabel, p: p),
-          _SummaryRow(label: l10n.onboardingChallenge, value: controller.challengeLabel, p: p),
+          _SummaryRow(
+              label: l10n.onboardingMedCount,
+              value: controller.medCountLabel,
+              p: p),
+          _SummaryRow(
+              label: l10n.onboardingChallenge,
+              value: controller.challengeLabel,
+              p: p),
         ],
       ),
     );
@@ -476,7 +590,8 @@ class _SummaryRow extends StatelessWidget {
   final String label;
   final String value;
   final ObPalette p;
-  const _SummaryRow({required this.label, required this.value, required this.p});
+  const _SummaryRow(
+      {required this.label, required this.value, required this.p});
 
   @override
   Widget build(BuildContext context) {
@@ -485,7 +600,8 @@ class _SummaryRow extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(label, style: AppTypography.bodySmall.copyWith(color: p.sub)),
+            child: Text(label,
+                style: AppTypography.bodySmall.copyWith(color: p.sub)),
           ),
           Text(
             value,
@@ -655,7 +771,8 @@ class ObSocialProofCluster extends StatelessWidget {
                 style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20),
               ),
               TextSpan(
-                text: ' of Med AI members say staying on track feels effortless.',
+                text:
+                    ' of Med AI members say staying on track feels effortless.',
                 style: TextStyle(color: p.sub),
               ),
             ],

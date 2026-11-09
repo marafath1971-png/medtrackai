@@ -39,10 +39,15 @@ import 'controllers/medication_controller.dart';
 import 'controllers/wellness_controller.dart';
 import 'controllers/social_controller.dart';
 import 'controllers/health_controller.dart';
+import 'controllers/steps_controller.dart';
+import '../l10n/app_localizations.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../services/review_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/constants.dart';
+import 'package:go_router/go_router.dart';
+import '../app/app_routes.dart';
+import '../app/router.dart' show rootNavigatorKey;
 
 // ══════════════════════════════════════════════
 // APP STATE — CENTRAL STATE BRIDGE
@@ -60,6 +65,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   late final WellnessController wellness;
   late final SocialController social;
   late final HealthController health;
+  late final StepsController steps;
 
   bool _isDisposed = false;
   AppLifecycleState _lifecycleState = AppLifecycleState.resumed;
@@ -110,6 +116,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     wellness = WellnessController(symptomRepo: symptomRepo);
     social = SocialController(userRepo: userRepo);
     health = HealthController(prefs);
+    steps = StepsController(prefs: prefs)..onCheer = _showStepCheer;
 
     // Sync state changes between tokens/profile and app state
     auth.addListener(safeNotifyListeners);
@@ -117,6 +124,9 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     wellness.addListener(safeNotifyListeners);
     social.addListener(safeNotifyListeners);
     health.addListener(safeNotifyListeners);
+    // Steps are not relayed (see StepsController); the account binding is the
+    // only thing that follows auth.
+    auth.addListener(_bindStepsAccount);
 
     WidgetsBinding.instance.addObserver(this);
     _notifSub = NotificationService.actionStream.stream
@@ -137,6 +147,16 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
         activateVoiceAssistant();
       }
     };
+    _linkService.onStepsDetected = () {
+      if (phase != AppPhase.app) return;
+      final ctx = rootNavigatorKey.currentContext;
+      if (ctx == null) return;
+      final router = GoRouter.of(ctx);
+      // Tapping the widget twice must not stack two steps screens.
+      if (router.state.uri.path != AppRoutes.steps) {
+        router.push(AppRoutes.steps);
+      }
+    };
     // Referral: remember the inbound code until the user finishes signup, then
     // it's redeemed in completeOnboarding(). Existing users (already in the app)
     // can't redeem — the reward is for new signups only.
@@ -151,7 +171,44 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     _lifecycleState = state;
     if (_lifecycleState == AppLifecycleState.resumed) {
       _syncPendingActions();
+      steps.refresh();
     }
+  }
+
+  String? _stepsAccountKey;
+
+  /// Hands the signed-in user's identity to the steps controller, once per
+  /// change. Sign-out is handled by [_clearSessionData].
+  void _bindStepsAccount() {
+    String? uid;
+    try {
+      uid = AuthService.uid;
+    } catch (_) {
+      // Firebase is not initialised (tests, or a failed startup).
+      return;
+    }
+    final p = profile;
+    if (uid == null || p == null) return;
+    final key = '$uid|${p.name}|${p.avatar}|${p.height}|${p.weight}';
+    if (key == _stepsAccountKey) return;
+    _stepsAccountKey = key;
+    steps.attachAccount(
+      name: p.name,
+      avatar: p.avatar,
+      height: p.height,
+      weight: p.weight,
+    );
+  }
+
+  void _showStepCheer(StepCheerKind kind, String partnerName) {
+    final ctx = rootNavigatorKey.currentContext;
+    final l10n = ctx == null ? null : AppLocalizations.of(ctx);
+    if (l10n == null) return;
+    final who =
+        partnerName.isEmpty ? l10n.stepsPartnerFallbackName : partnerName;
+    showToast(kind == StepCheerKind.nudge
+        ? l10n.stepsNudgeReceived(who)
+        : l10n.stepsCheerReceived(who));
   }
 
   // ── Modular Accessors ──────────────────────────────────────────────
@@ -192,6 +249,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   List<Caregiver> get caregivers => social.caregivers;
   List<Map<String, dynamic>> get monitoredPatients => social.monitoredPatients;
   List<MissedAlert> get missedAlerts => social.missedAlerts;
+  List<EscalationAlert> get escalations => social.escalations;
   Map<String, String> get protectorInsights => social.protectorInsights;
 
   List<Symptom> get symptoms => wellness.symptoms;
@@ -336,6 +394,57 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       med.getTakenMapForDate(date);
   List<Map<String, dynamic>> getTrendData() => med.getTrendData();
 
+  /// Computes the user's next scheduled dose and syncs it with the native lock/home screen widget.
+  void syncNativeWidget() {
+    final streak = getStreak();
+    final todayDoses = getDoses();
+    final takenMap = getTakenMapForDate(DateTime.now());
+    final now = TimeOfDay.now();
+    final nowMinutes = now.hour * 60 + now.minute;
+
+    final untaken = todayDoses
+        .where((d) => !(takenMap[d.key] ?? false))
+        .toList()
+      ..sort((a, b) =>
+          (a.sched.h * 60 + a.sched.m).compareTo(b.sched.h * 60 + b.sched.m));
+
+    final upcoming = untaken.firstWhere(
+      (d) => (d.sched.h * 60 + d.sched.m) >= nowMinutes,
+      orElse: () => untaken.isNotEmpty
+          ? untaken.first
+          : DoseItem(
+              med: Medicine(
+                id: -1,
+                name: 'All Doses Taken!',
+                dose: '',
+                courseStartDate: '2026-01-01',
+              ),
+              sched: ScheduleEntry(
+                id: 'all_done_slot',
+                h: 0,
+                m: 0,
+                label: 'Complete',
+                days: const [0, 1, 2, 3, 4, 5, 6],
+              ),
+              key: 'all_done',
+            ),
+    );
+
+    final nextName =
+        upcoming.med.id == -1 ? 'All Doses Taken!' : upcoming.med.name;
+    final nextTime = upcoming.med.id == -1
+        ? 'Complete ✨'
+        : '${upcoming.sched.h.toString().padLeft(2, '0')}:${upcoming.sched.m.toString().padLeft(2, '0')}';
+
+    NativeWidgetService.syncWidgetData(
+      streak: streak,
+      nextMedName: nextName,
+      nextMedTime: nextTime,
+      mascotMood:
+          upcoming.med.id == -1 ? 'Ecstatic' : (streak > 3 ? 'Proud' : 'Happy'),
+    );
+  }
+
   Future<void> toggleDose(DoseItem dose, {DateTime? date}) async {
     return PerformanceService.measure('toggle_dose_trace', () async {
       final targetDate = date ?? DateTime.now();
@@ -365,14 +474,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
           takenAt: DateTime.now(),
         );
 
-        // Sync Native OS Widget
-        NativeWidgetService.syncWidgetData(
-          streak: newStreak,
-          nextMedName:
-              "Next Scheduled Dose", // Could compute exactly from meds list
-          nextMedTime: "Check App",
-          mascotMood: "Happy",
-        );
+        // Sync Native OS Widget with real upcoming dose
+        syncNativeWidget();
 
         // Evaluate Gamification Milestones
         final milestones = [3, 7, 14, 30, 60, 100, 365];
@@ -411,7 +514,11 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     final m = meds[mIdx];
     if (idx < 0 || idx >= m.schedule.length) return;
     final sched = m.schedule[idx];
-    final dose = DoseItem(med: m, sched: sched, key: '${m.id}_${sched.id}');
+    final dose = DoseItem(
+      med: m,
+      sched: sched,
+      key: DoseItem.buildKey(m.id, sched.label),
+    );
     await toggleDose(dose, date: date);
   }
 
@@ -498,13 +605,29 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   bool get biometricEnabled => profile?.biometricEnabled ?? false;
   bool get isPurchasing => auth.isPurchasing;
 
-  Future<void> logout() {
+  Future<void> _clearSessionData() async {
     _missedDoseTimer?.cancel();
+    await NotificationService.cancelAll();
+    med.clear();
+    social.clear();
+    wellness.clear();
+    _stepsAccountKey = null;
+    await steps.detachAccount();
+    NativeWidgetService.syncWidgetData(
+      streak: 0,
+      nextMedName: 'Welcome',
+      nextMedTime: '--:--',
+      mascotMood: 'sleepy',
+    );
+  }
+
+  Future<void> logout() async {
+    await _clearSessionData();
     return auth.logout();
   }
 
-  Future<void> signOut() {
-    _missedDoseTimer?.cancel();
+  Future<void> signOut() async {
+    await _clearSessionData();
     return auth.logout();
   }
 
@@ -647,7 +770,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     final success = await ExportService.exportAdherenceReportForMember(
         this, member, memberMeds, memberHistory);
     if (!success) {
-      toast = 'Doctor Reports require MedAI Premium.';
+      toast = "Couldn't create ${member.name}'s report. Please try again.";
       toastType = 'error';
       safeNotifyListeners();
     }
@@ -844,8 +967,16 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Future<String> createInvite(Caregiver cg) =>
       social.createInvite(cg, profile?.name, profile?.avatar);
   Future<void> activateCaregiver(int id) => social.activateCaregiver(id);
+  Future<void> removeCaregiver(int id) => social.removeCaregiver(id);
+  Future<void> stopMonitoringPatient(String patientUid) =>
+      social.stopMonitoringPatient(patientUid);
   void markAlertsAsSeen() => social.markAlertsAsSeen();
   Future<void> joinCareTeam(String code) => social.joinCareTeam(code);
+
+  /// A monitored patient's profile, readable once their access grant exists.
+  Future<UserProfile?> getPatientProfile(String uid) =>
+      social.userRepo.getOtherProfile(uid);
+
   Future<List<Medicine>> getPatientMeds(String uid) =>
       social.getPatientMeds(uid);
   Future<Map<String, List<DoseEntry>>> getPatientHistory(String uid) =>
@@ -857,21 +988,57 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   // ── Purchases ──────────────────────────────────────────────────────
   /// Reconciles the cached `profile.isPremium` flag against RevenueCat's actual
-  /// entitlement at launch. Handles a lapsed sub (cached true → real false) and
-  /// a cross-device active sub (cached false → real true). Fail-safe: if the
-  /// entitlement check throws (offline, dev preview with no RC), we leave the
-  /// cached value untouched — we never revoke premium on an inconclusive check.
+  /// entitlement at launch, while honoring active promo and referral periods.
+  /// Handles a lapsed sub (cached true → real false) and a cross-device active
+  /// sub (cached false → real true). Fail-safe: if the entitlement check throws
+  /// (offline, dev preview with no RC), we leave the cached value untouched —
+  /// we never revoke premium on an inconclusive check.
   Future<void> _reconcilePremium() async {
     if (profile == null) return;
     try {
       final active = await PurchasesService.isPremium();
-      if (active != profile!.isPremium) {
-        await auth.saveProfile(profile!.copyWith(isPremium: active));
+      // Honor active promotional / referral entitlements
+      bool hasActivePromo = false;
+      final promo = profile!.appliedPromo;
+      if (promo != null && promo['expiresAt'] != null) {
+        final expiresAt = DateTime.tryParse(promo['expiresAt'].toString());
+        if (expiresAt != null && expiresAt.isAfter(DateTime.now())) {
+          hasActivePromo = true;
+        }
+      }
+
+      final shouldBePremium = active || hasActivePromo;
+      final family = await PurchasesService.hasFamilyPlan();
+      if (shouldBePremium != profile!.isPremium ||
+          family != profile!.hasFamilyPlan) {
+        await auth.saveProfile(profile!
+            .copyWith(isPremium: shouldBePremium, hasFamilyPlan: family));
         safeNotifyListeners();
       }
     } catch (e) {
       appLogger.w('[AppState] Premium reconcile skipped', error: e);
     }
+  }
+
+  /// Grants a 30-day promotional Premium entitlement upon redeeming an inbound referral.
+  Future<void> grantReferralPromo(String code) async {
+    if (profile == null) return;
+    final expires = DateTime.now().add(const Duration(days: 30));
+    final promoData = {
+      'type': 'referral',
+      'code': code,
+      'grantedAt': DateTime.now().toIso8601String(),
+      'expiresAt': expires.toIso8601String(),
+      'durationDays': 30,
+    };
+    final updated = profile!.copyWith(
+      isPremium: true,
+      appliedPromo: promoData,
+      promoCode: code,
+    );
+    await auth.saveProfile(updated);
+    safeNotifyListeners();
+    showToast('Referral bonus: 30 days of Premium unlocked! ✨');
   }
 
   Future<void> manageSubscription() => auth.manageSubscription();
@@ -884,7 +1051,9 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       final success = await PurchasesService.purchasePackage(packageId);
       if (success) {
         if (profile != null) {
-          await auth.saveProfile(profile!.copyWith(isPremium: true));
+          final family = await PurchasesService.hasFamilyPlan();
+          await auth.saveProfile(
+              profile!.copyWith(isPremium: true, hasFamilyPlan: family));
         }
         await auth.loadProfile();
         showToast('Premium unlocked! ✨');
@@ -903,7 +1072,9 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
       final success = await PurchasesService.restorePurchases();
       if (success) {
         if (profile != null) {
-          await auth.saveProfile(profile!.copyWith(isPremium: true));
+          final family = await PurchasesService.hasFamilyPlan();
+          await auth.saveProfile(
+              profile!.copyWith(isPremium: true, hasFamilyPlan: family));
         }
         await auth.loadProfile();
         showToast('Purchases restored 🔄');
@@ -1106,18 +1277,33 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   ({int taken, int total}) getHistoryCountForMed(int medId) =>
       med.getHistoryCountForMed(medId);
 
-  List<Medicine> getRefillForecast() => [];
-  Future<void> refillMedication(int id) async {}
+  List<Medicine> getRefillForecast() {
+    return meds
+        .where((m) => m.count <= m.refillAt && m.totalCount > 0)
+        .toList();
+  }
+
+  Future<void> refillMedication(int id, {int amount = 30}) async {
+    final medItem = meds.where((m) => m.id == id).firstOrNull;
+    if (medItem != null) {
+      final newCount = medItem.count + amount;
+      await updateMedicine(medItem.copyWith(count: newCount));
+      showToast('+$amount units added to ${medItem.name} ✓');
+      safeNotifyListeners();
+    }
+  }
+
   // ── CLINICAL DATA EXPORT ───────────────────────────────────────────
 
   /// Generates and shares a professional PDF Adherence Report
-  Future<void> exportDataPDF() async {
+  Future<bool> exportDataPDF() async {
     final success = await ExportService.exportAdherenceReport(this);
     if (!success) {
-      toast = 'Doctor Reports require MedAI Premium.';
+      toast = "Couldn't create the report. Please try again.";
       toastType = 'error';
       safeNotifyListeners();
     }
+    return success;
   }
 
   /// Generates and shares a CSV file representing medication history
@@ -1148,12 +1334,14 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> deleteAllData() async {
     HapticEngine.selection();
+    await _clearSessionData();
     await auth.logout();
     showToast('All local data cleared');
   }
 
   Future<void> deleteAccount() async {
     HapticEngine.selection();
+    await _clearSessionData();
     await auth.deleteAccount();
     showToast('Account deleted permanently', type: 'error');
   }
@@ -1263,32 +1451,7 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   void _syncNativeWidget() {
     try {
-      final s = getStreak();
-      String mood = 'content';
-      if (s == 0) {
-        mood = 'sleepy';
-      } else if (s > 0 && s < 3) {
-        mood = 'content';
-      } else if (s >= 3 && s < 7) {
-        mood = 'energetic';
-      } else {
-        mood = 'happy';
-      }
-
-      final todayDoses = getDoses();
-      // Simple approximation: pick the first one
-      final nextMedName =
-          todayDoses.isNotEmpty ? todayDoses.first.med.name : 'All Done! 🎉';
-      final nextMedTime = todayDoses.isNotEmpty
-          ? '${todayDoses.first.sched.h}:${todayDoses.first.sched.m.toString().padLeft(2, '0')}'
-          : '--:--';
-
-      NativeWidgetService.syncWidgetData(
-        streak: s,
-        nextMedName: nextMedName,
-        nextMedTime: nextMedTime,
-        mascotMood: mood,
-      );
+      syncNativeWidget();
     } catch (e) {
       appLogger.w('Failed to sync widget from state: $e');
     }
@@ -1325,9 +1488,24 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
           );
         }
       });
+      // A tapped missed-dose push opens the circle, where the alert waits
+      // with its "I'm on it" button. Covers both a background tap and a cold
+      // start from the notification.
+      FirebaseMessaging.onMessageOpenedApp.listen(_openFromPush);
+      final initial = await messaging.getInitialMessage();
+      if (initial != null) _openFromPush(initial);
     } catch (e) {
       appLogger.w('FCM Init failed', error: e);
     }
+  }
+
+  void _openFromPush(RemoteMessage message) {
+    final type = message.data['type'] as String? ?? '';
+    if (!type.startsWith('missed_dose')) return;
+    // After the first frame: on a cold start the router is not mounted yet.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      rootNavigatorKey.currentContext?.go(AppRoutes.circle);
+    });
   }
 
   Future<void> _handleNotificationAction(String payloadStr) async {
@@ -1384,6 +1562,11 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
             scheduledDate: snoozeTime,
             payload: '${targetMed.id}|$h|$m|$label');
         showToast('Reminding you in 10 minutes');
+      } else if (action == 'tap') {
+        final ctx = rootNavigatorKey.currentContext;
+        if (ctx != null && ctx.mounted) {
+          ctx.push(AppRoutes.medicineDetailPath(targetMed.id));
+        }
       }
     } catch (e) {
       appLogger.e('[AppState] Error handling notification action: $e');
@@ -1551,6 +1734,8 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     med.removeListener(safeNotifyListeners);
     wellness.removeListener(safeNotifyListeners);
     social.removeListener(safeNotifyListeners);
+    auth.removeListener(_bindStepsAccount);
+    steps.dispose();
     _notifSub?.cancel();
     _audioPlayer.dispose();
     super.dispose();
