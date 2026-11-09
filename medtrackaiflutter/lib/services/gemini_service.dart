@@ -66,7 +66,7 @@ class GeminiService {
   /// `_isLoggedIn && _apiKey.isEmpty`, so setting this locally bypasses the
   /// proxy. Leave it unset to exercise the path production actually uses.
   static const String debugDirectApiKey =
-      kDebugMode ? String.fromEnvironment('GEMINI_API_KEY') : '';
+      String.fromEnvironment('GEMINI_API_KEY');
 
   static String get _apiKey => _env.apiKey;
 
@@ -104,19 +104,23 @@ class GeminiService {
   /// fourteen call sites are unchanged.
   static GeminiModel _getModel(String modelName,
       {String apiVersion = 'v1', GenerationConfig? generationConfig}) {
-    if (_apiKey.isEmpty) {
+    final key = _apiKey.isNotEmpty ? _apiKey : _activeApiKey;
+    if (key.isEmpty) {
       appLogger.w('[GeminiService] Warning: GEMINI_API_KEY is empty.');
     }
     return geminiModelFactory(
       modelName,
       apiVersion: apiVersion,
       generationConfig: generationConfig,
-      apiKey: _apiKey,
+      apiKey: key,
     );
   }
 
   static Future<Result<ScanResult>> scanMedicine(File imageFile,
-      {String? hint, String? qrData, String country = '', UserProfile? profile}) async {
+      {String? hint,
+      String? qrData,
+      String country = '',
+      UserProfile? profile}) async {
     return PerformanceService.measure('medicine_scan_trace', () async {
       // 1. Regional Power Feature: JAHIS Detection (Japan)
       if (qrData != null && JahisParser.isJahis(qrData)) {
@@ -168,8 +172,7 @@ class GeminiService {
         final modelName = config['model']!;
 
         try {
-          bool useProxy =
-              DateTime.now().year > 2000; // FORCE PROXY FOR SECURITY
+          final bool useProxy = _isLoggedIn && _apiKey.isEmpty;
           String responseText = '';
 
           if (useProxy) {
@@ -182,22 +185,24 @@ class GeminiService {
               imageBase64: base64Image,
             );
             appLogger.d('[GeminiService] Proxy Response: $responseText');
-          } else if (_apiKey.isNotEmpty) {
+          } else if (_apiKey.isNotEmpty || _activeApiKey.isNotEmpty) {
             appLogger.d(
-                '[GeminiService] Guest user detected. Bypassing proxy, trying direct Gemini API for $modelName...');
+                '[GeminiService] Direct Gemini API enabled for $modelName...');
             final version = config['version']!;
-            
+
             // Adjust temperature based on profile AI settings
-            final temperature = (profile != null && !profile.aiDeepAnalysis) ? 0.1 : 0.4;
-            
+            final temperature =
+                (profile != null && !profile.aiDeepAnalysis) ? 0.1 : 0.4;
+
             final generationConfig = GenerationConfig(
               temperature: temperature,
               topK: 32,
               topP: 0.9,
               maxOutputTokens: 2048,
             );
-            
-            final model = _getModel(modelName, apiVersion: version, generationConfig: generationConfig);
+
+            final model = _getModel(modelName,
+                apiVersion: version, generationConfig: generationConfig);
             final prompt = _buildScanPrompt(hint, country: country);
             final response = await _withRetry(() => model.generateContent([
                   Content.multi([
@@ -217,10 +222,7 @@ class GeminiService {
           }
 
           final parsed = _parseScanResponse(responseText);
-          AnalyticsService.logMedicineScan(
-            result: parsed.name,
-            success: parsed.identified,
-          );
+          AnalyticsService.logMedicineScan(success: parsed.identified);
           return Success(parsed);
         } catch (e) {
           final proxyErrorStr = e.toString().toLowerCase();
@@ -236,16 +238,18 @@ class GeminiService {
                 '[GeminiService] Proxy failed. Falling back to direct API for $modelName.');
             try {
               final version = config['version']!;
-              
-              final temperature = (profile != null && !profile.aiDeepAnalysis) ? 0.1 : 0.4;
+
+              final temperature =
+                  (profile != null && !profile.aiDeepAnalysis) ? 0.1 : 0.4;
               final generationConfig = GenerationConfig(
                 temperature: temperature,
                 topK: 32,
                 topP: 0.9,
                 maxOutputTokens: 2048,
               );
-              
-              final model = _getModel(modelName, apiVersion: version, generationConfig: generationConfig);
+
+              final model = _getModel(modelName,
+                  apiVersion: version, generationConfig: generationConfig);
               final prompt = _buildScanPrompt(hint, country: country);
 
               final response = await _withRetry(() => model.generateContent([
@@ -304,23 +308,28 @@ class GeminiService {
 
   /// Task Phase 3: AI Product Insights
   static Future<Result<ProductAnalysis>> analyzeProductInsight(String query,
-      {File? image, String country = '', List<String> allergies = const []}) async {
+      {File? image,
+      String country = '',
+      List<String> allergies = const []}) async {
     return PerformanceService.measure('product_insight_trace', () async {
       String lastError = '';
 
-      final allergyInstruction = allergies.isNotEmpty 
-          ? 'CRITICAL: The user has the following known allergies: ${allergies.join(", ")}. You MUST cross-reference the product active and inactive ingredients against these allergies. If there is a match or high risk of cross-reactivity, list them in the "allergyAlerts" array. Also, determine the overall "allergyRiskLevel" as "None", "Low", "Medium", or "High". If safe, return an empty array and "None" for the risk level.' 
+      final allergyInstruction = allergies.isNotEmpty
+          ? 'CRITICAL: The user has the following known allergies: ${allergies.join(", ")}. You MUST cross-reference the product active and inactive ingredients against these allergies. If there is a match or high risk of cross-reactivity, list them in the "allergyAlerts" array. Also, determine the overall "allergyRiskLevel" as "None", "Low", "Medium", or "High". If safe, return an empty array and "None" for the risk level.'
           : 'Return an empty array for "allergyAlerts" and "None" for "allergyRiskLevel".';
 
-      const childSafetyInstruction = 'CRITICAL PEDIATRIC CHECK: You must explicitly evaluate if this product is safe for children. If it requires strict weight-based dosing, is contraindicated for pediatrics, or has severe age restrictions, provide a highly specific warning in the "childSafetyAlert" field. If it is generally safe or not applicable, return null for "childSafetyAlert".';
+      const childSafetyInstruction =
+          'CRITICAL PEDIATRIC CHECK: You must explicitly evaluate if this product is safe for children. If it requires strict weight-based dosing, is contraindicated for pediatrics, or has severe age restrictions, provide a highly specific warning in the "childSafetyAlert" field. If it is generally safe or not applicable, return null for "childSafetyAlert".';
 
-      const pregnancyInstruction = 'PREGNANCY / NURSING CHECK: Evaluate pregnancy and breastfeeding safety. If there is a known risk, contraindication, or "ask your doctor" guidance, put clear wording in "pregnancyAlert". If not applicable or unknown, return null.';
+      const pregnancyInstruction =
+          'PREGNANCY / NURSING CHECK: Evaluate pregnancy and breastfeeding safety. If there is a known risk, contraindication, or "ask your doctor" guidance, put clear wording in "pregnancyAlert". If not applicable or unknown, return null.';
 
-      const skincareInstruction = 'If the product is skincare / topical / cosmetic, set category to "Skincare" and fill "skincareNotes" with patch-test, irritation, and ingredient caution tips. Otherwise return null for skincareNotes.';
+      const beautySkincareInstruction =
+          'BEAUTY & FORMULATION INTELLIGENCE: Evaluate ingredients, clean formula standards, and skin/body impact. Set "cleanScore" (integer 0-100 purity and safety rating, penalizing harsh additives, heavy fragrances, unnecessary fillers, or irritants). Set "comedogenicRating" (integer 0-5 pore-clogging scale: 0=non-comedogenic, 5=high risk of clogging pores; for oral pills with no acne impact, use 0). In "activeIngredients", list key active components with strengths if known (e.g. "Niacinamide 10%", "Magnesium Bisglycinate 200mg"). In "skinBenefits", list targeted aesthetic/skin/cellular benefits (e.g. "Barrier Repair", "Blemish Defense", "Collagen Support", "Glow & Hydration"). In "routineType", specify "AM Routine", "PM Routine", "AM & PM", or "As Needed". If the product is skincare, cosmetics, or topical dermatology, set category to "Skincare" and fill "skincareNotes" with patch-test, irritation, and layering tips.';
 
       final prompt = '''
-You are MedAI Pro, an expert clinical AI. The user has provided an input (a search query, barcode text, voice transcript, or image) to understand a product: "$query".
-Analyze the product and return a deeply informative breakdown.
+You are MedAI Pro, an expert clinical and beauty intelligence AI. The user has provided an input (a search query, barcode text, voice transcript, or image) to understand a product: "$query".
+Analyze the product and return a deeply informative, hooked, and beautiful breakdown for youth, patients, and wellness/beauty users.
 
 HONESTY REQUIREMENT (critical for user safety):
 - Only claim to identify a product you can actually recognize. If the input is blurry, ambiguous, a non-medical object, or you are guessing, set "identified": false and "confidence": "low", and put what you DID observe in "description" (e.g. "This looks like a round white tablet but I can't confirm the specific medication.").
@@ -330,7 +339,7 @@ HONESTY REQUIREMENT (critical for user safety):
 $allergyInstruction
 $childSafetyInstruction
 $pregnancyInstruction
-$skincareInstruction
+$beautySkincareInstruction
 
 Return ONLY valid JSON matching this exact structure:
 {
@@ -350,6 +359,11 @@ Return ONLY valid JSON matching this exact structure:
   "timing": "Best time to take it (e.g. 'Morning with food')",
   "halalStatus": "Halal|Haram|Doubtful|Unknown",
   "scientificEvidence": "Short summary of scientific backing",
+  "cleanScore": 92,
+  "comedogenicRating": 0,
+  "activeIngredients": ["Active 1", "Active 2"],
+  "skinBenefits": ["Benefit 1", "Benefit 2"],
+  "routineType": "AM Routine|PM Routine|AM & PM|As Needed",
   "allergyAlerts": ["Alert 1", "Alert 2"],
   "allergyRiskLevel": "None|Low|Medium|High",
   "childSafetyAlert": "Warning text if applicable, otherwise null",
@@ -774,59 +788,9 @@ Use common actionable step phrases like "View Daily Log", "Refresh Insights", "M
 ''';
   }
 
-  static Future<Result<AISafetyProfile>> analyzeMedicineSafety(
-      Medicine m) async {
-    final prompt = '''
-You are MedAI Pro, a clinical pharmacology AI.
-Analyze the medication: "${m.name}" (Dose: ${m.dose}, Form: ${m.form}).
-Return ONLY valid JSON with NO markdown formatting, adhering to this exact structure:
-{
-  "warnings": ["Warning 1", "Warning 2"],
-  "interactions": ["Interaction 1"],
-  "foodRules": ["Food rule 1"],
-  "ahaMoments": ["Actionable coaching tip 1"],
-  "mechanismOfAction": "Short, clear description of how it works in the body.",
-  "onsetMinutes": 30,
-  "peakHours": 2.0,
-  "durationHours": 8.0,
-  "bodySystems": ["cardiovascular", "renal"],
-  "timelineEffects": [
-    {"time": "0-30m", "effect": "Digestion and absorption"},
-    {"time": "2h", "effect": "Peak concentration and maximum effect"}
-  ],
-  "ahaFacts": ["Interesting physiological fact 1"]
-}
-''';
-
-    for (final config in _standardModels) {
-      final modelName = config['model']!;
-      final apiVersion = config['version']!;
-      try {
-        final model = _getModel(modelName, apiVersion: apiVersion);
-        final response = await _withRetry(() => model.generateContent(
-            [Content.text(prompt)]).timeout(const Duration(seconds: 30)));
-
-        if (response.text != null && response.text!.isNotEmpty) {
-          final responseText = response.text!.trim();
-          try {
-            final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(responseText);
-            if (jsonMatch != null) {
-              final data =
-                  json.decode(jsonMatch.group(0)!) as Map<String, dynamic>;
-              return Success(AISafetyProfile.fromJson(data));
-            }
-          } catch (e) {
-            appLogger.w('[GeminiService] AI Safety JSON parse error: $e');
-          }
-        }
-      } catch (e) {
-        appLogger.e('[GeminiService] AI Safety failed for $modelName: $e');
-      }
-    }
-
-    return const Error(
-        ScanFailure('Unable to analyze medication safety at this time.'));
-  }
+  /// Generates a comprehensive clinical safety profile for [m].
+  static Future<Result<AISafetyProfile>> analyzeMedicineSafety(Medicine m) =>
+      generateSafetyProfile(med: m);
 
   /// Analyzes a symptom in the context of current medications.
   static Future<Result<SymptomAnalysis>> analyzeSymptom(
@@ -849,48 +813,20 @@ Actionable steps suggestions: "View Daily Log", "Stay Hydrated", "Monitor temper
 Use emojis ✨.
 ''';
 
-    for (final config in _standardModels) {
-      final modelName = config['model']!;
-      final apiVersion = config['version']!;
-      try {
-        final model = _getModel(modelName, apiVersion: apiVersion);
-        final response = await _withRetry(() => model.generateContent(
-            [Content.text(prompt)]).timeout(const Duration(seconds: 30)));
-        if (response.text != null && response.text!.isNotEmpty) {
-          final responseText = response.text!.trim();
-          try {
-            final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(responseText);
-            if (jsonMatch != null) {
-              final data =
-                  json.decode(jsonMatch.group(0)!) as Map<String, dynamic>;
-              return Success(SymptomAnalysis.fromJson(data));
-            }
-          } catch (e) {
-            appLogger
-                .w('[GeminiService] Symptom analysis JSON parse error: $e');
-          }
-        }
-      } catch (e) {
-        // Fallback if proxy missing, unauthorized, or App Check fails
-        if (_apiKey.isNotEmpty) {
-          try {
-            final model = _getModel(modelName, apiVersion: apiVersion);
-            final response = await _withRetry(() => model.generateContent(
-                [Content.text(prompt)]).timeout(const Duration(seconds: 30)));
-            if (response.text != null && response.text!.isNotEmpty) {
-              final responseText = response.text!.trim();
-              final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(responseText);
-              if (jsonMatch != null) {
-                return Success(SymptomAnalysis.fromJson(
-                    json.decode(jsonMatch.group(0)!) as Map<String, dynamic>));
-              }
-            }
-          } catch (_) {}
-        }
-        appLogger
-            .w('[GeminiService] Symptom analysis failed with $modelName: $e');
+    try {
+      final responseText = await _generateText(
+        prompt,
+        timeout: const Duration(seconds: 25),
+      );
+      final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(responseText);
+      if (jsonMatch != null) {
+        final data = json.decode(jsonMatch.group(0)!) as Map<String, dynamic>;
+        return Success(SymptomAnalysis.fromJson(data));
       }
+    } catch (e) {
+      appLogger.w('[GeminiService] Symptom analysis failed: $e');
     }
+
     return Success(SymptomAnalysis(
       description:
           'Logged successfully. Monitor your ${symptom.name.toLowerCase()} and keep tracking your medications! ✨',
@@ -930,25 +866,20 @@ Return ONLY valid JSON:
 }
 ''';
 
-    for (final config in _standardModels) {
-      final modelName = config['model']!;
-      final apiVersion = config['version']!;
-      try {
-        final model = _getModel(modelName, apiVersion: apiVersion);
-        final response = await model.generateContent([Content.text(prompt)]);
-        if (response.text != null && response.text!.isNotEmpty) {
-          final responseText = response.text!.trim();
-          final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(responseText);
-          if (jsonMatch != null) {
-            final data =
-                json.decode(jsonMatch.group(0)!) as Map<String, dynamic>;
-            return Success(data);
-          }
-        }
-      } catch (e) {
-        appLogger.w('[GeminiService] Voice parse failed with $modelName: $e');
+    try {
+      final responseText = await _generateText(
+        prompt,
+        timeout: const Duration(seconds: 15),
+      );
+      final jsonMatch = RegExp(r'\{[\s\S]*\}').firstMatch(responseText);
+      if (jsonMatch != null) {
+        final data = json.decode(jsonMatch.group(0)!) as Map<String, dynamic>;
+        return Success(data);
       }
+    } catch (e) {
+      appLogger.w('[GeminiService] Voice parse failed: $e');
     }
+
     return const Error(ServerFailure('Could not parse command'));
   }
 
@@ -983,59 +914,23 @@ If it involves severe medical risks, advise consulting a doctor. Do not give dir
 Do not use markdown formatting like bolding or bullet points unless absolutely necessary.
 ''';
 
-    for (final config in _standardModels) {
-      final modelName = config['model']!;
-
-      try {
-        final bool useProxy = _isLoggedIn && _apiKey.isEmpty;
-        String responseText = '';
-
-        if (useProxy) {
-          appLogger.d('[GeminiService] Trying $modelName proxy for Chat...');
-          responseText = await geminiTransport.callProxy(
-            prompt: prompt,
-            model: modelName,
-          );
-        } else if (_apiKey.isNotEmpty) {
-          final apiVersion = config['version']!;
-          final model = _getModel(modelName, apiVersion: apiVersion);
-          final response = await _withRetry(() => model.generateContent(
-              [Content.text(prompt)]).timeout(const Duration(seconds: 15)));
-          responseText = response.text ?? '';
-        } else {
-          throw const FormatException(
-              'Client unauthenticated and GEMINI_API_KEY is empty.');
-        }
-
-        if (responseText.isNotEmpty) {
-          return Success(responseText.trim());
-        }
-      } catch (e) {
-        appLogger.w('[GeminiService] Product Chat failed with $modelName: $e');
+    try {
+      final responseText = await _generateText(
+        prompt,
+        timeout: const Duration(seconds: 20),
+      );
+      if (responseText.isNotEmpty) {
+        return Success(responseText.trim());
       }
+    } catch (e) {
+      appLogger.w('[GeminiService] Product Chat failed: $e');
     }
 
-    // ── Simulated Fallback for Demo Mode ──
-    appLogger
-        .e('[GeminiService] All chat models failed. Using simulated response.');
-
-    final lowerQuery = query.toLowerCase();
-    String simulatedResponse =
-        "That's a great question about $productName. Make sure to take it exactly as directed, and consult your physician if you experience any severe side effects.";
-
-    if (lowerQuery.contains('coffee') || lowerQuery.contains('caffeine')) {
-      simulatedResponse =
-          "It is generally best to avoid taking $productName at the exact same time as coffee, as caffeine can sometimes interfere with absorption. Wait about an hour.";
-    } else if (lowerQuery.contains('food') ||
-        lowerQuery.contains('empty stomach')) {
-      simulatedResponse =
-          "For optimal absorption and to avoid stomach upset, follow the specific food guidelines on the label for $productName.";
-    } else if (lowerQuery.contains('interact') || lowerQuery.contains('safe')) {
-      simulatedResponse =
-          "Based on your active medications, there are no severe red flags, but you should always verify with your pharmacist when adding $productName to your regimen.";
-    }
-
-    return Success(simulatedResponse);
+    return const Error(
+      ServerFailure(
+        "Unable to connect to AI assistant right now. Please check your connection or consult your doctor or pharmacist.",
+      ),
+    );
   }
 
   // ── Helper Data Parsers ──────────────────────────────────────────────────
@@ -1067,8 +962,8 @@ Do not use markdown formatting like bolding or bullet points unless absolutely n
         throw const FormatException('No JSON found in response');
       }
 
-      final data =
-          json.decode(cleanJsonPayload(jsonMatch.group(0)!)) as Map<String, dynamic>;
+      final data = json.decode(cleanJsonPayload(jsonMatch.group(0)!))
+          as Map<String, dynamic>;
       return ScanResult.fromJson(data);
     } catch (e) {
       appLogger.e('[GeminiService] JSON parse error', error: e);
@@ -1238,6 +1133,27 @@ Do not use markdown formatting like bolding or bullet points unless absolutely n
 
     throw lastError ??
         StateError('No AI transport available: not signed in and no API key.');
+  }
+
+  /// Ask Med AI: one answer grounded in the user's own record.
+  ///
+  /// [prompt] comes from `buildAskPrompt`, which carries the numbered facts
+  /// computed on the device; citation parsing and the emergency check live in
+  /// `core/utils/ask_med_ai.dart`, outside the model. No canned fallback on
+  /// failure — an invented answer about someone's own doses is worse than
+  /// saying the assistant is unreachable.
+  static Future<Result<String>> askAboutMyRecord(String prompt) async {
+    try {
+      final text = await _generateText(
+        prompt,
+        timeout: const Duration(seconds: 25),
+      );
+      if (text.isNotEmpty) return Success(text);
+    } catch (e) {
+      appLogger.w('[GeminiService] Ask Med AI failed: $e');
+    }
+    return const Error(ServerFailure(
+        "Couldn't reach Med AI right now. Check your connection and try again."));
   }
 
   static Future<Result<String>> askFollowUp(
@@ -1445,7 +1361,7 @@ Example: "$patientName is doing great with their morning heart medication, but s
               '[GeminiService] Protector proxy missing. Falling back to direct API for $modelName.');
           try {
             final temperature = 0.4;
-            
+
             final generationConfig = GenerationConfig(
               temperature: temperature,
               topK: 32,
@@ -1586,70 +1502,10 @@ Rules:
         }
       }
 
-      // ── Premium Simulated Fallback when both Cloud Functions and direct APIs fail ──
-      final nameLower = med.name.toLowerCase();
-      final isAspirin = nameLower.contains('aspirin');
-      final isAdvil =
-          nameLower.contains('advil') || nameLower.contains('ibuprofen');
-
-      return Success(AISafetyProfile(
-        warnings: isAspirin
-            ? [
-                'May cause stomach bleeding',
-                'Avoid in children (Reye syndrome risk)'
-              ]
-            : isAdvil
-                ? ['May cause stomach upset', 'Do not take with other NSAIDs']
-                : ['Monitor blood pressure', 'Avoid if pregnant'],
-        interactions: isAspirin
-            ? [
-                'Interacts with blood thinners like Warfarin',
-                'Avoid other NSAIDs'
-              ]
-            : isAdvil
-                ? ['Reduces efficacy of aspirin', 'Avoid taking with alcohol']
-                : ['Potassium supplements increase hyperkalemia risk'],
-        foodRules: isAspirin || isAdvil
-            ? ['Take strictly with meals or milk to protect stomach']
-            : ['Take at the same time every morning', 'Avoid grapefruit juice'],
-        ahaMoments: isAspirin
-            ? [
-                'Taking low-dose daily aspirin can reduce heart attack risk by 30%!'
-              ]
-            : isAdvil
-                ? [
-                    'Taking with milk delays absorption slightly but protects your stomach lining.'
-                  ]
-                : [
-                    'Did you know? Taking this at 8 AM matches your body\'s natural circadian rhythm for blood pressure control.'
-                  ],
-        mechanismOfAction: isAspirin
-            ? 'Blocks COX-1 and COX-2 enzymes to inhibit platelet aggregation and reduce pain/inflammation.'
-            : isAdvil
-                ? 'Reversibly inhibits cyclooxygenase enzymes to block prostaglandin synthesis, reducing swelling and pain.'
-                : 'Relaxes blood vessels by blocking ACE, reducing overall cardiovascular strain.',
-        onsetMinutes: 30,
-        peakHours: 2.0,
-        durationHours: isAspirin
-            ? 4.0
-            : isAdvil
-                ? 6.0
-                : 12.0,
-        bodySystems: isAspirin
-            ? ['hematologic', 'gastrointestinal']
-            : isAdvil
-                ? ['gastrointestinal', 'musculoskeletal']
-                : ['cardiovascular', 'renal'],
-        timelineEffects: [
-          {'time': '30 min', 'effect': 'Begins acting in bloodstream'},
-          {'time': '2 hrs', 'effect': 'Peak therapeutic effect felt'}
-        ],
-        ahaFacts: [
-          isAspirin
-              ? 'Derived originally from willow tree bark!'
-              : 'One of the most widely used over-the-counter pain relievers globally.'
-        ],
-      ));
+      return const Error(
+        ScanFailure(
+            'Unable to generate safety profile at this time. Please check your connection and try again.'),
+      );
     });
   }
 
@@ -1747,7 +1603,8 @@ Rules:
             final isSuccess = data['success'] == true;
             final confirmation =
                 data['confirmation'] as String? ?? 'Dose logged ✅';
-            if (isSuccess && (data['med_id'] != null || data['action'] == 'schedule_med')) {
+            if (isSuccess &&
+                (data['med_id'] != null || data['action'] == 'schedule_med')) {
               appLogger.i('[GeminiService] Conversational log parsed: $data');
               return Success(data);
             } else {
@@ -1773,7 +1630,9 @@ Rules:
                 final isSuccess = data['success'] == true;
                 final confirmation =
                     data['confirmation'] as String? ?? 'Dose logged ✅';
-                if (isSuccess && (data['med_id'] != null || data['action'] == 'schedule_med')) {
+                if (isSuccess &&
+                    (data['med_id'] != null ||
+                        data['action'] == 'schedule_med')) {
                   appLogger.i(
                       '[GeminiService] ConvLog direct fallback parsed: $data');
                   return Success(data);
@@ -1912,8 +1771,8 @@ Do NOT include markdown, quotes around the sentence, or any introductory text. R
         if (_apiKey.isNotEmpty) {
           try {
             final model = _getModel(modelName, apiVersion: apiVersion);
-            final response = await model.generateContent([Content.text(prompt)])
-                .timeout(const Duration(seconds: 8));
+            final response = await model.generateContent(
+                [Content.text(prompt)]).timeout(const Duration(seconds: 8));
             if (response.text != null && response.text!.isNotEmpty) {
               final text = response.text!.trim().replaceAll('"', '');
               if (text.isNotEmpty) return text;
@@ -1922,7 +1781,7 @@ Do NOT include markdown, quotes around the sentence, or any introductory text. R
         }
       }
     }
-    
+
     return ''; // Return empty so client falls back to local pool
   }
 }

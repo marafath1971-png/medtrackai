@@ -7,6 +7,7 @@ import '../../../core/constants/premium_photos.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/med_ai_logo.dart';
 import '../../../widgets/common/med_ai_mascot.dart';
+import '../../../widgets/animations/pixel_art_mascot.dart';
 import '../onboarding_theme.dart';
 import 'ob_photo_hero.dart';
 import 'ob_widgets.dart';
@@ -778,6 +779,13 @@ class ObTrialFlashInterstitial extends StatelessWidget {
                   ),
                   child: Column(
                     children: [
+                      const Center(
+                        child: PixelArtMascot(
+                          size: 76,
+                          tooltip: 'Med AI Hero Companion',
+                        ),
+                      ),
+                      const SizedBox(height: 14),
                       Text(
                         l10n.onboardingFreeTrial,
                         style: AppTypography.caption.copyWith(
@@ -800,7 +808,7 @@ class ObTrialFlashInterstitial extends StatelessWidget {
                           children: const [
                             TextSpan(text: 'Start '),
                             TextSpan(
-                              text: '7',
+                              text: '2',
                               style: TextStyle(color: AppColors.limeDeep),
                             ),
                             TextSpan(text: ' days\nfor free'),

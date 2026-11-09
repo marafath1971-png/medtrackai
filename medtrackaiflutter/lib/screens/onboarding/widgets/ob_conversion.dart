@@ -303,7 +303,7 @@ class ObTrialTerms extends StatelessWidget {
     super.key,
     required this.price,
     required this.period,
-    this.trialDays = 7,
+    this.trialDays = 2,
   });
 
   @override

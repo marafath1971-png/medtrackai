@@ -23,6 +23,7 @@ import 'widgets/ob_unique_widgets.dart';
 import 'onboarding_l10n.dart';
 import '../../l10n/app_localizations.dart';
 import '../steps/widgets/step_ring.dart';
+import '../../widgets/animations/pixel_art_mascot.dart';
 
 /// Lightweight option descriptor for question steps.
 class _Opt {
@@ -1581,6 +1582,13 @@ class _WelcomeScreen extends StatelessWidget {
                     ),
                   ),
                   const Spacer(),
+                  const Center(
+                    child: PixelArtMascot(
+                      size: 68,
+                      tooltip: 'Med AI Hero Companion',
+                    ),
+                  ),
+                  const SizedBox(height: 14),
                   ObHeadline(
                     name == null ? 'Welcome to *Med AI*' : 'Welcome, *$name*',
                     subtitle:

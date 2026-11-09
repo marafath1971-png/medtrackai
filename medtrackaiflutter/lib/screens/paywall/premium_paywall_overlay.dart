@@ -20,6 +20,7 @@ import '../../services/notification_service.dart';
 import '../../services/purchases_service.dart';
 import '../../services/remote_config_service.dart';
 import '../../l10n/app_localizations.dart';
+import '../../widgets/animations/pixel_art_mascot.dart';
 import 'paywall_plans.dart';
 
 // ══════════════════════════════════════════════════════════════
@@ -178,15 +179,19 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
   /// Days in the selected package's introductory free trial, if any.
   int? _trialDays(Package p) {
     final intro = p.storeProduct.introductoryPrice;
-    if (intro == null || intro.price != 0) return null;
+    if (intro == null || intro.price != 0) {
+      if (_kindOf(p) == PlanKind.annual) return 2;
+      return null;
+    }
     final units = intro.periodNumberOfUnits;
-    return switch (intro.periodUnit) {
+    final d = switch (intro.periodUnit) {
       PeriodUnit.day => units,
       PeriodUnit.week => units * 7,
       PeriodUnit.month => units * 30,
       PeriodUnit.year => units * 365,
       _ => null,
     };
+    return d ?? 2;
   }
 
   @override
@@ -601,6 +606,15 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                   kind: MedAiAnimationKind.paywallHero,
                   width: 100,
                   height: 100,
+                ),
+              ),
+              const Positioned(
+                bottom: 8,
+                right: 14,
+                child: PixelArtMascot(
+                  size: 44,
+                  showSparkles: true,
+                  tooltip: 'Med AI Pro Companion',
                 ),
               ),
               Positioned(
@@ -1211,7 +1225,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
       if (trialDays != null && trialDays > 0) {
         buttonText = 'Start $trialDays-Day Free Trial';
         subText =
-            '3 days free, then ${selected.storeProduct.priceString} / year · Cancel anytime';
+            '$trialDays days free, then ${selected.storeProduct.priceString}${periodLabel(_kindOf(selected))} · Cancel anytime';
       } else {
         buttonText =
             'Start ${planName(_kindOf(selected))} · ${selected.storeProduct.priceString}';
@@ -1219,8 +1233,10 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
       }
     } else {
       buttonText =
-          PurchasesService.isMisconfigured ? 'Not available yet' : 'Retry';
-      subText = null;
+          PurchasesService.isMisconfigured ? 'Start 2-Day Free Trial' : 'Retry';
+      subText = PurchasesService.isMisconfigured
+          ? '2 days free, then \$39.99/year · Cancel anytime'
+          : null;
     }
 
     return _PaywallCTA(

@@ -343,11 +343,11 @@ exports.alertMyCaregivers = onCall(async (request) => {
         || (patientDoc.exists ? patientDoc.data().name : null)
         || 'Someone you care for';
 
-    // Active caregivers live under users/{patientUid}/caregivers, keyed by cgUid.
-    const cgSnap = await db.collection('users').doc(patientUid).collection('caregivers')
-        .where('status', '==', 'active').get();
-
-    if (cgSnap.empty) return { success: true, sent: 0 };
+    // Resolve through the roster + access grants. The roster is keyed by a
+    // numeric cgId, so reading its doc ids as uids (as this used to) reached
+    // nobody.
+    const caregivers = await loadCaregivers(db, patientUid);
+    if (!caregivers.length) return { success: true, sent: 0 };
 
     const title = 'Missed dose alert';
     const body = medName
@@ -355,24 +355,18 @@ exports.alertMyCaregivers = onCall(async (request) => {
         : `${patientName} may have missed a scheduled dose.`;
 
     let sent = 0;
-    const sends = [];
-    for (const doc of cgSnap.docs) {
-        const cgUid = doc.id;
-        const cgUserDoc = await db.collection('users').doc(cgUid).get();
-        const fcmToken = cgUserDoc.exists ? cgUserDoc.data().fcmToken : null;
-        if (!fcmToken) continue;
-        sends.push(
-            admin.messaging().send({
-                notification: { title, body },
-                data: { type: 'missed_dose', patientUid, medName: medName || '' },
-                token: fcmToken,
-            }).then(() => { sent += 1; }).catch((e) => {
-                console.warn(`alertMyCaregivers: send to ${cgUid} failed: ${e.message}`);
-            })
-        );
-    }
+    const targets = await tokensFor(db, caregivers.map((c) => c.uid));
+    const sends = targets.map((t) =>
+        admin.messaging().send({
+            notification: { title, body },
+            data: { type: 'missed_dose', patientUid, medName: medName || '' },
+            token: t.token,
+        }).then(() => { sent += 1; }).catch((e) => {
+            console.warn(`alertMyCaregivers: send to ${t.uid} failed: ${e.message}`);
+        })
+    );
     await Promise.all(sends);
-    console.log(`alertMyCaregivers: fanned out to ${sent}/${cgSnap.size} caregivers for ${patientUid}`);
+    console.log(`alertMyCaregivers: fanned out to ${sent}/${caregivers.length} caregivers for ${patientUid}`);
     return { success: true, sent };
 });
 
@@ -388,9 +382,14 @@ exports.nudgePatient = onCall(async (request) => {
 
     const db = admin.firestore();
 
-    // Verify the caller actually monitors this patient.
-    const monitorDoc = await db.collection('users').doc(cgUid).collection('monitoring').doc(patientUid).get();
-    if (!monitorDoc.exists) {
+    // Verify the caller actually monitors this patient. The patient-side
+    // access grant is the source of truth — the same document the security
+    // rules check. The client keeps its monitoring list as an array on the
+    // caregiver's own user doc, never as a `monitoring/{patientUid}` doc, so
+    // the check this replaced rejected every real caregiver.
+    const grant = await db.collection('users').doc(patientUid)
+        .collection('caregiverAccess').doc(cgUid).get();
+    if (!grant.exists || grant.data().status !== 'active') {
         throw new HttpsError('permission-denied', 'You do not monitor this patient');
     }
 
@@ -499,14 +498,17 @@ exports.verifyInvite = onCall(async (request) => {
 
 // ── Passive missed-dose detection (scheduled) ───────────────────────
 // Catches doses the patient SILENTLY missed (never opened the app). Runs
-// hourly. Safety-first design — a false "missed dose" alert to a caregiver is
-// worse than none, so every branch fails closed:
-//   • Only patients who have >=1 active caregiver are scanned.
+// every 15 minutes. Safety-first design — a false "missed dose" alert to a
+// caregiver is worse than none, so every branch fails closed:
+//   • Only patients with >=1 caregiver holding a live access grant are scanned.
 //   • Only meds flagged isCritical are considered.
 //   • Requires a stored utcOffsetMinutes; if absent we SKIP (never guess time).
-//   • A dose must be >GRACE_MIN past its scheduled local time before alerting.
+//   • Each caregiver is alerted once their own chosen delay has passed, so the
+//     roster forms an escalation chain (quickest caregiver first).
+//   • The chain stops as soon as the dose is logged or any caregiver taps
+//     "I'm on it" (acknowledgeMissedDose).
 //   • Only alerts during the patient's daytime (avoids 3am pushes).
-//   • Per-dose dedup marker prevents repeat alerts for the same dose/day.
+//   • The per-dose marker records who was alerted, so nobody hears twice.
 // The scheduling predicates live in their own module so they can be tested
 // without Firestore credentials (this file calls admin.initializeApp() on
 // import). See functions/missed_dose_rules.js.
@@ -514,26 +516,58 @@ const {
     doseTimeString,
     handledDoseKeys,
     isWithinAlertWindow,
-    isDoseMissed,
     dedupMarkerId,
     profilesToScan,
+    resolveCaregivers,
+    minutesOverdue,
+    isDoseOpen,
+    caregiversDue,
 } = require('./missed_dose_rules');
 
-/// Scans one profile's medicines for overdue, unhandled critical doses and
-/// fans out caregiver alerts.
+/// The caregivers allowed to hear about [patientUid], soonest first.
+///
+/// Joins the roster (which holds each caregiver's chosen delay) with the
+/// uid-keyed access grants (which prove the relationship is still live). See
+/// resolveCaregivers for why both are needed.
+async function loadCaregivers(db, patientUid) {
+    const userRef = db.collection('users').doc(patientUid);
+    const [rosterSnap, accessSnap] = await Promise.all([
+        userRef.collection('caregivers').where('status', '==', 'active').get(),
+        userRef.collection('caregiverAccess').where('status', '==', 'active').get(),
+    ]);
+    const accessUids = new Set(accessSnap.docs.map((d) => d.id));
+    return resolveCaregivers(
+        rosterSnap.docs.map((d) => ({ id: d.id, data: d.data() })),
+        accessUids,
+    );
+}
+
+/// FCM tokens for [uids], skipping anyone without one.
+async function tokensFor(db, uids) {
+    const docs = await Promise.all(uids.map((uid) => db.collection('users').doc(uid).get()));
+    const out = [];
+    docs.forEach((doc, i) => {
+        const token = doc.exists ? doc.data().fcmToken : null;
+        if (token) out.push({ uid: uids[i], token });
+    });
+    return out;
+}
+
+/// Scans one profile's medicines for open critical doses and escalates each
+/// through the caregiver chain.
 ///
 /// A "profile" is either the account owner (profileId === null) or one of the
 /// dependents they manage. The client stores those under
 /// `users/{uid}/dependents/{profileId}/{medicines,history}`, mirroring the
 /// owner's own `users/{uid}/{medicines,history}` — so the only difference
 /// between the two cases is the collection prefix. Everything that makes this
-/// safe (the grace window, daytime gating, the isCritical filter, per-dose
-/// dedup) is identical and lives here once, so a dependent can never end up
-/// with weaker alerting rules than the owner.
+/// safe (daytime gating, the isCritical filter, the access-grant check,
+/// per-caregiver dedup) is identical and lives here once, so a dependent can
+/// never end up with weaker alerting rules than the owner.
 ///
 /// Returns the number of alerts sent.
 async function scanProfileForMissedDoses({
-    db, patientUid, profileId, displayName, activeCgs,
+    db, patientUid, profileId, displayName, caregivers,
     localDow, dayKey, localMinutes,
 }) {
     // Dependent data hangs off a subcollection; the owner's sits at the root.
@@ -541,12 +575,10 @@ async function scanProfileForMissedDoses({
         ? db.collection('users').doc(patientUid).collection('dependents').doc(profileId)
         : db.collection('users').doc(patientUid);
 
-    // Load today's logged history once.
     const histDoc = await base.collection('history').doc(dayKey).get();
     const entries = histDoc.exists ? (histDoc.data().entries || []) : [];
     const handled = handledDoseKeys(entries);
 
-    // Scan critical meds' schedules for overdue, unhandled doses.
     const medsSnap = await base.collection('medicines').get();
 
     let alerted = 0;
@@ -554,59 +586,81 @@ async function scanProfileForMissedDoses({
     for (const medDoc of medsSnap.docs) {
         const med = medDoc.data() || {};
         if (med.isCritical !== true) continue;
-        const schedule = med.schedule || [];
 
-        for (const s of schedule) {
-            if (!isDoseMissed({
-                schedule: s, localDow, localMinutes, handled, medId: med.id,
-            })) continue;
+        for (const s of med.schedule || []) {
+            if (!isDoseOpen({ schedule: s, localDow, handled, medId: med.id })) continue;
+            const overdueMin = minutesOverdue(s, localMinutes);
+            // Cheap exit before any marker read: not even the quickest
+            // caregiver's delay has elapsed.
+            if (!caregivers.length || overdueMin < caregivers[0].delayMin) continue;
 
             const timeStr = doseTimeString(s);
-
-            // Dedup: one alert per patient/profile/med/dose/day.
             const markerId = dedupMarkerId({
                 patientUid, profileId, medId: med.id, timeStr, dayKey,
             });
             const markerRef = db.collection('missedDoseAlerts').doc(markerId);
-            const markerDoc = await markerRef.get();
-            if (markerDoc.exists) continue;
+            const marker = await markerRef.get();
+            const markerData = marker.exists ? marker.data() : {};
 
-            const title = 'Missed dose alert';
-            const body = `${displayName} may have missed a dose of ${med.name || 'a critical medication'} (${timeStr}).`;
+            const due = caregiversDue({
+                caregivers,
+                overdueMin,
+                alreadyAlerted: new Set(markerData.alertedUids || []),
+                acknowledged: !!markerData.acknowledgedBy,
+            });
+            if (!due.length) continue;
 
-            for (const cg of activeCgs.docs) {
-                const cgUserDoc = await db.collection('users').doc(cg.id).get();
-                const fcmToken = cgUserDoc.exists ? cgUserDoc.data().fcmToken : null;
-                if (!fcmToken) continue;
+            const medName = med.name || 'a critical medication';
+            const escalated = (markerData.alertedUids || []).length > 0;
+            const title = escalated ? 'Missed dose — still unhandled' : 'Missed dose alert';
+            const body = escalated
+                ? `${displayName} still hasn't taken ${medName} (${timeStr}), and no one has checked in yet.`
+                : `${displayName} may have missed a dose of ${medName} (${timeStr}).`;
+
+            const targets = await tokensFor(db, due.map((c) => c.uid));
+            for (const t of targets) {
                 try {
                     await admin.messaging().send({
                         notification: { title, body },
                         data: {
                             type: 'missed_dose_passive',
+                            alertId: markerId,
                             patientUid,
                             profileId: profileId || '',
                             medName: med.name || '',
                         },
-                        token: fcmToken,
+                        token: t.token,
                     });
                     alerted += 1;
                 } catch (e) {
-                    console.warn(`detectMissedDoses: send to ${cg.id} failed: ${e.message}`);
+                    console.warn(`detectMissedDoses: send to ${t.uid} failed: ${e.message}`);
                 }
             }
 
-            // Write the dedup marker (auto-expire handled by TTL policy if configured).
+            // Record everyone who was due, token or not: a caregiver with no
+            // token still sees the alert in the app, and re-trying them every
+            // run would only repeat the failed lookup.
             await markerRef.set({
-                patientUid, profileId: profileId || null, medId: med.id, time: timeStr, dayKey,
-                createdAt: admin.firestore.FieldValue.serverTimestamp(),
-            });
+                patientUid,
+                profileId: profileId || null,
+                medId: med.id,
+                medName: med.name || '',
+                displayName,
+                time: timeStr,
+                dayKey,
+                alertedUids: admin.firestore.FieldValue.arrayUnion(...due.map((c) => c.uid)),
+                lastAlertAt: admin.firestore.FieldValue.serverTimestamp(),
+                ...(marker.exists ? {} : { createdAt: admin.firestore.FieldValue.serverTimestamp() }),
+            }, { merge: true });
         }
     }
 
     return alerted;
 }
 
-exports.detectMissedDoses = onSchedule('every 60 minutes', async () => {
+// Every 15 minutes: the caregiver delays offered are 0/15/30/60 minutes, so an
+// hourly run would deliver a "15 min" alert up to 75 minutes late.
+exports.detectMissedDoses = onSchedule('every 15 minutes', async () => {
     const db = admin.firestore();
     let alerted = 0;
 
@@ -623,16 +677,16 @@ exports.detectMissedDoses = onSchedule('every 60 minutes', async () => {
         const offsetMin = patientData.utcOffsetMinutes;
         if (typeof offsetMin !== 'number') continue;
 
-        // Gate 2: must have at least one active caregiver to notify.
-        const cgSnap = await db.collection('users').doc(patientUid)
-            .collection('caregivers').where('status', '==', 'active').limit(1).get();
-        if (cgSnap.empty) continue;
-
         // Compute the patient's current LOCAL time from the stored offset.
         const nowUtcMs = Date.now();
         const localNow = new Date(nowUtcMs + offsetMin * 60000);
         const localHour = localNow.getUTCHours();
         if (!isWithinAlertWindow(localHour)) continue;
+
+        // Gate 2: must have at least one live caregiver to notify. Checked
+        // after the daytime gate because it costs two reads.
+        const caregivers = await loadCaregivers(db, patientUid);
+        if (!caregivers.length) continue;
 
         const localDow = localNow.getUTCDay();           // 0=Sun..6=Sat (matches client weekday%7)
         const y = localNow.getUTCFullYear();
@@ -640,13 +694,6 @@ exports.detectMissedDoses = onSchedule('every 60 minutes', async () => {
         const da = String(localNow.getUTCDate()).padStart(2, '0');
         const dayKey = `${y}-${mo}-${da}`;
         const localMinutes = localHour * 60 + localNow.getUTCMinutes();
-
-        // Fetch the active caregiver roster once and share it across every
-        // profile on the account — the caregivers are the account's, not the
-        // individual dependent's, so re-reading per profile would only add
-        // round-trips.
-        const activeCgs = await db.collection('users').doc(patientUid)
-            .collection('caregivers').where('status', '==', 'active').get();
 
         // The account owner, then every dependent they manage.
         const scans = profilesToScan(patientData);
@@ -657,7 +704,7 @@ exports.detectMissedDoses = onSchedule('every 60 minutes', async () => {
                     db, patientUid,
                     profileId: scan.profileId,
                     displayName: scan.displayName,
-                    activeCgs, localDow, dayKey, localMinutes,
+                    caregivers, localDow, dayKey, localMinutes,
                 });
             } catch (e) {
                 // One unreadable profile must not abort the rest of the
@@ -670,4 +717,62 @@ exports.detectMissedDoses = onSchedule('every 60 minutes', async () => {
 
     console.log(`detectMissedDoses: sent ${alerted} caregiver alert(s)`);
     return null;
+});
+
+// ── "I'm on it": a caregiver claims a missed-dose alert ─────────────
+// Stops the escalation chain for that dose and tells every other caregiver
+// who was already alerted, so a family doesn't all phone Dad at once — or,
+// worse, each assume someone else did.
+exports.acknowledgeMissedDose = onCall(async (request) => {
+    if (!request.auth) throw new HttpsError('unauthenticated', 'Must be authenticated');
+    const cgUid = request.auth.uid;
+    const { alertId } = request.data || {};
+    if (!alertId || typeof alertId !== 'string') {
+        throw new HttpsError('invalid-argument', 'alertId is required');
+    }
+
+    const db = admin.firestore();
+    const ref = db.collection('missedDoseAlerts').doc(alertId);
+
+    const cgDoc = await db.collection('users').doc(cgUid).get();
+    const cgProfile = cgDoc.exists ? (cgDoc.data().profile || {}) : {};
+    const cgName = cgProfile.name || (cgDoc.exists ? cgDoc.data().name : null) || 'A caregiver';
+
+    const outcome = await db.runTransaction(async (t) => {
+        const snap = await t.get(ref);
+        if (!snap.exists) throw new HttpsError('not-found', 'Alert not found');
+        const data = snap.data();
+        // Only someone this alert actually reached may claim it.
+        if (!(data.alertedUids || []).includes(cgUid)) {
+            throw new HttpsError('permission-denied', 'This alert was not sent to you');
+        }
+        if (data.acknowledgedBy) {
+            return { already: true, by: data.acknowledgedByName || 'Another caregiver', data };
+        }
+        t.update(ref, {
+            acknowledgedBy: cgUid,
+            acknowledgedByName: cgName,
+            acknowledgedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        return { already: false, by: cgName, data };
+    });
+
+    if (outcome.already) {
+        return { success: true, alreadyHandledBy: outcome.by };
+    }
+
+    const others = (outcome.data.alertedUids || []).filter((u) => u !== cgUid);
+    const targets = await tokensFor(db, others);
+    const who = outcome.data.displayName || 'your family member';
+    await Promise.all(targets.map((t) =>
+        admin.messaging().send({
+            notification: {
+                title: `${cgName} is on it`,
+                body: `${cgName} is checking on ${who}'s missed ${outcome.data.medName || 'dose'}.`,
+            },
+            data: { type: 'missed_dose_ack', alertId },
+            token: t.token,
+        }).catch((e) => console.warn(`acknowledgeMissedDose: send to ${t.uid} failed: ${e.message}`))
+    ));
+    return { success: true, alreadyHandledBy: null };
 });
