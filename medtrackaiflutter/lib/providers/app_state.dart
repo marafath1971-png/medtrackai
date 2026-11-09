@@ -787,6 +787,9 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   void setPendingOnboardingProfile(UserProfile p) =>
       auth.setPendingOnboardingProfile(p);
 
+  /// True when the user just finished onboarding and is now saving their account.
+  bool get hasPendingOnboardingProfile => auth.hasPendingOnboardingProfile;
+
   /// Enter the app after a successful sign-in — persists the new-user profile
   /// or resumes a returning user's, then advances to [AppPhase.app].
   Future<void> enterAppAfterAuth() async {

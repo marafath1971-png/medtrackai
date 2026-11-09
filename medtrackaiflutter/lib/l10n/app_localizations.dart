@@ -3567,7 +3567,7 @@ abstract class AppLocalizations {
   /// No description provided for @onboardingHowMedAiHelpsYouNstay.
   ///
   /// In en, this message translates to:
-  /// **'How Med AI helps you\\nstay on track'**
+  /// **'How Med AI helps you\nstay on track'**
   String get onboardingHowMedAiHelpsYouNstay;
 
   /// No description provided for @onboardingThreeQuietMovesOneCalmRoutine.
@@ -4767,7 +4767,7 @@ abstract class AppLocalizations {
   /// No description provided for @commonThisSectionFailedToLoadNtap.
   ///
   /// In en, this message translates to:
-  /// **'This section failed to load.\\nTap Resume on the recovery screen.'**
+  /// **'This section failed to load.\nTap Resume on the recovery screen.'**
   String get commonThisSectionFailedToLoadNtap;
 
   /// No description provided for @commonSomethingWentWrong.
@@ -5589,7 +5589,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsNsecurePrivateGdprCompliant.
   ///
   /// In en, this message translates to:
-  /// **'{kAppName}\\nSecure · Private · GDPR Compliant'**
+  /// **'{kAppName}\nSecure · Private · GDPR Compliant'**
   String settingsNsecurePrivateGdprCompliant(Object kAppName);
 
   /// No description provided for @settingsViewFullTermsOnlineAt.
@@ -5601,7 +5601,7 @@ abstract class AppLocalizations {
   /// No description provided for @settingsNsecurePrivateTransparent.
   ///
   /// In en, this message translates to:
-  /// **'{kAppName}\\nSecure · Private · Transparent'**
+  /// **'{kAppName}\nSecure · Private · Transparent'**
   String settingsNsecurePrivateTransparent(Object kAppName);
 
   /// No description provided for @settingsTypeToConfirm.
@@ -5844,6 +5844,612 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'We don\'t have pharmacokinetic data for this medicine, so there\'s no absorption timeline to show.'**
   String get biohackingNoTimelineDataBody;
+
+  /// No description provided for @stepsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Steps'**
+  String get stepsTitle;
+
+  /// No description provided for @stepsShare.
+  ///
+  /// In en, this message translates to:
+  /// **'Share today\'s steps'**
+  String get stepsShare;
+
+  /// No description provided for @stepsShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'I\'ve walked {count} steps today with MedAI.'**
+  String stepsShareText(String count);
+
+  /// No description provided for @stepsSourceApple.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Health'**
+  String get stepsSourceApple;
+
+  /// No description provided for @stepsSourceAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Health Connect'**
+  String get stepsSourceAndroid;
+
+  /// No description provided for @stepsOfGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'of {goal} steps'**
+  String stepsOfGoal(String goal);
+
+  /// No description provided for @stepsToGo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} to go · about {minutes} min of walking'**
+  String stepsToGo(String count, int minutes);
+
+  /// No description provided for @stepsGoalReached.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached'**
+  String get stepsGoalReached;
+
+  /// No description provided for @stepsGoalBeaten.
+  ///
+  /// In en, this message translates to:
+  /// **'Goal reached · {count} past it'**
+  String stepsGoalBeaten(String count);
+
+  /// No description provided for @stepsEditGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'Change goal'**
+  String get stepsEditGoal;
+
+  /// No description provided for @stepsDistance.
+  ///
+  /// In en, this message translates to:
+  /// **'Distance'**
+  String get stepsDistance;
+
+  /// No description provided for @stepsDistanceValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{km} km'**
+  String stepsDistanceValue(String km);
+
+  /// No description provided for @stepsEnergy.
+  ///
+  /// In en, this message translates to:
+  /// **'Energy'**
+  String get stepsEnergy;
+
+  /// No description provided for @stepsEnergyValue.
+  ///
+  /// In en, this message translates to:
+  /// **'{kcal} kcal'**
+  String stepsEnergyValue(String kcal);
+
+  /// No description provided for @stepsActiveHours.
+  ///
+  /// In en, this message translates to:
+  /// **'Active hours'**
+  String get stepsActiveHours;
+
+  /// No description provided for @stepsEstimateNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Steps come from {source}. Distance and energy are estimates worked out from your steps.'**
+  String stepsEstimateNote(String source);
+
+  /// No description provided for @stepsThisWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'This week'**
+  String get stepsThisWeek;
+
+  /// No description provided for @stepsWeekAverage.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} a day on average'**
+  String stepsWeekAverage(String count);
+
+  /// No description provided for @stepsDayDetail.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}: {count} steps'**
+  String stepsDayDetail(String day, String count);
+
+  /// No description provided for @stepsDayDetailDuo.
+  ///
+  /// In en, this message translates to:
+  /// **'{day}: you {mine} · {name} {theirs}'**
+  String stepsDayDetailDuo(String day, String mine, String name, String theirs);
+
+  /// No description provided for @stepsStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1-day goal streak} other{{count}-day goal streak}}'**
+  String stepsStreak(int count);
+
+  /// No description provided for @stepsBestDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Best day: {count}'**
+  String stepsBestDay(String count);
+
+  /// No description provided for @stepsTodayByHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Today by hour'**
+  String get stepsTodayByHour;
+
+  /// No description provided for @stepsNoHourlyYet.
+  ///
+  /// In en, this message translates to:
+  /// **'Your hours fill in as you move.'**
+  String get stepsNoHourlyYet;
+
+  /// No description provided for @stepsPeakHour.
+  ///
+  /// In en, this message translates to:
+  /// **'Most active around {time}'**
+  String stepsPeakHour(String time);
+
+  /// No description provided for @stepsBadges.
+  ///
+  /// In en, this message translates to:
+  /// **'Milestones'**
+  String get stepsBadges;
+
+  /// No description provided for @stepsBadgesEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'{earned} of {total} earned'**
+  String stepsBadgesEarned(int earned, int total);
+
+  /// No description provided for @stepsBadgeEarned.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, earned'**
+  String stepsBadgeEarned(String name);
+
+  /// No description provided for @stepsBadgeLocked.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}, not earned yet'**
+  String stepsBadgeLocked(String name);
+
+  /// No description provided for @stepsBadgeFirstGoal.
+  ///
+  /// In en, this message translates to:
+  /// **'First goal'**
+  String get stepsBadgeFirstGoal;
+
+  /// No description provided for @stepsBadgeTenK.
+  ///
+  /// In en, this message translates to:
+  /// **'10K day'**
+  String get stepsBadgeTenK;
+
+  /// No description provided for @stepsBadgeStreak3.
+  ///
+  /// In en, this message translates to:
+  /// **'3 days running'**
+  String get stepsBadgeStreak3;
+
+  /// No description provided for @stepsBadgeStreak7.
+  ///
+  /// In en, this message translates to:
+  /// **'7 days running'**
+  String get stepsBadgeStreak7;
+
+  /// No description provided for @stepsBadgeMarathonWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'Marathon week'**
+  String get stepsBadgeMarathonWeek;
+
+  /// No description provided for @stepsBadgeDuoDay.
+  ///
+  /// In en, this message translates to:
+  /// **'Both hit it'**
+  String get stepsBadgeDuoDay;
+
+  /// No description provided for @stepsBadgeDuoStreak3.
+  ///
+  /// In en, this message translates to:
+  /// **'3 days together'**
+  String get stepsBadgeDuoStreak3;
+
+  /// No description provided for @stepsIntroTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Count every step'**
+  String get stepsIntroTitle;
+
+  /// No description provided for @stepsIntroBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on step counting to see your day, set a goal, and walk it with someone.'**
+  String get stepsIntroBody;
+
+  /// No description provided for @stepsIntroBullet1.
+  ///
+  /// In en, this message translates to:
+  /// **'A daily goal and a ring that fills as you move'**
+  String get stepsIntroBullet1;
+
+  /// No description provided for @stepsIntroBullet2.
+  ///
+  /// In en, this message translates to:
+  /// **'Your week, your busiest hours, your streak'**
+  String get stepsIntroBullet2;
+
+  /// No description provided for @stepsIntroBullet3.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair with a partner and count together'**
+  String get stepsIntroBullet3;
+
+  /// No description provided for @stepsTurnOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Turn on step counting'**
+  String get stepsTurnOn;
+
+  /// No description provided for @stepsInstallHealthConnect.
+  ///
+  /// In en, this message translates to:
+  /// **'Set up Health Connect'**
+  String get stepsInstallHealthConnect;
+
+  /// No description provided for @stepsNeedsInstallBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Step counting on Android runs through Health Connect. Install or update it, then come back.'**
+  String get stepsNeedsInstallBody;
+
+  /// No description provided for @stepsUnavailable.
+  ///
+  /// In en, this message translates to:
+  /// **'This device has no step source MedAI can read.'**
+  String get stepsUnavailable;
+
+  /// No description provided for @stepsDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Step access wasn\'t granted. You can allow it in {source}.'**
+  String stepsDenied(String source);
+
+  /// No description provided for @stepsZeroHintIos.
+  ///
+  /// In en, this message translates to:
+  /// **'Seeing 0? Open the Health app, then Sharing, Apps, MedAI, and allow Steps.'**
+  String get stepsZeroHintIos;
+
+  /// No description provided for @stepsZeroHintAndroid.
+  ///
+  /// In en, this message translates to:
+  /// **'Seeing 0? Check that your phone or watch is saving steps to Health Connect.'**
+  String get stepsZeroHintAndroid;
+
+  /// No description provided for @stepsTogetherTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Walk together'**
+  String get stepsTogetherTitle;
+
+  /// No description provided for @stepsTogetherEmptyBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair with one person. You\'ll each see the other\'s daily steps and chase a shared goal.'**
+  String get stepsTogetherEmptyBody;
+
+  /// No description provided for @stepsSignInToPair.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to pair with a partner.'**
+  String get stepsSignInToPair;
+
+  /// No description provided for @stepsInvitePartner.
+  ///
+  /// In en, this message translates to:
+  /// **'Invite a partner'**
+  String get stepsInvitePartner;
+
+  /// No description provided for @stepsEnterCode.
+  ///
+  /// In en, this message translates to:
+  /// **'I have a code'**
+  String get stepsEnterCode;
+
+  /// No description provided for @stepsYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You'**
+  String get stepsYou;
+
+  /// No description provided for @stepsPartnerFallbackName.
+  ///
+  /// In en, this message translates to:
+  /// **'Your partner'**
+  String get stepsPartnerFallbackName;
+
+  /// No description provided for @stepsTogetherProgress.
+  ///
+  /// In en, this message translates to:
+  /// **'{total} of {goal} together'**
+  String stepsTogetherProgress(String total, String goal);
+
+  /// No description provided for @stepsLeadYou.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re {count} ahead of {name}'**
+  String stepsLeadYou(String count, String name);
+
+  /// No description provided for @stepsLeadPartner.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is {count} ahead'**
+  String stepsLeadPartner(String name, String count);
+
+  /// No description provided for @stepsLeadTied.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re neck and neck'**
+  String get stepsLeadTied;
+
+  /// No description provided for @stepsPartnerNotSynced.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} hasn\'t synced today yet'**
+  String stepsPartnerNotSynced(String name);
+
+  /// No description provided for @stepsDuoStreak.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 day you both hit your goals} other{{count} days in a row you both hit your goals}}'**
+  String stepsDuoStreak(int count);
+
+  /// No description provided for @stepsWeekWins.
+  ///
+  /// In en, this message translates to:
+  /// **'Days won this week: you {mine} · {name} {theirs}'**
+  String stepsWeekWins(int mine, String name, int theirs);
+
+  /// No description provided for @stepsCheer.
+  ///
+  /// In en, this message translates to:
+  /// **'Cheer'**
+  String get stepsCheer;
+
+  /// No description provided for @stepsNudge.
+  ///
+  /// In en, this message translates to:
+  /// **'Nudge'**
+  String get stepsNudge;
+
+  /// No description provided for @stepsCheerSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Cheer sent to {name}'**
+  String stepsCheerSent(String name);
+
+  /// No description provided for @stepsNudgeSent.
+  ///
+  /// In en, this message translates to:
+  /// **'Nudge sent to {name}'**
+  String stepsNudgeSent(String name);
+
+  /// No description provided for @stepsCheerFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t send that. Try again in a moment.'**
+  String get stepsCheerFailed;
+
+  /// No description provided for @stepsCheerReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is cheering you on 👏'**
+  String stepsCheerReceived(String name);
+
+  /// No description provided for @stepsNudgeReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} says it\'s time for a walk 👟'**
+  String stepsNudgeReceived(String name);
+
+  /// No description provided for @stepsUnpair.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop sharing'**
+  String get stepsUnpair;
+
+  /// No description provided for @stepsKeepSharing.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep sharing'**
+  String get stepsKeepSharing;
+
+  /// No description provided for @stepsUnpairConfirmTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Stop walking with {name}?'**
+  String stepsUnpairConfirmTitle(String name);
+
+  /// No description provided for @stepsUnpairConfirmBody.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'ll both stop seeing each other\'s steps.'**
+  String get stepsUnpairConfirmBody;
+
+  /// No description provided for @stepsUnpairFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t stop sharing. Check your connection and try again.'**
+  String get stepsUnpairFailed;
+
+  /// No description provided for @stepsInviteTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Your partner code'**
+  String get stepsInviteTitle;
+
+  /// No description provided for @stepsInviteBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Share this code with one person. It works once and expires in 24 hours.'**
+  String get stepsInviteBody;
+
+  /// No description provided for @stepsInviteFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t create a code. Check your connection and try again.'**
+  String get stepsInviteFailed;
+
+  /// No description provided for @stepsTryAgain.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get stepsTryAgain;
+
+  /// No description provided for @stepsTapToCopy.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to copy'**
+  String get stepsTapToCopy;
+
+  /// No description provided for @stepsCopied.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied'**
+  String get stepsCopied;
+
+  /// No description provided for @stepsShareCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Share code'**
+  String get stepsShareCode;
+
+  /// No description provided for @stepsInviteShareText.
+  ///
+  /// In en, this message translates to:
+  /// **'Walk with me on MedAI! Open Steps, tap \"I have a code\" under Walk together, and enter {code}.'**
+  String stepsInviteShareText(String code);
+
+  /// No description provided for @stepsJoinTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter partner code'**
+  String get stepsJoinTitle;
+
+  /// No description provided for @stepsJoinBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask your partner for the 6-character code from their Steps screen.'**
+  String get stepsJoinBody;
+
+  /// No description provided for @stepsJoinHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Code'**
+  String get stepsJoinHint;
+
+  /// No description provided for @stepsJoinCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Pair up'**
+  String get stepsJoinCta;
+
+  /// No description provided for @stepsJoinNotFound.
+  ///
+  /// In en, this message translates to:
+  /// **'That code isn\'t valid or has expired.'**
+  String get stepsJoinNotFound;
+
+  /// No description provided for @stepsJoinOwnCode.
+  ///
+  /// In en, this message translates to:
+  /// **'That\'s your own code. Send it to your partner instead.'**
+  String get stepsJoinOwnCode;
+
+  /// No description provided for @stepsJoinFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn\'t pair right now. Try again.'**
+  String get stepsJoinFailed;
+
+  /// No description provided for @stepsJoined.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re paired. Happy walking!'**
+  String get stepsJoined;
+
+  /// No description provided for @stepsGoalTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily step goal'**
+  String get stepsGoalTitle;
+
+  /// No description provided for @stepsGoalBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Pick a number you can hit most days.'**
+  String get stepsGoalBody;
+
+  /// No description provided for @stepsGoalStepsPerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'steps a day'**
+  String get stepsGoalStepsPerDay;
+
+  /// No description provided for @stepsGoalLower.
+  ///
+  /// In en, this message translates to:
+  /// **'Lower goal'**
+  String get stepsGoalLower;
+
+  /// No description provided for @stepsGoalRaise.
+  ///
+  /// In en, this message translates to:
+  /// **'Raise goal'**
+  String get stepsGoalRaise;
+
+  /// No description provided for @stepsGoalSave.
+  ///
+  /// In en, this message translates to:
+  /// **'Save goal'**
+  String get stepsGoalSave;
+
+  /// No description provided for @stepsHomeCta.
+  ///
+  /// In en, this message translates to:
+  /// **'Count your steps'**
+  String get stepsHomeCta;
+
+  /// No description provided for @stepsHomeCtaBody.
+  ///
+  /// In en, this message translates to:
+  /// **'Set a goal and walk it with a partner'**
+  String get stepsHomeCtaBody;
+
+  /// No description provided for @stepsHomeCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} steps'**
+  String stepsHomeCount(String count);
+
+  /// No description provided for @stepsHomeToGo.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} to go today'**
+  String stepsHomeToGo(String count);
+
+  /// No description provided for @stepsHomeWith.
+  ///
+  /// In en, this message translates to:
+  /// **'{name}: {count}'**
+  String stepsHomeWith(String name, String count);
 }
 
 class _AppLocalizationsDelegate

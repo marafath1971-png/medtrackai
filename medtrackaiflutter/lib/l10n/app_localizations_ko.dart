@@ -1808,7 +1808,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get onboardingHowMedAiHelpsYouNstay =>
-      'How Med AI helps you\\nstay on track';
+      'How Med AI helps you\nstay on track';
 
   @override
   String get onboardingThreeQuietMovesOneCalmRoutine =>
@@ -2449,7 +2449,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String get commonThisSectionFailedToLoadNtap =>
-      'This section failed to load.\\nTap Resume on the recovery screen.';
+      'This section failed to load.\nTap Resume on the recovery screen.';
 
   @override
   String get commonSomethingWentWrong => 'Something went wrong';
@@ -2961,7 +2961,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String settingsNsecurePrivateGdprCompliant(Object kAppName) {
-    return '$kAppName\\nSecure · Private · GDPR Compliant';
+    return '$kAppName\nSecure · Private · GDPR Compliant';
   }
 
   @override
@@ -2971,7 +2971,7 @@ class AppLocalizationsKo extends AppLocalizations {
 
   @override
   String settingsNsecurePrivateTransparent(Object kAppName) {
-    return '$kAppName\\nSecure · Private · Transparent';
+    return '$kAppName\nSecure · Private · Transparent';
   }
 
   @override
@@ -3167,4 +3167,397 @@ class AppLocalizationsKo extends AppLocalizations {
   @override
   String get biohackingNoTimelineDataBody =>
       'We don\'t have pharmacokinetic data for this medicine, so there\'s no absorption timeline to show.';
+
+  @override
+  String get stepsTitle => 'Steps';
+
+  @override
+  String get stepsShare => 'Share today\'s steps';
+
+  @override
+  String stepsShareText(String count) {
+    return 'I\'ve walked $count steps today with MedAI.';
+  }
+
+  @override
+  String get stepsSourceApple => 'Apple Health';
+
+  @override
+  String get stepsSourceAndroid => 'Health Connect';
+
+  @override
+  String stepsOfGoal(String goal) {
+    return 'of $goal steps';
+  }
+
+  @override
+  String stepsToGo(String count, int minutes) {
+    return '$count to go · about $minutes min of walking';
+  }
+
+  @override
+  String get stepsGoalReached => 'Goal reached';
+
+  @override
+  String stepsGoalBeaten(String count) {
+    return 'Goal reached · $count past it';
+  }
+
+  @override
+  String get stepsEditGoal => 'Change goal';
+
+  @override
+  String get stepsDistance => 'Distance';
+
+  @override
+  String stepsDistanceValue(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get stepsEnergy => 'Energy';
+
+  @override
+  String stepsEnergyValue(String kcal) {
+    return '$kcal kcal';
+  }
+
+  @override
+  String get stepsActiveHours => 'Active hours';
+
+  @override
+  String stepsEstimateNote(String source) {
+    return 'Steps come from $source. Distance and energy are estimates worked out from your steps.';
+  }
+
+  @override
+  String get stepsThisWeek => 'This week';
+
+  @override
+  String stepsWeekAverage(String count) {
+    return '$count a day on average';
+  }
+
+  @override
+  String stepsDayDetail(String day, String count) {
+    return '$day: $count steps';
+  }
+
+  @override
+  String stepsDayDetailDuo(
+      String day, String mine, String name, String theirs) {
+    return '$day: you $mine · $name $theirs';
+  }
+
+  @override
+  String stepsStreak(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count-day goal streak',
+      one: '1-day goal streak',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String stepsBestDay(String count) {
+    return 'Best day: $count';
+  }
+
+  @override
+  String get stepsTodayByHour => 'Today by hour';
+
+  @override
+  String get stepsNoHourlyYet => 'Your hours fill in as you move.';
+
+  @override
+  String stepsPeakHour(String time) {
+    return 'Most active around $time';
+  }
+
+  @override
+  String get stepsBadges => 'Milestones';
+
+  @override
+  String stepsBadgesEarned(int earned, int total) {
+    return '$earned of $total earned';
+  }
+
+  @override
+  String stepsBadgeEarned(String name) {
+    return '$name, earned';
+  }
+
+  @override
+  String stepsBadgeLocked(String name) {
+    return '$name, not earned yet';
+  }
+
+  @override
+  String get stepsBadgeFirstGoal => 'First goal';
+
+  @override
+  String get stepsBadgeTenK => '10K day';
+
+  @override
+  String get stepsBadgeStreak3 => '3 days running';
+
+  @override
+  String get stepsBadgeStreak7 => '7 days running';
+
+  @override
+  String get stepsBadgeMarathonWeek => 'Marathon week';
+
+  @override
+  String get stepsBadgeDuoDay => 'Both hit it';
+
+  @override
+  String get stepsBadgeDuoStreak3 => '3 days together';
+
+  @override
+  String get stepsIntroTitle => 'Count every step';
+
+  @override
+  String get stepsIntroBody =>
+      'Turn on step counting to see your day, set a goal, and walk it with someone.';
+
+  @override
+  String get stepsIntroBullet1 =>
+      'A daily goal and a ring that fills as you move';
+
+  @override
+  String get stepsIntroBullet2 => 'Your week, your busiest hours, your streak';
+
+  @override
+  String get stepsIntroBullet3 => 'Pair with a partner and count together';
+
+  @override
+  String get stepsTurnOn => 'Turn on step counting';
+
+  @override
+  String get stepsInstallHealthConnect => 'Set up Health Connect';
+
+  @override
+  String get stepsNeedsInstallBody =>
+      'Step counting on Android runs through Health Connect. Install or update it, then come back.';
+
+  @override
+  String get stepsUnavailable =>
+      'This device has no step source MedAI can read.';
+
+  @override
+  String stepsDenied(String source) {
+    return 'Step access wasn\'t granted. You can allow it in $source.';
+  }
+
+  @override
+  String get stepsZeroHintIos =>
+      'Seeing 0? Open the Health app, then Sharing, Apps, MedAI, and allow Steps.';
+
+  @override
+  String get stepsZeroHintAndroid =>
+      'Seeing 0? Check that your phone or watch is saving steps to Health Connect.';
+
+  @override
+  String get stepsTogetherTitle => 'Walk together';
+
+  @override
+  String get stepsTogetherEmptyBody =>
+      'Pair with one person. You\'ll each see the other\'s daily steps and chase a shared goal.';
+
+  @override
+  String get stepsSignInToPair => 'Sign in to pair with a partner.';
+
+  @override
+  String get stepsInvitePartner => 'Invite a partner';
+
+  @override
+  String get stepsEnterCode => 'I have a code';
+
+  @override
+  String get stepsYou => 'You';
+
+  @override
+  String get stepsPartnerFallbackName => 'Your partner';
+
+  @override
+  String stepsTogetherProgress(String total, String goal) {
+    return '$total of $goal together';
+  }
+
+  @override
+  String stepsLeadYou(String count, String name) {
+    return 'You\'re $count ahead of $name';
+  }
+
+  @override
+  String stepsLeadPartner(String name, String count) {
+    return '$name is $count ahead';
+  }
+
+  @override
+  String get stepsLeadTied => 'You\'re neck and neck';
+
+  @override
+  String stepsPartnerNotSynced(String name) {
+    return '$name hasn\'t synced today yet';
+  }
+
+  @override
+  String stepsDuoStreak(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days in a row you both hit your goals',
+      one: '1 day you both hit your goals',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String stepsWeekWins(int mine, String name, int theirs) {
+    return 'Days won this week: you $mine · $name $theirs';
+  }
+
+  @override
+  String get stepsCheer => 'Cheer';
+
+  @override
+  String get stepsNudge => 'Nudge';
+
+  @override
+  String stepsCheerSent(String name) {
+    return 'Cheer sent to $name';
+  }
+
+  @override
+  String stepsNudgeSent(String name) {
+    return 'Nudge sent to $name';
+  }
+
+  @override
+  String get stepsCheerFailed => 'Couldn\'t send that. Try again in a moment.';
+
+  @override
+  String stepsCheerReceived(String name) {
+    return '$name is cheering you on 👏';
+  }
+
+  @override
+  String stepsNudgeReceived(String name) {
+    return '$name says it\'s time for a walk 👟';
+  }
+
+  @override
+  String get stepsUnpair => 'Stop sharing';
+
+  @override
+  String get stepsKeepSharing => 'Keep sharing';
+
+  @override
+  String stepsUnpairConfirmTitle(String name) {
+    return 'Stop walking with $name?';
+  }
+
+  @override
+  String get stepsUnpairConfirmBody =>
+      'You\'ll both stop seeing each other\'s steps.';
+
+  @override
+  String get stepsUnpairFailed =>
+      'Couldn\'t stop sharing. Check your connection and try again.';
+
+  @override
+  String get stepsInviteTitle => 'Your partner code';
+
+  @override
+  String get stepsInviteBody =>
+      'Share this code with one person. It works once and expires in 24 hours.';
+
+  @override
+  String get stepsInviteFailed =>
+      'Couldn\'t create a code. Check your connection and try again.';
+
+  @override
+  String get stepsTryAgain => 'Try again';
+
+  @override
+  String get stepsTapToCopy => 'Tap to copy';
+
+  @override
+  String get stepsCopied => 'Copied';
+
+  @override
+  String get stepsShareCode => 'Share code';
+
+  @override
+  String stepsInviteShareText(String code) {
+    return 'Walk with me on MedAI! Open Steps, tap \"I have a code\" under Walk together, and enter $code.';
+  }
+
+  @override
+  String get stepsJoinTitle => 'Enter partner code';
+
+  @override
+  String get stepsJoinBody =>
+      'Ask your partner for the 6-character code from their Steps screen.';
+
+  @override
+  String get stepsJoinHint => 'Code';
+
+  @override
+  String get stepsJoinCta => 'Pair up';
+
+  @override
+  String get stepsJoinNotFound => 'That code isn\'t valid or has expired.';
+
+  @override
+  String get stepsJoinOwnCode =>
+      'That\'s your own code. Send it to your partner instead.';
+
+  @override
+  String get stepsJoinFailed => 'Couldn\'t pair right now. Try again.';
+
+  @override
+  String get stepsJoined => 'You\'re paired. Happy walking!';
+
+  @override
+  String get stepsGoalTitle => 'Daily step goal';
+
+  @override
+  String get stepsGoalBody => 'Pick a number you can hit most days.';
+
+  @override
+  String get stepsGoalStepsPerDay => 'steps a day';
+
+  @override
+  String get stepsGoalLower => 'Lower goal';
+
+  @override
+  String get stepsGoalRaise => 'Raise goal';
+
+  @override
+  String get stepsGoalSave => 'Save goal';
+
+  @override
+  String get stepsHomeCta => 'Count your steps';
+
+  @override
+  String get stepsHomeCtaBody => 'Set a goal and walk it with a partner';
+
+  @override
+  String stepsHomeCount(String count) {
+    return '$count steps';
+  }
+
+  @override
+  String stepsHomeToGo(String count) {
+    return '$count to go today';
+  }
+
+  @override
+  String stepsHomeWith(String name, String count) {
+    return '$name: $count';
+  }
 }

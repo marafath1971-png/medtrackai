@@ -9,6 +9,7 @@ import '../../services/auth_service.dart';
 import '../../services/notification_service.dart';
 import '../../core/utils/logger.dart';
 import '../../core/utils/haptic_engine.dart';
+import '../../services/purchases_service.dart';
 
 class AuthController extends ChangeNotifier {
   final IUserRepository userRepo;
@@ -29,6 +30,7 @@ class AuthController extends ChangeNotifier {
     // read back but never consulted before posting an alert.
     NotificationService.refillAlertsEnabled = p?.notifRefill ?? true;
   }
+
   bool _isLocked = false;
   String _language = 'en';
   bool _isPurchasing = false;
@@ -45,6 +47,9 @@ class AuthController extends ChangeNotifier {
   void setPendingOnboardingProfile(UserProfile p) {
     _pendingOnboardingProfile = p;
   }
+
+  /// True when the user just finished onboarding and is now saving their account.
+  bool get hasPendingOnboardingProfile => _pendingOnboardingProfile != null;
 
   /// Whether signing in should push this device's local data to the cloud.
   ///
@@ -131,7 +136,8 @@ class AuthController extends ChangeNotifier {
     // user supplied it. Only the local part of an email is used as a last
     // resort — showing a full address as someone's name is worse than "there".
     final accountName = _accountDisplayName();
-    var resolved = existing ?? _pendingOnboardingProfile ?? UserProfile(name: '');
+    var resolved =
+        existing ?? _pendingOnboardingProfile ?? UserProfile(name: '');
     if (resolved.name.trim().isEmpty && accountName != null) {
       resolved = resolved.copyWith(name: accountName);
     }
@@ -360,8 +366,8 @@ class AuthController extends ChangeNotifier {
   }
 
   Future<void> manageSubscription() async {
-    // Bridge to platform-specific store logic if needed
     appLogger.i('[Auth] Opening subscription management');
+    await PurchasesService.manageSubscriptions();
   }
 
   Future<void> signInWithGoogle() async {

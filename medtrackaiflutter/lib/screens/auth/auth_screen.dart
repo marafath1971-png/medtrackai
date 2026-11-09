@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
@@ -23,7 +22,9 @@ import '../../l10n/app_localizations.dart';
 // ══════════════════════════════════════════════
 
 class AuthScreen extends StatefulWidget {
-  const AuthScreen({super.key});
+  final bool? initialIsSignUp;
+
+  const AuthScreen({super.key, this.initialIsSignUp});
 
   @override
   State<AuthScreen> createState() => _AuthScreenState();
@@ -111,7 +112,6 @@ class AuthScreen extends StatefulWidget {
         return 'Something went wrong. Please try again.';
     }
   }
-
 }
 
 class _AuthScreenState extends State<AuthScreen> {
@@ -126,6 +126,8 @@ class _AuthScreenState extends State<AuthScreen> {
   @override
   void initState() {
     super.initState();
+    final appState = context.read<AppState>();
+    _isSignUp = widget.initialIsSignUp ?? appState.hasPendingOnboardingProfile;
   }
 
   @override
@@ -332,8 +334,8 @@ class _AuthScreenState extends State<AuthScreen> {
                 }
                 if (pass.length < 6) {
                   HapticEngine.alertWarning();
-                  setSheetState(() => sheetError =
-                      'Password must be at least 6 characters');
+                  setSheetState(() =>
+                      sheetError = 'Password must be at least 6 characters');
                   return;
                 }
 
@@ -697,173 +699,174 @@ class _EmailAuthSheet extends StatelessWidget {
             ],
           ),
           child: Padding(
-              padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 36,
-                      height: 4,
-                      margin: const EdgeInsets.only(bottom: 20),
-                      decoration: BoxDecoration(
-                        color: L.border,
-                        borderRadius: BorderRadius.circular(2),
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 32),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Center(
+                  child: Container(
+                    width: 36,
+                    height: 4,
+                    margin: const EdgeInsets.only(bottom: 20),
+                    decoration: BoxDecoration(
+                      color: L.border,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                ),
+                // Cross-fade the title so switching mode reads as the same
+                // sheet changing its mind, not a new screen appearing.
+                AnimatedSwitcher(
+                  duration: MedAiA11y.motion(
+                      context, const Duration(milliseconds: 220)),
+                  switchInCurve: Curves.easeOutCubic,
+                  switchOutCurve: Curves.easeInCubic,
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: const Offset(0, 0.25),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  ),
+                  child: Text(
+                    isSignUp ? 'Sign up with email' : 'Sign in with email',
+                    key: ValueKey(isSignUp),
+                    style: AppTypography.headlineSmall.copyWith(
+                      color: L.text,
+                      fontWeight: FontWeight.w700,
+                      letterSpacing: -0.4,
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                _AuthField(
+                  controller: emailCtrl,
+                  label: l10n.authEmailAddress,
+                  keyboardType: TextInputType.emailAddress,
+                  autofillHints: const [AutofillHints.email],
+                  L: L,
+                ),
+                const SizedBox(height: 12),
+                _AuthField(
+                  controller: passCtrl,
+                  label: l10n.authPassword,
+                  obscure: !showPass,
+                  autofillHints: isSignUp
+                      ? const [AutofillHints.newPassword]
+                      : const [AutofillHints.password],
+                  suffix: Semantics(
+                    button: true,
+                    label: showPass ? 'Hide password' : 'Show password',
+                    child: AnimatedPressable(
+                      onTap: onTogglePass,
+                      hitTestPadding: const EdgeInsets.all(8),
+                      child: Icon(
+                        showPass
+                            ? Icons.visibility_off_rounded
+                            : Icons.visibility_rounded,
+                        color: L.sub,
+                        size: 20,
                       ),
                     ),
                   ),
-                  // Cross-fade the title so switching mode reads as the same
-                  // sheet changing its mind, not a new screen appearing.
-                  AnimatedSwitcher(
-                    duration: MedAiA11y.motion(context, const Duration(milliseconds: 220)),
-                    switchInCurve: Curves.easeOutCubic,
-                    switchOutCurve: Curves.easeInCubic,
-                    transitionBuilder: (child, animation) => FadeTransition(
-                      opacity: animation,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 0.25),
-                          end: Offset.zero,
-                        ).animate(animation),
-                        child: child,
-                      ),
-                    ),
-                    child: Text(
-                      isSignUp ? 'Sign up with email' : 'Sign in with email',
-                      key: ValueKey(isSignUp),
-                      style: AppTypography.headlineSmall.copyWith(
-                        color: L.text,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -0.4,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 20),
-                  _AuthField(
-                    controller: emailCtrl,
-                    label: l10n.authEmailAddress,
-                    keyboardType: TextInputType.emailAddress,
-                    autofillHints: const [AutofillHints.email],
-                    L: L,
-                  ),
-                  const SizedBox(height: 12),
-                  _AuthField(
-                    controller: passCtrl,
-                    label: l10n.authPassword,
-                    obscure: !showPass,
-                    autofillHints: isSignUp
-                        ? const [AutofillHints.newPassword]
-                        : const [AutofillHints.password],
-                    suffix: Semantics(
-                      button: true,
-                      label: showPass ? 'Hide password' : 'Show password',
-                      child: AnimatedPressable(
-                        onTap: onTogglePass,
-                        hitTestPadding: const EdgeInsets.all(8),
-                        child: Icon(
-                          showPass
-                              ? Icons.visibility_off_rounded
-                              : Icons.visibility_rounded,
-                          color: L.sub,
-                          size: 20,
-                        ),
-                      ),
-                    ),
-                    L: L,
-                  ),
-                  // "Forgot password" belongs to sign-in only; size it down
-                  // rather than removing it outright so the CTA glides instead
-                  // of jumping when the mode changes.
-                  AnimatedSize(
-                    duration: MedAiA11y.motion(context, const Duration(milliseconds: 220)),
-                    curve: Curves.easeOutCubic,
-                    alignment: Alignment.topCenter,
-                    child: !isSignUp
-                        ? Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const SizedBox(height: 8),
-                              Align(
-                                alignment: AlignmentDirectional.centerEnd,
-                                child: Semantics(
-                                  button: true,
-                                  label: l10n.authForgotPassword2,
-                                  child: AnimatedPressable(
-                                    onTap: onForgot,
-                                    hitTestPadding: const EdgeInsets.all(4),
-                                    child: Text(
-                                      l10n.authForgotPassword,
-                                      style:
-                                          AppTypography.labelMedium.copyWith(
-                                        color: AppColors.limeDeep,
-                                        fontWeight: FontWeight.w700,
-                                      ),
+                  L: L,
+                ),
+                // "Forgot password" belongs to sign-in only; size it down
+                // rather than removing it outright so the CTA glides instead
+                // of jumping when the mode changes.
+                AnimatedSize(
+                  duration: MedAiA11y.motion(
+                      context, const Duration(milliseconds: 220)),
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.topCenter,
+                  child: !isSignUp
+                      ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const SizedBox(height: 8),
+                            Align(
+                              alignment: AlignmentDirectional.centerEnd,
+                              child: Semantics(
+                                button: true,
+                                label: l10n.authForgotPassword2,
+                                child: AnimatedPressable(
+                                  onTap: onForgot,
+                                  hitTestPadding: const EdgeInsets.all(4),
+                                  child: Text(
+                                    l10n.authForgotPassword,
+                                    style: AppTypography.labelMedium.copyWith(
+                                      color: AppColors.limeDeep,
+                                      fontWeight: FontWeight.w700,
                                     ),
                                   ),
                                 ),
                               ),
-                            ],
-                          )
-                        : const SizedBox.shrink(),
-                  ),
-                  // The error is the one thing here the user must not miss, so
-                  // it expands into place instead of appearing between frames.
-                  AnimatedSize(
-                    duration: MedAiA11y.motion(context, const Duration(milliseconds: 220)),
-                    curve: Curves.easeOutCubic,
-                    alignment: Alignment.topCenter,
-                    child: error == null
-                        ? const SizedBox.shrink()
-                        : Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const SizedBox(height: 12),
-                              _AuthErrorBanner(message: error!),
-                            ],
-                          ),
-                  ),
-                  const SizedBox(height: 20),
-                  MedAiCTA(
-                    label: isSignUp ? 'Create Account' : 'Sign In',
-                    loading: loading,
-                    onTap: loading ? null : onSubmit,
-                    semanticsLabel:
-                        isSignUp ? 'Create account' : 'Sign in with email',
-                  ),
-                  const SizedBox(height: 12),
-                  Center(
-                    child: Semantics(
-                      button: true,
-                      label: isSignUp
-                          ? 'Switch to sign in'
-                          : 'Switch to sign up',
-                      child: AnimatedPressable(
-                        onTap: onToggleSignUp,
-                        hitTestPadding: const EdgeInsets.all(8),
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8),
-                          child: AnimatedSwitcher(
-                            duration: MedAiA11y.motion(context, const Duration(milliseconds: 220)),
-                            child: Text(
-                              isSignUp
-                                  ? 'Already have an account? Sign In'
-                                  : "Don't have an account? Sign Up",
-                              key: ValueKey(isSignUp),
-                              style: AppTypography.labelMedium.copyWith(
-                                color: L.sub,
-                              ),
+                            ),
+                          ],
+                        )
+                      : const SizedBox.shrink(),
+                ),
+                // The error is the one thing here the user must not miss, so
+                // it expands into place instead of appearing between frames.
+                AnimatedSize(
+                  duration: MedAiA11y.motion(
+                      context, const Duration(milliseconds: 220)),
+                  curve: Curves.easeOutCubic,
+                  alignment: Alignment.topCenter,
+                  child: error == null
+                      ? const SizedBox.shrink()
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            const SizedBox(height: 12),
+                            _AuthErrorBanner(message: error!),
+                          ],
+                        ),
+                ),
+                const SizedBox(height: 20),
+                MedAiCTA(
+                  label: isSignUp ? 'Create Account' : 'Sign In',
+                  loading: loading,
+                  onTap: loading ? null : onSubmit,
+                  semanticsLabel:
+                      isSignUp ? 'Create account' : 'Sign in with email',
+                ),
+                const SizedBox(height: 12),
+                Center(
+                  child: Semantics(
+                    button: true,
+                    label: isSignUp ? 'Switch to sign in' : 'Switch to sign up',
+                    child: AnimatedPressable(
+                      onTap: onToggleSignUp,
+                      hitTestPadding: const EdgeInsets.all(8),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: AnimatedSwitcher(
+                          duration: MedAiA11y.motion(
+                              context, const Duration(milliseconds: 220)),
+                          child: Text(
+                            isSignUp
+                                ? 'Already have an account? Sign In'
+                                : "Don't have an account? Sign Up",
+                            key: ValueKey(isSignUp),
+                            style: AppTypography.labelMedium.copyWith(
+                              color: L.sub,
                             ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
+      ),
     );
   }
 }
