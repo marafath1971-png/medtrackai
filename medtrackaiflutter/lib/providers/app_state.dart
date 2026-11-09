@@ -22,6 +22,7 @@ import '../services/auth_service.dart';
 import '../services/link_service.dart';
 import '../services/referral_service.dart';
 import '../services/purchases_service.dart';
+import 'package:purchases_flutter/purchases_flutter.dart';
 import '../services/performance_service.dart';
 import '../services/dynamic_icon_service.dart';
 import '../services/native_widget_service.dart';
@@ -127,6 +128,11 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
     // Steps are not relayed (see StepsController); the account binding is the
     // only thing that follows auth.
     auth.addListener(_bindStepsAccount);
+
+    // Listen to real-time subscription lifecycle events from RevenueCat
+    PurchasesService.addCustomerInfoUpdateListener((_) {
+      _reconcilePremium();
+    });
 
     WidgetsBinding.instance.addObserver(this);
     _notifSub = NotificationService.actionStream.stream
@@ -341,10 +347,12 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
           social.loadData(),
         ]);
 
+        // Reconcile purchases on startup for both guest and authenticated sessions
+        _reconcilePremium();
+
         if (AuthService.uid != null) {
           _syncUserProfileFromAuth();
           _initPushNotifications();
-          _reconcilePremium();
 
           // Apply saved app icon on start
           if (profile?.appIcon != null && profile?.appIcon != 'default') {
@@ -622,11 +630,13 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   }
 
   Future<void> logout() async {
+    await PurchasesService.logOut();
     await _clearSessionData();
     return auth.logout();
   }
 
   Future<void> signOut() async {
+    await PurchasesService.logOut();
     await _clearSessionData();
     return auth.logout();
   }
@@ -999,6 +1009,10 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
   Future<void> _reconcilePremium() async {
     if (profile == null) return;
     try {
+      final uid = AuthService.uid;
+      if (uid != null && uid.isNotEmpty) {
+        await PurchasesService.logIn(uid);
+      }
       final active = await PurchasesService.isPremium();
       // Honor active promotional / referral entitlements
       bool hasActivePromo = false;
@@ -1046,6 +1060,28 @@ class AppState extends ChangeNotifier with WidgetsBindingObserver {
 
   Future<void> manageSubscription() => auth.manageSubscription();
   Future<void> unlockPremium() => purchasePremium('annual');
+
+  /// Purchases a package directly using the already-resolved store [Package].
+  Future<bool> purchasePackage(Package package) async {
+    auth.isPurchasing = true;
+    notifyListeners();
+    try {
+      final success = await PurchasesService.purchase(package);
+      if (success) {
+        if (profile != null) {
+          final family = await PurchasesService.hasFamilyPlan();
+          await auth.saveProfile(
+              profile!.copyWith(isPremium: true, hasFamilyPlan: family));
+        }
+        await auth.loadProfile();
+        showToast('Premium unlocked! ✨');
+      }
+      return success;
+    } finally {
+      auth.isPurchasing = false;
+      safeNotifyListeners();
+    }
+  }
 
   Future<bool> purchasePremium(String packageId) async {
     auth.isPurchasing = true;

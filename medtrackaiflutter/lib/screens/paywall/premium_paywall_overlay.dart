@@ -248,7 +248,7 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } catch (_) {
       if (!mounted) return;
       setState(() {
         _errorMsg = 'An error occurred. Please try again.';
