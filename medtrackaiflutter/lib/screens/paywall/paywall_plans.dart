@@ -96,6 +96,49 @@ int? annualSavingsPercent({
   return pct >= 5 ? pct : null;
 }
 
+/// Whole-percent saving of the annual price against 52 weekly payments
+/// (the psychology anchor: $4.99/wk = $259.48/yr anchor).
+int? annualSavingsVsWeeklyPercent({
+  required double annualPrice,
+  required double weeklyPrice,
+  String? annualCurrency,
+  String? weeklyCurrency,
+}) {
+  if (weeklyPrice <= 0 || annualPrice <= 0) return null;
+  if (annualCurrency != null &&
+      weeklyCurrency != null &&
+      annualCurrency != weeklyCurrency) {
+    return null;
+  }
+  final pct = ((1 - annualPrice / (weeklyPrice * 52)) * 100).floor();
+  return pct >= 5 ? pct : null;
+}
+
+/// Monthly equivalent for a weekly rate ($4.99/wk -> $21.62/mo).
+double weeklyToMonthlyEquivalent(double weeklyPrice) =>
+    (weeklyPrice * 52) / 12;
+
+/// Annual equivalent for a weekly rate ($4.99/wk -> $259.48/yr).
+double weeklyToAnnualEquivalent(double weeklyPrice) => weeklyPrice * 52;
+
+/// Savings of monthly plan vs weekly plan's monthly rate ($7.99/mo vs $21.62/mo).
+int? monthlySavingsVsWeeklyPercent({
+  required double monthlyPrice,
+  required double weeklyPrice,
+  String? monthlyCurrency,
+  String? weeklyCurrency,
+}) {
+  if (monthlyPrice <= 0 || weeklyPrice <= 0) return null;
+  if (monthlyCurrency != null &&
+      weeklyCurrency != null &&
+      monthlyCurrency != weeklyCurrency) {
+    return null;
+  }
+  final weeklyMonthlyRate = weeklyToMonthlyEquivalent(weeklyPrice);
+  final pct = ((1 - monthlyPrice / weeklyMonthlyRate) * 100).floor();
+  return pct >= 5 ? pct : null;
+}
+
 /// The trial timeline, matched to the real trial length.
 ///
 /// The reminder step is the "trial ends tomorrow" push the paywall schedules

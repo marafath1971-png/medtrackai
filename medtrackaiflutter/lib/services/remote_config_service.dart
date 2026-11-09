@@ -24,6 +24,8 @@ class RemoteConfigService {
     'paywall_headline_variant': 'personalized', // personalized | generic
     'paywall_show_trial_timeline': true,
     'paywall_default_plan': 'annual', // annual | monthly | weekly
+    // Active: weekly plans provide the $4.99/wk ($21.62/mo, $259.48/yr) anchor
+    // that boosts Annual conversion and offers a flexible low-ticket entry point.
     'paywall_show_weekly_plan': true,
     'paywall_exit_offer_enabled': false, // iOS App Review gray area
     // Onboarding
@@ -41,6 +43,8 @@ class RemoteConfigService {
     'free_tier_med_limit': 5,
     'free_tier_scan_limit': 3,
     'free_tier_voice_limit': 3,
+    // Ask Med AI questions per day before the paywall.
+    'free_tier_ask_ai_daily': 3,
     // Trial reminder
     'trial_reminder_enabled': true,
   };
@@ -50,9 +54,8 @@ class RemoteConfigService {
       final rc = FirebaseRemoteConfig.instance;
       await rc.setConfigSettings(RemoteConfigSettings(
         fetchTimeout: const Duration(seconds: 8),
-        minimumFetchInterval: kDebugMode
-            ? Duration.zero
-            : const Duration(hours: 1),
+        minimumFetchInterval:
+            kDebugMode ? Duration.zero : const Duration(hours: 1),
       ));
       await rc.setDefaults(_defaults);
       await rc.fetchAndActivate();
@@ -92,6 +95,7 @@ class RemoteConfigService {
   static int get freeTierMedLimit => getInt('free_tier_med_limit');
   static int get freeTierScanLimit => getInt('free_tier_scan_limit');
   static int get freeTierVoiceLimit => getInt('free_tier_voice_limit');
+  static int get freeTierAskAiDaily => getInt('free_tier_ask_ai_daily');
   static bool get trialReminderEnabled => getBool('trial_reminder_enabled');
   static bool get paywallAfterActivation => getBool('paywall_after_activation');
 }

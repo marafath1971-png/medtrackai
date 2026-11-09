@@ -12,8 +12,10 @@ void main() {
   });
 
   group('paywall defaults', () {
-    test('annual-led, weekly visible, timeline on', () {
+    test('annual-led, weekly visible for psychological anchor, timeline on', () {
       expect(RemoteConfigService.defaultPlan, 'annual');
+      // Weekly provides the $4.99/wk anchor ($259.48/yr) driving annual conversions;
+      // switchable per geo from Firebase Remote Config if needed.
       expect(RemoteConfigService.showWeeklyPlan, isTrue);
       expect(RemoteConfigService.showTrialTimeline, isTrue);
     });
@@ -48,8 +50,7 @@ void main() {
       expect(RemoteConfigService.freeTierVoiceLimit, 3);
     });
 
-    test('limits are positive — a zero default would hard-lock free users',
-        () {
+    test('limits are positive — a zero default would hard-lock free users', () {
       expect(RemoteConfigService.freeTierMedLimit, greaterThan(0));
       expect(RemoteConfigService.freeTierScanLimit, greaterThan(0));
       expect(RemoteConfigService.freeTierVoiceLimit, greaterThan(0));

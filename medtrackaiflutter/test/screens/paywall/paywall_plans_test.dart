@@ -58,6 +58,56 @@ void main() {
     });
   });
 
+  group('psychological pricing and weekly anchoring', () {
+    test('weekly to annual equivalent calculates 52 weeks correctly', () {
+      // $4.99 * 52 = 259.48
+      expect(weeklyToAnnualEquivalent(4.99), closeTo(259.48, 0.01));
+      expect(weeklyToAnnualEquivalent(0), 0);
+    });
+
+    test('weekly to monthly equivalent calculates (52 / 12) months correctly', () {
+      // $4.99 * 52 / 12 = 21.6233...
+      expect(weeklyToMonthlyEquivalent(4.99), closeTo(21.62, 0.01));
+    });
+
+    test('annual savings vs weekly anchors annual at ~85% discount', () {
+      // $39.99 vs ($4.99 * 52 = $259.48) -> 1 - 39.99/259.48 = 84.58% -> 84%
+      expect(
+        annualSavingsVsWeeklyPercent(annualPrice: 39.99, weeklyPrice: 4.99),
+        84,
+      );
+      // $36.99 vs ($4.99 * 52 = $259.48) -> 1 - 36.99/259.48 = 85.74% -> 85%
+      expect(
+        annualSavingsVsWeeklyPercent(annualPrice: 36.99, weeklyPrice: 4.99),
+        85,
+      );
+    });
+
+    test('monthly savings vs weekly anchors monthly at ~63% discount', () {
+      // $7.99 vs $21.62 ($4.99/wk equivalent) -> 1 - 7.99/21.623 = 63.04% -> 63%
+      expect(
+        monthlySavingsVsWeeklyPercent(monthlyPrice: 7.99, weeklyPrice: 4.99),
+        63,
+      );
+    });
+
+    test('anchoring guards currency mismatch and null/zero values', () {
+      expect(
+        annualSavingsVsWeeklyPercent(
+          annualPrice: 39.99,
+          weeklyPrice: 4.99,
+          annualCurrency: 'USD',
+          weeklyCurrency: 'EUR',
+        ),
+        isNull,
+      );
+      expect(
+        annualSavingsVsWeeklyPercent(annualPrice: 39.99, weeklyPrice: 0),
+        isNull,
+      );
+    });
+  });
+
   group('trial timeline', () {
     test('a 7-day trial reminds on day 6, when the push is scheduled', () {
       expect(trialTimeline(7), [

@@ -226,8 +226,9 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
         });
         return;
       }
-      final packageId = _packages[_selectedPlan].identifier;
-      final success = await state.purchasePremium(packageId);
+      final package = _packages[_selectedPlan];
+      final packageId = package.identifier;
+      final success = await state.purchasePackage(package);
       if (!mounted) return;
 
       if (success) {
@@ -281,6 +282,11 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
     await state.restorePurchases();
     if (!mounted) return;
     setState(() => _isLoading = false);
+    if (state.isPremium) {
+      HapticEngine.success();
+      widget.onSuccess?.call();
+      Navigator.of(context).pop();
+    }
   }
 
   void _dismiss() {
@@ -987,6 +993,8 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
 
     final monthly =
         _packages.where((p) => _kindOf(p) == PlanKind.monthly).firstOrNull;
+    final weekly =
+        _packages.where((p) => _kindOf(p) == PlanKind.weekly).firstOrNull;
 
     Widget tile(int i) {
       final package = _packages[i];
@@ -994,8 +1002,23 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
       final kind = _kindOf(package);
 
       final isAnnual = kind == PlanKind.annual;
+      final isWeekly = kind == PlanKind.weekly;
+      final isMonthly = kind == PlanKind.monthly;
+      final isLifetime = kind == PlanKind.lifetime;
       final trialDays = _trialDays(package);
-      final savings = isAnnual && monthly != null
+
+      // Psychological comparison anchors:
+      // $4.99/wk = $21.62/mo ($4.99*52/12) = $259.48/yr ($4.99*52).
+      final savingsVsWeekly = isAnnual && weekly != null
+          ? annualSavingsVsWeeklyPercent(
+              annualPrice: package.storeProduct.price,
+              weeklyPrice: weekly.storeProduct.price,
+              annualCurrency: package.storeProduct.currencyCode,
+              weeklyCurrency: weekly.storeProduct.currencyCode,
+            )
+          : null;
+
+      final savingsVsMonthly = isAnnual && monthly != null
           ? annualSavingsPercent(
               annualPrice: package.storeProduct.price,
               monthlyPrice: monthly.storeProduct.price,
@@ -1003,26 +1026,59 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
               monthlyCurrency: monthly.storeProduct.currencyCode,
             )
           : null;
-      // Apple bans trial-enable toggles (Guideline 3.1.2); the compliant
-      // pattern is a plan that inherently includes a trial, badged. Every
-      // other badge is derived from store data — the "Save 58%" this
-      // replaced was a constant, true of no particular price.
+
+      final monthlySavingsVsWeekly = isMonthly && weekly != null
+          ? monthlySavingsVsWeeklyPercent(
+              monthlyPrice: package.storeProduct.price,
+              weeklyPrice: weekly.storeProduct.price,
+              monthlyCurrency: package.storeProduct.currencyCode,
+              weeklyCurrency: weekly.storeProduct.currencyCode,
+            )
+          : null;
+
       final badge = trialDays != null
           ? '$trialDays-day free trial'
-          : savings != null
-              ? 'Save $savings%'
-              : switch (kind) {
-                  PlanKind.family => 'Whole circle',
-                  PlanKind.lifetime => 'Pay once',
-                  _ => null,
-                };
+          : savingsVsWeekly != null
+              ? 'Save $savingsVsWeekly%'
+              : savingsVsMonthly != null
+                  ? 'Save $savingsVsMonthly%'
+                  : monthlySavingsVsWeekly != null
+                      ? 'Save $monthlySavingsVsWeekly%'
+                      : switch (kind) {
+                          PlanKind.annual => 'Best Value',
+                          PlanKind.weekly => 'Flexible',
+                          PlanKind.family => 'Whole circle',
+                          PlanKind.lifetime => 'Pay once',
+                          _ => null,
+                        };
 
-      // Daily/weekly breakdown reduces sticker shock (the Lily pattern).
+      // Psychological anchor breakdown text (Blinkist / Cal AI standard):
+      // - Weekly: "$21.62/mo · $259.48/yr standard"
+      // - Annual: "Just $0.77/week (Save 85%)"
+      // - Monthly: "Save vs $21.62/mo weekly"
       String? equivalentText;
+      String? strikeThrough;
+
       if (isAnnual) {
         final perWeek = package.storeProduct.price / 52;
         equivalentText =
-            '≈ ${package.storeProduct.currencyCode} ${perWeek.toStringAsFixed(2)}/week';
+            '≈ ${package.storeProduct.currencyCode} ${perWeek.toStringAsFixed(2)}/wk';
+        if (weekly != null) {
+          final annualWeeklyAnchor = weeklyToAnnualEquivalent(weekly.storeProduct.price);
+          strikeThrough =
+              '${package.storeProduct.currencyCode} ${annualWeeklyAnchor.toStringAsFixed(2)}/yr';
+        }
+      } else if (isWeekly) {
+        final moEq = weeklyToMonthlyEquivalent(package.storeProduct.price);
+        final yrEq = weeklyToAnnualEquivalent(package.storeProduct.price);
+        equivalentText =
+            '≈ ${package.storeProduct.currencyCode} ${moEq.toStringAsFixed(2)}/mo (${package.storeProduct.currencyCode} ${yrEq.toStringAsFixed(0)}/yr)';
+      } else if (isMonthly && weekly != null) {
+        final moEq = weeklyToMonthlyEquivalent(weekly.storeProduct.price);
+        equivalentText =
+            'vs ${package.storeProduct.currencyCode} ${moEq.toStringAsFixed(2)}/mo wkly';
+      } else if (isLifetime) {
+        equivalentText = 'Never pay again';
       } else if (kind == PlanKind.family) {
         equivalentText = 'Pro for all caregivers';
       }
@@ -1109,7 +1165,19 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 4),
+                if (strikeThrough != null) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    strikeThrough,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: const Color(0xFF9CA3AF),
+                      fontSize: 11,
+                      decoration: TextDecoration.lineThrough,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: 2),
                 FittedBox(
                   fit: BoxFit.scaleDown,
                   child: Text(
@@ -1233,9 +1301,9 @@ class _PremiumPaywallOverlayState extends State<PremiumPaywallOverlay> {
       }
     } else {
       buttonText =
-          PurchasesService.isMisconfigured ? 'Start 2-Day Free Trial' : 'Retry';
+          PurchasesService.isMisconfigured ? 'Not available yet' : 'Retry';
       subText = PurchasesService.isMisconfigured
-          ? '2 days free, then \$39.99/year · Cancel anytime'
+          ? 'In-app purchases are not set up in this build · nothing is charged'
           : null;
     }
 
