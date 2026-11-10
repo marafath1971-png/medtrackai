@@ -104,7 +104,7 @@ class GeminiService {
   /// fourteen call sites are unchanged.
   static GeminiModel _getModel(String modelName,
       {String apiVersion = 'v1', GenerationConfig? generationConfig}) {
-    final key = _apiKey.isNotEmpty ? _apiKey : _activeApiKey;
+    final key = _apiKey;
     if (key.isEmpty) {
       appLogger.w('[GeminiService] Warning: GEMINI_API_KEY is empty.');
     }
@@ -185,7 +185,7 @@ class GeminiService {
               imageBase64: base64Image,
             );
             appLogger.d('[GeminiService] Proxy Response: $responseText');
-          } else if (_apiKey.isNotEmpty || _activeApiKey.isNotEmpty) {
+          } else if (_apiKey.isNotEmpty) {
             appLogger.d(
                 '[GeminiService] Direct Gemini API enabled for $modelName...');
             final version = config['version']!;
