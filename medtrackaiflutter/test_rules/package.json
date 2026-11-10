@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "mocha --timeout 20000 invites.test.js audit.test.js dependents.test.js"
+    "test": "mocha --timeout 20000 invites.test.js audit.test.js dependents.test.js escalation.test.js steps.test.js"
   },
   "dependencies": {
     "@firebase/rules-unit-testing": "^5.0.2",
