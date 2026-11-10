@@ -147,7 +147,8 @@ class ScanResult {
       halalNote: j['halalNote'] ?? '',
       ahaMoment: j['ahaMoment'],
       bodyImpact: j['bodyImpact'] != null
-          ? BodyImpactSummary.fromJson(Map<String, dynamic>.from(j['bodyImpact'] as Map))
+          ? BodyImpactSummary.fromJson(
+              Map<String, dynamic>.from(j['bodyImpact'] as Map))
           : null,
     );
   }

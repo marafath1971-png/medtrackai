@@ -22,7 +22,8 @@ class DashboardRefHeader extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final appState = context.watch<AppState>();
-    final name = (appState.activeProfile?.name ?? appState.profile?.name)?.trim();
+    final name =
+        (appState.activeProfile?.name ?? appState.profile?.name)?.trim();
     final displayName =
         (name != null && name.isNotEmpty) ? name : 'Your profile';
     final initial = displayName.isNotEmpty ? displayName[0].toUpperCase() : 'M';
@@ -32,13 +33,15 @@ class DashboardRefHeader extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p12, AppSpacing.gutter, AppSpacing.p8),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p12,
+            AppSpacing.gutter, AppSpacing.p8),
         child: Row(
           children: [
             Expanded(
               child: MedAiGlass(
                 radius: 999,
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p8),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.p8, vertical: AppSpacing.p8),
                 child: Row(
                   children: [
                     Container(

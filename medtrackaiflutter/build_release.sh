@@ -15,10 +15,8 @@ fi
 
 # 2. Keystore Check
 if [ ! -f "android/key.properties" ]; then
-    echo "⚠️  Warning: android/key.properties not found."
-    echo "Creating from example..."
-    cp android/key.properties.example android/key.properties
-    echo "Please update android/key.properties with your real keystore values."
+    echo "ℹ️  android/key.properties not found. Build will sign with debug keys (ideal for local testing)."
+    echo "    For Google Play distribution, copy android/key.properties.example to android/key.properties and fill in your release keystore."
 fi
 
 # 3. Clean and Fetch
@@ -35,8 +33,16 @@ if ! flutter analyze; then
 fi
 
 # 5. Build AAB
+# 5. Extract environment defines
+RC_KEY=$(grep -E '^(RC_GOOGLE_KEY|PURCHASES_API_KEY)=' .env | head -n 1 | cut -d '=' -f2- | tr -d ' "')
+GEMINI_KEY=$(grep -E '^GEMINI_API_KEY=' .env | head -n 1 | cut -d '=' -f2- | tr -d ' "')
+
+# 6. Build AAB
 echo "🏗️  Building Android App Bundle..."
-flutter build appbundle --release --obfuscate --split-debug-info=build/app/outputs/symbols
+flutter build appbundle --release \
+  --obfuscate --split-debug-info=build/app/outputs/symbols \
+  ${RC_KEY:+--dart-define=RC_GOOGLE_KEY="$RC_KEY"} \
+  ${GEMINI_KEY:+--dart-define=GEMINI_API_KEY="$GEMINI_KEY"}
 
 echo "---------------------------------------------------"
 echo "✅ SUCCESS! Your production build is ready at:"

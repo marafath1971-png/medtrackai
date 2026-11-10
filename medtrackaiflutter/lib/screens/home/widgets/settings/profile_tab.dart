@@ -504,7 +504,9 @@ class _ProfileTabState extends State<ProfileTab> {
                     final ok =
                         await ExportService.exportAdherenceReport(widget.state);
                     if (!ok && context.mounted) {
-                      PaywallSheet.show(context);
+                      widget.state.showToast(
+                          "Couldn't create the report. Please try again.",
+                          type: 'error');
                     }
                   },
                   first: true,

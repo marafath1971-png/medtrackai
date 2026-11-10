@@ -87,9 +87,7 @@ class WeeklyWellnessRing extends StatelessWidget {
             (w) => w
                 .animate(key: const ValueKey('weekly_wellness_scale_anim'))
                 .scale(
-                    delay: 400.ms,
-                    duration: 600.ms,
-                    curve: AppCurves.emilOut),
+                    delay: 400.ms, duration: 600.ms, curve: AppCurves.emilOut),
           ),
         ],
       ),
@@ -109,8 +107,8 @@ class WeeklyWellnessRing extends StatelessWidget {
   /// ≥80% → accent lime-green (#D4F544), ≥50% → orange accent, <50% → error red
   Color _getColor(double rate, AppThemeColors L) {
     if (rate >= 0.8) return const Color(0xFFD4F544); // high adherence — lime
-    if (rate >= 0.5) return AppColors.accent;         // medium — orange brand accent
-    return L.error;                                   // low — theme error red
+    if (rate >= 0.5) return AppColors.accent; // medium — orange brand accent
+    return L.error; // low — theme error red
   }
 }
 

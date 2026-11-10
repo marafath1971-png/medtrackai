@@ -46,7 +46,8 @@ class HomeHeader extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p12, AppSpacing.gutter, AppSpacing.p8),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p12,
+            AppSpacing.gutter, AppSpacing.p8),
         child: Row(
           children: [
             Expanded(
@@ -140,8 +141,8 @@ class HomeHeader extends StatelessWidget {
               icon: Icons.settings_outlined,
               onTap: onOpenSettings,
               semanticLabel: l10n.homeOpenSettings,
-              showBadge: state.unseenAlertsCount > 0 ||
-                  state.getLowStockCount() > 0,
+              showBadge:
+                  state.unseenAlertsCount > 0 || state.getLowStockCount() > 0,
             ),
           ],
         ),

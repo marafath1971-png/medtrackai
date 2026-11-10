@@ -123,8 +123,8 @@ class ShareMilestoneCard extends StatefulWidget {
     await Future.delayed(const Duration(milliseconds: 500));
 
     try {
-      final boundary = boundaryKey.currentContext
-          ?.findRenderObject() as RenderRepaintBoundary?;
+      final boundary = boundaryKey.currentContext?.findRenderObject()
+          as RenderRepaintBoundary?;
       if (boundary == null) {
         overlay.remove();
         return;
@@ -146,7 +146,8 @@ class ShareMilestoneCard extends StatefulWidget {
       // ignore: deprecated_member_use
       await Share.shareXFiles(
         [XFile(file.path)],
-        text: '🔥 My $streak-day medication streak! Adherence: ${(adherencePct * 100).round()}%.\n\nTracked with Medai 💊',
+        text:
+            '🔥 My $streak-day medication streak! Adherence: ${(adherencePct * 100).round()}%.\n\nTracked with Medai 💊',
       );
     } catch (e) {
       overlay.remove();
@@ -184,7 +185,7 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
     final data = widget.data;
     final int score = (data.adherencePct * 100).round();
     Color accentColor = data.adherenceColor;
-    
+
     // Choose mascot mood based on streak
     String mascotMood = 'content';
     if (data.streakNumber == 0) {
@@ -209,7 +210,8 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
           end: Alignment.bottomRight,
           colors: [Color(0xFF0D1413), Color(0xFF1E2F2D)],
         );
-        cardBorder = Border.all(color: const Color(0xFF4DB6AC).withValues(alpha: 0.3), width: 1.2);
+        cardBorder = Border.all(
+            color: const Color(0xFF4DB6AC).withValues(alpha: 0.3), width: 1.2);
         glowColor = const Color(0xFF4DB6AC).withValues(alpha: 0.08);
         break;
       case ShareCardTier.star:
@@ -218,7 +220,8 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
           end: Alignment.bottomRight,
           colors: [Color(0xFF0F1418), Color(0xFF1D262F)],
         );
-        cardBorder = Border.all(color: const Color(0xFF64B5F6).withValues(alpha: 0.3), width: 1.2);
+        cardBorder = Border.all(
+            color: const Color(0xFF64B5F6).withValues(alpha: 0.3), width: 1.2);
         glowColor = const Color(0xFF64B5F6).withValues(alpha: 0.08);
         break;
       case ShareCardTier.flame:
@@ -227,7 +230,8 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
           end: Alignment.bottomRight,
           colors: [Color(0xFF1A0F0A), Color(0xFF33160D)],
         );
-        cardBorder = Border.all(color: const Color(0xFFFF5722).withValues(alpha: 0.3), width: 1.4);
+        cardBorder = Border.all(
+            color: const Color(0xFFFF5722).withValues(alpha: 0.3), width: 1.4);
         glowColor = const Color(0xFFFF5722).withValues(alpha: 0.10);
         break;
       case ShareCardTier.crown:
@@ -236,7 +240,8 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
           end: Alignment.bottomRight,
           colors: [Color(0xFF0D0B08), Color(0xFF281F0E)],
         );
-        cardBorder = Border.all(color: const Color(0xFFFFCC00).withValues(alpha: 0.4), width: 1.5);
+        cardBorder = Border.all(
+            color: const Color(0xFFFFCC00).withValues(alpha: 0.4), width: 1.5);
         glowColor = const Color(0xFFFFCC00).withValues(alpha: 0.12);
         break;
       case ShareCardTier.diamond:
@@ -245,7 +250,8 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
           end: Alignment.bottomRight,
           colors: [Color(0xFF11171A), Color(0xFF1A262E)],
         );
-        cardBorder = Border.all(color: const Color(0xFFE0F7FA).withValues(alpha: 0.5), width: 1.8);
+        cardBorder = Border.all(
+            color: const Color(0xFFE0F7FA).withValues(alpha: 0.5), width: 1.8);
         glowColor = const Color(0xFFE0F7FA).withValues(alpha: 0.15);
         break;
     }
@@ -345,11 +351,14 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 6, vertical: 2),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.05),
                           borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: Colors.white.withValues(alpha: 0.1), width: 0.5),
+                          border: Border.all(
+                              color: Colors.white.withValues(alpha: 0.1),
+                              width: 0.5),
                         ),
                         child: Text(
                           l10n.viralSecureV2026,
@@ -481,7 +490,9 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
                             child: _buildGridItem(
                               title: l10n.viralStatus,
                               value: score >= 90 ? 'OPTIMAL' : 'STABLE',
-                              color: score >= 90 ? AppColors.green : AppColors.amber,
+                              color: score >= 90
+                                  ? AppColors.green
+                                  : AppColors.amber,
                             ),
                           ),
                         ],
@@ -555,7 +566,8 @@ class _ShareMilestoneCardState extends State<ShareMilestoneCard>
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: 0.03),
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05), width: 1.0),
+        border:
+            Border.all(color: Colors.white.withValues(alpha: 0.05), width: 1.0),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -662,10 +674,9 @@ class ShareAdherenceCard extends StatelessWidget {
         return;
       }
       final image = await boundary.toImage(pixelRatio: 3.0);
-      final bytes =
-          (await image.toByteData(format: ui.ImageByteFormat.png))!
-              .buffer
-              .asUint8List();
+      final bytes = (await image.toByteData(format: ui.ImageByteFormat.png))!
+          .buffer
+          .asUint8List();
       final dir = await getTemporaryDirectory();
       final f = File('${dir.path}/medai_adherence.png');
       await f.writeAsBytes(bytes);
@@ -677,7 +688,8 @@ class ShareAdherenceCard extends StatelessWidget {
       // ignore: deprecated_member_use
       await Share.shareXFiles(
         [XFile(f.path)],
-        text: '📊 My Medai health score: ${(adherencePct * 100).round()}%\n🔥 $streak-day streak\n\n#Medai #Biohacking #Health',
+        text:
+            '📊 My Medai health score: ${(adherencePct * 100).round()}%\n🔥 $streak-day streak\n\n#Medai #Biohacking #Health',
       );
     } catch (_) {
       entry.remove();
@@ -690,7 +702,7 @@ class ShareAdherenceCard extends StatelessWidget {
     final score = (adherencePct * 100).round();
     final isOptimal = adherencePct >= 0.9;
     final accentColor = isOptimal ? AppColors.green : AppColors.amber;
-    
+
     // Choose mascot mood based on streak
     String mascotMood = 'content';
     if (streak == 0) {
@@ -746,7 +758,7 @@ class ShareAdherenceCard extends StatelessWidget {
                 ),
               ),
             ),
-            
+
             // Dot Grid overlay
             Positioned.fill(child: _DotGridPainterWidget()),
 
@@ -759,7 +771,8 @@ class ShareAdherenceCard extends StatelessWidget {
                   // Top Row
                   Row(
                     children: [
-                      const Icon(Icons.auto_awesome_rounded, color: Colors.white, size: 20),
+                      const Icon(Icons.auto_awesome_rounded,
+                          color: Colors.white, size: 20),
                       const SizedBox(width: 8),
                       const Text(
                         'Medai',
@@ -841,7 +854,8 @@ class ShareAdherenceCard extends StatelessWidget {
                         child: LinearProgressIndicator(
                           value: adherencePct.clamp(0.0, 1.0),
                           backgroundColor: Colors.white.withValues(alpha: 0.05),
-                          valueColor: AlwaysStoppedAnimation<Color>(accentColor),
+                          valueColor:
+                              AlwaysStoppedAnimation<Color>(accentColor),
                           minHeight: 6,
                         ),
                       ),

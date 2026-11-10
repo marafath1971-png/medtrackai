@@ -147,82 +147,82 @@ class _StreakModalState extends State<StreakModal> {
           child: Container(
             color: Colors.black.withValues(alpha: 0.7),
             child: Align(
-                alignment: Alignment.bottomCenter,
-                child: GestureDetector(
-                  onTap: () {},
-                  child: Container(
-                    width: size.width,
-                    constraints: BoxConstraints(
-                      maxHeight: size.height * 0.92,
-                      maxWidth: 450,
-                    ),
-                    decoration: BoxDecoration(
-                      color: L.bg,
-                      borderRadius:
-                          const BorderRadius.vertical(top: Radius.circular(32)),
-                      border: Border.all(
-                          color: L.border.withValues(alpha: 0.1), width: 0.5),
-                    ),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          const SizedBox(height: AppSpacing.p12),
-                          Center(
-                            child: Container(
-                              width: 40,
-                              height: 4,
-                              decoration: BoxDecoration(
-                                color: L.text.withValues(alpha: 0.1),
-                                borderRadius: BorderRadius.circular(2),
+              alignment: Alignment.bottomCenter,
+              child: GestureDetector(
+                onTap: () {},
+                child: Container(
+                  width: size.width,
+                  constraints: BoxConstraints(
+                    maxHeight: size.height * 0.92,
+                    maxWidth: 450,
+                  ),
+                  decoration: BoxDecoration(
+                    color: L.bg,
+                    borderRadius:
+                        const BorderRadius.vertical(top: Radius.circular(32)),
+                    border: Border.all(
+                        color: L.border.withValues(alpha: 0.1), width: 0.5),
+                  ),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const SizedBox(height: AppSpacing.p12),
+                        Center(
+                          child: Container(
+                            width: 40,
+                            height: 4,
+                            decoration: BoxDecoration(
+                              color: L.text.withValues(alpha: 0.1),
+                              borderRadius: BorderRadius.circular(2),
+                            ),
+                          ),
+                        ),
+                        _buildHeader(L),
+                        Flexible(
+                          child: RawScrollbar(
+                            thumbColor: L.text.withValues(alpha: 0.1),
+                            radius: const Radius.circular(10),
+                            thickness: 4,
+                            child: SingleChildScrollView(
+                              keyboardDismissBehavior:
+                                  ScrollViewKeyboardDismissBehavior.onDrag,
+                              physics: const ClampingScrollPhysics(),
+                              padding: const EdgeInsets.fromLTRB(AppSpacing.p24,
+                                  AppSpacing.p8, AppSpacing.p24, 120),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildHeroMetric(
+                                      L, widget.streak, best, overallAdh),
+                                  const SizedBox(height: AppSpacing.p24),
+                                  _buildStatsGrid(L, totalDaysTracked,
+                                      totalTaken, totalDoses),
+                                  const SizedBox(height: AppSpacing.p32),
+                                  _buildSectionTitle(L, 'Last 30 Days'),
+                                  const SizedBox(height: AppSpacing.p16),
+                                  _Heatmap(history: widget.history, L: L),
+                                  const SizedBox(height: AppSpacing.p40),
+                                  _buildSectionTitle(L, 'Milestones'),
+                                  const SizedBox(height: AppSpacing.p20),
+                                  _AscensionTrack(
+                                    milestones: milestones,
+                                    currentStreak: widget.streak,
+                                  ),
+                                ],
                               ),
                             ),
                           ),
-                          _buildHeader(L),
-                          Flexible(
-                            child: RawScrollbar(
-                              thumbColor: L.text.withValues(alpha: 0.1),
-                              radius: const Radius.circular(10),
-                              thickness: 4,
-                              child: SingleChildScrollView(
-                                keyboardDismissBehavior:
-                                    ScrollViewKeyboardDismissBehavior.onDrag,
-                                physics: const ClampingScrollPhysics(),
-                                padding:
-                                    const EdgeInsets.fromLTRB(AppSpacing.p24, AppSpacing.p8, AppSpacing.p24, 120),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    _buildHeroMetric(
-                                        L, widget.streak, best, overallAdh),
-                                    const SizedBox(height: AppSpacing.p24),
-                                    _buildStatsGrid(
-                                        L, totalDaysTracked, totalTaken, totalDoses),
-                                    const SizedBox(height: AppSpacing.p32),
-                                    _buildSectionTitle(L, 'Last 30 Days'),
-                                    const SizedBox(height: AppSpacing.p16),
-                                    _Heatmap(history: widget.history, L: L),
-                                    const SizedBox(height: AppSpacing.p40),
-                                    _buildSectionTitle(L, 'Milestones'),
-                                    const SizedBox(height: AppSpacing.p20),
-                                    _AscensionTrack(
-                                      milestones: milestones,
-                                      currentStreak: widget.streak,
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ),
-                          _buildFooterActions(L, widget.streak),
-                        ],
-                      ),
+                        ),
+                        _buildFooterActions(L, widget.streak),
+                      ],
                     ),
                   ),
                 ),
               ),
             ),
+          ),
         ),
         if (widget.streak >= 3 && !reduceMotion)
           Align(
@@ -247,7 +247,8 @@ class _StreakModalState extends State<StreakModal> {
 
   Widget _buildHeader(AppThemeColors L) {
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.p24, AppSpacing.p20, AppSpacing.p24, AppSpacing.p16),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.p24, AppSpacing.p20, AppSpacing.p24, AppSpacing.p16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -277,7 +278,8 @@ class _StreakModalState extends State<StreakModal> {
             tooltip: 'Close',
             icon: Icon(Icons.close_rounded, color: L.text, size: 24),
             style: IconButton.styleFrom(
-              minimumSize: const Size(MedAiA11y.minTapTarget, MedAiA11y.minTapTarget),
+              minimumSize:
+                  const Size(MedAiA11y.minTapTarget, MedAiA11y.minTapTarget),
               backgroundColor: L.fill.withValues(alpha: 0.5),
               padding: const EdgeInsets.all(AppSpacing.p8),
             ),
@@ -357,8 +359,7 @@ class _StreakModalState extends State<StreakModal> {
     return card.animate().fadeIn(duration: AppDurations.fast);
   }
 
-  Widget _buildStatsGrid(
-      AppThemeColors L, int tracked, int taken, int logged) {
+  Widget _buildStatsGrid(AppThemeColors L, int tracked, int taken, int logged) {
     return Row(
       children: [
         Expanded(
@@ -396,7 +397,8 @@ class _StreakModalState extends State<StreakModal> {
 
   Widget _buildFooterActions(AppThemeColors L, int streak) {
     return Container(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.p24, AppSpacing.p16, AppSpacing.p24, AppSpacing.p32),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.p24, AppSpacing.p16, AppSpacing.p24, AppSpacing.p32),
       decoration: BoxDecoration(
         color: L.bg,
         border: Border(top: BorderSide(color: L.border.withValues(alpha: 0.1))),
@@ -475,7 +477,10 @@ class _StatBox extends StatelessWidget {
   final String emoji;
   final AppThemeColors L;
   const _StatBox(
-      {required this.label, required this.val, required this.emoji, required this.L});
+      {required this.label,
+      required this.val,
+      required this.emoji,
+      required this.L});
 
   @override
   Widget build(BuildContext context) {
@@ -557,7 +562,8 @@ class _Heatmap extends StatelessWidget {
               style: AppTypography.labelSmall.copyWith(
                 fontSize: 11,
                 fontWeight: FontWeight.w700,
-                color: rate >= 0.8 ? Colors.white : L.text.withValues(alpha: 0.5),
+                color:
+                    rate >= 0.8 ? Colors.white : L.text.withValues(alpha: 0.5),
               ),
             ),
           ),
@@ -646,7 +652,8 @@ class _AscensionTrack extends StatelessWidget {
                           if (isNext)
                             Container(
                               padding: const EdgeInsets.symmetric(
-                                  horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
+                                  horizontal: AppSpacing.p8,
+                                  vertical: AppSpacing.p4),
                               decoration: BoxDecoration(
                                 color: L.primary.withValues(alpha: 0.1),
                                 borderRadius: BorderRadius.circular(8),
@@ -668,9 +675,8 @@ class _AscensionTrack extends StatelessWidget {
                         style: AppTypography.bodySmall.copyWith(
                           fontWeight: FontWeight.w500,
                           fontSize: 12,
-                          color: achieved
-                              ? L.sub
-                              : L.sub.withValues(alpha: 0.8),
+                          color:
+                              achieved ? L.sub : L.sub.withValues(alpha: 0.8),
                         ),
                       ),
                       if (!achieved && isNext) ...[

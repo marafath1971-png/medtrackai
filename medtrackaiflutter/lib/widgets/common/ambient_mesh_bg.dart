@@ -15,10 +15,10 @@ class AmbientMeshBackground extends StatelessWidget {
     // Determine ambient color based on adherence score
     final adherence = state.getAdherenceScore();
     final isDark = context.select<AppState, bool>((s) => s.darkMode);
-    
+
     // Default fallback
     Color pulseColor = L.secondary;
-    
+
     // Dynamic color shift based on adherence (Living UI in action)
     if (adherence >= 0.8) {
       pulseColor = L.success;

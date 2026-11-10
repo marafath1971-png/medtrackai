@@ -21,7 +21,8 @@ void main() {
     late String src;
 
     setUpAll(() {
-      src = File('lib/screens/onboarding/onboarding_flow.dart').readAsStringSync();
+      src = File('lib/screens/onboarding/onboarding_flow.dart')
+          .readAsStringSync();
     });
 
     test('a failed defer falls through to showing the paywall', () {

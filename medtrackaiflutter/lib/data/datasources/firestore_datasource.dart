@@ -408,6 +408,27 @@ class FirestoreDataSource {
     await _caregiverAccess(patientUid).doc(caregiverUid).delete();
   }
 
+  /// Removes a caregiver document and cleans up access grants.
+  Future<void> removeCaregiver(String patientUid, int cgId,
+      {String? caregiverUid}) async {
+    await _caregivers(patientUid).doc('$cgId').delete();
+    if (caregiverUid != null && caregiverUid.isNotEmpty) {
+      await _caregiverAccess(patientUid).doc(caregiverUid).delete();
+    }
+  }
+
+  /// Removes a monitored patient from the caregiver's monitoring list.
+  Future<void> removeMonitoringPatient(
+      String caregiverUid, String patientUid) async {
+    final userSnap = await _userDoc(caregiverUid).get();
+    if (!userSnap.exists) return;
+    final data = userSnap.data() as Map<String, dynamic>?;
+    final list = (data?['monitoring'] as List<dynamic>?) ?? [];
+    final updated =
+        list.where((p) => p is Map && p['uid'] != patientUid).toList();
+    await _userDoc(caregiverUid).update({'monitoring': updated});
+  }
+
   Future<void> nudgePatient(String patientUid) async {
     await _userDoc(patientUid).set({
       'lastNudgeAt': FieldValue.serverTimestamp(),

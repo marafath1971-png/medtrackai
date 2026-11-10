@@ -76,8 +76,7 @@ void main() {
         for (final med in [epochId, epochId + 1])
           for (var slot = 0; slot < 2; slot++)
             for (var day = 0; day < 7; day++)
-              _notifId(
-                  profileHash: 3, medId: med, slotIndex: slot, day: day),
+              _notifId(profileHash: 3, medId: med, slotIndex: slot, day: day),
       };
       expect(ids.length, 28);
     });
@@ -102,8 +101,10 @@ void main() {
     });
 
     test('the same medicine under two profiles gets two ids', () {
-      final a = _notifId(profileHash: 111, medId: epochId, slotIndex: 0, day: 0);
-      final b = _notifId(profileHash: 222, medId: epochId, slotIndex: 0, day: 0);
+      final a =
+          _notifId(profileHash: 111, medId: epochId, slotIndex: 0, day: 0);
+      final b =
+          _notifId(profileHash: 222, medId: epochId, slotIndex: 0, day: 0);
       expect(a, isNot(b));
     });
 
@@ -116,10 +117,7 @@ void main() {
           for (var slot = 0; slot < 3; slot++) {
             for (var day = 0; day < 7; day++) {
               ids.add(_notifId(
-                  profileHash: profile,
-                  medId: med,
-                  slotIndex: slot,
-                  day: day));
+                  profileHash: profile, medId: med, slotIndex: slot, day: day));
               expected++;
             }
           }

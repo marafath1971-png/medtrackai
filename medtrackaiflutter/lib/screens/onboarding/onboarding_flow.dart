@@ -20,6 +20,7 @@ import 'widgets/ob_p0_widgets.dart';
 import 'widgets/ob_photo_hero.dart';
 import 'widgets/ob_video_style_widgets.dart';
 import 'widgets/ob_unique_widgets.dart';
+import 'widgets/ob_welcome_screen.dart';
 import 'onboarding_l10n.dart';
 import '../../l10n/app_localizations.dart';
 import '../steps/widgets/step_ring.dart';
@@ -182,6 +183,8 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
   /// Steps that Remote Config can remove from the funnel without a release.
   /// Index 51 = ATT permission, 52 = rating request (see [_stepNames]).
   bool _isStepDisabled(int i) {
+    // Step 1 ('#1 Medication companion') removed to keep a single focused welcome screen.
+    if (i == 1) return true;
     // The short flow is a filter over the same steps rather than a second
     // widget tree: every screen keeps its existing index, analytics id and
     // answer wiring, so the two variants cannot drift apart and switching
@@ -873,18 +876,7 @@ class _OnboardingFlowState extends State<OnboardingFlow> {
     switch (i) {
       // ░░ PHASE A — HOOK (0–5) ░░
       case 0:
-        return _info(
-          hero: const ObLaurelWelcome(),
-          title: 'Know it. *Trust it.* Succeed with it.',
-          subtitle:
-              'A calm plan for every dose — built around you in under a minute.',
-          // Below the headline, filling what used to be a third of a screen of
-          // empty cream above the CTA — the app asked for a tap before it had
-          // given any reason for one.
-          extra: const [ObWelcomeValueProps()],
-          cta: _obt('ob_getStarted'),
-          skip: false,
-        );
+        return ObMedAiWelcomeScreen(onGetStarted: _next);
       case 1:
         return ObRankInterstitial(onContinue: _next);
       case 2:

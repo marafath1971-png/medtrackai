@@ -63,8 +63,7 @@ class KnowMedicineStrip extends StatelessWidget {
         (icon: Icons.science_outlined, label: l10n.homeInteraction),
       if (focus.any((m) =>
           m.aiSafetyProfile?.foodRules.isNotEmpty == true ||
-          (m.intakeInstructions.isNotEmpty &&
-              m.intakeInstructions != 'None')))
+          (m.intakeInstructions.isNotEmpty && m.intakeInstructions != 'None')))
         (icon: Icons.restaurant_rounded, label: l10n.homeHowToTake),
       if (focus.length > 1)
         (icon: Icons.medication_rounded, label: l10n.homeMeds(focus.length)),
@@ -94,9 +93,7 @@ class KnowMedicineStrip extends StatelessWidget {
                     borderRadius: BorderRadius.circular(AppRadius.s),
                   ),
                   child: Icon(
-                    isCritical
-                        ? Icons.shield_rounded
-                        : Icons.menu_book_rounded,
+                    isCritical ? Icons.shield_rounded : Icons.menu_book_rounded,
                     size: 22,
                     color: accent,
                   ),
@@ -148,8 +145,7 @@ class KnowMedicineStrip extends StatelessWidget {
                                       const SizedBox(width: 4),
                                       Text(
                                         c.label,
-                                        style:
-                                            AppTypography.caption.copyWith(
+                                        style: AppTypography.caption.copyWith(
                                           color: accent,
                                           fontWeight: FontWeight.w700,
                                         ),

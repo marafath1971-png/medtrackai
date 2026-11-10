@@ -19,7 +19,8 @@ void main() {
   });
 
   test('form keeps its own sensible default', () {
-    expect(Medicine(id: 1, name: 'Metformin', courseStartDate: _kStart).form, 'tablet');
+    expect(Medicine(id: 1, name: 'Metformin', courseStartDate: _kStart).form,
+        'tablet');
   });
 
   test('the constructor default survives a JSON round trip', () {
@@ -31,7 +32,11 @@ void main() {
   });
 
   test('an explicit category is preserved', () {
-    final m = Medicine(id: 1, name: 'Vitamin D', category: 'Supplement', courseStartDate: _kStart);
+    final m = Medicine(
+        id: 1,
+        name: 'Vitamin D',
+        category: 'Supplement',
+        courseStartDate: _kStart);
     expect(m.category, 'Supplement');
     expect(Medicine.fromJson(m.toJson()).category, 'Supplement');
   });

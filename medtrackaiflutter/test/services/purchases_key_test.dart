@@ -23,10 +23,9 @@ void main() {
         return;
       }
 
-      final line = env
-          .readAsLinesSync()
-          .firstWhere((l) => l.startsWith('PURCHASES_API_KEY='),
-              orElse: () => '');
+      final line = env.readAsLinesSync().firstWhere(
+          (l) => l.startsWith('PURCHASES_API_KEY='),
+          orElse: () => '');
       final value = line.split('=').skip(1).join('=').trim();
 
       if (value.isEmpty || value.toLowerCase().contains('demo')) {
@@ -53,7 +52,8 @@ void main() {
     test('the API key is never logged verbatim', () {
       // `appLogger.i('... Resolved API Key is "$key"')` printed the key into
       // logcat, which is readable by anyone with the device plugged in.
-      final src = File('lib/services/purchases_service.dart').readAsStringSync();
+      final src =
+          File('lib/services/purchases_service.dart').readAsStringSync();
 
       expect(src.contains(r'API Key is "$key"'), isFalse,
           reason: 'logging the raw key leaks it as soon as it is real');
@@ -86,8 +86,7 @@ void main() {
 
       walk(Directory('lib'));
 
-      expect(offenders, isEmpty,
-          reason: 'API keys must never reach logcat');
+      expect(offenders, isEmpty, reason: 'API keys must never reach logcat');
     });
   });
 }

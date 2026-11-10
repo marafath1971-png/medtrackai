@@ -32,7 +32,9 @@ void main() {
       }
 
       expect(functions.contains('detectMissedDoses'), isTrue);
-      expect(functions.contains("onSchedule('every 60 minutes'"), isTrue,
+      // Every 15 minutes: caregivers choose 0/15/30/60-minute delays, and an
+      // hourly sweep would deliver a "15 min" alert up to 75 minutes late.
+      expect(functions.contains("onSchedule('every 15 minutes'"), isTrue,
           reason: 'escalation cannot depend on the patient opening the app');
     });
 
@@ -71,8 +73,10 @@ void main() {
     });
 
     test('it is marked unused at the declaration', () {
-      final src = File('lib/services/notification_service.dart').readAsStringSync();
-      final idx = src.indexOf('static Future<void> scheduleCaregiverEscalation');
+      final src =
+          File('lib/services/notification_service.dart').readAsStringSync();
+      final idx =
+          src.indexOf('static Future<void> scheduleCaregiverEscalation');
       expect(idx, greaterThan(-1));
 
       final doc = src.substring((idx - 900).clamp(0, src.length), idx);

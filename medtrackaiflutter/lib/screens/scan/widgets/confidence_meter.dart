@@ -23,8 +23,7 @@ class ConfidenceMeter extends StatelessWidget {
     final barColor = confidence > 0.8
         ? AppColors.sageGreen
         : (confidence > 0.5 ? AppColors.amber : AppColors.red);
-    final labelColor =
-        onDark ? Colors.white.withValues(alpha: 0.9) : L.text;
+    final labelColor = onDark ? Colors.white.withValues(alpha: 0.9) : L.text;
     final trackColor = onDark
         ? Colors.white.withValues(alpha: 0.2)
         : L.border.withValues(alpha: 0.4);

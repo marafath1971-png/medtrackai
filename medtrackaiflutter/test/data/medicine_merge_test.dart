@@ -22,7 +22,8 @@ import 'package:medai/domain/entities/entities.dart';
 /// the tests cannot drift away from the shipped behaviour.
 const _kStart = '2026-08-15T09:00:00.000';
 
-Medicine _med(int id, {String name = 'Warfarin', DateTime? updatedAt, int count = 30}) =>
+Medicine _med(int id,
+        {String name = 'Warfarin', DateTime? updatedAt, int count = 30}) =>
     Medicine(
       id: id,
       name: name,
@@ -249,7 +250,8 @@ void main() {
       // The sync path rewrites records it did not author; re-stamping them
       // would make last-write-wins resolve in favour of whoever synced most
       // recently rather than whoever edited most recently.
-      final copied = _med(1, updatedAt: _older).copyWith(count: 12, touch: false);
+      final copied =
+          _med(1, updatedAt: _older).copyWith(count: 12, touch: false);
 
       expect(copied.updatedAt, _older);
     });

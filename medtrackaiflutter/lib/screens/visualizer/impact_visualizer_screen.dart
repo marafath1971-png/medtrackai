@@ -48,11 +48,21 @@ const List<_Organ> _kOrgans = [
   _Organ(
     id: 'brain',
     name: 'Brain',
-    role: 'Central nervous system — where mood, focus and pain signals are felt.',
+    role:
+        'Central nervous system — where mood, focus and pain signals are felt.',
     color: Color(0xFF00E5FF),
     phase: _Phase.systemic,
     pos: Offset(0.5, 0.085),
-    systems: ['brain', 'nervous', 'cns', 'cognitive', 'neuro', 'mental', 'mood', 'psych'],
+    systems: [
+      'brain',
+      'nervous',
+      'cns',
+      'cognitive',
+      'neuro',
+      'mental',
+      'mood',
+      'psych'
+    ],
   ),
   _Organ(
     id: 'lungs',
@@ -70,7 +80,14 @@ const List<_Organ> _kOrgans = [
     color: Color(0xFFFF375F),
     phase: _Phase.systemic,
     pos: Offset(0.435, 0.37),
-    systems: ['heart', 'cardio', 'vascular', 'blood pressure', 'circulat', 'systemic'],
+    systems: [
+      'heart',
+      'cardio',
+      'vascular',
+      'blood pressure',
+      'circulat',
+      'systemic'
+    ],
   ),
   _Organ(
     id: 'liver',
@@ -281,7 +298,8 @@ class _ImpactVisualizerScreenState extends State<ImpactVisualizerScreen>
         isDemo: true,
       );
     }
-    final med = _profileMeds[_selectedMedIndex.clamp(0, _profileMeds.length - 1)];
+    final med =
+        _profileMeds[_selectedMedIndex.clamp(0, _profileMeds.length - 1)];
     final p = med.aiSafetyProfile!;
     return _ImpactProfile(
       title: med.name,
@@ -368,8 +386,8 @@ class _ImpactVisualizerScreenState extends State<ImpactVisualizerScreen>
                         tappedOrganId: _tappedOrganId,
                         onTapOrgan: (id) {
                           HapticEngine.selection();
-                          setState(() =>
-                              _tappedOrganId = _tappedOrganId == id ? null : id);
+                          setState(() => _tappedOrganId =
+                              _tappedOrganId == id ? null : id);
                         },
                         constraints: constraints,
                         reduceMotion: reduceMotion,
@@ -497,8 +515,7 @@ class _MedSelector extends StatelessWidget {
 class _BodyGeometry {
   final Rect box; // the body's bounding box within the stage
 
-  _BodyGeometry(Size size)
-      : box = _fit(size);
+  _BodyGeometry(Size size) : box = _fit(size);
 
   static Rect _fit(Size size) {
     const aspect = 0.62; // width : height of the body box
@@ -605,8 +622,7 @@ class _BodyStage extends StatelessWidget {
   }
 
   // A slow vertical scan position (0..1) used for the sweep line.
-  double _scanFraction(BuildContext context) =>
-      reduceMotion ? 0.5 : pulse;
+  double _scanFraction(BuildContext context) => reduceMotion ? 0.5 : pulse;
 }
 
 class _OrganLabel extends StatelessWidget {
@@ -651,7 +667,11 @@ class _OrganLabel extends StatelessWidget {
                 fontSize: 11,
                 letterSpacing: 0.1,
                 shadows: active
-                    ? [Shadow(color: organ.color.withValues(alpha: 0.5), blurRadius: 12)]
+                    ? [
+                        Shadow(
+                            color: organ.color.withValues(alpha: 0.5),
+                            blurRadius: 12)
+                      ]
                     : null,
               ),
             ),
@@ -689,7 +709,9 @@ class _MiniBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     return Align(
-      alignment: alignEnd ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+      alignment: alignEnd
+          ? AlignmentDirectional.centerEnd
+          : AlignmentDirectional.centerStart,
       child: Container(
         width: 54,
         height: 4,
@@ -698,7 +720,9 @@ class _MiniBar extends StatelessWidget {
           borderRadius: BorderRadius.circular(3),
         ),
         child: FractionallySizedBox(
-          alignment: alignEnd ? AlignmentDirectional.centerEnd : AlignmentDirectional.centerStart,
+          alignment: alignEnd
+              ? AlignmentDirectional.centerEnd
+              : AlignmentDirectional.centerStart,
           widthFactor: value.clamp(0.0, 1.0),
           child: AnimatedContainer(
             duration: AppDurations.fast,
@@ -743,7 +767,8 @@ class _OrganDetail extends StatelessWidget {
               shape: BoxShape.circle,
               color: organ.color,
               boxShadow: [
-                BoxShadow(color: organ.color.withValues(alpha: 0.6), blurRadius: 10),
+                BoxShadow(
+                    color: organ.color.withValues(alpha: 0.6), blurRadius: 10),
               ],
             ),
           ),
@@ -862,8 +887,8 @@ class _ScrubberPanel extends StatelessWidget {
                 const SizedBox(width: 8),
                 Expanded(
                   child: Semantics(
-                    label:
-                        l10n.visualizerTimeSinceDoseHours(currentHour.toStringAsFixed(1)),
+                    label: l10n.visualizerTimeSinceDoseHours(
+                        currentHour.toStringAsFixed(1)),
                     child: SliderTheme(
                       data: SliderThemeData(
                         trackHeight: 6,
@@ -895,8 +920,7 @@ class _ScrubberPanel extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(l10n.visualizerN0hDose,
-                    style: _cap(L)),
+                Text(l10n.visualizerN0hDose, style: _cap(L)),
                 Text('${currentHour.toStringAsFixed(1)}h',
                     style: AppTypography.titleMedium.copyWith(
                       color: L.text,
@@ -1025,13 +1049,11 @@ class _OrganMapPainter extends CustomPainter {
     const n = 14;
     for (var i = 0; i <= n; i++) {
       final y = geo.box.top + geo.box.height * i / n;
-      canvas.drawLine(
-          Offset(geo.box.left, y), Offset(geo.box.right, y), grid);
+      canvas.drawLine(Offset(geo.box.left, y), Offset(geo.box.right, y), grid);
     }
     // 3. Scan sweep line.
     final scanY = geo.box.top + geo.box.height * currentHour;
-    final scanRect = Rect.fromLTWH(
-        geo.box.left, scanY - 2, geo.box.width, 4);
+    final scanRect = Rect.fromLTWH(geo.box.left, scanY - 2, geo.box.width, 4);
     canvas.drawRect(
       Rect.fromLTWH(geo.box.left, scanY, geo.box.width, 1.5),
       Paint()
@@ -1067,8 +1089,8 @@ class _OrganMapPainter extends CustomPainter {
       final act = activations[organ.id] ?? 0;
       if (act <= 0.04) continue;
       final p = geo.project(organ.pos);
-      final mid = Offset((hp.dx + p.dx) / 2 + geo.unit * 0.04,
-          (hp.dy + p.dy) / 2);
+      final mid =
+          Offset((hp.dx + p.dx) / 2 + geo.unit * 0.04, (hp.dy + p.dy) / 2);
       final path = Path()
         ..moveTo(hp.dx, hp.dy)
         ..quadraticBezierTo(mid.dx, mid.dy, p.dx, p.dy);
@@ -1154,22 +1176,22 @@ class _OrganMapPainter extends CustomPainter {
 
     // Torso outline.
     p.moveTo(n(0.44, 0.17).dx, n(0.44, 0.17).dy); // neck L
-    p.quadraticBezierTo(
-        n(0.36, 0.20).dx, n(0.36, 0.20).dy, n(0.20, 0.235).dx, n(0.20, 0.235).dy); // shoulder L
-    p.quadraticBezierTo(
-        n(0.30, 0.36).dx, n(0.30, 0.36).dy, n(0.30, 0.50).dx, n(0.30, 0.50).dy); // ribs L
-    p.quadraticBezierTo(
-        n(0.28, 0.62).dx, n(0.28, 0.62).dy, n(0.33, 0.72).dx, n(0.33, 0.72).dy); // waist->hip L
+    p.quadraticBezierTo(n(0.36, 0.20).dx, n(0.36, 0.20).dy, n(0.20, 0.235).dx,
+        n(0.20, 0.235).dy); // shoulder L
+    p.quadraticBezierTo(n(0.30, 0.36).dx, n(0.30, 0.36).dy, n(0.30, 0.50).dx,
+        n(0.30, 0.50).dy); // ribs L
+    p.quadraticBezierTo(n(0.28, 0.62).dx, n(0.28, 0.62).dy, n(0.33, 0.72).dx,
+        n(0.33, 0.72).dy); // waist->hip L
     p.lineTo(n(0.40, 0.80).dx, n(0.40, 0.80).dy); // hip L
-    p.quadraticBezierTo(
-        n(0.50, 0.83).dx, n(0.50, 0.83).dy, n(0.60, 0.80).dx, n(0.60, 0.80).dy); // pelvis base
+    p.quadraticBezierTo(n(0.50, 0.83).dx, n(0.50, 0.83).dy, n(0.60, 0.80).dx,
+        n(0.60, 0.80).dy); // pelvis base
     p.lineTo(n(0.67, 0.72).dx, n(0.67, 0.72).dy); // hip R
-    p.quadraticBezierTo(
-        n(0.72, 0.62).dx, n(0.72, 0.62).dy, n(0.70, 0.50).dx, n(0.70, 0.50).dy); // waist R
-    p.quadraticBezierTo(
-        n(0.70, 0.36).dx, n(0.70, 0.36).dy, n(0.80, 0.235).dx, n(0.80, 0.235).dy); // ribs->shoulder R
-    p.quadraticBezierTo(
-        n(0.64, 0.20).dx, n(0.64, 0.20).dy, n(0.56, 0.17).dx, n(0.56, 0.17).dy); // shoulder->neck R
+    p.quadraticBezierTo(n(0.72, 0.62).dx, n(0.72, 0.62).dy, n(0.70, 0.50).dx,
+        n(0.70, 0.50).dy); // waist R
+    p.quadraticBezierTo(n(0.70, 0.36).dx, n(0.70, 0.36).dy, n(0.80, 0.235).dx,
+        n(0.80, 0.235).dy); // ribs->shoulder R
+    p.quadraticBezierTo(n(0.64, 0.20).dx, n(0.64, 0.20).dy, n(0.56, 0.17).dx,
+        n(0.56, 0.17).dy); // shoulder->neck R
     p.close();
     return p;
   }
@@ -1230,10 +1252,10 @@ class _OrganMapPainter extends CustomPainter {
   Path _heartPath(Offset c, double r) {
     final p = Path();
     p.moveTo(c.dx, c.dy + r * 0.9);
-    p.cubicTo(c.dx - r * 1.5, c.dy - r * 0.2, c.dx - r * 0.7,
-        c.dy - r * 1.4, c.dx, c.dy - r * 0.5);
-    p.cubicTo(c.dx + r * 0.7, c.dy - r * 1.4, c.dx + r * 1.5,
-        c.dy - r * 0.2, c.dx, c.dy + r * 0.9);
+    p.cubicTo(c.dx - r * 1.5, c.dy - r * 0.2, c.dx - r * 0.7, c.dy - r * 1.4,
+        c.dx, c.dy - r * 0.5);
+    p.cubicTo(c.dx + r * 0.7, c.dy - r * 1.4, c.dx + r * 1.5, c.dy - r * 0.2,
+        c.dx, c.dy + r * 0.9);
     p.close();
     return p;
   }

@@ -88,7 +88,7 @@ class StatsTab extends StatelessWidget {
     final dailyRates = weekData.map((w) => w['rate'] as double).toList();
 
     return SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       physics:
           const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
       padding: const EdgeInsets.fromLTRB(0, AppSpacing.p4, 0, AppSpacing.p40),
@@ -113,99 +113,100 @@ class StatsTab extends StatelessWidget {
               ],
             ),
             child:
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text(l10n.homeYourSuccessScore,
-                    style: AppTypography.titleMedium.copyWith(
-                        fontWeight: FontWeight.w700,
+                Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(l10n.homeYourSuccessScore,
+                      style: AppTypography.titleMedium.copyWith(
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.limeInk,
+                          letterSpacing: -0.2)),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.55),
+                      borderRadius: BorderRadius.circular(999),
+                    ),
+                    child: Text(
+                      l10n.homeOnTrack,
+                      style: AppTypography.labelSmall.copyWith(
                         color: AppColors.limeInk,
-                        letterSpacing: -0.2)),
-                Container(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.55),
-                    borderRadius: BorderRadius.circular(999),
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
                   ),
-                  child: Text(
-                    l10n.homeOnTrack,
-                    style: AppTypography.labelSmall.copyWith(
-                      color: AppColors.limeInk,
-                      fontSize: 11,
-                      fontWeight: FontWeight.w700,
+                ],
+              ),
+              const SizedBox(height: AppSpacing.p20),
+              Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
+                Text('$overallAdh%',
+                    style: AppTypography.displayLarge.copyWith(
+                        fontSize: 56,
+                        fontWeight: FontWeight.w800,
+                        color: AppColors.limeInk,
+                        letterSpacing: -2,
+                        height: 0.9)),
+                const SizedBox(width: AppSpacing.p12),
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(bottom: AppSpacing.p8),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                            overallAdh >= 80
+                                ? 'Excellent'
+                                : (overallAdh >= 60
+                                    ? 'Stable'
+                                    : 'Needs attention'),
+                            style: AppTypography.labelLarge.copyWith(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.1,
+                                color:
+                                    AppColors.limeInk.withValues(alpha: 0.85))),
+                        const SizedBox(height: 2),
+                        Text(
+                          "Adherence",
+                          style: AppTypography.bodySmall.copyWith(
+                            color: AppColors.limeInk.withValues(alpha: 0.65),
+                            fontSize: 12,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              ],
-            ),
-            const SizedBox(height: AppSpacing.p20),
-            Row(crossAxisAlignment: CrossAxisAlignment.end, children: [
-              Text('$overallAdh%',
-                  style: AppTypography.displayLarge.copyWith(
-                      fontSize: 56,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.limeInk,
-                      letterSpacing: -2,
-                      height: 0.9)),
-              const SizedBox(width: AppSpacing.p12),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(bottom: AppSpacing.p8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                          overallAdh >= 80
-                              ? 'Excellent'
-                              : (overallAdh >= 60
-                                  ? 'Stable'
-                                  : 'Needs attention'),
-                          style: AppTypography.labelLarge.copyWith(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 0.1,
-                              color: AppColors.limeInk.withValues(alpha: 0.85))),
-                      const SizedBox(height: 2),
-                      Text(
-                        "Adherence",
-                        style: AppTypography.bodySmall.copyWith(
-                          color: AppColors.limeInk.withValues(alpha: 0.65),
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+              ]),
+              const SizedBox(height: AppSpacing.p24),
+              Stack(
+                children: [
+                  Container(
+                    height: 8,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.45),
+                      borderRadius: BorderRadius.circular(99),
+                    ),
                   ),
-                ),
+                  FractionallySizedBox(
+                    widthFactor: (overallAdh / 100.0).clamp(0.05, 1.0),
+                    child: Container(
+                      height: 8,
+                      decoration: BoxDecoration(
+                          color: AppColors.limeInk,
+                          borderRadius: BorderRadius.circular(99)),
+                    ),
+                  ),
+                ],
               ),
             ]),
-            const SizedBox(height: AppSpacing.p24),
-            Stack(
-              children: [
-                Container(
-                  height: 8,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: Colors.white.withValues(alpha: 0.45),
-                    borderRadius: BorderRadius.circular(99),
-                  ),
-                ),
-                FractionallySizedBox(
-                  widthFactor: (overallAdh / 100.0).clamp(0.05, 1.0),
-                  child: Container(
-                    height: 8,
-                    decoration: BoxDecoration(
-                        color: AppColors.limeInk,
-                        borderRadius: BorderRadius.circular(99)),
-                  ),
-                ),
-              ],
-            ),
-              ]),
-        ),
+          ),
         ),
         const SizedBox(height: AppSpacing.p24),
 
@@ -232,7 +233,8 @@ class StatsTab extends StatelessWidget {
               decoration: BoxDecoration(
                 color: L.card,
                 borderRadius: BorderRadius.circular(28),
-                border: Border.all(color: L.border.withValues(alpha: 0.1), width: 0.5),
+                border: Border.all(
+                    color: L.border.withValues(alpha: 0.1), width: 0.5),
                 boxShadow: AppShadows.soft,
               ),
               child: Center(
@@ -500,7 +502,8 @@ class StatsTab extends StatelessWidget {
                                               minHeight:
                                                   MedAiA11y.minTapTarget),
                                           padding: const EdgeInsets.symmetric(
-                                              horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
+                                              horizontal: AppSpacing.p12,
+                                              vertical: AppSpacing.p8),
                                           decoration: BoxDecoration(
                                             color:
                                                 L.text.withValues(alpha: 0.05),

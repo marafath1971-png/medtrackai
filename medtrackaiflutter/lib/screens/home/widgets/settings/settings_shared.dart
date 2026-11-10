@@ -269,16 +269,20 @@ class SettingsStatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final L = context.L;
     final icon = _mapStatIcon(emoji);
     final color = iosSettingsIconColor(emoji, null);
-    final tint = _tintFor(emoji);
 
     return Semantics(
       label: '$label: $val. $sub',
       child: DecoratedBox(
         decoration: BoxDecoration(
-          color: tint,
+          color: L.card,
           borderRadius: BorderRadius.circular(IosSettingsTokens.groupRadius),
+          border: Border.all(
+            color: L.border.withValues(alpha: 0.35),
+            width: 0.5,
+          ),
           boxShadow: [
             BoxShadow(
               color: const Color(0xFF1A2621).withValues(alpha: 0.04),
@@ -353,16 +357,6 @@ class SettingsStatCard extends StatelessWidget {
         ),
       ),
     );
-  }
-
-  Color _tintFor(String token) {
-    return switch (token) {
-      '✅' => AppColors.pastelMint,
-      '📈' => AppColors.pastelSky,
-      '🔥' => AppColors.pastelSun,
-      '📅' => AppColors.pastelSky,
-      _ => AppColors.pastelMint,
-    };
   }
 
   IconData _mapStatIcon(String token) {

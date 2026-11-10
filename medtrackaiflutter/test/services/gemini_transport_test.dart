@@ -67,9 +67,16 @@ void main() {
   setUp(() {
     fake = FakeGeminiTransport();
     debugSetGeminiTransport(fake);
+    debugSetGeminiEnvironment(LiveGeminiEnvironment(
+      isLoggedInFn: () => true,
+      apiKeyFn: () => '',
+    ));
   });
 
-  tearDown(() => debugSetGeminiTransport(null));
+  tearDown(() {
+    debugSetGeminiTransport(null);
+    debugSetGeminiEnvironment(null);
+  });
 
   test('the seam is installed and restored', () {
     expect(geminiTransport, same(fake));
@@ -137,8 +144,7 @@ void main() {
 
   group('scanMedicine', () {
     test('parses a proxied scan response into a ScanResult', () async {
-      fake.response =
-          '{"name":"Metformin","dose":"500 mg","identified":true}';
+      fake.response = '{"name":"Metformin","dose":"500 mg","identified":true}';
 
       // A file that does not exist exercises the error path rather than the
       // happy path, so only assert the call was well formed if one was made.

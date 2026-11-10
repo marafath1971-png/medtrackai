@@ -23,9 +23,8 @@ abstract final class AppInputs {
   /// Light / dark [InputDecorationTheme] for [ThemeData].
   static InputDecorationTheme decorationTheme({required bool dark}) {
     final fill = dark ? AppColors.cardDark2 : Colors.white;
-    final idle = dark
-        ? Colors.white.withValues(alpha: 0.12)
-        : AppColors.grey200;
+    final idle =
+        dark ? Colors.white.withValues(alpha: 0.12) : AppColors.grey200;
     final muted = dark ? AppColors.grey400 : AppColors.grey600;
     final err = dark ? const Color(0xFFFF6B6B) : AppColors.red;
 
@@ -77,9 +76,8 @@ abstract final class AppInputs {
   }) {
     final dark = Theme.of(context).brightness == Brightness.dark;
     final fill = dark ? AppColors.cardDark2 : Colors.white;
-    final idle = dark
-        ? Colors.white.withValues(alpha: 0.12)
-        : AppColors.grey200;
+    final idle =
+        dark ? Colors.white.withValues(alpha: 0.12) : AppColors.grey200;
     final err = AppColors.red;
 
     return InputDecoration(

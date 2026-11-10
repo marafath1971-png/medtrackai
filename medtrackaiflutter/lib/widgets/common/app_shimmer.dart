@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
 /// A premium, subtle skeleton loader inspired by Apple and Linear.
-/// Instead of a fast, distracting shimmer, this gently pulses opacity 
+/// Instead of a fast, distracting shimmer, this gently pulses opacity
 /// to indicate loading state without drawing the eye aggressively.
 class AppShimmer extends StatefulWidget {
   final double? width;
@@ -22,7 +22,8 @@ class AppShimmer extends StatefulWidget {
   State<AppShimmer> createState() => _AppShimmerState();
 }
 
-class _AppShimmerState extends State<AppShimmer> with SingleTickerProviderStateMixin {
+class _AppShimmerState extends State<AppShimmer>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _opacityAnim;
 
@@ -58,8 +59,8 @@ class _AppShimmerState extends State<AppShimmer> with SingleTickerProviderStateM
             decoration: BoxDecoration(
               color: context.L.fill,
               shape: widget.shape,
-              borderRadius: widget.shape == BoxShape.circle 
-                  ? null 
+              borderRadius: widget.shape == BoxShape.circle
+                  ? null
                   : BorderRadius.circular(widget.radius ?? AppRadius.xl),
             ),
           ),

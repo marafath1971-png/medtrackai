@@ -1,6 +1,9 @@
 /// Bundled HD photos — one unique file per role (never reused across screens).
 abstract final class PremiumPhotos {
   static const welcome = 'assets/photos/ob_welcome.jpg';
+  static const welcomeHero = 'assets/photos/ob_welcome_hero.jpg';
+  static const lifestyleHero = 'assets/photos/ob_lifestyle_hero.jpg';
+  static const welcomeArtwork = 'assets/images/medai_welcome_onboarding.png';
   static const know = 'assets/photos/ob_know.jpg';
   static const family = 'assets/photos/ob_family.jpg';
   static const thrive = 'assets/photos/ob_thrive.jpg';

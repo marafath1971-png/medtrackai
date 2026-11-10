@@ -8,7 +8,6 @@ import '../../../theme/med_ai_ui.dart';
 import 'widgets/trend_hero.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../services/export_service.dart';
-import '../paywall/premium_paywall_overlay.dart';
 import '../../../widgets/common/animated_ring_hero.dart';
 import '../../../widgets/common/app_scaffold.dart';
 import '../../../widgets/common/animated_pressable.dart';
@@ -32,13 +31,14 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
         .slideY(begin: 0.06, end: 0, curve: AppCurves.smooth);
   }
 
-  /// Generates the doctor-ready PDF and opens the share sheet. Premium-gated:
-  /// non-premium users get the paywall (report is a top retention/upsell hook).
+  /// Generates the doctor-ready PDF and opens the share sheet. Free for
+  /// everyone — see ExportService.exportAdherenceReport.
   Future<void> _shareDoctorReport(BuildContext context, AppState state) async {
     HapticEngine.selection();
     final ok = await ExportService.exportAdherenceReport(state);
     if (!ok && context.mounted) {
-      PremiumPaywallOverlay.show(context, triggerSource: 'doctor_report');
+      state.showToast("Couldn't create the report. Please try again.",
+          type: 'error');
     }
   }
 
@@ -56,8 +56,7 @@ class _AnalyticsDashboardScreenState extends State<AnalyticsDashboardScreen> {
     // Real today counts for the ring (was adherence×10 fake math).
     final todayDoses = state.getDoses();
     final takenMap = state.getTakenMapForDate(DateTime.now());
-    final takenToday =
-        todayDoses.where((d) => takenMap[d.key] ?? false).length;
+    final takenToday = todayDoses.where((d) => takenMap[d.key] ?? false).length;
 
     return AppScaffold(
       showAurora: true,
@@ -457,8 +456,7 @@ class _TrendGraphState extends State<_TrendGraph> {
     final data = week.isEmpty
         ? List<double>.filled(7, 0)
         : week
-            .map((d) =>
-                ((d['value'] as num?) ?? 0).toDouble().clamp(0.0, 1.0))
+            .map((d) => ((d['value'] as num?) ?? 0).toDouble().clamp(0.0, 1.0))
             .toList();
     final reduceMotion = MedAiA11y.reducedMotion(context);
 
@@ -490,8 +488,7 @@ class _TrendGraphState extends State<_TrendGraph> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: List.generate(data.length, (index) {
                   // Min height 6 so zero-adherence days still render a stub.
-                  final targetHeight =
-                      (100.0 * data[index]).clamp(6.0, 100.0);
+                  final targetHeight = (100.0 * data[index]).clamp(6.0, 100.0);
                   return Expanded(
                     child: Padding(
                       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -560,7 +557,8 @@ class _DoctorReportCard extends StatelessWidget {
                   color: L.accent.withValues(alpha: 0.12),
                   borderRadius: BorderRadius.circular(14),
                 ),
-                child: Icon(Icons.assignment_rounded, color: L.accent, size: 22),
+                child:
+                    Icon(Icons.assignment_rounded, color: L.accent, size: 22),
               ),
               const SizedBox(width: 14),
               Expanded(

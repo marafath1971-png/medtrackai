@@ -57,7 +57,7 @@ class MedicalDisclaimerModal extends StatelessWidget {
           border: Border.all(color: L.border.withValues(alpha: 0.1)),
         ),
         child: SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const BouncingScrollPhysics(
               parent: AlwaysScrollableScrollPhysics()),
           padding: const EdgeInsets.all(28),
@@ -98,8 +98,12 @@ class MedicalDisclaimerModal extends StatelessWidget {
                   fontWeight: FontWeight.w900,
                   letterSpacing: -0.8,
                 ),
-              ).medAiChain(context,
-                  (w) => w.animate().fadeIn(delay: 100.ms).slideY(begin: 0.2, end: 0)),
+              ).medAiChain(
+                  context,
+                  (w) => w
+                      .animate()
+                      .fadeIn(delay: 100.ms)
+                      .slideY(begin: 0.2, end: 0)),
 
               const SizedBox(height: 16),
 

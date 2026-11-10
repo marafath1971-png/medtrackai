@@ -5,6 +5,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../providers/app_state.dart';
 import '../../theme/med_ai_ui.dart';
+import '../../screens/medicine/widgets/interaction_warning_sheet.dart';
 import 'animated_pressable.dart';
 import '../../l10n/app_localizations.dart';
 
@@ -25,79 +26,90 @@ class InteractionWarningBanner extends StatelessWidget {
 
     Widget banner = Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.p12),
-      child: Container(
-        padding: const EdgeInsets.all(AppSpacing.p16),
-        decoration: BoxDecoration(
-          color: AppColors.pastelSun,
-          borderRadius: BorderRadius.circular(AppRadius.l),
-          border: Border.all(
-            color: AppColors.amber.withValues(alpha: 0.28),
+      child: AnimatedPressable(
+        onTap: () {
+          HapticEngine.selection();
+          InteractionWarningSheet.show(
+            context,
+            medicineName: medName ?? 'Medicine',
+            interactionName: 'Active Regimen',
+            interactionDetails: warning,
+          );
+        },
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.p16),
+          decoration: BoxDecoration(
+            color: AppColors.pastelSun,
+            borderRadius: BorderRadius.circular(AppRadius.l),
+            border: Border.all(
+              color: AppColors.amber.withValues(alpha: 0.28),
+            ),
           ),
-        ),
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.8),
-                borderRadius: BorderRadius.circular(AppRadius.s),
-              ),
-              child: Icon(
-                Icons.warning_amber_rounded,
-                color: const Color(0xFF9A6B1F),
-                size: 20,
-              ),
-            ),
-            const SizedBox(width: AppSpacing.p12),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    l10n.commonDrugInteraction,
-                    style: AppTypography.labelMedium.copyWith(
-                      color: const Color(0xFF9A6B1F),
-                      fontWeight: FontWeight.w700,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.p4),
-                  Text(
-                    warning,
-                    style: AppTypography.bodyMedium.copyWith(
-                      color: const Color(0xFF1A1D26),
-                      height: 1.4,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  const SizedBox(height: AppSpacing.p8),
-                  Text(
-                    'Review with your doctor or pharmacist before taking ${medName ?? 'this medicine'}.',
-                    style: AppTypography.bodySmall.copyWith(
-                      color: const Color(0xFF5C6570),
-                      height: 1.35,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Semantics(
-              button: true,
-              label: l10n.commonDismissInteractionWarning,
-              child: AnimatedPressable(
-                onTap: () {
-                  HapticEngine.selection();
-                  context.read<AppState>().clearInteractionWarning();
-                },
-                child: const Padding(
-                  padding: EdgeInsetsDirectional.only(start: 4),
-                  child: Icon(Icons.close_rounded,
-                      size: 20, color: Color(0xFF5C6570)),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 40,
+                height: 40,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.8),
+                  borderRadius: BorderRadius.circular(AppRadius.s),
+                ),
+                child: Icon(
+                  Icons.warning_amber_rounded,
+                  color: const Color(0xFF9A6B1F),
+                  size: 20,
                 ),
               ),
-            ),
-          ],
+              const SizedBox(width: AppSpacing.p12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      l10n.commonDrugInteraction,
+                      style: AppTypography.labelMedium.copyWith(
+                        color: const Color(0xFF9A6B1F),
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.p4),
+                    Text(
+                      warning,
+                      style: AppTypography.bodyMedium.copyWith(
+                        color: const Color(0xFF1A1D26),
+                        height: 1.4,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.p8),
+                    Text(
+                      'Review with your doctor or pharmacist before taking ${medName ?? 'this medicine'}.',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: const Color(0xFF5C6570),
+                        height: 1.35,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Semantics(
+                button: true,
+                label: l10n.commonDismissInteractionWarning,
+                child: AnimatedPressable(
+                  onTap: () {
+                    HapticEngine.selection();
+                    context.read<AppState>().clearInteractionWarning();
+                  },
+                  child: const Padding(
+                    padding: EdgeInsetsDirectional.only(start: 4),
+                    child: Icon(Icons.close_rounded,
+                        size: 20, color: Color(0xFF5C6570)),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

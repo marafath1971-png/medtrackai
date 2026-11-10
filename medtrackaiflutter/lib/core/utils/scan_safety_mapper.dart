@@ -110,8 +110,7 @@ extension MedicineKnowSafety on Medicine {
   bool get needsPreTakeBriefing {
     final p = aiSafetyProfile;
     if (p == null) {
-      return intakeInstructions.isNotEmpty &&
-          intakeInstructions != 'None';
+      return intakeInstructions.isNotEmpty && intakeInstructions != 'None';
     }
     return p.warnings.isNotEmpty ||
         p.interactions.isNotEmpty ||

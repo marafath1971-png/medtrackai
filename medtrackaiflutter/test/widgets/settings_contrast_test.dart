@@ -132,7 +132,8 @@ void main() {
               final end = (m.start + 700).clamp(0, src.length);
               final seg = src.substring(m.start, end);
               if (RegExp(r'color:\s*L\.(text|sub|onCard)\b').hasMatch(seg)) {
-                offenders.add('${e.path}:${'\n'.allMatches(src.substring(0, m.start)).length + 1}');
+                offenders.add(
+                    '${e.path}:${'\n'.allMatches(src.substring(0, m.start)).length + 1}');
               }
             }
           }
@@ -143,7 +144,8 @@ void main() {
       walk(Directory('lib/widgets'));
 
       expect(offenders, isEmpty,
-          reason: 'white surface with themed text on it:\n${offenders.join("\n")}');
+          reason:
+              'white surface with themed text on it:\n${offenders.join("\n")}');
     });
   });
 }

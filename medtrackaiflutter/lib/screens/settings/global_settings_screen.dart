@@ -101,237 +101,240 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
             ),
             sliver: SliverList(
               delegate: SliverChildListDelegate([
-              // ── LOCALIZATION BLOCK ───────────────────────
-              _IndustrialSection(
-                label: l10n.settingsLocalization,
-                icon: Icons.language_rounded,
-                L: L,
-                children: [
-                  _PickerTile(
-                    label: s.country,
-                    value: kCountries.firstWhere(
-                        (c) => c['c'] == _profile.country,
-                        orElse: () => kCountries[0])['v']!,
-                    flag: kCountries.firstWhere(
-                        (c) => c['c'] == _profile.country,
-                        orElse: () => kCountries[0])['e']!,
-                    onTap: () async {
-                      final res = await showModalBottomSheet<String>(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (_) => _PickerSheet(
-                            title: s.selectCountry,
-                            items: kCountries
-                                .map((c) => {
-                                      'code': c['c']!,
-                                      'label': c['v']!,
-                                      'flag': c['e']!
-                                    })
-                                .toList(),
-                            selectedCode: _profile.country),
-                      );
-                      if (!mounted || res == null) return;
-                      _save(_profile.copyWith(country: res));
-                    },
-                    L: L,
-                  ),
-                  _PickerTile(
-                    label: s.language,
-                    value: _languages.firstWhere(
-                        (l) => l['code'] == _profile.preferredLanguage,
-                        orElse: () => _languages[0])['label']!,
-                    flag: _languages.firstWhere(
-                        (l) => l['code'] == _profile.preferredLanguage,
-                        orElse: () => _languages[0])['flag']!,
-                    onTap: () async {
-                      final res = await showModalBottomSheet<String>(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (_) => _PickerSheet(
-                            title: s.selectLanguage,
-                            items: _languages,
-                            selectedCode: _profile.preferredLanguage),
-                      );
-                      if (!mounted || res == null) return;
-                      _save(_profile.copyWith(preferredLanguage: res));
-                    },
-                    L: L,
-                    isLast: true,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              // ── CLINICAL MODES BLOCK ─────────────────────
-              _IndustrialSection(
-                label: 'Clinical modes',
-                icon: Icons.science_rounded,
-                L: L,
-                children: [
-                  _ToggleTile(
-                    title: s.showGenericNames,
-                    subtitle: s.showGenericNamesSubtitle,
-                    value: _profile.showGenericNames,
-                    onChanged: (v) =>
-                        _save(_profile.copyWith(showGenericNames: v)),
-                    L: L,
-                  ),
-                  _ToggleTile(
-                    title: s.shabbatMode,
-                    subtitle: s.shabbatModeSubtitle,
-                    value: _profile.shabbatMode,
-                    onChanged: (v) => _save(_profile.copyWith(shabbatMode: v)),
-                    L: L,
-                  ),
-                  _ToggleTile(
-                    title: l10n.settingsDiabetesMetrics,
-                    subtitle: 'Synchronize blood glucose logs',
-                    value: _profile.diabetesMode,
-                    onChanged: (v) => _save(_profile.copyWith(diabetesMode: v)),
-                    L: L,
-                  ),
-                  _ToggleTile(
-                    title: l10n.settingsHypertensionTracking,
-                    subtitle: 'Synchronize systolic/diastolic logs',
-                    value: _profile.hypertensionMode,
-                    onChanged: (v) =>
-                        _save(_profile.copyWith(hypertensionMode: v)),
-                    L: L,
-                    isLast: true,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              // ── VITAL CONNECTIVITY BLOCK ─────────────────
-              _IndustrialSection(
-                label: l10n.settingsVitalConnectivity,
-                icon: Icons.favorite_rounded,
-                L: L,
-                children: [
-                  _ToggleTile(
-                    title: l10n.settingsAutoSyncHealth,
-                    subtitle: 'Keep vitals synchronized in background',
-                    value: context.watch<AppState>().healthAutoSync,
-                    onChanged: (v) =>
-                        context.read<AppState>().setHealthAutoSync(v),
-                    L: L,
-                    isLast: true,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              // ── ACCOUNT BLOCK ────────────────────────────
-              //
-              // Export and Delete Account used to be duplicated here and on
-              // the profile screen. This page is reached *through* that screen
-              // (profile_tab pushes AppRoutes.settingsGlobal), so a user could
-              // meet the same destructive action twice on one journey, backed
-              // by different code. Account-level actions now live only where
-              // the account does; this page keeps device-local state.
-              _IndustrialSection(
-                label: l10n.settingsThisDevice,
-                icon: Icons.phone_iphone_rounded,
-                L: L,
-                children: [
-                  _AccountActionTile(
-                    icon: Icons.cleaning_services_rounded,
-                    title: l10n.settingsClearLocalCache,
-                    subtitle: 'Free up space and refresh local state',
-                    isLast: true,
-                    onTap: () => _confirmReset(context, L),
-                    L: L,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 24),
-
-              // ── SYSTEM BLOCK ─────────────────────────────
-              _IndustrialSection(
-                label: l10n.settingsSystem,
-                icon: Icons.settings_rounded,
-                L: L,
-                children: [
-                  _AccountActionTile(
-                    icon: Icons.privacy_tip_outlined,
-                    title: l10n.privacyPolicy,
-                    onTap: () {
-                      HapticEngine.selection();
-                      context.push(AppRoutes.settingsPrivacy);
-                    },
-                    L: L,
-                  ),
-                  _AccountActionTile(
-                    icon: Icons.gavel_rounded,
-                    title: l10n.termsOfService,
-                    onTap: () {
-                      HapticEngine.selection();
-                      context.push(AppRoutes.settingsTerms);
-                    },
-                    L: L,
-                  ),
-                  _AccountActionTile(
-                    icon: Icons.support_agent_rounded,
-                    title: l10n.homeSupportFeedback,
-                    subtitle: 'Get help or send us feedback',
-                    isLast: true,
-                    onTap: () async {
-                      HapticEngine.selection();
-                      final url = Uri.parse(kSupportUrl);
-                      if (await canLaunchUrl(url)) {
-                        await launchUrl(url, mode: LaunchMode.externalApplication);
-                      } else {
-                        if (context.mounted) {
-                          SmartAlertService.show(
-                            context,
-                            title: l10n.homeContactSupport,
-                            message: l10n.settingsEmailUsAt(kSupportEmail),
-                            type: AlertType.info,
-                          );
-                        }
-                      }
-                    },
-                    L: L,
-                  ),
-                ],
-              ),
-
-              const SizedBox(height: 48),
-
-              // ── SYSTEM INTEGRITY FOOTER ──
-              Center(
-                child: Column(
+                // ── LOCALIZATION BLOCK ───────────────────────
+                _IndustrialSection(
+                  label: l10n.settingsLocalization,
+                  icon: Icons.language_rounded,
+                  L: L,
                   children: [
-                    Text(
-                      kAppName.toUpperCase(),
-                      style: AppTypography.labelSmall.copyWith(
-                        color: L.text.withValues(alpha: 0.15),
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 4.0,
-                        fontSize: 11,
-                      ),
+                    _PickerTile(
+                      label: s.country,
+                      value: kCountries.firstWhere(
+                          (c) => c['c'] == _profile.country,
+                          orElse: () => kCountries[0])['v']!,
+                      flag: kCountries.firstWhere(
+                          (c) => c['c'] == _profile.country,
+                          orElse: () => kCountries[0])['e']!,
+                      onTap: () async {
+                        final res = await showModalBottomSheet<String>(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (_) => _PickerSheet(
+                              title: s.selectCountry,
+                              items: kCountries
+                                  .map((c) => {
+                                        'code': c['c']!,
+                                        'label': c['v']!,
+                                        'flag': c['e']!
+                                      })
+                                  .toList(),
+                              selectedCode: _profile.country),
+                        );
+                        if (!mounted || res == null) return;
+                        _save(_profile.copyWith(country: res));
+                      },
+                      L: L,
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      l10n.settingsVersionStable(kAppVersion),
-                      style: AppTypography.labelSmall.copyWith(
-                        color: L.text.withValues(alpha: 0.1),
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 1.0,
-                        fontSize: 11,
-                      ),
+                    _PickerTile(
+                      label: s.language,
+                      value: _languages.firstWhere(
+                          (l) => l['code'] == _profile.preferredLanguage,
+                          orElse: () => _languages[0])['label']!,
+                      flag: _languages.firstWhere(
+                          (l) => l['code'] == _profile.preferredLanguage,
+                          orElse: () => _languages[0])['flag']!,
+                      onTap: () async {
+                        final res = await showModalBottomSheet<String>(
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (_) => _PickerSheet(
+                              title: s.selectLanguage,
+                              items: _languages,
+                              selectedCode: _profile.preferredLanguage),
+                        );
+                        if (!mounted || res == null) return;
+                        _save(_profile.copyWith(preferredLanguage: res));
+                      },
+                      L: L,
+                      isLast: true,
                     ),
                   ],
                 ),
-              ),
-              const SizedBox(height: 120),
+
+                const SizedBox(height: 24),
+
+                // ── CLINICAL MODES BLOCK ─────────────────────
+                _IndustrialSection(
+                  label: 'Clinical modes',
+                  icon: Icons.science_rounded,
+                  L: L,
+                  children: [
+                    _ToggleTile(
+                      title: s.showGenericNames,
+                      subtitle: s.showGenericNamesSubtitle,
+                      value: _profile.showGenericNames,
+                      onChanged: (v) =>
+                          _save(_profile.copyWith(showGenericNames: v)),
+                      L: L,
+                    ),
+                    _ToggleTile(
+                      title: s.shabbatMode,
+                      subtitle: s.shabbatModeSubtitle,
+                      value: _profile.shabbatMode,
+                      onChanged: (v) =>
+                          _save(_profile.copyWith(shabbatMode: v)),
+                      L: L,
+                    ),
+                    _ToggleTile(
+                      title: l10n.settingsDiabetesMetrics,
+                      subtitle: 'Synchronize blood glucose logs',
+                      value: _profile.diabetesMode,
+                      onChanged: (v) =>
+                          _save(_profile.copyWith(diabetesMode: v)),
+                      L: L,
+                    ),
+                    _ToggleTile(
+                      title: l10n.settingsHypertensionTracking,
+                      subtitle: 'Synchronize systolic/diastolic logs',
+                      value: _profile.hypertensionMode,
+                      onChanged: (v) =>
+                          _save(_profile.copyWith(hypertensionMode: v)),
+                      L: L,
+                      isLast: true,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // ── VITAL CONNECTIVITY BLOCK ─────────────────
+                _IndustrialSection(
+                  label: l10n.settingsVitalConnectivity,
+                  icon: Icons.favorite_rounded,
+                  L: L,
+                  children: [
+                    _ToggleTile(
+                      title: l10n.settingsAutoSyncHealth,
+                      subtitle: 'Keep vitals synchronized in background',
+                      value: context.watch<AppState>().healthAutoSync,
+                      onChanged: (v) =>
+                          context.read<AppState>().setHealthAutoSync(v),
+                      L: L,
+                      isLast: true,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // ── ACCOUNT BLOCK ────────────────────────────
+                //
+                // Export and Delete Account used to be duplicated here and on
+                // the profile screen. This page is reached *through* that screen
+                // (profile_tab pushes AppRoutes.settingsGlobal), so a user could
+                // meet the same destructive action twice on one journey, backed
+                // by different code. Account-level actions now live only where
+                // the account does; this page keeps device-local state.
+                _IndustrialSection(
+                  label: l10n.settingsThisDevice,
+                  icon: Icons.phone_iphone_rounded,
+                  L: L,
+                  children: [
+                    _AccountActionTile(
+                      icon: Icons.cleaning_services_rounded,
+                      title: l10n.settingsClearLocalCache,
+                      subtitle: 'Free up space and refresh local state',
+                      isLast: true,
+                      onTap: () => _confirmReset(context, L),
+                      L: L,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 24),
+
+                // ── SYSTEM BLOCK ─────────────────────────────
+                _IndustrialSection(
+                  label: l10n.settingsSystem,
+                  icon: Icons.settings_rounded,
+                  L: L,
+                  children: [
+                    _AccountActionTile(
+                      icon: Icons.privacy_tip_outlined,
+                      title: l10n.privacyPolicy,
+                      onTap: () {
+                        HapticEngine.selection();
+                        context.push(AppRoutes.settingsPrivacy);
+                      },
+                      L: L,
+                    ),
+                    _AccountActionTile(
+                      icon: Icons.gavel_rounded,
+                      title: l10n.termsOfService,
+                      onTap: () {
+                        HapticEngine.selection();
+                        context.push(AppRoutes.settingsTerms);
+                      },
+                      L: L,
+                    ),
+                    _AccountActionTile(
+                      icon: Icons.support_agent_rounded,
+                      title: l10n.homeSupportFeedback,
+                      subtitle: 'Get help or send us feedback',
+                      isLast: true,
+                      onTap: () async {
+                        HapticEngine.selection();
+                        final url = Uri.parse(kSupportUrl);
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(url,
+                              mode: LaunchMode.externalApplication);
+                        } else {
+                          if (context.mounted) {
+                            SmartAlertService.show(
+                              context,
+                              title: l10n.homeContactSupport,
+                              message: l10n.settingsEmailUsAt(kSupportEmail),
+                              type: AlertType.info,
+                            );
+                          }
+                        }
+                      },
+                      L: L,
+                    ),
+                  ],
+                ),
+
+                const SizedBox(height: 48),
+
+                // ── SYSTEM INTEGRITY FOOTER ──
+                Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        kAppName.toUpperCase(),
+                        style: AppTypography.labelSmall.copyWith(
+                          color: L.text.withValues(alpha: 0.15),
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 4.0,
+                          fontSize: 11,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        l10n.settingsVersionStable(kAppVersion),
+                        style: AppTypography.labelSmall.copyWith(
+                          color: L.text.withValues(alpha: 0.1),
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1.0,
+                          fontSize: 11,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 120),
               ]),
             ),
           ),
@@ -373,7 +376,6 @@ class _GlobalSettingsScreenState extends State<GlobalSettingsScreen> {
       ),
     );
   }
-
 }
 
 // ── Account Action Tile ───────────────────────────────────────────────
@@ -388,7 +390,7 @@ class _AccountActionTile extends StatelessWidget {
       {required this.icon,
       required this.title,
       this.subtitle,
-        required this.onTap,
+      required this.onTap,
       required this.L,
       this.isLast = false});
 
@@ -605,7 +607,7 @@ class _PickerSheet extends StatelessWidget {
     return RefinedSheetWrapper(
       title: title,
       child: ListView.builder(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const ClampingScrollPhysics(),
         shrinkWrap: true,
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 48),
@@ -620,11 +622,8 @@ class _PickerSheet extends StatelessWidget {
             },
             title: Text(item['label']!,
                 style: AppTypography.labelLarge.copyWith(
-                    fontWeight:
-                        isSelected ? FontWeight.w900 : FontWeight.w700,
-                    color: isSelected
-                        ? L.text
-                        : L.sub.withValues(alpha: 0.5),
+                    fontWeight: isSelected ? FontWeight.w900 : FontWeight.w700,
+                    color: isSelected ? L.text : L.sub.withValues(alpha: 0.5),
                     fontSize: 14,
                     letterSpacing: 0.5)),
             trailing: isSelected

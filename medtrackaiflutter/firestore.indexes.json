@@ -1,4 +1,13 @@
 {
-    "indexes": [],
+    "indexes": [
+        {
+            "collectionGroup": "missedDoseAlerts",
+            "queryScope": "COLLECTION",
+            "fields": [
+                { "fieldPath": "alertedUids", "arrayConfig": "CONTAINS" },
+                { "fieldPath": "dayKey", "order": "DESCENDING" }
+            ]
+        }
+    ],
     "fieldOverrides": []
 }

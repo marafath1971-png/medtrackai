@@ -8,13 +8,12 @@ import 'package:medai/services/gemini_service.dart';
 void main() {
   group('cleanJsonPayload', () {
     test('strips markdown fences', () {
-      expect(GeminiService.cleanJsonPayload('```json\n{"a":1}\n```'),
-          '{"a":1}');
+      expect(
+          GeminiService.cleanJsonPayload('```json\n{"a":1}\n```'), '{"a":1}');
     });
 
     test('strips a line comment that would break json.decode', () {
-      final cleaned =
-          GeminiService.cleanJsonPayload('{"a":1, // note\n"b":2}');
+      final cleaned = GeminiService.cleanJsonPayload('{"a":1, // note\n"b":2}');
       expect(cleaned, isNot(contains('// note')));
     });
 
@@ -60,11 +59,13 @@ void main() {
     });
 
     test('throws a FormatException when there is no JSON at all', () {
-      expect(() => GeminiService.parseScanResponse('I could not identify this.'),
+      expect(
+          () => GeminiService.parseScanResponse('I could not identify this.'),
           throwsA(isA<FormatException>()));
     });
 
-    test('throws a FormatException on malformed JSON rather than returning junk',
+    test(
+        'throws a FormatException on malformed JSON rather than returning junk',
         () {
       expect(() => GeminiService.parseScanResponse('{"name":"Aspirin",}'),
           throwsA(isA<FormatException>()));

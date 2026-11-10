@@ -86,7 +86,8 @@ class HomeWeekStrip extends StatelessWidget {
                   child: AnimatedContainer(
                     duration: const Duration(milliseconds: 220),
                     curve: Curves.easeOut,
-                    padding: const EdgeInsets.symmetric(vertical: AppSpacing.p8),
+                    padding:
+                        const EdgeInsets.symmetric(vertical: AppSpacing.p8),
                     decoration: BoxDecoration(
                       gradient: isSelected
                           ? const LinearGradient(
@@ -108,8 +109,8 @@ class HomeWeekStrip extends StatelessWidget {
                       boxShadow: isSelected
                           ? [
                               BoxShadow(
-                                color: AppColors.limeDeep
-                                    .withValues(alpha: 0.35),
+                                color:
+                                    AppColors.limeDeep.withValues(alpha: 0.35),
                                 blurRadius: 12,
                                 offset: const Offset(0, 4),
                               ),
@@ -169,9 +170,7 @@ class HomeWeekStrip extends StatelessWidget {
 
   bool _isToday(DateTime day) {
     final now = DateTime.now();
-    return day.year == now.year &&
-        day.month == now.month &&
-        day.day == now.day;
+    return day.year == now.year && day.month == now.month && day.day == now.day;
   }
 }
 

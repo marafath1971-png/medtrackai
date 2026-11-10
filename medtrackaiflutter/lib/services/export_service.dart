@@ -7,10 +7,12 @@ import '../providers/app_state.dart';
 import '../core/utils/date_formatter.dart';
 
 class ExportService {
-  static const PdfColor primaryColor = PdfColor.fromInt(0xff0f172a); // slate-900
-  static const PdfColor secondaryColor = PdfColor.fromInt(0xff334155); // slate-700
+  static const PdfColor primaryColor =
+      PdfColor.fromInt(0xff0f172a); // slate-900
+  static const PdfColor secondaryColor =
+      PdfColor.fromInt(0xff334155); // slate-700
   static const PdfColor accentColor = PdfColor.fromInt(0xff0ea5e9); // sky-500
-  static const PdfColor greenColor = PdfColor.fromInt(0xff22c55e); 
+  static const PdfColor greenColor = PdfColor.fromInt(0xff22c55e);
   static const PdfColor redColor = PdfColor.fromInt(0xffef4444);
   static const PdfColor bgGray = PdfColor.fromInt(0xfff8fafc); // slate-50
 
@@ -18,9 +20,9 @@ class ExportService {
     final profile = state.profile;
     if (profile == null) return false;
 
-    // Doctor-ready reports are a Premium feature (research: top retention hook).
-    // Returning false lets the call site present the paywall.
-    if (!state.isPremium) return false;
+    // Free for everyone. People's own records are not a paywall lever:
+    // being locked out of your history is the category's most common 1-star
+    // complaint, and a report for your doctor is a safety tool.
 
     final userName = profile.name;
     final history = state.history;
@@ -44,7 +46,6 @@ class ExportService {
   ) async {
     final profile = state.profile;
     if (profile == null) return false;
-    if (!state.isPremium) return false;
 
     await _generateAndSharePdf(
       userName: member.name,
@@ -65,11 +66,11 @@ class ExportService {
     final pdf = pw.Document();
     final now = DateTime.now();
     final todayStr = now.toIso8601String().substring(0, 10);
-    
+
     // Calculate adherence score
     int totalTaken = 0;
     int totalMissed = 0;
-    
+
     for (int i = 0; i < 30; i++) {
       final date = now.subtract(Duration(days: i));
       final dateStr = date.toIso8601String().substring(0, 10);
@@ -77,9 +78,10 @@ class ExportService {
       totalTaken += doses.where((d) => d.taken).length;
       totalMissed += doses.where((d) => !d.taken && !d.skipped).length;
     }
-    
+
     final totalDoses = totalTaken + totalMissed;
-    final double adherenceRate = totalDoses > 0 ? (totalTaken / totalDoses) * 100 : 0;
+    final double adherenceRate =
+        totalDoses > 0 ? (totalTaken / totalDoses) * 100 : 0;
 
     pdf.addPage(
       pw.MultiPage(
@@ -91,7 +93,8 @@ class ExportService {
             pw.Container(
               padding: const pw.EdgeInsets.only(bottom: 20),
               decoration: const pw.BoxDecoration(
-                border: pw.Border(bottom: pw.BorderSide(color: bgGray, width: 2)),
+                border:
+                    pw.Border(bottom: pw.BorderSide(color: bgGray, width: 2)),
               ),
               child: pw.Row(
                 mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
@@ -119,7 +122,8 @@ class ExportService {
                     children: [
                       pw.Text(
                         'Generated on',
-                        style: pw.TextStyle(color: secondaryColor, fontSize: 10),
+                        style:
+                            pw.TextStyle(color: secondaryColor, fontSize: 10),
                       ),
                       pw.Text(
                         todayStr,
@@ -137,67 +141,84 @@ class ExportService {
             pw.SizedBox(height: 30),
 
             // Patient Info & Summary Cards
-            pw.Row(
-              crossAxisAlignment: pw.CrossAxisAlignment.start,
-              children: [
-                pw.Expanded(
-                  child: pw.Container(
-                    padding: const pw.EdgeInsets.all(16),
-                    decoration: pw.BoxDecoration(
-                      color: bgGray,
-                      borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
-                    ),
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('PATIENT', style: pw.TextStyle(color: secondaryColor, fontSize: 10)),
-                        pw.SizedBox(height: 4),
-                        pw.Text(userName, style: pw.TextStyle(color: primaryColor, fontSize: 20, fontWeight: pw.FontWeight.bold)),
-                        if (relation != 'Self')
-                          pw.Text('Relation: $relation', style: pw.TextStyle(color: secondaryColor, fontSize: 12)),
-                      ],
-                    ),
+            pw.Row(crossAxisAlignment: pw.CrossAxisAlignment.start, children: [
+              pw.Expanded(
+                child: pw.Container(
+                  padding: const pw.EdgeInsets.all(16),
+                  decoration: pw.BoxDecoration(
+                    color: bgGray,
+                    borderRadius:
+                        const pw.BorderRadius.all(pw.Radius.circular(8)),
                   ),
-                ),
-                pw.SizedBox(width: 16),
-                pw.Expanded(
-                  child: pw.Container(
-                    padding: const pw.EdgeInsets.all(16),
-                    decoration: pw.BoxDecoration(
-                      color: bgGray,
-                      borderRadius: const pw.BorderRadius.all(pw.Radius.circular(8)),
-                    ),
-                    child: pw.Column(
-                      crossAxisAlignment: pw.CrossAxisAlignment.start,
-                      children: [
-                        pw.Text('30-DAY ADHERENCE', style: pw.TextStyle(color: secondaryColor, fontSize: 10)),
-                        pw.SizedBox(height: 4),
-                        pw.Text('${adherenceRate.toStringAsFixed(1)}%', 
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text('PATIENT',
                           style: pw.TextStyle(
-                            color: adherenceRate >= 80 ? greenColor : redColor, 
-                            fontSize: 20, 
-                            fontWeight: pw.FontWeight.bold,
-                          )
-                        ),
-                      ],
-                    ),
+                              color: secondaryColor, fontSize: 10)),
+                      pw.SizedBox(height: 4),
+                      pw.Text(userName,
+                          style: pw.TextStyle(
+                              color: primaryColor,
+                              fontSize: 20,
+                              fontWeight: pw.FontWeight.bold)),
+                      if (relation != 'Self')
+                        pw.Text('Relation: $relation',
+                            style: pw.TextStyle(
+                                color: secondaryColor, fontSize: 12)),
+                    ],
                   ),
                 ),
-              ]
-            ),
-            
+              ),
+              pw.SizedBox(width: 16),
+              pw.Expanded(
+                child: pw.Container(
+                  padding: const pw.EdgeInsets.all(16),
+                  decoration: pw.BoxDecoration(
+                    color: bgGray,
+                    borderRadius:
+                        const pw.BorderRadius.all(pw.Radius.circular(8)),
+                  ),
+                  child: pw.Column(
+                    crossAxisAlignment: pw.CrossAxisAlignment.start,
+                    children: [
+                      pw.Text('30-DAY ADHERENCE',
+                          style: pw.TextStyle(
+                              color: secondaryColor, fontSize: 10)),
+                      pw.SizedBox(height: 4),
+                      pw.Text('${adherenceRate.toStringAsFixed(1)}%',
+                          style: pw.TextStyle(
+                            color: adherenceRate >= 80 ? greenColor : redColor,
+                            fontSize: 20,
+                            fontWeight: pw.FontWeight.bold,
+                          )),
+                    ],
+                  ),
+                ),
+              ),
+            ]),
+
             pw.SizedBox(height: 30),
 
             // Active Medications Table
-            pw.Text('Active Prescriptions & Regimens', style: pw.TextStyle(color: primaryColor, fontSize: 18, fontWeight: pw.FontWeight.bold)),
+            pw.Text('Active Prescriptions & Regimens',
+                style: pw.TextStyle(
+                    color: primaryColor,
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 10),
             if (meds.isEmpty)
-              pw.Text('No active medications recorded.', style: pw.TextStyle(color: secondaryColor, fontStyle: pw.FontStyle.italic))
+              pw.Text('No active medications recorded.',
+                  style: pw.TextStyle(
+                      color: secondaryColor, fontStyle: pw.FontStyle.italic))
             else
               pw.TableHelper.fromTextArray(
                 context: context,
                 border: null,
-                headerStyle: pw.TextStyle(color: PdfColors.white, fontWeight: pw.FontWeight.bold, fontSize: 12),
+                headerStyle: pw.TextStyle(
+                    color: PdfColors.white,
+                    fontWeight: pw.FontWeight.bold,
+                    fontSize: 12),
                 headerDecoration: const pw.BoxDecoration(color: primaryColor),
                 cellHeight: 30,
                 cellAlignments: {
@@ -207,7 +228,8 @@ class ExportService {
                 },
                 cellStyle: pw.TextStyle(color: primaryColor, fontSize: 11),
                 rowDecoration: const pw.BoxDecoration(
-                  border: pw.Border(bottom: pw.BorderSide(color: bgGray, width: 1)),
+                  border:
+                      pw.Border(bottom: pw.BorderSide(color: bgGray, width: 1)),
                 ),
                 data: <List<String>>[
                   <String>['Medication Name', 'Dosage', 'Schedule'],
@@ -224,11 +246,15 @@ class ExportService {
                   }),
                 ],
               ),
-            
+
             pw.SizedBox(height: 30),
 
             // Recent Adherence Log
-            pw.Text('Clinical Adherence Log (Last 7 Days)', style: pw.TextStyle(color: primaryColor, fontSize: 18, fontWeight: pw.FontWeight.bold)),
+            pw.Text('Clinical Adherence Log (Last 7 Days)',
+                style: pw.TextStyle(
+                    color: primaryColor,
+                    fontSize: 18,
+                    fontWeight: pw.FontWeight.bold)),
             pw.SizedBox(height: 10),
             _buildPremiumAdherenceLog(meds, history),
 
@@ -252,11 +278,13 @@ class ExportService {
 
     final output = await getTemporaryDirectory();
     final sanitizedName = userName.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_');
-    final file = File('${output.path}/ClinicalReport_${sanitizedName}_$todayStr.pdf');
+    final file =
+        File('${output.path}/ClinicalReport_${sanitizedName}_$todayStr.pdf');
     await file.writeAsBytes(await pdf.save());
 
     // ignore: deprecated_member_use
-    await Share.shareXFiles([XFile(file.path)], text: 'Medai Clinical Report - $userName');
+    await Share.shareXFiles([XFile(file.path)],
+        text: 'Medai Clinical Report - $userName');
   }
 
   static pw.Widget _buildPremiumAdherenceLog(
@@ -273,7 +301,9 @@ class ExportService {
       final doses = history[dateStr] ?? [];
 
       for (var dose in doses) {
-        final medName = meds.where((m) => m.id == dose.medId).firstOrNull?.name ?? 'Unknown Medicine';
+        final medName =
+            meds.where((m) => m.id == dose.medId).firstOrNull?.name ??
+                'Unknown Medicine';
         rows.add([
           dateStr,
           medName,
@@ -284,12 +314,15 @@ class ExportService {
     }
 
     if (rows.length == 1) {
-      return pw.Text('No adherence data found for the last 7 days.', style: pw.TextStyle(color: secondaryColor, fontStyle: pw.FontStyle.italic));
+      return pw.Text('No adherence data found for the last 7 days.',
+          style: pw.TextStyle(
+              color: secondaryColor, fontStyle: pw.FontStyle.italic));
     }
 
     return pw.TableHelper.fromTextArray(
       border: null,
-      headerStyle: pw.TextStyle(color: primaryColor, fontWeight: pw.FontWeight.bold, fontSize: 10),
+      headerStyle: pw.TextStyle(
+          color: primaryColor, fontWeight: pw.FontWeight.bold, fontSize: 10),
       headerDecoration: const pw.BoxDecoration(color: bgGray),
       cellHeight: 25,
       cellAlignments: {

@@ -52,7 +52,8 @@ class _PremiumShimmerState extends State<PremiumShimmer>
               stops: const [0.1, 0.3, 0.4],
               begin: const Alignment(-1.0, -0.3),
               end: const Alignment(1.0, 0.3),
-              transform: _SlidingGradientTransform(slidePercent: _controller.value),
+              transform:
+                  _SlidingGradientTransform(slidePercent: _controller.value),
             ).createShader(bounds);
           },
           child: child,
@@ -93,7 +94,8 @@ class ShimmerBox extends StatelessWidget {
         width: width,
         height: height,
         decoration: BoxDecoration(
-          color: Colors.white, // Color doesn't matter much as ShaderMask colors over it
+          color: Colors
+              .white, // Color doesn't matter much as ShaderMask colors over it
           borderRadius: BorderRadius.circular(borderRadius),
         ),
       ),
@@ -105,7 +107,7 @@ class ContextualLoader extends StatelessWidget {
   final String message;
   final Color? color;
   final bool isDark;
-  
+
   const ContextualLoader({
     super.key,
     this.message = 'Analyzing your data...',
@@ -130,17 +132,17 @@ class ContextualLoader extends StatelessWidget {
               color: primaryColor.withValues(alpha: 0.1),
               boxShadow: AppShadows.glow(primaryColor, intensity: 0.3),
             ),
-            child: Icon(Icons.auto_awesome_rounded,
-                    color: primaryColor, size: 28)
-                .medAiChain(
-                    context,
-                    (w) => w
-                        .animate(onPlay: (c) => c.repeat(reverse: true))
-                        .scaleXY(
-                            begin: 0.9,
-                            end: 1.1,
-                            duration: 800.ms,
-                            curve: Curves.easeInOut)),
+            child:
+                Icon(Icons.auto_awesome_rounded, color: primaryColor, size: 28)
+                    .medAiChain(
+                        context,
+                        (w) => w
+                            .animate(onPlay: (c) => c.repeat(reverse: true))
+                            .scaleXY(
+                                begin: 0.9,
+                                end: 1.1,
+                                duration: 800.ms,
+                                curve: Curves.easeInOut)),
           ).medAiChain(
               context,
               (w) => w.animate(onPlay: (c) => c.repeat()).shimmer(

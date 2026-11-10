@@ -130,12 +130,13 @@ void main() {
     });
 
     test('no delete path fakes the outcome with a toast', () {
-      final src =
-          File('lib/screens/home/widgets/settings/app_tab.dart').readAsStringSync();
+      final src = File('lib/screens/home/widgets/settings/app_tab.dart')
+          .readAsStringSync();
 
       // Match the toast call, not the phrase: the comment explaining the bug
       // legitimately mentions it.
-      expect(src.contains("AppFeedback.toast(context, 'Account scheduled"), isFalse,
+      expect(src.contains("AppFeedback.toast(context, 'Account scheduled"),
+          isFalse,
           reason: 'claiming a deletion that never happens is worse than '
               'refusing to offer one');
     });
@@ -144,8 +145,8 @@ void main() {
       // global_settings_screen is reached *through* profile_tab, so a user met
       // the same destructive action twice on one journey, backed by different
       // code.
-      final src =
-          File('lib/screens/settings/global_settings_screen.dart').readAsStringSync();
+      final src = File('lib/screens/settings/global_settings_screen.dart')
+          .readAsStringSync();
 
       expect(src.contains("title: 'Delete Account Permanently'"), isFalse);
       expect(src.contains("title: 'Export Health Data (CSV)'"), isFalse);

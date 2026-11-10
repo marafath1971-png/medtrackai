@@ -35,10 +35,9 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
   bool _isFinished = false;
   bool _isInhaling = true;
 
-  Duration get _breathDuration =>
-      MedAiA11y.reducedMotion(context)
-          ? Duration.zero
-          : const Duration(seconds: 4);
+  Duration get _breathDuration => MedAiA11y.reducedMotion(context)
+      ? Duration.zero
+      : const Duration(seconds: 4);
 
   @override
   void initState() {
@@ -171,8 +170,8 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
             child: Column(
               children: [
                 Padding(
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 16),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
                   child: Row(
                     children: [
                       Semantics(
@@ -228,10 +227,9 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
                       children: [
                         Semantics(
                           liveRegion: true,
-                          label:
-                              l10n.focusTimerStatus(
-                                  _formatTime(_remainingSeconds),
-                                  _breathStatusLabel(l10n)),
+                          label: l10n.focusTimerStatus(
+                              _formatTime(_remainingSeconds),
+                              _breathStatusLabel(l10n)),
                           child: Text(
                             _formatTime(_remainingSeconds),
                             style: AppTypography.displayLarge.copyWith(
@@ -313,7 +311,8 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
                                   ),
                                   child: ClipOval(
                                     child: Container(
-                                      color: Colors.white.withValues(alpha: 0.12),
+                                      color:
+                                          Colors.white.withValues(alpha: 0.12),
                                     ),
                                   ),
                                 ),
@@ -325,11 +324,11 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
                         if (!_isActive && !_isFinished) ...[
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
-                            children:
-                                List.generate(_durations.length, (index) {
+                            children: List.generate(_durations.length, (index) {
                               final isSelected =
                                   _selectedDurationIndex == index;
-                              final label = '${_durations[index] ~/ 60} minutes';
+                              final label =
+                                  '${_durations[index] ~/ 60} minutes';
                               return Padding(
                                 padding:
                                     const EdgeInsets.symmetric(horizontal: 8),
@@ -346,8 +345,7 @@ class _FocusModeScreenState extends State<FocusModeScreen> {
                                           horizontal: 20, vertical: 10),
                                       decoration: BoxDecoration(
                                         color: isSelected ? L.text : L.card,
-                                        borderRadius:
-                                            BorderRadius.circular(20),
+                                        borderRadius: BorderRadius.circular(20),
                                         border: Border.all(
                                             color: isSelected
                                                 ? Colors.transparent

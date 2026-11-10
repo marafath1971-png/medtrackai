@@ -34,13 +34,10 @@ void main() {
 
   /// Code only — both fixes quote the old behaviour in explanatory comments,
   /// so a whole-file grep would match its own documentation.
-  String codeOf(String src) => src
-      .split('\n')
-      .where((l) {
+  String codeOf(String src) => src.split('\n').where((l) {
         final t = l.trimLeft();
         return !t.startsWith('//') && !t.startsWith('///');
-      })
-      .join('\n');
+      }).join('\n');
 
   group('the body silhouette is visible in light mode', () {
     test('it is not painted in hardcoded white', () {

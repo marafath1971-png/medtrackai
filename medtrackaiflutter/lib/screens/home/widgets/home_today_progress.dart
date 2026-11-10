@@ -37,7 +37,8 @@ class HomeTodayProgress extends StatelessWidget {
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p16),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.p16, vertical: AppSpacing.p16),
           decoration: BoxDecoration(
             color: L.card,
             borderRadius: BorderRadius.circular(AppRadius.l),

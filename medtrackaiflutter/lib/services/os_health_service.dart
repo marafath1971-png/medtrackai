@@ -4,24 +4,24 @@ import '../core/utils/logger.dart';
 
 class OSHealthService {
   static final Health _health = Health();
+  static bool? _hasAuth;
+
+  static Future<bool> hasPermissions() async {
+    try {
+      final types = [HealthDataType.MINDFULNESS];
+      return await _health.hasPermissions(types) ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
 
   static Future<bool> requestPermissions() async {
     try {
-      final types = [
-        HealthDataType.NUTRITION, // For supplements
-        // Note: HealthDataType.MEDICATION might not be fully writable via standard health plugin depending on OS version,
-        // but we can request standard write types for health data related to it.
-        // We will try requesting MINDFULNESS as a placeholder for healthy habits if medication isn't directly writable,
-        // or just use generic data types if needed.
-        HealthDataType.WATER,
-      ];
-
-      final permissions = [
-        HealthDataAccess.READ_WRITE,
-        HealthDataAccess.READ_WRITE,
-      ];
-
-      final granted = await _health.requestAuthorization(types, permissions: permissions);
+      final types = [HealthDataType.MINDFULNESS];
+      final permissions = [HealthDataAccess.READ_WRITE];
+      final granted =
+          await _health.requestAuthorization(types, permissions: permissions);
+      _hasAuth = granted;
       return granted;
     } catch (e) {
       appLogger.e('Error requesting OS health permissions: $e');
@@ -35,31 +35,27 @@ class OSHealthService {
     required DateTime takenAt,
   }) async {
     try {
-      final granted = await requestPermissions();
-      if (!granted) {
-        appLogger.w('Health permissions not granted. Cannot log dose to OS.');
-        return false;
-      }
+      // Avoid repeatedly prompting or checking permissions if not granted
+      if (_hasAuth == false) return false;
+      final authorized = _hasAuth ?? await hasPermissions();
+      if (!authorized) return false;
 
-      // Since writing actual medication records to Apple Health is highly restricted
-      // and usually requires explicit entitlement from Apple, we can log alternative 
-      // metrics like water (if taken with water) or simply just return true for now 
-      // in our demo to simulate the integration.
-      
-      // Example of writing generic data (like water taken with pill):
+      // Do not forge false clinical data like water intake.
+      // If the OS health integration has permissions for mindfulness/wellness habits,
+      // record a mindful habit timestamp; otherwise gracefully skip.
       if (Platform.isIOS || Platform.isAndroid) {
         await _health.writeHealthData(
-          value: 0.2, // 200ml water
-          type: HealthDataType.WATER,
-          startTime: takenAt,
+          value: 1, // 1 minute mindful health adherence moment
+          type: HealthDataType.MINDFULNESS,
+          startTime: takenAt.subtract(const Duration(minutes: 1)),
           endTime: takenAt,
         );
-        appLogger.i('Logged complementary health data (WATER) for dose of $medName');
+        appLogger.i('Logged health adherence session for dose of $medName');
       }
 
       return true;
     } catch (e) {
-      appLogger.e('Error logging dose to OS health: $e');
+      appLogger.w('OS health sync skipped: $e');
       return false;
     }
   }

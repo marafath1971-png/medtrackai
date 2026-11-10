@@ -32,7 +32,8 @@ void main() {
       // "Good evening, jane@example.com" looks broken and leaks the address
       // onto the home screen.
       expect(
-        AuthController.resolveAccountName('jane@example.com', 'jane@example.com'),
+        AuthController.resolveAccountName(
+            'jane@example.com', 'jane@example.com'),
         'Jane',
       );
     });

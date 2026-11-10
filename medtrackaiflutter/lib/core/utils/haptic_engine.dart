@@ -7,13 +7,13 @@ class HapticEngine {
 
   static Future<void> _trigger(Future<void> Function() action) async {
     if (!isEnabled) return;
-    
+
     final now = DateTime.now();
-    if (_lastHapticTime != null && 
+    if (_lastHapticTime != null &&
         now.difference(_lastHapticTime!).inMilliseconds < _minIntervalMs) {
       return; // Rate limit / throttle to prevent spamming
     }
-    
+
     _lastHapticTime = now;
     try {
       await action();

@@ -129,7 +129,6 @@ class _AppTabState extends State<AppTab> {
                   border: true),
               SettingsModalRow(
                   icon: '⏰',
-                  iconBg: AppColors.pastelSky,
                   label: l10n.homeRefillAlerts,
                   sub: 'Alert when meds run low',
                   right: AppToggle(
@@ -161,7 +160,6 @@ class _AppTabState extends State<AppTab> {
             title: l10n.homeCaregiverProfiles,
             child: SettingsModalRow(
                 icon: '👨‍👩‍👧',
-                iconBg: AppColors.successSoft.withValues(alpha: 0.1),
                 label: l10n.homeFamilyDependents,
                 sub: 'Manage meds for loved ones',
                 onClick: () {
@@ -172,7 +170,6 @@ class _AppTabState extends State<AppTab> {
             title: l10n.homeAestheticsTheme,
             child: SettingsModalRow(
                 icon: '✨',
-                iconBg: AppColors.pastelMint,
                 label: l10n.homeAppAppearance,
                 sub: 'Custom icons and themes',
                 onClick: () {
@@ -184,7 +181,6 @@ class _AppTabState extends State<AppTab> {
             title: l10n.homeHealthWellness,
             child: SettingsModalRow(
                 icon: '❤️',
-                iconBg: AppColors.pinkSystem.withValues(alpha: 0.1),
                 label: l10n.dashboardConnectHealthData,
                 sub: context.select<AppState, bool>((s) => s.health.isConnected)
                     ? 'Synced with ${defaultTargetPlatform == TargetPlatform.iOS ? 'Apple Health' : 'Health Connect'}'
@@ -216,7 +212,6 @@ class _AppTabState extends State<AppTab> {
             title: l10n.homeSecurity,
             child: SettingsModalRow(
                 icon: '🔐',
-                iconBg: L.text.withValues(alpha: 0.1),
                 label: l10n.homeBiometricLock,
                 sub: 'Unlock with FaceID / Fingerprint',
                 right: AppToggle(
@@ -293,14 +288,12 @@ class _AppTabState extends State<AppTab> {
                   border: true),
               SettingsModalRow(
                   icon: '🛡️',
-                  iconBg: AppColors.green.withValues(alpha: 0.1),
                   label: l10n.homePrivacy,
                   sub: 'Your data stays on this device',
                   onClick: () => context.push(AppRoutes.settingsPrivacy),
                   border: true),
               SettingsModalRow(
                   icon: 'ℹ️',
-                  iconBg: AppColors.pastelMint,
                   label: l10n.homeMedicinesTracked(
                       context.select<AppState, int>((s) => s.meds.length)),
                   sub: 'Smart reminders active',

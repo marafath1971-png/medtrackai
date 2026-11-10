@@ -41,7 +41,8 @@ class BiometricService {
     try {
       final available = await isBiometricAvailable();
       if (!available) {
-        appLogger.w('Biometric authentication is not available on this device.');
+        appLogger
+            .w('Biometric authentication is not available on this device.');
         // Allow bypass in debug when biometrics/passcode are not set up.
         return _debugBypass;
       }
@@ -55,10 +56,10 @@ class BiometricService {
       try {
         return await _auth
             .authenticate(
-              localizedReason: reason,
-              biometricOnly: false,
-              persistAcrossBackgrounding: true,
-            )
+          localizedReason: reason,
+          biometricOnly: false,
+          persistAcrossBackgrounding: true,
+        )
             .timeout(_authTimeout, onTimeout: () {
           appLogger.w('Biometric authentication timed out after '
               '${_authTimeout.inSeconds}s.');

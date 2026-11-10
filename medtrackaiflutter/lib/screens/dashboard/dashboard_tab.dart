@@ -1,3 +1,5 @@
+import 'package:go_router/go_router.dart';
+import '../../app/app_routes.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -13,6 +15,7 @@ import '../../widgets/common/premium_texture.dart';
 import 'widgets/dashboard_adherence_hero.dart';
 import 'widgets/dashboard_purrent_ui.dart';
 import 'widgets/dashboard_widgets.dart';
+import 'widgets/med_wrapped_banner_card.dart';
 
 class DashboardTab extends StatefulWidget {
   final VoidCallback onScan;
@@ -90,8 +93,8 @@ class _DashboardTabState extends State<DashboardTab> {
     if (s == null) return const SizedBox.shrink();
 
     final state = context.read<AppState>();
-    final trendData =
-        context.select<AppState, List<Map<String, dynamic>>>((s) => s.getTrendData());
+    final trendData = context
+        .select<AppState, List<Map<String, dynamic>>>((s) => s.getTrendData());
     final adherence =
         context.select<AppState, double>((s) => s.getAdherenceScore());
     final streak = context.select<AppState, int>((s) => s.getStreak());
@@ -140,7 +143,8 @@ class _DashboardTabState extends State<DashboardTab> {
                 ),
                 SliverToBoxAdapter(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p16, AppSpacing.gutter, 0),
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.gutter,
+                        AppSpacing.p16, AppSpacing.gutter, 0),
                     child: DashboardAdherenceHero(
                       trendData: trendData,
                       adherence: adherence,
@@ -155,9 +159,17 @@ class _DashboardTabState extends State<DashboardTab> {
                     weeklyAdherence: _weeklyAdherence(trendData),
                   ),
                 ),
+                const SliverPadding(
+                  padding: EdgeInsets.fromLTRB(
+                      AppSpacing.gutter, AppSpacing.p16, AppSpacing.gutter, 0),
+                  sliver: SliverToBoxAdapter(
+                    child: MedWrappedBannerCard(),
+                  ),
+                ),
                 if (!healthConnected)
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p16, AppSpacing.gutter, 0),
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.gutter,
+                        AppSpacing.p16, AppSpacing.gutter, 0),
                     sliver: SliverToBoxAdapter(
                       child: _ConnectHealthCard(
                         onConnect: () async {
@@ -177,7 +189,8 @@ class _DashboardTabState extends State<DashboardTab> {
                 if (meds.isNotEmpty) ...[
                   SliverToBoxAdapter(
                     child: Padding(
-                      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.gutter, AppSpacing.gutter, AppSpacing.p8),
+                      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter,
+                          AppSpacing.gutter, AppSpacing.gutter, AppSpacing.p8),
                       child: Text(
                         l10n.dashboardSupplyStatus,
                         style: AppTypography.titleLarge.copyWith(
@@ -190,15 +203,16 @@ class _DashboardTabState extends State<DashboardTab> {
                     ),
                   ),
                   SliverPadding(
-                    padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, 0),
+                    padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.gutter, 0, AppSpacing.gutter, 0),
                     sliver: SliverToBoxAdapter(
                       child: Container(
                         padding: const EdgeInsets.all(AppSpacing.p16),
                         decoration: BoxDecoration(
                           color: Colors.white,
                           borderRadius: BorderRadius.circular(24),
-                          border:
-                              Border.all(color: L.border.withValues(alpha: 0.4)),
+                          border: Border.all(
+                              color: L.border.withValues(alpha: 0.4)),
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.eatoNavy.withValues(alpha: 0.04),
@@ -219,7 +233,8 @@ class _DashboardTabState extends State<DashboardTab> {
                 SliverToBoxAdapter(
                   key: _insightsKey,
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.gutter, AppSpacing.gutter, AppSpacing.p8),
+                    padding: const EdgeInsets.fromLTRB(AppSpacing.gutter,
+                        AppSpacing.gutter, AppSpacing.gutter, AppSpacing.p8),
                     child: Text(
                       l10n.dashboardAiInsights,
                       style: AppTypography.titleLarge.copyWith(
@@ -232,7 +247,20 @@ class _DashboardTabState extends State<DashboardTab> {
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, AppSpacing.p16),
+                  padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.gutter, 0, AppSpacing.gutter, AppSpacing.p12),
+                  sliver: SliverToBoxAdapter(
+                    child: _AskMedAiCard(
+                      onTap: () {
+                        HapticEngine.selection();
+                        context.push(AppRoutes.askMedAi);
+                      },
+                    ),
+                  ),
+                ),
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.gutter, 0, AppSpacing.gutter, AppSpacing.p16),
                   sliver: SliverToBoxAdapter(
                     child: Container(
                       padding: const EdgeInsets.all(AppSpacing.p16),
@@ -260,7 +288,8 @@ class _DashboardTabState extends State<DashboardTab> {
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, AppSpacing.p12),
+                  padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.gutter, 0, AppSpacing.gutter, AppSpacing.p12),
                   sliver: SliverToBoxAdapter(
                     child: MedAiCTA(
                       label: s.generateClinicalReport,
@@ -283,7 +312,8 @@ class _DashboardTabState extends State<DashboardTab> {
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, AppSpacing.p16),
+                  padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.gutter, 0, AppSpacing.gutter, AppSpacing.p16),
                   sliver: SliverToBoxAdapter(
                     child: Center(
                       child: TextButton(
@@ -305,7 +335,8 @@ class _DashboardTabState extends State<DashboardTab> {
                   ),
                 ),
                 SliverPadding(
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, 0, AppSpacing.gutter, 0),
+                  padding: const EdgeInsets.fromLTRB(
+                      AppSpacing.gutter, 0, AppSpacing.gutter, 0),
                   sliver: SliverToBoxAdapter(
                     child: Container(
                       padding: const EdgeInsets.all(AppSpacing.p16),
@@ -341,6 +372,74 @@ class _DashboardTabState extends State<DashboardTab> {
                 const SliverToBoxAdapter(child: SizedBox(height: 120)),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Entry to Ask Med AI: questions answered from the user's own record.
+class _AskMedAiCard extends StatelessWidget {
+  final VoidCallback onTap;
+  const _AskMedAiCard({required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final L = context.L;
+    return Semantics(
+      button: true,
+      label: 'Ask Med AI about your own medicines',
+      child: GestureDetector(
+        onTap: onTap,
+        child: Container(
+          padding: const EdgeInsets.all(AppSpacing.p16),
+          decoration: BoxDecoration(
+            color: L.card,
+            borderRadius: BorderRadius.circular(24),
+            border: Border.all(color: L.border.withValues(alpha: 0.4)),
+          ),
+          child: Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: AppColors.pastelSky,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                alignment: Alignment.center,
+                child: const Icon(Icons.forum_rounded,
+                    size: 22, color: AppColors.inkStrong),
+              ),
+              const SizedBox(width: AppSpacing.p16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Ask Med AI',
+                      style: AppTypography.titleMedium.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: L.text,
+                        letterSpacing: -0.2,
+                      ),
+                    ),
+                    const SizedBox(height: AppSpacing.p4),
+                    Text(
+                      '"Which dose do I miss most?" "When will I run out?" — '
+                      'answered from your own record.',
+                      style: AppTypography.bodySmall.copyWith(
+                        color: L.sub,
+                        height: 1.3,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(Icons.chevron_right_rounded, color: L.sub),
+            ],
           ),
         ),
       ),

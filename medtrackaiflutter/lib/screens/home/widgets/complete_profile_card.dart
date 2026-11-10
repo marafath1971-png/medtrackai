@@ -93,7 +93,8 @@ class CompleteProfileCard extends StatelessWidget {
                       children: [
                         Text(
                           l10n.homeCompleteYourProfile,
-                          style: AppTypography.titleLarge.copyWith(fontSize: 18),
+                          style:
+                              AppTypography.titleLarge.copyWith(fontSize: 18),
                         ),
                         const SizedBox(height: AppSpacing.p4),
                         Text(
@@ -104,8 +105,8 @@ class CompleteProfileCard extends StatelessWidget {
                     ),
                   ),
                   Container(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
                     decoration: BoxDecoration(
                       color: L.secondary.withValues(alpha: 0.1),
                       borderRadius: BorderRadius.circular(20),
@@ -331,7 +332,8 @@ class _TaskItem extends StatelessWidget {
       child: ListTile(
         onTap: task.onTap,
         minVerticalPadding: 12,
-        contentPadding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
         leading: Container(
           width: 44,
           height: 44,

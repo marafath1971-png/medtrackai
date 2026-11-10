@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:provider/provider.dart';
 
 import '../../theme/med_ai_ui.dart';
 import '../../widgets/common/animated_pressable.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../l10n/app_localizations.dart';
+import '../../providers/app_state.dart';
+import '../paywall/premium_paywall_overlay.dart';
 
 class AddMedicationScreen extends StatefulWidget {
   const AddMedicationScreen({super.key});
@@ -18,6 +21,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
   bool _showSuggestions = false;
   String _selectedSchedule = 'Every day';
   bool _remindMe = true;
+  bool _isSubmitting = false;
 
   final List<String> _scheduleOptions = [
     'Every day',
@@ -63,7 +67,8 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                           color: L.fill,
                           shape: BoxShape.circle,
                         ),
-                        child: Icon(Icons.close_rounded, color: L.text, size: 20),
+                        child:
+                            Icon(Icons.close_rounded, color: L.text, size: 20),
                       ),
                     ),
                   ),
@@ -199,9 +204,7 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                               vertical: AppSpacing.p12,
                             ),
                             decoration: BoxDecoration(
-                              color: isSelected
-                                  ? L.text
-                                  : AppColors.pastelMint,
+                              color: isSelected ? L.text : AppColors.pastelMint,
                               borderRadius:
                                   BorderRadius.circular(AppRadius.max),
                             ),
@@ -262,12 +265,11 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
                     const SizedBox(height: AppSpacing.p40),
 
                     MedAiCTA(
-                      label: l10n.medicineAddMedication,
+                      label: _isSubmitting
+                          ? 'Saving...'
+                          : l10n.medicineAddMedication,
                       icon: Icons.check_rounded,
-                      onTap: () {
-                        HapticEngine.success();
-                        Navigator.of(context).pop();
-                      },
+                      onTap: _isSubmitting ? () {} : _onSave,
                     ),
                   ],
                 ),
@@ -277,6 +279,73 @@ class _AddMedicationScreenState extends State<AddMedicationScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _onSave() async {
+    final name = _nameController.text.trim();
+    if (name.isEmpty) {
+      HapticEngine.selection();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please enter a medication name')),
+      );
+      return;
+    }
+
+    final appState = context.read<AppState>();
+    if (!appState.canAddMedicine) {
+      HapticEngine.light();
+      await PremiumPaywallOverlay.show(context,
+          triggerSource: 'unlimited_meds');
+      return;
+    }
+
+    setState(() => _isSubmitting = true);
+
+    try {
+      final now = DateTime.now();
+      final List<int> days = _selectedSchedule == 'Specific days'
+          ? [1, 2, 3, 4, 5]
+          : [0, 1, 2, 3, 4, 5, 6];
+      final ritual =
+          _selectedSchedule == 'As needed' ? Ritual.asNeeded : Ritual.none;
+
+      final schedule = _remindMe
+          ? [
+              ScheduleEntry(
+                id: 'slot_morning',
+                h: 8,
+                m: 0,
+                label: 'Morning',
+                days: days,
+                ritual: ritual,
+              ),
+            ]
+          : <ScheduleEntry>[];
+
+      final newMed = Medicine(
+        id: now.millisecondsSinceEpoch,
+        name: name,
+        brand: '',
+        dose: '1 unit',
+        form: 'Tablet',
+        category: 'General',
+        notes: '',
+        schedule: schedule,
+        courseStartDate: now.toIso8601String().substring(0, 10),
+        color: '#10B981',
+        count: 30,
+        totalCount: 30,
+        refillAt: 5,
+      );
+
+      await appState.addMedicine(newMed);
+      HapticEngine.success();
+      if (!mounted) return;
+      Navigator.of(context).pop();
+    } catch (_) {
+      HapticEngine.selection();
+      if (mounted) setState(() => _isSubmitting = false);
+    }
   }
 
   Widget _buildSuggestionItem(String name, IconData icon) {

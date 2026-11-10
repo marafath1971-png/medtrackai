@@ -78,5 +78,4 @@ class DefaultFirebaseOptions {
     storageBucket: 'gen-lang-client-0321454923.firebasestorage.app',
     measurementId: 'G-NJRRHBZGB9',
   );
-
 }

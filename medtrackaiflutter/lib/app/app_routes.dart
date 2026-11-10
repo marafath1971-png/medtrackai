@@ -14,6 +14,7 @@ abstract final class AppRoutes {
   static const circle = '/circle';
   static const scan = '/scan';
   static const scanPill = '/scan/pill';
+  static const scanSupplement = '/scan/supplement';
   static const scanHistory = '/scan/history';
   static const scanHelp = '/scan/help';
   static const scanAccuracy = '/scan/accuracy';
@@ -28,6 +29,7 @@ abstract final class AppRoutes {
   static const settingsTerms = '/settings/terms';
   static const settingsTheme = '/settings/theme';
   static const focusMode = '/focus';
+  static const askMedAi = '/ask';
   static const impactVisualizer = '/impact';
   static const familyAddDependent = '/family/add-dependent';
   static const familyAddMember = '/family/add-member';
@@ -36,7 +38,10 @@ abstract final class AppRoutes {
   static const analysisProduct = '/analysis/product';
   static const analysisChat = '/analysis/chat';
   static const medicineDetail = '/medicine/:medId';
+  static const medicineAdd = '/medicine/add';
   static const adminGrowth = '/admin/growth';
+  static const steps = '/steps';
+  static const paywall = '/paywall';
 
   static String medicineDetailPath(int medId, {bool edit = false}) {
     final base = '/medicine/$medId';

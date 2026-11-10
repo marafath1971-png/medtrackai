@@ -6,7 +6,6 @@ import '../../../models/product_analysis.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../l10n/app_localizations.dart';
 
-
 /// How much caution a medicine calls for, and why.
 ///
 /// The screen previously showed this as a bare "SAFETY SCORE 52%". That framing
@@ -430,9 +429,8 @@ class _MetricStrip extends StatelessWidget {
           _Divider(L: L),
           _Metric(
             value: '${profile.interactionCount}',
-            label: profile.interactionCount == 1
-                ? 'Interaction'
-                : 'Interactions',
+            label:
+                profile.interactionCount == 1 ? 'Interaction' : 'Interactions',
           ),
           _Divider(L: L),
           _Metric(

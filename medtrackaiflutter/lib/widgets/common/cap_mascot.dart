@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../theme/app_theme.dart';
 
 enum MascotMood { energetic, content, sleepy }
+
 enum MascotAccessory { partyHat, glasses, scarf, badgePin }
 
 class CapMascot extends StatelessWidget {
@@ -43,7 +44,7 @@ class _CapMascotPainter extends CustomPainter {
     // Scale everything relative to design coordinates (70x90)
     final double scaleX = size.width / 70;
     final double scaleY = size.height / 90;
-    
+
     canvas.save();
     canvas.scale(scaleX, scaleY);
 
@@ -100,7 +101,8 @@ class _CapMascotPainter extends CustomPainter {
     );
 
     // 2. Draw Eyes and Mouth (face coordinates shift if body shifts)
-    final double faceOffset = accessories.contains(MascotAccessory.partyHat) ? 6 : 0;
+    final double faceOffset =
+        accessories.contains(MascotAccessory.partyHat) ? 6 : 0;
     final Paint facePaint = Paint()..color = const Color(0xFF0A0A0C);
 
     if (mood == MascotMood.energetic) {
@@ -127,7 +129,6 @@ class _CapMascotPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round;
       canvas.drawLine(const Offset(21, 86), const Offset(28, 83), legPaint);
       canvas.drawLine(const Offset(49, 86), const Offset(42, 83), legPaint);
-
     } else if (mood == MascotMood.content) {
       // Standard Eyes
       canvas.drawCircle(Offset(28, 26 + faceOffset), 3.5, facePaint);
@@ -138,7 +139,6 @@ class _CapMascotPainter extends CustomPainter {
         ..moveTo(28, 35 + faceOffset)
         ..quadraticBezierTo(35, 39 + faceOffset, 42, 35 + faceOffset);
       canvas.drawPath(mouthPath, linePaint);
-
     } else if (mood == MascotMood.sleepy) {
       // Closed/Curved Eyes
       final Path eyeL = Path()
@@ -147,12 +147,13 @@ class _CapMascotPainter extends CustomPainter {
       final Path eyeR = Path()
         ..moveTo(38, 27 + faceOffset)
         ..quadraticBezierTo(42, 30 + faceOffset, 46, 27 + faceOffset);
-      
+
       canvas.drawPath(eyeL, linePaint);
       canvas.drawPath(eyeR, linePaint);
 
       // Straight mouth
-      canvas.drawLine(Offset(31, 37 + faceOffset), Offset(39, 37 + faceOffset), linePaint);
+      canvas.drawLine(
+          Offset(31, 37 + faceOffset), Offset(39, 37 + faceOffset), linePaint);
     }
 
     // Restore rotation from sleepy state so accessories are not rotated unless intended
@@ -186,11 +187,13 @@ class _CapMascotPainter extends CustomPainter {
       // Right rim
       canvas.drawCircle(Offset(43, glassesY), 7, glassFramePaint);
       // Bridge
-      canvas.drawLine(Offset(34, glassesY), Offset(36, glassesY), glassFramePaint);
+      canvas.drawLine(
+          Offset(34, glassesY), Offset(36, glassesY), glassFramePaint);
     }
 
     if (accessories.contains(MascotAccessory.scarf)) {
-      final Paint scarfPaint = Paint()..color = AppColors.accent; // Accent scarf
+      final Paint scarfPaint = Paint()
+        ..color = AppColors.accent; // Accent scarf
       // Wrap around neck (divider area)
       canvas.drawRRect(
         RRect.fromRectAndRadius(
@@ -214,7 +217,7 @@ class _CapMascotPainter extends CustomPainter {
       final Paint badgePaint = Paint()..color = AppColors.accent;
       final double badgeY = bodyY + bodyHeight - 16;
       canvas.drawCircle(Offset(45, badgeY), 4, badgePaint);
-      
+
       final Paint starPaint = Paint()..color = Colors.white;
       canvas.drawCircle(Offset(45, badgeY), 1.5, starPaint);
     }

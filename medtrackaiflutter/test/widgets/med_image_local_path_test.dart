@@ -27,13 +27,10 @@ void main() {
 
   /// Code only — the fix carries a comment quoting the old call, so a
   /// whole-file grep would match its own documentation.
-  String codeOf(String src) => src
-      .split('\n')
-      .where((l) {
+  String codeOf(String src) => src.split('\n').where((l) {
         final t = l.trimLeft();
         return !t.startsWith('//') && !t.startsWith('///');
-      })
-      .join('\n');
+      }).join('\n');
 
   group('the medicine detail hero renders local photos', () {
     test('it does not hand a local path to a network-only loader', () {

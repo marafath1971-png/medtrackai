@@ -130,8 +130,7 @@ bool _isHandled(DoseEntry e) => e.taken || e.skipped;
 /// Order-insensitive: the merge rebuilds the list and does not preserve it.
 bool _sameEntries(List<DoseEntry> a, List<DoseEntry> b) {
   if (a.length != b.length) return false;
-  String sig(DoseEntry e) =>
-      '${doseEntryKey(e)}|${e.taken}|${e.skipped}';
+  String sig(DoseEntry e) => '${doseEntryKey(e)}|${e.taken}|${e.skipped}';
   final as = a.map(sig).toList()..sort();
   final bs = b.map(sig).toList()..sort();
   for (var i = 0; i < as.length; i++) {
@@ -483,8 +482,7 @@ class MedicationRepositoryImpl implements IMedicationRepository {
 
           // Only push when the reconciliation actually adds something the
           // cloud has not got; otherwise every load rewrites every day.
-          if (day.length != cloudDay.length ||
-              !_sameEntries(day, cloudDay)) {
+          if (day.length != cloudDay.length || !_sameEntries(day, cloudDay)) {
             firestoreDataSource
                 .saveDayHistory(_uid!, entry.key, day, profileId: profileId)
                 .catchError(_logSyncError);

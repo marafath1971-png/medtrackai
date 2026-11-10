@@ -19,6 +19,21 @@ class ProductAnalysis {
   final String allergyRiskLevel; // "None", "Low", "Medium", "High"
   final List<ExpertPerspective> expertPerspectives;
 
+  /// Clean & Purity Score (0-100) evaluating formulation safety and additives.
+  final int? cleanScore;
+
+  /// Comedogenic rating (0-5) on pore-clogging potential (0 = non-comedogenic).
+  final int? comedogenicRating;
+
+  /// Key active ingredients identified (e.g. Niacinamide 10%, Hyaluronic Acid).
+  final List<String> activeIngredients;
+
+  /// Targeted skin and body impact benefits.
+  final List<String> skinBenefits;
+
+  /// Optimal routine application: 'AM Routine', 'PM Routine', 'AM & PM', 'As Needed'.
+  final String? routineType;
+
   /// Whether the AI could confidently identify the product. When false, the UI
   /// presents a "not identified — retake / search" state instead of a
   /// confident result.
@@ -49,6 +64,11 @@ class ProductAnalysis {
     required this.allergyAlerts,
     required this.allergyRiskLevel,
     required this.expertPerspectives,
+    this.cleanScore,
+    this.comedogenicRating,
+    this.activeIngredients = const [],
+    this.skinBenefits = const [],
+    this.routineType,
     this.identified = true,
     this.confidence = 'low',
   });
@@ -72,7 +92,13 @@ class ProductAnalysis {
         'skincareNotes': skincareNotes,
         'allergyAlerts': allergyAlerts,
         'allergyRiskLevel': allergyRiskLevel,
-        'expertPerspectives': expertPerspectives.map((e) => e.toJson()).toList(),
+        'expertPerspectives':
+            expertPerspectives.map((e) => e.toJson()).toList(),
+        'cleanScore': cleanScore,
+        'comedogenicRating': comedogenicRating,
+        'activeIngredients': activeIngredients,
+        'skinBenefits': skinBenefits,
+        'routineType': routineType,
         'identified': identified,
         'confidence': confidence,
       };
@@ -87,11 +113,13 @@ class ProductAnalysis {
       howItWorks: json['howItWorks'] ?? '',
       benefits: List<String>.from(json['benefits'] ?? []),
       sideEffects: (json['sideEffects'] as List<dynamic>?)
-              ?.map((e) => SideEffect.fromJson(Map<String, dynamic>.from(e as Map)))
+              ?.map((e) =>
+                  SideEffect.fromJson(Map<String, dynamic>.from(e as Map)))
               .toList() ??
           [],
       foodInteractions: List<String>.from(json['foodInteractions'] ?? []),
-      medicineInteractions: List<String>.from(json['medicineInteractions'] ?? []),
+      medicineInteractions:
+          List<String>.from(json['medicineInteractions'] ?? []),
       timing: json['timing'] ?? '',
       halalStatus: json['halalStatus'] ?? 'Unknown',
       scientificEvidence: json['scientificEvidence'] ?? '',
@@ -101,9 +129,15 @@ class ProductAnalysis {
       allergyAlerts: List<String>.from(json['allergyAlerts'] ?? []),
       allergyRiskLevel: json['allergyRiskLevel'] ?? 'None',
       expertPerspectives: (json['expertPerspectives'] as List<dynamic>?)
-              ?.map((e) => ExpertPerspective.fromJson(Map<String, dynamic>.from(e as Map)))
+              ?.map((e) => ExpertPerspective.fromJson(
+                  Map<String, dynamic>.from(e as Map)))
               .toList() ??
           [],
+      cleanScore: json['cleanScore'] as int?,
+      comedogenicRating: json['comedogenicRating'] as int?,
+      activeIngredients: List<String>.from(json['activeIngredients'] ?? []),
+      skinBenefits: List<String>.from(json['skinBenefits'] ?? []),
+      routineType: json['routineType'] as String?,
       // Default to identified=true for backward compat with stored history that
       // predates this field; confidence defaults to 'low' so a missing value is
       // never treated as a confident result.
@@ -117,43 +151,73 @@ class ProductAnalysis {
         id: '1',
         name: 'Magnesium Glycinate',
         category: 'Supplement',
-        description: 'A highly bioavailable form of magnesium bound to the amino acid glycine.',
-        whyTakeIt: 'People take it to improve sleep quality, reduce anxiety, and support muscle recovery.',
-        howItWorks: 'Glycine acts as a calming neurotransmitter in the brain, while magnesium relaxes muscles and regulates the nervous system.',
-        benefits: ['Better Sleep', 'Muscle Relaxation', 'Anxiety Relief', 'Bone Health'],
+        description:
+            'A highly bioavailable form of magnesium bound to the amino acid glycine.',
+        whyTakeIt:
+            'People take it to improve sleep quality, reduce anxiety, and support muscle recovery.',
+        howItWorks:
+            'Glycine acts as a calming neurotransmitter in the brain, while magnesium relaxes muscles and regulates the nervous system.',
+        benefits: [
+          'Better Sleep',
+          'Muscle Relaxation',
+          'Anxiety Relief',
+          'Bone Health'
+        ],
         sideEffects: [
           SideEffect(effect: 'Mild stomach upset (rare)', severity: 'Low'),
-          SideEffect(effect: 'Drowsiness if taken during the day', severity: 'Low'),
+          SideEffect(
+              effect: 'Drowsiness if taken during the day', severity: 'Low'),
         ],
-        foodInteractions: ['Avoid taking with high-calcium meals (reduces absorption).'],
-        medicineInteractions: ['Antibiotics (take 2 hours apart)', 'Bisphosphonates'],
+        foodInteractions: [
+          'Avoid taking with high-calcium meals (reduces absorption).'
+        ],
+        medicineInteractions: [
+          'Antibiotics (take 2 hours apart)',
+          'Bisphosphonates'
+        ],
         timing: 'Best taken 30-60 minutes before bed.',
         halalStatus: 'Halal Certified',
-        scientificEvidence: 'Strong clinical backing for sleep improvement and anxiety reduction.',
+        scientificEvidence:
+            'Strong clinical backing for sleep improvement and anxiety reduction.',
         allergyAlerts: [],
         allergyRiskLevel: 'None',
         expertPerspectives: [
           ExpertPerspective(
             role: 'Doctor',
-            explanation: "Clinically, we recommend Magnesium Glycinate over Oxide because it doesn't cause laxative effects and crosses the blood-brain barrier effectively for neurological benefits.",
+            explanation:
+                "Clinically, we recommend Magnesium Glycinate over Oxide because it doesn't cause laxative effects and crosses the blood-brain barrier effectively for neurological benefits.",
             icon: '👩‍⚕️',
           ),
           ExpertPerspective(
             role: 'Pharmacist',
-            explanation: 'Make sure to separate this from your morning multivitamins containing calcium or iron, as they compete for absorption in your gut.',
+            explanation:
+                'Make sure to separate this from your morning multivitamins containing calcium or iron, as they compete for absorption in your gut.',
             icon: '💊',
           ),
           ExpertPerspective(
             role: 'Scientist',
-            explanation: 'The chelation to glycine ensures transport through dipeptide channels rather than standard mineral channels, drastically improving bioavailability.',
+            explanation:
+                'The chelation to glycine ensures transport through dipeptide channels rather than standard mineral channels, drastically improving bioavailability.',
             icon: '🔬',
           ),
           ExpertPerspective(
             role: 'Fitness Coach',
-            explanation: 'I tell my athletes to take this post-workout or before bed. It dramatically lowers cortisol and prevents muscle cramps after heavy lifts.',
+            explanation:
+                'I tell my athletes to take this post-workout or before bed. It dramatically lowers cortisol and prevents muscle cramps after heavy lifts.',
             icon: '🏋️‍♂️',
           ),
         ],
+        cleanScore: 95,
+        comedogenicRating: 0,
+        activeIngredients: const [
+          'Magnesium Bisglycinate Chelate 200mg',
+          'Elemental Magnesium 40mg',
+        ],
+        skinBenefits: const [
+          'Cellular repair support',
+          'Stress-related breakout reduction',
+        ],
+        routineType: 'PM Routine',
         identified: true,
         confidence: 'high',
       );

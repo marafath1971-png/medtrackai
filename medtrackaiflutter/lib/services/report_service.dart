@@ -73,9 +73,10 @@ class ReportService {
         children: [
           _buildStatItem('AVG HEART RATE', '${hr?.toInt() ?? "--"} BPM',
               PdfColor.fromHex('#FF2C55')), // TikTok Pink/Red
-          _buildStatItem(
-              'DAILY STEPS', '${steps?.toInt() ?? "--"}', PdfColor.fromHex('#25F4EE')), // TikTok Cyan
-          _buildStatItem('STREAK', '${streak ?? 0} DAYS', PdfColor.fromHex('#000000')), // Pure Black
+          _buildStatItem('DAILY STEPS', '${steps?.toInt() ?? "--"}',
+              PdfColor.fromHex('#25F4EE')), // TikTok Cyan
+          _buildStatItem('STREAK', '${streak ?? 0} DAYS',
+              PdfColor.fromHex('#000000')), // Pure Black
         ],
       ),
     );
@@ -131,7 +132,10 @@ class ReportService {
               ),
               child: pw.Center(
                 child: pw.Text('${index + 1}',
-                    style: pw.TextStyle(fontSize: 8, color: textColor, fontWeight: pw.FontWeight.bold)),
+                    style: pw.TextStyle(
+                        fontSize: 8,
+                        color: textColor,
+                        fontWeight: pw.FontWeight.bold)),
               ),
             );
           }),
@@ -161,14 +165,13 @@ class ReportService {
             pw.Text(name.toUpperCase(),
                 style: pw.TextStyle(fontWeight: pw.FontWeight.bold)),
             pw.Text('ID: ${DateTime.now().millisecondsSinceEpoch}',
-                style: const pw.TextStyle(fontSize: 8, color: PdfColors.grey500)),
+                style:
+                    const pw.TextStyle(fontSize: 8, color: PdfColors.grey500)),
           ],
         ),
       ],
     );
   }
-
-
 
   static pw.Widget _buildMedicationTable(
       AppLocalizations s, List<Medicine> meds) {
@@ -193,7 +196,8 @@ class ReportService {
                     '${m.count} / ${m.totalCount}',
                   ])
               .toList(),
-          headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+          headerStyle: pw.TextStyle(
+              fontWeight: pw.FontWeight.bold, color: PdfColors.white),
           headerDecoration: const pw.BoxDecoration(color: PdfColors.black),
           cellHeight: 30,
           cellAlignments: {
@@ -237,7 +241,8 @@ class ReportService {
                     sy.notes ?? '-',
                   ])
               .toList(),
-          headerStyle: pw.TextStyle(fontWeight: pw.FontWeight.bold, color: PdfColors.white),
+          headerStyle: pw.TextStyle(
+              fontWeight: pw.FontWeight.bold, color: PdfColors.white),
           headerDecoration: const pw.BoxDecoration(color: PdfColors.black),
           cellHeight: 25,
         ),
@@ -316,7 +321,8 @@ class ReportService {
     final buffer = StringBuffer(buildCsv(meds: meds, history: history));
 
     final tempDir = await getTemporaryDirectory();
-    final file = File('${tempDir.path}/MedAI_Health_Data_${DateTime.now().millisecondsSinceEpoch}.csv');
+    final file = File(
+        '${tempDir.path}/MedAI_Health_Data_${DateTime.now().millisecondsSinceEpoch}.csv');
     await file.writeAsString(buffer.toString());
 
     await SharePlus.instance.share(ShareParams(

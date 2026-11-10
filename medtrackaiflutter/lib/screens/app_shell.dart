@@ -82,7 +82,12 @@ class _AppShellState extends State<AppShell>
   Future<void> _redeemPendingReferral() async {
     try {
       final redeemed = await ReferralService.redeemPendingInbound();
-      if (redeemed != null) await GrowthTracker.trackReferralRedeemed();
+      if (redeemed != null) {
+        await GrowthTracker.trackReferralRedeemed();
+        if (mounted) {
+          await context.read<AppState>().grantReferralPromo(redeemed);
+        }
+      }
     } catch (_) {/* referral redemption is best-effort */}
   }
 

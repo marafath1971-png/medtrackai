@@ -338,4 +338,22 @@ class UserRepositoryImpl implements IUserRepository {
         .withHardenedTimeout(taskName: 'revokeCaregiverAccess')
         .catchError(_logSyncError);
   }
+
+  @override
+  Future<void> removeCaregiver(int cgId, {String? caregiverUid}) async {
+    if (!_hasAuth) return;
+    await firestoreDataSource
+        .removeCaregiver(_uid!, cgId, caregiverUid: caregiverUid)
+        .withHardenedTimeout(taskName: 'removeCaregiver')
+        .catchError(_logSyncError);
+  }
+
+  @override
+  Future<void> removeMonitoringPatient(String patientUid) async {
+    if (!_hasAuth) return;
+    await firestoreDataSource
+        .removeMonitoringPatient(_uid!, patientUid)
+        .withHardenedTimeout(taskName: 'removeMonitoringPatient')
+        .catchError(_logSyncError);
+  }
 }

@@ -47,7 +47,9 @@ void main() {
   test('a full day yesterday and today counts both', () {
     final now = DateTime.now();
     c.setStateForTest(
-      meds: [_med(id: 1, slots: ['Morning'])],
+      meds: [
+        _med(id: 1, slots: ['Morning'])
+      ],
       history: {
         _key(now): [_taken('Morning')],
         _key(now.subtract(const Duration(days: 1))): [_taken('Morning')],
@@ -60,7 +62,9 @@ void main() {
   test('an incomplete today does not break the streak', () {
     final now = DateTime.now();
     c.setStateForTest(
-      meds: [_med(id: 1, slots: ['Morning'])],
+      meds: [
+        _med(id: 1, slots: ['Morning'])
+      ],
       history: {
         // Nothing logged today yet — the day is still in progress.
         _key(now.subtract(const Duration(days: 1))): [_taken('Morning')],
@@ -75,7 +79,9 @@ void main() {
   test('a missed past day ends the streak', () {
     final now = DateTime.now();
     c.setStateForTest(
-      meds: [_med(id: 1, slots: ['Morning'])],
+      meds: [
+        _med(id: 1, slots: ['Morning'])
+      ],
       history: {
         _key(now): [_taken('Morning')],
         // day 1 missed entirely
@@ -90,7 +96,9 @@ void main() {
     final now = DateTime.now();
     final missed = _key(now.subtract(const Duration(days: 1)));
     c.setStateForTest(
-      meds: [_med(id: 1, slots: ['Morning'])],
+      meds: [
+        _med(id: 1, slots: ['Morning'])
+      ],
       history: {
         _key(now): [_taken('Morning')],
         _key(now.subtract(const Duration(days: 2))): [_taken('Morning')],
@@ -108,7 +116,9 @@ void main() {
     // nothing due and must not break the run.
     final onlyDay = now.subtract(const Duration(days: 2)).weekday % 7;
     c.setStateForTest(
-      meds: [_med(id: 1, slots: ['Morning'], days: [onlyDay])],
+      meds: [
+        _med(id: 1, slots: ['Morning'], days: [onlyDay])
+      ],
       history: {
         _key(now.subtract(const Duration(days: 2))): [_taken('Morning')],
       },

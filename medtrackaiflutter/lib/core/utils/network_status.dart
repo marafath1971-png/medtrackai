@@ -8,8 +8,8 @@ class NetworkStatus {
     Duration timeout = const Duration(seconds: 3),
   }) async {
     try {
-      final result = await InternetAddress.lookup('dns.google')
-          .timeout(timeout);
+      final result =
+          await InternetAddress.lookup('dns.google').timeout(timeout);
       return result.isNotEmpty && result.first.rawAddress.isNotEmpty;
     } on SocketException {
       return false;

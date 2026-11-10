@@ -20,10 +20,12 @@ class DashboardMedAlert extends StatelessWidget {
         : '$pendingCount doses waiting today';
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p4, AppSpacing.gutter, 0),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.gutter, AppSpacing.p4, AppSpacing.gutter, 0),
       child: MedAiGlass(
         radius: 999,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
         child: Row(
           children: [
             Container(
@@ -89,10 +91,12 @@ class DashboardGlassAdherenceCard extends StatelessWidget {
     final dateLabel = DateFormat('d MMM yyyy').format(DateTime.now());
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p16, AppSpacing.gutter, 0),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.gutter, AppSpacing.p16, AppSpacing.gutter, 0),
       child: MedAiGlass(
         radius: 28,
-        padding: const EdgeInsets.fromLTRB(AppSpacing.p16, AppSpacing.p16, AppSpacing.p16, AppSpacing.p16),
+        padding: const EdgeInsets.fromLTRB(
+            AppSpacing.p16, AppSpacing.p16, AppSpacing.p16, AppSpacing.p16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -224,7 +228,8 @@ class DashboardHealthParamsGrid extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p16, AppSpacing.gutter, 0),
+      padding: const EdgeInsets.fromLTRB(
+          AppSpacing.gutter, AppSpacing.p16, AppSpacing.gutter, 0),
       child: Column(
         children: [
           Row(
@@ -297,7 +302,8 @@ class DashboardSectionTitle extends StatelessWidget {
   Widget build(BuildContext context) {
     final L = context.L;
     return Padding(
-      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.gutter, AppSpacing.gutter, AppSpacing.p12),
+      padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.gutter,
+          AppSpacing.gutter, AppSpacing.p12),
       child: Row(
         children: [
           Expanded(

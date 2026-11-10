@@ -16,7 +16,8 @@ import '../../screens/app_shell.dart';
 import '../../l10n/app_localizations.dart';
 export '../common/app_shimmer.dart';
 export '../common/animated_pressable.dart';
-export '../../theme/med_ai_ui.dart' show MedAiA11y, MedAiCTA, MedAiGlass, MedAiDepthCard, MedAiSectionHeader;
+export '../../theme/med_ai_ui.dart'
+    show MedAiA11y, MedAiCTA, MedAiGlass, MedAiDepthCard, MedAiSectionHeader;
 
 // ══════════════════════════════════════════════
 // RING CHART (CustomPainter — matches JSX Ring component)
@@ -252,38 +253,38 @@ class GlassCard extends StatelessWidget {
         shape: ContinuousRectangleBorder(borderRadius: r),
       ),
       child: AnimatedContainer(
-          duration: const Duration(milliseconds: 150),
-          curve: Curves.easeOutCubic,
-          width: width,
-          height: height,
-          padding: padding ?? const EdgeInsets.all(20),
-          decoration: ShapeDecoration(
-            color: context.isDark
-                ? (tintColor ?? Colors.white).withValues(alpha: 0.10)
-                : (tintColor ?? Colors.white).withValues(alpha: 0.88),
-            gradient: context.isDark
-                ? LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      (tintColor ?? Colors.white).withValues(alpha: 0.14),
-                      (tintColor ?? Colors.white).withValues(alpha: 0.04),
-                    ],
+        duration: const Duration(milliseconds: 150),
+        curve: Curves.easeOutCubic,
+        width: width,
+        height: height,
+        padding: padding ?? const EdgeInsets.all(20),
+        decoration: ShapeDecoration(
+          color: context.isDark
+              ? (tintColor ?? Colors.white).withValues(alpha: 0.10)
+              : (tintColor ?? Colors.white).withValues(alpha: 0.88),
+          gradient: context.isDark
+              ? LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [
+                    (tintColor ?? Colors.white).withValues(alpha: 0.14),
+                    (tintColor ?? Colors.white).withValues(alpha: 0.04),
+                  ],
+                )
+              : null,
+          shape: ContinuousRectangleBorder(
+            borderRadius: r,
+            side: showBorder
+                ? BorderSide(
+                    color: L.glassBorder.withValues(alpha: 0.12),
+                    width: 0.5,
                   )
-                : null,
-            shape: ContinuousRectangleBorder(
-              borderRadius: r,
-              side: showBorder
-                  ? BorderSide(
-                      color: L.glassBorder.withValues(alpha: 0.12),
-                      width: 0.5,
-                    )
-                  : BorderSide.none,
-            ),
-            shadows: const [],
+                : BorderSide.none,
           ),
-          child: child,
+          shadows: const [],
         ),
+        child: child,
+      ),
     );
 
     if (onTap != null) {
@@ -308,7 +309,8 @@ class BouncingButton extends StatelessWidget {
   final VoidCallback? onLongPress;
   final double scaleFactor;
   final bool hapticEnabled;
-  final Duration duration; // Kept for API compatibility, though AnimatedPressable uses physics
+  final Duration
+      duration; // Kept for API compatibility, though AnimatedPressable uses physics
 
   const BouncingButton({
     super.key,
@@ -317,7 +319,7 @@ class BouncingButton extends StatelessWidget {
     this.onLongPress,
     this.scaleFactor = 0.97,
     this.hapticEnabled = true,
-    this.duration = const Duration(milliseconds: 350), 
+    this.duration = const Duration(milliseconds: 350),
   });
 
   @override
@@ -471,11 +473,11 @@ class AppToast extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final L = context.L;
-    
+
     // Choose premium colors & icons for 2026 aesthetics
     final IconData iconData;
     final Color accentColor;
-    
+
     switch (type) {
       case 'error':
         iconData = Icons.error_rounded;
@@ -507,8 +509,9 @@ class AppToast extends StatelessWidget {
     // Taking the larger of the two and adding a real gap means the toast
     // clears whichever furniture the screen actually has.
     const ctaStackHeight = AppSpacing.bottomBuffer + 56;
-    const clearance =
-        kShellNavIslandInset > ctaStackHeight ? kShellNavIslandInset : ctaStackHeight;
+    const clearance = kShellNavIslandInset > ctaStackHeight
+        ? kShellNavIslandInset
+        : ctaStackHeight;
 
     return Positioned(
       bottom: bottomPadding + clearance + AppSpacing.p16,
@@ -536,55 +539,56 @@ class AppToast extends StatelessWidget {
             child: ClipRRect(
               borderRadius: BorderRadius.circular(99),
               child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  decoration: BoxDecoration(
-                    color: context.isDark
-                        ? Colors.black.withValues(alpha: 0.88)
-                        : Colors.white.withValues(alpha: 0.96),
-                    borderRadius: BorderRadius.circular(99),
-                    border: Border.all(
-                      color: accentColor.withValues(alpha: 0.25),
-                      width: 1.2,
-                    ),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      // Beautiful animated glowing icon container
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: accentColor.withValues(alpha: 0.12),
-                          border: Border.all(
-                            color: accentColor.withValues(alpha: 0.25),
-                            width: 1,
-                          ),
-                        ),
-                        child: Icon(
-                          iconData,
-                          color: accentColor,
-                          size: 16,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsetsDirectional.only(end: 4),
-                          child: Text(
-                            message,
-                            style: AppTypography.bodyMedium.copyWith(
-                              color: L.text,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 13.5,
-                              letterSpacing: -0.2,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                decoration: BoxDecoration(
+                  color: context.isDark
+                      ? Colors.black.withValues(alpha: 0.88)
+                      : Colors.white.withValues(alpha: 0.96),
+                  borderRadius: BorderRadius.circular(99),
+                  border: Border.all(
+                    color: accentColor.withValues(alpha: 0.25),
+                    width: 1.2,
                   ),
                 ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Beautiful animated glowing icon container
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: accentColor.withValues(alpha: 0.12),
+                        border: Border.all(
+                          color: accentColor.withValues(alpha: 0.25),
+                          width: 1,
+                        ),
+                      ),
+                      child: Icon(
+                        iconData,
+                        color: accentColor,
+                        size: 16,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.only(end: 4),
+                        child: Text(
+                          message,
+                          style: AppTypography.bodyMedium.copyWith(
+                            color: L.text,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13.5,
+                            letterSpacing: -0.2,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ),
           )
               .animate()
@@ -661,7 +665,8 @@ class SkeletonBox extends StatelessWidget {
   final double width;
   final double height;
   final double radius;
-  const SkeletonBox({super.key, required this.width, required this.height, this.radius = 20});
+  const SkeletonBox(
+      {super.key, required this.width, required this.height, this.radius = 20});
 
   @override
   Widget build(BuildContext context) {
@@ -854,10 +859,8 @@ class MedImage extends StatelessWidget {
           );
     } else if (imageUrl!.startsWith('http')) {
       final dpr = MediaQuery.devicePixelRatioOf(context);
-      final cacheW =
-          width != null ? (width! * dpr).round() : null;
-      final cacheH =
-          height != null ? (height! * dpr).round() : null;
+      final cacheW = width != null ? (width! * dpr).round() : null;
+      final cacheH = height != null ? (height! * dpr).round() : null;
       image = Image.network(
         imageUrl!,
         width: width,
@@ -916,7 +919,6 @@ class MedImage extends StatelessWidget {
 // DOSE CARD (iOS 26 High-Fidelity)
 // ══════════════════════════════════════════════
 
-
 class DoseCard extends StatefulWidget {
   final Medicine med;
   final ScheduleEntry sched;
@@ -943,8 +945,7 @@ class DoseCard extends StatefulWidget {
   State<DoseCard> createState() => _DoseCardState();
 }
 
-class _DoseCardState extends State<DoseCard>
-    with TickerProviderStateMixin {
+class _DoseCardState extends State<DoseCard> with TickerProviderStateMixin {
   bool _showBurst = false;
   late AnimationController _burstCtrl;
 
@@ -996,7 +997,10 @@ class _DoseCardState extends State<DoseCard>
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
                 gradient: LinearGradient(
-                  colors: [medColor, Color.lerp(medColor, const Color(0xFF10B981), 0.45)!],
+                  colors: [
+                    medColor,
+                    Color.lerp(medColor, const Color(0xFF10B981), 0.45)!
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -1038,186 +1042,195 @@ class _DoseCardState extends State<DoseCard>
       clipBehavior: Clip.none,
       children: [
         Dismissible(
-              key: ValueKey('dose_${widget.sched.id}_${widget.taken}'),
-              direction: isDone ? DismissDirection.none : DismissDirection.startToEnd,
-              confirmDismiss: (dir) async {
-                if (dir == DismissDirection.startToEnd) {
-                  _triggerDopamineBurst();
-                }
-                return false;
-              },
-              background: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
-                alignment: AlignmentDirectional.centerStart,
+          key: ValueKey('dose_${widget.sched.id}_${widget.taken}'),
+          direction:
+              isDone ? DismissDirection.none : DismissDirection.startToEnd,
+          confirmDismiss: (dir) async {
+            if (dir == DismissDirection.startToEnd) {
+              _triggerDopamineBurst();
+            }
+            return false;
+          },
+          background: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            alignment: AlignmentDirectional.centerStart,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  L.accent.withValues(alpha: 0.08),
+                  L.success.withValues(alpha: 0.2),
+                ],
+                begin: AlignmentDirectional.centerStart,
+                end: AlignmentDirectional.centerEnd,
+              ),
+              borderRadius: BorderRadius.circular(24),
+              border: Border.all(
+                color: L.success.withValues(alpha: 0.25),
+                width: 1.0,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.check_rounded, color: L.success, size: 22),
+                const SizedBox(width: 12),
+                Text(
+                  l10n.sharedMarkAsTaken,
+                  style: AppTypography.labelMedium.copyWith(
+                    color: L.success,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 0.5,
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          child: Semantics(
+            button: true,
+            label:
+                '${widget.med.name}, ${fmtTime(widget.sched.h, widget.sched.m, context)}',
+            child: AnimatedPressable(
+              onTap: widget.onTap,
+              scaleFactor: 0.97,
+              lightHaptic: false,
+              child: Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      L.accent.withValues(alpha: 0.08),
-                      L.success.withValues(alpha: 0.2),
-                    ],
-                    begin: AlignmentDirectional.centerStart,
-                    end: AlignmentDirectional.centerEnd,
-                  ),
-                  borderRadius: BorderRadius.circular(24),
+                  color: isDone ? L.card.withValues(alpha: 0.72) : L.card,
+                  borderRadius: BorderRadius.circular(AppRadius.l),
                   border: Border.all(
-                    color: L.success.withValues(alpha: 0.25),
-                    width: 1.0,
+                    color: isDone
+                        ? L.border.withValues(alpha: 0.25)
+                        : widget.overdue
+                            ? L.error.withValues(alpha: 0.35)
+                            : widget.isNext
+                                ? L.accent.withValues(alpha: 0.45)
+                                : L.border.withValues(alpha: 0.35),
+                    width: widget.isNext && !isDone ? 1.2 : 0.5,
                   ),
+                  boxShadow: (widget.isNext && !isDone)
+                      ? AppShadows.glow(L.accent, intensity: 0.12)
+                      : null,
                 ),
                 child: Row(
                   children: [
-                    Icon(Icons.check_rounded, color: L.success, size: 22),
-                    const SizedBox(width: 12),
-                    Text(
-                      l10n.sharedMarkAsTaken,
-                      style: AppTypography.labelMedium.copyWith(
-                        color: L.success,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: 0.5,
-                        fontSize: 14,
-                      ),
+                    AnimatedSwitcher(
+                      duration: reduceMotion
+                          ? Duration.zero
+                          : const Duration(milliseconds: 500),
+                      transitionBuilder: (child, anim) {
+                        final scale =
+                            Tween<double>(begin: 0.72, end: 1.0).animate(
+                          CurvedAnimation(
+                              parent: anim, curve: AppCurves.emilOut),
+                        );
+                        return ScaleTransition(scale: scale, child: child);
+                      },
+                      child: checkboxChild,
                     ),
-                  ],
-                ),
-              ),
-              child: Semantics(
-                button: true,
-                label: '${widget.med.name}, ${fmtTime(widget.sched.h, widget.sched.m, context)}',
-                child: AnimatedPressable(
-                  onTap: widget.onTap,
-                  scaleFactor: 0.97,
-                  lightHaptic: false,
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 14),
-                    decoration: BoxDecoration(
-                      color: isDone
-                          ? L.card.withValues(alpha: 0.72)
-                          : L.card,
-                      borderRadius: BorderRadius.circular(AppRadius.l),
-                      border: Border.all(
-                        color: isDone
-                            ? L.border.withValues(alpha: 0.25)
-                            : widget.overdue
-                                ? L.error.withValues(alpha: 0.35)
-                                : widget.isNext
-                                    ? L.accent.withValues(alpha: 0.45)
-                                    : L.border.withValues(alpha: 0.35),
-                        width: widget.isNext && !isDone ? 1.2 : 0.5,
-                      ),
-                      boxShadow: (widget.isNext && !isDone)
-                          ? AppShadows.glow(L.accent, intensity: 0.12)
-                          : null,
-                    ),
-                    child: Row(
-                      children: [
-                        AnimatedSwitcher(
-                          duration: reduceMotion
-                              ? Duration.zero
-                              : const Duration(milliseconds: 500),
-                          transitionBuilder: (child, anim) {
-                            final scale = Tween<double>(begin: 0.72, end: 1.0).animate(
-                              CurvedAnimation(parent: anim, curve: AppCurves.emilOut),
-                            );
-                            return ScaleTransition(scale: scale, child: child);
-                          },
-                          child: checkboxChild,
-                        ),
-                        const SizedBox(width: 14),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisSize: MainAxisSize.min,
+                    const SizedBox(width: 14),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            widget.med.name,
+                            style: AppTypography.labelLarge.copyWith(
+                              color: isDone
+                                  ? L.text.withValues(alpha: 0.35)
+                                  : L.text,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 15,
+                              letterSpacing: -0.3,
+                              decoration:
+                                  isDone ? TextDecoration.lineThrough : null,
+                              decorationColor: L.text.withValues(alpha: 0.2),
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          const SizedBox(height: 3),
+                          Row(
                             children: [
                               Text(
-                                widget.med.name,
-                                style: AppTypography.labelLarge.copyWith(
-                                  color: isDone ? L.text.withValues(alpha: 0.35) : L.text,
-                                  fontWeight: FontWeight.w700,
-                                  fontSize: 15,
-                                  letterSpacing: -0.3,
-                                  decoration: isDone ? TextDecoration.lineThrough : null,
-                                  decorationColor: L.text.withValues(alpha: 0.2),
+                                fmtTime(
+                                    widget.sched.h, widget.sched.m, context),
+                                style: AppTypography.labelSmall.copyWith(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: isDone
+                                      ? L.sub.withValues(alpha: 0.25)
+                                      : widget.overdue
+                                          ? L.error.withValues(alpha: 0.85)
+                                          : L.sub.withValues(alpha: 0.6),
                                 ),
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
                               ),
-                              const SizedBox(height: 3),
-                              Row(
-                                children: [
-                                  Text(
-                                    fmtTime(widget.sched.h, widget.sched.m, context),
+                              if (widget.med.dose.isNotEmpty) ...[
+                                Text(
+                                  ' · ',
+                                  style: AppTypography.labelSmall.copyWith(
+                                    color: L.sub.withValues(alpha: 0.25),
+                                    fontSize: 12,
+                                  ),
+                                ),
+                                Flexible(
+                                  child: Text(
+                                    widget.med.dose,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
                                     style: AppTypography.labelSmall.copyWith(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
                                       color: isDone
                                           ? L.sub.withValues(alpha: 0.25)
-                                          : widget.overdue
-                                              ? L.error.withValues(alpha: 0.85)
-                                              : L.sub.withValues(alpha: 0.6),
+                                          : L.sub.withValues(alpha: 0.45),
                                     ),
                                   ),
-                                  if (widget.med.dose.isNotEmpty) ...[
-                                    Text(
-                                      ' · ',
-                                      style: AppTypography.labelSmall.copyWith(
-                                        color: L.sub.withValues(alpha: 0.25),
-                                        fontSize: 12,
-                                      ),
+                                ),
+                              ],
+                              if (widget.isNext && !isDone) ...[
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                      horizontal: 6, vertical: 2),
+                                  decoration: BoxDecoration(
+                                    color: L.accent.withValues(alpha: 0.12),
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    l10n.onboardingNext,
+                                    style: AppTypography.labelSmall.copyWith(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w700,
+                                      color: L.accent,
                                     ),
-                                    Flexible(
-                                      child: Text(
-                                        widget.med.dose,
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: AppTypography.labelSmall.copyWith(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: isDone ? L.sub.withValues(alpha: 0.25) : L.sub.withValues(alpha: 0.45),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                  if (widget.isNext && !isDone) ...[
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 6, vertical: 2),
-                                      decoration: BoxDecoration(
-                                        color: L.accent.withValues(alpha: 0.12),
-                                        borderRadius: BorderRadius.circular(6),
-                                      ),
-                                      child: Text(
-                                        l10n.onboardingNext,
-                                        style: AppTypography.labelSmall.copyWith(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w700,
-                                          color: L.accent,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ],
-                              ),
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
-                        ),
-                        const SizedBox(width: 12),
-                        _buildCta(L, medColor),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
+                    const SizedBox(width: 12),
+                    _buildCta(L, medColor),
+                  ],
                 ),
               ),
             ),
-            if (_showBurst && !reduceMotion)
-              Positioned.fill(
-                child: IgnorePointer(
-                  child: DopamineBurstOverlay(controller: _burstCtrl, medColor: medColor),
-                ),
-              ),
-          ],
-        );
+          ),
+        ),
+        if (_showBurst && !reduceMotion)
+          Positioned.fill(
+            child: IgnorePointer(
+              child: DopamineBurstOverlay(
+                  controller: _burstCtrl, medColor: medColor),
+            ),
+          ),
+      ],
+    );
   }
 
   Widget _buildCta(AppThemeColors L, Color medColor) {
@@ -1234,13 +1247,14 @@ class _DoseCardState extends State<DoseCard>
             widget.onTake();
           },
           child: Container(
-            constraints: BoxConstraints(minHeight: MedAiA11y.minTapTargetCompact),
+            constraints:
+                BoxConstraints(minHeight: MedAiA11y.minTapTargetCompact),
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
             decoration: BoxDecoration(
               color: L.error.withValues(alpha: 0.12),
               borderRadius: BorderRadius.circular(AppRadius.s),
-              border: Border.all(
-                  color: L.error.withValues(alpha: 0.3), width: 0.8),
+              border:
+                  Border.all(color: L.error.withValues(alpha: 0.3), width: 0.8),
             ),
             child: Text(
               'Late',
@@ -1265,7 +1279,8 @@ class _DoseCardState extends State<DoseCard>
             _triggerDopamineBurst();
           },
           child: Container(
-            constraints: BoxConstraints(minHeight: MedAiA11y.minTapTargetCompact),
+            constraints:
+                BoxConstraints(minHeight: MedAiA11y.minTapTargetCompact),
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
             decoration: BoxDecoration(
               color: L.text,
@@ -1299,8 +1314,8 @@ class _DoseCardState extends State<DoseCard>
           decoration: BoxDecoration(
             color: L.fill.withValues(alpha: 0.4),
             shape: BoxShape.circle,
-            border: Border.all(
-                color: L.border.withValues(alpha: 0.15), width: 1.0),
+            border:
+                Border.all(color: L.border.withValues(alpha: 0.15), width: 1.0),
           ),
           child: Icon(
             Icons.add_rounded,
@@ -1317,7 +1332,8 @@ class _DoseCardState extends State<DoseCard>
 class DopamineBurstOverlay extends StatelessWidget {
   final AnimationController controller;
   final Color medColor;
-  const DopamineBurstOverlay({super.key, required this.controller, required this.medColor});
+  const DopamineBurstOverlay(
+      {super.key, required this.controller, required this.medColor});
 
   @override
   Widget build(BuildContext context) {
@@ -1337,7 +1353,8 @@ class DopamineBurstOverlay extends StatelessWidget {
                   height: 100,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    border: Border.all(color: medColor, width: 4 * (1.0 - controller.value)),
+                    border: Border.all(
+                        color: medColor, width: 4 * (1.0 - controller.value)),
                     boxShadow: AppShadows.glow(medColor, intensity: 0.5),
                   ),
                 ),
@@ -1349,7 +1366,8 @@ class DopamineBurstOverlay extends StatelessWidget {
               child: Transform.scale(
                 scale: 0.5 + controller.value * 1.5,
                 child: Container(
-                  width: 60, height: 60,
+                  width: 60,
+                  height: 60,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: medColor,
@@ -1388,7 +1406,8 @@ class DopamineBurstOverlay extends StatelessWidget {
               child: Transform.scale(
                 scale: (0.5 + controller.value).clamp(0.0, 1.5),
                 child: Container(
-                  width: 12, height: 12,
+                  width: 12,
+                  height: 12,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: i % 2 == 0 ? medColor : Colors.white,
@@ -1403,7 +1422,6 @@ class DopamineBurstOverlay extends StatelessWidget {
     );
   }
 }
-
 
 class StatusBadge extends StatelessWidget {
   final String label;

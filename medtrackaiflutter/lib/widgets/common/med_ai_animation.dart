@@ -163,7 +163,8 @@ class _FallbackPainter extends CustomPainter {
     switch (kind) {
       case MedAiAnimationKind.splashLogo:
       case MedAiAnimationKind.paywallHero:
-        _drawOrb(canvas, cx, cy, size.shortestSide * 0.28 * breathe, electric, sage);
+        _drawOrb(
+            canvas, cx, cy, size.shortestSide * 0.28 * breathe, electric, sage);
         break;
       case MedAiAnimationKind.onboardingStreak:
         _drawStreak(canvas, cx, cy, size, breathe);
@@ -172,7 +173,8 @@ class _FallbackPainter extends CustomPainter {
         _drawScanFrame(canvas, size, t, electric);
         break;
       case MedAiAnimationKind.onboardingFamily:
-        _drawShield(canvas, cx, cy, size.shortestSide * 0.32 * breathe, sage, electric);
+        _drawShield(
+            canvas, cx, cy, size.shortestSide * 0.32 * breathe, sage, electric);
         break;
       case MedAiAnimationKind.celebrationCheck:
         _drawCheck(canvas, cx, cy, size.shortestSide * 0.3, sage);
@@ -183,7 +185,8 @@ class _FallbackPainter extends CustomPainter {
     }
   }
 
-  void _drawOrb(Canvas c, double cx, double cy, double r, Color glow, Color core) {
+  void _drawOrb(
+      Canvas c, double cx, double cy, double r, Color glow, Color core) {
     c.drawCircle(
       Offset(cx, cy),
       r * 1.4,
@@ -249,7 +252,8 @@ class _FallbackPainter extends CustomPainter {
     );
   }
 
-  void _drawShield(Canvas c, double cx, double cy, double h, Color sage, Color electric) {
+  void _drawShield(
+      Canvas c, double cx, double cy, double h, Color sage, Color electric) {
     final path = Path()
       ..moveTo(cx, cy - h * 0.5)
       ..lineTo(cx + h * 0.45, cy - h * 0.15)
@@ -268,7 +272,8 @@ class _FallbackPainter extends CustomPainter {
   }
 
   void _drawCheck(Canvas c, double cx, double cy, double r, Color color) {
-    c.drawCircle(Offset(cx, cy), r, Paint()..color = color.withValues(alpha: 0.2));
+    c.drawCircle(
+        Offset(cx, cy), r, Paint()..color = color.withValues(alpha: 0.2));
     final check = Path()
       ..moveTo(cx - r * 0.35, cy)
       ..lineTo(cx - r * 0.05, cy + r * 0.3)
@@ -283,7 +288,8 @@ class _FallbackPainter extends CustomPainter {
     );
   }
 
-  void _drawPill(Canvas c, double cx, double cy, double w, Color color, double t) {
+  void _drawPill(
+      Canvas c, double cx, double cy, double w, Color color, double t) {
     final dy = math.sin(t * math.pi * 2) * 6;
     final rect = RRect.fromRectAndRadius(
       Rect.fromCenter(center: Offset(cx, cy + dy), width: w, height: w * 0.45),

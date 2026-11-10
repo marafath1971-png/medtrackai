@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -47,11 +46,7 @@ class _SettingsModalState extends State<SettingsModal> {
         'label': s.settingsStats,
         'icon': Icons.bar_chart_rounded
       },
-      {
-        'id': 'app',
-        'label': s.settingsApp,
-        'icon': Icons.phone_iphone_rounded
-      },
+      {'id': 'app', 'label': s.settingsApp, 'icon': Icons.phone_iphone_rounded},
       {'id': 'data', 'label': s.settingsData, 'icon': Icons.storage_rounded},
       {'id': 'global', 'label': s.settingsGlobal, 'icon': Icons.tune_rounded},
     ];
@@ -84,183 +79,181 @@ class _SettingsModalState extends State<SettingsModal> {
               borderRadius:
                   const BorderRadius.vertical(top: Radius.circular(32)),
               child: Container(
-                  height: size.height * 0.92,
-                  width: size.width,
-                  constraints: const BoxConstraints(maxWidth: 430),
-                  decoration: BoxDecoration(
-                    color: IosSettingsTokens.canvas,
-                    borderRadius: const BorderRadius.vertical(
-                      top: Radius.circular(32),
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.14),
-                        blurRadius: 20,
-                        offset: const Offset(0, -6),
-                      ),
-                    ],
+                height: size.height * 0.92,
+                width: size.width,
+                constraints: const BoxConstraints(maxWidth: 430),
+                decoration: BoxDecoration(
+                  color: IosSettingsTokens.canvas,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(32),
                   ),
-                  child: Column(
-                    children: [
-                      const SizedBox(height: AppSpacing.p12),
-                      Container(
-                        width: 40,
-                        height: 5,
-                        decoration: BoxDecoration(
-                          color: L.sub.withValues(alpha: 0.28),
-                          borderRadius: BorderRadius.circular(3),
-                        ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.14),
+                      blurRadius: 20,
+                      offset: const Offset(0, -6),
+                    ),
+                  ],
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: AppSpacing.p12),
+                    Container(
+                      width: 40,
+                      height: 5,
+                      decoration: BoxDecoration(
+                        color: L.sub.withValues(alpha: 0.28),
+                        borderRadius: BorderRadius.circular(3),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          AppSpacing.p20,
-                          AppSpacing.p16,
-                          AppSpacing.p12,
-                          AppSpacing.p8,
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.p20,
+                        AppSpacing.p16,
+                        AppSpacing.p12,
+                        AppSpacing.p8,
+                      ),
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  s.settings,
+                                  style: AppTypography.headlineLarge.copyWith(
+                                    fontWeight: FontWeight.w800,
+                                    fontSize: 30,
+                                    color: L.text,
+                                    letterSpacing: -0.6,
+                                    height: 1.1,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  l10n.homeMadeForYouManageWithConfidence,
+                                  style: AppTypography.bodySmall.copyWith(
+                                    color: L.sub,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Semantics(
+                            button: true,
+                            label: l10n.homeCloseSettings,
+                            child: AnimatedPressable(
+                              onTap: widget.onClose,
+                              child: Container(
+                                width: MedAiA11y.minTapTarget,
+                                height: MedAiA11y.minTapTarget,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.05),
+                                      blurRadius: 10,
+                                      offset: const Offset(0, 3),
+                                    ),
+                                  ],
+                                ),
+                                child: Icon(
+                                  CupertinoIcons.xmark,
+                                  color: L.sub.withValues(alpha: 0.7),
+                                  size: 16,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ).let((w) => reduceMotion
+                          ? w
+                          : w
+                              .animate()
+                              .fade(duration: 320.ms)
+                              .slideY(begin: -0.04, end: 0)),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.p20,
+                        AppSpacing.p4,
+                        AppSpacing.p20,
+                        AppSpacing.p12,
+                      ),
+                      child: Container(
+                        padding: const EdgeInsets.all(AppSpacing.p12),
+                        decoration: BoxDecoration(
+                          color: AppColors.pastelMint,
+                          borderRadius: BorderRadius.circular(20),
                         ),
                         child: Row(
                           children: [
-                            Expanded(
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    s.settings,
-                                    style: AppTypography.headlineLarge.copyWith(
-                                      fontWeight: FontWeight.w800,
-                                      fontSize: 30,
-                                      color: L.text,
-                                      letterSpacing: -0.6,
-                                      height: 1.1,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 4),
-                                  Text(
-                                    l10n.homeMadeForYouManageWithConfidence,
-                                    style: AppTypography.bodySmall.copyWith(
-                                      color: L.sub,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
+                            Container(
+                              width: 36,
+                              height: 36,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withValues(alpha: 0.85),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.auto_awesome_rounded,
+                                size: 18,
+                                color: AppColors.limeInk,
                               ),
                             ),
-                            Semantics(
-                              button: true,
-                              label: l10n.homeCloseSettings,
-                              child: AnimatedPressable(
-                                onTap: widget.onClose,
-                                child: Container(
-                                  width: MedAiA11y.minTapTarget,
-                                  height: MedAiA11y.minTapTarget,
-                                  alignment: Alignment.center,
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    shape: BoxShape.circle,
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.black
-                                            .withValues(alpha: 0.05),
-                                        blurRadius: 10,
-                                        offset: const Offset(0, 3),
-                                      ),
-                                    ],
-                                  ),
-                                  child: Icon(
-                                    CupertinoIcons.xmark,
-                                    color: L.sub.withValues(alpha: 0.7),
-                                    size: 16,
-                                  ),
+                            const SizedBox(width: AppSpacing.p12),
+                            Expanded(
+                              child: Text(
+                                l10n.homeYourSuccessSettingsRemindersSafetyAnd,
+                                style: AppTypography.bodySmall.copyWith(
+                                  color: L.text.withValues(alpha: 0.85),
+                                  fontWeight: FontWeight.w600,
+                                  height: 1.35,
                                 ),
                               ),
                             ),
                           ],
-                        ).let((w) => reduceMotion
-                            ? w
-                            : w
-                                .animate()
-                                .fade(duration: 320.ms)
-                                .slideY(begin: -0.04, end: 0)),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          AppSpacing.p20,
-                          AppSpacing.p4,
-                          AppSpacing.p20,
-                          AppSpacing.p12,
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.all(AppSpacing.p12),
-                          decoration: BoxDecoration(
-                            color: AppColors.pastelMint,
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            children: [
-                              Container(
-                                width: 36,
-                                height: 36,
-                                decoration: BoxDecoration(
-                                  color: Colors.white.withValues(alpha: 0.85),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: const Icon(
-                                  Icons.auto_awesome_rounded,
-                                  size: 18,
-                                  color: AppColors.limeInk,
-                                ),
-                              ),
-                              const SizedBox(width: AppSpacing.p12),
-                              Expanded(
-                                child: Text(
-                                  l10n.homeYourSuccessSettingsRemindersSafetyAnd,
-                                  style: AppTypography.bodySmall.copyWith(
-                                    color: L.text.withValues(alpha: 0.85),
-                                    fontWeight: FontWeight.w600,
-                                    height: 1.35,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
                         ),
                       ),
-                      Padding(
-                        padding: const EdgeInsets.fromLTRB(
-                          AppSpacing.p20,
-                          0,
-                          AppSpacing.p20,
-                          AppSpacing.p12,
-                        ),
-                        child: IosSettingsSegmentedBar(
-                          scrollable: true,
-                          labels:
-                              tabs.map((t) => t['label'] as String).toList(),
-                          icons:
-                              tabs.map((t) => t['icon'] as IconData).toList(),
-                          selectedIndex: activeIndex,
-                          onSelected: (index) {
-                            HapticEngine.selection();
-                            setState(
-                              () => _activeTab = tabs[index]['id'] as String,
-                            );
-                          },
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        AppSpacing.p20,
+                        0,
+                        AppSpacing.p20,
+                        AppSpacing.p12,
+                      ),
+                      child: IosSettingsSegmentedBar(
+                        scrollable: true,
+                        labels: tabs.map((t) => t['label'] as String).toList(),
+                        icons: tabs.map((t) => t['icon'] as IconData).toList(),
+                        selectedIndex: activeIndex,
+                        onSelected: (index) {
+                          HapticEngine.selection();
+                          setState(
+                            () => _activeTab = tabs[index]['id'] as String,
+                          );
+                        },
+                      ),
+                    ),
+                    Expanded(
+                      child: ColoredBox(
+                        color: IosSettingsTokens.canvas,
+                        child: KeyedSubtree(
+                          key: ValueKey(_activeTab),
+                          child: _buildContent(state, L),
                         ),
                       ),
-                      Expanded(
-                        child: ColoredBox(
-                          color: IosSettingsTokens.canvas,
-                          child: KeyedSubtree(
-                            key: ValueKey(_activeTab),
-                            child: _buildContent(state, L),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ),
             ),
+          ),
         ],
       ),
     );

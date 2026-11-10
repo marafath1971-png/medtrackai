@@ -153,7 +153,8 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
                           const SizedBox(width: 12),
                           Expanded(
                             child: Text(
-                              l10n.settingsViewFullTermsOnlineAt(kTermsOfServiceUrl),
+                              l10n.settingsViewFullTermsOnlineAt(
+                                  kTermsOfServiceUrl),
                               style: AppTypography.bodySmall.copyWith(
                                 color: L.accent,
                                 fontWeight: FontWeight.w600,
@@ -213,9 +214,7 @@ class _TermsOfServiceScreenState extends State<TermsOfServiceScreen> {
         child: Semantics(
           label: title,
           child: MedAiDepthCard(
-            color: accent != null
-                ? accentColor.withValues(alpha: 0.05)
-                : null,
+            color: accent != null ? accentColor.withValues(alpha: 0.05) : null,
             accentGlow: accent != null,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,

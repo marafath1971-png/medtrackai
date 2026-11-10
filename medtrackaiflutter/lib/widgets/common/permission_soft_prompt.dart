@@ -150,7 +150,11 @@ class PermissionSoftPrompt extends StatelessWidget {
             child: Center(
               child: Icon(icon, size: 40, color: primaryColor)
                   .animate(onPlay: (c) => c.repeat(reverse: true))
-                  .scaleXY(begin: 0.95, end: 1.05, duration: 1000.ms, curve: Curves.easeInOut),
+                  .scaleXY(
+                      begin: 0.95,
+                      end: 1.05,
+                      duration: 1000.ms,
+                      curve: Curves.easeInOut),
             ),
           ).medAiChain(
               context,
@@ -167,8 +171,10 @@ class PermissionSoftPrompt extends StatelessWidget {
               fontWeight: FontWeight.w900,
               letterSpacing: -0.5,
             ),
-          ).medAiChain(context,
-              (w) => w.animate().fade(delay: 100.ms).slideY(begin: 0.1, end: 0)),
+          ).medAiChain(
+              context,
+              (w) =>
+                  w.animate().fade(delay: 100.ms).slideY(begin: 0.1, end: 0)),
           const SizedBox(height: 12),
           Text(
             explanation,
@@ -177,8 +183,10 @@ class PermissionSoftPrompt extends StatelessWidget {
               color: L.sub.withValues(alpha: 0.8),
               height: 1.4,
             ),
-          ).medAiChain(context,
-              (w) => w.animate().fade(delay: 200.ms).slideY(begin: 0.1, end: 0)),
+          ).medAiChain(
+              context,
+              (w) =>
+                  w.animate().fade(delay: 200.ms).slideY(begin: 0.1, end: 0)),
           const SizedBox(height: 32),
           AnimatedPressable(
             onTap: () => _requestPermission(context),
@@ -187,7 +195,10 @@ class PermissionSoftPrompt extends StatelessWidget {
               padding: const EdgeInsets.symmetric(vertical: 18),
               decoration: BoxDecoration(
                 gradient: LinearGradient(
-                  colors: [primaryColor, Color.lerp(primaryColor, Colors.white, 0.2)!],
+                  colors: [
+                    primaryColor,
+                    Color.lerp(primaryColor, Colors.white, 0.2)!
+                  ],
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                 ),
@@ -205,8 +216,10 @@ class PermissionSoftPrompt extends StatelessWidget {
                 ),
               ),
             ),
-          ).medAiChain(context,
-              (w) => w.animate().fade(delay: 300.ms).slideY(begin: 0.1, end: 0)),
+          ).medAiChain(
+              context,
+              (w) =>
+                  w.animate().fade(delay: 300.ms).slideY(begin: 0.1, end: 0)),
           const SizedBox(height: 16),
           AnimatedPressable(
             onTap: () {

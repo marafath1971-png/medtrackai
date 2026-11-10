@@ -20,6 +20,9 @@ class LinkService {
   /// Callback for when a voice command is triggered via deep link.
   Function()? onVoiceCommandDetected;
 
+  /// `medai://steps` — the home-screen steps widget opens the app here.
+  Function()? onStepsDetected;
+
   /// Initialize deep link listening.
   Future<void> init() async {
     // 1. Check for initial link (app opened via link from cold start)
@@ -39,39 +42,61 @@ class LinkService {
     );
   }
 
-  void _handleUri(Uri uri) {
+  void handleUri(Uri uri) {
     appLogger.i('[LinkService] Received link: $uri');
 
-    if (uri.pathSegments.isNotEmpty) {
-      final first = uri.pathSegments.first;
+    // Extract action whether URI is universal link (https://medai.app/join)
+    // or custom scheme (medai://join or medai:///join).
+    String action = '';
+    List<String> segments = uri.pathSegments;
 
-      if (first == 'voice' || first == 'voice_log') {
-        appLogger.i('[LinkService] Voice command detected from deep link');
-        onVoiceCommandDetected?.call();
-      } else if (first == 'j' || first == 'join') {
-        String? code;
-        if (uri.queryParameters.containsKey('code')) {
-          code = uri.queryParameters['code'];
-        } else if (uri.pathSegments.length >= 2) {
-          code = uri.pathSegments[1];
-        }
+    if (uri.scheme == 'medai') {
+      if (uri.host.isNotEmpty && uri.host != 'medai.app') {
+        action = uri.host;
+      } else if (segments.isNotEmpty) {
+        action = segments.first;
+      }
+    } else if (segments.isNotEmpty) {
+      action = segments.first;
+    }
 
-        if (code != null && code.isNotEmpty) {
-          appLogger.i('[LinkService] Join code detected: $code');
-          onJoinCodeDetected?.call(code);
-        }
-      } else if (first == 'r' || first == 'ref') {
-        String? code;
-        if (uri.pathSegments.length >= 2) {
-          code = uri.pathSegments[1];
-        }
-        if (code != null && code.isNotEmpty) {
-          appLogger.i('[LinkService] Referral code detected: $code');
-          onReferralDetected?.call(code);
-        }
+    if (action == 'steps') {
+      onStepsDetected?.call();
+    } else if (action == 'voice' || action == 'voice_log') {
+      appLogger.i('[LinkService] Voice command detected from deep link');
+      onVoiceCommandDetected?.call();
+    } else if (action == 'j' || action == 'join') {
+      String? code;
+      if (uri.queryParameters.containsKey('code')) {
+        code = uri.queryParameters['code'];
+      } else if (segments.length >= 2) {
+        code = segments[1];
+      } else if (segments.length == 1 && action != segments.first) {
+        code = segments.first;
+      }
+
+      if (code != null && code.isNotEmpty) {
+        appLogger.i('[LinkService] Join code detected: $code');
+        onJoinCodeDetected?.call(code);
+      }
+    } else if (action == 'r' || action == 'ref') {
+      String? code;
+      if (uri.queryParameters.containsKey('code')) {
+        code = uri.queryParameters['code'];
+      } else if (segments.length >= 2) {
+        code = segments[1];
+      } else if (segments.length == 1 && action != segments.first) {
+        code = segments.first;
+      }
+
+      if (code != null && code.isNotEmpty) {
+        appLogger.i('[LinkService] Referral code detected: $code');
+        onReferralDetected?.call(code);
       }
     }
   }
+
+  void _handleUri(Uri uri) => handleUri(uri);
 
   void dispose() {
     _sub?.cancel();

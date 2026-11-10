@@ -57,7 +57,6 @@ class _GrowthDashboardScreenState extends State<GrowthDashboardScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final L = context.L;
@@ -65,7 +64,8 @@ class _GrowthDashboardScreenState extends State<GrowthDashboardScreen> {
     return AppScaffold(
       body: SafeArea(
         child: _loading
-            ? const Center(child: ContextualLoader(message: 'Loading growth data...'))
+            ? const Center(
+                child: ContextualLoader(message: 'Loading growth data...'))
             : RefreshIndicator(
                 color: L.bg,
                 backgroundColor: L.text,
@@ -276,7 +276,8 @@ class _GrowthDashboardScreenState extends State<GrowthDashboardScreen> {
     if (_users.isEmpty) {
       return const _EmptyAnalyticsCard(
         title: 'No growth records yet',
-        message: 'Use the app flows or simulation utilities to populate activation data.',
+        message:
+            'Use the app flows or simulation utilities to populate activation data.',
       );
     }
 
@@ -295,8 +296,7 @@ class _GrowthDashboardScreenState extends State<GrowthDashboardScreen> {
           _buildFunnelRow('Meds added', medAdded, total, L.green),
           _buildFunnelRow('First dose logged', doseLogged, total, L.amber),
           _buildFunnelRow('Day-2 return', day2, total, L.purple),
-          _buildFunnelRow(
-              'Day-7 retention', day7, total, Design2026.electric),
+          _buildFunnelRow('Day-7 retention', day7, total, Design2026.electric),
         ],
       ),
     );
@@ -394,7 +394,7 @@ class _GrowthDashboardScreenState extends State<GrowthDashboardScreen> {
         border: Border.all(color: L.border.withValues(alpha: 0.08)),
       ),
       child: Row(
-      children: [
+        children: [
           Container(
             width: 42,
             height: 42,
@@ -445,10 +445,22 @@ class _GrowthDashboardScreenState extends State<GrowthDashboardScreen> {
 
   Widget _buildCorrelationCard(AppThemeColors L) {
     final features = [
-      ('AI Scanner', Icons.document_scanner_rounded, _correlations['ai_scanner']),
+      (
+        'AI Scanner',
+        Icons.document_scanner_rounded,
+        _correlations['ai_scanner']
+      ),
       ('Voice Log', Icons.mic_rounded, _correlations['voice_log']),
-      ('Record Mode', Icons.fiber_manual_record_rounded, _correlations['record_mode']),
-      ('Care Circle', Icons.family_restroom_rounded, _correlations['care_circle']),
+      (
+        'Record Mode',
+        Icons.fiber_manual_record_rounded,
+        _correlations['record_mode']
+      ),
+      (
+        'Care Circle',
+        Icons.family_restroom_rounded,
+        _correlations['care_circle']
+      ),
     ];
 
     return _DashboardCard(
@@ -511,7 +523,8 @@ class _GrowthDashboardScreenState extends State<GrowthDashboardScreen> {
                       ),
                     ),
                     _SignalPill(
-                      label: '${positive ? '+' : ''}${lift.toStringAsFixed(0)} pts',
+                      label:
+                          '${positive ? '+' : ''}${lift.toStringAsFixed(0)} pts',
                       color: signalColor,
                     ),
                   ],

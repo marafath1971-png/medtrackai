@@ -82,14 +82,14 @@ class ScanResultDetailView extends StatelessWidget {
     // Category-aware kicker: tailor the eyebrow to what was scanned so
     // supplements and skincare feel first-class, not shoehorned into "pill".
     final catLower = category.toLowerCase();
-    final (kindLabel, kindIcon) = catLower.contains('supplement') ||
-            catLower.contains('vitamin')
-        ? ('Supplement', Icons.eco_rounded)
-        : (catLower.contains('skin') ||
-                catLower.contains('cream') ||
-                catLower.contains('cosmetic'))
-            ? ('Skincare', Icons.spa_rounded)
-            : ('Medicine', Icons.medication_rounded);
+    final (kindLabel, kindIcon) =
+        catLower.contains('supplement') || catLower.contains('vitamin')
+            ? ('Supplement', Icons.eco_rounded)
+            : (catLower.contains('skin') ||
+                    catLower.contains('cream') ||
+                    catLower.contains('cosmetic'))
+                ? ('Skincare', Icons.spa_rounded)
+                : ('Medicine', Icons.medication_rounded);
     // Ink is darkened tint-family so the label reads on the pastel chip and
     // the danger case (pink) carries genuine red weight, not soft text.
     final statusInk = !result.identified
@@ -350,7 +350,8 @@ class ScanResultDetailView extends StatelessWidget {
         // ── DID YOU KNOW? ─────────────────────────────────────────────
         // The AI returns a one-line awareness fact on every scan; surface
         // it as a small delight moment instead of dropping it silently.
-        if (result.ahaMoment != null && result.ahaMoment!.trim().isNotEmpty) ...[
+        if (result.ahaMoment != null &&
+            result.ahaMoment!.trim().isNotEmpty) ...[
           const SizedBox(height: AppSpacing.p16),
           _in(
             reduceMotion,

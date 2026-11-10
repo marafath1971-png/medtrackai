@@ -31,7 +31,8 @@ void main() {
     expect(today, isNotEmpty);
 
     // A different day must be recomputed, never served from today's cache.
-    final tomorrow = c.getDoses(date: DateTime.now().add(const Duration(days: 1)));
+    final tomorrow =
+        c.getDoses(date: DateTime.now().add(const Duration(days: 1)));
     expect(identical(today, tomorrow), isFalse);
   });
 

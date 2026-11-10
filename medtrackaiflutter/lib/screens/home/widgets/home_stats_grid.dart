@@ -125,7 +125,8 @@ class HomeStatsGrid extends StatelessWidget {
         if (nextDose != null)
           _entrance(
             reduceMotion,
-            _NextDoseCard(dose: nextDose, nowM: nowM, L: L, reduceMotion: reduceMotion),
+            _NextDoseCard(
+                dose: nextDose, nowM: nowM, L: L, reduceMotion: reduceMotion),
             delay: 300.ms,
           ),
 
@@ -523,7 +524,8 @@ class _NextDoseCard extends StatelessWidget {
             ),
             const SizedBox(width: AppSpacing.p12),
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
               decoration: BoxDecoration(
                 color: L.onPrimary,
                 borderRadius: BorderRadius.circular(AppRadius.max),

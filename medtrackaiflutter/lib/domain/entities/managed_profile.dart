@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../core/utils/date_parser.dart';
 
 @immutable
 class ManagedProfile {
@@ -50,8 +51,7 @@ class ManagedProfile {
         avatar: j['avatar'] ?? '👤',
         colorAccent: j['colorAccent'],
         isCritical: j['isCritical'] ?? false,
-        dateOfBirth:
-            j['dateOfBirth'] != null ? DateTime.parse(j['dateOfBirth']) : null,
+        dateOfBirth: tryParseDateTime(j['dateOfBirth']),
         gender: j['gender'],
         notes: j['notes'],
         pin: j['pin'],

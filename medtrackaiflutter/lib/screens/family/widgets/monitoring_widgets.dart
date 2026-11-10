@@ -7,7 +7,7 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../services/auth_service.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/common/app_scaffold.dart';
-import '../../../widgets/common/paywall_sheet.dart';
+import '../../paywall/premium_paywall_overlay.dart';
 import '../../../widgets/common/premium_page_header.dart';
 import '../../../widgets/shared/shared_widgets.dart';
 import 'ai_protector_card.dart';
@@ -39,9 +39,7 @@ int _calculateStreak(
       0,
       (sum, m) =>
           sum +
-          m.schedule
-              .where((s) => s.enabled && s.days.contains(dayIdx))
-              .length,
+          m.schedule.where((s) => s.enabled && s.days.contains(dayIdx)).length,
     );
     final entries = history[key] ?? [];
     final takenCount = entries.where((e) => e.taken).length;
@@ -66,6 +64,122 @@ class PatientCard extends StatelessWidget {
       required this.state,
       required this.L,
       required this.onTap});
+
+  void _confirmStopMonitoring(
+    BuildContext context,
+    Map<String, dynamic> patient,
+    AppState state,
+    AppThemeColors L,
+  ) {
+    HapticEngine.selection();
+    final patientName = patient['name'] ?? 'this member';
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (bottomSheetContext) {
+        return Container(
+          padding: const EdgeInsets.all(AppSpacing.p24),
+          decoration: BoxDecoration(
+            color: L.card,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 24,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: L.border.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.p20),
+                Text(
+                  'Stop Monitoring?',
+                  style: AppTypography.titleLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: L.text,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.p8),
+                Text(
+                  'Are you sure you want to stop monitoring $patientName? You will no longer receive adherence updates or missed-dose notifications for them.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: L.sub,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.p24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(bottomSheetContext),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          side: BorderSide(color: L.border),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: AppTypography.labelLarge.copyWith(
+                            color: L.text,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.p12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          Navigator.pop(bottomSheetContext);
+                          HapticEngine.selection();
+                          final patientUid = patient['uid'] as String?;
+                          if (patientUid != null && patientUid.isNotEmpty) {
+                            await state.stopMonitoringPatient(patientUid);
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.dangerSoft,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          'Stop Monitoring',
+                          style: AppTypography.labelLarge.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.p8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -96,7 +210,8 @@ class PatientCard extends StatelessWidget {
 
             return Semantics(
               button: true,
-              label: '${patient['name'] ?? 'Patient'} adherence ${(adherence * 100).round()} percent',
+              label:
+                  '${patient['name'] ?? 'Patient'} adherence ${(adherence * 100).round()} percent',
               child: AnimatedPressable(
                 onTap: onTap,
                 scaleFactor: 0.985,
@@ -107,135 +222,161 @@ class PatientCard extends StatelessWidget {
                     radius: AppRadius.l,
                     accentGlow: false,
                     child: Column(
-                  children: [
-                    Row(
                       children: [
-                        Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            shape: BoxShape.circle,
-                            gradient: LinearGradient(
-                              colors: [
-                                color.withValues(alpha: 0.8),
-                                color.withValues(alpha: 0.1)
-                              ],
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                            boxShadow: null,
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(2.0),
-                            child: Container(
+                        Row(
+                          children: [
+                            Container(
+                              width: 52,
+                              height: 52,
                               decoration: BoxDecoration(
-                                color: L.card,
                                 shape: BoxShape.circle,
-                              ),
-                              child: Container(
-                                decoration: BoxDecoration(
-                                  color: color.withValues(alpha: 0.1),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Center(
-                                  child: Text(patient['avatar'] ?? '👤',
-                                      style: const TextStyle(fontSize: 22)),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: AppSpacing.p16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(patient['name'] ?? 'Patient',
-                                  style: AppTypography.titleLarge.copyWith(
-                                      color: L.text,
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w700,
-                                      letterSpacing: -0.5)),
-                              const SizedBox(height: 2),
-                              Text('${patient['relation']} · Progress today',
-                                  style: AppTypography.bodySmall.copyWith(
-                                      color: L.sub.withValues(alpha: 0.5),
-                                      fontSize: 11,
-                                      fontWeight: FontWeight.w600)),
-                            ],
-                          ),
-                        ),
-                        Semantics(
-                          button: true,
-                          label: 'Nudge ${patient['name'] ?? 'patient'}',
-                          child: AnimatedPressable(
-                            onTap: () {
-                              HapticEngine.selection();
-                              state.nudgePatient(patient['uid']);
-                            },
-                            scaleFactor: 0.92,
-                            child: Container(
-                              width: MedAiA11y.minTapTarget,
-                              height: MedAiA11y.minTapTarget,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: L.fill.withValues(alpha: 0.5),
-                                shape: BoxShape.circle,
-                              ),
-                              child: Icon(Icons.notifications_active_rounded,
-                                  size: 16, color: L.text),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: AppSpacing.p16),
-
-                    // Adherence Progress Bar (Flat Cal Style)
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Container(
-                            height: 4,
-                            decoration: BoxDecoration(
-                              color: L.fill.withValues(alpha: 0.4),
-                              borderRadius: BorderRadius.circular(2),
-                            ),
-                            child: LayoutBuilder(
-                              builder: (context, constraints) {
-                                return Row(
-                                  children: [
-                                    AnimatedContainer(
-                                      duration: 800.ms,
-                                      curve: Curves.easeOutQuart,
-                                      height: 4,
-                                      width: constraints.maxWidth * adherence,
-                                      decoration: BoxDecoration(
-                                        color: color,
-                                        borderRadius: BorderRadius.circular(2),
-                                      ),
-                                    ),
+                                gradient: LinearGradient(
+                                  colors: [
+                                    color.withValues(alpha: 0.8),
+                                    color.withValues(alpha: 0.1)
                                   ],
-                                );
-                              },
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                boxShadow: null,
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(2.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    color: L.card,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: color.withValues(alpha: 0.1),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Center(
+                                      child: Text(patient['avatar'] ?? '👤',
+                                          style: const TextStyle(fontSize: 22)),
+                                    ),
+                                  ),
+                                ),
+                              ),
                             ),
-                          ),
+                            const SizedBox(width: AppSpacing.p16),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(patient['name'] ?? 'Patient',
+                                      style: AppTypography.titleLarge.copyWith(
+                                          color: L.text,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.w700,
+                                          letterSpacing: -0.5)),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                      '${patient['relation']} · Progress today',
+                                      style: AppTypography.bodySmall.copyWith(
+                                          color: L.sub.withValues(alpha: 0.5),
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w600)),
+                                ],
+                              ),
+                            ),
+                            Semantics(
+                              button: true,
+                              label: 'Nudge ${patient['name'] ?? 'patient'}',
+                              child: AnimatedPressable(
+                                onTap: () {
+                                  HapticEngine.selection();
+                                  state.nudgePatient(patient['uid']);
+                                },
+                                scaleFactor: 0.92,
+                                child: Container(
+                                  width: MedAiA11y.minTapTarget,
+                                  height: MedAiA11y.minTapTarget,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: L.fill.withValues(alpha: 0.5),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                      Icons.notifications_active_rounded,
+                                      size: 16,
+                                      color: L.text),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.p8),
+                            Semantics(
+                              button: true,
+                              label: 'Monitoring options',
+                              child: AnimatedPressable(
+                                onTap: () => _confirmStopMonitoring(
+                                    context, patient, state, L),
+                                scaleFactor: 0.92,
+                                child: Container(
+                                  width: MedAiA11y.minTapTarget,
+                                  height: MedAiA11y.minTapTarget,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: L.fill.withValues(alpha: 0.5),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(Icons.more_horiz_rounded,
+                                      size: 16, color: L.sub),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        const SizedBox(width: AppSpacing.p12),
-                        Text('${(adherence * 100).toInt()}%',
-                            style: AppTypography.labelLarge.copyWith(
-                                color: color,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12)),
+                        const SizedBox(height: AppSpacing.p16),
+
+                        // Adherence Progress Bar (Flat Cal Style)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Container(
+                                height: 4,
+                                decoration: BoxDecoration(
+                                  color: L.fill.withValues(alpha: 0.4),
+                                  borderRadius: BorderRadius.circular(2),
+                                ),
+                                child: LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    return Row(
+                                      children: [
+                                        AnimatedContainer(
+                                          duration: 800.ms,
+                                          curve: Curves.easeOutQuart,
+                                          height: 4,
+                                          width:
+                                              constraints.maxWidth * adherence,
+                                          decoration: BoxDecoration(
+                                            color: color,
+                                            borderRadius:
+                                                BorderRadius.circular(2),
+                                          ),
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: AppSpacing.p12),
+                            Text('${(adherence * 100).toInt()}%',
+                                style: AppTypography.labelLarge.copyWith(
+                                    color: color,
+                                    fontWeight: FontWeight.w700,
+                                    fontSize: 12)),
+                          ],
+                        ),
                       ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
-          ),
             );
-        },
+          },
         );
       },
     );
@@ -326,6 +467,18 @@ class WeeklyAdherenceChart extends StatelessWidget {
   }
 }
 
+/// Whether a caregiver may open the insights dashboard for a patient.
+///
+/// Your own data is always yours. Someone else's needs Pro — yours, or the
+/// patient's Family plan, which exists so a whole family can look after one
+/// person without each of them subscribing.
+bool canViewPatientInsights({
+  required bool isMe,
+  required bool viewerPremium,
+  required bool patientHasFamilyPlan,
+}) =>
+    isMe || viewerPremium || patientHasFamilyPlan;
+
 class ProtectorInsights extends StatelessWidget {
   final Caregiver cg;
   final AppState state;
@@ -341,8 +494,29 @@ class ProtectorInsights extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isMe = cg.patientUid.isEmpty || cg.patientUid == AuthService.uid;
-    if (!isMe && !(state.profile?.isPremium ?? false)) {
-      return PaywallScreen(onBack: onBack, L: L);
+    final viewerPremium = state.profile?.isPremium ?? false;
+    if (!isMe && !viewerPremium) {
+      // The patient's Family plan covers their whole circle, so check theirs
+      // before asking this caregiver to pay.
+      return FutureBuilder<UserProfile?>(
+        future: state.getPatientProfile(cg.patientUid),
+        builder: (context, snap) {
+          if (snap.connectionState != ConnectionState.done) {
+            return AppScaffold(
+              backgroundColor: L.bg,
+              body: const Center(child: CircularProgressIndicator.adaptive()),
+            );
+          }
+          if (!canViewPatientInsights(
+            isMe: false,
+            viewerPremium: false,
+            patientHasFamilyPlan: snap.data?.hasFamilyPlan ?? false,
+          )) {
+            return PaywallScreen(onBack: onBack, L: L);
+          }
+          return _patientInsights();
+        },
+      );
     }
     if (isMe) {
       return InsightsContent(
@@ -355,6 +529,10 @@ class ProtectorInsights extends StatelessWidget {
         state: state,
       );
     }
+    return _patientInsights();
+  }
+
+  Widget _patientInsights() {
     return FutureBuilder<List<Medicine>>(
       future: state.getPatientMeds(cg.patientUid),
       builder: (context, medSnap) {
@@ -410,7 +588,8 @@ class PaywallScreen extends StatelessWidget {
                         decoration: BoxDecoration(
                           color: L.card,
                           borderRadius: BorderRadius.circular(20),
-                          border: Border.all(color: L.border.withValues(alpha: 0.35)),
+                          border: Border.all(
+                              color: L.border.withValues(alpha: 0.35)),
                         ),
                         child: SvgPicture.asset(
                           PremiumGraphics.onboardingFamily,
@@ -424,14 +603,18 @@ class PaywallScreen extends StatelessWidget {
                               color: L.text,
                               fontWeight: FontWeight.w800)),
                       const SizedBox(height: AppSpacing.p12),
-                      Text('Remote monitoring requires a Pro subscription.',
+                      Text(
+                          'Care circle insights need Pro — yours, or their '
+                          'Family plan, which covers everyone looking after '
+                          'them. Missed-dose alerts stay free either way.',
                           textAlign: TextAlign.center,
-                          style: AppTypography.bodySmall
-                              .copyWith(fontSize: 15, color: L.sub, height: 1.5)),
+                          style: AppTypography.bodySmall.copyWith(
+                              fontSize: 15, color: L.sub, height: 1.5)),
                       const SizedBox(height: AppSpacing.p32),
                       MedAiCTA(
                         label: 'Upgrade to Pro',
-                        onTap: () => PaywallSheet.show(context),
+                        onTap: () => PremiumPaywallOverlay.show(context,
+                            triggerSource: 'care_insights'),
                       ),
                     ],
                   ),
@@ -473,7 +656,7 @@ class InsightsContent extends StatelessWidget {
     return Scaffold(
       backgroundColor: L.meshBg,
       body: CustomScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+        keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
         physics: const BouncingScrollPhysics(),
         slivers: [
           SliverToBoxAdapter(

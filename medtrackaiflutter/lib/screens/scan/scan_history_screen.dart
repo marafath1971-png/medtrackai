@@ -35,8 +35,8 @@ class ScanHistoryScreen extends StatelessWidget {
     return AppScaffold(
       showAurora: false,
       body: CustomScrollView(
-        physics:
-            const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics()),
         slivers: [
           SliverToBoxAdapter(
             child: PremiumPageHeader(
@@ -66,14 +66,14 @@ class ScanHistoryScreen extends StatelessWidget {
             )
           else
             SliverPadding(
-              padding:
-                  const EdgeInsets.fromLTRB(AppSpacing.p24, AppSpacing.p16, AppSpacing.p24, AppSpacing.p40),
+              padding: const EdgeInsets.fromLTRB(AppSpacing.p24, AppSpacing.p16,
+                  AppSpacing.p24, AppSpacing.p40),
               sliver: SliverList(
                 delegate: SliverChildBuilderDelegate(
                   (context, index) {
                     final med = history[index];
-                    final parsedDate =
-                        DateTime.tryParse(med.courseStartDate) ?? DateTime.now();
+                    final parsedDate = DateTime.tryParse(med.courseStartDate) ??
+                        DateTime.now();
                     final date = DateFormat('MMM d, yyyy').format(parsedDate);
 
                     Widget row = MedAiDepthCard(
@@ -100,7 +100,6 @@ class ScanHistoryScreen extends StatelessWidget {
                                   style: AppTypography.titleMedium.copyWith(
                                     color: L.text,
                                     fontWeight: FontWeight.w700,
-                                    
                                   ),
                                 ),
                                 const SizedBox(height: AppSpacing.p4),

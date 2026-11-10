@@ -3,6 +3,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../../../providers/app_state.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../core/utils/color_utils.dart';
+import '../../../core/utils/haptic_engine.dart';
 import '../../../widgets/shared/shared_widgets.dart';
 import '../../../l10n/app_localizations.dart';
 
@@ -22,6 +23,113 @@ class CaregiverCard extends StatefulWidget {
 }
 
 class _CaregiverCardState extends State<CaregiverCard> {
+  void _confirmRemoveCaregiver(BuildContext context, Caregiver cg) {
+    HapticEngine.selection();
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (bottomSheetContext) {
+        return Container(
+          padding: const EdgeInsets.all(AppSpacing.p24),
+          decoration: BoxDecoration(
+            color: widget.L.card,
+            borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.08),
+                blurRadius: 24,
+                offset: const Offset(0, -4),
+              ),
+            ],
+          ),
+          child: SafeArea(
+            top: false,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(
+                  width: 36,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: widget.L.border.withValues(alpha: 0.6),
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.p20),
+                Text(
+                  'Remove Caregiver?',
+                  style: AppTypography.titleLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: widget.L.text,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.p8),
+                Text(
+                  'Are you sure you want to remove ${cg.name.isEmpty ? 'this caregiver' : cg.name}? They will lose access to monitor your medications and receive alerts.',
+                  textAlign: TextAlign.center,
+                  style: AppTypography.bodyMedium.copyWith(
+                    color: widget.L.sub,
+                    height: 1.4,
+                  ),
+                ),
+                const SizedBox(height: AppSpacing.p24),
+                Row(
+                  children: [
+                    Expanded(
+                      child: OutlinedButton(
+                        onPressed: () => Navigator.pop(bottomSheetContext),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          side: BorderSide(color: widget.L.border),
+                        ),
+                        child: Text(
+                          'Cancel',
+                          style: AppTypography.labelLarge.copyWith(
+                            color: widget.L.text,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: AppSpacing.p12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          Navigator.pop(bottomSheetContext);
+                          HapticEngine.selection();
+                          await widget.state.removeCaregiver(cg.id);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.dangerSoft,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          elevation: 0,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        child: Text(
+                          'Remove',
+                          style: AppTypography.labelLarge.copyWith(
+                            fontWeight: FontWeight.w700,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: AppSpacing.p8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -37,188 +145,215 @@ class _CaregiverCardState extends State<CaregiverCard> {
         onTap: widget.onDashboard,
         scaleFactor: 0.985,
         child: Container(
-        padding: const EdgeInsets.all(AppSpacing.p16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: L.border.withValues(alpha: 0.4)),
-          boxShadow: [
-            BoxShadow(
-              color: AppColors.eatoNavy.withValues(alpha: 0.04),
-              blurRadius: 12,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Avatar with Subthe Glow
-            Container(
-              width: 52,
-              height: 52,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                gradient: isActive
-                    ? LinearGradient(
-                        colors: [
-                          medColor.withValues(alpha: 0.8),
-                          medColor.withValues(alpha: 0.1)
-                        ],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      )
-                    : null,
-                border: isActive ? null : Border.all(color: L.border),
-                boxShadow: null,
+          padding: const EdgeInsets.all(AppSpacing.p16),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: L.border.withValues(alpha: 0.4)),
+            boxShadow: [
+              BoxShadow(
+                color: AppColors.eatoNavy.withValues(alpha: 0.04),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
               ),
-              child: Padding(
-                padding: EdgeInsets.all(isActive ? 2.0 : 0.0),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: L.card,
-                    shape: BoxShape.circle,
-                  ),
-                  child: Container(
+            ],
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Avatar with Subtle Glow
+                  Container(
+                    width: 52,
+                    height: 52,
                     decoration: BoxDecoration(
-                      color: medColor.withValues(alpha: 0.1),
                       shape: BoxShape.circle,
+                      gradient: isActive
+                          ? LinearGradient(
+                              colors: [
+                                medColor.withValues(alpha: 0.8),
+                                medColor.withValues(alpha: 0.1)
+                              ],
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                            )
+                          : null,
+                      border: isActive ? null : Border.all(color: L.border),
+                      boxShadow: null,
                     ),
-                    child: Center(
-                      child: Text(
-                        cg.avatar,
-                        style: const TextStyle(fontSize: 22),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-            const Spacer(),
-
-            // Name & Relation
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        cg.name,
-                        style: AppTypography.titleLarge.copyWith(
-                          color: AppColors.inkStrong,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          letterSpacing: -0.5,
+                    child: Padding(
+                      padding: EdgeInsets.all(isActive ? 2.0 : 0.0),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: L.card,
+                          shape: BoxShape.circle,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 2),
-                      Row(
-                        children: [
-                          Text(
-                            cg.relation,
-                            style: AppTypography.labelSmall.copyWith(
-                              color: AppColors.grey600,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 11,
-                              letterSpacing: 0.1,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            color: medColor.withValues(alpha: 0.1),
+                            shape: BoxShape.circle,
+                          ),
+                          child: Center(
+                            child: Text(
+                              cg.avatar,
+                              style: const TextStyle(fontSize: 22),
                             ),
                           ),
-                          if (isActive) ...[
-                            const SizedBox(width: AppSpacing.p8),
-                            _StatusPill(
-                              label: l10n.familyActive,
-                              color: AppColors.limeDeep,
-                              L: L,
-                            ),
-                          ] else ...[
-                            const SizedBox(width: AppSpacing.p8),
-                            _StatusPill(
-                              label: l10n.familyWaiting,
-                              color: AppColors.grey600,
-                              L: L,
-                            ),
-                          ],
-                        ],
+                        ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: const BoxDecoration(
-                    color: AppColors.pastelMint,
-                    shape: BoxShape.circle,
+                  Semantics(
+                    button: true,
+                    label: 'Caregiver options',
+                    child: AnimatedPressable(
+                      onTap: () => _confirmRemoveCaregiver(context, cg),
+                      scaleFactor: 0.9,
+                      child: Container(
+                        width: 32,
+                        height: 32,
+                        decoration: BoxDecoration(
+                          color: L.fill.withValues(alpha: 0.5),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Icon(
+                          Icons.more_horiz_rounded,
+                          size: 18,
+                          color: L.sub,
+                        ),
+                      ),
+                    ),
                   ),
-                  child: const Icon(Icons.arrow_forward_ios_rounded,
-                      size: 14, color: AppColors.limeInk),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: AppSpacing.p16),
-
-            // Latest Activity Snippet (Cal AI Ticker)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
-              decoration: BoxDecoration(
-                color: isActive
-                    ? AppColors.pastelMint
-                    : L.fill.withValues(alpha: 0.5),
-                borderRadius: AppRadius.roundXS,
+                ],
               ),
-              child: Row(
+              const Spacer(),
+
+              // Name & Relation
+              Row(
                 children: [
-                  Icon(Icons.radar_rounded,
-                      size: 12,
-                      color: isActive ? AppColors.limeDeep : L.warning),
-                  const SizedBox(width: AppSpacing.p8),
                   Expanded(
-                    child: Text(
-                      isActive
-                          ? 'Active monitoring · stable'
-                          : 'Invite sent · waiting',
-                      style: AppTypography.labelSmall.copyWith(
-                        color: isActive
-                            ? AppColors.limeInk
-                            : AppColors.grey600,
-                        fontSize: 11,
-                        fontWeight: FontWeight.w700,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          cg.name,
+                          style: AppTypography.titleLarge.copyWith(
+                            color: AppColors.inkStrong,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            letterSpacing: -0.5,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        Row(
+                          children: [
+                            Text(
+                              cg.relation,
+                              style: AppTypography.labelSmall.copyWith(
+                                color: AppColors.grey600,
+                                fontWeight: FontWeight.w600,
+                                fontSize: 11,
+                                letterSpacing: 0.1,
+                              ),
+                            ),
+                            if (isActive) ...[
+                              const SizedBox(width: AppSpacing.p8),
+                              _StatusPill(
+                                label: l10n.familyActive,
+                                color: AppColors.limeDeep,
+                                L: L,
+                              ),
+                            ] else ...[
+                              const SizedBox(width: AppSpacing.p8),
+                              _StatusPill(
+                                label: l10n.familyWaiting,
+                                color: AppColors.grey600,
+                                L: L,
+                              ),
+                            ],
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 32,
+                    height: 32,
+                    decoration: const BoxDecoration(
+                      color: AppColors.pastelMint,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.arrow_forward_ios_rounded,
+                        size: 14, color: AppColors.limeInk),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: AppSpacing.p16),
+
+              // Latest Activity Snippet (Cal AI Ticker)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
+                decoration: BoxDecoration(
+                  color: isActive
+                      ? AppColors.pastelMint
+                      : L.fill.withValues(alpha: 0.5),
+                  borderRadius: AppRadius.roundXS,
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.radar_rounded,
+                        size: 12,
+                        color: isActive ? AppColors.limeDeep : L.warning),
+                    const SizedBox(width: AppSpacing.p8),
+                    Expanded(
+                      child: Text(
+                        isActive
+                            ? 'Active monitoring · stable'
+                            : 'Invite sent · waiting',
+                        style: AppTypography.labelSmall.copyWith(
+                          color:
+                              isActive ? AppColors.limeInk : AppColors.grey600,
+                          fontSize: 11,
+                          fontWeight: FontWeight.w700,
+                        ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
 
-            const SizedBox(height: AppSpacing.p12),
+              const SizedBox(height: AppSpacing.p12),
 
-            // Industrial Status Bar
-            Container(
-              height: 2,
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: L.border.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(1),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    width: isActive ? 100 : 40,
-                    height: 2,
-                    decoration: BoxDecoration(
-                      color: isActive ? AppColors.limeDeep : L.warning,
-                      borderRadius: BorderRadius.circular(1),
+              // Industrial Status Bar
+              Container(
+                height: 2,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: L.border.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(1),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      width: isActive ? 100 : 40,
+                      height: 2,
+                      decoration: BoxDecoration(
+                        color: isActive ? AppColors.limeDeep : L.warning,
+                        borderRadius: BorderRadius.circular(1),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
         ),
       ),
     );
@@ -340,8 +475,10 @@ class HeaderBtn extends StatelessWidget {
           onTap: onTap,
           scaleFactor: 0.97,
           child: Container(
-            constraints: const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
-            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p8),
+            constraints:
+                const BoxConstraints(minHeight: MedAiA11y.minTapTarget),
+            padding: const EdgeInsets.symmetric(
+                horizontal: AppSpacing.p16, vertical: AppSpacing.p8),
             decoration: BoxDecoration(
                 color: bg, borderRadius: BorderRadius.circular(20)),
             child: Row(children: [
@@ -370,7 +507,8 @@ class _StatusPill extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: 3),
+      padding:
+          const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: 3),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.08),
         borderRadius: BorderRadius.circular(99),

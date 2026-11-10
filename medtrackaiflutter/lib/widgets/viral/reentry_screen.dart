@@ -202,7 +202,8 @@ class _ReentryScreenState extends State<ReentryScreen> {
     if (reduceMotion) return child;
     return child
         .animate()
-        .fadeIn(duration: AppDurations.fast, delay: 150.ms, curve: AppCurves.smooth)
+        .fadeIn(
+            duration: AppDurations.fast, delay: 150.ms, curve: AppCurves.smooth)
         .slideY(begin: 0.08, end: 0, curve: AppCurves.smooth);
   }
 }

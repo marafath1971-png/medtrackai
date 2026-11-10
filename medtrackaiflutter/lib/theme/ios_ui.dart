@@ -178,7 +178,6 @@ class IOSGroupedRow extends StatelessWidget {
   }
 }
 
-
 /// iMessage-style chat bubble with a directional tail. [isUser] bubbles use the
 /// accent fill (like the blue sender bubble); AI bubbles use a grouped-gray
 /// fill (like the received bubble).
@@ -252,8 +251,7 @@ class _BubbleTailPainter extends CustomPainter {
     const r = IOSMetrics.bubbleRadius;
     const tail = 7.0;
     final body = RRect.fromRectAndCorners(
-      Rect.fromLTWH(
-          isUser ? 0 : tail, 0, size.width - tail, size.height),
+      Rect.fromLTWH(isUser ? 0 : tail, 0, size.width - tail, size.height),
       topLeft: const Radius.circular(r),
       topRight: const Radius.circular(r),
       bottomLeft: Radius.circular(isUser ? r : 4),
@@ -291,7 +289,9 @@ class _BubbleTailPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant _BubbleTailPainter old) =>
-      old.color != color || old.isUser != isUser || old.borderColor != borderColor;
+      old.color != color ||
+      old.isUser != isUser ||
+      old.borderColor != borderColor;
 }
 
 /// iOS message composer: rounded capsule field with an inline circular send
@@ -342,8 +342,8 @@ class IOSComposer extends StatelessWidget {
                   textCapitalization: TextCapitalization.sentences,
                   hintText: hintText,
                   onSubmitted: enabled ? onSubmit : null,
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 10),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                 ),
               ),
               const SizedBox(width: 8),

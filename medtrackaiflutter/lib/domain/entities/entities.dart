@@ -14,3 +14,5 @@ export 'ai_safety_profile.dart';
 export 'dose_item.dart';
 export 'predictive_insight.dart';
 export 'body_impact.dart';
+export 'escalation_alert.dart';
+export 'step_day.dart';

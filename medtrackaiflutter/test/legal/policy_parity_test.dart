@@ -16,8 +16,7 @@ Map<String, String> _arb() {
   final decoded = jsonDecode(raw) as Map<String, dynamic>;
   return {
     for (final e in decoded.entries)
-      if (!e.key.startsWith('@') && e.value is String)
-        e.key: e.value as String,
+      if (!e.key.startsWith('@') && e.value is String) e.key: e.value as String,
   };
 }
 
@@ -25,10 +24,10 @@ List<String> _titles(String dart) {
   final arb = _arb();
   final literal =
       RegExp(r"title:\s*'((?:[^'\\]|\\.)*)'\s*,\s*(?:body|content|text):");
-  final key =
-      RegExp(r"title:\s*l10n\.(\w+)\s*,\s*(?:body|content|text):");
+  final key = RegExp(r"title:\s*l10n\.(\w+)\s*,\s*(?:body|content|text):");
   final out = <String>[
-    for (final m in literal.allMatches(dart)) m.group(1)!.replaceAll(r"\'", "'"),
+    for (final m in literal.allMatches(dart))
+      m.group(1)!.replaceAll(r"\'", "'"),
   ];
   for (final m in key.allMatches(dart)) {
     final v = arb[m.group(1)!];

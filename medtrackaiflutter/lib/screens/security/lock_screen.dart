@@ -19,8 +19,7 @@ class LockScreen extends StatefulWidget {
   State<LockScreen> createState() => _LockScreenState();
 }
 
-class _LockScreenState extends State<LockScreen>
-    with WidgetsBindingObserver {
+class _LockScreenState extends State<LockScreen> with WidgetsBindingObserver {
   bool _isAuthenticating = false;
   String? _errorMessage;
 

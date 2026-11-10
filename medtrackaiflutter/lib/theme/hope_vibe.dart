@@ -80,7 +80,8 @@ abstract final class HopeVibe {
   static const paywallHeadlineGate =
       'Unlock the full plan made for your medication life.';
   // Was a fabricated rating + install count; see premium_paywall_overlay.
-  static const paywallSocial = 'Cancel anytime · Your health data is never sold';
+  static const paywallSocial =
+      'Cancel anytime · Your health data is never sold';
   static const paywallGateScan =
       'Keep scanning with confidence.\nUnlock unlimited AI medicine recognition.';
   static const paywallGateVoice =

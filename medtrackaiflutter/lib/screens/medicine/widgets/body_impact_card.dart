@@ -108,7 +108,8 @@ class BodyImpactCard extends StatelessWidget {
                             ),
                             decoration: BoxDecoration(
                               color: L.accent.withValues(alpha: 0.12),
-                              borderRadius: BorderRadius.circular(AppRadius.max),
+                              borderRadius:
+                                  BorderRadius.circular(AppRadius.max),
                               border: Border.all(
                                 color: L.accent.withValues(alpha: 0.26),
                                 width: 0.7,

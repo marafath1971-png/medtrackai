@@ -39,8 +39,7 @@ void main() {
     });
 
     test('defaults to on when the key is absent (existing installs)', () {
-      final json = UserProfile(name: 'A').toJson()
-        ..remove('hapticsEnabled');
+      final json = UserProfile(name: 'A').toJson()..remove('hapticsEnabled');
       expect(UserProfile.fromJson(json).hapticsEnabled, isTrue);
     });
 
@@ -53,18 +52,18 @@ void main() {
 
   group('AuthController syncs the HapticEngine kill switch', () {
     test('saveProfile applies the stored preference', () async {
-      await auth.saveProfile(
-          UserProfile(name: 'A').copyWith(hapticsEnabled: false));
+      await auth
+          .saveProfile(UserProfile(name: 'A').copyWith(hapticsEnabled: false));
       expect(HapticEngine.isEnabled, isFalse);
 
-      await auth.saveProfile(
-          UserProfile(name: 'A').copyWith(hapticsEnabled: true));
+      await auth
+          .saveProfile(UserProfile(name: 'A').copyWith(hapticsEnabled: true));
       expect(HapticEngine.isEnabled, isTrue);
     });
 
     test('loadProfile applies the preference on cold start', () async {
-      when(() => userRepo.getProfile()).thenAnswer((_) async =>
-          UserProfile(name: 'A').copyWith(hapticsEnabled: false));
+      when(() => userRepo.getProfile()).thenAnswer(
+          (_) async => UserProfile(name: 'A').copyWith(hapticsEnabled: false));
       when(() => userRepo.getLanguage()).thenAnswer((_) async => 'en');
 
       await auth.loadProfile();
@@ -72,8 +71,8 @@ void main() {
     });
 
     test('a null profile restores the default-on behaviour', () async {
-      await auth.saveProfile(
-          UserProfile(name: 'A').copyWith(hapticsEnabled: false));
+      await auth
+          .saveProfile(UserProfile(name: 'A').copyWith(hapticsEnabled: false));
       expect(HapticEngine.isEnabled, isFalse);
 
       auth.profile = null;

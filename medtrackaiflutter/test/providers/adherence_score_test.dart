@@ -53,12 +53,13 @@ void main() {
 
   test('a once-daily medicine taken every day scores 100%', () {
     c.setStateForTest(
-      meds: [_med(id: 1, name: 'Vitamin D', slots: ['Morning'])],
+      meds: [
+        _med(id: 1, name: 'Vitamin D', slots: ['Morning'])
+      ],
       history: {
         for (var i = 0; i < 30; i++)
           _dateKey(DateTime.now().subtract(Duration(days: i))): [
-            DoseEntry(
-                medId: 1, label: 'Morning', time: '8:00 AM', taken: true),
+            DoseEntry(medId: 1, label: 'Morning', time: '8:00 AM', taken: true),
           ],
       },
     );
@@ -75,10 +76,8 @@ void main() {
       history: {
         for (var i = 0; i < 30; i++)
           _dateKey(DateTime.now().subtract(Duration(days: i))): [
-            DoseEntry(
-                medId: 1, label: 'Morning', time: '8:00 AM', taken: true),
-            DoseEntry(
-                medId: 1, label: 'Evening', time: '8:00 PM', taken: true),
+            DoseEntry(medId: 1, label: 'Morning', time: '8:00 AM', taken: true),
+            DoseEntry(medId: 1, label: 'Evening', time: '8:00 PM', taken: true),
           ],
       },
     );
@@ -94,8 +93,7 @@ void main() {
       history: {
         for (var i = 0; i < 30; i++)
           _dateKey(DateTime.now().subtract(Duration(days: i))): [
-            DoseEntry(
-                medId: 1, label: 'Morning', time: '8:00 AM', taken: true),
+            DoseEntry(medId: 1, label: 'Morning', time: '8:00 AM', taken: true),
           ],
       },
     );
@@ -107,14 +105,14 @@ void main() {
 
   test('PRN doses do not inflate the score', () {
     c.setStateForTest(
-      meds: [_med(id: 1, name: 'Vitamin D', slots: ['Morning'])],
+      meds: [
+        _med(id: 1, name: 'Vitamin D', slots: ['Morning'])
+      ],
       history: {
         for (var i = 0; i < 30; i++)
           _dateKey(DateTime.now().subtract(Duration(days: i))): [
-            DoseEntry(
-                medId: 1, label: 'Morning', time: '8:00 AM', taken: true),
-            DoseEntry(
-                medId: 1, label: 'PRN-1', time: '2:00 PM', taken: true),
+            DoseEntry(medId: 1, label: 'Morning', time: '8:00 AM', taken: true),
+            DoseEntry(medId: 1, label: 'PRN-1', time: '2:00 PM', taken: true),
           ],
       },
     );
@@ -125,7 +123,9 @@ void main() {
 
   test('nothing taken scores 0', () {
     c.setStateForTest(
-      meds: [_med(id: 1, name: 'Vitamin D', slots: ['Morning'])],
+      meds: [
+        _med(id: 1, name: 'Vitamin D', slots: ['Morning'])
+      ],
       history: const {},
     );
 
@@ -134,7 +134,9 @@ void main() {
 
   test('the score never leaves the 0..1 range', () {
     c.setStateForTest(
-      meds: [_med(id: 1, name: 'Vitamin D', slots: ['Morning'])],
+      meds: [
+        _med(id: 1, name: 'Vitamin D', slots: ['Morning'])
+      ],
       history: {
         for (var i = 0; i < 30; i++)
           _dateKey(DateTime.now().subtract(Duration(days: i))): [

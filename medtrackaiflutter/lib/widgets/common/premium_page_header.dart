@@ -49,7 +49,8 @@ class PremiumPageHeader extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: L.card,
                       shape: BoxShape.circle,
-                      border: Border.all(color: L.border.withValues(alpha: 0.45)),
+                      border:
+                          Border.all(color: L.border.withValues(alpha: 0.45)),
                     ),
                     child: Icon(
                       Icons.arrow_back_ios_new_rounded,

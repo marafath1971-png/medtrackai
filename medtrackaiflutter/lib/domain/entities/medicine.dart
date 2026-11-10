@@ -449,14 +449,16 @@ class Medicine {
         notes: j['notes'] ?? '',
         intakeInstructions: j['intakeInstructions'] ?? '',
         schedule: (j['schedule'] as List<dynamic>? ?? [])
-            .map((s) => ScheduleEntry.fromJson(Map<String, dynamic>.from(s as Map)))
+            .map((s) =>
+                ScheduleEntry.fromJson(Map<String, dynamic>.from(s as Map)))
             .toList(),
         courseStartDate: j['courseStartDate'] ?? '',
         courseDurationDays: j['courseDurationDays'] as int?,
         unit: j['unit'] ?? 'units',
         isPrescription: j['isPrescription'] ?? false,
         refillInfo: j['refillInfo'] != null
-            ? RefillInfo.fromJson(Map<String, dynamic>.from(j['refillInfo'] as Map))
+            ? RefillInfo.fromJson(
+                Map<String, dynamic>.from(j['refillInfo'] as Map))
             : null,
         price: (j['price'] as num?)?.toDouble(),
         currency: j['currency'],
@@ -465,11 +467,13 @@ class Medicine {
         isSachet: j['isSachet'] ?? false,
         repeatPrescriptionDueDate: j['repeatPrescriptionDueDate'],
         aiSafetyProfile: j['aiSafetyProfile'] != null
-            ? AISafetyProfile.fromJson(Map<String, dynamic>.from(j['aiSafetyProfile'] as Map))
+            ? AISafetyProfile.fromJson(
+                Map<String, dynamic>.from(j['aiSafetyProfile'] as Map))
             : null,
         isCritical: j['isCritical'] ?? false,
         productAnalysis: j['productAnalysis'] != null
-            ? ProductAnalysis.fromJson(Map<String, dynamic>.from(j['productAnalysis'] as Map))
+            ? ProductAnalysis.fromJson(
+                Map<String, dynamic>.from(j['productAnalysis'] as Map))
             : null,
         // Absent on records written before this field existed, and a corrupt
         // value must not take down the whole load — either way it reads as
@@ -550,6 +554,7 @@ class Medicine {
         // author must use it, because re-stamping would make last-write-wins
         // resolve in favour of whoever synced most recently rather than
         // whoever actually edited most recently.
-        updatedAt: updatedAt ?? (touch ? DateTime.now().toUtc() : this.updatedAt),
+        updatedAt:
+            updatedAt ?? (touch ? DateTime.now().toUtc() : this.updatedAt),
       );
 }

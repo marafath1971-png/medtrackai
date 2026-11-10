@@ -75,7 +75,8 @@ void main() {
   });
 
   group('auth error copy tells the user what to do', () {
-    test('a server misconfiguration does not blame the user or say "retry"', () {
+    test('a server misconfiguration does not blame the user or say "retry"',
+        () {
       // Observed on device as "This sign-in method is not enabled." — which
       // describes a console setting the user cannot see, let alone change,
       // and offers them nothing to do next.
@@ -92,7 +93,8 @@ void main() {
       expect(message.toLowerCase(), contains('wait'));
     });
 
-    test('a disabled account points at support, since retrying cannot work', () {
+    test('a disabled account points at support, since retrying cannot work',
+        () {
       final message = AuthScreen.friendlyAuthError('user-disabled');
 
       expect(message.toLowerCase(), contains('support'));
@@ -103,7 +105,8 @@ void main() {
       // Modern Firebase returns invalid-credential for a wrong password, so
       // this is the most common sign-in failure there is.
       for (final code in ['wrong-password', 'invalid-credential']) {
-        expect(AuthScreen.friendlyAuthError(code), 'Incorrect email or password',
+        expect(
+            AuthScreen.friendlyAuthError(code), 'Incorrect email or password',
             reason: '$code is a wrong password');
       }
     });

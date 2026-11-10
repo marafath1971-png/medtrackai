@@ -23,6 +23,16 @@ class WellnessController extends ChangeNotifier {
   bool get loadingInsights => _loadingInsights;
   bool get analyzingSymptom => false;
 
+  /// Resets in-memory symptom and insights data on sign out.
+  void clear() {
+    _currentProfileId = null;
+    _symptoms = [];
+    _healthInsights.clear();
+    _predictions.clear();
+    _loadingInsights = false;
+    notifyListeners();
+  }
+
   Map<String, String> getMoodSummary({
     required String good,
     required String stable,
@@ -103,16 +113,17 @@ class WellnessController extends ChangeNotifier {
   /// 🧠 Phase 5.0: Predictive Analytics Logic
   void analyzePredictivePatterns(Map<String, List<DoseEntry>> history) {
     _predictions.clear();
-    
+
     // 1. Analyze Evening Risk
     int eveningMisses = 0;
     int totalEveningDoses = 0;
-    
+
     // 2. Analyze Weekend Slump
     int weekendMisses = 0;
-    
+
     history.forEach((date, doses) {
-      final isWeekend = DateTime.parse(date).weekday >= 6;
+      final parsedDate = DateTime.tryParse(date);
+      final isWeekend = parsedDate != null && parsedDate.weekday >= 6;
       for (var d in doses) {
         final hour = int.tryParse(d.time.split(':')[0]) ?? 0;
         if (hour >= 18) {
@@ -127,7 +138,8 @@ class WellnessController extends ChangeNotifier {
       _predictions.add(PredictiveInsight(
         type: PredictiveType.eveningRisk,
         title: 'Evening Routine Risk',
-        description: 'You tend to forget doses after 6 PM. Maybe move notifications earlier?',
+        description:
+            'You tend to forget doses after 6 PM. Maybe move notifications earlier?',
         impactScore: 0.8,
       ));
     }
@@ -136,11 +148,12 @@ class WellnessController extends ChangeNotifier {
       _predictions.add(PredictiveInsight(
         type: PredictiveType.weekendSlump,
         title: 'Weekend Pattern Change',
-        description: 'Consistency drops on Saturdays. Stay regular this weekend!',
+        description:
+            'Consistency drops on Saturdays. Stay regular this weekend!',
         impactScore: 0.6,
       ));
     }
-    
+
     notifyListeners();
   }
 
@@ -165,7 +178,8 @@ class WellnessController extends ChangeNotifier {
       for (var dose in dayDoses) {
         if (!dose.taken || dose.takenAt == null) continue;
 
-        final tTime = DateTime.parse(dose.takenAt!);
+        final tTime = DateTime.tryParse(dose.takenAt!);
+        if (tTime == null) continue;
         final diff = sTime.difference(tTime);
 
         // If symptom occurred between 15 mins and 4 hours after intake

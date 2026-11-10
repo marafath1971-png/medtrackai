@@ -22,8 +22,8 @@ class ScannerHelpScreen extends StatelessWidget {
     return AppScaffold(
       showAurora: false,
       body: CustomScrollView(
-        physics:
-            const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics()),
         slivers: [
           SliverToBoxAdapter(
             child: PremiumPageHeader(

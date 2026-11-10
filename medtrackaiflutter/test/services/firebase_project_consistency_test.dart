@@ -11,12 +11,11 @@ void main() {
     final opts = File('lib/firebase_options.dart').readAsStringSync();
     final gs = File('android/app/google-services.json').readAsStringSync();
 
-    final fromOpts =
-        _idFrom(opts, RegExp(r"projectId:\s*'([a-z0-9-]+)'"));
-    final fromGs =
-        _idFrom(gs, RegExp(r'"project_id":\s*"([a-z0-9-]+)"'));
+    final fromOpts = _idFrom(opts, RegExp(r"projectId:\s*'([a-z0-9-]+)'"));
+    final fromGs = _idFrom(gs, RegExp(r'"project_id":\s*"([a-z0-9-]+)"'));
 
-    expect(fromOpts, isNotNull, reason: 'firebase_options.dart has no projectId');
+    expect(fromOpts, isNotNull,
+        reason: 'firebase_options.dart has no projectId');
     expect(fromGs, isNotNull, reason: 'google-services.json has no project_id');
     expect(fromOpts, fromGs,
         reason: 'firebase_options.dart says $fromOpts but '
@@ -32,8 +31,8 @@ void main() {
     expect(rc.existsSync(), isTrue,
         reason: 'without .firebaserc a deploy has no default project');
 
-    final rcId = _idFrom(rc.readAsStringSync(),
-        RegExp(r'"default":\s*"([a-z0-9-]+)"'));
+    final rcId =
+        _idFrom(rc.readAsStringSync(), RegExp(r'"default":\s*"([a-z0-9-]+)"'));
     final appId = _idFrom(File('lib/firebase_options.dart').readAsStringSync(),
         RegExp(r"projectId:\s*'([a-z0-9-]+)'"));
 

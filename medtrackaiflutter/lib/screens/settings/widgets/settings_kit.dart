@@ -120,7 +120,7 @@ class SettingsRow extends StatelessWidget {
     final resolved = icon is IconData ? icon as IconData : null;
     final iconTint = destructive
         ? const Color(0xFFB4494A).withValues(alpha: 0.12)
-        : (tint ?? AppColors.pastelMint);
+        : (tint ?? L.fill);
 
     final row = Padding(
       padding: const EdgeInsets.symmetric(
@@ -141,8 +141,7 @@ class SettingsRow extends StatelessWidget {
                         ? const Color(0xFFB4494A)
                         : AppColors.accentDeep)
                 : Center(
-                    child: Text('$icon',
-                        style: const TextStyle(fontSize: 15))),
+                    child: Text('$icon', style: const TextStyle(fontSize: 15))),
           ),
           const SizedBox(width: AppSpacing.p12),
           Expanded(

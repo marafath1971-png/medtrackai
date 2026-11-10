@@ -10,4 +10,7 @@ class DoseItem {
     required this.sched,
     required this.key,
   });
+
+  /// Canonical key format for dose tracking across state and persistence
+  static String buildKey(int medId, String label) => '$medId-$label';
 }

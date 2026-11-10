@@ -19,7 +19,8 @@ class DashboardStatHeader extends StatelessWidget {
     return Padding(
       padding: EdgeInsets.only(top: MediaQuery.of(context).padding.top),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(AppSpacing.screenPadding, AppSpacing.p12, AppSpacing.screenPadding, AppSpacing.p8),
+        padding: const EdgeInsets.fromLTRB(AppSpacing.screenPadding,
+            AppSpacing.p12, AppSpacing.screenPadding, AppSpacing.p8),
         child: Row(
           children: [
             Expanded(

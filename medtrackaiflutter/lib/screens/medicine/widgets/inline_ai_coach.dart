@@ -18,7 +18,8 @@ class InlineAiCoach extends StatefulWidget {
     this.impact,
   });
 
-  static void show(BuildContext context, Medicine medicine, {BodyImpactSummary? impact}) {
+  static void show(BuildContext context, Medicine medicine,
+      {BodyImpactSummary? impact}) {
     HapticEngine.selection();
     showModalBottomSheet(
       context: context,
@@ -43,7 +44,8 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
     super.initState();
     _messages.add({
       'role': 'ai',
-      'text': "Hi! I'm your MedAI Coach. What would you like to know about ${widget.medicine.name}?",
+      'text':
+          "Hi! I'm your MedAI Coach. What would you like to know about ${widget.medicine.name}?",
     });
   }
 
@@ -70,14 +72,16 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
       HealthInsight(
         category: 'Medicine Info',
         title: widget.medicine.name,
-        body: 'Dose: ${widget.medicine.dose}, Form: ${widget.medicine.form}, Category: ${widget.medicine.category}. '
+        body:
+            'Dose: ${widget.medicine.dose}, Form: ${widget.medicine.form}, Category: ${widget.medicine.category}. '
             'Instructions: ${widget.medicine.intakeInstructions}',
       ),
       if (widget.impact != null)
         HealthInsight(
           category: 'Pharmacokinetics',
           title: 'Mechanism & Specs',
-          body: 'Mechanism: ${widget.impact!.mechanismOfAction}. Peaks at ${widget.impact!.peakHours} hours. '
+          body:
+              'Mechanism: ${widget.impact!.mechanismOfAction}. Peaks at ${widget.impact!.peakHours} hours. '
               'Affects ${widget.impact!.bodySystems.join(', ')}.',
         )
     ];
@@ -91,7 +95,11 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
           _messages.add({'role': 'ai', 'text': result.data});
           HapticEngine.success();
         } else {
-          _messages.add({'role': 'ai', 'text': "Sorry, I couldn't process that right now. Please try again."});
+          _messages.add({
+            'role': 'ai',
+            'text':
+                "Sorry, I couldn't process that right now. Please try again."
+          });
           HapticEngine.heavyImpact();
         }
       });
@@ -104,7 +112,8 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
       if (_scrollController.hasClients) {
         _scrollController.animateTo(
           _scrollController.position.maxScrollExtent + 100,
-          duration: MedAiA11y.motion(context, const Duration(milliseconds: 300)),
+          duration:
+              MedAiA11y.motion(context, const Duration(milliseconds: 300)),
           curve: Curves.easeOut,
         );
       }
@@ -130,7 +139,8 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
           ];
 
     return ClipRRect(
-      borderRadius: const BorderRadius.vertical(top: Radius.circular(AppRadius.squircle)),
+      borderRadius:
+          const BorderRadius.vertical(top: Radius.circular(AppRadius.squircle)),
       child: SizedBox(
         height: MediaQuery.of(context).size.height * 0.85,
         child: MedAiGlass(
@@ -143,7 +153,8 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
               const Center(child: IOSGrabber()),
               // Header
               Padding(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.gutter, AppSpacing.p8, AppSpacing.p12, AppSpacing.p12),
+                padding: const EdgeInsets.fromLTRB(AppSpacing.gutter,
+                    AppSpacing.p8, AppSpacing.p12, AppSpacing.p12),
                 child: Row(
                   children: [
                     Container(
@@ -194,7 +205,8 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
                             color: L.fill.withValues(alpha: 0.6),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.close_rounded, color: L.sub, size: 18),
+                          child:
+                              Icon(Icons.close_rounded, color: L.sub, size: 18),
                         ),
                       ),
                     ),
@@ -206,9 +218,11 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
               // Chat Area
               Expanded(
                 child: ListView.builder(
-                  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
                   controller: _scrollController,
-                  padding: const EdgeInsets.fromLTRB(AppSpacing.p16, AppSpacing.p12, AppSpacing.p16, AppSpacing.p12),
+                  padding: const EdgeInsets.fromLTRB(AppSpacing.p16,
+                      AppSpacing.p12, AppSpacing.p16, AppSpacing.p12),
                   itemCount: _messages.length + (_isLoading ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == _messages.length && _isLoading) {
@@ -233,11 +247,14 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
                 SizedBox(
                   height: 42,
                   child: ListView.separated(
-                    keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                    keyboardDismissBehavior:
+                        ScrollViewKeyboardDismissBehavior.onDrag,
                     scrollDirection: Axis.horizontal,
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: AppSpacing.p16),
                     itemCount: suggestions.length,
-                    separatorBuilder: (_, __) => const SizedBox(width: AppSpacing.p8),
+                    separatorBuilder: (_, __) =>
+                        const SizedBox(width: AppSpacing.p8),
                     itemBuilder: (context, index) {
                       final suggestion = suggestions[index];
                       return Semantics(
@@ -252,7 +269,8 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
                                 horizontal: AppSpacing.p16, vertical: 9),
                             decoration: BoxDecoration(
                               color: L.fill.withValues(alpha: 0.5),
-                              borderRadius: BorderRadius.circular(AppRadius.max),
+                              borderRadius:
+                                  BorderRadius.circular(AppRadius.max),
                               border: Border.all(
                                   color: L.accent.withValues(alpha: 0.28),
                                   width: 0.7),
@@ -318,7 +336,8 @@ class _InlineAiCoachState extends State<InlineAiCoach> {
             border:
                 Border.all(color: L.border.withValues(alpha: 0.18), width: 0.7),
           ),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p20, vertical: 15),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.p20, vertical: 15),
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -340,7 +359,8 @@ class _Dot extends StatelessWidget {
   final Color color;
   final bool reduceMotion;
 
-  const _Dot({required this.delay, required this.color, required this.reduceMotion});
+  const _Dot(
+      {required this.delay, required this.color, required this.reduceMotion});
 
   @override
   Widget build(BuildContext context) {

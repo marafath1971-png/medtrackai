@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
+import '../../app/app_routes.dart';
 
 import '../../core/utils/haptic_engine.dart';
 import '../../core/utils/scan_safety_mapper.dart';
@@ -19,10 +22,14 @@ import 'widgets/home_schedule_empty.dart';
 import 'widgets/home_week_strip.dart';
 import 'widgets/know_medicine_strip.dart';
 import 'widgets/med_card.dart';
+import 'widgets/home_scan_cta_card.dart';
+import 'widgets/home_steps_card.dart';
+import 'widgets/home_daily_celebration_card.dart';
 import 'widgets/settings_modal_new.dart';
 import 'widgets/share_milestone_cta.dart';
 import 'widgets/streak_modal.dart';
 import 'widgets/voice_assistant_overlay.dart';
+import '../../widgets/viral/share_milestone_card.dart';
 
 /// Home tab — reference layout: header → hero → bento → week → doses.
 class HomeTab extends StatefulWidget {
@@ -85,8 +92,8 @@ class _HomeTabState extends State<HomeTab> {
 
   void _setDate(DateTime date) {
     final normalized = DateTime(date.year, date.month, date.day);
-    final current = DateTime(
-        _selectedDate.year, _selectedDate.month, _selectedDate.day);
+    final current =
+        DateTime(_selectedDate.year, _selectedDate.month, _selectedDate.day);
     if (normalized == current) return;
     HapticEngine.selection();
     setState(() => _selectedDate = normalized);
@@ -115,13 +122,12 @@ class _HomeTabState extends State<HomeTab> {
         forDate.month == now.month &&
         forDate.day == now.day;
     final nowM = now.hour * 60 + now.minute;
-    final pending =
-        doses.where((d) => takenMap[d.key] != true).toList()
-          ..sort((a, b) {
-            final am = a.sched.h * 60 + a.sched.m;
-            final bm = b.sched.h * 60 + b.sched.m;
-            return am.compareTo(bm);
-          });
+    final pending = doses.where((d) => takenMap[d.key] != true).toList()
+      ..sort((a, b) {
+        final am = a.sched.h * 60 + a.sched.m;
+        final bm = b.sched.h * 60 + b.sched.m;
+        return am.compareTo(bm);
+      });
 
     if (pending.isEmpty) {
       return (
@@ -201,10 +207,8 @@ class _HomeTabState extends State<HomeTab> {
     final allDone = doses.isNotEmpty && takenCount >= doses.length;
     final showMascot = allDone || (doses.isEmpty && meds.isNotEmpty);
     final reduceMotion = MedAiA11y.reducedMotion(context);
-    final listSwitchDuration =
-        MedAiA11y.motion(context, AppDurations.fast);
-    final listSwitchReverse =
-        MedAiA11y.motion(context, AppDurations.exit);
+    final listSwitchDuration = MedAiA11y.motion(context, AppDurations.fast);
+    final listSwitchReverse = MedAiA11y.motion(context, AppDurations.exit);
 
     return Scaffold(
       backgroundColor: Colors.transparent,
@@ -244,8 +248,8 @@ class _HomeTabState extends State<HomeTab> {
 
                     if (severeSymptoms.isNotEmpty)
                       SliverPadding(
-                        padding:
-                            const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p12),
+                        padding: const EdgeInsets.fromLTRB(
+                            _hPad, 0, _hPad, AppSpacing.p12),
                         sliver: SliverToBoxAdapter(
                           child: EmergencyWarningCard(
                               symptom: severeSymptoms.first),
@@ -253,8 +257,8 @@ class _HomeTabState extends State<HomeTab> {
                       ),
 
                     SliverPadding(
-                      padding:
-                          const EdgeInsets.fromLTRB(_hPad, AppSpacing.p8, _hPad, AppSpacing.p12),
+                      padding: const EdgeInsets.fromLTRB(
+                          _hPad, AppSpacing.p8, _hPad, AppSpacing.p12),
                       // Was HomeHopePhotoStrip: a 168px stock salad photo
                       // captioned "MADE FOR YOU · Your #1 plan for medication
                       // success" — food imagery on a medication screen, above
@@ -281,8 +285,8 @@ class _HomeTabState extends State<HomeTab> {
                     ),
 
                     SliverPadding(
-                      padding:
-                          const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p16),
+                      padding: const EdgeInsets.fromLTRB(
+                          _hPad, 0, _hPad, AppSpacing.p16),
                       sliver: SliverToBoxAdapter(
                         child: KnowMedicineStrip(
                           onReviewFirst: () {
@@ -304,8 +308,19 @@ class _HomeTabState extends State<HomeTab> {
                     ),
 
                     SliverPadding(
-                      padding:
-                          const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p20),
+                      padding: const EdgeInsets.fromLTRB(
+                          _hPad, 0, _hPad, AppSpacing.p16),
+                      sliver: SliverToBoxAdapter(
+                        child: HomeStepsCard(
+                          steps: context.read<AppState>().steps,
+                          onOpen: () => context.push(AppRoutes.steps),
+                        ),
+                      ),
+                    ),
+
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(
+                          _hPad, 0, _hPad, AppSpacing.p20),
                       sliver: SliverToBoxAdapter(
                         child: HomeWeekStrip(
                           selectedDate: _selectedDate,
@@ -314,9 +329,21 @@ class _HomeTabState extends State<HomeTab> {
                       ),
                     ),
 
+                    // Gen Z-style scan CTA — shown when schedule is empty
+                    // to hook new users into the #1 value feature (scan).
+                    if (meds.isEmpty)
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(
+                            _hPad, 0, _hPad, AppSpacing.p16),
+                        sliver: SliverToBoxAdapter(
+                          child: HomeScanCtaCard(onScan: widget.onScan),
+                        ),
+                      ),
+
                     if (doses.isEmpty)
                       SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p24),
+                        padding: const EdgeInsets.fromLTRB(
+                            _hPad, 0, _hPad, AppSpacing.p24),
                         sliver: SliverToBoxAdapter(
                           child: AnimatedSwitcher(
                             duration: listSwitchDuration,
@@ -351,7 +378,8 @@ class _HomeTabState extends State<HomeTab> {
                       )
                     else
                       SliverPadding(
-                        padding: const EdgeInsets.fromLTRB(_hPad, 0, _hPad, AppSpacing.p24),
+                        padding: const EdgeInsets.fromLTRB(
+                            _hPad, 0, _hPad, AppSpacing.p24),
                         sliver: SliverToBoxAdapter(
                           child: AnimatedSwitcher(
                             duration: listSwitchDuration,
@@ -379,6 +407,28 @@ class _HomeTabState extends State<HomeTab> {
                               key: ValueKey(
                                   'doses-${_selectedDate.toIso8601String()}-${doses.length}'),
                               children: [
+                                if (allDone)
+                                  Padding(
+                                    padding: const EdgeInsets.only(
+                                        bottom: AppSpacing.p16),
+                                    child: HomeDailyCelebrationCard(
+                                      takenCount: takenCount,
+                                      totalDoses: doses.length,
+                                      streak: streak,
+                                      onShare: () {
+                                        final state = context.read<AppState>();
+                                        ShareMilestoneCard.share(
+                                          context,
+                                          streak,
+                                          adherencePct: 1.0,
+                                          userName: state.activeProfile?.name ??
+                                              state.profile?.name ??
+                                              '',
+                                          totalDosesTaken: takenCount,
+                                        );
+                                      },
+                                    ),
+                                  ),
                                 for (final group in groups)
                                   HomeDoseGroup(
                                     title: group.title,
@@ -408,8 +458,7 @@ class _HomeTabState extends State<HomeTab> {
                                     child: Text(
                                       AppLocalizations.of(context)!
                                           .homeYourMedicines,
-                                      style:
-                                          AppTypography.titleMedium.copyWith(
+                                      style: AppTypography.titleMedium.copyWith(
                                         color: AppColors.inkStrong,
                                         fontWeight: FontWeight.w700,
                                         letterSpacing: -0.3,
@@ -427,8 +476,7 @@ class _HomeTabState extends State<HomeTab> {
                                     ),
                                     child: Text(
                                       '${meds.length}',
-                                      style:
-                                          AppTypography.labelSmall.copyWith(
+                                      style: AppTypography.labelSmall.copyWith(
                                         color: AppColors.limeInk,
                                         fontWeight: FontWeight.w700,
                                       ),
@@ -452,8 +500,7 @@ class _HomeTabState extends State<HomeTab> {
                                     (m) => MedCard(
                                       med: m,
                                       onView: () => _viewMed(m),
-                                      onEdit: () =>
-                                          _viewMed(m, edit: true),
+                                      onEdit: () => _viewMed(m, edit: true),
                                     ),
                                   ),
                             ],
@@ -469,12 +516,10 @@ class _HomeTabState extends State<HomeTab> {
                           child: ShareMilestoneCta(
                             streak: streak,
                             dosePct: dosePct,
-                            userName: context
-                                    .read<AppState>()
-                                    .activeProfile
-                                    ?.name ??
-                                context.read<AppState>().profile?.name ??
-                                '',
+                            userName:
+                                context.read<AppState>().activeProfile?.name ??
+                                    context.read<AppState>().profile?.name ??
+                                    '',
                             totalDosesTaken: takenCount,
                           ),
                         ),
@@ -486,30 +531,29 @@ class _HomeTabState extends State<HomeTab> {
                     // thing the screen is for, and a user with no streak has
                     // nothing to recommend yet.
                     if (streak >= 3)
-                    SliverPadding(
-                      padding: const EdgeInsets.fromLTRB(
-                          _hPad, AppSpacing.p8, _hPad, AppSpacing.p8),
-                      sliver: SliverToBoxAdapter(
-                        child: RecommendHopeCta(
-                          userName: context
-                                  .read<AppState>()
-                                  .activeProfile
-                                  ?.name ??
-                              context.read<AppState>().profile?.name,
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(
+                            _hPad, AppSpacing.p8, _hPad, AppSpacing.p8),
+                        sliver: SliverToBoxAdapter(
+                          child: RecommendHopeCta(
+                            userName:
+                                context.read<AppState>().activeProfile?.name ??
+                                    context.read<AppState>().profile?.name,
+                          ),
                         ),
                       ),
-                    ),
 
                     if (showMascot)
                       SliverPadding(
-                        padding:
-                            const EdgeInsets.fromLTRB(_hPad, AppSpacing.p16, _hPad, 0),
+                        padding: const EdgeInsets.fromLTRB(
+                            _hPad, AppSpacing.p16, _hPad, 0),
                         sliver: const SliverToBoxAdapter(
                           child: HomeMascotCard(),
                         ),
                       ),
 
-                    const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.bottomBuffer)),
+                    const SliverToBoxAdapter(
+                        child: SizedBox(height: AppSpacing.bottomBuffer)),
                   ],
                 ),
               ),
@@ -560,8 +604,8 @@ class _HomeTabState extends State<HomeTab> {
     final takenCount = doses.where((d) => takenMap[d.key] == true).length;
     final L = context.L;
 
-    final mainContent = _buildMain(
-        context, L, doses, streak, takenMap, meds, takenCount);
+    final mainContent =
+        _buildMain(context, L, doses, streak, takenMap, meds, takenCount);
 
     final reduceMotion = MedAiA11y.reducedMotion(context);
     return AnimatedSwitcher(
@@ -578,7 +622,8 @@ class _HomeTabState extends State<HomeTab> {
               medId: _viewingMed!.id,
               onBack: () => setState(() => _viewingMed = null),
               initialEditMode: _startInEditMode)
-          : SizedBox.expand(key: const ValueKey('home_main'), child: mainContent),
+          : SizedBox.expand(
+              key: const ValueKey('home_main'), child: mainContent),
     );
   }
 

@@ -128,7 +128,17 @@ flutter:
     enable-swift-package-manager: false
 
   assets:
-    - .env
+    # .env is deliberately NOT bundled. Everything under `assets:` is copied
+    # verbatim into the built app, so a secret here is extractable from the
+    # artifact with `unzip -p app.apk assets/flutter_assets/.env`. GEMINI_API_KEY
+    # was shipping that way — the kDebugMode guard stopped release builds
+    # *using* it, which is not the same as not carrying it.
+    #
+    # Local development passes values at compile time instead:
+    #   flutter run --dart-define=GEMINI_API_KEY=... --dart-define=RC_GOOGLE_KEY=...
+    # String.fromEnvironment is resolved by the compiler and is absent from a
+    # build that does not pass it. In production the key lives in Secret
+    # Manager, reached through the geminiProxy Cloud Function.
     - assets/images/
     - assets/photos/
     - assets/audio/

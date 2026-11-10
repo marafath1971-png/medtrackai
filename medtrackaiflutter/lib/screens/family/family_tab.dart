@@ -10,6 +10,7 @@ import '../../core/utils/date_formatter.dart';
 import '../../services/auth_service.dart';
 import '../../core/utils/haptic_engine.dart';
 import '../../widgets/shared/shared_widgets.dart';
+import 'widgets/escalation_widgets.dart';
 import 'widgets/caregiver_widgets.dart';
 import 'widgets/monitoring_widgets.dart';
 import 'widgets/add_cg_flow.dart';
@@ -329,494 +330,617 @@ class HubView extends StatelessWidget {
         children: [
           PremiumHomeSurface(
             child: SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-            controller: scrollController,
-            physics: const BouncingScrollPhysics(
-                parent: AlwaysScrollableScrollPhysics()),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: 140 + MediaQuery.of(context).padding.top),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              controller: scrollController,
+              physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics()),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 140 + MediaQuery.of(context).padding.top),
 
-                // ── HUB CONTENT ──
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _familyEntrance(
-                        context,
-                        Row(
-                          children: [
-                            Expanded(
-                              child: _CircleStatBento(
-                                label: l10n.familyProtectors,
-                                value: '$activeCount',
-                                icon: Icons.shield_outlined,
-                                L: L,
-                              ),
-                            ),
-                            const SizedBox(width: AppSpacing.p12),
-                            Expanded(
-                              child: _CircleStatBento(
-                                label: l10n.familyMonitoring,
-                                value: unseenCount > 0 ? 'Urgent' : 'Secure',
-                                icon: unseenCount > 0
-                                    ? Icons.warning_amber_rounded
-                                    : Icons.verified_user_outlined,
-                                iconColor:
-                                    unseenCount > 0 ? L.error : L.success,
-                                L: L,
-                                glow: unseenCount > 0,
-                                accentGlow: unseenCount > 0,
-                              ),
-                            ),
-                          ],
-                        ),
-                        delayMs: 80,
-                      ),
-
-                      const SizedBox(height: AppSpacing.p24),
-
-                      Row(
-                        children: [
-                          Container(
-                            padding: const EdgeInsets.all(AppSpacing.p4),
-                            decoration: BoxDecoration(
-                              color: L.card,
-                              borderRadius: BorderRadius.circular(24),
-                              border: Border.all(
-                                color: L.border.withValues(alpha: 0.5),
-                                width: 1,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: AppColors.eatoNavy.withValues(alpha: 0.04),
-                                  blurRadius: 12,
-                                  offset: const Offset(0, 4),
-                                ),
-                              ],
-                            ),
-                            child: Row(
-                              children: [
-                                _CompactPivotPill(
-                                  label: l10n.familyFamily,
-                                  active: pivot == 1,
-                                  onTap: () => onPivotChanged(1),
-                                  L: L,
-                                ),
-                                const SizedBox(width: AppSpacing.p4),
-                                _CompactPivotPill(
-                                  label: l10n.familyCare,
-                                  active: pivot == 0,
-                                  onTap: () => onPivotChanged(0),
-                                  L: L,
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: AppSpacing.p24),
-
-                      if (unseenCount > 0)
-                        Semantics(
-                          button: true,
-                          label: l10n.familyMissedMedicationAlerts(unseenCount),
-                          child: AnimatedPressable(
-                            onTap: onMarkSeen,
-                            scaleFactor: 0.985,
-                            child: Container(
-                              margin: const EdgeInsets.only(bottom: AppSpacing.p12),
-                              padding: const EdgeInsets.all(AppSpacing.p16),
-                              decoration: BoxDecoration(
-                                color: context.isDark
-                                    ? AppColors.red.withValues(alpha: 0.16)
-                                    : AppColors.pastelPink,
-                                borderRadius: BorderRadius.circular(AppRadius.l),
-                              ),
-                              child: Row(
-                                children: [
-                                  Container(
-                                    width: 40,
-                                    height: 40,
-                                    decoration: BoxDecoration(
-                                      color: context.isDark
-                                          ? Colors.white.withValues(alpha: 0.1)
-                                          : Colors.white.withValues(alpha: 0.75),
-                                      borderRadius:
-                                          BorderRadius.circular(AppRadius.s),
-                                    ),
-                                    child: Icon(Icons.warning_amber_rounded,
-                                        color: AppColors.red, size: 22),
-                                  ),
-                                  const SizedBox(width: AppSpacing.p12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          l10n.familyUrgentMonitoring,
-                                          style: AppTypography.labelSmall
-                                              .copyWith(
-                                            color: context.isDark
-                                                ? L.sub
-                                                : AppColors.grey600,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                        Text(
-                                          l10n.familyMissedMedicationAlerts(unseenCount),
-                                          style: AppTypography.titleMedium
-                                              .copyWith(
-                                            color: context.isDark
-                                                ? L.text
-                                                : AppColors.inkStrong,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                  Icon(Icons.arrow_outward_rounded,
-                                      color: (context.isDark
-                                              ? L.sub
-                                              : AppColors.inkStrong)
-                                          .withValues(alpha: 0.5),
-                                      size: 18),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                      if (state.meds.any((m) => m.hasCriticalSafetyAlerts))
-                        Container(
-                          margin: const EdgeInsets.only(bottom: AppSpacing.p24),
-                          padding: const EdgeInsets.all(AppSpacing.p16),
-                          decoration: BoxDecoration(
-                            color: context.isDark
-                                ? AppColors.amber.withValues(alpha: 0.16)
-                                : AppColors.pastelSun,
-                            borderRadius: BorderRadius.circular(AppRadius.l),
-                          ),
-                          child: Row(
+                  // ── HUB CONTENT ──
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: AppSpacing.gutter),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _familyEntrance(
+                          context,
+                          Row(
                             children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: context.isDark
-                                      ? Colors.white.withValues(alpha: 0.1)
-                                      : Colors.white.withValues(alpha: 0.75),
-                                  borderRadius:
-                                      BorderRadius.circular(AppRadius.s),
+                              Expanded(
+                                child: _CircleStatBento(
+                                  label: l10n.familyProtectors,
+                                  value: '$activeCount',
+                                  icon: Icons.shield_outlined,
+                                  L: L,
                                 ),
-                                child: Icon(Icons.menu_book_rounded,
-                                    color: context.isDark
-                                        ? L.text
-                                        : AppColors.inkStrong,
-                                    size: 20),
                               ),
                               const SizedBox(width: AppSpacing.p12),
                               Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      l10n.analysisKnowYourMedicine,
-                                      style: AppTypography.titleMedium.copyWith(
-                                        color: context.isDark
-                                            ? L.text
-                                            : AppColors.inkStrong,
-                                        fontWeight: FontWeight.w700,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 2),
-                                    Text(
-                                      l10n.familySensitiveMedsInThisCircleCaregivers,
-                                      style: AppTypography.bodySmall.copyWith(
-                                        color: context.isDark
-                                            ? L.sub
-                                            : AppColors.grey600,
-                                        height: 1.35,
-                                      ),
-                                    ),
-                                  ],
+                                child: _CircleStatBento(
+                                  label: l10n.familyMonitoring,
+                                  value: unseenCount > 0 ? 'Urgent' : 'Secure',
+                                  icon: unseenCount > 0
+                                      ? Icons.warning_amber_rounded
+                                      : Icons.verified_user_outlined,
+                                  iconColor:
+                                      unseenCount > 0 ? L.error : L.success,
+                                  L: L,
+                                  glow: unseenCount > 0,
+                                  accentGlow: unseenCount > 0,
                                 ),
                               ),
                             ],
                           ),
+                          delayMs: 80,
                         ),
 
-                      // CONTENT BASED ON PIVOT
-                      if (pivot == 1) ...[
-                        // FAMILY CIRCLE (Monitoring others)
-                        if (state.monitoredPatients.isEmpty)
-                          _buildEmptyMonitoringState(context, L, onJoin)
-                              .animate()
-                              .fadeIn(duration: 600.ms)
-                        else ...[
-                          ListView.builder(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                            padding: EdgeInsets.zero,
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: state.monitoredPatients.length,
-                            itemBuilder: (context, index) {
-                              final p = state.monitoredPatients[index];
-                              return PatientCard(
-                                patient: p,
-                                state: state,
-                                L: L,
-                                onTap: () {
-                                  onDashboard(Caregiver(
-                                    id: 0,
-                                    name: p['name'] ?? 'Patient',
-                                    relation: p['relation'] ?? l10n.familyFamily,
-                                    patientUid: p['uid'],
-                                    addedAt: p['addedAt'] ?? 'just now',
-                                    avatar: p['avatar'] ?? 'P',
-                                  ));
-                                },
-                              ).animate().fadeIn(
-                                  delay: (100 + index * 50).ms,
-                                  duration: 500.ms);
-                            },
-                          ),
-                        ],
-                      ] else ...[
-                        // ACCOUNT SECURITY / MY CAREGIVERS
-                        if (state.profile?.familyMembers.isNotEmpty ?? false) ...[
-                          MedAiSectionHeader(
-                            title: l10n.familyManaging,
-                            subtitle: l10n.familyProfiles(state.profile!.familyMembers.length),
-                          ),
-                          SizedBox(
-                            height: 70,
-                            child: ListView.builder(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                              scrollDirection: Axis.horizontal,
-                              itemCount: state.profile!.familyMembers.length,
-                              itemBuilder: (context, index) {
-                                final member = state.profile!.familyMembers[index];
-                                return AnimatedPressable(
-                                  onTap: () async {
-                                    HapticEngine.selection();
-                                    if (member.pin != null && member.pin!.isNotEmpty) {
-                                      final success = await context.push<bool>(
-                                        AppRoutes.familyPin,
-                                        extra: ProfilePinRouteArgs(profile: member),
-                                      );
-                                      if (success == true) {
-                                        state.switchProfile(member);
-                                        state.showToast('Switched to ${member.name}');
-                                      }
-                                    } else {
-                                      state.switchProfile(member);
-                                      state.showToast('Switched to ${member.name}');
-                                    }
-                                  },
-                                  onLongPress: () {
-                                    HapticEngine.selection();
-                                    showDialog(
-                                      context: context,
-                                      builder: (ctx) => SimpleDialog(
-                                        title: Text(l10n.familyManage(member.name), style: TextStyle(color: L.text, fontWeight: FontWeight.bold)),
-                                        backgroundColor: L.card,
-                                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: BorderSide(color: L.border.withValues(alpha: 0.1))),
+                        const SizedBox(height: AppSpacing.p24),
+
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(AppSpacing.p4),
+                              decoration: BoxDecoration(
+                                color: L.card,
+                                borderRadius: BorderRadius.circular(24),
+                                border: Border.all(
+                                  color: L.border.withValues(alpha: 0.5),
+                                  width: 1,
+                                ),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: AppColors.eatoNavy
+                                        .withValues(alpha: 0.04),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Row(
+                                children: [
+                                  _CompactPivotPill(
+                                    label: l10n.familyFamily,
+                                    active: pivot == 1,
+                                    onTap: () => onPivotChanged(1),
+                                    L: L,
+                                  ),
+                                  const SizedBox(width: AppSpacing.p4),
+                                  _CompactPivotPill(
+                                    label: l10n.familyCare,
+                                    active: pivot == 0,
+                                    onTap: () => onPivotChanged(0),
+                                    L: L,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: AppSpacing.p24),
+
+                        if (unseenCount > 0)
+                          Semantics(
+                            button: true,
+                            label:
+                                l10n.familyMissedMedicationAlerts(unseenCount),
+                            child: AnimatedPressable(
+                              onTap: onMarkSeen,
+                              scaleFactor: 0.985,
+                              child: Container(
+                                margin: const EdgeInsets.only(
+                                    bottom: AppSpacing.p12),
+                                padding: const EdgeInsets.all(AppSpacing.p16),
+                                decoration: BoxDecoration(
+                                  color: context.isDark
+                                      ? AppColors.red.withValues(alpha: 0.16)
+                                      : AppColors.pastelPink,
+                                  borderRadius:
+                                      BorderRadius.circular(AppRadius.l),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Container(
+                                      width: 40,
+                                      height: 40,
+                                      decoration: BoxDecoration(
+                                        color: context.isDark
+                                            ? Colors.white
+                                                .withValues(alpha: 0.1)
+                                            : Colors.white
+                                                .withValues(alpha: 0.75),
+                                        borderRadius:
+                                            BorderRadius.circular(AppRadius.s),
+                                      ),
+                                      child: Icon(Icons.warning_amber_rounded,
+                                          color: AppColors.red, size: 22),
+                                    ),
+                                    const SizedBox(width: AppSpacing.p12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
-                                          SimpleDialogOption(
-                                            onPressed: () {
-                                              Navigator.pop(ctx);
-                                              state.switchProfile(member);
-                                            },
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.swap_horiz_rounded, color: L.primary),
-                                                const SizedBox(width: AppSpacing.p12),
-                                                Text(l10n.familySwitchToProfile, style: TextStyle(color: L.text)),
-                                              ],
+                                          Text(
+                                            l10n.familyUrgentMonitoring,
+                                            style: AppTypography.labelSmall
+                                                .copyWith(
+                                              color: context.isDark
+                                                  ? L.sub
+                                                  : AppColors.grey600,
+                                              fontWeight: FontWeight.w700,
                                             ),
                                           ),
-                                          SimpleDialogOption(
-                                            onPressed: () {
-                                              Navigator.pop(ctx);
-                                              context.push(
-                                                AppRoutes.familyEditMember,
-                                                extra: EditFamilyMemberRouteArgs(member: member),
-                                              );
-                                            },
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.edit_rounded, color: L.primary),
-                                                const SizedBox(width: AppSpacing.p12),
-                                                Text(l10n.editProfile, style: TextStyle(color: L.text)),
-                                              ],
-                                            ),
-                                          ),
-                                          SimpleDialogOption(
-                                            onPressed: () async {
-                                              Navigator.pop(ctx);
-                                              state.showToast('Generating PDF...');
-                                              await state.exportProfileDataPDF(member);
-                                            },
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.picture_as_pdf_rounded, color: L.primary),
-                                                const SizedBox(width: AppSpacing.p12),
-                                                Text(l10n.familyGenerateAdherencePdf, style: TextStyle(color: L.text)),
-                                              ],
-                                            ),
-                                          ),
-                                          SimpleDialogOption(
-                                            onPressed: () {
-                                              Navigator.pop(ctx);
-                                              showDialog(
-                                                context: context,
-                                                builder: (removeCtx) => AlertDialog(
-                                                  backgroundColor: L.card,
-                                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24), side: BorderSide(color: L.border.withValues(alpha: 0.1))),
-                                                  title: Text(l10n.familyRemoveProfile, style: AppTypography.titleLarge.copyWith(color: L.text, fontWeight: FontWeight.w800)),
-                                                  content: Text(l10n.familyThisWillStopAllRemindersFor(member.name), style: AppTypography.bodyMedium.copyWith(color: L.sub)),
-                                                  actions: [
-                                                    TextButton(onPressed: () => Navigator.pop(removeCtx), child: Text(l10n.cancel, style: AppTypography.labelLarge.copyWith(color: L.sub))),
-                                                    TextButton(
-                                                      onPressed: () {
-                                                        state.removeFamilyMember(member.id);
-                                                        Navigator.pop(removeCtx);
-                                                      },
-                                                      child: Text(l10n.familyRemove, style: AppTypography.labelLarge.copyWith(color: AppColors.red, fontWeight: FontWeight.w700)),
-                                                    ),
-                                                  ],
-                                                ),
-                                              );
-                                            },
-                                            child: Row(
-                                              children: [
-                                                Icon(Icons.delete_forever_rounded, color: AppColors.red),
-                                                SizedBox(width: AppSpacing.p12),
-                                                Text(l10n.familyRemoveProfile2, style: TextStyle(color: AppColors.red)),
-                                              ],
+                                          Text(
+                                            l10n.familyMissedMedicationAlerts(
+                                                unseenCount),
+                                            style: AppTypography.titleMedium
+                                                .copyWith(
+                                              color: context.isDark
+                                                  ? L.text
+                                                  : AppColors.inkStrong,
+                                              fontWeight: FontWeight.w700,
                                             ),
                                           ),
                                         ],
                                       ),
-                                    );
-                                  },
-                                  child: Container(
-                                    width: 140,
-                                    margin: const EdgeInsetsDirectional.only(end: AppSpacing.p12),
-                                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
-                                    decoration: BoxDecoration(
-                                      color: L.card,
-                                      borderRadius: BorderRadius.circular(16),
-                                      border: Border.all(
-                                        color: member.isCritical 
-                                            ? AppColors.red.withValues(alpha: 0.3) 
-                                            : L.border.withValues(alpha: 0.1),
-                                        width: member.isCritical ? 1.5 : 1.0,
-                                      ),
-                                      boxShadow: AppShadows.soft,
                                     ),
-                                    child: Row(
-                                      children: [
-                                        Stack(
-                                          clipBehavior: Clip.none,
-                                          children: [
-                                            Text(member.avatar, style: const TextStyle(fontSize: 18)),
-                                            if (member.isCritical)
-                                              Positioned(
-                                                top: -4,
-                                                right: -4,
-                                                child: Container(
-                                                  width: 8,
-                                                  height: 8,
-                                                  decoration: const BoxDecoration(
-                                                    color: AppColors.red,
-                                                    shape: BoxShape.circle,
-                                                  ),
-                                                ),
-                                              ),
-                                          ],
-                                        ),
-                                        const SizedBox(width: AppSpacing.p12),
-                                        Expanded(
-                                          child: Text(
-                                            member.name,
-                                            style: AppTypography.labelSmall.copyWith(
-                                              color: L.text,
-                                              fontWeight: FontWeight.w700,
-                                            ),
-                                            maxLines: 1,
-                                            overflow: TextOverflow.ellipsis,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                );
-                              },
+                                    Icon(Icons.arrow_outward_rounded,
+                                        color: (context.isDark
+                                                ? L.sub
+                                                : AppColors.inkStrong)
+                                            .withValues(alpha: 0.5),
+                                        size: 18),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
-                          const SizedBox(height: AppSpacing.p32),
+
+                        if (state.meds.any((m) => m.hasCriticalSafetyAlerts))
+                          Container(
+                            margin:
+                                const EdgeInsets.only(bottom: AppSpacing.p24),
+                            padding: const EdgeInsets.all(AppSpacing.p16),
+                            decoration: BoxDecoration(
+                              color: context.isDark
+                                  ? AppColors.amber.withValues(alpha: 0.16)
+                                  : AppColors.pastelSun,
+                              borderRadius: BorderRadius.circular(AppRadius.l),
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 40,
+                                  height: 40,
+                                  decoration: BoxDecoration(
+                                    color: context.isDark
+                                        ? Colors.white.withValues(alpha: 0.1)
+                                        : Colors.white.withValues(alpha: 0.75),
+                                    borderRadius:
+                                        BorderRadius.circular(AppRadius.s),
+                                  ),
+                                  child: Icon(Icons.menu_book_rounded,
+                                      color: context.isDark
+                                          ? L.text
+                                          : AppColors.inkStrong,
+                                      size: 20),
+                                ),
+                                const SizedBox(width: AppSpacing.p12),
+                                Expanded(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        l10n.analysisKnowYourMedicine,
+                                        style:
+                                            AppTypography.titleMedium.copyWith(
+                                          color: context.isDark
+                                              ? L.text
+                                              : AppColors.inkStrong,
+                                          fontWeight: FontWeight.w700,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 2),
+                                      Text(
+                                        l10n.familySensitiveMedsInThisCircleCaregivers,
+                                        style: AppTypography.bodySmall.copyWith(
+                                          color: context.isDark
+                                              ? L.sub
+                                              : AppColors.grey600,
+                                          height: 1.35,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                        // CONTENT BASED ON PIVOT
+                        if (pivot == 1) ...[
+                          // FAMILY CIRCLE (Monitoring others)
+                          CaregiverAlertsCard(state: state),
+                          if (state.monitoredPatients.isEmpty)
+                            _buildEmptyMonitoringState(context, L, onJoin)
+                                .animate()
+                                .fadeIn(duration: 600.ms)
+                          else ...[
+                            ListView.builder(
+                              keyboardDismissBehavior:
+                                  ScrollViewKeyboardDismissBehavior.onDrag,
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: state.monitoredPatients.length,
+                              itemBuilder: (context, index) {
+                                final p = state.monitoredPatients[index];
+                                return PatientCard(
+                                  patient: p,
+                                  state: state,
+                                  L: L,
+                                  onTap: () {
+                                    onDashboard(Caregiver(
+                                      id: 0,
+                                      name: p['name'] ?? 'Patient',
+                                      relation:
+                                          p['relation'] ?? l10n.familyFamily,
+                                      patientUid: p['uid'],
+                                      addedAt: p['addedAt'] ?? 'just now',
+                                      avatar: p['avatar'] ?? 'P',
+                                    ));
+                                  },
+                                ).animate().fadeIn(
+                                    delay: (100 + index * 50).ms,
+                                    duration: 500.ms);
+                              },
+                            ),
+                          ],
+                        ] else ...[
+                          // ACCOUNT SECURITY / MY CAREGIVERS
+                          AlertCoverageCard(state: state),
+                          if (state.profile?.familyMembers.isNotEmpty ??
+                              false) ...[
+                            MedAiSectionHeader(
+                              title: l10n.familyManaging,
+                              subtitle: l10n.familyProfiles(
+                                  state.profile!.familyMembers.length),
+                            ),
+                            SizedBox(
+                              height: 70,
+                              child: ListView.builder(
+                                keyboardDismissBehavior:
+                                    ScrollViewKeyboardDismissBehavior.onDrag,
+                                scrollDirection: Axis.horizontal,
+                                itemCount: state.profile!.familyMembers.length,
+                                itemBuilder: (context, index) {
+                                  final member =
+                                      state.profile!.familyMembers[index];
+                                  return AnimatedPressable(
+                                    onTap: () async {
+                                      HapticEngine.selection();
+                                      if (member.pin != null &&
+                                          member.pin!.isNotEmpty) {
+                                        final success =
+                                            await context.push<bool>(
+                                          AppRoutes.familyPin,
+                                          extra: ProfilePinRouteArgs(
+                                              profile: member),
+                                        );
+                                        if (success == true) {
+                                          state.switchProfile(member);
+                                          state.showToast(
+                                              'Switched to ${member.name}');
+                                        }
+                                      } else {
+                                        state.switchProfile(member);
+                                        state.showToast(
+                                            'Switched to ${member.name}');
+                                      }
+                                    },
+                                    onLongPress: () {
+                                      HapticEngine.selection();
+                                      showDialog(
+                                        context: context,
+                                        builder: (ctx) => SimpleDialog(
+                                          title: Text(
+                                              l10n.familyManage(member.name),
+                                              style: TextStyle(
+                                                  color: L.text,
+                                                  fontWeight: FontWeight.bold)),
+                                          backgroundColor: L.card,
+                                          shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(24),
+                                              side: BorderSide(
+                                                  color: L.border
+                                                      .withValues(alpha: 0.1))),
+                                          children: [
+                                            SimpleDialogOption(
+                                              onPressed: () {
+                                                Navigator.pop(ctx);
+                                                state.switchProfile(member);
+                                              },
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.swap_horiz_rounded,
+                                                      color: L.primary),
+                                                  const SizedBox(
+                                                      width: AppSpacing.p12),
+                                                  Text(
+                                                      l10n
+                                                          .familySwitchToProfile,
+                                                      style: TextStyle(
+                                                          color: L.text)),
+                                                ],
+                                              ),
+                                            ),
+                                            SimpleDialogOption(
+                                              onPressed: () {
+                                                Navigator.pop(ctx);
+                                                context.push(
+                                                  AppRoutes.familyEditMember,
+                                                  extra:
+                                                      EditFamilyMemberRouteArgs(
+                                                          member: member),
+                                                );
+                                              },
+                                              child: Row(
+                                                children: [
+                                                  Icon(Icons.edit_rounded,
+                                                      color: L.primary),
+                                                  const SizedBox(
+                                                      width: AppSpacing.p12),
+                                                  Text(l10n.editProfile,
+                                                      style: TextStyle(
+                                                          color: L.text)),
+                                                ],
+                                              ),
+                                            ),
+                                            SimpleDialogOption(
+                                              onPressed: () async {
+                                                Navigator.pop(ctx);
+                                                state.showToast(
+                                                    'Generating PDF...');
+                                                await state
+                                                    .exportProfileDataPDF(
+                                                        member);
+                                              },
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                      Icons
+                                                          .picture_as_pdf_rounded,
+                                                      color: L.primary),
+                                                  const SizedBox(
+                                                      width: AppSpacing.p12),
+                                                  Text(
+                                                      l10n
+                                                          .familyGenerateAdherencePdf,
+                                                      style: TextStyle(
+                                                          color: L.text)),
+                                                ],
+                                              ),
+                                            ),
+                                            SimpleDialogOption(
+                                              onPressed: () {
+                                                Navigator.pop(ctx);
+                                                showDialog(
+                                                  context: context,
+                                                  builder: (removeCtx) =>
+                                                      AlertDialog(
+                                                    backgroundColor: L.card,
+                                                    shape: RoundedRectangleBorder(
+                                                        borderRadius:
+                                                            BorderRadius
+                                                                .circular(24),
+                                                        side: BorderSide(
+                                                            color: L.border
+                                                                .withValues(
+                                                                    alpha:
+                                                                        0.1))),
+                                                    title: Text(
+                                                        l10n
+                                                            .familyRemoveProfile,
+                                                        style: AppTypography
+                                                            .titleLarge
+                                                            .copyWith(
+                                                                color: L.text,
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .w800)),
+                                                    content: Text(
+                                                        l10n.familyThisWillStopAllRemindersFor(
+                                                            member.name),
+                                                        style: AppTypography
+                                                            .bodyMedium
+                                                            .copyWith(
+                                                                color: L.sub)),
+                                                    actions: [
+                                                      TextButton(
+                                                          onPressed: () =>
+                                                              Navigator.pop(
+                                                                  removeCtx),
+                                                          child: Text(
+                                                              l10n.cancel,
+                                                              style: AppTypography
+                                                                  .labelLarge
+                                                                  .copyWith(
+                                                                      color: L
+                                                                          .sub))),
+                                                      TextButton(
+                                                        onPressed: () {
+                                                          state
+                                                              .removeFamilyMember(
+                                                                  member.id);
+                                                          Navigator.pop(
+                                                              removeCtx);
+                                                        },
+                                                        child: Text(
+                                                            l10n.familyRemove,
+                                                            style: AppTypography
+                                                                .labelLarge
+                                                                .copyWith(
+                                                                    color:
+                                                                        AppColors
+                                                                            .red,
+                                                                    fontWeight:
+                                                                        FontWeight
+                                                                            .w700)),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                              child: Row(
+                                                children: [
+                                                  Icon(
+                                                      Icons
+                                                          .delete_forever_rounded,
+                                                      color: AppColors.red),
+                                                  SizedBox(
+                                                      width: AppSpacing.p12),
+                                                  Text(
+                                                      l10n.familyRemoveProfile2,
+                                                      style: TextStyle(
+                                                          color:
+                                                              AppColors.red)),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      width: 140,
+                                      margin: const EdgeInsetsDirectional.only(
+                                          end: AppSpacing.p12),
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: AppSpacing.p16,
+                                          vertical: AppSpacing.p12),
+                                      decoration: BoxDecoration(
+                                        color: L.card,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: member.isCritical
+                                              ? AppColors.red
+                                                  .withValues(alpha: 0.3)
+                                              : L.border.withValues(alpha: 0.1),
+                                          width: member.isCritical ? 1.5 : 1.0,
+                                        ),
+                                        boxShadow: AppShadows.soft,
+                                      ),
+                                      child: Row(
+                                        children: [
+                                          Stack(
+                                            clipBehavior: Clip.none,
+                                            children: [
+                                              Text(member.avatar,
+                                                  style: const TextStyle(
+                                                      fontSize: 18)),
+                                              if (member.isCritical)
+                                                Positioned(
+                                                  top: -4,
+                                                  right: -4,
+                                                  child: Container(
+                                                    width: 8,
+                                                    height: 8,
+                                                    decoration:
+                                                        const BoxDecoration(
+                                                      color: AppColors.red,
+                                                      shape: BoxShape.circle,
+                                                    ),
+                                                  ),
+                                                ),
+                                            ],
+                                          ),
+                                          const SizedBox(width: AppSpacing.p12),
+                                          Expanded(
+                                            child: Text(
+                                              member.name,
+                                              style: AppTypography.labelSmall
+                                                  .copyWith(
+                                                color: L.text,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.p32),
+                          ],
+
+                          if (state.caregivers.isEmpty)
+                            _buildEmptyState(context, L, onAddCg)
+                                .animate()
+                                .fadeIn(duration: 600.ms)
+                          else ...[
+                            ListView.builder(
+                              keyboardDismissBehavior:
+                                  ScrollViewKeyboardDismissBehavior.onDrag,
+                              padding: EdgeInsets.zero,
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: state.caregivers.length,
+                              itemBuilder: (context, index) => CaregiverCard(
+                                cg: state.caregivers[index],
+                                state: state,
+                                L: L,
+                                onDashboard: () =>
+                                    onDashboard(state.caregivers[index]),
+                              ).animate().fadeIn(
+                                  delay: (100 + index * 50).ms,
+                                  duration: 500.ms),
+                            ),
+                          ],
                         ],
 
-                        if (state.caregivers.isEmpty)
-                          _buildEmptyState(context, L, onAddCg)
-                              .animate()
-                              .fadeIn(duration: 600.ms)
-                        else ...[
+                        const SizedBox(height: AppSpacing.p32),
+
+                        // ALERT LOG
+                        if (state.missedAlerts.isNotEmpty) ...[
+                          MedAiSectionHeader(
+                            title: l10n.familyRecentActivity,
+                            subtitle:
+                                l10n.familyAlerts(state.missedAlerts.length),
+                          ),
                           ListView.builder(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+                            keyboardDismissBehavior:
+                                ScrollViewKeyboardDismissBehavior.onDrag,
                             padding: EdgeInsets.zero,
                             shrinkWrap: true,
                             physics: const NeverScrollableScrollPhysics(),
-                            itemCount: state.caregivers.length,
-                            itemBuilder: (context, index) => CaregiverCard(
-                              cg: state.caregivers[index],
-                              state: state,
+                            itemCount: state.missedAlerts.length,
+                            itemBuilder: (context, index) => AlertLogCard(
+                              alert: state.missedAlerts[index],
                               L: L,
-                              onDashboard: () =>
-                                  onDashboard(state.caregivers[index]),
+                              onTap: () =>
+                                  onAlertDetail(state.missedAlerts[index]),
                             ).animate().fadeIn(
-                                delay: (100 + index * 50).ms, duration: 500.ms),
+                                delay: (300 + index * 50).ms, duration: 500.ms),
                           ),
                         ],
+
+                        const SizedBox(height: 140),
                       ],
-
-                      const SizedBox(height: AppSpacing.p32),
-
-                      // ALERT LOG
-                      if (state.missedAlerts.isNotEmpty) ...[
-                        MedAiSectionHeader(
-                          title: l10n.familyRecentActivity,
-                          subtitle: l10n.familyAlerts(state.missedAlerts.length),
-                        ),
-                        ListView.builder(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                          padding: EdgeInsets.zero,
-                          shrinkWrap: true,
-                          physics: const NeverScrollableScrollPhysics(),
-                          itemCount: state.missedAlerts.length,
-                          itemBuilder: (context, index) => AlertLogCard(
-                            alert: state.missedAlerts[index],
-                            L: L,
-                            onTap: () =>
-                                onAlertDetail(state.missedAlerts[index]),
-                          ).animate().fadeIn(
-                              delay: (300 + index * 50).ms, duration: 500.ms),
-                        ),
-                      ],
-
-                      const SizedBox(height: 140),
-                    ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
           ),
 
           // ── PREMIUM HEADER ──
@@ -895,8 +1019,10 @@ class _CompactPivotPill extends StatelessWidget {
         child: AnimatedContainer(
           duration: MedAiA11y.motion(context, AppDurations.fast),
           curve: AppCurves.emilOut,
-          constraints: const BoxConstraints(minHeight: AppA11y.minTapTargetCompact),
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p12),
+          constraints:
+              const BoxConstraints(minHeight: AppA11y.minTapTargetCompact),
+          padding: const EdgeInsets.symmetric(
+              horizontal: AppSpacing.gutter, vertical: AppSpacing.p12),
           decoration: BoxDecoration(
             color: active ? AppColors.pastelMint : Colors.transparent,
             borderRadius: BorderRadius.circular(20),
@@ -942,7 +1068,8 @@ class _FamilyHeader extends StatelessWidget {
 
     return AnimatedContainer(
       duration: const Duration(milliseconds: 220),
-      padding: EdgeInsets.fromLTRB(AppSpacing.gutter, topPad + AppSpacing.p12, AppSpacing.gutter, AppSpacing.p12),
+      padding: EdgeInsets.fromLTRB(AppSpacing.gutter, topPad + AppSpacing.p12,
+          AppSpacing.gutter, AppSpacing.p12),
       decoration: BoxDecoration(
         color: scrollOffset > 18
             ? L.bg.withValues(alpha: 0.96)

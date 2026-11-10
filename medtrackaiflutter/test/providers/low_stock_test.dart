@@ -70,7 +70,8 @@ void main() {
   test('medicines with no tracked total are ignored', () {
     // totalCount == 0 means the user never set up inventory for this med, so
     // "0 of 0 left" must not be reported as needing a refill.
-    c.setStateForTest(meds: [_med(id: 1, count: 0, refillAt: 0, totalCount: 0)]);
+    c.setStateForTest(
+        meds: [_med(id: 1, count: 0, refillAt: 0, totalCount: 0)]);
     expect(c.getLowStockCount(), 0,
         reason: 'untracked inventory is not a refill warning');
   });

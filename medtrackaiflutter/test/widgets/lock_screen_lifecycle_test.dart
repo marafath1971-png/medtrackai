@@ -28,7 +28,8 @@ void main() {
     test('it observes lifecycle changes at all', () {
       expect(lock.contains('WidgetsBindingObserver'), isTrue);
       expect(lock.contains('didChangeAppLifecycleState'), isTrue);
-      expect(lock.contains('WidgetsBinding.instance.addObserver(this)'), isTrue);
+      expect(
+          lock.contains('WidgetsBinding.instance.addObserver(this)'), isTrue);
     });
 
     test('the observer is removed again', () {
@@ -71,8 +72,10 @@ void main() {
       final i = svc.indexOf('if (_inFlight)');
       expect(i, greaterThan(-1),
           reason: 'the guard must run before authenticate() is called');
-      expect(svc.indexOf('_auth\n            .authenticate') > i ||
-          svc.indexOf('.authenticate(') > i, isTrue);
+      expect(
+          svc.indexOf('_auth\n            .authenticate') > i ||
+              svc.indexOf('.authenticate(') > i,
+          isTrue);
     });
 
     test('the flag is always cleared', () {
@@ -92,8 +95,8 @@ void main() {
 void _noRepromptLoop() {
   group('resume does not loop the prompt', () {
     late String lock;
-    setUpAll(() =>
-        lock = File('lib/screens/security/lock_screen.dart').readAsStringSync());
+    setUpAll(() => lock =
+        File('lib/screens/security/lock_screen.dart').readAsStringSync());
 
     test('re-prompting is gated on the system having taken it away', () {
       expect(lock.contains('_promptDismissedByLifecycle'), isTrue,

@@ -68,9 +68,8 @@ class TrendDrilldownSheet extends StatelessWidget {
                   final d = entry.value;
                   final value = d['value'] as double;
                   final height = (value * 140).clamp(6.0, 140.0);
-                  final barColor = value >= 0.8
-                      ? L.green
-                      : (value > 0.4 ? L.amber : L.red);
+                  final barColor =
+                      value >= 0.8 ? L.green : (value > 0.4 ? L.amber : L.red);
 
                   Widget bar = Container(
                     width: double.infinity,

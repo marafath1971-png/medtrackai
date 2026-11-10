@@ -45,8 +45,9 @@ class AIConsentSheet extends StatelessWidget {
     );
 
     if (!reduceMotion) {
-      icon = icon.animate().scale(
-          duration: AppDurations.fast, curve: AppCurves.smooth);
+      icon = icon
+          .animate()
+          .scale(duration: AppDurations.fast, curve: AppCurves.smooth);
     }
 
     return ClipRRect(

@@ -36,7 +36,8 @@ class ImpactVisualizerCard extends StatelessWidget {
       button: true,
       label: l10n.homeBodyImpactVisualizerVisualizeMedicationAbsorption,
       child: MedAiDepthCard(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p20),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.gutter, vertical: AppSpacing.p20),
         onTap: () {
           HapticEngine.selection();
           context.push(AppRoutes.impactVisualizer);

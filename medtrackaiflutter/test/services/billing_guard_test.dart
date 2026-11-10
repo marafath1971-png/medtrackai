@@ -38,7 +38,8 @@ void main() {
       final g = svc.indexOf('static String get _googleApiKey');
       final body = svc.substring(g, g + 300);
       expect(body.indexOf('_defineGoogle'), lessThan(body.indexOf('dotenv')),
-          reason: 'the dart-define must win over .env, not the other way round');
+          reason:
+              'the dart-define must win over .env, not the other way round');
     });
 
     test('known placeholders are rejected', () {

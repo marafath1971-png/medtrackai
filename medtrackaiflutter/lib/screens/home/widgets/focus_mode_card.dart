@@ -31,7 +31,8 @@ class FocusModeCard extends StatelessWidget {
       label: l10n.homeFocusModeBreatheRelaxAndCenter,
       child: MedAiDepthCard(
         accentGlow: false,
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p20),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.gutter, vertical: AppSpacing.p20),
         onTap: () {
           HapticEngine.selection();
           context.push(AppRoutes.focusMode);

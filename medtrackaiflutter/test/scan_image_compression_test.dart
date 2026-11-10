@@ -51,12 +51,14 @@ void main() {
     // any screen that sends an image must route it through the compressor.
     final offenders = <String>[];
 
-    for (final entity in Directory('lib/screens/scan').listSync(recursive: true)) {
+    for (final entity
+        in Directory('lib/screens/scan').listSync(recursive: true)) {
       if (entity is! File || !entity.path.endsWith('.dart')) continue;
       final src = entity.readAsStringSync();
 
       final sendsImage = src.contains('image: ') &&
-          (src.contains('GeminiService.') || src.contains('analyzeProductInsight'));
+          (src.contains('GeminiService.') ||
+              src.contains('analyzeProductInsight'));
       if (!sendsImage) continue;
 
       // Match the call, not the name: a passing mention in a comment must not

@@ -142,8 +142,8 @@ void main() {
     });
 
     test('a real interaction comes back as a warning', () async {
-      debugSetGeminiTransport(
-          StubTransport('⚠️ Warfarin + Aspirin: bleeding risk. Consult your doctor.'));
+      debugSetGeminiTransport(StubTransport(
+          '⚠️ Warfarin + Aspirin: bleeding risk. Consult your doctor.'));
 
       final result = await GeminiService.checkInteractions(
         newMed: _med('Warfarin'),
@@ -185,7 +185,8 @@ void main() {
 
   group('getMissedDoseAdvice', () {
     test('uses the proxy and reports advice as AI-generated', () async {
-      final transport = StubTransport('Take it now, you are only an hour late.');
+      final transport =
+          StubTransport('Take it now, you are only an hour late.');
       debugSetGeminiTransport(transport);
 
       final advice = await GeminiService.getMissedDoseAdvice(
@@ -231,11 +232,176 @@ void main() {
     test('surfaces a failure as an error result', () async {
       debugSetGeminiTransport(FailingTransport());
 
-      final result =
-          await GeminiService.askFollowUp('Can I take this with milk?', const []);
+      final result = await GeminiService.askFollowUp(
+          'Can I take this with milk?', const []);
 
       expect(result.isFailure, isTrue,
           reason: 'the coach must say it failed rather than showing nothing');
+    });
+  });
+
+  group('analyzeMedicineSafety', () {
+    test('uses the proxy and parses safety profile JSON', () async {
+      final jsonResponse = '''
+{
+  "warnings": ["Avoid in pregnancy"],
+  "interactions": ["Interacts with NSAIDs"],
+  "foodRules": ["Take with food"],
+  "ahaMoments": ["Reduces cardiovascular events by 25%"],
+  "mechanismOfAction": "ACE inhibitor",
+  "onsetMinutes": 30,
+  "peakHours": 2.0,
+  "durationHours": 24.0,
+  "bodySystems": ["cardiovascular"],
+  "timelineEffects": [{"time": "2h", "effect": "Peak absorption"}],
+  "ahaFacts": ["Discovered in 1975"]
+}
+''';
+      final transport = StubTransport(jsonResponse);
+      debugSetGeminiTransport(transport);
+
+      final result =
+          await GeminiService.analyzeMedicineSafety(_med('Lisinopril'));
+
+      expect(transport.calls, 1);
+      expect(model.calls, 0);
+      expect(result.isSuccess, isTrue);
+      expect(result.data.warnings, contains('Avoid in pregnancy'));
+      expect(result.data.mechanismOfAction, 'ACE inhibitor');
+    });
+
+    test('surfaces a failure when proxy fails', () async {
+      debugSetGeminiTransport(FailingTransport());
+
+      final result =
+          await GeminiService.analyzeMedicineSafety(_med('Lisinopril'));
+
+      expect(result.isFailure, isTrue);
+      expect(model.calls, 0);
+    });
+  });
+
+  group('analyzeSymptom', () {
+    test('uses the proxy and parses symptom analysis JSON', () async {
+      final jsonResponse = '''
+{
+  "description": "Mild headache reported. Stay hydrated and monitor.",
+  "steps": ["Drink water", "Rest in a quiet room"],
+  "warning": "Consult a doctor if pain worsens."
+}
+''';
+      final transport = StubTransport(jsonResponse);
+      debugSetGeminiTransport(transport);
+
+      final symptom = Symptom(
+        id: 's1',
+        name: 'Headache',
+        severity: 4,
+        timestamp: DateTime.now(),
+      );
+
+      final result = await GeminiService.analyzeSymptom(
+        symptom,
+        [_med('Aspirin')],
+      );
+
+      expect(transport.calls, 1);
+      expect(model.calls, 0);
+      expect(result.isSuccess, isTrue);
+      expect(result.data.steps, contains('Drink water'));
+    });
+
+    test('gracefully degrades to safe guidance on failure', () async {
+      debugSetGeminiTransport(FailingTransport());
+
+      final symptom = Symptom(
+        id: 's2',
+        name: 'Fatigue',
+        severity: 3,
+        timestamp: DateTime.now(),
+      );
+
+      final result = await GeminiService.analyzeSymptom(
+        symptom,
+        [_med('Lisinopril')],
+      );
+
+      expect(result.isSuccess, isTrue);
+      expect(result.data.description, contains('Logged successfully'));
+      expect(model.calls, 0);
+    });
+  });
+
+  group('parseVoiceCommand', () {
+    test('uses the proxy and parses command JSON', () async {
+      final jsonResponse = '''
+{
+  "identified": true,
+  "action": "take",
+  "medId": 123,
+  "confirmationText": "Logged your Advil!"
+}
+''';
+      final transport = StubTransport(jsonResponse);
+      debugSetGeminiTransport(transport);
+
+      final result = await GeminiService.parseVoiceCommand(
+        transcript: 'I took my Advil',
+        meds: [_med('Advil')],
+      );
+
+      expect(transport.calls, 1);
+      expect(model.calls, 0);
+      expect(result.isSuccess, isTrue);
+      expect(result.data['action'], 'take');
+    });
+
+    test('returns failure when proxy is unreachable', () async {
+      debugSetGeminiTransport(FailingTransport());
+
+      final result = await GeminiService.parseVoiceCommand(
+        transcript: 'Take pill',
+        meds: [_med('Advil')],
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(model.calls, 0);
+    });
+  });
+
+  group('chatWithProduct', () {
+    test('uses the proxy', () async {
+      final transport =
+          StubTransport('Lisinopril is safe with moderate coffee intake.');
+      debugSetGeminiTransport(transport);
+
+      final result = await GeminiService.chatWithProduct(
+        productName: 'Lisinopril',
+        productDetails: 'Blood pressure medication',
+        query: 'Can I drink coffee with this?',
+        chatHistory: const [],
+      );
+
+      expect(transport.calls, 1);
+      expect(model.calls, 0);
+      expect(result.isSuccess, isTrue);
+      expect(result.data, contains('safe with moderate coffee'));
+    });
+
+    test(
+        'returns error and does not return fake canned advice when proxy fails',
+        () async {
+      debugSetGeminiTransport(FailingTransport());
+
+      final result = await GeminiService.chatWithProduct(
+        productName: 'Warfarin',
+        productDetails: 'Blood thinner',
+        query: 'Can I take aspirin?',
+        chatHistory: const [],
+      );
+
+      expect(result.isFailure, isTrue);
+      expect(model.calls, 0);
     });
   });
 }

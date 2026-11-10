@@ -115,8 +115,7 @@ void main() {
   });
 
   test('copyWith leaves untouched fields alone', () {
-    final original =
-        UserProfile(name: 'Alex', isPremium: true, scansUsed: 4);
+    final original = UserProfile(name: 'Alex', isPremium: true, scansUsed: 4);
     final copy = original.copyWith(name: 'Sam');
 
     expect(copy.name, 'Sam');
@@ -125,7 +124,8 @@ void main() {
   });
 
   test('nested time maps are not shared between copies', () {
-    final original = UserProfile(name: 'A', breakfastTime: const {'h': 7, 'm': 0});
+    final original =
+        UserProfile(name: 'A', breakfastTime: const {'h': 7, 'm': 0});
     final restored = UserProfile.fromJson(original.toJson());
 
     expect(restored.breakfastTime['h'], 7);

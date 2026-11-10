@@ -43,9 +43,9 @@ void main() {
 
     test('newline-separated warnings split into items', () {
       final p = safetyProfileFromScan(ScanResult(
-          name: 'X', warnings: 'Do not drive\nAvoid alcohol\nMay cause nausea'));
-      expect(p.warnings,
-          ['Do not drive', 'Avoid alcohol', 'May cause nausea']);
+          name: 'X',
+          warnings: 'Do not drive\nAvoid alcohol\nMay cause nausea'));
+      expect(p.warnings, ['Do not drive', 'Avoid alcohol', 'May cause nausea']);
     });
 
     test('semicolons also split', () {
@@ -56,7 +56,8 @@ void main() {
 
     test('bullet and dash markers are stripped', () {
       final p = safetyProfileFromScan(ScanResult(
-          name: 'X', warnings: '• Do not drive\n- Avoid alcohol\n* Take with food'));
+          name: 'X',
+          warnings: '• Do not drive\n- Avoid alcohol\n* Take with food'));
       expect(p.warnings, ['Do not drive', 'Avoid alcohol', 'Take with food']);
     });
 
@@ -97,8 +98,7 @@ void main() {
 
   group('food rules', () {
     test('withFood adds an explicit instruction', () {
-      final p =
-          safetyProfileFromScan(ScanResult(name: 'X', withFood: true));
+      final p = safetyProfileFromScan(ScanResult(name: 'X', withFood: true));
       expect(p.foodRules, contains('Take with food'));
     });
 
@@ -177,21 +177,18 @@ void main() {
     });
 
     test('warnings are critical', () {
-      final m = med(
-          profile: _profile(warnings: ['Do not drive']));
+      final m = med(profile: _profile(warnings: ['Do not drive']));
       expect(m.hasCriticalSafetyAlerts, isTrue);
       expect(m.needsPreTakeBriefing, isTrue);
     });
 
     test('interactions are critical', () {
-      final m = med(
-          profile: _profile(interactions: ['Avoid warfarin']));
+      final m = med(profile: _profile(interactions: ['Avoid warfarin']));
       expect(m.hasCriticalSafetyAlerts, isTrue);
     });
 
     test('food rules alone brief but are not critical', () {
-      final m =
-          med(profile: _profile(foodRules: ['Take with food']));
+      final m = med(profile: _profile(foodRules: ['Take with food']));
       expect(m.hasCriticalSafetyAlerts, isFalse);
       expect(m.needsPreTakeBriefing, isTrue);
     });

@@ -20,6 +20,9 @@ class SocialController extends ChangeNotifier {
   final Map<String, String> _protectorInsights = {};
   StreamSubscription? _cgSub;
   StreamSubscription? _monitoringSub;
+  StreamSubscription? _escalationSub;
+  List<EscalationAlert> _escalations = [];
+  final Set<String> _acknowledging = {};
   String? _pendingJoinCode;
 
   SocialController({required this.userRepo});
@@ -29,6 +32,32 @@ class SocialController extends ChangeNotifier {
   List<MissedAlert> get missedAlerts => _missedAlerts;
   Map<String, String> get protectorInsights => _protectorInsights;
   String? get pendingJoinCode => _pendingJoinCode;
+
+  /// Missed-dose alerts the server sent to this user as a caregiver, limited
+  /// to the ones still worth acting on (see [EscalationAlert.relevant]).
+  List<EscalationAlert> get escalations =>
+      EscalationAlert.relevant(_escalations, DateTime.now());
+
+  /// Whether an "I'm on it" call is in flight for [alertId].
+  bool isAcknowledging(String alertId) => _acknowledging.contains(alertId);
+
+  /// Resets in-memory caregiver/social data and cancels subscriptions.
+  void clear() {
+    _cgSub?.cancel();
+    _cgSub = null;
+    _monitoringSub?.cancel();
+    _monitoringSub = null;
+    _escalationSub?.cancel();
+    _escalationSub = null;
+    _escalations = [];
+    _acknowledging.clear();
+    _caregivers = [];
+    _monitoredPatients = [];
+    _missedAlerts = [];
+    _protectorInsights.clear();
+    _pendingJoinCode = null;
+    notifyListeners();
+  }
 
   static const _codeChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
@@ -55,6 +84,7 @@ class SocialController extends ChangeNotifier {
       _caregivers = await userRepo.getCaregivers();
       _listenToCaregivers();
       _listenToMonitoring();
+      _listenToEscalations();
       notifyListeners();
     } catch (e) {
       appLogger.e('[SocialController] Data load failed', error: e);
@@ -81,6 +111,55 @@ class SocialController extends ChangeNotifier {
     }, onError: (e) {
       appLogger.e('[SocialController] Monitoring stream error', error: e);
     });
+  }
+
+  /// Streams the escalation records that reached this user.
+  ///
+  /// Server-written (see detectMissedDoses); the security rule lets a
+  /// caregiver read only documents whose `alertedUids` contains them, which
+  /// is exactly this query. Backed by the composite index in
+  /// firestore.indexes.json.
+  void _listenToEscalations() {
+    _escalationSub?.cancel();
+    final uid = AuthService.uid;
+    if (uid == null) return;
+    _escalationSub = FirebaseFirestore.instance
+        .collection('missedDoseAlerts')
+        .where('alertedUids', arrayContains: uid)
+        .orderBy('dayKey', descending: true)
+        .limit(30)
+        .snapshots()
+        .listen((snap) {
+      _escalations = snap.docs
+          .map((d) => EscalationAlert.fromMap(d.id, d.data()))
+          .toList();
+      notifyListeners();
+    }, onError: (e) {
+      appLogger.e('[SocialController] Escalation stream error', error: e);
+    });
+  }
+
+  /// "I'm on it": claims a missed-dose alert for this caregiver.
+  ///
+  /// The server stops the escalation chain and tells every other caregiver
+  /// already alerted. Returns the name of whoever had already claimed it, or
+  /// null when this call claimed it. Throws if the call failed, so the screen
+  /// can say so rather than implying the family was told.
+  Future<String?> acknowledgeEscalation(String alertId) async {
+    if (_acknowledging.contains(alertId)) return null;
+    _acknowledging.add(alertId);
+    notifyListeners();
+    try {
+      final res = await FirebaseFunctions.instance
+          .httpsCallable('acknowledgeMissedDose')
+          .call({'alertId': alertId});
+      HapticEngine.success();
+      final data = res.data;
+      return data is Map ? data['alreadyHandledBy'] as String? : null;
+    } finally {
+      _acknowledging.remove(alertId);
+      notifyListeners();
+    }
   }
 
   /// Re-issues the uid-keyed access grant for relationships formed before
@@ -253,6 +332,27 @@ class SocialController extends ChangeNotifier {
     notifyListeners();
   }
 
+  Future<void> removeCaregiver(int id) async {
+    final idx = _caregivers.indexWhere((c) => c.id == id);
+    if (idx == -1) return;
+    final cg = _caregivers[idx];
+    if (cg.inviteCode != null && cg.inviteCode!.isNotEmpty) {
+      await userRepo
+          .deleteInvite(cg.inviteCode!)
+          .catchError((e) => appLogger.w('[Social] Delete invite failed: $e'));
+    }
+    await userRepo.removeCaregiver(id, caregiverUid: cg.joinedCaregiverUid);
+    _caregivers.removeAt(idx);
+    await userRepo.saveCaregivers(_caregivers);
+    notifyListeners();
+  }
+
+  Future<void> stopMonitoringPatient(String patientUid) async {
+    _monitoredPatients.removeWhere((p) => p['uid'] == patientUid);
+    notifyListeners();
+    await userRepo.removeMonitoringPatient(patientUid);
+  }
+
   Future<void> activateCaregiver(int id) async {
     final idx = _caregivers.indexWhere((c) => c.id == id);
     if (idx != -1) {
@@ -328,6 +428,7 @@ class SocialController extends ChangeNotifier {
   void dispose() {
     _cgSub?.cancel();
     _monitoringSub?.cancel();
+    _escalationSub?.cancel();
     super.dispose();
   }
 }

@@ -67,7 +67,8 @@ class VoiceAssistantOverlay extends StatelessWidget {
                 const SizedBox(height: AppSpacing.p16),
                 if (state.voiceFeedback.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p48),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: AppSpacing.p48),
                     child: Text(
                       state.voiceFeedback,
                       textAlign: TextAlign.center,
@@ -148,8 +149,7 @@ class VoiceAssistantOverlay extends StatelessWidget {
       mic = mic
           .animate(onPlay: (c) => isThinking ? c.repeat() : null)
           .shimmer(
-              duration: isThinking ? 1.5.seconds : 0.ms,
-              color: Colors.white12)
+              duration: isThinking ? 1.5.seconds : 0.ms, color: Colors.white12)
           .shake(hz: isError ? 4 : 0, duration: 400.ms)
           .scale(
               begin: const Offset(0.8, 0.8),

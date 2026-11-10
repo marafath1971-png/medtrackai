@@ -30,11 +30,17 @@ class ShareService {
   /// Share a referral invite message with the user's code + give/get framing.
   static Future<void> shareReferral(String referralCode,
       {String? userName, String? inviteUrl}) async {
-    final name = userName != null && userName.trim().isNotEmpty
-        ? userName
-        : 'A friend';
+    final name =
+        userName != null && userName.trim().isNotEmpty ? userName : 'A friend';
     final link = inviteUrl ?? downloadUrl;
-    final message = '$name invited you to MedAI — the #1 companion for medication success.\n\n'
+    // Not "the #1 companion for medication success": nothing has ever
+    // measured that, and this text is sent to someone outside the app, where
+    // an unverifiable superlative is a claim the product makes to a stranger
+    // rather than copy on a screen. The rest of the codebase already had its
+    // fabricated ratings and install counts removed; this one survived in
+    // outbound share text.
+    final message = '$name invited you to MedAI — a calmer way to stay on top '
+        'of every dose.\n\n'
         '${HopeVibe.tagline}\n'
         'Tap to claim a free month of Premium:\n$link\n\n'
         'Or enter code $referralCode when you sign up.';
@@ -104,8 +110,7 @@ class ShareService {
   static Future<void> shareAdherence(int percentage) async {
     String message;
     if (percentage >= 95) {
-      message =
-          'Perfect adherence! Proof that consistency becomes success.';
+      message = 'Perfect adherence! Proof that consistency becomes success.';
     } else if (percentage >= 80) {
       message =
           'Strong adherence this month. I\'m staying on track with MedAI.';

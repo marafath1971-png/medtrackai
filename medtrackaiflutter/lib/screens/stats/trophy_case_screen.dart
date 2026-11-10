@@ -233,7 +233,9 @@ class _BadgeCard extends StatelessWidget {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    isUnlocked ? 'Unlocked!' : '$currentStreak/$targetDays days',
+                    isUnlocked
+                        ? 'Unlocked!'
+                        : '$currentStreak/$targetDays days',
                     style: AppTypography.labelSmall.copyWith(
                       color: L.sub,
                       fontWeight: FontWeight.w700,

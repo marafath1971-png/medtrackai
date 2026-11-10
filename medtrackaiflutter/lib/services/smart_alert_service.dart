@@ -67,11 +67,13 @@ class SmartAlertService {
                 color: Colors.transparent,
                 child: Container(
                   constraints: const BoxConstraints(maxWidth: 400),
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                   decoration: BoxDecoration(
                     color: bgColor,
                     borderRadius: BorderRadius.circular(32),
-                    border: Border.all(color: accentColor.withValues(alpha: 0.3), width: 1),
+                    border: Border.all(
+                        color: accentColor.withValues(alpha: 0.3), width: 1),
                     boxShadow: AppShadows.glow(accentColor, intensity: 0.15),
                   ),
                   child: Row(
@@ -112,10 +114,18 @@ class SmartAlertService {
                       ),
                     ],
                   ),
-                ).animate()
-                 .slideY(begin: -1.0, end: 0, curve: AppCurves.emilOut, duration: 600.ms)
-                 .fadeIn(duration: 400.ms)
-                 .shimmer(delay: 400.ms, duration: 1000.ms, color: Colors.white.withValues(alpha: 0.2)),
+                )
+                    .animate()
+                    .slideY(
+                        begin: -1.0,
+                        end: 0,
+                        curve: AppCurves.emilOut,
+                        duration: 600.ms)
+                    .fadeIn(duration: 400.ms)
+                    .shimmer(
+                        delay: 400.ms,
+                        duration: 1000.ms,
+                        color: Colors.white.withValues(alpha: 0.2)),
               ),
             ),
           ),

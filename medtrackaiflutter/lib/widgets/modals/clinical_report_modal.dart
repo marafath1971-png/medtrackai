@@ -7,6 +7,7 @@ import '../common/refined_sheet_wrapper.dart';
 import '../common/app_feedback.dart';
 import '../../services/report_service.dart';
 import '../../l10n/app_localizations.dart';
+
 class ClinicalReportModal extends StatefulWidget {
   final AppState state;
   final double adherence;
@@ -42,7 +43,8 @@ class _ClinicalReportModalState extends State<ClinicalReportModal> {
 
   Widget _entrance(Widget child, {List<Effect>? effects}) {
     if (MedAiA11y.reducedMotion(context)) return child;
-    return child.animate(effects: effects ?? MedAiMotion.cardEntrance(context, 0));
+    return child.animate(
+        effects: effects ?? MedAiMotion.cardEntrance(context, 0));
   }
 
   @override
@@ -65,14 +67,13 @@ class _ClinicalReportModalState extends State<ClinicalReportModal> {
     );
 
     if (!reduceMotion) {
-      heroIcon = heroIcon
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .scaleXY(
-            begin: 0.97,
-            end: 1.03,
-            duration: 2.seconds,
-            curve: Curves.easeInOut,
-          );
+      heroIcon =
+          heroIcon.animate(onPlay: (c) => c.repeat(reverse: true)).scaleXY(
+                begin: 0.97,
+                end: 1.03,
+                duration: 2.seconds,
+                curve: Curves.easeInOut,
+              );
     }
 
     return RefinedSheetWrapper(
@@ -99,8 +100,11 @@ class _ClinicalReportModalState extends State<ClinicalReportModal> {
           const SizedBox(height: 32),
           Row(
             children: [
-              _buildStatCard(L, 'ADHERENCE',
-                  '${(widget.adherence * 100).round()}%', Icons.analytics_rounded),
+              _buildStatCard(
+                  L,
+                  'ADHERENCE',
+                  '${(widget.adherence * 100).round()}%',
+                  Icons.analytics_rounded),
               const SizedBox(width: 16),
               _buildStatCard(L, 'STREAK', '${widget.streak} DAYS',
                   Icons.local_fire_department_rounded),
@@ -109,8 +113,8 @@ class _ClinicalReportModalState extends State<ClinicalReportModal> {
           const SizedBox(height: 32),
           _buildInfoRow(L, Icons.medication_rounded,
               '${widget.state.meds.length} active medications tracked'),
-          _buildInfoRow(
-              L, Icons.favorite_rounded, 'Biometric trends (Heart Rate, Steps)'),
+          _buildInfoRow(L, Icons.favorite_rounded,
+              'Biometric trends (Heart Rate, Steps)'),
           _buildInfoRow(L, Icons.assignment_turned_in_rounded,
               'Daily logging checklist & notes'),
           const SizedBox(height: 32),

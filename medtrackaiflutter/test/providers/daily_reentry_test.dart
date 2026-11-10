@@ -81,14 +81,17 @@ void main() {
         .thenAnswer((_) => Stream.value(null));
     when(() => mockUserRepo.getCaregivers())
         .thenAnswer((_) => Future.value([]));
-    when(() => mockUserRepo.getDarkMode()).thenAnswer((_) => Future.value(false));
+    when(() => mockUserRepo.getDarkMode())
+        .thenAnswer((_) => Future.value(false));
 
     when(() => mockMedRepo.getMedicines()).thenAnswer((_) => Future.value([]));
     when(() => mockMedRepo.getHistory()).thenAnswer((_) => Future.value({}));
     when(() => mockMedRepo.getTakenToday()).thenAnswer((_) => Future.value({}));
-    when(() => mockMedRepo.getPrefs()).thenAnswer((_) => Future.value(mockPrefs));
+    when(() => mockMedRepo.getPrefs())
+        .thenAnswer((_) => Future.value(mockPrefs));
 
-    when(() => mockSymptomRepo.getSymptoms()).thenAnswer((_) => Future.value([]));
+    when(() => mockSymptomRepo.getSymptoms())
+        .thenAnswer((_) => Future.value([]));
 
     when(() => mockPrefs.getBool(any())).thenReturn(false);
     when(() => mockPrefs.getInt(any())).thenReturn(0);
@@ -115,7 +118,9 @@ void main() {
 
   test('a day with nothing scheduled costs nothing', () async {
     appState.med.setStateForTest(
-      meds: [_med(id: 1, slots: ['Morning'], days: notYesterday)],
+      meds: [
+        _med(id: 1, slots: ['Morning'], days: notYesterday)
+      ],
       history: {},
     );
 
@@ -153,7 +158,9 @@ void main() {
 
   test('a logged day counts the doses left untaken', () async {
     appState.med.setStateForTest(
-      meds: [_med(id: 1, slots: ['Morning', 'Evening'], days: everyDay)],
+      meds: [
+        _med(id: 1, slots: ['Morning', 'Evening'], days: everyDay)
+      ],
       history: {
         _key(yesterday): [
           DoseEntry(medId: 1, label: 'Morning', time: '8:00 AM', taken: true),
@@ -167,7 +174,9 @@ void main() {
 
   test('a fully logged day costs nothing', () async {
     appState.med.setStateForTest(
-      meds: [_med(id: 1, slots: ['Morning'], days: everyDay)],
+      meds: [
+        _med(id: 1, slots: ['Morning'], days: everyDay)
+      ],
       history: {
         _key(yesterday): [
           DoseEntry(medId: 1, label: 'Morning', time: '8:00 AM', taken: true),
@@ -180,7 +189,9 @@ void main() {
 
   test('opening twice in one day only prompts once', () async {
     appState.med.setStateForTest(
-      meds: [_med(id: 1, slots: ['Morning'], days: everyDay)],
+      meds: [
+        _med(id: 1, slots: ['Morning'], days: everyDay)
+      ],
       history: {},
     );
 
@@ -192,7 +203,9 @@ void main() {
   test('the very first open ever costs nothing', () async {
     SharedPreferences.setMockInitialValues({});
     appState.med.setStateForTest(
-      meds: [_med(id: 1, slots: ['Morning'], days: everyDay)],
+      meds: [
+        _med(id: 1, slots: ['Morning'], days: everyDay)
+      ],
       history: {},
     );
 

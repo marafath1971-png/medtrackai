@@ -34,7 +34,8 @@ DoseEntry _dose(
       skipped: skipped,
     );
 
-DoseEntry _prn(int medId, {String time = '2:30 PM', String label = 'PRN-Rescue'}) =>
+DoseEntry _prn(int medId,
+        {String time = '2:30 PM', String label = 'PRN-Rescue'}) =>
     DoseEntry(medId: medId, label: label, time: time, taken: true);
 
 void main() {

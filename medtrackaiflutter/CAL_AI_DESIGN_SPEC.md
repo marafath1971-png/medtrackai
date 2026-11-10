@@ -50,7 +50,8 @@ Your app isn't ugly — it's **loud**. Cal AI's premium feel = **restraint**. Th
 ## Reference screens (built as the pattern)
 1. **Settings icon chips** ✅ DONE — `iosSettingsIconColor` (ios_settings_style.dart) was a per-emoji rainbow (🎯→orange, 🩺→red, 🎂→pink, 🧬→purple). Now MONOCHROME by default; red only for delete/logout. **Central fix — propagates to every settings row app-wide** (My Profile, Your Info, App Settings, Data & Privacy).
 2. **AI insight category pills** ✅ DONE — `dashboard_widgets.dart:319` was lime-green (adherence) / purple (optimization) / red (safety). Now neutral `L.sub` for everything except real safety warnings (kept red). De-noises the Home + Trends insight lists.
-3. **Home dose/stat surface** — TODO: apply air + number hierarchy (not yet touched; needs care, compile between).
+3. **Home dose/stat surface** ✅ DONE — `home_today_hero.dart` background converted from pastel rainbow fills (`pastelSky`, `pastelSun`, `pastelMint`) to clean `L.card` with subtle border and elevation; `_ProgressTrack` untaken segments use `L.fill` with deliberate emerald `AppColors.accentDeep` for taken doses; `home_dose_group.dart` period headers neutralized to `L.fill`/`L.text` chips.
+4. **Paywall & Subscription Flow** ✅ DONE — `premium_paywall_overlay.dart` matched to Cal AI / Blinkist standard with trial timeline, reminder toggle, steep annual anchoring, store compliance, test guards, and auto-dismiss upon restore.
 
 ## Remaining rainbow to hunt (per screen family, compile between — NOT blind)
 - `dashboard_ref_cards.dart` — hardcoded pastel gradients (`0xFFFFB8D9` pink, `0xFFFFC8A8` peach, etc.). Replace with `L.fill`/`L.card` neutrals.

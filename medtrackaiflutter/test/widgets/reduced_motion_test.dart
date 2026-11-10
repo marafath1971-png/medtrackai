@@ -52,7 +52,8 @@ void main() {
   });
 
   group('InteractionWarningSheet', () {
-    testWidgets('renders warning text and actions on the first frame '
+    testWidgets(
+        'renders warning text and actions on the first frame '
         'when reduced motion is on', (tester) async {
       await tester.pumpWidget(_host(disableAnimations: true, child: sheet));
 

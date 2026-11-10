@@ -15,15 +15,20 @@ class InteractionWarningSheet extends StatelessWidget {
     required this.interactionDetails,
   });
 
-  static Future<void> show(BuildContext context) {
+  static Future<void> show(
+    BuildContext context, {
+    required String medicineName,
+    required String interactionName,
+    required String interactionDetails,
+  }) {
     return showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,
       isScrollControlled: true,
-      builder: (context) => const InteractionWarningSheet(
-        medicineName: "Lisinopril",
-        interactionName: "Vitamin C",
-        interactionDetails: "Taking this with Vitamin C reduces absorption. Space them out by 2 hours.",
+      builder: (context) => InteractionWarningSheet(
+        medicineName: medicineName,
+        interactionName: interactionName,
+        interactionDetails: interactionDetails,
       ),
     );
   }
@@ -59,7 +64,7 @@ class InteractionWarningSheet extends StatelessWidget {
             ),
           ),
           const SizedBox(height: AppSpacing.p32),
-          
+
           // Icon and Title
           Row(
             children: [
@@ -69,7 +74,8 @@ class InteractionWarningSheet extends StatelessWidget {
                   color: warningColor.withValues(alpha: 0.15),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.warning_amber_rounded, color: warningColor, size: 28),
+                child: Icon(Icons.warning_amber_rounded,
+                    color: warningColor, size: 28),
               ).medAiChain(
                   context,
                   (w) => w.animate().scale(
@@ -88,24 +94,32 @@ class InteractionWarningSheet extends StatelessWidget {
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.4,
                       ),
-                    ).medAiChain(context,
-                        (w) => w.animate().fade(delay: 200.ms).slideX(begin: 0.1, end: 0)),
+                    ).medAiChain(
+                        context,
+                        (w) => w
+                            .animate()
+                            .fade(delay: 200.ms)
+                            .slideX(begin: 0.1, end: 0)),
                     const SizedBox(height: AppSpacing.p4),
                     Text(
                       "$medicineName + $interactionName",
                       style: AppTypography.titleMedium.copyWith(
                         color: warningColor,
                       ),
-                    ).medAiChain(context,
-                        (w) => w.animate().fade(delay: 300.ms).slideX(begin: 0.1, end: 0)),
+                    ).medAiChain(
+                        context,
+                        (w) => w
+                            .animate()
+                            .fade(delay: 300.ms)
+                            .slideX(begin: 0.1, end: 0)),
                   ],
                 ),
               ),
             ],
           ),
-          
+
           const SizedBox(height: AppSpacing.p24),
-          
+
           // Details
           MedAiDepthCard(
             color: warningColor.withValues(alpha: 0.05),
@@ -126,8 +140,10 @@ class InteractionWarningSheet extends StatelessWidget {
                 ),
               ],
             ),
-          ).medAiChain(context,
-              (w) => w.animate().fade(delay: 400.ms).slideY(begin: 0.1, end: 0)),
+          ).medAiChain(
+              context,
+              (w) =>
+                  w.animate().fade(delay: 400.ms).slideY(begin: 0.1, end: 0)),
 
           const SizedBox(height: AppSpacing.p32),
 

@@ -54,4 +54,10 @@ abstract class IUserRepository {
 
   /// Clears a caregiver's uid-keyed access grant on the current user.
   Future<void> revokeCaregiverAccess(String caregiverUid);
+
+  /// Removes a caregiver by ID and clears their uid-keyed access grant.
+  Future<void> removeCaregiver(int cgId, {String? caregiverUid});
+
+  /// Stops monitoring a patient by removing them from the caregiver's monitoring list.
+  Future<void> removeMonitoringPatient(String patientUid);
 }

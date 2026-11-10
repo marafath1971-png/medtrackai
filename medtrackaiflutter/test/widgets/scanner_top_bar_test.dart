@@ -63,8 +63,8 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(
-        _host(ScannerTopBar(onClose: () {}), scaler: maxScale));
+    await tester
+        .pumpWidget(_host(ScannerTopBar(onClose: () {}), scaler: maxScale));
     await tester.pump();
 
     // The regression: the title block took its full intrinsic width and the
@@ -81,9 +81,8 @@ void main() {
     addTearDown(tester.view.reset);
 
     var closed = false;
-    await tester.pumpWidget(_host(
-        ScannerTopBar(onClose: () => closed = true),
-        scaler: maxScale));
+    await tester.pumpWidget(
+        _host(ScannerTopBar(onClose: () => closed = true), scaler: maxScale));
     await tester.pump();
 
     final back = find.byIcon(Icons.arrow_back_ios_new_rounded);
@@ -110,8 +109,8 @@ void main() {
     tester.view.devicePixelRatio = 1.0;
     addTearDown(tester.view.reset);
 
-    await tester.pumpWidget(
-        _host(ScannerTopBar(onClose: () {}), scaler: maxScale));
+    await tester
+        .pumpWidget(_host(ScannerTopBar(onClose: () {}), scaler: maxScale));
     await tester.pump();
 
     // Fixing overflow by hiding the text would also pass the checks above.

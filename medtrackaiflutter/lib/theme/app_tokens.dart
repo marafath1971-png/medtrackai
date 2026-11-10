@@ -35,6 +35,7 @@ class AppSpacing {
 
   // Semantic spacing
   static const double screenPadding = p24;
+
   /// Horizontal gutter for main shell tabs (home / dashboard / alarms / family).
   static const double gutter = p20;
   static const double fieldPadding = p16;
@@ -47,18 +48,23 @@ class AppSpacing {
 class AppDurations {
   /// Button press, micro feedback (Emil: 100–160ms).
   static const Duration micro = Duration(milliseconds: 150);
+
   /// Dropdowns, cards, tab fades (Emil: 150–250ms).
   static const Duration fast = Duration(milliseconds: 220);
+
   /// Modals, drawers enter (Emil: 200–500ms).
   static const Duration medium = Duration(milliseconds: 320);
+
   /// Modal/sheet exit — snappier than enter (asymmetric timing).
   static const Duration exit = Duration(milliseconds: 180);
   static const Duration slow = Duration(milliseconds: 1000);
   static const Duration shimmer = Duration(milliseconds: 2000);
   static const Duration bounce = Duration(milliseconds: 800);
   static const Duration breathe = Duration(milliseconds: 3000);
+
   /// First-time / hero entrances only — not for tabs or daily UI.
   static const Duration hero = Duration(milliseconds: 350);
+
   /// Bottom-tab crossfade — seen often; keep under 200ms.
   static const Duration tab = Duration(milliseconds: 180);
 }
@@ -68,8 +74,8 @@ class AppRadius {
   static const double s = 12;
   static const double m = 16;
   static const double l = 24;
-  static const double xl = 28; 
-  static const double squircle = 32; 
+  static const double xl = 28;
+  static const double squircle = 32;
   static const double max = 999;
 
   static BorderRadius get roundXS => BorderRadius.circular(xs);
@@ -84,16 +90,22 @@ class AppRadius {
 class AppCurves {
   /// Emil strong ease-out — default for enter/exit UI (cubic-bezier 0.23, 1, 0.32, 1).
   static const Curve emilOut = Cubic(0.23, 1.0, 0.32, 1.0);
+
   /// Emil ease-in-out for on-screen movement (0.77, 0, 0.175, 1).
   static const Curve emilInOut = Cubic(0.77, 0.0, 0.175, 1.0);
+
   /// iOS drawer / sheet curve (Ionic-style).
   static const Curve drawer = Cubic(0.32, 0.72, 0.0, 1.0);
+
   /// Material 3 Expressive emphasized decelerate.
   static const Curve expressive = Cubic(0.05, 0.7, 0.1, 1.0);
+
   /// iOS HIG standard ease-out for transitions.
   static const Curve iosEaseOut = Cubic(0.25, 0.1, 0.25, 1.0);
+
   /// General UI — prefer emilOut over easeInOutCirc.
   static const Curve smooth = emilOut;
+
   /// Rare celebrations / onboarding only — never on tabs or settings rows.
   static const Curve spring = ElasticOutCurve(0.9);
   static const Curve liquid = ElasticOutCurve(0.7);
@@ -146,6 +158,7 @@ class AppTypography {
         fontWeight: FontWeight.w600,
         letterSpacing: -0.3,
       );
+
   /// Row and card titles.
   ///
   /// Was w500, which 54 of its 123 call sites overrode to w800 — the default
@@ -231,7 +244,7 @@ class AppTypography {
         fontWeight: FontWeight.w600,
         letterSpacing: -0.5,
       );
-      
+
   static TextStyle get sectionLabel => GoogleFonts.outfit(
         fontSize: 11,
         fontWeight: FontWeight.w700,
@@ -357,20 +370,20 @@ class AppGradients {
   static LinearGradient get darkSurface => _flat(const Color(0xFF1C1C1E));
 
   // Semantic — kept as solids
-  static LinearGradient get healthGreen  => _flat(const Color(0xFF00C853));
+  static LinearGradient get healthGreen => _flat(const Color(0xFF00C853));
   static LinearGradient get warningAmber => _flat(const Color(0xFFFF9F0A));
-  static LinearGradient get dangerRed    => _flat(const Color(0xFFFF3B30));
-  static LinearGradient get darkCard     => _flat(const Color(0xFF2C2C2E));
-  static LinearGradient get actionRed    => _flat(const Color(0xFFFF3B30));
+  static LinearGradient get dangerRed => _flat(const Color(0xFFFF3B30));
+  static LinearGradient get darkCard => _flat(const Color(0xFF2C2C2E));
+  static LinearGradient get actionRed => _flat(const Color(0xFFFF3B30));
 
   // Aliases → sage/lime brand system
   static LinearGradient get cyanFlash => accentHero;
-  static LinearGradient get purpleDusk   => _flat(const Color(0xFFBF5AF2));
-  static LinearGradient get goldLegend   => _flat(const Color(0xFFFF9F0A));
-  static LinearGradient get sunrise      => accentHero;
+  static LinearGradient get purpleDusk => _flat(const Color(0xFFBF5AF2));
+  static LinearGradient get goldLegend => _flat(const Color(0xFFFF9F0A));
+  static LinearGradient get sunrise => accentHero;
   static LinearGradient get midnightBlue => _flat(const Color(0xFF0A84FF));
   static LinearGradient get oliveOnboarding => _flat(const Color(0xFF00C853));
-  static LinearGradient get oliveBg      => _flat(const Color(0xFFF7F7F7));
+  static LinearGradient get oliveBg => _flat(const Color(0xFFF7F7F7));
 
   static LinearGradient glow(Color color) => _flat(color);
 
@@ -385,19 +398,34 @@ class AppGradients {
 extension MotionPresets on Widget {
   Widget entranceHero() => animate()
       .fadeIn(duration: AppDurations.hero, curve: AppCurves.emilOut)
-      .slideY(begin: 0.04, end: 0, duration: AppDurations.hero, curve: AppCurves.emilOut);
+      .slideY(
+          begin: 0.04,
+          end: 0,
+          duration: AppDurations.hero,
+          curve: AppCurves.emilOut);
 
   /// Stagger delay 50ms — Emil: 30–80ms between items.
   Widget entranceCard(int index) => animate(delay: (index * 50).ms)
       .fadeIn(duration: AppDurations.fast, curve: AppCurves.emilOut)
-      .slideY(begin: 0.03, end: 0, duration: AppDurations.fast, curve: AppCurves.emilOut);
+      .slideY(
+          begin: 0.03,
+          end: 0,
+          duration: AppDurations.fast,
+          curve: AppCurves.emilOut);
 
   Widget entranceCTA() => animate()
       .fadeIn(duration: AppDurations.micro, curve: AppCurves.emilOut)
-      .scaleXY(begin: 0.95, end: 1.0, duration: AppDurations.fast, curve: AppCurves.emilOut);
+      .scaleXY(
+          begin: 0.95,
+          end: 1.0,
+          duration: AppDurations.fast,
+          curve: AppCurves.emilOut);
 
   Widget entranceSlideX({double begin = 0.06}) => animate()
       .fadeIn(duration: AppDurations.fast, curve: AppCurves.emilOut)
-      .slideX(begin: begin, end: 0, duration: AppDurations.fast, curve: AppCurves.emilOut);
+      .slideX(
+          begin: begin,
+          end: 0,
+          duration: AppDurations.fast,
+          curve: AppCurves.emilOut);
 }
-

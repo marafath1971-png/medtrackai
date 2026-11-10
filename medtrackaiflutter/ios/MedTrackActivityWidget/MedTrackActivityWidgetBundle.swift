@@ -12,6 +12,7 @@ import SwiftUI
 struct MedTrackActivityWidgetBundle: WidgetBundle {
     var body: some Widget {
         MedTrackActivityWidget()
+        StepsWidget()
         MedTrackActivityWidgetControl()
         MedTrackActivityWidgetLiveActivity()
     }

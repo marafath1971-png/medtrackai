@@ -1,3 +1,5 @@
+import '../../core/utils/date_parser.dart';
+
 class Symptom {
   final String id;
   final String name;
@@ -22,11 +24,11 @@ class Symptom {
       };
 
   factory Symptom.fromJson(Map<String, dynamic> j) => Symptom(
-        id: j['id'],
-        name: j['name'],
+        id: j['id'] ?? '',
+        name: j['name'] ?? '',
         severity: j['severity'] ?? 1,
         notes: j['notes'],
-        timestamp: DateTime.parse(j['timestamp']),
+        timestamp: tryParseDateTime(j['timestamp']) ?? DateTime.now(),
       );
 
   Symptom copyWith({

@@ -91,47 +91,45 @@ class GlassToggle extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(30),
       child: GestureDetector(
-          onTap: () {
-            HapticEngine.selection();
-            onChanged(!value);
-          },
-          child: AnimatedContainer(
-            duration: 400.ms,
-            curve: Curves.easeOutQuart,
-            width: 56,
-            height: 32,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(30),
-              color: value ? L.text : L.card.withValues(alpha: 0.22),
-              border: Border.all(
-                  color: L.border.withValues(alpha: 0.2), width: 1.5),
-            ),
-            child: Stack(
-              children: [
-                AnimatedPositioned(
-                  duration: 400.ms,
-                  curve: Curves.easeOutQuart,
-                  left: value ? 26 : 4,
-                  top: 4,
-                  child: Container(
-                    width: 24,
-                    height: 24,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: value
-                          ? L.bg
-                          : L.text.withValues(alpha: 0.9),
-                      boxShadow: AppShadows.soft,
-                    ),
-                  ).animate(target: value ? 1 : 0).shimmer(
-                      delay: 200.ms,
-                      duration: 800.ms,
-                      color: Colors.white.withValues(alpha: 0.1)),
-                ),
-              ],
-            ),
+        onTap: () {
+          HapticEngine.selection();
+          onChanged(!value);
+        },
+        child: AnimatedContainer(
+          duration: 400.ms,
+          curve: Curves.easeOutQuart,
+          width: 56,
+          height: 32,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(30),
+            color: value ? L.text : L.card.withValues(alpha: 0.22),
+            border:
+                Border.all(color: L.border.withValues(alpha: 0.2), width: 1.5),
+          ),
+          child: Stack(
+            children: [
+              AnimatedPositioned(
+                duration: 400.ms,
+                curve: Curves.easeOutQuart,
+                left: value ? 26 : 4,
+                top: 4,
+                child: Container(
+                  width: 24,
+                  height: 24,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: value ? L.bg : L.text.withValues(alpha: 0.9),
+                    boxShadow: AppShadows.soft,
+                  ),
+                ).animate(target: value ? 1 : 0).shimmer(
+                    delay: 200.ms,
+                    duration: 800.ms,
+                    color: Colors.white.withValues(alpha: 0.1)),
+              ),
+            ],
           ),
         ),
+      ),
     );
   }
 }

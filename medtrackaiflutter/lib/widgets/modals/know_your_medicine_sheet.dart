@@ -115,7 +115,6 @@ class KnowYourMedicineSheet extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: AppSpacing.p20),
-
                   Container(
                     padding: const EdgeInsets.all(AppSpacing.p16),
                     decoration: BoxDecoration(
@@ -187,7 +186,6 @@ class KnowYourMedicineSheet extends StatelessWidget {
                       ],
                     ),
                   ),
-
                   if (critical) ...[
                     const SizedBox(height: AppSpacing.p16),
                     Container(
@@ -219,7 +217,6 @@ class KnowYourMedicineSheet extends StatelessWidget {
                       ),
                     ),
                   ],
-
                   if (warnings.isNotEmpty) ...[
                     const SizedBox(height: AppSpacing.p16),
                     _AlertBlock(
@@ -260,7 +257,6 @@ class KnowYourMedicineSheet extends StatelessWidget {
                       icon: Icons.lightbulb_outline_rounded,
                     ),
                   ],
-
                   const SizedBox(height: AppSpacing.p16),
                   Text(
                     l10n.modalsAiGuidanceAlwaysVerifyWithYour,

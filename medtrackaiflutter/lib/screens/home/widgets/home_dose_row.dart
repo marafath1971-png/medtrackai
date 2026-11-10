@@ -54,9 +54,10 @@ class HomeDoseRow extends StatelessWidget {
             ? AppColors.red.withValues(alpha: 0.28)
             : AppColors.limeDeep.withValues(alpha: 0.18);
 
-    return Semantics(
+    final card = Semantics(
       button: true,
-      label: '$displayName, $timeLabel. $doseStatus$reviewNote',
+      label:
+          '$displayName, $timeLabel. $doseStatus$reviewNote. Swipe right or tap to take.',
       child: AnimatedPressable(
         onTap: () {
           HapticEngine.selection();
@@ -133,8 +134,7 @@ class HomeDoseRow extends StatelessWidget {
                             : AppColors.inkStrong,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.3,
-                        decoration:
-                            taken ? TextDecoration.lineThrough : null,
+                        decoration: taken ? TextDecoration.lineThrough : null,
                         decorationColor: L.text.withValues(alpha: 0.25),
                       ),
                     ),
@@ -212,6 +212,58 @@ class HomeDoseRow extends StatelessWidget {
         ),
       ),
     );
+
+    if (taken) return card;
+
+    return Dismissible(
+      key: ValueKey('dose_${med.id}_${sched.id}_${sched.h}_${sched.m}'),
+      direction: DismissDirection.startToEnd,
+      dismissThresholds: const {DismissDirection.startToEnd: 0.35},
+      confirmDismiss: (direction) async {
+        HapticEngine.doseTaken();
+        onTake();
+        return false;
+      },
+      background: Container(
+        alignment: Alignment.centerLeft,
+        padding: const EdgeInsets.only(left: 20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [AppColors.limeDeep, AppColors.lime],
+          ),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              width: 36,
+              height: 36,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: const Icon(
+                Icons.check_rounded,
+                color: AppColors.limeInk,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 12),
+            const Text(
+              'Take Dose',
+              style: TextStyle(
+                color: AppColors.limeInk,
+                fontWeight: FontWeight.w800,
+                fontSize: 15,
+                letterSpacing: -0.3,
+              ),
+            ),
+          ],
+        ),
+      ),
+      child: card,
+    );
   }
 
   static ({IconData icon, String text, Color color})? _doseHook(Medicine med) {
@@ -237,8 +289,7 @@ class HomeDoseRow extends StatelessWidget {
 
     final food = profile?.foodRules.isNotEmpty == true
         ? profile!.foodRules.first
-        : (med.intakeInstructions.isNotEmpty &&
-                med.intakeInstructions != 'None'
+        : (med.intakeInstructions.isNotEmpty && med.intakeInstructions != 'None'
             ? med.intakeInstructions
             : null);
     if (food != null) {

@@ -12,8 +12,8 @@ void main() {
   group('messageForError', () {
     test('a signed-out user is told to sign in, not to check their network',
         () {
-      final msg = JoinAsCaregiverView.messageForError(
-          Exception('Sign in required'));
+      final msg =
+          JoinAsCaregiverView.messageForError(Exception('Sign in required'));
 
       expect(msg.toLowerCase(), contains('sign in'));
       expect(msg.toLowerCase(), isNot(contains('connection')),
@@ -21,7 +21,8 @@ void main() {
     });
 
     test('an unknown code says so and invites a retry', () {
-      final msg = JoinAsCaregiverView.messageForError(Exception('Invalid code'));
+      final msg =
+          JoinAsCaregiverView.messageForError(Exception('Invalid code'));
       expect(msg.toLowerCase(), contains('invalid'));
     });
 

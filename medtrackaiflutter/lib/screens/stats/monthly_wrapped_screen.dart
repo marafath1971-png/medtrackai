@@ -60,17 +60,22 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
     final streak = state.getStreak();
     // Count only doses actually taken (was summing every history entry,
     // inflating the number with skipped/missed doses).
-    final totalDoses = state.history.values.fold<int>(
-        0, (sum, list) => sum + list.where((e) => e.taken).length);
+    final totalDoses = state.history.values
+        .fold<int>(0, (sum, list) => sum + list.where((e) => e.taken).length);
 
     // Honest, tiered copy — never a fabricated "top 5%" claim, and
     // forgiveness-first at the low end (blueprint §4 tone).
     final (scoreTag, scoreNote) = adherence >= 90
         ? ('Elite consistency 🚀', 'Keep protecting your peace and health.')
         : adherence >= 70
-            ? ('Strong month 💪', 'A little tighter next month — you\'ve got this.')
-            : ('Building momentum 🌱',
-                'Every dose counts. Next month starts fresh.');
+            ? (
+                'Strong month 💪',
+                'A little tighter next month — you\'ve got this.'
+              )
+            : (
+                'Building momentum 🌱',
+                'Every dose counts. Next month starts fresh.'
+              );
 
     return AppScaffold(
       showAurora: true,
@@ -128,8 +133,7 @@ class _MonthlyWrappedScreenState extends State<MonthlyWrappedScreen> {
                     label: l10n.statsTapRightToGoForwardLeft,
                     child: GestureDetector(
                       onTapUp: (details) {
-                        final screenWidth =
-                            MediaQuery.of(context).size.width;
+                        final screenWidth = MediaQuery.of(context).size.width;
                         if (details.globalPosition.dx > screenWidth / 2) {
                           _nextPage();
                         } else if (_currentPage > 0) {

@@ -1,6 +1,7 @@
 import 'allergy.dart';
 import 'caregiver.dart';
 import 'managed_profile.dart';
+import '../../core/utils/date_parser.dart';
 
 class UserProfile {
   final String name;
@@ -43,6 +44,12 @@ class UserProfile {
   final int scansUsed;
   final int voiceLogsUsed;
   final bool isPremium;
+
+  /// This account holds the Family plan, which covers everyone in its care
+  /// circle: caregivers monitoring this person get Pro insights about them
+  /// without a subscription of their own. Written by the premium reconcile
+  /// from the RevenueCat `family` entitlement.
+  final bool hasFamilyPlan;
   final String? photoUrl;
   final String country;
   final DateTime createdAt;
@@ -107,6 +114,7 @@ class UserProfile {
     this.scansUsed = 0,
     this.voiceLogsUsed = 0,
     this.isPremium = false,
+    this.hasFamilyPlan = false,
     this.photoUrl,
     this.country = '',
     DateTime? createdAt,
@@ -169,6 +177,7 @@ class UserProfile {
         'scansUsed': scansUsed,
         'voiceLogsUsed': voiceLogsUsed,
         'isPremium': isPremium,
+        'hasFamilyPlan': hasFamilyPlan,
         'photoUrl': photoUrl,
         'country': country,
         'createdAt': createdAt.toIso8601String(),
@@ -235,16 +244,13 @@ class UserProfile {
         scansUsed: j['scansUsed'] ?? 0,
         voiceLogsUsed: j['voiceLogsUsed'] ?? 0,
         isPremium: j['isPremium'] ?? false,
+        hasFamilyPlan: j['hasFamilyPlan'] == true,
         photoUrl: j['photoUrl'],
         country: j['country'] ?? '',
-        createdAt: j['createdAt'] != null
-            ? DateTime.parse(j['createdAt'])
-            : DateTime.now(),
+        createdAt: tryParseDateTime(j['createdAt']) ?? DateTime.now(),
         dosesMarked: j['dosesMarked'] ?? 0,
         streakFreezes: j['streakFreezes'] ?? 3,
-        lastReviewPromptedAt: j['lastReviewPromptedAt'] != null
-            ? DateTime.parse(j['lastReviewPromptedAt'])
-            : null,
+        lastReviewPromptedAt: tryParseDateTime(j['lastReviewPromptedAt']),
         shabbatMode: j['shabbatMode'] ?? false,
         preferredLanguage: j['preferredLanguage'] ?? 'en',
         showGenericNames: j['showGenericNames'] ?? false,
@@ -252,8 +258,7 @@ class UserProfile {
         diabetesMode: j['diabetesMode'] ?? false,
         hypertensionMode: j['hypertensionMode'] ?? false,
         amoledMode: j['amoledMode'] ?? false,
-        lastNudgeAt:
-            j['lastNudgeAt'] != null ? DateTime.parse(j['lastNudgeAt']) : null,
+        lastNudgeAt: tryParseDateTime(j['lastNudgeAt']),
         nudgeCount: j['nudgeCount'] ?? 0,
         caregiverContacts: (j['caregiverContacts'] as List? ?? [])
             .map((c) => Caregiver.fromJson(Map<String, dynamic>.from(c as Map)))
@@ -297,6 +302,8 @@ class UserProfile {
     bool? notifSound,
     bool? hapticsEnabled,
     bool? notifRefill,
+    String? promoCode,
+    Map<String, dynamic>? appliedPromo,
     String? avatar,
     bool? biometricEnabled,
     String? accentColor,
@@ -305,6 +312,7 @@ class UserProfile {
     int? scansUsed,
     int? voiceLogsUsed,
     bool? isPremium,
+    bool? hasFamilyPlan,
     String? photoUrl,
     String? country,
     DateTime? createdAt,
@@ -356,8 +364,8 @@ class UserProfile {
         notifSound: notifSound ?? this.notifSound,
         hapticsEnabled: hapticsEnabled ?? this.hapticsEnabled,
         notifRefill: notifRefill ?? this.notifRefill,
-        promoCode: promoCode,
-        appliedPromo: appliedPromo,
+        promoCode: promoCode ?? this.promoCode,
+        appliedPromo: appliedPromo ?? this.appliedPromo,
         avatar: avatar ?? this.avatar,
         biometricEnabled: biometricEnabled ?? this.biometricEnabled,
         accentColor: accentColor ?? this.accentColor,
@@ -366,6 +374,7 @@ class UserProfile {
         scansUsed: scansUsed ?? this.scansUsed,
         voiceLogsUsed: voiceLogsUsed ?? this.voiceLogsUsed,
         isPremium: isPremium ?? this.isPremium,
+        hasFamilyPlan: hasFamilyPlan ?? this.hasFamilyPlan,
         photoUrl: photoUrl ?? this.photoUrl,
         country: country ?? this.country,
         createdAt: createdAt ?? this.createdAt,

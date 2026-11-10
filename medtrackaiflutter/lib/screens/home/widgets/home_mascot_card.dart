@@ -23,7 +23,8 @@ class _HomeMascotCardState extends State<HomeMascotCard>
     with SingleTickerProviderStateMixin {
   late final AnimationController _bounceCtrl;
 
-  String _currentQuote = "Your future self is thanking you for every dose you take.";
+  String _currentQuote =
+      "Your future self is thanking you for every dose you take.";
   bool _isLoading = false;
 
   final List<String> _sleepyQuotes = [
@@ -235,7 +236,8 @@ class _HomeMascotCardState extends State<HomeMascotCard>
       button: true,
       label: l10n.homeMedaiCompanionTapForANew,
       child: MedAiDepthCard(
-        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.gutter, vertical: AppSpacing.p16),
+        padding: const EdgeInsets.symmetric(
+            horizontal: AppSpacing.gutter, vertical: AppSpacing.p16),
         onTap: _onTap,
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.center,
@@ -244,7 +246,8 @@ class _HomeMascotCardState extends State<HomeMascotCard>
             const SizedBox(width: AppSpacing.p16),
             Expanded(
               child: MedAiGlass(
-                padding: const EdgeInsets.fromLTRB(AppSpacing.p16, AppSpacing.p12, AppSpacing.p16, AppSpacing.p12),
+                padding: const EdgeInsets.fromLTRB(AppSpacing.p16,
+                    AppSpacing.p12, AppSpacing.p16, AppSpacing.p12),
                 radius: 16,
                 tint: L.fill.withValues(alpha: 0.3),
                 child: AnimatedSwitcher(
@@ -279,13 +282,13 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                               const SizedBox(width: AppSpacing.p8),
                               ...List.generate(3, (index) {
                                 return Container(
-                                  margin:
-                                      const EdgeInsets.symmetric(horizontal: 1.5),
+                                  margin: const EdgeInsets.symmetric(
+                                      horizontal: 1.5),
                                   width: 5,
                                   height: 5,
                                   decoration: BoxDecoration(
-                                    color: L.accent
-                                        .withValues(alpha: 0.45 + (index * 0.15)),
+                                    color: L.accent.withValues(
+                                        alpha: 0.45 + (index * 0.15)),
                                     shape: BoxShape.circle,
                                   ),
                                 );
@@ -329,7 +332,8 @@ class _HomeMascotCardState extends State<HomeMascotCard>
                                       const SizedBox(width: 2.5),
                                       Text(
                                         l10n.homeLive,
-                                        style: AppTypography.labelSmall.copyWith(
+                                        style:
+                                            AppTypography.labelSmall.copyWith(
                                           color: L.accent,
                                           fontSize: 11,
                                           fontWeight: FontWeight.w700,

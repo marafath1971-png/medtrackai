@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 /// A premium, subtle skeleton loader inspired by Apple and Linear.
-/// Instead of a fast, distracting shimmer, this gently pulses opacity 
+/// Instead of a fast, distracting shimmer, this gently pulses opacity
 /// to indicate loading state without drawing the eye aggressively.
 class PremiumSkeletonLoader extends StatefulWidget {
   final double width;
@@ -48,7 +48,7 @@ class _PremiumSkeletonLoaderState extends State<PremiumSkeletonLoader>
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final baseColor = isDark 
+    final baseColor = isDark
         ? Colors.white.withValues(alpha: 0.08)
         : Colors.black.withValues(alpha: 0.05);
 

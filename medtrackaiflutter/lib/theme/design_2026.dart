@@ -146,7 +146,10 @@ class _AuroraPainter extends CustomPainter {
         radius,
         Paint()
           ..shader = RadialGradient(
-            colors: [b.color.withValues(alpha: 0.55 * opacity), b.color.withValues(alpha: 0.0)],
+            colors: [
+              b.color.withValues(alpha: 0.55 * opacity),
+              b.color.withValues(alpha: 0.0)
+            ],
           ).createShader(Rect.fromCircle(center: center, radius: radius)),
       );
     }
@@ -159,7 +162,11 @@ class _AuroraPainter extends CustomPainter {
 class _Blob {
   final double cx, cy, r;
   final Color color;
-  const _Blob({required this.cx, required this.cy, required this.r, required this.color});
+  const _Blob(
+      {required this.cx,
+      required this.cy,
+      required this.r,
+      required this.color});
 }
 
 // ────────────────────────────────────────────────────────────────
@@ -335,8 +342,7 @@ class _GlassOrbState extends State<GlassOrb> with TickerProviderStateMixin {
                 child: Center(
                   child: widget.child ??
                       Icon(widget.icon,
-                          color: Colors.white,
-                          size: widget.size * 0.38),
+                          color: Colors.white, size: widget.size * 0.38),
                 ),
               ),
             ),
@@ -472,16 +478,15 @@ class KineticText extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final gradient = LinearGradient(
-      colors: colors ?? const [Color(0xFF6CF2D2), Color(0xFF4A9E86), Color(0xFFC8F06A)],
+      colors: colors ??
+          const [Color(0xFF6CF2D2), Color(0xFF4A9E86), Color(0xFFC8F06A)],
     );
 
     return ShaderMask(
       shaderCallback: (bounds) => gradient.createShader(bounds),
       blendMode: BlendMode.srcIn,
       child: Text(text, style: style, textAlign: align),
-    )
-        .animate(onPlay: (c) => c.repeat())
-        .shimmer(
+    ).animate(onPlay: (c) => c.repeat()).shimmer(
           duration: 2600.ms,
           color: Colors.white.withValues(alpha: 0.35),
           angle: 0.4,
@@ -610,16 +615,21 @@ class _LiquidWavePainter extends CustomPainter {
 class LiveStatusDot extends StatelessWidget {
   final Color color;
   final double size;
-  const LiveStatusDot({super.key, this.color = Design2026.electric, this.size = 8});
+  const LiveStatusDot(
+      {super.key, this.color = Design2026.electric, this.size = 8});
 
   @override
   Widget build(BuildContext context) {
     return Stack(
       alignment: Alignment.center,
       children: [
-        Icon(Icons.circle, size: size * 2.2, color: color.withValues(alpha: 0.18))
+        Icon(Icons.circle,
+                size: size * 2.2, color: color.withValues(alpha: 0.18))
             .animate(onPlay: (c) => c.repeat())
-            .scale(begin: const Offset(0.8, 0.8), end: const Offset(1.6, 1.6), duration: 1600.ms)
+            .scale(
+                begin: const Offset(0.8, 0.8),
+                end: const Offset(1.6, 1.6),
+                duration: 1600.ms)
             .fade(begin: 0.6, end: 0.0, duration: 1600.ms),
         Icon(Icons.circle, size: size, color: color),
       ],

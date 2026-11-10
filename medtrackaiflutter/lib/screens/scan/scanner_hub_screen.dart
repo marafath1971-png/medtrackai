@@ -27,6 +27,8 @@ import '../../widgets/common/app_feedback.dart';
 import 'scan_history_screen.dart';
 import 'ai_accuracy_settings_screen.dart';
 import 'scanner_help_screen.dart';
+import 'pill_identifier_screen.dart';
+import 'supplement_interaction_scanner.dart';
 import '../../l10n/app_localizations.dart';
 
 enum ScanMode { camera, barcode, search, voice }
@@ -185,7 +187,7 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
       if (mounted) {
         setState(() => _selectedImage = file);
         _analyze(
-          'Analyze this medicine, pill, or supplement packaging. Identify: medication name, dosage, active ingredients, usage, side effects, drug interactions.',
+          'Analyze this medicine, pill, supplement, skincare, or cosmetic packaging. Identify: product name, dosage/routine, active ingredients, clean score (0-100), pore-clogging comedogenic rating (0-5), usage, side effects, and interactions.',
           image: _selectedImage,
         );
       }
@@ -211,8 +213,8 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
       return;
     }
     _analyze(
-      'Analyze this medicine or supplement: "$said". Provide comprehensive '
-      'details: dosage, active ingredients, uses, side effects, and interactions.',
+      'Analyze this medicine, supplement, skincare, or cosmetic: "$said". Provide comprehensive '
+      'details: dosage/routine, active ingredients, clean score (0-100), pore comedogenic risk, uses, side effects, and interactions.',
     );
   }
 
@@ -289,8 +291,10 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
     // Downscale before the image is base64-encoded into the request. A raw
     // capture is large enough to exceed the 30s request timeout, and the retry
     // re-uploads it twice more before the scan fails with nothing to show.
-    final upload = image == null ? null : await ScanImageCompressor.compress(image);
-    final result = await GeminiService.analyzeProductInsight(prompt, image: upload, allergies: allergies);
+    final upload =
+        image == null ? null : await ScanImageCompressor.compress(image);
+    final result = await GeminiService.analyzeProductInsight(prompt,
+        image: upload, allergies: allergies);
 
     if (!mounted) return;
     setState(() {
@@ -306,7 +310,8 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => ProductAnalysisScreen(product: product, imageFile: image),
+            builder: (_) =>
+                ProductAnalysisScreen(product: product, imageFile: image),
           ),
         );
       },
@@ -321,13 +326,14 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
     if (_mode == ScanMode.search) {
       final q = _searchCtrl.text.trim();
       if (q.isEmpty) return;
-      _analyze('Analyze medicine or supplement: "$q". Provide comprehensive dosage, ingredients, uses, side effects, and interactions.');
+      _analyze(
+          'Analyze medicine, supplement, skincare, or cosmetic: "$q". Provide comprehensive dosage/routine, clean purity rating, pore comedogenic risk, active ingredients, uses, side effects, and interactions.');
       return;
     }
     if (_mode == ScanMode.camera) {
       if (_selectedImage != null) {
         _analyze(
-          'Analyze this medicine, pill, or supplement packaging. Identify: medication name, dosage, active ingredients, usage, side effects, drug interactions.',
+          'Analyze this medicine, pill, supplement, skincare, or cosmetic packaging. Identify: product name, dosage/routine, active ingredients, clean score (0-100), pore-clogging comedogenic rating (0-5), usage, side effects, and interactions.',
           image: _selectedImage,
         );
       } else {
@@ -365,6 +371,22 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
     }
   }
 
+  void _switchNextMode() {
+    final modes = ScanMode.values;
+    final currIdx = modes.indexOf(_mode);
+    if (currIdx < modes.length - 1) {
+      _switchMode(modes[currIdx + 1]);
+    }
+  }
+
+  void _switchPrevMode() {
+    final modes = ScanMode.values;
+    final currIdx = modes.indexOf(_mode);
+    if (currIdx > 0) {
+      _switchMode(modes[currIdx - 1]);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -379,23 +401,45 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
           // ── Live Background ──────────────────────────────
           Positioned.fill(child: _buildBackground(size)),
 
-
-
-          // ── Viewfinder or Mode Content ────────────────────
+          // ── Viewfinder or Mode Content (with Cal AI drag/swipe to switch) ──
           Positioned(
             top: topPad + 72,
             left: 0,
             right: 0,
             bottom: botPad + 210,
-            child: AnimatedSwitcher(
-              duration: const Duration(milliseconds: 300),
-              child: _buildMainArea(size),
+            child: GestureDetector(
+              behavior: HitTestBehavior.translucent,
+              onHorizontalDragEnd: (details) {
+                if (_isScanning) return;
+                const sensitivity = 200.0;
+                final velocity = details.primaryVelocity;
+                if (velocity != null) {
+                  if (velocity < -sensitivity) {
+                    // Swiped Left -> Advance to next mode
+                    _switchNextMode();
+                  } else if (velocity > sensitivity) {
+                    // Swiped Right -> Go to previous mode
+                    _switchPrevMode();
+                  }
+                }
+              },
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                child: _buildMainArea(size),
+              ),
             ),
           ),
 
-          if (_isScanning && _mode != ScanMode.search && _mode != ScanMode.voice)
+          if (_isScanning &&
+              _mode != ScanMode.search &&
+              _mode != ScanMode.voice)
             const _SmartScanningOverlay(),
 
+          // ── "Did You Know?" Gen Z micro-fact overlay during scanning ──────
+          if (_isScanning &&
+              _mode != ScanMode.search &&
+              _mode != ScanMode.voice)
+            const _DidYouKnowBanner(),
 
           // ── Top Bar ───────────────────────────────────────
           Positioned(
@@ -444,7 +488,9 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
             child: MobileScanner(
               controller: _barcodeCtrl,
               onDetect: (capture) async {
-                if (_mode == ScanMode.barcode && !_barcodeFound && capture.barcodes.isNotEmpty) {
+                if (_mode == ScanMode.barcode &&
+                    !_barcodeFound &&
+                    capture.barcodes.isNotEmpty) {
                   final bc = capture.barcodes.first;
                   if (bc.rawValue != null) {
                     setState(() => _barcodeFound = true);
@@ -481,7 +527,7 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
             ),
           ),
         ),
-        
+
         // Picked image overlay
         if (_selectedImage != null)
           Positioned.fill(
@@ -489,7 +535,9 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
           ),
 
         // Dark frosted glass overlay for Search, Voice, or Picked Image
-        if (_mode == ScanMode.search || _mode == ScanMode.voice || (_selectedImage != null && !_isScanning))
+        if (_mode == ScanMode.search ||
+            _mode == ScanMode.voice ||
+            (_selectedImage != null && !_isScanning))
           Positioned.fill(
             child: Container(
               color: Colors.black.withValues(alpha: 0.62),
@@ -507,7 +555,7 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
     switch (_mode) {
       case ScanMode.search:
         return SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
           physics: const BouncingScrollPhysics(),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
@@ -575,7 +623,6 @@ class _ScannerHubScreenState extends State<ScannerHubScreen>
 
 // Removed _AnimatedBg as we now use blurred live camera background for premium feel
 // ══════════════════════════════════════════════
-
 
 // ══════════════════════════════════════════════
 // VIEWFINDER — Cal AI corner brackets
@@ -663,6 +710,47 @@ class _Viewfinder extends StatelessWidget {
                       )
                     : const SizedBox.shrink(),
           ),
+          if (!isScanning && !hasImage)
+            Positioned(
+              top: 20,
+              left: 16,
+              right: 16,
+              child: Center(
+                child: Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.45),
+                    borderRadius: BorderRadius.circular(AppRadius.max),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.18),
+                      width: 1,
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.auto_awesome_rounded,
+                        color: AppColors.lime,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        isBarcode
+                            ? 'Align barcode inside frame'
+                            : 'Scan meds, supplements, skincare',
+                        style: AppTypography.labelSmall.copyWith(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.1,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
         ],
       ),
     );
@@ -696,19 +784,23 @@ class _CornersPainter extends CustomPainter {
     // TL
     canvas.drawLine(Offset(r, 0), Offset(r + L, 0), paint);
     canvas.drawLine(Offset(0, r), Offset(0, r + L), paint);
-    canvas.drawArc(const Rect.fromLTWH(0, 0, r * 2, r * 2), pi, pi / 2, false, paint);
+    canvas.drawArc(
+        const Rect.fromLTWH(0, 0, r * 2, r * 2), pi, pi / 2, false, paint);
     // TR
     canvas.drawLine(Offset(w - r - L, 0), Offset(w - r, 0), paint);
     canvas.drawLine(Offset(w, r), Offset(w, r + L), paint);
-    canvas.drawArc(Rect.fromLTWH(w - r * 2, 0, r * 2, r * 2), 3 * pi / 2, pi / 2, false, paint);
+    canvas.drawArc(Rect.fromLTWH(w - r * 2, 0, r * 2, r * 2), 3 * pi / 2,
+        pi / 2, false, paint);
     // BL
     canvas.drawLine(Offset(r, h), Offset(r + L, h), paint);
     canvas.drawLine(Offset(0, h - r - L), Offset(0, h - r), paint);
-    canvas.drawArc(Rect.fromLTWH(0, h - r * 2, r * 2, r * 2), pi / 2, pi / 2, false, paint);
+    canvas.drawArc(Rect.fromLTWH(0, h - r * 2, r * 2, r * 2), pi / 2, pi / 2,
+        false, paint);
     // BR
     canvas.drawLine(Offset(w - r - L, h), Offset(w - r, h), paint);
     canvas.drawLine(Offset(w, h - r - L), Offset(w, h - r), paint);
-    canvas.drawArc(Rect.fromLTWH(w - r * 2, h - r * 2, r * 2, r * 2), 0, pi / 2, false, paint);
+    canvas.drawArc(Rect.fromLTWH(w - r * 2, h - r * 2, r * 2, r * 2), 0, pi / 2,
+        false, paint);
   }
 
   @override
@@ -748,21 +840,24 @@ class ScannerTopBar extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
                 child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.18),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1.0),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.arrow_back_ios_new_rounded, color: Colors.white, size: 18),
-                    ),
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        width: 1.0),
                   ),
+                  child: const Center(
+                    child: Icon(Icons.arrow_back_ios_new_rounded,
+                        color: Colors.white, size: 18),
+                  ),
+                ),
               ),
             ),
           ),
-          
+
           // Premium title block.
           //
           // Expanded, not a bare Column: the Row is spaceBetween with two
@@ -800,7 +895,7 @@ class ScannerTopBar extends StatelessWidget {
               ],
             ),
           ),
-          
+
           // Menu Button
           Semantics(
             button: true,
@@ -813,17 +908,20 @@ class ScannerTopBar extends StatelessWidget {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
                 child: Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.18),
-                      shape: BoxShape.circle,
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1.0),
-                    ),
-                    child: const Center(
-                      child: Icon(Icons.more_vert_rounded, color: Colors.white, size: 20),
-                    ),
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.18),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                        color: Colors.white.withValues(alpha: 0.15),
+                        width: 1.0),
                   ),
+                  child: const Center(
+                    child: Icon(Icons.more_vert_rounded,
+                        color: Colors.white, size: 20),
+                  ),
+                ),
               ),
             ),
           ),
@@ -884,29 +982,50 @@ class _BottomControls extends StatelessWidget {
           ClipRRect(
             borderRadius: BorderRadius.circular(32),
             child: Container(
-                padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.35),
-                  borderRadius: BorderRadius.circular(32),
-                ),
-                child: SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-                  scrollDirection: Axis.horizontal,
-                  physics: const BouncingScrollPhysics(),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _ModePill(icon: Icons.camera_alt_rounded, label: l10n.scanScanMeds, mode: ScanMode.camera, current: mode, onTap: onModeSelect),
-                      const SizedBox(width: 4),
-                      _ModePill(icon: Icons.qr_code_scanner_rounded, label: l10n.scanBarcode, mode: ScanMode.barcode, current: mode, onTap: onModeSelect),
-                      const SizedBox(width: 4),
-                      _ModePill(icon: Icons.search_rounded, label: l10n.dashboardSearch, mode: ScanMode.search, current: mode, onTap: onModeSelect),
-                      const SizedBox(width: 4),
-                      _ModePill(icon: Icons.mic_rounded, label: l10n.scanVoice, mode: ScanMode.voice, current: mode, onTap: onModeSelect),
-                    ],
-                  ),
+              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
+              decoration: BoxDecoration(
+                color: Colors.black.withValues(alpha: 0.35),
+                borderRadius: BorderRadius.circular(32),
+              ),
+              child: SingleChildScrollView(
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    _ModePill(
+                        icon: Icons.camera_alt_rounded,
+                        label: l10n.scanScanMeds,
+                        mode: ScanMode.camera,
+                        current: mode,
+                        onTap: onModeSelect),
+                    const SizedBox(width: 4),
+                    _ModePill(
+                        icon: Icons.qr_code_scanner_rounded,
+                        label: l10n.scanBarcode,
+                        mode: ScanMode.barcode,
+                        current: mode,
+                        onTap: onModeSelect),
+                    const SizedBox(width: 4),
+                    _ModePill(
+                        icon: Icons.search_rounded,
+                        label: l10n.dashboardSearch,
+                        mode: ScanMode.search,
+                        current: mode,
+                        onTap: onModeSelect),
+                    const SizedBox(width: 4),
+                    _ModePill(
+                        icon: Icons.mic_rounded,
+                        label: l10n.scanVoice,
+                        mode: ScanMode.voice,
+                        current: mode,
+                        onTap: onModeSelect),
+                  ],
                 ),
               ),
+            ),
           ),
           const SizedBox(height: 32),
 
@@ -927,24 +1046,28 @@ class _BottomControls extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(30),
                       child: Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: isFlashOn ? Colors.white : Colors.black.withValues(alpha: 0.25),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Center(
-                            child: Icon(
-                              isFlashOn ? Icons.flash_on_rounded : Icons.flash_off_rounded,
-                              color: isFlashOn ? Colors.black : Colors.white,
-                              size: 22,
-                            ),
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: isFlashOn
+                              ? Colors.white
+                              : Colors.black.withValues(alpha: 0.25),
+                          shape: BoxShape.circle,
+                        ),
+                        child: Center(
+                          child: Icon(
+                            isFlashOn
+                                ? Icons.flash_on_rounded
+                                : Icons.flash_off_rounded,
+                            color: isFlashOn ? Colors.black : Colors.white,
+                            size: 22,
                           ),
                         ),
+                      ),
                     ),
                   ),
                 ),
-                
+
                 // Main Shutter
                 _Shutter(
                   mode: mode,
@@ -963,16 +1086,17 @@ class _BottomControls extends StatelessWidget {
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(30),
                       child: Container(
-                          width: 52,
-                          height: 52,
-                          decoration: BoxDecoration(
-                            color: Colors.black.withValues(alpha: 0.25),
-                            shape: BoxShape.circle,
-                          ),
-                          child: const Center(
-                            child: Icon(Icons.photo_library_outlined, color: Colors.white, size: 22),
-                          ),
+                        width: 52,
+                        height: 52,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withValues(alpha: 0.25),
+                          shape: BoxShape.circle,
                         ),
+                        child: const Center(
+                          child: Icon(Icons.photo_library_outlined,
+                              color: Colors.white, size: 22),
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -1098,16 +1222,23 @@ class _Shutter extends StatelessWidget {
                   width: 64,
                   height: 64,
                   decoration: BoxDecoration(
-                    color: mode == ScanMode.voice && isListening ? AppColors.red : Colors.white,
+                    color: mode == ScanMode.voice && isListening
+                        ? AppColors.red
+                        : Colors.white,
                     shape: BoxShape.circle,
                   ),
-                  child: mode == ScanMode.search || mode == ScanMode.voice 
-                     ? Icon(
-                         mode == ScanMode.voice ? (isListening ? Icons.stop_rounded : Icons.mic_rounded) : Icons.search_rounded, 
-                         color: mode == ScanMode.voice && isListening ? Colors.white : Colors.black, 
-                         size: 30
-                       )
-                     : const SizedBox.shrink(),
+                  child: mode == ScanMode.search || mode == ScanMode.voice
+                      ? Icon(
+                          mode == ScanMode.voice
+                              ? (isListening
+                                  ? Icons.stop_rounded
+                                  : Icons.mic_rounded)
+                              : Icons.search_rounded,
+                          color: mode == ScanMode.voice && isListening
+                              ? Colors.white
+                              : Colors.black,
+                          size: 30)
+                      : const SizedBox.shrink(),
                 ),
         ),
       ),
@@ -1129,52 +1260,54 @@ class _BarcodeStatus extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(24),
       child: AnimatedContainer(
-          duration: 300.ms,
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-          decoration: BoxDecoration(
-            color: Colors.black.withValues(alpha: 0.35),
-            borderRadius: BorderRadius.circular(24),
-            border: Border.all(
-              color: found || scanning
-                  ? Colors.white.withValues(alpha: 0.8)
-                  : Colors.white.withValues(alpha: 0.15),
-              width: 1.0,
-            ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              if (scanning) ...[
-                const SizedBox(
-                  width: 16,
-                  height: 16,
-                  child: ContextualLoader(message: "Analyzing...", isDark: true),
-                ),
-                const SizedBox(width: 12),
-              ] else ...[
-                Icon(
-                  found ? Icons.check_circle_rounded : Icons.qr_code_scanner_rounded,
-                  size: 20,
-                  color: Colors.white,
-                ),
-                const SizedBox(width: 12),
-              ],
-              Text(
-                found
-                    ? 'Barcode detected!'
-                    : scanning
-                        ? 'Analyzing…'
-                        : 'Aim at barcode',
-                style: AppTypography.labelSmall.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 14,
-                  letterSpacing: 0.0,
-                ),
-              ),
-            ],
+        duration: 300.ms,
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+        decoration: BoxDecoration(
+          color: Colors.black.withValues(alpha: 0.35),
+          borderRadius: BorderRadius.circular(24),
+          border: Border.all(
+            color: found || scanning
+                ? Colors.white.withValues(alpha: 0.8)
+                : Colors.white.withValues(alpha: 0.15),
+            width: 1.0,
           ),
         ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            if (scanning) ...[
+              const SizedBox(
+                width: 16,
+                height: 16,
+                child: ContextualLoader(message: "Analyzing...", isDark: true),
+              ),
+              const SizedBox(width: 12),
+            ] else ...[
+              Icon(
+                found
+                    ? Icons.check_circle_rounded
+                    : Icons.qr_code_scanner_rounded,
+                size: 20,
+                color: Colors.white,
+              ),
+              const SizedBox(width: 12),
+            ],
+            Text(
+              found
+                  ? 'Barcode detected!'
+                  : scanning
+                      ? 'Analyzing…'
+                      : 'Aim at barcode',
+              style: AppTypography.labelSmall.copyWith(
+                color: Colors.white,
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                letterSpacing: 0.0,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
@@ -1192,7 +1325,11 @@ class ScanSearchInput extends StatelessWidget {
   final FocusNode focusNode;
   final VoidCallback onSubmit;
 
-  const ScanSearchInput({super.key, required this.controller, required this.focusNode, required this.onSubmit});
+  const ScanSearchInput(
+      {super.key,
+      required this.controller,
+      required this.focusNode,
+      required this.onSubmit});
 
   @override
   Widget build(BuildContext context) {
@@ -1220,77 +1357,77 @@ class ScanSearchInput extends StatelessWidget {
         ClipRRect(
           borderRadius: BorderRadius.circular(AppInputs.radius),
           child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-              decoration: BoxDecoration(
-                // Was white @ 0.20 — a translucent wash that relied entirely on
-                // the camera feed behind it staying dark. Android also paints
-                // its own near-white autofill highlight behind text fields it
-                // considers fillable, and white-on-that is invisible: typing a
-                // medicine name produced a blank white box. A dark, opaque
-                // ground makes the field readable no matter what is behind or
-                // under it.
-                color: const Color(0xFF11171A).withValues(alpha: 0.82),
-                borderRadius: BorderRadius.circular(AppInputs.radius),
-                border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.30), width: 1.0),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.search_rounded,
-                      size: 22, color: Colors.white.withValues(alpha: 0.75)),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: TextField(
-                      autofocus: true,
-                      controller: controller,
-                      focusNode: focusNode,
-                      // A medicine name is not an identity field. Declaring it
-                      // unfillable stops the platform drawing its autofill
-                      // highlight over the input in the first place.
-                      autofillHints: const [],
-                      enableSuggestions: false,
-                      textCapitalization: TextCapitalization.words,
-                      textInputAction: TextInputAction.search,
-                      style: AppTypography.titleMedium.copyWith(
-                        color: Colors.white,
-                      ),
-                      cursorColor: AppColors.lime,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        isDense: true,
-                        // Painted by this field rather than inherited, so an
-                        // ambient InputDecorationTheme cannot reintroduce a
-                        // light fill behind white text.
-                        filled: true,
-                        fillColor: Colors.transparent,
-                        hintText: l10n.scanMetforminVitaminC,
-                        hintStyle: AppTypography.titleMedium.copyWith(
-                          color: Colors.white.withValues(alpha: 0.45),
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                      onSubmitted: (_) => onSubmit(),
-                    ),
-                  ),
-                  Semantics(
-                    button: true,
-                    label: l10n.scanSearchMedication,
-                    child: AnimatedPressable(
-                      onTap: onSubmit,
-                      child: Container(
-                        padding: const EdgeInsets.all(10),
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(Icons.arrow_forward_rounded,
-                            color: Colors.black, size: 20),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+            decoration: BoxDecoration(
+              // Was white @ 0.20 — a translucent wash that relied entirely on
+              // the camera feed behind it staying dark. Android also paints
+              // its own near-white autofill highlight behind text fields it
+              // considers fillable, and white-on-that is invisible: typing a
+              // medicine name produced a blank white box. A dark, opaque
+              // ground makes the field readable no matter what is behind or
+              // under it.
+              color: const Color(0xFF11171A).withValues(alpha: 0.82),
+              borderRadius: BorderRadius.circular(AppInputs.radius),
+              border: Border.all(
+                  color: Colors.white.withValues(alpha: 0.30), width: 1.0),
             ),
+            child: Row(
+              children: [
+                Icon(Icons.search_rounded,
+                    size: 22, color: Colors.white.withValues(alpha: 0.75)),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: TextField(
+                    autofocus: true,
+                    controller: controller,
+                    focusNode: focusNode,
+                    // A medicine name is not an identity field. Declaring it
+                    // unfillable stops the platform drawing its autofill
+                    // highlight over the input in the first place.
+                    autofillHints: const [],
+                    enableSuggestions: false,
+                    textCapitalization: TextCapitalization.words,
+                    textInputAction: TextInputAction.search,
+                    style: AppTypography.titleMedium.copyWith(
+                      color: Colors.white,
+                    ),
+                    cursorColor: AppColors.lime,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      isDense: true,
+                      // Painted by this field rather than inherited, so an
+                      // ambient InputDecorationTheme cannot reintroduce a
+                      // light fill behind white text.
+                      filled: true,
+                      fillColor: Colors.transparent,
+                      hintText: l10n.scanMetforminVitaminC,
+                      hintStyle: AppTypography.titleMedium.copyWith(
+                        color: Colors.white.withValues(alpha: 0.45),
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                    onSubmitted: (_) => onSubmit(),
+                  ),
+                ),
+                Semantics(
+                  button: true,
+                  label: l10n.scanSearchMedication,
+                  child: AnimatedPressable(
+                    onTap: onSubmit,
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(Icons.arrow_forward_rounded,
+                          color: Colors.black, size: 20),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -1305,7 +1442,10 @@ class _VoiceVisual extends StatelessWidget {
   final String text;
   final AnimationController breathCtrl;
 
-  const _VoiceVisual({required this.isListening, required this.text, required this.breathCtrl});
+  const _VoiceVisual(
+      {required this.isListening,
+      required this.text,
+      required this.breathCtrl});
 
   @override
   Widget build(BuildContext context) {
@@ -1321,26 +1461,26 @@ class _VoiceVisual extends StatelessWidget {
               return ClipRRect(
                 borderRadius: BorderRadius.circular(60),
                 child: Container(
-                    width: 100 + pulse * 20,
-                    height: 100 + pulse * 20,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
+                  width: 100 + pulse * 20,
+                  height: 100 + pulse * 20,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: isListening
+                        ? AppColors.limeDeep.withValues(alpha: 0.25)
+                        : Colors.white.withValues(alpha: 0.10),
+                    border: Border.all(
                       color: isListening
-                          ? AppColors.limeDeep.withValues(alpha: 0.25)
-                          : Colors.white.withValues(alpha: 0.10),
-                      border: Border.all(
-                        color: isListening
-                            ? AppColors.limeDeep.withValues(alpha: 0.8)
-                            : Colors.white.withValues(alpha: 0.25),
-                        width: isListening ? 2.0 : 1.0,
-                      ),
-                    ),
-                    child: Icon(
-                      isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
-                      size: 40,
-                      color: Colors.white,
+                          ? AppColors.limeDeep.withValues(alpha: 0.8)
+                          : Colors.white.withValues(alpha: 0.25),
+                      width: isListening ? 2.0 : 1.0,
                     ),
                   ),
+                  child: Icon(
+                    isListening ? Icons.mic_rounded : Icons.mic_none_rounded,
+                    size: 40,
+                    color: Colors.white,
+                  ),
+                ),
               );
             },
           ),
@@ -1469,13 +1609,12 @@ class _SmartScanningOverlayState extends State<_SmartScanningOverlay> {
   final List<String> _steps = [
     'Initializing AI Vision Models...',
     'Isolating Object Contours...',
-    'Enhancing Texture & Edges...',
-    'Reading Text & Typography...',
-    'Cross-Referencing Global DBs...',
+    'Reading Packaging & Text...',
     'Checking Active Ingredients...',
-    'Evaluating Drug Interactions...',
-    'Verifying Allergy Safety...',
-    'Synthesizing Final Insights...',
+    'Evaluating Purity & Clean Rating...',
+    'Cross-Referencing Interactions...',
+    'Verifying Allergy & Pore Safety...',
+    'Synthesizing Product Profile...',
   ];
   int _currentStep = 0;
 
@@ -1489,7 +1628,7 @@ class _SmartScanningOverlayState extends State<_SmartScanningOverlay> {
     for (int i = 0; i < _steps.length; i++) {
       if (!mounted) return;
       setState(() => _currentStep = i);
-      
+
       // Variable speed processing simulation (600ms to 1400ms)
       final delay = 600 + (DateTime.now().millisecondsSinceEpoch % 800);
       await Future.delayed(Duration(milliseconds: delay));
@@ -1511,7 +1650,12 @@ class _SmartScanningOverlayState extends State<_SmartScanningOverlay> {
           return const LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [Colors.transparent, Colors.black, Colors.black, Colors.transparent],
+            colors: [
+              Colors.transparent,
+              Colors.black,
+              Colors.black,
+              Colors.transparent
+            ],
             stops: [0.0, 0.15, 0.85, 1.0],
           ).createShader(rect);
         },
@@ -1603,10 +1747,7 @@ class _ScanningRow extends StatelessWidget {
       (w) => w
           .animate()
           .slideX(
-              begin: 0.3,
-              end: 0,
-              curve: Curves.easeOutExpo,
-              duration: 600.ms)
+              begin: 0.3, end: 0, curve: Curves.easeOutExpo, duration: 600.ms)
           .fadeIn(duration: 400.ms),
     );
   }
@@ -1639,7 +1780,8 @@ class _TerminalTextState extends State<_TerminalText> {
         return;
       }
       setState(() {
-        _hash = ' 0x${(100 + (DateTime.now().millisecondsSinceEpoch % 899)).toRadixString(16).toUpperCase()}';
+        _hash =
+            ' 0x${(100 + (DateTime.now().millisecondsSinceEpoch % 899)).toRadixString(16).toUpperCase()}';
       });
     });
   }
@@ -1668,7 +1810,9 @@ class _TerminalTextState extends State<_TerminalText> {
       textAlign: TextAlign.right,
       style: AppTypography.labelSmall.copyWith(
         fontFamily: 'Courier',
-        color: widget.isActive ? Colors.white : Colors.white.withValues(alpha: 0.45),
+        color: widget.isActive
+            ? Colors.white
+            : Colors.white.withValues(alpha: 0.45),
         fontWeight: widget.isActive ? FontWeight.w700 : FontWeight.w500,
         fontSize: widget.isActive ? 13 : 12,
         letterSpacing: 0.5,
@@ -1685,10 +1829,12 @@ class _SearchProcessingAnimation extends StatefulWidget {
   const _SearchProcessingAnimation();
 
   @override
-  State<_SearchProcessingAnimation> createState() => _SearchProcessingAnimationState();
+  State<_SearchProcessingAnimation> createState() =>
+      _SearchProcessingAnimationState();
 }
 
-class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> with SingleTickerProviderStateMixin {
+class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation>
+    with SingleTickerProviderStateMixin {
   final List<String> _stages = [
     'Parsing Query Semantics...',
     'Querying Global Drug Index...',
@@ -1735,7 +1881,8 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MedAiA11y.reducedMotion(context);
-    final switchDuration = MedAiA11y.motion(context, const Duration(milliseconds: 400));
+    final switchDuration =
+        MedAiA11y.motion(context, const Duration(milliseconds: 400));
 
     return Container(
       width: double.infinity,
@@ -1743,7 +1890,8 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
       decoration: BoxDecoration(
         color: Colors.black.withValues(alpha: 0.2),
         borderRadius: BorderRadius.circular(32),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.05), width: 1),
+        border:
+            Border.all(color: Colors.white.withValues(alpha: 0.05), width: 1),
       ),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -1759,12 +1907,14 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
                   shape: BoxShape.circle,
                   color: Colors.white.withValues(alpha: 0.05),
                   border: Border.all(
-                    color: AppColors.limeDeep.withValues(alpha: 0.3 + (_pulseCtrl.value * 0.4)),
+                    color: AppColors.limeDeep
+                        .withValues(alpha: 0.3 + (_pulseCtrl.value * 0.4)),
                     width: 2.0,
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.limeDeep.withValues(alpha: _pulseCtrl.value * 0.4),
+                      color: AppColors.limeDeep
+                          .withValues(alpha: _pulseCtrl.value * 0.4),
                       blurRadius: 30,
                       spreadRadius: 10,
                     ),
@@ -1779,11 +1929,12 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
             },
           ).medAiChain(
             context,
-            (w) => w.animate().scale(curve: AppCurves.emilOut, duration: 600.ms),
+            (w) =>
+                w.animate().scale(curve: AppCurves.emilOut, duration: 600.ms),
           ),
-          
+
           const SizedBox(height: 48),
-          
+
           // Sleek cycling text
           AnimatedSwitcher(
             duration: switchDuration,
@@ -1791,7 +1942,9 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
             transitionBuilder: (child, anim) {
               if (reduceMotion) return child;
               return SlideTransition(
-                position: Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(anim),
+                position:
+                    Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero)
+                        .animate(anim),
                 child: FadeTransition(opacity: anim, child: child),
               );
             },
@@ -1805,9 +1958,9 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
               ),
             ),
           ),
-          
+
           const SizedBox(height: 32),
-          
+
           // Custom segmented progress bar
           Row(
             mainAxisSize: MainAxisSize.min,
@@ -1819,10 +1972,16 @@ class _SearchProcessingAnimationState extends State<_SearchProcessingAnimation> 
                 height: 4,
                 width: isActive ? 24 : 12,
                 decoration: BoxDecoration(
-                  color: isActive ? AppColors.limeDeep : Colors.white.withValues(alpha: 0.2),
+                  color: isActive
+                      ? AppColors.limeDeep
+                      : Colors.white.withValues(alpha: 0.2),
                   borderRadius: BorderRadius.circular(4),
                   boxShadow: isActive
-                      ? [BoxShadow(color: AppColors.limeDeep.withValues(alpha: 0.6), blurRadius: 8)]
+                      ? [
+                          BoxShadow(
+                              color: AppColors.limeDeep.withValues(alpha: 0.6),
+                              blurRadius: 8)
+                        ]
                       : null,
                 ),
               );
@@ -1857,85 +2016,222 @@ class _ScannerMenuSheet extends StatelessWidget {
     return ClipRRect(
       borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
       child: Container(
-          padding: EdgeInsets.fromLTRB(
-              0, 0, 0, 24 + MediaQuery.of(context).padding.bottom),
-          decoration: BoxDecoration(
-            color: L.bg.withValues(alpha: 0.86),
-            borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
-            border: Border(
-              top: BorderSide(
-                  color: L.border.withValues(alpha: 0.16),
-                  width: IOSMetrics.hairline),
-            ),
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const IOSGrabber(),
-              const SizedBox(height: 8),
-              Text(
-                l10n.scanScannerOptions,
-                style: AppTypography.titleLarge.copyWith(
-                  color: L.text,
-                  fontWeight: FontWeight.w700,
-                  fontSize: 18,
-                  letterSpacing: -0.3,
-                ),
-              ),
-              const SizedBox(height: 18),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: IOSInsetGroup(
-                  children: [
-                    IOSGroupedRow(
-                      icon: Icons.history_rounded,
-                      title: l10n.scanScanHistory,
-                      subtitle: 'View your previously scanned medications',
-                      showChevron: true,
-                      onTap: () {
-                        HapticEngine.selection();
-                        Navigator.pop(context);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const ScanHistoryScreen()));
-                      },
-                    ),
-                    IOSGroupedRow(
-                      icon: Icons.auto_awesome_rounded,
-                      title: l10n.scanAiAccuracySettings,
-                      subtitle: 'Adjust confidence thresholds for recognition',
-                      showChevron: true,
-                      onTap: () {
-                        HapticEngine.selection();
-                        Navigator.pop(context);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) =>
-                                    const AiAccuracySettingsScreen()));
-                      },
-                    ),
-                    IOSGroupedRow(
-                      icon: Icons.help_outline_rounded,
-                      title: l10n.scanHelpTips,
-                      subtitle: 'Learn how to scan perfectly every time',
-                      showChevron: true,
-                      onTap: () {
-                        HapticEngine.selection();
-                        Navigator.pop(context);
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const ScannerHelpScreen()));
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
+        padding: EdgeInsets.fromLTRB(
+            0, 0, 0, 24 + MediaQuery.of(context).padding.bottom),
+        decoration: BoxDecoration(
+          color: L.bg.withValues(alpha: 0.86),
+          borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
+          border: Border(
+            top: BorderSide(
+                color: L.border.withValues(alpha: 0.16),
+                width: IOSMetrics.hairline),
           ),
         ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const IOSGrabber(),
+            const SizedBox(height: 8),
+            Text(
+              l10n.scanScannerOptions,
+              style: AppTypography.titleLarge.copyWith(
+                color: L.text,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+                letterSpacing: -0.3,
+              ),
+            ),
+            const SizedBox(height: 18),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: IOSInsetGroup(
+                children: [
+                  IOSGroupedRow(
+                    icon: Icons.medication_rounded,
+                    title: l10n.scanPillIdentifier,
+                    subtitle: 'Identify loose pills by imprint, color & shape',
+                    showChevron: true,
+                    onTap: () {
+                      HapticEngine.selection();
+                      Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const PillIdentifierScanner()));
+                    },
+                  ),
+                  IOSGroupedRow(
+                    icon: Icons.biotech_rounded,
+                    title: 'Supplement Stack Scanner',
+                    subtitle:
+                        'Analyze multi-bottle stacks for synergy & interactions',
+                    showChevron: true,
+                    onTap: () {
+                      HapticEngine.selection();
+                      Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  const SupplementInteractionScanner()));
+                    },
+                  ),
+                  IOSGroupedRow(
+                    icon: Icons.history_rounded,
+                    title: l10n.scanScanHistory,
+                    subtitle: 'View your previously scanned medications',
+                    showChevron: true,
+                    onTap: () {
+                      HapticEngine.selection();
+                      Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const ScanHistoryScreen()));
+                    },
+                  ),
+                  IOSGroupedRow(
+                    icon: Icons.auto_awesome_rounded,
+                    title: l10n.scanAiAccuracySettings,
+                    subtitle: 'Adjust confidence thresholds for recognition',
+                    showChevron: true,
+                    onTap: () {
+                      HapticEngine.selection();
+                      Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) =>
+                                  const AiAccuracySettingsScreen()));
+                    },
+                  ),
+                  IOSGroupedRow(
+                    icon: Icons.help_outline_rounded,
+                    title: l10n.scanHelpTips,
+                    subtitle: 'Learn how to scan perfectly every time',
+                    showChevron: true,
+                    onTap: () {
+                      HapticEngine.selection();
+                      Navigator.pop(context);
+                      Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (_) => const ScannerHelpScreen()));
+                    },
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ══════════════════════════════════════════════
+// GEN Z "DID YOU KNOW?" FACT BANNER
+// Rotates through health/beauty micro-facts while AI processes the scan.
+// Cal AI-style engagement hook — makes wait time feel like value time.
+// ══════════════════════════════════════════════
+class _DidYouKnowBanner extends StatefulWidget {
+  const _DidYouKnowBanner();
+
+  @override
+  State<_DidYouKnowBanner> createState() => _DidYouKnowBannerState();
+}
+
+class _DidYouKnowBannerState extends State<_DidYouKnowBanner> {
+  static const _facts = [
+    '✨ Retinol works best when applied to dry skin at night',
+    '💊 Taking meds at the same time daily improves adherence by 40%',
+    '🌿 Niacinamide reduces pore size and brightens skin tone',
+    '⏰ Most antibiotics work best on an empty stomach',
+    '🧴 SPF 30 blocks 97% of UVB rays. SPF 50 blocks 98%',
+    '💧 Hyaluronic acid needs moisture to hydrate — apply on damp skin',
+    '🍊 Vitamin C degrades in sunlight — always use at night',
+    '🔬 AI can detect 2000+ active ingredients in one scan',
+  ];
+
+  int _idx = 0;
+  bool _visible = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _startRotation();
+  }
+
+  void _startRotation() async {
+    while (mounted) {
+      await Future.delayed(const Duration(milliseconds: 3200));
+      if (!mounted) return;
+      // Fade out
+      setState(() => _visible = false);
+      await Future.delayed(const Duration(milliseconds: 300));
+      if (!mounted) return;
+      setState(() {
+        _idx = (_idx + 1) % _facts.length;
+        _visible = true;
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final botPad = MediaQuery.of(context).padding.bottom;
+    return Positioned(
+      left: 20,
+      right: 20,
+      bottom: botPad + 230,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 300),
+        opacity: _visible ? 1.0 : 0.0,
+        child: AnimatedSlide(
+          offset: _visible ? Offset.zero : const Offset(0, 0.06),
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            decoration: BoxDecoration(
+              color: Colors.black.withValues(alpha: 0.55),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.12),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(6),
+                  decoration: BoxDecoration(
+                    color: AppColors.limeDeep.withValues(alpha: 0.3),
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.lightbulb_rounded,
+                    color: AppColors.lime,
+                    size: 14,
+                  ),
+                ),
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Text(
+                    _facts[_idx],
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 12.5,
+                      fontWeight: FontWeight.w600,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

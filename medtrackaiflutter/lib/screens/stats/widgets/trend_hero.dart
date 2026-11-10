@@ -23,9 +23,8 @@ class TrendHero extends StatelessWidget {
   const TrendHero({super.key, required this.series});
 
   /// Mean of the most recent 7 days.
-  double get thisWeek => _mean(series.length <= 7
-      ? series
-      : series.sublist(series.length - 7));
+  double get thisWeek =>
+      _mean(series.length <= 7 ? series : series.sublist(series.length - 7));
 
   /// Mean of the 7 days before those.
   double get lastWeek {

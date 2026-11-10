@@ -56,8 +56,8 @@ void main() {
             for (var i = 0; i < lines.length; i++) {
               final t = lines[i].trimLeft();
               if (t.startsWith('//') || t.startsWith('///')) continue;
-              for (final m
-                  in RegExp(r'fontSize:\s*(\d+(?:\.\d+)?)').allMatches(lines[i])) {
+              for (final m in RegExp(r'fontSize:\s*(\d+(?:\.\d+)?)')
+                  .allMatches(lines[i])) {
                 final size = double.parse(m.group(1)!);
                 if (size < AppTypography.minFontSize) {
                   offenders.add('${e.path}:${i + 1} -> ${m.group(1)}');
@@ -103,7 +103,8 @@ void main() {
               final lo = (i - 4).clamp(0, lines.length);
               final hi = (i + 5).clamp(0, lines.length);
               final window = lines.sublist(lo, hi).join('\n');
-              final m = RegExp(r'fontSize:\s*(\d+(?:\.\d+)?)').firstMatch(window);
+              final m =
+                  RegExp(r'fontSize:\s*(\d+(?:\.\d+)?)').firstMatch(window);
               if (m != null &&
                   double.parse(m.group(1)!) <= AppTypography.smallTextCeiling) {
                 offenders.add('${e.path}:${i + 1} (${m.group(1)}px)');
@@ -142,8 +143,7 @@ void main() {
           } else if (e is File && e.path.endsWith('.dart')) {
             for (final line in e.readAsStringSync().split('\n')) {
               if (line.trimLeft().startsWith('//')) continue;
-              for (final m
-                  in RegExp(r'FontWeight\.(w\d00)').allMatches(line)) {
+              for (final m in RegExp(r'FontWeight\.(w\d00)').allMatches(line)) {
                 counts[m.group(1)!] = (counts[m.group(1)] ?? 0) + 1;
               }
             }

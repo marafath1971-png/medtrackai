@@ -83,8 +83,8 @@ void main() {
 
     final c = tester.widget<Text>(find.text('Delete account')).style?.color;
     expect(c, isNotNull);
-    expect(_ratio(c!, AppTheme.dark().scaffoldBackgroundColor),
-        greaterThan(3.0),
+    expect(
+        _ratio(c!, AppTheme.dark().scaffoldBackgroundColor), greaterThan(3.0),
         reason: 'destructive red must clear 3:1 on the dark ground, got $c');
   });
 

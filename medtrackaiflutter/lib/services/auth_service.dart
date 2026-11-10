@@ -144,25 +144,52 @@ class AuthService {
         final uid = user.uid;
         final firestore = FirebaseFirestore.instance;
         final userRef = firestore.collection('users').doc(uid);
-        
+
         // Comply with 2026 Data Protection: explicit erasure of granular subcollections
-        final subcollections = ['medicines', 'history', 'symptoms', 'caregivers', 'monitoring'];
+        final subcollections = [
+          'medicines',
+          'history',
+          'symptoms',
+          'caregivers',
+          'caregiverAccess',
+          'monitoring',
+        ];
         for (final sub in subcollections) {
           final snap = await userRef.collection(sub).get();
-          // WriteBatch can handle up to 500 ops. We'll iterate simply to ensure erasure here.
-          // For massive data sets Cloud Functions are preferred, but this handles >95% cases.
           for (var doc in snap.docs) {
             await doc.reference.delete();
           }
         }
-        
+
+        // Explicit erasure of nested dependent subcollections
+        final depSnap = await userRef.collection('dependents').get();
+        for (final depDoc in depSnap.docs) {
+          for (final depSub in ['medicines', 'history', 'symptoms']) {
+            final nestedSnap = await depDoc.reference.collection(depSub).get();
+            for (final nestedDoc in nestedSnap.docs) {
+              await nestedDoc.reference.delete();
+            }
+          }
+          await depDoc.reference.delete();
+        }
+
+        // Erase outstanding caregiver invites created by this user
+        final invitesSnap = await firestore
+            .collection('caregiverInvites')
+            .where('patientUid', isEqualTo: uid)
+            .get();
+        for (final inviteDoc in invitesSnap.docs) {
+          await inviteDoc.reference.delete();
+        }
+
         // Terminate parent user document
         await userRef.delete();
 
         // Terminate Auth Identity
         await user.delete();
         await _google.disconnect(); // Disconnect Google Sign-In
-        appLogger.i("User $uid successfully deleted with all local/remote data.");
+        appLogger
+            .i("User $uid successfully deleted with all local/remote data.");
       } catch (e) {
         appLogger.e("FATAL: Failed to erase account data - $e");
         rethrow;

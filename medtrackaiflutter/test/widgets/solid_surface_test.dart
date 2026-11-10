@@ -32,9 +32,8 @@ Widget _host(Widget child, {Brightness brightness = Brightness.light}) =>
     MaterialApp(
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
-      theme: brightness == Brightness.light
-          ? AppTheme.light()
-          : AppTheme.dark(),
+      theme:
+          brightness == Brightness.light ? AppTheme.light() : AppTheme.dark(),
       home: Scaffold(body: Center(child: child)),
     );
 
@@ -113,8 +112,8 @@ void main() {
           content = context.L.text;
           return SolidSurface(
             filled: false,
-            child: Text('Continue with Google',
-                style: TextStyle(color: content)),
+            child:
+                Text('Continue with Google', style: TextStyle(color: content)),
           );
         }),
       ));
@@ -126,8 +125,8 @@ void main() {
   group('selected and unselected states are distinguishable', () {
     testWidgets('a filled chip differs visibly from an unfilled one',
         (tester) async {
-      await tester
-          .pumpWidget(_host(const SolidSurface(filled: true, child: Text('A'))));
+      await tester.pumpWidget(
+          _host(const SolidSurface(filled: true, child: Text('A'))));
       final selected = _paintedFill(tester);
 
       await tester.pumpWidget(
@@ -174,8 +173,8 @@ void main() {
       await tester.pumpWidget(_host(const SolidSurface(
         filled: true,
         glassWhenUnfilled: true,
-        child: Text('Continue with Apple',
-            style: TextStyle(color: Colors.white)),
+        child:
+            Text('Continue with Apple', style: TextStyle(color: Colors.white)),
       )));
 
       expect(_contrast(_paintedFill(tester), Colors.white), greaterThan(4.5));

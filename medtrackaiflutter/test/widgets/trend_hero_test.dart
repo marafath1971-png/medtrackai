@@ -73,8 +73,8 @@ void main() {
   group('rendering', () {
     testWidgets('states the comparison in words, not just a chip',
         (tester) async {
-      await tester
-          .pumpWidget(_host(TrendHero(series: _series(older: 0.6, recent: 0.9))));
+      await tester.pumpWidget(
+          _host(TrendHero(series: _series(older: 0.6, recent: 0.9))));
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.text('90%'), findsOneWidget);
@@ -83,8 +83,8 @@ void main() {
     });
 
     testWidgets('a decline is not dressed up as progress', (tester) async {
-      await tester
-          .pumpWidget(_host(TrendHero(series: _series(older: 0.9, recent: 0.5))));
+      await tester.pumpWidget(
+          _host(TrendHero(series: _series(older: 0.9, recent: 0.5))));
       await tester.pump(const Duration(milliseconds: 300));
 
       expect(find.textContaining('40 points below last week'), findsOneWidget);

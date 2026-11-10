@@ -122,9 +122,7 @@ class _ProgressHint extends StatelessWidget {
             ),
           ).medAiChain(
             context,
-            (w) => w
-                .animate(onPlay: (c) => c.repeat())
-                .slideX(
+            (w) => w.animate(onPlay: (c) => c.repeat()).slideX(
                   begin: -1.0,
                   end: 2.4,
                   duration: 1150.ms,

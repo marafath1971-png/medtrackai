@@ -188,8 +188,10 @@ class ShareAchievementCard extends StatelessWidget {
                 ).animate().fadeIn(delay: 500.ms),
               ],
             ),
-          ).animate().fadeIn(duration: 500.ms).scale(
-              begin: const Offset(0.88, 0.88), curve: AppCurves.emilOut),
+          )
+              .animate()
+              .fadeIn(duration: 500.ms)
+              .scale(begin: const Offset(0.88, 0.88), curve: AppCurves.emilOut),
 
           const SizedBox(height: 20),
 
@@ -208,7 +210,8 @@ class ShareAchievementCard extends StatelessWidget {
                     decoration: BoxDecoration(
                       color: L.card,
                       borderRadius: BorderRadius.circular(20),
-                      border: Border.all(color: L.border.withValues(alpha: 0.1)),
+                      border:
+                          Border.all(color: L.border.withValues(alpha: 0.1)),
                     ),
                     child: Center(
                       child: Text(

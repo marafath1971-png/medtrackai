@@ -7,6 +7,7 @@ import '../../../providers/app_state.dart';
 import '../../../core/utils/haptic_engine.dart';
 import '../../../services/remote_config_service.dart';
 import '../../../l10n/app_localizations.dart';
+import '../../paywall/premium_paywall_overlay.dart';
 
 class TrialCountdownCard extends StatelessWidget {
   const TrialCountdownCard({super.key});
@@ -37,7 +38,10 @@ class TrialCountdownCard extends StatelessWidget {
           padding: const EdgeInsets.all(AppSpacing.p20),
           onTap: () {
             HapticEngine.selection();
-            state.purchasePremium('annual');
+            PremiumPaywallOverlay.show(
+              context,
+              triggerSource: 'trial_countdown_card',
+            );
           },
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,7 +114,8 @@ class TrialCountdownCard extends StatelessWidget {
                   return Expanded(
                     child: Container(
                       height: 4,
-                      margin: EdgeInsetsDirectional.only(end: i < scanLimit - 1 ? 6 : 0),
+                      margin: EdgeInsetsDirectional.only(
+                          end: i < scanLimit - 1 ? 6 : 0),
                       decoration: BoxDecoration(
                         color: used
                             ? (isExhausted ? L.error : L.primary)
@@ -124,8 +129,8 @@ class TrialCountdownCard extends StatelessWidget {
               if (isExhausted) ...[
                 const SizedBox(height: AppSpacing.p16),
                 MedAiGlass(
-                  padding:
-                      const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
                   radius: AppRadius.s,
                   tint: L.fill.withValues(alpha: 0.5),
                   child: Row(

@@ -67,8 +67,8 @@ void main() {
       // The original catch body was the comment "// Fallback or ignore".
       // Anchor on the method, not its call site in init().
       final catchIdx = src.indexOf('static Future<void> refreshTimeZone()');
-      final tail = src.substring(
-          catchIdx, (catchIdx + 1400).clamp(0, src.length));
+      final tail =
+          src.substring(catchIdx, (catchIdx + 1400).clamp(0, src.length));
 
       expect(tail.contains('appLogger.e'), isTrue,
           reason: 'reminders firing in UTC has to be visible somewhere');

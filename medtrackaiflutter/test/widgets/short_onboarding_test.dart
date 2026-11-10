@@ -17,7 +17,8 @@ void main() {
   late Set<int> keep;
 
   setUpAll(() {
-    flow = File('lib/screens/onboarding/onboarding_flow.dart').readAsStringSync();
+    flow =
+        File('lib/screens/onboarding/onboarding_flow.dart').readAsStringSync();
 
     final namesBlock =
         RegExp(r'_stepNames = \[(.*?)\];', dotAll: true).firstMatch(flow)!;
@@ -40,7 +41,8 @@ void main() {
       // configured for that user.
       for (final required in ['med_count', 'persona', 'timing']) {
         final idx = names.indexOf(required);
-        expect(idx, greaterThan(-1), reason: '$required vanished from the flow');
+        expect(idx, greaterThan(-1),
+            reason: '$required vanished from the flow');
         expect(keep.contains(idx), isTrue,
             reason: '$required feeds OnboardingPrefs and must be asked');
       }
@@ -66,7 +68,7 @@ void main() {
     test('walking _next() reaches the end without stalling', () {
       // The keep-set alone does not prove the flow is traversable — a gap the
       // navigation cannot cross would strand the user mid-funnel.
-      const total = 56;
+      const total = 57;
       var i = 0;
       final visited = <int>[0];
       var guard = 0;
@@ -97,7 +99,11 @@ void main() {
     });
 
     test('the competitor charts are gone', () {
-      for (final n in ['accuracy_chart', 'comparison_2x', 'comparison_organizer']) {
+      for (final n in [
+        'accuracy_chart',
+        'comparison_2x',
+        'comparison_organizer'
+      ]) {
         expect(keep.contains(names.indexOf(n)), isFalse);
       }
     });
@@ -117,7 +123,8 @@ void main() {
 
   group('shipping safely', () {
     test('the flag defaults off', () {
-      final rc = File('lib/services/remote_config_service.dart').readAsStringSync();
+      final rc =
+          File('lib/services/remote_config_service.dart').readAsStringSync();
 
       expect(rc.contains("'onboarding_short_flow': false"), isTrue,
           reason: 'the long funnel stays live until this is measured');

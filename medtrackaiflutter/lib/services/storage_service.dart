@@ -12,14 +12,14 @@ class StorageService {
     try {
       final appDocDir = await getApplicationDocumentsDirectory();
       final medicineDir = Directory(p.join(appDocDir.path, 'medicines'));
-      
+
       if (!await medicineDir.exists()) {
         await medicineDir.create(recursive: true);
       }
 
       final fileName = '${DateTime.now().millisecondsSinceEpoch}.jpg';
       final permanentFile = File(p.join(medicineDir.path, fileName));
-      
+
       // Compress the image aggressively for low-end hardware compatibility
       final tempPath = p.join(medicineDir.path, 'temp_$fileName');
       final compressedXFile = await FlutterImageCompress.compressAndGetFile(
@@ -39,7 +39,8 @@ class StorageService {
         await imageFile.copy(permanentFile.path);
       }
 
-      appLogger.i('[StorageService] Local image saved permanently: ${permanentFile.path}');
+      appLogger.i(
+          '[StorageService] Local image saved permanently: ${permanentFile.path}');
       return permanentFile.path;
     } catch (e) {
       appLogger.e('[StorageService] Local image save failed: $e');
@@ -57,52 +58,58 @@ class StorageService {
           .child('medicines')
           .child(fileName);
 
-      // Compress the image aggressively before upload
-      final tempDir = await getTemporaryDirectory();
-      final tempPath = p.join(tempDir.path, 'upload_temp_$fileName');
-      final compressedXFile = await FlutterImageCompress.compressAndGetFile(
-        imageFile.absolute.path,
-        tempPath,
-        quality: 60,
-        minWidth: 800,
-        minHeight: 800,
-      );
-      
-      final fileToUpload = compressedXFile != null ? File(compressedXFile.path) : imageFile;
+      File? fileToUpload;
+      try {
+        final tempDir = await getTemporaryDirectory();
+        final tempPath = p.join(tempDir.path, 'upload_temp_$fileName');
+        final compressedXFile = await FlutterImageCompress.compressAndGetFile(
+          imageFile.absolute.path,
+          tempPath,
+          quality: 60,
+          minWidth: 800,
+          minHeight: 800,
+        );
 
-      // 1. Wait for upload to COMPLETE before proceding, with a 15-second timeout
-      final task = ref.putFile(
-        fileToUpload,
-        SettableMetadata(contentType: 'image/jpeg'),
-      );
+        fileToUpload =
+            compressedXFile != null ? File(compressedXFile.path) : imageFile;
 
-      final snapshot = await task.timeout(
-        const Duration(seconds: 15),
-        onTimeout: () {
-          throw FirebaseException(
-            plugin: 'firebase_storage',
-            code: 'deadline-exceeded',
-            message:
-                'Image upload timed out after 15 seconds. Please check your network connection.',
-          );
-        },
-      );
+        // 1. Wait for upload to COMPLETE before proceding, with a 15-second timeout
+        final task = ref.putFile(
+          fileToUpload,
+          SettableMetadata(contentType: 'image/jpeg'),
+        );
 
-      if (snapshot.state == TaskState.success) {
-        // 2. Wrap getDownloadURL in a small micro-delay or verification
-        // for race conditions in some storage regions
-        final downloadUrl = await ref.getDownloadURL();
-        appLogger
-            .i('[StorageService] Image uploaded successfully: $downloadUrl');
-        
-        // Clean up temporary compressed file
-        if (fileToUpload.path != imageFile.path && await fileToUpload.exists()) {
-          await fileToUpload.delete();
+        final snapshot = await task.timeout(
+          const Duration(seconds: 15),
+          onTimeout: () {
+            throw FirebaseException(
+              plugin: 'firebase_storage',
+              code: 'deadline-exceeded',
+              message:
+                  'Image upload timed out after 15 seconds. Please check your network connection.',
+            );
+          },
+        );
+
+        if (snapshot.state == TaskState.success) {
+          // 2. Wrap getDownloadURL in a small micro-delay or verification
+          // for race conditions in some storage regions
+          final downloadUrl = await ref.getDownloadURL();
+          appLogger
+              .i('[StorageService] Image uploaded successfully: $downloadUrl');
+          return downloadUrl;
         }
-        
-        return downloadUrl;
+        return null;
+      } finally {
+        // Guaranteed cleanup of temporary compressed file
+        if (fileToUpload != null &&
+            fileToUpload.path != imageFile.path &&
+            await fileToUpload.exists()) {
+          try {
+            await fileToUpload.delete();
+          } catch (_) {}
+        }
       }
-      return null;
     } on FirebaseException catch (e) {
       if (e.code == 'canceled') {
         appLogger.w('[StorageService] Upload canceled by user/system.');

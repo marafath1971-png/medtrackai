@@ -55,8 +55,7 @@ void main() {
   group('Android App Links', () {
     late String manifest;
 
-    setUp(() => manifest =
-        _read('android/app/src/main/AndroidManifest.xml'));
+    setUp(() => manifest = _read('android/app/src/main/AndroidManifest.xml'));
 
     test('an autoVerify intent-filter exists for the invite host', () {
       expect(manifest.contains('android:autoVerify="true"'), isTrue,
@@ -126,7 +125,8 @@ void main() {
       // App Attest reached the binary — the file looked right and did nothing.
       final pbx = _read('ios/Runner.xcodeproj/project.pbxproj');
 
-      expect(pbx.contains('CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;'),
+      expect(
+          pbx.contains('CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;'),
           isTrue,
           reason: 'project.pbxproj does not reference Runner.entitlements, so '
               'every key in it is ignored at build time');
@@ -143,9 +143,9 @@ void main() {
     });
 
     test('the association file names this bundle id', () {
-      final aasa = jsonDecode(
-              _read('public/.well-known/apple-app-site-association'))
-          as Map<String, dynamic>;
+      final aasa =
+          jsonDecode(_read('public/.well-known/apple-app-site-association'))
+              as Map<String, dynamic>;
       final details = ((aasa['applinks'] as Map<String, dynamic>)['details']
               as List<dynamic>)
           .cast<Map<String, dynamic>>();
@@ -159,9 +159,9 @@ void main() {
     });
 
     test('the team id is filled in', () {
-      final aasa = jsonDecode(
-              _read('public/.well-known/apple-app-site-association'))
-          as Map<String, dynamic>;
+      final aasa =
+          jsonDecode(_read('public/.well-known/apple-app-site-association'))
+              as Map<String, dynamic>;
       final details = ((aasa['applinks'] as Map<String, dynamic>)['details']
               as List<dynamic>)
           .cast<Map<String, dynamic>>();
@@ -173,14 +173,15 @@ void main() {
     },
         // Skipped for the same reason as the Android fingerprint: the value
         // comes from your Apple Developer membership page.
-        skip: _placeholderSkip(_aasaAppId().startsWith('REPLACE_WITH_'),
+        skip: _placeholderSkip(
+            _aasaAppId().startsWith('REPLACE_WITH_'),
             'apple-app-site-association carries a placeholder team id — copy '
             'it from the Apple Developer membership page'));
 
     test('every path LinkService handles is claimed', () {
-      final aasa = jsonDecode(
-              _read('public/.well-known/apple-app-site-association'))
-          as Map<String, dynamic>;
+      final aasa =
+          jsonDecode(_read('public/.well-known/apple-app-site-association'))
+              as Map<String, dynamic>;
       final details = ((aasa['applinks'] as Map<String, dynamic>)['details']
               as List<dynamic>)
           .cast<Map<String, dynamic>>();
@@ -202,7 +203,8 @@ void main() {
 
       expect(uri.scheme, 'https');
       expect(uri.host, kInviteHostname);
-      expect(manifest.contains('android:pathPrefix="/${uri.pathSegments.first}"'),
+      expect(
+          manifest.contains('android:pathPrefix="/${uri.pathSegments.first}"'),
           isTrue,
           reason: 'inviteJoinUrl builds /${uri.pathSegments.first} but the '
               'manifest does not route it');

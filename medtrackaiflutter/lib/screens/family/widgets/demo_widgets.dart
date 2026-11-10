@@ -20,9 +20,8 @@ class _SimulateMissCardState extends State<SimulateMissCard> {
     final L = widget.L;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.p20),
-      decoration: BoxDecoration(
-          color: L.card,
-          borderRadius: BorderRadius.circular(24)),
+      decoration:
+          BoxDecoration(color: L.card, borderRadius: BorderRadius.circular(24)),
       child: Column(children: [
         Row(children: [
           Container(
@@ -55,7 +54,8 @@ class _SimulateMissCardState extends State<SimulateMissCard> {
                     if (mounted) setState(() => _simulating = false);
                   },
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p8),
+              padding: const EdgeInsets.symmetric(
+                  horizontal: AppSpacing.p16, vertical: AppSpacing.p8),
               decoration: BoxDecoration(
                   color: _simulating ? L.border : AppColors.limeDeep,
                   borderRadius: BorderRadius.circular(20)),

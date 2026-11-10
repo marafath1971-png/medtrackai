@@ -29,7 +29,7 @@ class HomeDoseGroup extends StatelessWidget {
     this.onTakeDose,
   });
 
-  static ({String label, IconData icon, Color tint, Color ink}) _periodStyle(
+  static ({String label, IconData icon}) _periodStyle(
     String title,
   ) {
     switch (title.toLowerCase()) {
@@ -37,36 +37,26 @@ class HomeDoseGroup extends StatelessWidget {
         return (
           label: 'Morning',
           icon: Icons.wb_sunny_rounded,
-          tint: AppColors.pastelSun,
-          ink: const Color(0xFF8A6A1A),
         );
       case 'afternoon':
         return (
           label: 'Afternoon',
           icon: Icons.light_mode_rounded,
-          tint: AppColors.pastelMint,
-          ink: AppColors.limeInk,
         );
       case 'evening':
         return (
           label: 'Evening',
           icon: Icons.wb_twilight_rounded,
-          tint: AppColors.pastelSky,
-          ink: const Color(0xFF2F5F7A),
         );
       case 'night':
         return (
           label: 'Night',
           icon: Icons.nights_stay_rounded,
-          tint: const Color(0xFFE8E4F5),
-          ink: const Color(0xFF4A3F6B),
         );
       default:
         return (
           label: title,
           icon: Icons.schedule_rounded,
-          tint: AppColors.pastelMint,
-          ink: AppColors.inkStrong,
         );
     }
   }
@@ -97,34 +87,40 @@ class HomeDoseGroup extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final L = context.L;
     final now = DateTime.now();
     final nowMins = now.hour * 60 + now.minute;
     final style = _periodStyle(title);
-    final takenCount =
-        doses.where((d) => takenToday[d.key] == true).length;
+    final takenCount = doses.where((d) => takenToday[d.key] == true).length;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Padding(
-          padding: const EdgeInsets.only(top: AppSpacing.p12, bottom: AppSpacing.p8),
+          padding:
+              const EdgeInsets.only(top: AppSpacing.p12, bottom: AppSpacing.p8),
           child: Row(
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                 decoration: BoxDecoration(
-                  color: style.tint,
+                  color: L.fill,
                   borderRadius: BorderRadius.circular(999),
+                  border: Border.all(
+                    color: L.border.withValues(alpha: 0.35),
+                    width: 0.5,
+                  ),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(style.icon, size: 14, color: style.ink),
+                    Icon(style.icon, size: 14, color: L.text),
                     const SizedBox(width: 6),
                     Text(
                       style.label,
                       style: AppTypography.labelMedium.copyWith(
-                        color: style.ink,
+                        color: L.text,
                         fontWeight: FontWeight.w700,
                         letterSpacing: -0.1,
                       ),
@@ -136,7 +132,7 @@ class HomeDoseGroup extends StatelessWidget {
               Text(
                 '$takenCount/${doses.length}',
                 style: AppTypography.labelSmall.copyWith(
-                  color: AppColors.grey600,
+                  color: L.sub,
                   fontWeight: FontWeight.w700,
                 ),
               ),

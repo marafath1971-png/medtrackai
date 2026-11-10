@@ -57,8 +57,8 @@ void main() {
     final s = await load(t, 'en');
     // Selection stays in Dart; the translator gets complete sentences.
     expect(s.statsInventoryRemaining('Aspirin', 4), contains('Aspirin'));
-    expect(s.statsInventoryRemainingLowStock('Aspirin', 4),
-        contains('low stock'));
+    expect(
+        s.statsInventoryRemainingLowStock('Aspirin', 4), contains('low stock'));
     expect(s.commonShopItemCost('Hat', 50), contains('50'));
     expect(s.focusSessionComplete, isNotEmpty);
     for (final v in [

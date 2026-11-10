@@ -35,8 +35,8 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
   String _archetypeDesc =
       'You keep your health routine balanced and predictable.';
   Color _archetypeColor = AppColors.successSoft;
-  Gradient _archetypeGradient = const LinearGradient(
-      colors: [AppColors.pastelSky, AppColors.limeDeep]);
+  Gradient _archetypeGradient =
+      const LinearGradient(colors: [AppColors.pastelSky, AppColors.limeDeep]);
 
   late final ConfettiController _confettiController;
 
@@ -113,8 +113,8 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
       _archetypeDesc =
           'You conquer your day early. Sunrise, medication, action.';
       _archetypeColor = const Color(0xFFFFD700);
-      _archetypeGradient = const LinearGradient(
-          colors: [Color(0xFFFFD700), AppColors.amber]);
+      _archetypeGradient =
+          const LinearGradient(colors: [Color(0xFFFFD700), AppColors.amber]);
     } else if (nightDoses > morningDoses && nightDoses >= 5) {
       _archetype = 'Night Owl Doser';
       _archetypeDesc =
@@ -124,18 +124,17 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
           colors: [AppColors.pastelSky, AppColors.accentDeep]);
     } else if (weekendMisses > weekdayMisses && weekendMisses >= 2) {
       _archetype = 'Weekend Wildcard';
-      _archetypeDesc =
-          'Locked in during the week, but Saturdays are a gamble.';
+      _archetypeDesc = 'Locked in during the week, but Saturdays are a gamble.';
       _archetypeColor = AppColors.dangerSoft;
-      _archetypeGradient = const LinearGradient(
-          colors: [AppColors.dangerSoft, AppColors.amber]);
+      _archetypeGradient =
+          const LinearGradient(colors: [AppColors.dangerSoft, AppColors.amber]);
     } else {
       _archetype = 'Steady Guardian';
       _archetypeDesc =
           'Balanced, structured, and resilient. Maintaining the optimal baseline.';
       _archetypeColor = const Color(0xFF00E5FF);
-      _archetypeGradient = const LinearGradient(
-          colors: [Color(0xFF00E5FF), AppColors.blue]);
+      _archetypeGradient =
+          const LinearGradient(colors: [Color(0xFF00E5FF), AppColors.blue]);
     }
   }
 
@@ -149,7 +148,8 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
           if (_currentSlide == 5) _confettiController.play();
         });
         _pageController.nextPage(
-          duration: MedAiA11y.motion(context, const Duration(milliseconds: 600)),
+          duration:
+              MedAiA11y.motion(context, const Duration(milliseconds: 600)),
           curve: Curves.easeOutExpo,
         );
       } else {
@@ -274,15 +274,13 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
                             _buildSlide(
                               accentColor: L.accent,
                               number: '$_totalDoses',
-                              label:
-                                  l10n.socialTotalDosesLoggedAndVerifiedBy,
+                              label: l10n.socialTotalDosesLoggedAndVerifiedBy,
                               subtext: 'Every single microdose matters.',
                             ),
                             _buildSlide(
                               accentColor: L.amber,
                               number: '$_longestStreak',
-                              label:
-                                  l10n.socialDayStreakWasYourMaximumMomentum,
+                              label: l10n.socialDayStreakWasYourMaximumMomentum,
                               subtext: 'Building permanent neural habits.',
                             ),
                             _buildSlide(
@@ -408,8 +406,7 @@ class _MedWrappedScreenState extends State<MedWrappedScreen> {
               radius: AppRadius.xl,
               child: Row(
                 children: [
-                  Icon(Icons.blur_on_rounded,
-                      color: L.sub, size: 14),
+                  Icon(Icons.blur_on_rounded, color: L.sub, size: 14),
                   const SizedBox(width: 6),
                   Text(
                     'Med AI',

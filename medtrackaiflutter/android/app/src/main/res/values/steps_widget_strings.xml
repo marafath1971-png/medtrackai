@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="steps_widget_label">MedAI Steps</string>
+    <string name="steps_widget_description">Today\'s steps, your goal, and your walking partner.</string>
+    <string name="steps_widget_steps">steps</string>
+    <string name="steps_widget_of_goal">of %1$s</string>
+    <string name="steps_widget_turn_on">Tap to turn on steps</string>
+    <string name="steps_widget_open_to_update">Tap to update</string>
+    <string name="steps_widget_partner">%1$s · %2$s</string>
+    <string name="steps_widget_partner_fallback">Partner</string>
+    <string name="steps_widget_streak">%1$d-day streak</string>
+    <string name="steps_widget_to_go">%1$s to go</string>
+    <string name="steps_widget_goal_reached">Goal reached</string>
+</resources>

@@ -149,7 +149,8 @@ class PremiumTexturePainter extends CustomPainter {
           canvas.drawCircle(
             Offset(x, y),
             0.35 + rnd.nextDouble() * 0.4,
-            paint..color = color.withValues(alpha: 0.03 + rnd.nextDouble() * 0.04),
+            paint
+              ..color = color.withValues(alpha: 0.03 + rnd.nextDouble() * 0.04),
           );
         }
       case PremiumTextureStyle.none:

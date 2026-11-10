@@ -94,7 +94,10 @@ class InteractiveProgressRing extends StatelessWidget {
     );
 
     if (reducedMotion) return content;
-    return content.animate().fadeIn(duration: 500.ms).slideY(begin: 0.1, end: 0);
+    return content
+        .animate()
+        .fadeIn(duration: 500.ms)
+        .slideY(begin: 0.1, end: 0);
   }
 
   Widget _buildRing(

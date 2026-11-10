@@ -31,8 +31,8 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
     return AppScaffold(
       showAurora: false,
       body: CustomScrollView(
-        physics:
-            const BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
+        physics: const BouncingScrollPhysics(
+            parent: AlwaysScrollableScrollPhysics()),
         slivers: [
           SliverToBoxAdapter(
             child: PremiumPageHeader(
@@ -85,8 +85,8 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                         const SizedBox(height: 24),
                         Semantics(
                           slider: true,
-                          label:
-                              l10n.scanConfidenceTargetPercent(profile.aiConfidenceThreshold.toInt()),
+                          label: l10n.scanConfidenceTargetPercent(
+                              profile.aiConfidenceThreshold.toInt()),
                           child: SliderTheme(
                             data: SliderTheme.of(context).copyWith(
                               activeTrackColor: AppColors.accent,
@@ -102,9 +102,8 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                               min: 50,
                               max: 100,
                               onChanged: (val) {
-                                state.auth.saveProfile(
-                                    profile.copyWith(
-                                        aiConfidenceThreshold: val));
+                                state.auth.saveProfile(profile.copyWith(
+                                    aiConfidenceThreshold: val));
                                 HapticEngine.selection();
                               },
                             ),
@@ -152,12 +151,11 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                             endIndent: 16),
                         _SwitchTile(
                           title: l10n.scanAutoCropImages,
-                          subtitle:
-                              'Automatically frames the pill or bottle',
+                          subtitle: 'Automatically frames the pill or bottle',
                           value: profile.aiAutoCrop,
                           onChanged: (val) {
-                            state.auth.saveProfile(
-                                profile.copyWith(aiAutoCrop: val));
+                            state.auth
+                                .saveProfile(profile.copyWith(aiAutoCrop: val));
                             HapticEngine.selection();
                           },
                         ),
@@ -168,8 +166,7 @@ class _AiAccuracySettingsScreenState extends State<AiAccuracySettingsScreen> {
                             endIndent: 16),
                         _SwitchTile(
                           title: l10n.scanClinicalMode,
-                          subtitle:
-                              'Prioritize NDC codes and FDA databases',
+                          subtitle: 'Prioritize NDC codes and FDA databases',
                           value: profile.aiClinicalMode,
                           onChanged: (val) {
                             state.auth.saveProfile(

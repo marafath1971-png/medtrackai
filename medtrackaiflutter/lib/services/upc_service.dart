@@ -62,8 +62,7 @@ class UPCService {
 
     try {
       final upc = await http
-          .get(Uri.parse(
-              'https://api.upcitemdb.com/prod/trial/lookup?upc=$q'))
+          .get(Uri.parse('https://api.upcitemdb.com/prod/trial/lookup?upc=$q'))
           .timeout(_timeout);
 
       if (upc.statusCode == 200) {
@@ -125,7 +124,8 @@ class UPCService {
   }
 
   /// Back-compat wrapper for callers that only want a name.
-  @Deprecated('Use lookup() so offline and rate-limited cases can be told apart')
+  @Deprecated(
+      'Use lookup() so offline and rate-limited cases can be told apart')
   static Future<String?> lookupBarcode(String barcode) async {
     final result = await lookup(barcode);
     return result is BarcodeFound ? result.name : null;

@@ -70,10 +70,13 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
     _controller.clear();
     _scrollToBottom();
 
-    final history = _messages.take(_messages.length - 1).map((m) => {
-          'role': m.isUser ? 'User' : 'AI',
-          'content': m.text,
-        }).toList();
+    final history = _messages
+        .take(_messages.length - 1)
+        .map((m) => {
+              'role': m.isUser ? 'User' : 'AI',
+              'content': m.text,
+            })
+        .toList();
 
     final meds = context.read<MedicationController>().meds;
     final activeMedsStr = meds.isNotEmpty
@@ -112,7 +115,8 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (_scrollController.hasClients) {
-        final duration = MedAiA11y.motion(context, const Duration(milliseconds: 300));
+        final duration =
+            MedAiA11y.motion(context, const Duration(milliseconds: 300));
         if (duration == Duration.zero) {
           _scrollController.jumpTo(_scrollController.position.maxScrollExtent);
         } else {
@@ -165,8 +169,8 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
                 }
                 final msg = _messages[index];
                 // Tighter grouping when the same sender speaks consecutively.
-                final prevSame = index > 0 &&
-                    _messages[index - 1].isUser == msg.isUser;
+                final prevSame =
+                    index > 0 && _messages[index - 1].isUser == msg.isUser;
                 return Padding(
                   padding: EdgeInsets.only(top: prevSame ? 3 : 10),
                   child: _messageEntrance(
@@ -200,7 +204,8 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
         decoration: BoxDecoration(
           color: L.accent.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(10),
-          border: Border.all(color: L.accent.withValues(alpha: 0.18), width: 0.7),
+          border:
+              Border.all(color: L.accent.withValues(alpha: 0.18), width: 0.7),
         ),
         child: Row(
           children: [
@@ -311,7 +316,8 @@ class _ProductChatScreenState extends State<ProductChatScreen> {
           decoration: BoxDecoration(
             color: L.fill.withValues(alpha: 0.5),
             borderRadius: BorderRadius.circular(AppRadius.max),
-            border: Border.all(color: L.accent.withValues(alpha: 0.28), width: 0.7),
+            border:
+                Border.all(color: L.accent.withValues(alpha: 0.28), width: 0.7),
           ),
           child: Text(
             text,

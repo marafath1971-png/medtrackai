@@ -27,17 +27,20 @@ import '../../l10n/app_localizations.dart';
 
 // ══════════════════════════════════════════════
 // HOOK E: SUPPLEMENT INTERACTION SCANNER (Viral)
-// Gen Z Premium UI / Glassmorphic OLED 
+// Gen Z Premium UI / Glassmorphic OLED
 // ══════════════════════════════════════════════
 
 class SupplementInteractionScanner extends StatefulWidget {
   const SupplementInteractionScanner({super.key});
 
   @override
-  State<SupplementInteractionScanner> createState() => _SupplementInteractionScannerState();
+  State<SupplementInteractionScanner> createState() =>
+      _SupplementInteractionScannerState();
 }
 
-class _SupplementInteractionScannerState extends State<SupplementInteractionScanner> with SingleTickerProviderStateMixin {
+class _SupplementInteractionScannerState
+    extends State<SupplementInteractionScanner>
+    with SingleTickerProviderStateMixin {
   CameraController? _controller;
   List<CameraDescription>? _cameras;
   bool _isCameraInitialized = false;
@@ -45,7 +48,7 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
 
   bool _isScanning = false;
   bool _showAnalysis = false;
-  
+
   ScanResult? _scanResult;
   String _errorMessage = '';
 
@@ -71,11 +74,13 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
     await PermissionSoftPrompt.show(
       context: context,
       title: 'Camera Access',
-      explanation: 'We need your camera to identify supplements and check for interactions.',
+      explanation:
+          'We need your camera to identify supplements and check for interactions.',
       icon: Icons.camera_alt_rounded,
       buttonText: 'Enable Camera',
       permission: Permission.camera,
-      fallbackExplanation: 'Camera permission is required to identify supplements. Please enable it in Settings.',
+      fallbackExplanation:
+          'Camera permission is required to identify supplements. Please enable it in Settings.',
       onGranted: _setupCameraState,
       onDenied: () {
         if (mounted) setState(() => _cameraError = true);
@@ -119,8 +124,8 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
 
   Future<File?> _compressImage(File file) async {
     final tempDir = await path_provider.getTemporaryDirectory();
-    final targetPath = p.join(
-        tempDir.path, "${DateTime.now().millisecondsSinceEpoch}_stack_comp.jpg");
+    final targetPath = p.join(tempDir.path,
+        "${DateTime.now().millisecondsSinceEpoch}_stack_comp.jpg");
 
     final result = await FlutterImageCompress.compressAndGetFile(
       file.absolute.path,
@@ -158,12 +163,13 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
       final XFile image = await _controller!.takePicture();
       final file = File(image.path);
       final compressedFile = await _compressImage(file) ?? file;
-      
+
       if (!mounted) return;
       final state = context.read<AppState>();
       final result = await GeminiService.scanMedicine(
         compressedFile,
-        hint: 'Multiple supplements. Identify the stack and describe their synergy or interactions.',
+        hint:
+            'Multiple supplements. Identify the stack and describe their synergy or interactions.',
         profile: state.profile,
       );
 
@@ -247,7 +253,7 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final L = context.L;
-    
+
     return Scaffold(
       backgroundColor: L.bg,
       body: Stack(
@@ -267,11 +273,15 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                     child: AnimatedBuilder(
                       animation: _pulseController,
                       builder: (context, child) {
-                        final pulseAlpha = _isScanning ? 0.6 + (_pulseController.value * 0.4) : 0.4;
+                        final pulseAlpha = _isScanning
+                            ? 0.6 + (_pulseController.value * 0.4)
+                            : 0.4;
                         return CustomPaint(
                           size: const Size(double.infinity, 250),
                           painter: _ScannerCornersPainter(
-                            color: _isScanning ? AppColors.accent.withValues(alpha: pulseAlpha) : context.L.text.withValues(alpha: pulseAlpha),
+                            color: _isScanning
+                                ? AppColors.accent.withValues(alpha: pulseAlpha)
+                                : context.L.text.withValues(alpha: pulseAlpha),
                             strokeWidth: _isScanning ? 4.0 : 2.5,
                             cornerLen: 40,
                           ),
@@ -285,15 +295,19 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                                             begin: Alignment.topCenter,
                                             end: Alignment.bottomCenter,
                                             colors: [
-                                              AppColors.accent.withValues(alpha: 0.0),
-                                              AppColors.accent.withValues(alpha: 0.3),
-                                              AppColors.accent.withValues(alpha: 0.0),
+                                              AppColors.accent
+                                                  .withValues(alpha: 0.0),
+                                              AppColors.accent
+                                                  .withValues(alpha: 0.3),
+                                              AppColors.accent
+                                                  .withValues(alpha: 0.0),
                                             ],
                                           ),
                                         ),
                                       ).animate(
                                         onPlay: (c) {
-                                          if (!MedAiA11y.reducedMotion(context)) {
+                                          if (!MedAiA11y.reducedMotion(
+                                              context)) {
                                             c.repeat();
                                           }
                                         },
@@ -342,7 +356,8 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                 ),
                 const Spacer(),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   decoration: BoxDecoration(
                     color: L.card.withValues(alpha: 0.6),
                     borderRadius: BorderRadius.circular(20),
@@ -351,7 +366,8 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                   ),
                   child: Row(
                     children: [
-                      const Icon(Icons.bolt_rounded, color: AppColors.accent, size: 16),
+                      const Icon(Icons.bolt_rounded,
+                          color: AppColors.accent, size: 16),
                       const SizedBox(width: 8),
                       Text(
                         l10n.scanSynergyScanner,
@@ -379,11 +395,13 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                   if (_errorMessage.isNotEmpty)
                     Container(
                       margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 12),
                       decoration: BoxDecoration(
                         color: L.error.withValues(alpha: 0.15),
                         borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: L.error.withValues(alpha: 0.3)),
+                        border:
+                            Border.all(color: L.error.withValues(alpha: 0.3)),
                       ),
                       child: Text(
                         _errorMessage,
@@ -393,15 +411,17 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                         ),
                       ),
                     ).animate().fadeIn().slideY(begin: 0.2, end: 0),
-                  
                   Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
                     decoration: BoxDecoration(
                       color: context.L.bg.withValues(alpha: 0.4),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      _isScanning ? 'Analyzing stack…' : 'Align bottles in frame',
+                      _isScanning
+                          ? 'Analyzing stack…'
+                          : 'Align bottles in frame',
                       style: AppTypography.labelMedium.copyWith(
                         color: context.L.text,
                         fontWeight: FontWeight.w700,
@@ -409,9 +429,7 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                       ),
                     ),
                   ).animate().fadeIn(),
-                  
                   const SizedBox(height: 24),
-                  
                   Semantics(
                     button: true,
                     label: _isScanning ? 'Analyzing' : 'Capture scan',
@@ -424,13 +442,13 @@ class _SupplementInteractionScannerState extends State<SupplementInteractionScan
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: _isScanning
-                                ? AppColors.accent
-                                : context.L.text,
+                            color:
+                                _isScanning ? AppColors.accent : context.L.text,
                             width: 4,
                           ),
                           boxShadow: _isScanning
-                              ? AppShadows.glow(AppColors.accent, intensity: 0.5)
+                              ? AppShadows.glow(AppColors.accent,
+                                  intensity: 0.5)
                               : [],
                           color: _isScanning
                               ? AppColors.accent.withValues(alpha: 0.2)
@@ -542,8 +560,7 @@ class _SupplementResultOverlay extends StatelessWidget {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: L.card,
-                      borderRadius:
-                          BorderRadius.circular(AppRadius.squircle),
+                      borderRadius: BorderRadius.circular(AppRadius.squircle),
                       border: Border.all(
                         color: L.border.withValues(alpha: 0.55),
                       ),
@@ -574,16 +591,15 @@ class _SupplementResultOverlay extends StatelessWidget {
                                 ),
                                 child: Center(
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
                                       const Icon(Icons.add_rounded,
                                           color: Colors.white, size: 20),
                                       const SizedBox(width: AppSpacing.p8),
                                       Text(
                                         l10n.scanTrackMedicine,
-                                        style: AppTypography.labelMedium
-                                            .copyWith(
+                                        style:
+                                            AppTypography.labelMedium.copyWith(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w700,
                                         ),
@@ -706,19 +722,23 @@ class _ScannerCornersPainter extends CustomPainter {
     // Top-Left
     canvas.drawLine(const Offset(r, 0), Offset(r + L, 0), paint);
     canvas.drawLine(const Offset(0, r), Offset(0, r + L), paint);
-    canvas.drawArc(const Rect.fromLTWH(0, 0, r * 2, r * 2), math.pi, math.pi / 2, false, paint);
+    canvas.drawArc(const Rect.fromLTWH(0, 0, r * 2, r * 2), math.pi,
+        math.pi / 2, false, paint);
     // Top-Right
     canvas.drawLine(Offset(w - r - L, 0), Offset(w - r, 0), paint);
     canvas.drawLine(Offset(w, r), Offset(w, r + L), paint);
-    canvas.drawArc(Rect.fromLTWH(w - r * 2, 0, r * 2, r * 2), 3 * math.pi / 2, math.pi / 2, false, paint);
+    canvas.drawArc(Rect.fromLTWH(w - r * 2, 0, r * 2, r * 2), 3 * math.pi / 2,
+        math.pi / 2, false, paint);
     // Bottom-Left
     canvas.drawLine(Offset(r, h), Offset(r + L, h), paint);
     canvas.drawLine(Offset(0, h - r - L), Offset(0, h - r), paint);
-    canvas.drawArc(Rect.fromLTWH(0, h - r * 2, r * 2, r * 2), math.pi / 2, math.pi / 2, false, paint);
+    canvas.drawArc(Rect.fromLTWH(0, h - r * 2, r * 2, r * 2), math.pi / 2,
+        math.pi / 2, false, paint);
     // Bottom-Right
     canvas.drawLine(Offset(w - r - L, h), Offset(w - r, h), paint);
     canvas.drawLine(Offset(w, h - r - L), Offset(w, h - r), paint);
-    canvas.drawArc(Rect.fromLTWH(w - r * 2, h - r * 2, r * 2, r * 2), 0, math.pi / 2, false, paint);
+    canvas.drawArc(Rect.fromLTWH(w - r * 2, h - r * 2, r * 2, r * 2), 0,
+        math.pi / 2, false, paint);
   }
 
   @override

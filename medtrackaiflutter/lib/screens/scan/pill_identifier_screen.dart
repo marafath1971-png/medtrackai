@@ -22,6 +22,8 @@ import '../../screens/paywall/premium_paywall_overlay.dart';
 import '../../services/remote_config_service.dart';
 import '../../widgets/modals/scan_success_sheet.dart';
 import 'widgets/scan_result_detail_view.dart';
+import 'widgets/my_meds_match_banner.dart';
+import '../../core/utils/pill_matcher.dart';
 import '../../l10n/app_localizations.dart';
 
 // ══════════════════════════════════════════════
@@ -66,11 +68,13 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
     await PermissionSoftPrompt.show(
       context: context,
       title: 'Camera Access',
-      explanation: 'We need your camera to identify pills and medications accurately.',
+      explanation:
+          'We need your camera to identify pills and medications accurately.',
       icon: Icons.camera_alt_rounded,
       buttonText: 'Enable Camera',
       permission: Permission.camera,
-      fallbackExplanation: 'Camera permission is required to identify pills. Please enable it in Settings.',
+      fallbackExplanation:
+          'Camera permission is required to identify pills. Please enable it in Settings.',
       onGranted: _setupCameraState,
       onDenied: () {
         if (mounted) setState(() => _cameraError = true);
@@ -161,7 +165,7 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
       final XFile image = await _controller!.takePicture();
       final file = File(image.path);
       final compressedFile = await _compressImage(file) ?? file;
-      
+
       if (!mounted) return;
       final state = context.read<AppState>();
       setState(() => _capturedImage = compressedFile);
@@ -448,10 +452,11 @@ class _PillIdentifierScannerState extends State<PillIdentifierScanner>
                             shape: _isScanning
                                 ? BoxShape.rectangle
                                 : BoxShape.circle,
-                            borderRadius: _isScanning
-                                ? BorderRadius.circular(8)
-                                : null,
-                            color: _isScanning ? AppColors.sageGreen : Colors.white,
+                            borderRadius:
+                                _isScanning ? BorderRadius.circular(8) : null,
+                            color: _isScanning
+                                ? AppColors.sageGreen
+                                : Colors.white,
                           ),
                         ),
                       ),
@@ -496,9 +501,8 @@ class _ScanReticle extends StatelessWidget {
     const size = 220.0;
     const cornerLen = 28.0;
     const strokeW = 2.0;
-    final col = isScanning
-        ? AppColors.sageGreen
-        : Colors.white.withValues(alpha: 0.65);
+    final col =
+        isScanning ? AppColors.sageGreen : Colors.white.withValues(alpha: 0.65);
 
     return SizedBox(
       width: size,
@@ -597,6 +601,11 @@ class _PillResultOverlay extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final botPad = MediaQuery.paddingOf(context).bottom;
+    final match =
+        matchScannedPill(scanResult, context.select((AppState s) => s.meds));
+    // Tracking a pill that is already on the list would duplicate it; send
+    // the user to the one they have instead.
+    final tracked = match.kind == PillMatchKind.match ? match.med : null;
     return Positioned.fill(
       child: Container(
         color: L.bg,
@@ -613,14 +622,22 @@ class _PillResultOverlay extends StatelessWidget {
                   AppSpacing.gutter,
                   botPad + 120,
                 ),
-                child: ScanResultDetailView(
-                  result: scanResult,
-                  capturedImage: capturedImage,
-                  onDark: false,
-                  showInlineActions: false,
-                  onClose: onScanAnother,
-                  onScanAnother: onScanAnother,
-                  onAddToMedicines: () => _addToMedicines(context),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    MyMedsMatchBanner(match: match),
+                    ScanResultDetailView(
+                      result: scanResult,
+                      capturedImage: capturedImage,
+                      onDark: false,
+                      showInlineActions: false,
+                      onClose: onScanAnother,
+                      onScanAnother: onScanAnother,
+                      onAddToMedicines: () => tracked != null
+                          ? _openTracked(context, tracked)
+                          : _addToMedicines(context),
+                    ),
+                  ],
                 ),
               ),
               Positioned(
@@ -649,8 +666,7 @@ class _PillResultOverlay extends StatelessWidget {
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
                       color: L.card,
-                      borderRadius:
-                          BorderRadius.circular(AppRadius.squircle),
+                      borderRadius: BorderRadius.circular(AppRadius.squircle),
                       border: Border.all(
                         color: L.border.withValues(alpha: 0.55),
                       ),
@@ -667,9 +683,13 @@ class _PillResultOverlay extends StatelessWidget {
                         Expanded(
                           child: Semantics(
                             button: true,
-                            label: l10n.scanTrackMedicine,
+                            label: tracked != null
+                                ? 'Open ${tracked.name}'
+                                : l10n.scanTrackMedicine,
                             child: AnimatedPressable(
-                              onTap: () => _addToMedicines(context),
+                              onTap: () => tracked != null
+                                  ? _openTracked(context, tracked)
+                                  : _addToMedicines(context),
                               child: Container(
                                 constraints: const BoxConstraints(
                                   minHeight: MedAiA11y.minTapTarget,
@@ -681,16 +701,21 @@ class _PillResultOverlay extends StatelessWidget {
                                 ),
                                 child: Center(
                                   child: Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.center,
+                                    mainAxisAlignment: MainAxisAlignment.center,
                                     children: [
-                                      const Icon(Icons.add_rounded,
-                                          color: Colors.white, size: 20),
+                                      Icon(
+                                          tracked != null
+                                              ? Icons.medication_rounded
+                                              : Icons.add_rounded,
+                                          color: Colors.white,
+                                          size: 20),
                                       const SizedBox(width: AppSpacing.p8),
                                       Text(
-                                        l10n.scanTrackMedicine,
-                                        style: AppTypography.labelMedium
-                                            .copyWith(
+                                        tracked != null
+                                            ? 'Open ${tracked.name}'
+                                            : l10n.scanTrackMedicine,
+                                        style:
+                                            AppTypography.labelMedium.copyWith(
                                           color: Colors.white,
                                           fontWeight: FontWeight.w700,
                                         ),
@@ -730,6 +755,12 @@ class _PillResultOverlay extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void _openTracked(BuildContext context, Medicine med) {
+    HapticEngine.selection();
+    context.read<AppState>().setPendingDetailMedId(med.id);
+    context.go(AppRoutes.home);
   }
 
   Future<void> _addToMedicines(BuildContext context) async {

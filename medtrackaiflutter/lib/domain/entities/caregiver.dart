@@ -11,6 +11,7 @@ class Caregiver {
   final String addedAt;
   final String patientUid;
   final String? inviteCode;
+  final String? joinedCaregiverUid;
 
   Caregiver({
     required this.id,
@@ -25,6 +26,7 @@ class Caregiver {
     this.addedAt = '',
     this.patientUid = '',
     this.inviteCode,
+    this.joinedCaregiverUid,
   });
 
   Map<String, dynamic> toJson() => {
@@ -40,6 +42,7 @@ class Caregiver {
         'addedAt': addedAt,
         'patientUid': patientUid,
         'inviteCode': inviteCode,
+        'joinedCaregiverUid': joinedCaregiverUid,
       };
 
   factory Caregiver.fromJson(Map<String, dynamic> j) => Caregiver(
@@ -55,9 +58,15 @@ class Caregiver {
         addedAt: j['addedAt'] ?? '',
         patientUid: j['patientUid'] ?? '',
         inviteCode: j['inviteCode'],
+        joinedCaregiverUid: j['joinedCaregiverUid'],
       );
 
-  Caregiver copyWith({String? status, String? inviteCode}) => Caregiver(
+  Caregiver copyWith({
+    String? status,
+    String? inviteCode,
+    String? joinedCaregiverUid,
+  }) =>
+      Caregiver(
         id: id,
         name: name,
         relation: relation,
@@ -70,5 +79,6 @@ class Caregiver {
         addedAt: addedAt,
         patientUid: patientUid,
         inviteCode: inviteCode ?? this.inviteCode,
+        joinedCaregiverUid: joinedCaregiverUid ?? this.joinedCaregiverUid,
       );
 }

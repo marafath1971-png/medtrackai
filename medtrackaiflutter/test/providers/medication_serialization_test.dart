@@ -7,7 +7,8 @@ void main() {
     innerProductAnalysis['id'] = '1';
     innerProductAnalysis['name'] = 'Magnesium Glycinate';
     innerProductAnalysis['category'] = 'Supplement';
-    innerProductAnalysis['description'] = 'A highly bioavailable form of magnesium.';
+    innerProductAnalysis['description'] =
+        'A highly bioavailable form of magnesium.';
     innerProductAnalysis['whyTakeIt'] = 'Why take it';
     innerProductAnalysis['howItWorks'] = 'How it works';
     innerProductAnalysis['benefits'] = ['Better Sleep'];

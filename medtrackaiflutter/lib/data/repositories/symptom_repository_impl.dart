@@ -38,8 +38,9 @@ class SymptomRepositoryImpl implements SymptomRepository {
         final snap = await _symptomsCollection(uid, profileId: profileId)
             .get()
             .withHardenedTimeout(taskName: 'getSymptoms');
-        final cloudSymptoms =
-            snap.docs.map((doc) => Symptom.fromJson(doc.data() as Map<String, dynamic>)).toList();
+        final cloudSymptoms = snap.docs
+            .map((doc) => Symptom.fromJson(doc.data() as Map<String, dynamic>))
+            .toList();
 
         // Update local cache
         _storage.setString(

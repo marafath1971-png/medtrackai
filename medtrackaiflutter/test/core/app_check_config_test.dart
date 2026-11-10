@@ -20,8 +20,8 @@ String _read(String relative) {
 void main() {
   group('App Check', () {
     test('the backend enforces it', () {
-      expect(_read('functions/index.js').contains('enforceAppCheck: true'),
-          isTrue,
+      expect(
+          _read('functions/index.js').contains('enforceAppCheck: true'), isTrue,
           reason: 'these tests exist because enforcement is on; if it was '
               'deliberately turned off, relax them rather than deleting them');
     });

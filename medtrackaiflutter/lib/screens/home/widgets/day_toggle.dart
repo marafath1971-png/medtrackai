@@ -70,9 +70,7 @@ class DayToggle extends StatelessWidget {
                         child: AnimatedDefaultTextStyle(
                           duration: const Duration(milliseconds: 250),
                           style: AppTypography.labelLarge.copyWith(
-                            color:
-                                isToday ? Colors.white : L.sub,
-                            
+                            color: isToday ? Colors.white : L.sub,
                           ),
                           child: Text(l10n.dashboardToday),
                         ),
@@ -90,9 +88,7 @@ class DayToggle extends StatelessWidget {
                         child: AnimatedDefaultTextStyle(
                           duration: const Duration(milliseconds: 250),
                           style: AppTypography.labelLarge.copyWith(
-                            color:
-                                !isToday ? Colors.white : L.sub,
-                            
+                            color: !isToday ? Colors.white : L.sub,
                           ),
                           child: Text(l10n.homeYesterday),
                         ),

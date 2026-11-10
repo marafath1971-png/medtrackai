@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_animate/flutter_animate.dart';
 
 import '../../../core/constants/med_ai_assets.dart';
+import '../../../core/utils/haptic_engine.dart';
 import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/ghost_mascot.dart';
 
@@ -66,8 +68,19 @@ class HomeTodayHero extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(AppSpacing.p16),
       decoration: BoxDecoration(
-        color: s.tint,
+        color: L.card,
         borderRadius: BorderRadius.circular(AppRadius.xl),
+        border: Border.all(
+          color: L.border.withValues(alpha: 0.35),
+          width: 0.5,
+        ),
+        boxShadow: [
+          BoxShadow(
+            color: const Color(0xFF1A2621).withValues(alpha: 0.04),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
+          ),
+        ],
       ),
       child: Row(
         children: [
@@ -79,7 +92,7 @@ class HomeTodayHero extends StatelessWidget {
                 Text(
                   s.eyebrow.toUpperCase(),
                   style: AppTypography.caption.copyWith(
-                    color: AppColors.accentDeep,
+                    color: L.sub,
                     letterSpacing: 1.1,
                     fontWeight: FontWeight.w700,
                   ),
@@ -121,7 +134,7 @@ class HomeTodayHero extends StatelessWidget {
           const SizedBox(width: AppSpacing.p12),
           GhostMascot(
             asset: s.mascot,
-            size: 78,
+            size: 48,
             showGlow: false,
             semanticLabel: s.eyebrow,
           ),
@@ -152,17 +165,11 @@ extension on _DayState {
       };
 
   String get fallbackLine => switch (this) {
-        _DayState.empty => 'Scan a box or search by name to build your schedule.',
+        _DayState.empty =>
+          'Scan a box or search by name to build your schedule.',
         _DayState.notStarted => 'Your first dose is coming up.',
         _DayState.inProgress => 'Keep going — the rest are still ahead.',
         _DayState.complete => "Nothing left today. See you tomorrow.",
-      };
-
-  Color get tint => switch (this) {
-        _DayState.empty => AppColors.pastelSky,
-        _DayState.notStarted => AppColors.pastelSky,
-        _DayState.inProgress => AppColors.pastelSun,
-        _DayState.complete => AppColors.pastelMint,
       };
 
   String get mascot => switch (this) {
@@ -175,6 +182,7 @@ extension on _DayState {
 
 /// Segment per dose rather than a continuous bar — at these counts (typically
 /// 1-6 a day) a fraction of a bar is harder to read than discrete marks.
+/// Each taken segment animates in with a stagger for delight.
 class _ProgressTrack extends StatelessWidget {
   final int taken;
   final int total;
@@ -191,10 +199,15 @@ class _ProgressTrack extends StatelessWidget {
         child: LinearProgressIndicator(
           value: taken / total,
           minHeight: 7,
-          backgroundColor: L.card.withValues(alpha: 0.7),
+          backgroundColor: L.fill,
           valueColor: const AlwaysStoppedAnimation(AppColors.accentDeep),
         ),
-      );
+      ).animate().scaleX(
+          begin: 0,
+          end: 1,
+          alignment: Alignment.centerLeft,
+          duration: 600.ms,
+          curve: Curves.easeOutExpo);
     }
 
     return Row(
@@ -202,15 +215,20 @@ class _ProgressTrack extends StatelessWidget {
         for (var i = 0; i < total; i++) ...[
           if (i > 0) const SizedBox(width: 4),
           Expanded(
-            child: Container(
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 300 + i * 60),
+              curve: Curves.easeOutBack,
               height: 7,
               decoration: BoxDecoration(
-                color: i < taken
-                    ? AppColors.accentDeep
-                    : L.card.withValues(alpha: 0.8),
+                color: i < taken ? AppColors.accentDeep : L.fill,
                 borderRadius: BorderRadius.circular(AppRadius.max),
               ),
-            ),
+            ).animate(delay: Duration(milliseconds: i * 80)).scaleX(
+                begin: 0,
+                end: 1,
+                alignment: Alignment.centerLeft,
+                duration: 350.ms,
+                curve: Curves.easeOutBack),
           ),
         ],
       ],
@@ -218,37 +236,94 @@ class _ProgressTrack extends StatelessWidget {
   }
 }
 
-/// Streak, folded in from the hero this widget replaced.
-///
-/// A chip rather than its own card: the streak is a supporting fact about the
-/// day, not a second headline competing with it.
-class _StreakChip extends StatelessWidget {
+/// Animated streak chip — the fire icon pulses when streak ≥ 3 to reward
+/// consistent users with a subtle celebration micro-interaction.
+class _StreakChip extends StatefulWidget {
   final int days;
   final VoidCallback onTap;
 
   const _StreakChip({required this.days, required this.onTap});
 
   @override
+  State<_StreakChip> createState() => _StreakChipState();
+}
+
+class _StreakChipState extends State<_StreakChip>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _pulseCtrl;
+  late Animation<double> _pulseAnim;
+
+  @override
+  void initState() {
+    super.initState();
+    _pulseCtrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    );
+    _pulseAnim = Tween<double>(begin: 1.0, end: 1.22).animate(
+      CurvedAnimation(parent: _pulseCtrl, curve: Curves.easeInOut),
+    );
+    if (widget.days >= 3) {
+      _pulseCtrl.repeat(reverse: true);
+    }
+  }
+
+  @override
+  void dispose() {
+    _pulseCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final L = context.L;
+    final isHot = widget.days >= 3;
+    final fireColor = widget.days >= 7
+        ? const Color(0xFFFF6B35)
+        : widget.days >= 3
+            ? AppColors.amber
+            : AppColors.accentDeep;
 
     return GestureDetector(
-      onTap: onTap,
+      onTap: () {
+        HapticEngine.selection();
+        widget.onTap();
+      },
       behavior: HitTestBehavior.opaque,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.local_fire_department_rounded,
-              size: 15, color: AppColors.accentDeep),
-          const SizedBox(width: 5),
-          Text(
-            days == 1 ? '1 day streak' : '$days day streak',
-            style: AppTypography.caption.copyWith(
-              color: L.sub,
-              fontWeight: FontWeight.w700,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+        decoration: BoxDecoration(
+          color: isHot ? fireColor.withValues(alpha: 0.12) : Colors.transparent,
+          borderRadius: BorderRadius.circular(AppRadius.max),
+          border: isHot
+              ? Border.all(color: fireColor.withValues(alpha: 0.25), width: 1)
+              : null,
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedBuilder(
+              animation: _pulseAnim,
+              builder: (_, child) => Transform.scale(
+                scale: isHot ? _pulseAnim.value : 1.0,
+                child: child,
+              ),
+              child: Icon(
+                Icons.local_fire_department_rounded,
+                size: 15,
+                color: fireColor,
+              ),
             ),
-          ),
-        ],
+            const SizedBox(width: 5),
+            Text(
+              widget.days == 1 ? '1 day streak' : '${widget.days} day streak',
+              style: AppTypography.caption.copyWith(
+                color: isHot ? fireColor : L.sub,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -102,176 +102,178 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
       child: Semantics(
         label: l10n.dashboardN30DayAdherencePercent(pct, statusLabel),
         child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                // Not "Today's": this is getAdherenceScore(), which averages
-                // the last 30 days. Labelling it "Today's" made it contradict
-                // the home screen — 2% here beside "2 of 5 done" (40%) there.
-                '30-day adherence',
-                style: AppTypography.labelMedium.copyWith(
-                  color: AppColors.grey600,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const Spacer(),
-              Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                decoration: BoxDecoration(
-                  color: pct >= 80
-                      ? AppColors.pastelMint
-                      : pct >= 60
-                          ? AppColors.pastelSun
-                          : AppColors.pastelPink,
-                  borderRadius: BorderRadius.circular(999),
-                ),
-                child: Text(
-                  statusLabel,
-                  style: AppTypography.labelSmall.copyWith(
-                    color: pct >= 80
-                        ? AppColors.limeInk
-                        : pct >= 60
-                            ? const Color(0xFF8A6A1A)
-                            : AppColors.red,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                Text(
+                  // Not "Today's": this is getAdherenceScore(), which averages
+                  // the last 30 days. Labelling it "Today's" made it contradict
+                  // the home screen — 2% here beside "2 of 5 done" (40%) there.
+                  '30-day adherence',
+                  style: AppTypography.labelMedium.copyWith(
+                    color: AppColors.grey600,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
-              ),
-            ],
-          ),
-          const SizedBox(height: AppSpacing.p16),
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.baseline,
-                      textBaseline: TextBaseline.alphabetic,
-                      children: [
-                        Text(
-                          '$pct',
-                          style: AppTypography.displayMedium.copyWith(
-                            color: AppColors.inkStrong,
-                            fontWeight: FontWeight.w800,
-                            fontSize: 48,
-                            letterSpacing: -2,
-                            height: 1,
-                          ),
-                        ),
-                        Text(
-                          '%',
-                          style: AppTypography.titleLarge.copyWith(
-                            color: AppColors.grey600,
-                            fontWeight: FontWeight.w700,
-                          ),
-                        ),
-                      ],
+                const Spacer(),
+                Container(
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: pct >= 80
+                        ? AppColors.pastelMint
+                        : pct >= 60
+                            ? AppColors.pastelSun
+                            : AppColors.pastelPink,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    statusLabel,
+                    style: AppTypography.labelSmall.copyWith(
+                      color: pct >= 80
+                          ? AppColors.limeInk
+                          : pct >= 60
+                              ? const Color(0xFF8A6A1A)
+                              : AppColors.red,
+                      fontWeight: FontWeight.w700,
                     ),
-                    const SizedBox(height: AppSpacing.p8),
-                    Text(
-                      l10n.dashboardN7DayTrendBelow,
-                      style: AppTypography.bodySmall.copyWith(
-                        color: AppColors.grey600,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
-              ),
-              AnimatedBuilder(
-                animation: _a,
-                builder: (context, _) {
-                  return SizedBox(
-                    width: 112,
-                    height: 112,
-                    child: CustomPaint(
-                      painter: _TrendRingPainter(
-                        _a.value.clamp(0.0, 1.0),
-                        trackColor: AppColors.pastelMint,
-                        progressColor: AppColors.limeDeep,
-                      ),
-                      child: const Center(
-                        child: ExcludeSemantics(
-                          child: Icon(
-                            Icons.show_chart_rounded,
-                            size: 28,
-                            color: AppColors.limeDeep,
-                          ),
-                        ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ],
-          ),
-          if (week.isNotEmpty) ...[
-            const SizedBox(height: AppSpacing.p24),
-            SizedBox(
-              height: 56,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: List.generate(week.length, (i) {
-                  final day = week[i];
-                  final val = (day['value'] as num?)?.toDouble() ?? 0.0;
-                  final dateStr = day['date'] as String? ?? '';
-                  final isToday = dateStr == todayKey;
-                  final date = DateTime.tryParse(dateStr);
-
-                  return Expanded(
-                    child: Padding(
-                      padding: EdgeInsetsDirectional.only(end: i < week.length - 1 ? 4 : 0),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
+              ],
+            ),
+            const SizedBox(height: AppSpacing.p16),
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.baseline,
+                        textBaseline: TextBaseline.alphabetic,
                         children: [
-                          Expanded(
-                            child: Align(
-                              alignment: Alignment.bottomCenter,
-                              child: FractionallySizedBox(
-                                heightFactor:
-                                    val <= 0 ? 0.04 : val.clamp(0.04, 1.0),
-                                child: Container(
-                                  width: double.infinity,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(4),
-                                    color: isToday
-                                        ? AppColors.limeDeep
-                                        : AppColors.lime
-                                            .withValues(alpha: 0.35 + val * 0.4),
-                                  ),
-                                ),
-                              ),
+                          Text(
+                            '$pct',
+                            style: AppTypography.displayMedium.copyWith(
+                              color: AppColors.inkStrong,
+                              fontWeight: FontWeight.w800,
+                              fontSize: 48,
+                              letterSpacing: -2,
+                              height: 1,
                             ),
                           ),
-                          const SizedBox(height: AppSpacing.p8),
                           Text(
-                            date != null
-                                ? _dow[(date.weekday - 1) % 7]
-                                : _dow[i % 7],
-                            style: AppTypography.labelSmall.copyWith(
-                              color: isToday
-                                  ? AppColors.limeDeep
-                                  : AppColors.grey600.withValues(alpha: 0.7),
-                              fontWeight:
-                                  isToday ? FontWeight.w800 : FontWeight.w600
+                            '%',
+                            style: AppTypography.titleLarge.copyWith(
+                              color: AppColors.grey600,
+                              fontWeight: FontWeight.w700,
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  );
-                }),
-              ),
+                      const SizedBox(height: AppSpacing.p8),
+                      Text(
+                        l10n.dashboardN7DayTrendBelow,
+                        style: AppTypography.bodySmall.copyWith(
+                          color: AppColors.grey600,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                AnimatedBuilder(
+                  animation: _a,
+                  builder: (context, _) {
+                    return SizedBox(
+                      width: 112,
+                      height: 112,
+                      child: CustomPaint(
+                        painter: _TrendRingPainter(
+                          _a.value.clamp(0.0, 1.0),
+                          trackColor: AppColors.pastelMint,
+                          progressColor: AppColors.limeDeep,
+                        ),
+                        child: const Center(
+                          child: ExcludeSemantics(
+                            child: Icon(
+                              Icons.show_chart_rounded,
+                              size: 28,
+                              color: AppColors.limeDeep,
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ],
             ),
+            if (week.isNotEmpty) ...[
+              const SizedBox(height: AppSpacing.p24),
+              SizedBox(
+                height: 56,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.end,
+                  children: List.generate(week.length, (i) {
+                    final day = week[i];
+                    final val = (day['value'] as num?)?.toDouble() ?? 0.0;
+                    final dateStr = day['date'] as String? ?? '';
+                    final isToday = dateStr == todayKey;
+                    final date = DateTime.tryParse(dateStr);
+
+                    return Expanded(
+                      child: Padding(
+                        padding: EdgeInsetsDirectional.only(
+                            end: i < week.length - 1 ? 4 : 0),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            Expanded(
+                              child: Align(
+                                alignment: Alignment.bottomCenter,
+                                child: FractionallySizedBox(
+                                  heightFactor:
+                                      val <= 0 ? 0.04 : val.clamp(0.04, 1.0),
+                                  child: Container(
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(4),
+                                      color: isToday
+                                          ? AppColors.limeDeep
+                                          : AppColors.lime.withValues(
+                                              alpha: 0.35 + val * 0.4),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: AppSpacing.p8),
+                            Text(
+                              date != null
+                                  ? _dow[(date.weekday - 1) % 7]
+                                  : _dow[i % 7],
+                              style: AppTypography.labelSmall.copyWith(
+                                  color: isToday
+                                      ? AppColors.limeDeep
+                                      : AppColors.grey600
+                                          .withValues(alpha: 0.7),
+                                  fontWeight: isToday
+                                      ? FontWeight.w800
+                                      : FontWeight.w600),
+                            ),
+                          ],
+                        ),
+                      ),
+                    );
+                  }),
+                ),
+              ),
+            ],
           ],
-        ],
-      ),
+        ),
       ),
     );
   }

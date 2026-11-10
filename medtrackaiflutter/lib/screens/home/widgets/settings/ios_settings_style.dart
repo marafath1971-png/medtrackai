@@ -292,18 +292,23 @@ Color iosSettingsIconColor(dynamic icon, Color? iconBg) {
 
   if (icon is IconData) {
     return switch (icon) {
-      Icons.delete_forever_rounded || Icons.logout_rounded =>
+      Icons.delete_forever_rounded ||
+      Icons.logout_rounded =>
         IosSettingsTokens.systemRed,
-      Icons.notifications_active_rounded || Icons.notifications_rounded =>
+      Icons.notifications_active_rounded ||
+      Icons.notifications_rounded =>
         IosSettingsTokens.systemOrange,
       Icons.shield_outlined || Icons.lock_rounded => AppColors.accentDeep,
-      Icons.favorite_rounded || Icons.monitor_heart_rounded =>
+      Icons.favorite_rounded ||
+      Icons.monitor_heart_rounded =>
         IosSettingsTokens.systemPink,
-      Icons.palette_rounded || Icons.auto_awesome_rounded =>
+      Icons.palette_rounded ||
+      Icons.auto_awesome_rounded =>
         IosSettingsTokens.systemPurple,
       Icons.medication_rounded || Icons.science_outlined => AppColors.sageGreen,
       Icons.family_restroom_rounded => IosSettingsTokens.systemTeal,
-      Icons.bar_chart_rounded || Icons.insert_chart_rounded =>
+      Icons.bar_chart_rounded ||
+      Icons.insert_chart_rounded =>
         IosSettingsTokens.systemIndigo,
       _ => AppColors.accentDeep,
     };

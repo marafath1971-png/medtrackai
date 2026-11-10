@@ -8,7 +8,6 @@ import '../../../../services/export_service.dart';
 import '../../../../theme/med_ai_ui.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/utils/haptic_engine.dart';
-import '../../../paywall/premium_paywall_overlay.dart';
 import 'settings_shared.dart';
 
 class DataTab extends StatefulWidget {
@@ -105,35 +104,30 @@ class _DataTabState extends State<DataTab> {
       child: Column(children: [
         heroCard,
         const SizedBox(height: AppSpacing.p16),
-
         SettingsSection(
             title: s.exportAndBackup,
             child: Column(children: [
               SettingsModalRow(
                   icon: '📄',
-                  iconBg: AppColors.pastelSky,
                   label: s.exportPdfReport,
                   sub: s.exportPdfSubtitle,
                   onClick: () async {
                     final success = await ExportService.exportAdherenceReport(
                         context.read<AppState>());
                     if (!success && context.mounted) {
-                      PremiumPaywallOverlay.show(
-                        context,
-                        triggerSource: 'export_pdf',
-                      );
+                      context.read<AppState>().showToast(
+                          "Couldn't create the report. Please try again.",
+                          type: 'error');
                     }
                   },
                   border: true),
               SettingsModalRow(
                   icon: '📥',
-                  iconBg: const Color(0xFF22C55E).withValues(alpha: 0.1),
                   label: s.exportCsv,
                   sub: s.exportCsvSubtitle(totalTaken),
                   onClick: _exportCSV,
                   border: false),
             ])),
-
         SettingsSection(
             title: s.resetSection,
             child: SettingsModalRow(
@@ -143,7 +137,6 @@ class _DataTabState extends State<DataTab> {
                 sub: s.deleteAllDataSubtitle,
                 onClick: () => setState(() => _confirming = true),
                 border: false)),
-
         if (_confirming) ...[
           const SizedBox(height: AppSpacing.p12),
           MedAiDepthCard(
@@ -178,7 +171,8 @@ class _DataTabState extends State<DataTab> {
                     child: MedAiDepthCard(
                       color: L.red,
                       radius: AppRadius.max,
-                      padding: const EdgeInsets.symmetric(vertical: AppSpacing.p16),
+                      padding:
+                          const EdgeInsets.symmetric(vertical: AppSpacing.p16),
                       onTap: () {
                         HapticEngine.alertWarning();
                         context.read<AppState>().deleteAllData();
@@ -197,30 +191,24 @@ class _DataTabState extends State<DataTab> {
             ]),
           ),
         ],
-
         const SizedBox(height: AppSpacing.p16),
-
         SettingsSection(
             title: s.legalSection,
             child: Column(children: [
               SettingsModalRow(
                   icon: '🔐',
-                  iconBg: const Color(0xFF0EA5E9).withValues(alpha: 0.1),
                   label: s.privacyPolicy,
                   sub: s.privacyPolicySubtitle,
                   onClick: () => _launchUrl(kPrivacyPolicyUrl),
                   border: true),
               SettingsModalRow(
                   icon: '⚖️',
-                  iconBg: AppColors.pastelMint,
                   label: s.termsOfService,
                   sub: s.termsOfServiceSubtitle,
                   onClick: () => _launchUrl(kTermsOfServiceUrl),
                   border: false),
             ])),
-
         const SizedBox(height: AppSpacing.p16),
-
         Center(
           child: Text('${s.appVersionLabel}: ${s.appVersionValue}',
               style: AppTypography.labelSmall

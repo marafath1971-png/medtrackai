@@ -66,7 +66,6 @@ class DoseCelebrationModal extends StatelessWidget {
                   ),
                 ),
               ),
-
             if (particleCount > 0)
               RepaintBoundary(
                 child: Stack(
@@ -120,7 +119,6 @@ class DoseCelebrationModal extends StatelessWidget {
                   }),
                 ),
               ),
-
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 36),
               decoration: BoxDecoration(
@@ -170,15 +168,11 @@ class DoseCelebrationModal extends StatelessWidget {
                         ),
                       ],
                     ),
-                  )
-                      .animate(target: reduceMotion ? 0 : 1)
-                      .scale(
+                  ).animate(target: reduceMotion ? 0 : 1).scale(
                         duration: reduceMotion ? 0.ms : 500.ms,
                         curve: AppCurves.emilOut,
                       ),
-
                   const SizedBox(height: 24),
-
                   Text(
                     medName,
                     textAlign: TextAlign.center,
@@ -189,9 +183,7 @@ class DoseCelebrationModal extends StatelessWidget {
                       letterSpacing: -0.8,
                     ),
                   ),
-
                   const SizedBox(height: 8),
-
                   Container(
                     padding:
                         const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
@@ -213,9 +205,7 @@ class DoseCelebrationModal extends StatelessWidget {
                       ),
                     ),
                   ),
-
                   const SizedBox(height: 20),
-
                   Text(
                     message,
                     textAlign: TextAlign.center,
@@ -226,9 +216,7 @@ class DoseCelebrationModal extends StatelessWidget {
                       fontWeight: FontWeight.w500,
                     ),
                   ),
-
                   const SizedBox(height: 32),
-
                   Row(
                     children: [
                       Expanded(

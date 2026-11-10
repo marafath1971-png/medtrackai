@@ -3,7 +3,6 @@ import '../../../theme/med_ai_ui.dart';
 import '../../../widgets/common/premium_empty_state.dart';
 import '../../../l10n/app_localizations.dart';
 
-
 class HomeMedsHeader extends StatelessWidget {
   final VoidCallback onAdd;
   const HomeMedsHeader({super.key, required this.onAdd});
@@ -17,7 +16,6 @@ class HomeMedsHeader extends StatelessWidget {
       child: Text(
         l10n.homeRecentlyUploaded,
         style: AppTypography.titleLarge.copyWith(
-          
           fontWeight: FontWeight.w700,
           color: L.text,
           letterSpacing: -0.5,

@@ -67,9 +67,8 @@ class CalAiRingHero extends StatelessWidget {
     final streakBorder = isDark
         ? const Color(0xFFFF9F0A).withValues(alpha: 0.25)
         : const Color(0xFFFFCC80).withValues(alpha: 0.6);
-    final streakTextColor = isDark
-        ? const Color(0xFFFF9F0A)
-        : const Color(0xFFE65100);
+    final streakTextColor =
+        isDark ? const Color(0xFFFF9F0A) : const Color(0xFFE65100);
 
     final trackColor = isDark
         ? L.accent.withValues(alpha: 0.08)
@@ -150,7 +149,8 @@ class CalAiRingHero extends StatelessWidget {
                           .medAiChain(
                               context,
                               (w) => w
-                                  .animate(onPlay: (c) => c.repeat(reverse: true))
+                                  .animate(
+                                      onPlay: (c) => c.repeat(reverse: true))
                                   .scaleXY(
                                       begin: 0.92,
                                       end: 1.08,
@@ -205,42 +205,42 @@ class CalAiRingHero extends StatelessWidget {
                 : '$takenCount of $total doses taken, ${(dosePct * 100).round()} percent complete',
             child: ExcludeSemantics(
               child: AnimatedRing(
-            percent: dosePct,
-            colors: ringColors,
-            trackColor: trackColor,
-            size: 200,
-            strokeWidth: 14,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TweenAnimationBuilder<double>(
-                  tween: Tween<double>(begin: 0, end: dosePct * 100),
-                  duration: const Duration(milliseconds: 1600),
-                  curve: Curves.easeOutCubic,
-                  builder: (context, value, _) {
-                    return Text(
-                      '${value.round()}%',
-                      style: AppTypography.displayXL.copyWith(
-                        color: L.text,
-                        height: 1.0,
-                        fontWeight: FontWeight.w800,
-                        fontSize: 48,
-                        letterSpacing: -2,
+                percent: dosePct,
+                colors: ringColors,
+                trackColor: trackColor,
+                size: 200,
+                strokeWidth: 14,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    TweenAnimationBuilder<double>(
+                      tween: Tween<double>(begin: 0, end: dosePct * 100),
+                      duration: const Duration(milliseconds: 1600),
+                      curve: Curves.easeOutCubic,
+                      builder: (context, value, _) {
+                        return Text(
+                          '${value.round()}%',
+                          style: AppTypography.displayXL.copyWith(
+                            color: L.text,
+                            height: 1.0,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 48,
+                            letterSpacing: -2,
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      isEmpty ? 'No meds' : '$takenCount / $total',
+                      style: AppTypography.labelMedium.copyWith(
+                        color: L.sub.withValues(alpha: 0.55),
+                        letterSpacing: 0.5,
+                        fontSize: 13,
                       ),
-                    );
-                  },
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 4),
-                Text(
-                  isEmpty ? 'No meds' : '$takenCount / $total',
-                  style: AppTypography.labelMedium.copyWith(
-                    color: L.sub.withValues(alpha: 0.55),
-                    letterSpacing: 0.5,
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
               ),
             ),
           ),
@@ -321,9 +321,8 @@ class _TakeNextButton extends StatelessWidget {
     final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final isDark = context.isDark;
-    final btnColor = isDark
-        ? Color.lerp(L.text, L.accent, 0.25)!
-        : AppColors.eatoNavy;
+    final btnColor =
+        isDark ? Color.lerp(L.text, L.accent, 0.25)! : AppColors.eatoNavy;
     return Semantics(
       button: true,
       label: time == null ? label : l10n.commonDue(label, time!),
@@ -537,7 +536,8 @@ class _RingPainter extends CustomPainter {
 
     if (percent > 0) {
       final rect = Rect.fromCircle(center: center, radius: radius);
-      final validColors = colors.length >= 2 ? colors : [colors.first, colors.first];
+      final validColors =
+          colors.length >= 2 ? colors : [colors.first, colors.first];
 
       final gradient = SweepGradient(
         colors: validColors,

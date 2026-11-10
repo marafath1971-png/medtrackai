@@ -18,6 +18,8 @@ import '../paywall/premium_paywall_overlay.dart';
 import '../scan/widgets/premium_scan_result_chrome.dart';
 import 'widgets/scan_identity_header.dart';
 import 'widgets/scan_insight_dashboard.dart';
+import 'widgets/scan_beauty_profile_card.dart';
+import 'widgets/scan_share_card.dart';
 import '../../l10n/app_localizations.dart';
 
 /// Premium scan result — 100% redesigned to match reference wellness UI.
@@ -154,7 +156,8 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
             controller: _scrollCtrl,
             physics: const BouncingScrollPhysics(),
             slivers: [
-              SliverToBoxAdapter(child: _TopBar(onBack: () => Navigator.pop(context))),
+              SliverToBoxAdapter(
+                  child: _TopBar(onBack: () => Navigator.pop(context))),
 
               SliverPadding(
                 padding: ScanResultChrome.pagePad,
@@ -300,6 +303,28 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                 ),
               ),
 
+              if (p.cleanScore != null ||
+                  p.comedogenicRating != null ||
+                  p.activeIngredients.isNotEmpty ||
+                  p.skinBenefits.isNotEmpty ||
+                  p.routineType != null ||
+                  category.toLowerCase().contains('skin') ||
+                  category.toLowerCase().contains('cosmetic'))
+                SliverPadding(
+                  padding: const EdgeInsets.fromLTRB(
+                    AppSpacing.gutter,
+                    AppSpacing.p16,
+                    AppSpacing.gutter,
+                    0,
+                  ),
+                  sliver: SliverToBoxAdapter(
+                    child: _enter(
+                      ScanBeautyProfileCard(product: p),
+                      delay: 120.ms,
+                    ),
+                  ),
+                ),
+
               if (p.allergyAlerts.isNotEmpty ||
                   (p.childSafetyAlert?.isNotEmpty ?? false) ||
                   (p.pregnancyAlert?.isNotEmpty ?? false) ||
@@ -318,7 +343,8 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                         children: [
                           ScanSectionHeader(
                             title: l10n.analysisSafetyFirst,
-                            subtitle: 'Important alerts — know before you take.',
+                            subtitle:
+                                'Important alerts — know before you take.',
                             icon: Icons.shield_outlined,
                             tint: AppColors.pastelPink,
                           ),
@@ -337,8 +363,8 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                                           bottom: AppSpacing.p8),
                                       child: Text(
                                         a,
-                                        style: AppTypography.bodyMedium
-                                            .copyWith(
+                                        style:
+                                            AppTypography.bodyMedium.copyWith(
                                           color: L.text,
                                           height: 1.4,
                                           fontWeight: FontWeight.w600,
@@ -495,8 +521,8 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                         children: [
                           ScanSectionHeader(
                             title: l10n.analysisSideEffectMap,
-                            subtitle:
-                                l10n.analysisReportedSizedByHowOften(p.sideEffects.length),
+                            subtitle: l10n.analysisReportedSizedByHowOften(
+                                p.sideEffects.length),
                             icon: Icons.monitor_heart_outlined,
                             tint: AppColors.pastelSun,
                           ),
@@ -627,7 +653,8 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                               p.medicineInteractions.isNotEmpty)
                             ScanSoftSection(
                               title: l10n.analysisInteractions,
-                              subtitle: 'Food & medicine — check before stacking.',
+                              subtitle:
+                                  'Food & medicine — check before stacking.',
                               tint: AppColors.pastelSun,
                               icon: Icons.link_off_rounded,
                               child: _bulletList([
@@ -704,6 +731,14 @@ class _ProductAnalysisScreenState extends State<ProductAnalysisScreen> {
                   context.push(
                     AppRoutes.analysisChat,
                     extra: ProductChatRouteArgs(product: widget.product),
+                  );
+                },
+                onShare: () {
+                  HapticEngine.selection();
+                  ScanShareCard.show(
+                    context,
+                    product: widget.product,
+                    imageFile: widget.imageFile,
                   );
                 },
               ),
@@ -870,9 +905,8 @@ class _ExpertBlock extends StatelessWidget {
                     color: selected ? L.text : Colors.white,
                     borderRadius: BorderRadius.circular(999),
                     border: Border.all(
-                      color: selected
-                          ? L.text
-                          : L.border.withValues(alpha: 0.5),
+                      color:
+                          selected ? L.text : L.border.withValues(alpha: 0.5),
                     ),
                   ),
                   child: Text(
@@ -909,12 +943,14 @@ class _Dock extends StatelessWidget {
   final VoidCallback onAdd;
   final VoidCallback onImpact;
   final VoidCallback onChat;
+  final VoidCallback onShare;
 
   const _Dock({
     required this.added,
     required this.onAdd,
     required this.onImpact,
     required this.onChat,
+    required this.onShare,
   });
 
   @override
@@ -937,7 +973,10 @@ class _Dock extends StatelessWidget {
         children: [
           _roundBtn(icon: Icons.monitor_heart_outlined, onTap: onImpact, L: L),
           const SizedBox(width: 8),
-          _roundBtn(icon: Icons.chat_bubble_outline_rounded, onTap: onChat, L: L),
+          _roundBtn(
+              icon: Icons.chat_bubble_outline_rounded, onTap: onChat, L: L),
+          const SizedBox(width: 8),
+          _roundBtn(icon: Icons.ios_share_rounded, onTap: onShare, L: L),
           const SizedBox(width: 10),
           Expanded(
             child: AnimatedPressable(

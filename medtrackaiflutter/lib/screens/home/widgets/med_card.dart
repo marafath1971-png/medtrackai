@@ -53,9 +53,8 @@ class MedCard extends StatelessWidget {
       );
     }
 
-    final warning = profile?.warnings.isNotEmpty == true
-        ? profile!.warnings.first
-        : null;
+    final warning =
+        profile?.warnings.isNotEmpty == true ? profile!.warnings.first : null;
     if (warning != null) {
       add(Icons.priority_high_rounded, warning, AppColors.red);
     }
@@ -69,8 +68,7 @@ class MedCard extends StatelessWidget {
 
     final food = profile?.foodRules.isNotEmpty == true
         ? profile!.foodRules.first
-        : (med.intakeInstructions.isNotEmpty &&
-                med.intakeInstructions != 'None'
+        : (med.intakeInstructions.isNotEmpty && med.intakeInstructions != 'None'
             ? med.intakeInstructions
             : null);
     if (food != null) {
@@ -186,7 +184,7 @@ class MedCard extends StatelessWidget {
       if (med.dose.isNotEmpty) med.dose,
       if (med.form.isNotEmpty) med.form,
     ].join(' · ');
-    final doseLabel = doseLine.isNotEmpty ? doseLine : 'Details coming soon';
+    final doseLabel = doseLine.isNotEmpty ? doseLine : 'Prescribed regimen';
 
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.p8),

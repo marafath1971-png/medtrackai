@@ -282,14 +282,11 @@ class _MedicineSafetyCardState extends State<MedicineSafetyCard> {
                         padding: EdgeInsets.all(14),
                         child: AppLoadingIndicator(size: 28),
                       )
-                    : Icon(Icons.auto_awesome_rounded,
-                        size: 26, color: L.text),
+                    : Icon(Icons.auto_awesome_rounded, size: 26, color: L.text),
               ),
               const SizedBox(height: AppSpacing.p16),
               Text(
-                _isLoading
-                    ? s.analyzingClinicalLimits
-                    : 'Know your medicine',
+                _isLoading ? s.analyzingClinicalLimits : 'Know your medicine',
                 textAlign: TextAlign.center,
                 style: AppTypography.titleMedium.copyWith(
                   color: L.text,
@@ -352,8 +349,7 @@ class _SafetyBlock extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     final L = context.L;
-    final cleanTitle =
-        title.replaceAll(RegExp(r'[^\w\s&/-]'), '').trim();
+    final cleanTitle = title.replaceAll(RegExp(r'[^\w\s&/-]'), '').trim();
 
     return Container(
       width: double.infinity,
@@ -361,9 +357,8 @@ class _SafetyBlock extends StatelessWidget {
       decoration: BoxDecoration(
         color: tint,
         borderRadius: BorderRadius.circular(AppRadius.l),
-        border: danger
-            ? Border.all(color: accent.withValues(alpha: 0.22))
-            : null,
+        border:
+            danger ? Border.all(color: accent.withValues(alpha: 0.22)) : null,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -426,8 +421,7 @@ class _SafetyBlock extends StatelessWidget {
                       style: AppTypography.bodyMedium.copyWith(
                         color: L.text,
                         height: 1.4,
-                        fontWeight:
-                            danger ? FontWeight.w600 : FontWeight.w500,
+                        fontWeight: danger ? FontWeight.w600 : FontWeight.w500,
                       ),
                     ),
                   ),

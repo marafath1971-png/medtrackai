@@ -101,8 +101,8 @@ class RefinedSheetWrapper extends StatelessWidget {
                             color: L.fill.withValues(alpha: 0.4),
                             shape: BoxShape.circle,
                           ),
-                          child: Icon(Icons.close_rounded,
-                              color: L.sub, size: 22),
+                          child:
+                              Icon(Icons.close_rounded, color: L.sub, size: 22),
                         ),
                       ),
                     ),

@@ -44,6 +44,7 @@ class MissedDoseProtocolSheet extends StatefulWidget {
 
 class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
   String? _aiAdvice;
+
   /// False when [_aiAdvice] is the built-in rule of thumb rather than advice
   /// about this specific medicine. The card must not claim the AI produced it.
   bool _adviceIsAi = true;
@@ -141,14 +142,13 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
     );
 
     if (!reduceMotion) {
-      statusIcon = statusIcon
-          .animate(onPlay: (c) => c.repeat(reverse: true))
-          .scale(
-            begin: const Offset(1.0, 1.0),
-            end: const Offset(1.06, 1.06),
-            duration: 1500.ms,
-            curve: Curves.easeInOut,
-          );
+      statusIcon =
+          statusIcon.animate(onPlay: (c) => c.repeat(reverse: true)).scale(
+                begin: const Offset(1.0, 1.0),
+                end: const Offset(1.06, 1.06),
+                duration: 1500.ms,
+                curve: Curves.easeInOut,
+              );
     }
 
     return RefinedSheetWrapper(
@@ -293,8 +293,7 @@ class _MissedDoseProtocolSheetState extends State<MissedDoseProtocolSheet> {
           ),
           const SizedBox(height: 12),
           Semantics(
-            label:
-                l10n.modalsInformationalOnlyAlwaysConsultYourDoctor2,
+            label: l10n.modalsInformationalOnlyAlwaysConsultYourDoctor2,
             child: Text(
               l10n.modalsInformationalOnlyAlwaysConsultYourDoctor,
               style: AppTypography.bodySmall.copyWith(

@@ -35,7 +35,7 @@ class _TimelinePillSelectorState extends State<TimelinePillSelector> {
   Widget build(BuildContext context) {
     final L = widget.L;
     return SingleChildScrollView(
-  keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
       scrollDirection: Axis.horizontal,
       physics: const BouncingScrollPhysics(),
       child: Container(
@@ -66,47 +66,50 @@ class _TimelinePillSelectorState extends State<TimelinePillSelector> {
                       curve: AppCurves.smooth,
                       constraints: const BoxConstraints(
                           minHeight: MedAiA11y.minTapTargetCompact),
-                      margin: const EdgeInsetsDirectional.only(end: AppSpacing.p4),
+                      margin:
+                          const EdgeInsetsDirectional.only(end: AppSpacing.p4),
                       padding: const EdgeInsets.symmetric(
                           horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
-                    decoration: BoxDecoration(
-                      color: isSelected
-                          ? (context.isDark ? L.card : AppColors.eatoNavy)
-                          : Colors.transparent,
-                      borderRadius: BorderRadius.circular(18),
-                      boxShadow: isSelected && !context.isDark
-                          ? [
-                              BoxShadow(
-                                color: AppColors.eatoNavy.withValues(alpha: 0.12),
-                                blurRadius: 12,
-                                offset: const Offset(0, 4),
-                              ),
-                            ]
-                          : (isSelected
-                              ? [
-                                  BoxShadow(
-                                    color: Colors.black.withValues(alpha: 0.08),
-                                    blurRadius: 12,
-                                    offset: const Offset(0, 4),
-                                    spreadRadius: -2,
-                                  ),
-                                ]
-                              : null),
-                    ),
-                    child: Text(
-                      widget.tabs[index],
-                      style: AppTypography.labelLarge.copyWith(
+                      decoration: BoxDecoration(
                         color: isSelected
-                            ? (context.isDark ? L.text : Colors.white)
-                            : L.sub.withValues(alpha: 0.6),
-                        fontWeight:
-                            isSelected ? FontWeight.w800 : FontWeight.w500,
-                        fontSize: 12,
+                            ? (context.isDark ? L.card : AppColors.eatoNavy)
+                            : Colors.transparent,
+                        borderRadius: BorderRadius.circular(18),
+                        boxShadow: isSelected && !context.isDark
+                            ? [
+                                BoxShadow(
+                                  color: AppColors.eatoNavy
+                                      .withValues(alpha: 0.12),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ]
+                            : (isSelected
+                                ? [
+                                    BoxShadow(
+                                      color:
+                                          Colors.black.withValues(alpha: 0.08),
+                                      blurRadius: 12,
+                                      offset: const Offset(0, 4),
+                                      spreadRadius: -2,
+                                    ),
+                                  ]
+                                : null),
+                      ),
+                      child: Text(
+                        widget.tabs[index],
+                        style: AppTypography.labelLarge.copyWith(
+                          color: isSelected
+                              ? (context.isDark ? L.text : Colors.white)
+                              : L.sub.withValues(alpha: 0.6),
+                          fontWeight:
+                              isSelected ? FontWeight.w800 : FontWeight.w500,
+                          fontSize: 12,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
+                );
               }),
             );
           },
@@ -197,8 +200,8 @@ class LatencyHeatmap extends StatelessWidget {
                             final color = latency.abs() < 15
                                 ? L.text
                                 : (latency.abs() < 60 ? L.sub : L.error);
-                            final bottomPos = ((latency + 60) / 120 * 100)
-                                .clamp(0.0, 100.0);
+                            final bottomPos =
+                                ((latency + 60) / 120 * 100).clamp(0.0, 100.0);
 
                             return Positioned(
                               bottom: bottomPos,
@@ -243,12 +246,17 @@ class LatencyHeatmap extends StatelessWidget {
                     ),
                     const SizedBox(height: AppSpacing.p16),
                     Text(
-                      ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
-                          [date.weekday % 7],
-                      style: AppTypography.labelSmall.copyWith(
-                          
-                          color: L.sub,
-                          fontWeight: FontWeight.w600),
+                      [
+                        'Sun',
+                        'Mon',
+                        'Tue',
+                        'Wed',
+                        'Thu',
+                        'Fri',
+                        'Sat'
+                      ][date.weekday % 7],
+                      style: AppTypography.labelSmall
+                          .copyWith(color: L.sub, fontWeight: FontWeight.w600),
                     ),
                   ],
                 ),
@@ -378,7 +386,8 @@ class HealthCoachCard extends StatelessWidget {
                                   .executeStepAction(step, context),
                               child: Container(
                                 padding: const EdgeInsets.symmetric(
-                                    horizontal: AppSpacing.p12, vertical: AppSpacing.p8),
+                                    horizontal: AppSpacing.p12,
+                                    vertical: AppSpacing.p8),
                                 decoration: BoxDecoration(
                                   color: L.fill.withValues(alpha: 0.6),
                                   borderRadius: BorderRadius.circular(10),
@@ -463,17 +472,16 @@ class AdherenceTrendChart extends StatelessWidget {
                     Text(
                       l10n.dashboardN30DayProgress,
                       style: AppTypography.headlineSmall.copyWith(
-                        color: L.text,
-                        fontWeight: FontWeight.w700,
-                        letterSpacing: -1.0
-                      ),
+                          color: L.text,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: -1.0),
                     ),
                   ],
                 ),
               ),
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.p8, vertical: AppSpacing.p4),
                 decoration: BoxDecoration(
                   color: L.text.withValues(alpha: 0.06),
                   borderRadius: BorderRadius.circular(12),
@@ -531,18 +539,22 @@ class AdherenceTrendChart extends StatelessWidget {
                             top: Radius.circular(6),
                             bottom: Radius.circular(2),
                           ),
-                          boxShadow: !isEmpty && val >= 0.8 ? [
-                            BoxShadow(
-                              color: barColor.withValues(alpha: 0.4),
-                              blurRadius: 8,
-                              offset: const Offset(0, -2),
-                            )
-                          ] : null,
+                          boxShadow: !isEmpty && val >= 0.8
+                              ? [
+                                  BoxShadow(
+                                    color: barColor.withValues(alpha: 0.4),
+                                    blurRadius: 8,
+                                    offset: const Offset(0, -2),
+                                  )
+                                ]
+                              : null,
                         ),
-                      ).animate(
+                      )
+                          .animate(
                             key: ValueKey('trend_bar_$i'),
                             delay: (i * 20).ms,
-                          ).scaleY(
+                          )
+                          .scaleY(
                             begin: 0.0,
                             end: 1.0,
                             duration: 1000.ms,
@@ -584,7 +596,8 @@ class AdherenceTrendChart extends StatelessWidget {
     return PremiumEmptyState(
       compact: true,
       title: 'No trend yet',
-      subtitle: 'Keep logging doses for a few days to unlock your 30-day chart.',
+      subtitle:
+          'Keep logging doses for a few days to unlock your 30-day chart.',
       mascotFeature: 'stats',
       icon: Icons.show_chart_rounded,
     );
@@ -611,73 +624,73 @@ class InventoryStatusCard extends StatelessWidget {
       return PremiumEmptyState(
         compact: true,
         title: l10n.dashboardNoInventoryTracked,
-        subtitle: 'Set pill counts on your medicines to see refill levels here.',
+        subtitle:
+            'Set pill counts on your medicines to see refill levels here.',
         mascotFeature: 'refill',
         icon: Icons.inventory_2_outlined,
       );
     }
 
     final content = Column(
-        children: trackedMeds.asMap().entries.map((entry) {
-          final i = entry.key;
-          final med = entry.value;
-          final isLow = med.count <= med.refillAt;
-          final color = isLow ? L.error : AppColors.limeDeep;
-          final pct = (med.count / (med.totalCount > 0 ? med.totalCount : 30))
-              .clamp(0.01, 1.0);
+      children: trackedMeds.asMap().entries.map((entry) {
+        final i = entry.key;
+        final med = entry.value;
+        final isLow = med.count <= med.refillAt;
+        final color = isLow ? L.error : AppColors.limeDeep;
+        final pct = (med.count / (med.totalCount > 0 ? med.totalCount : 30))
+            .clamp(0.01, 1.0);
 
-          return Padding(
-            padding:
-                EdgeInsets.only(bottom: i == trackedMeds.length - 1 ? 0 : AppSpacing.p16),
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 3,
-                  child: Text(
-                    med.name,
-                    style: AppTypography.labelMedium.copyWith(
-                      color: L.text,
-                      fontWeight: FontWeight.w700
-                    ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+        return Padding(
+          padding: EdgeInsets.only(
+              bottom: i == trackedMeds.length - 1 ? 0 : AppSpacing.p16),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 3,
+                child: Text(
+                  med.name,
+                  style: AppTypography.labelMedium
+                      .copyWith(color: L.text, fontWeight: FontWeight.w700),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              Expanded(
+                flex: 4,
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(100),
+                  child: LinearProgressIndicator(
+                    value: pct,
+                    minHeight: 6,
+                    backgroundColor: L.fill.withValues(alpha: 0.5),
+                    color: color,
                   ),
                 ),
-                Expanded(
-                  flex: 4,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(100),
-                    child: LinearProgressIndicator(
-                      value: pct,
-                      minHeight: 6,
-                      backgroundColor: L.fill.withValues(alpha: 0.5),
-                      color: color,
-                    ),
+              ),
+              const SizedBox(width: AppSpacing.p12),
+              SizedBox(
+                width: 28,
+                child: Text(
+                  '${med.count}',
+                  style: AppTypography.labelMedium.copyWith(
+                    color: color,
+                    fontWeight: FontWeight.w700,
+                    fontSize: 14,
                   ),
+                  textAlign: TextAlign.right,
                 ),
-                const SizedBox(width: AppSpacing.p12),
-                SizedBox(
-                  width: 28,
-                  child: Text(
-                    '${med.count}',
-                    style: AppTypography.labelMedium.copyWith(
-                      color: color,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 14,
-                    ),
-                    textAlign: TextAlign.right,
-                  ),
-                ),
-              ],
-            ),
-          );
-        }).toList(),
+              ),
+            ],
+          ),
+        );
+      }).toList(),
     );
 
     if (embedded) return content;
 
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p16),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.p16, vertical: AppSpacing.p16),
       decoration: BoxDecoration(
         color: L.card,
         borderRadius: BorderRadius.circular(22),

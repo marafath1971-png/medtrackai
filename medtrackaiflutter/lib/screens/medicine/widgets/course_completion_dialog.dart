@@ -48,8 +48,8 @@ class CourseCompletionDialog extends StatelessWidget {
               Text(
                 l10n.medicineGreatJobFinishingYourCourseOf(med.name),
                 textAlign: TextAlign.center,
-                style:
-                    AppTypography.bodyMedium.copyWith(color: L.sub, height: 1.5),
+                style: AppTypography.bodyMedium
+                    .copyWith(color: L.sub, height: 1.5),
               ),
               const SizedBox(height: AppSpacing.p24),
               MedAiGlass(
@@ -75,8 +75,8 @@ class CourseCompletionDialog extends StatelessWidget {
                               style: AppTypography.labelMedium.copyWith(
                                   fontWeight: FontWeight.w800, color: L.green)),
                           Text(l10n.medicineN100AdherenceForThisCourse,
-                              style: AppTypography.labelSmall
-                                  .copyWith(color: L.sub.withValues(alpha: 0.8))),
+                              style: AppTypography.labelSmall.copyWith(
+                                  color: L.sub.withValues(alpha: 0.8))),
                         ],
                       ),
                     ),
@@ -103,8 +103,8 @@ class CourseCompletionDialog extends StatelessWidget {
                     child: Center(
                       child: Text(
                         l10n.familyClose,
-                        style: AppTypography.labelLarge
-                            .copyWith(color: L.sub, fontWeight: FontWeight.w600),
+                        style: AppTypography.labelLarge.copyWith(
+                            color: L.sub, fontWeight: FontWeight.w600),
                       ),
                     ),
                   ),

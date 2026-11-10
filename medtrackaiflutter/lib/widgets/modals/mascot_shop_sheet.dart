@@ -28,7 +28,11 @@ class MascotAccessory {
 const List<MascotAccessory> _availableAccessories = [
   MascotAccessory(id: 'glasses', name: 'Cool Shades', emoji: '🕶️', cost: 150),
   MascotAccessory(
-      id: 'crown', name: 'Royal Crown', emoji: '👑', cost: 500, isPremium: true),
+      id: 'crown',
+      name: 'Royal Crown',
+      emoji: '👑',
+      cost: 500,
+      isPremium: true),
   MascotAccessory(id: 'party', name: 'Party Hat', emoji: '🥳', cost: 200),
   MascotAccessory(id: 'wizard', name: 'Wizard Hat', emoji: '🧙‍♂️', cost: 350),
   MascotAccessory(
@@ -122,8 +126,8 @@ class _MascotShopSheetState extends State<MascotShopSheet> {
       alignment: Alignment.topCenter,
       children: [
         ClipRRect(
-          borderRadius:
-              const BorderRadius.vertical(top: Radius.circular(AppRadius.squircle)),
+          borderRadius: const BorderRadius.vertical(
+              top: Radius.circular(AppRadius.squircle)),
           child: MedAiGlass(
             radius: AppRadius.squircle,
             showBorder: false,

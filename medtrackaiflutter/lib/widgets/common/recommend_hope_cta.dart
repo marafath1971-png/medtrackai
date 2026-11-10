@@ -24,8 +24,11 @@ class RecommendHopeCta extends StatelessWidget {
       onTap: () {
         HapticEngine.selection();
         ShareService.shareText(
-          l10n.commonShareRecommendation(name, HopeVibe.numberOneFeel,
-              HopeVibe.tagline, HopeVibe.shareInviteMessage,
+          l10n.commonShareRecommendation(
+              name,
+              HopeVibe.numberOneFeel,
+              HopeVibe.tagline,
+              HopeVibe.shareInviteMessage,
               ShareService.downloadUrl),
           subject: 'Med AI — worth recommending',
         );

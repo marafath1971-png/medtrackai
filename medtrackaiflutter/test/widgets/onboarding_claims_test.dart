@@ -33,7 +33,8 @@ void main() {
       // 'never' already self-reports 0.93, so the floor keeps it there rather
       // than inventing a higher number; nobody is shown a 97% promise.
       for (final answer in ['often', 'sometimes', 'rarely', 'never']) {
-        final c = OnboardingController()..selectSingle('miss_frequency', answer);
+        final c = OnboardingController()
+          ..selectSingle('miss_frequency', answer);
 
         expect(c.adherenceTarget, lessThan(0.94),
             reason: '97% read as a guarantee of a clinical outcome');
@@ -45,7 +46,8 @@ void main() {
       // already reports near-perfect adherence, and offering them a *lower*
       // target than they claim is the only genuinely wrong outcome.
       for (final answer in ['often', 'sometimes', 'rarely', 'never']) {
-        final c = OnboardingController()..selectSingle('miss_frequency', answer);
+        final c = OnboardingController()
+          ..selectSingle('miss_frequency', answer);
 
         expect(c.adherenceTarget, greaterThanOrEqualTo(c.inferredAdherence),
             reason: 'a target below the current baseline is not a goal');
@@ -53,8 +55,7 @@ void main() {
     });
 
     test('someone who misses often is offered real headroom', () {
-      final c = OnboardingController()
-        ..selectSingle('miss_frequency', 'often');
+      final c = OnboardingController()..selectSingle('miss_frequency', 'often');
 
       expect(c.adherenceTarget, greaterThan(c.inferredAdherence + 0.05),
           reason: 'the plan has to be worth paying for');

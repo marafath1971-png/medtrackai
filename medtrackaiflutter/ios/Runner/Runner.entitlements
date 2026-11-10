@@ -15,6 +15,20 @@
 	<array>
 		<string>applinks:medai.app</string>
 	</array>
+	<!-- HealthKit. Step counting (and HealthController's vitals sync) read
+	     through the `health` plugin, and HealthKit refuses every authorization
+	     request from an app without this entitlement — the permission sheet
+	     never appears. Pairs with NSHealthShareUsageDescription in Info.plist. -->
+	<key>com.apple.developer.healthkit</key>
+	<true/>
+	<!-- App Group shared with MedTrackActivityWidgetExtension. AppDelegate
+	     writes the widget snapshots to UserDefaults(suiteName:) under this
+	     group; without the entitlement on BOTH targets that suite is private
+	     to each process and the widgets only ever see their defaults. -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>group.com.medtrackai</string>
+	</array>
 	<!-- App Attest. main.dart activates AppleAppAttestProvider() for release
 	     builds, and functions/index.js sets enforceAppCheck: true globally, so
 	     without this key iOS can produce no attestation token and every

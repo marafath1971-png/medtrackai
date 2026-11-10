@@ -32,7 +32,8 @@ class HomeScheduleEmpty extends StatelessWidget {
         : 'Scan or add a medicine to build your daily schedule.';
 
     return PremiumTextureCard(
-      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.p20, vertical: AppSpacing.p20),
+      padding: const EdgeInsets.symmetric(
+          horizontal: AppSpacing.p20, vertical: AppSpacing.p20),
       radius: AppRadius.l,
       texture: PremiumTextureStyle.none,
       child: Column(
@@ -49,7 +50,7 @@ class HomeScheduleEmpty extends StatelessWidget {
                 asset: hasMeds
                     ? MedAiAssets.mascotHappyPill
                     : MedAiAssets.mascotHomeHeart,
-                size: 76,
+                size: 52,
                 // The entrance wrapper handles the reveal; a gentle idle float
                 // keeps the empty state feeling alive without looping bounce.
                 idle: !reduceMotion,
@@ -83,8 +84,8 @@ class HomeScheduleEmpty extends StatelessWidget {
                 onAdd!();
               },
               child: Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.p16, vertical: AppSpacing.p12),
                 decoration: BoxDecoration(
                   color: L.accent,
                   borderRadius: BorderRadius.circular(12),
@@ -103,8 +104,8 @@ class HomeScheduleEmpty extends StatelessWidget {
               onTap: () =>
                   startManualAddMedicine(context, source: 'home_empty'),
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: AppSpacing.p8, vertical: AppSpacing.p8),
+                padding: const EdgeInsets.symmetric(
+                    horizontal: AppSpacing.p8, vertical: AppSpacing.p8),
                 child: Text(
                   l10n.homeOrEnterItManually,
                   style: AppTypography.labelMedium.copyWith(

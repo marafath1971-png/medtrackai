@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:medai/l10n/app_localizations.dart';
 import 'package:medai/screens/onboarding/widgets/ob_unique_widgets.dart';
+import 'package:medai/screens/onboarding/widgets/ob_welcome_screen.dart';
 import 'package:medai/theme/app_theme.dart';
 
 /// The first screen of the app.
@@ -34,6 +35,18 @@ Widget _host(Widget child, {Size size = const Size(411, 914)}) {
           ),
         ),
       ),
+    ),
+  );
+}
+
+Widget _hostScreen(Widget screen, {Size size = const Size(411, 914)}) {
+  return MaterialApp(
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    theme: AppTheme.light(),
+    home: MediaQuery(
+      data: MediaQueryData(size: size),
+      child: screen,
     ),
   );
 }
@@ -84,8 +97,7 @@ void main() {
     final scan = tester.getTopLeft(find.textContaining('Scan any pill')).dy;
     final interactions =
         tester.getTopLeft(find.textContaining('risky interactions')).dy;
-    final alert =
-        tester.getTopLeft(find.textContaining('a dose is missed')).dy;
+    final alert = tester.getTopLeft(find.textContaining('a dose is missed')).dy;
 
     expect(scan, lessThan(interactions));
     expect(interactions, lessThan(alert));
@@ -118,5 +130,59 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
 
     expect(tester.takeException(), isNull);
+  });
+
+  group('ObMedAiWelcomeScreen (Asset Pack spec)', () {
+    testWidgets('renders headline, subtitle, hero, 3 benefit tiles, and CTA',
+        (tester) async {
+      var started = false;
+      await tester.pumpWidget(
+        _hostScreen(
+          ObMedAiWelcomeScreen(
+            onGetStarted: () => started = true,
+          ),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+
+      // Headline and subtitle
+      expect(
+        find.textContaining('Take Your', findRichText: true),
+        findsOneWidget,
+      );
+      expect(
+        find.textContaining('Stress-Free', findRichText: true),
+        findsOneWidget,
+      );
+      expect(find.textContaining('Smart reminders'), findsOneWidget);
+
+      // 3 Benefit tiles
+      expect(find.textContaining('Get Reminders'), findsOneWidget);
+      expect(find.textContaining('Stay Safe'), findsOneWidget);
+      expect(find.textContaining('Track Progress'), findsOneWidget);
+
+      // CTA button
+      final cta = find.textContaining('Continue');
+      expect(cta, findsOneWidget);
+
+      await tester.tap(cta);
+      await tester.pumpAndSettle();
+      expect(started, isTrue);
+    });
+
+    testWidgets('adapts cleanly to compact screens without overflow',
+        (tester) async {
+      // iPhone SE (375x667)
+      await tester.pumpWidget(
+        _hostScreen(
+          ObMedAiWelcomeScreen(onGetStarted: () {}),
+          size: const Size(375, 667),
+        ),
+      );
+      await tester.pump(const Duration(seconds: 1));
+
+      expect(tester.takeException(), isNull);
+      expect(find.byType(ObMedAiWelcomeScreen), findsOneWidget);
+    });
   });
 }

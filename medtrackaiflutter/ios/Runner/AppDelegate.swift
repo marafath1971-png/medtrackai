@@ -47,6 +47,26 @@ import WidgetKit
           } else {
               result(FlutterError(code: "UNAVAILABLE", message: "UserDefaults not available", details: nil))
           }
+        } else if call.method == "syncSteps" {
+          // Snapshot for StepsWidget (ios/MedTrackActivityWidget/StepsWidget.swift).
+          // "steps.day" lets the widget tell today's count from a stale one.
+          if let args = call.arguments as? [String: Any],
+             let userDefaults = UserDefaults(suiteName: "group.com.medtrackai") {
+              for key in ["enabled", "steps", "goal", "streak",
+                          "partnerName", "partnerSteps", "partnerGoal"] {
+                  userDefaults.set(args[key], forKey: "steps.\(key)")
+              }
+              let day = DateFormatter()
+              day.locale = Locale(identifier: "en_US_POSIX")
+              day.dateFormat = "yyyy-MM-dd"
+              userDefaults.set(day.string(from: Date()), forKey: "steps.day")
+              if #available(iOS 14.0, *) {
+                  WidgetCenter.shared.reloadTimelines(ofKind: "StepsWidget")
+              }
+              result(true)
+          } else {
+              result(FlutterError(code: "UNAVAILABLE", message: "UserDefaults not available", details: nil))
+          }
         } else {
           result(FlutterMethodNotImplemented)
         }

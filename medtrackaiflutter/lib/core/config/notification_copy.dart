@@ -9,10 +9,12 @@ class NotificationCopy {
   ];
 
   static const String refillTitle = "Refill Reminder";
-  static const String refillBody = "Your supply of {medName} is running low ({count} remaining).";
+  static const String refillBody =
+      "Your supply of {medName} is running low ({count} remaining).";
 
   static const String reEngagementTitle = "We're here when you're ready";
-  static const String reEngagementBody = "Your meds are here whenever you're ready to get back on track.";
+  static const String reEngagementBody =
+      "Your meds are here whenever you're ready to get back on track.";
 
   static const String familyAlertTitle = "Dose Available";
   static const String familyAlertBody = "A family member has a dose available.";

@@ -43,8 +43,8 @@ void main() {
 
     test('maps the qualitative words the model returns', () {
       expect(ScanResultDetailView.confidenceValue('high'), greaterThan(0.85));
-      expect(ScanResultDetailView.confidenceValue('very high'),
-          greaterThan(0.85));
+      expect(
+          ScanResultDetailView.confidenceValue('very high'), greaterThan(0.85));
       expect(ScanResultDetailView.confidenceValue('medium'),
           inInclusiveRange(0.6, 0.8));
       expect(ScanResultDetailView.confidenceValue('moderate'),
@@ -61,7 +61,14 @@ void main() {
       // A medicine scan that cannot report its confidence is exactly the case
       // where the user should be cautious. Anything above the meter's 0.5
       // amber threshold presents a guess as a reasonable match.
-      for (final raw in const ['', '   ', 'unknown', 'uncertain', 'not sure', 'n/a']) {
+      for (final raw in const [
+        '',
+        '   ',
+        'unknown',
+        'uncertain',
+        'not sure',
+        'n/a'
+      ]) {
         test('"$raw" stays in the low band', () {
           expect(ScanResultDetailView.confidenceValue(raw), lessThan(0.5),
               reason: 'an unknown confidence must not be shown as a '

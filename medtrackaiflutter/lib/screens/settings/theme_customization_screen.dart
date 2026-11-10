@@ -52,9 +52,10 @@ class _ThemeCustomizationScreenState extends State<ThemeCustomizationScreen> {
     final l10n = AppLocalizations.of(context)!;
     final L = context.L;
     final reduceMotion = MedAiA11y.reducedMotion(context);
-    final tileWidth =
-        (MediaQuery.of(context).size.width - (AppSpacing.screenPadding * 2) - 16) /
-            2;
+    final tileWidth = (MediaQuery.of(context).size.width -
+            (AppSpacing.screenPadding * 2) -
+            16) /
+        2;
 
     return AppScaffold(
       showAurora: true,
@@ -79,114 +80,114 @@ class _ThemeCustomizationScreenState extends State<ThemeCustomizationScreen> {
                   padding: EdgeInsets.all(14),
                 ),
                 const SizedBox(height: 16),
-                  MedAiSectionHeader(title: l10n.settingsAppIcons),
-                  const SizedBox(height: 16),
-                  Wrap(
-                    spacing: 16,
-                    runSpacing: 16,
-                    children: _icons.map((icon) {
-                      final isSelected = _currentIcon == icon['id'];
-                      final iconColor = icon['color'] as Color;
+                MedAiSectionHeader(title: l10n.settingsAppIcons),
+                const SizedBox(height: 16),
+                Wrap(
+                  spacing: 16,
+                  runSpacing: 16,
+                  children: _icons.map((icon) {
+                    final isSelected = _currentIcon == icon['id'];
+                    final iconColor = icon['color'] as Color;
 
-                      Widget tile = MedAiDepthCard(
-                        padding: const EdgeInsets.all(16),
-                        accentGlow: isSelected,
-                        onTap: () => _setIcon(icon['id'] as String?),
-                        child: SizedBox(
-                          width: tileWidth - 32,
-                          child: Column(
-                            children: [
-                              Container(
-                                width: 64,
-                                height: 64,
-                                decoration: BoxDecoration(
-                                  color: iconColor,
-                                  borderRadius: BorderRadius.circular(16),
-                                  boxShadow: isSelected
-                                      ? [
-                                          BoxShadow(
-                                            color: iconColor.withValues(
-                                                alpha: 0.4),
-                                            blurRadius: 12,
-                                            offset: const Offset(0, 4),
-                                          )
-                                        ]
-                                      : null,
-                                ),
-                                child: isSelected
-                                    ? const Icon(Icons.check_rounded,
-                                        color: Colors.white)
+                    Widget tile = MedAiDepthCard(
+                      padding: const EdgeInsets.all(16),
+                      accentGlow: isSelected,
+                      onTap: () => _setIcon(icon['id'] as String?),
+                      child: SizedBox(
+                        width: tileWidth - 32,
+                        child: Column(
+                          children: [
+                            Container(
+                              width: 64,
+                              height: 64,
+                              decoration: BoxDecoration(
+                                color: iconColor,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: isSelected
+                                    ? [
+                                        BoxShadow(
+                                          color:
+                                              iconColor.withValues(alpha: 0.4),
+                                          blurRadius: 12,
+                                          offset: const Offset(0, 4),
+                                        )
+                                      ]
                                     : null,
                               ),
-                              const SizedBox(height: 12),
-                              Text(
-                                icon['name'] as String,
-                                style: AppTypography.labelLarge.copyWith(
-                                  color: isSelected ? L.text : L.sub,
-                                  fontWeight: isSelected
-                                      ? FontWeight.w800
-                                      : FontWeight.w600,
-                                ),
-                                textAlign: TextAlign.center,
+                              child: isSelected
+                                  ? const Icon(Icons.check_rounded,
+                                      color: Colors.white)
+                                  : null,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              icon['name'] as String,
+                              style: AppTypography.labelLarge.copyWith(
+                                color: isSelected ? L.text : L.sub,
+                                fontWeight: isSelected
+                                    ? FontWeight.w800
+                                    : FontWeight.w600,
                               ),
-                            ],
-                          ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ],
                         ),
-                      );
+                      ),
+                    );
 
-                      if (!reduceMotion && isSelected) {
-                        tile = tile
-                            .animate()
-                            .scaleXY(end: 1.02, curve: AppCurves.emilOut);
-                      }
+                    if (!reduceMotion && isSelected) {
+                      tile = tile
+                          .animate()
+                          .scaleXY(end: 1.02, curve: AppCurves.emilOut);
+                    }
 
-                      return SizedBox(width: tileWidth, child: tile);
-                    }).toList(),
-                  ),
-                  const SizedBox(height: 40),
-                  MedAiGlass(
-                    child: Row(
-                      children: [
-                        Container(
-                          width: MedAiA11y.minTapTargetCompact,
-                          height: MedAiA11y.minTapTargetCompact,
-                          decoration: BoxDecoration(
-                            color: L.accent.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Icon(Icons.auto_awesome_rounded,
-                              color: L.accent, size: 24),
+                    return SizedBox(width: tileWidth, child: tile);
+                  }).toList(),
+                ),
+                const SizedBox(height: 40),
+                MedAiGlass(
+                  child: Row(
+                    children: [
+                      Container(
+                        width: MedAiA11y.minTapTargetCompact,
+                        height: MedAiA11y.minTapTargetCompact,
+                        decoration: BoxDecoration(
+                          color: L.accent.withValues(alpha: 0.12),
+                          borderRadius: BorderRadius.circular(14),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.settingsMoreThemesComingSoon,
-                                style: AppTypography.titleMedium.copyWith(
-                                  color: L.text,
-                                  fontWeight: FontWeight.w700,
-                                ),
+                        child: Icon(Icons.auto_awesome_rounded,
+                            color: L.accent, size: 24),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              l10n.settingsMoreThemesComingSoon,
+                              style: AppTypography.titleMedium.copyWith(
+                                color: L.text,
+                                fontWeight: FontWeight.w700,
                               ),
-                              Text(
-                                l10n.settingsUnlockExclusiveAestheticsWithStreaks,
-                                style: AppTypography.labelLarge.copyWith(
-                                  color: L.sub,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                            ),
+                            Text(
+                              l10n.settingsUnlockExclusiveAestheticsWithStreaks,
+                              style: AppTypography.labelLarge.copyWith(
+                                color: L.sub,
+                                fontWeight: FontWeight.w500,
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
+      ),
     );
   }
 }

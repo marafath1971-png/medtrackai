@@ -1926,8 +1926,7 @@ class _ManagementToggleTile extends StatelessWidget {
         decoration: BoxDecoration(
             border: Border(
                 bottom: BorderSide(
-                    color: L.glassBorder.withValues(alpha: 0.08),
-                    width: 0.5))),
+                    color: L.glassBorder.withValues(alpha: 0.08), width: 0.5))),
         child: ListTile(
             contentPadding: const EdgeInsets.symmetric(
                 horizontal: AppSpacing.gutter, vertical: AppSpacing.p8),

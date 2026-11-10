@@ -8,6 +8,7 @@ import '../../services/analytics_service.dart';
 import '../../core/utils/result.dart';
 import 'package:live_activities/live_activities.dart';
 import '../../services/notification_service.dart';
+import '../../services/gemini_service.dart';
 
 class ScheduledMed {
   final Medicine med;
@@ -52,6 +53,26 @@ class MedicationController extends ChangeNotifier {
   MedicationController({required this.medRepo});
 
   List<Medicine> get meds => _meds;
+
+  /// Resets in-memory medication data on sign out or account deletion.
+  void clear() {
+    _currentProfileId = null;
+    _meds = [];
+    _history = {};
+    _takenToday = {};
+    _inventoryHistory = [];
+    _frozenDates = [];
+    _interactionWarning = null;
+    _interactionWarningMedName = null;
+    isDosesDirty = true;
+    isStreakDirty = true;
+    isAdherenceDirty = true;
+    _cachedStreak = null;
+    _cachedAdherence = null;
+    _cachedDoses = null;
+    _cachedDosesDay = null;
+    notifyListeners();
+  }
 
   /// Seed in-memory state directly so pure calculations (adherence, streaks,
   /// dose grouping) can be tested without a repository or a live Firestore.
@@ -114,6 +135,7 @@ class MedicationController extends ChangeNotifier {
     invalidateCache();
     notifyListeners();
   }
+
   Map<String, List<DoseEntry>> get history => _history;
   Map<String, bool> get takenToday => _takenToday;
   StreakData get streakData => _streakData;
@@ -154,7 +176,7 @@ class MedicationController extends ChangeNotifier {
       }
 
       invalidateCache();
-      
+
       // Sync Apple Watch Smart Stack / Live Activities
       if (Platform.isIOS) {
         updateLiveActivityCards();
@@ -408,7 +430,7 @@ class MedicationController extends ChangeNotifier {
 
     final dayOfWeek = targetDate.weekday % 7;
     final items = <DoseItem>[];
-    
+
     // 1. Add scheduled doses
     for (final med in _meds) {
       for (final s in med.schedule) {
@@ -484,7 +506,8 @@ class MedicationController extends ChangeNotifier {
 
     if (date == null) {
       _cachedDoses = items;
-      _cachedDosesDay = DateTime(targetDate.year, targetDate.month, targetDate.day);
+      _cachedDosesDay =
+          DateTime(targetDate.year, targetDate.month, targetDate.day);
       isDosesDirty = false;
     }
     return items;
@@ -551,7 +574,7 @@ class MedicationController extends ChangeNotifier {
           entry
         ],
       };
-      AnalyticsService.logDoseAction(medName: dose.med.name, action: 'take');
+      AnalyticsService.logDoseAction(action: 'take');
     } else {
       // 1. Revert Inventory
       final idx = _meds.indexWhere((m) => m.id == dose.med.id);
@@ -565,10 +588,11 @@ class MedicationController extends ChangeNotifier {
       _history = {
         ..._history,
         dateKey: (_history[dateKey] ?? [])
-            .where((e) => !(e.medId == dose.med.id && e.label == dose.sched.label))
+            .where(
+                (e) => !(e.medId == dose.med.id && e.label == dose.sched.label))
             .toList(),
       };
-      AnalyticsService.logDoseAction(medName: dose.med.name, action: 'untake');
+      AnalyticsService.logDoseAction(action: 'untake');
     }
 
     await medRepo.saveTakenToday(_takenToday, profileId: _currentProfileId);
@@ -659,6 +683,12 @@ class MedicationController extends ChangeNotifier {
       _isMutating = false;
       notifyListeners();
     }
+
+    if (_interactionWarning == null &&
+        _meds.length > 1 &&
+        medicine.name.trim().isNotEmpty) {
+      _triggerInteractionCheck(medicine);
+    }
   }
 
   Future<void> deleteMedicine(int id) async {
@@ -676,10 +706,41 @@ class MedicationController extends ChangeNotifier {
   }
 
   Future<void> updateMedDirect(Medicine updated) async {
+    final oldMed = _meds.firstWhere(
+      (m) => m.id == updated.id,
+      orElse: () => Medicine.empty(),
+    );
     _meds = _meds.map((m) => m.id == updated.id ? updated : m).toList();
     medRepo.updateMedicine(updated, profileId: _currentProfileId);
     invalidateCache();
     notifyListeners();
+
+    final nameChanged = updated.name.trim().isNotEmpty &&
+        (oldMed.name.trim().isEmpty ||
+            oldMed.name.trim().toLowerCase() !=
+                updated.name.trim().toLowerCase());
+    if (nameChanged && _meds.length > 1) {
+      _triggerInteractionCheck(updated);
+    }
+  }
+
+  void _triggerInteractionCheck(Medicine med) {
+    final otherMeds =
+        _meds.where((m) => m.id != med.id && m.name.trim().isNotEmpty).toList();
+    if (otherMeds.isEmpty) return;
+
+    GeminiService.checkInteractions(
+      newMed: med,
+      existingMeds: otherMeds,
+    ).then((warning) {
+      if (warning != null && warning.isNotEmpty) {
+        _interactionWarning = warning;
+        _interactionWarningMedName = med.name;
+        notifyListeners();
+      }
+    }).catchError((e) {
+      appLogger.w('[MedicationController] Drug interaction check failed: $e');
+    });
   }
 
   Future<Result<AISafetyProfile>> analyzeMedicineSafety(Medicine m) async {
@@ -884,7 +945,8 @@ class MedicationController extends ChangeNotifier {
       final takenAtStr = entry.takenAt;
       if (takenAtStr == null) continue;
 
-      final dtTaken = DateTime.parse(takenAtStr);
+      final dtTaken = DateTime.tryParse(takenAtStr);
+      if (dtTaken == null) continue;
       final timeParts = entry.time.split(':');
       if (timeParts.length < 2) continue;
 
@@ -914,7 +976,8 @@ class MedicationController extends ChangeNotifier {
       if (dayHistory != null) {
         for (var entry in dayHistory) {
           if (!entry.taken || entry.takenAt == null) continue;
-          final dtTaken = DateTime.parse(entry.takenAt!);
+          final dtTaken = DateTime.tryParse(entry.takenAt!);
+          if (dtTaken == null) continue;
           final parts = entry.time.split(':');
           if (parts.length < 2) continue;
           final sH = int.tryParse(parts[0]);

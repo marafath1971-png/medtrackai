@@ -18,11 +18,14 @@ class AnalyticsService {
     }
   }
 
-  /// Specific event for Medicine Scanning
-  static Future<void> logMedicineScan(
-      {required String result, required bool success}) async {
+  /// Specific event for Medicine Scanning.
+  ///
+  /// Records only whether the scan succeeded. What was scanned is health
+  /// data: sending a drug name to an analytics vendor alongside [setUserId]
+  /// is the disclosure the FTC Health Breach Notification Rule treats as a
+  /// breach, so it never leaves the device through this service.
+  static Future<void> logMedicineScan({required bool success}) async {
     await logEvent('medicine_scan', parameters: {
-      'result_type': result,
       'is_success': success ? 1 : 0,
     });
   }
@@ -44,14 +47,14 @@ class AnalyticsService {
     await _analytics.setUserId(id: uid);
   }
 
-  /// Log Dose interactions (take, skip, miss)
+  /// Log Dose interactions (take, skip, miss).
+  ///
+  /// Deliberately takes no medicine name, for the reason on [logMedicineScan].
   static Future<void> logDoseAction({
-    required String medName,
     required String action,
-    Map<String, dynamic>? extra,
+    Map<String, Object>? extra,
   }) async {
     await logEvent('dose_action', parameters: {
-      'medicine_name': medName,
       'action': action, // 'take', 'skip', 'miss'
       ...?extra,
     });

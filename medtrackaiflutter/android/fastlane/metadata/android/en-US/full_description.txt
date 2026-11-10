@@ -1,0 +1,26 @@
+Never forget a dose again. Med AI is your intelligent medication tracker, pill identifier, and personal health companion designed to simplify your daily health routine with speed, privacy, and ease.
+
+Whether managing complex prescriptions, daily vitamins, or caring for elderly family members, Med AI keeps you on track with smart schedules, instant AI pill recognition, and automated safety alerts.
+
+KEY FEATURES:
+
+📸 Instant AI Pill & Bottle Scanner
+Scan any pill, prescription bottle, or supplement label using your camera. Med AI instantly extracts medication names, dosages, and instructions, eliminating tedious manual typing.
+
+⏰ Reliable Smart Reminders & Snooze
+Customizable alerts tailored to your schedule. Choose exact notification times, repeat intervals, mealtime associations (before/after food), and persistent reminders so doses are never overlooked.
+
+⚠️ Drug-to-Drug & Food Interaction Checker
+Stay protected with AI-powered interaction safety analysis. Check for potential interactions between multiple prescriptions, over-the-counter medications, vitamins, and dietary restrictions before you take them.
+
+👨‍👩‍👧 Care Circles & Family Remote Monitoring
+Keep peace of mind for your loved ones. Monitor parents, children, or care recipients with real-time adherence updates and timely missed-dose notifications.
+
+📊 Adherence Tracking & Doctor Reports
+Visualize your adherence streaks and health progress. Export comprehensive PDF adherence logs to share directly with your physician, pharmacist, or caregiver.
+
+🔒 Private, Secure & Offline-First
+Your health data is yours alone. Protected by end-to-end encryption and biometric security (Face ID / Fingerprint lock). Core medication logging and alarms work completely offline without an internet connection.
+
+IMPORTANT MEDICAL DISCLAIMER:
+Med AI is an assistive digital organization tool designed to support personal medication adherence and wellness management. Med AI is not a medical device, does not provide medical diagnosis, and is not a substitute for professional clinical advice, evaluation, or emergency treatment. Always consult your healthcare provider or pharmacist regarding medication decisions. In an emergency, contact local emergency services immediately.

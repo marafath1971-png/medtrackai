@@ -32,11 +32,13 @@ class PredictiveInsightCard extends StatelessWidget {
                   color: color.withValues(alpha: 0.2),
                   shape: BoxShape.circle,
                   boxShadow: [
-                    BoxShadow(color: color.withValues(alpha: 0.3), blurRadius: 12),
+                    BoxShadow(
+                        color: color.withValues(alpha: 0.3), blurRadius: 12),
                   ],
                 ),
                 child: Center(
-                  child: Text(_getEmoji(insight.type), style: const TextStyle(fontSize: 18)),
+                  child: Text(_getEmoji(insight.type),
+                      style: const TextStyle(fontSize: 18)),
                 ),
               ),
               const SizedBox(width: 12),
@@ -89,8 +91,7 @@ class PredictiveInsightCard extends StatelessWidget {
           ),
         ],
       ),
-    )
-    .medAiChain(
+    ).medAiChain(
       context,
       (w) => w
           .animate(key: ValueKey('predictive_entrance_${insight.title}'))
@@ -102,19 +103,27 @@ class PredictiveInsightCard extends StatelessWidget {
   // On-brand semantic colors — using AppColors tokens
   Color _getColor(PredictiveType type, AppThemeColors L) {
     switch (type) {
-      case PredictiveType.eveningRisk:   return AppColors.limeDeep; // calm evening cue
-      case PredictiveType.weekendSlump:  return AppColors.accent;
-      case PredictiveType.travelRisk:    return AppColors.accent;
-      case PredictiveType.heatWarning:   return L.error;
+      case PredictiveType.eveningRisk:
+        return AppColors.limeDeep; // calm evening cue
+      case PredictiveType.weekendSlump:
+        return AppColors.accent;
+      case PredictiveType.travelRisk:
+        return AppColors.accent;
+      case PredictiveType.heatWarning:
+        return L.error;
     }
   }
 
   String _getEmoji(PredictiveType type) {
     switch (type) {
-      case PredictiveType.eveningRisk:  return '🌃';
-      case PredictiveType.weekendSlump: return '⚖️';
-      case PredictiveType.travelRisk:   return '🌐';
-      case PredictiveType.heatWarning:  return '🌡️';
+      case PredictiveType.eveningRisk:
+        return '🌃';
+      case PredictiveType.weekendSlump:
+        return '⚖️';
+      case PredictiveType.travelRisk:
+        return '🌐';
+      case PredictiveType.heatWarning:
+        return '🌡️';
     }
   }
 }

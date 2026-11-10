@@ -134,8 +134,7 @@ void main() {
 
     expect(filled, hasLength(1),
         reason: 'only the Apple button uses the dark variant');
-    expect(unfilled, isNotEmpty,
-        reason: 'Google and Email stay light');
+    expect(unfilled, isNotEmpty, reason: 'Google and Email stay light');
   });
 
   testWidgets('the Apple button paints a dark fill, not a white pill',
@@ -143,8 +142,8 @@ void main() {
     await pumpAuth(tester);
 
     // Find the DecoratedBox belonging to the one filled surface.
-    final filledFinder = find.byWidgetPredicate(
-        (w) => w is SolidSurface && w.filled);
+    final filledFinder =
+        find.byWidgetPredicate((w) => w is SolidSurface && w.filled);
     expect(filledFinder, findsOneWidget);
 
     final box = tester.widget<DecoratedBox>(

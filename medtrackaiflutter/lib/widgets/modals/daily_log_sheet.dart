@@ -285,7 +285,8 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        l10n.modalsOfDosesLogged(takenCount, allDosesToShow.length),
+                        l10n.modalsOfDosesLogged(
+                            takenCount, allDosesToShow.length),
                         style: AppTypography.titleLarge.copyWith(
                           color: L.text,
                           fontSize: 17,
@@ -304,7 +305,9 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
 
           // --- MEDICATIONS SECTION ---
           _SectionHeader(
-              title: l10n.modalsMedications, count: allDosesToShow.length, L: L),
+              title: l10n.modalsMedications,
+              count: allDosesToShow.length,
+              L: L),
           if (allDosesToShow.isEmpty)
             PremiumEmptyState(
               title: l10n.modalsNoDosesScheduled,
@@ -353,7 +356,9 @@ class _DailyLogSheetState extends State<DailyLogSheet> {
 
           // --- SYMPTOMS SECTION ---
           _SectionHeader(
-              title: l10n.modalsSymptomsLogs, count: todaySymptoms.length, L: L),
+              title: l10n.modalsSymptomsLogs,
+              count: todaySymptoms.length,
+              L: L),
           if (todaySymptoms.isEmpty)
             _EmptyState(message: 'No symptoms logged for this day.', L: L)
           else
@@ -486,8 +491,10 @@ class _DoseLogRow extends StatelessWidget {
     // 2026 Premium Pure Black Styling
     final Color bgColor = taken ? Colors.black : L.card.withValues(alpha: 0.8);
     final Color textColor = taken ? Colors.white : L.text;
-    final Color subTextColor = taken ? Colors.white60 : L.sub.withValues(alpha: 0.65);
-    final Color borderColor = taken ? Colors.white12 : L.border.withValues(alpha: 0.1);
+    final Color subTextColor =
+        taken ? Colors.white60 : L.sub.withValues(alpha: 0.65);
+    final Color borderColor =
+        taken ? Colors.white12 : L.border.withValues(alpha: 0.1);
 
     final Widget checkboxChild = taken
         ? KeyedSubtree(
@@ -576,121 +583,127 @@ class _DoseLogRow extends StatelessWidget {
                 duration: reduceMotion
                     ? Duration.zero
                     : const Duration(milliseconds: 400),
-              transitionBuilder: (child, anim) {
-                final scale = Tween<double>(begin: 0.5, end: 1.0).animate(
-                  CurvedAnimation(parent: anim, curve: AppCurves.emilOut),
-                );
-                final fade = Tween<double>(begin: 0.0, end: 1.0).animate(
-                  CurvedAnimation(parent: anim, curve: Curves.easeOut),
-                );
-                return FadeTransition(
-                  opacity: fade,
-                  child: ScaleTransition(scale: scale, child: child),
-                );
-              },
-              child: checkboxChild,
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          dose.med.name,
-                          style: AppTypography.titleMedium.copyWith(
-                            fontWeight: FontWeight.w700,
-                            fontSize: 16,
-                            color: textColor,
-                            letterSpacing: -0.3,
-                            decoration: taken ? TextDecoration.lineThrough : null,
-                            decorationColor: textColor.withValues(alpha: 0.4),
-                          ),
-                        ),
-                      ),
-                      if (isPrnBadge) ...[
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                          decoration: BoxDecoration(
-                            color: taken ? Colors.white12 : L.accent.withValues(alpha: 0.12),
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: taken ? Colors.white24 : L.accent.withValues(alpha: 0.3),
-                              width: 0.8,
-                            ),
-                          ),
+                transitionBuilder: (child, anim) {
+                  final scale = Tween<double>(begin: 0.5, end: 1.0).animate(
+                    CurvedAnimation(parent: anim, curve: AppCurves.emilOut),
+                  );
+                  final fade = Tween<double>(begin: 0.0, end: 1.0).animate(
+                    CurvedAnimation(parent: anim, curve: Curves.easeOut),
+                  );
+                  return FadeTransition(
+                    opacity: fade,
+                    child: ScaleTransition(scale: scale, child: child),
+                  );
+                },
+                child: checkboxChild,
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
                           child: Text(
-                            l10n.modalsPrn,
-                            style: AppTypography.labelSmall.copyWith(
-                              color: taken ? Colors.white : L.accent,
+                            dose.med.name,
+                            style: AppTypography.titleMedium.copyWith(
                               fontWeight: FontWeight.w700,
-                              fontSize: 11,
-                              letterSpacing: 0.8,
+                              fontSize: 16,
+                              color: textColor,
+                              letterSpacing: -0.3,
+                              decoration:
+                                  taken ? TextDecoration.lineThrough : null,
+                              decorationColor: textColor.withValues(alpha: 0.4),
                             ),
                           ),
                         ),
+                        if (isPrnBadge) ...[
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 8, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: taken
+                                  ? Colors.white12
+                                  : L.accent.withValues(alpha: 0.12),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: taken
+                                    ? Colors.white24
+                                    : L.accent.withValues(alpha: 0.3),
+                                width: 0.8,
+                              ),
+                            ),
+                            child: Text(
+                              l10n.modalsPrn,
+                              style: AppTypography.labelSmall.copyWith(
+                                color: taken ? Colors.white : L.accent,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 11,
+                                letterSpacing: 0.8,
+                              ),
+                            ),
+                          ),
+                        ],
                       ],
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    '${dose.med.dose} · ${isPrnBadge ? AppLocalizations.of(context)!.prnLabel : dose.sched.label}',
-                    style: AppTypography.bodySmall.copyWith(
-                      fontSize: 13,
-                      color: subTextColor,
-                      fontWeight: FontWeight.w600,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 4),
+                    Text(
+                      '${dose.med.dose} · ${isPrnBadge ? AppLocalizations.of(context)!.prnLabel : dose.sched.label}',
+                      style: AppTypography.bodySmall.copyWith(
+                        fontSize: 13,
+                        color: subTextColor,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-            const SizedBox(width: 12),
-            if (isPrnBadge && onUndo != null) ...[
-              Semantics(
-                button: true,
-                label: l10n.modalsRemovePrnDose,
-                child: AnimatedPressable(
-                  onTap: onUndo,
-                  child: Container(
-                    width: MedAiA11y.minTapTarget,
-                    height: MedAiA11y.minTapTarget,
-                    decoration: BoxDecoration(
-                      color: taken
-                          ? Colors.white12
-                          : L.error.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
+              const SizedBox(width: 12),
+              if (isPrnBadge && onUndo != null) ...[
+                Semantics(
+                  button: true,
+                  label: l10n.modalsRemovePrnDose,
+                  child: AnimatedPressable(
+                    onTap: onUndo,
+                    child: Container(
+                      width: MedAiA11y.minTapTarget,
+                      height: MedAiA11y.minTapTarget,
+                      decoration: BoxDecoration(
+                        color: taken
+                            ? Colors.white12
+                            : L.error.withValues(alpha: 0.1),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(Icons.delete_outline_rounded,
+                          size: 18, color: taken ? Colors.white : L.error),
                     ),
-                    child: Icon(Icons.delete_outline_rounded,
-                        size: 18,
-                        color: taken ? Colors.white : L.error),
+                  ),
+                ),
+                const SizedBox(width: 8),
+              ],
+              Container(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                decoration: BoxDecoration(
+                  color: taken ? Colors.white10 : L.fill.withValues(alpha: 0.5),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  fmtTime(dose.sched.h, dose.sched.m, context),
+                  style: AppTypography.labelLarge.copyWith(
+                    fontWeight: FontWeight.w700,
+                    fontSize: 12,
+                    letterSpacing: 0.2,
+                    color: textColor.withValues(alpha: 0.9),
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
             ],
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-              decoration: BoxDecoration(
-                color: taken ? Colors.white10 : L.fill.withValues(alpha: 0.5),
-                borderRadius: BorderRadius.circular(20),
-              ),
-              child: Text(
-                fmtTime(dose.sched.h, dose.sched.m, context),
-                style: AppTypography.labelLarge.copyWith(
-                  fontWeight: FontWeight.w700,
-                  fontSize: 12,
-                  letterSpacing: 0.2,
-                  color: textColor.withValues(alpha: 0.9),
-                ),
-              ),
-            ),
-          ],
+          ),
         ),
       ),
-    ),
     );
   }
 }
