@@ -75,7 +75,7 @@ class DashboardPurrentTopBar extends StatelessWidget {
                         'Hi, $display',
                         style: AppTypography.headlineMedium.copyWith(
                           fontWeight: FontWeight.w700,
-                          color: AppColors.inkStrong,
+                          color: L.text,
                           letterSpacing: -0.5,
                           height: 1.05,
                         ),
@@ -84,7 +84,7 @@ class DashboardPurrentTopBar extends StatelessWidget {
                       Text(
                         l10n.dashboardYourWeekAtAGlance,
                         style: AppTypography.bodyMedium.copyWith(
-                          color: AppColors.grey600,
+                          color: L.sub,
                           fontWeight: FontWeight.w600,
                         ),
                       ),
@@ -105,10 +105,10 @@ class DashboardPurrentTopBar extends StatelessWidget {
                       width: MedAiA11y.minTapTargetCompact,
                       height: MedAiA11y.minTapTargetCompact,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: L.card,
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: L.border.withValues(alpha: 0.4),
+                          color: L.border.withValues(alpha: context.isDark ? 0.2 : 0.4),
                         ),
                         boxShadow: [
                           BoxShadow(
@@ -124,7 +124,7 @@ class DashboardPurrentTopBar extends StatelessWidget {
                           Icon(
                             Icons.notifications_none_rounded,
                             size: 22,
-                            color: AppColors.inkStrong.withValues(alpha: 0.9),
+                            color: L.text.withValues(alpha: 0.9),
                           ),
                           if (showAlertDot)
                             PositionedDirectional(
@@ -138,7 +138,7 @@ class DashboardPurrentTopBar extends StatelessWidget {
                                     color: AppColors.red,
                                     shape: BoxShape.circle,
                                     border: Border.all(
-                                        color: Colors.white, width: 1.5),
+                                        color: L.card, width: 1.5),
                                   ),
                                 ),
                               ),
@@ -332,9 +332,9 @@ class _PurrentMetricCard extends StatelessWidget {
         AppSpacing.p12,
       ),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: L.card,
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: L.border.withValues(alpha: 0.4)),
+        border: Border.all(color: L.border.withValues(alpha: context.isDark ? 0.2 : 0.4)),
         boxShadow: [
           BoxShadow(
             color: AppColors.eatoNavy.withValues(alpha: 0.04),
@@ -378,7 +378,7 @@ class _PurrentMetricCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.labelSmall.copyWith(
-              color: AppColors.grey600,
+              color: L.sub,
               fontWeight: FontWeight.w700,
               fontSize: 11,
               letterSpacing: 0.1,
@@ -393,7 +393,7 @@ class _PurrentMetricCard extends StatelessWidget {
               maxLines: 1,
               style: AppTypography.headlineLarge.copyWith(
                 fontWeight: FontWeight.w800,
-                color: AppColors.inkStrong,
+                color: L.text,
                 letterSpacing: -0.8,
                 height: 1,
                 fontSize: 28,
@@ -406,7 +406,7 @@ class _PurrentMetricCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: AppTypography.labelSmall.copyWith(
-              color: AppColors.grey600,
+              color: L.sub,
               fontWeight: FontWeight.w600,
               fontSize: 11,
             ),

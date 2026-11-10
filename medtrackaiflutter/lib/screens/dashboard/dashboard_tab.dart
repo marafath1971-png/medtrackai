@@ -196,7 +196,7 @@ class _DashboardTabState extends State<DashboardTab> {
                         style: AppTypography.titleLarge.copyWith(
                           fontWeight: FontWeight.w700,
                           fontSize: 20,
-                          color: AppColors.inkStrong,
+                          color: L.text,
                           letterSpacing: -0.4,
                         ),
                       ),
@@ -209,10 +209,10 @@ class _DashboardTabState extends State<DashboardTab> {
                       child: Container(
                         padding: const EdgeInsets.all(AppSpacing.p16),
                         decoration: BoxDecoration(
-                          color: Colors.white,
+                          color: L.card,
                           borderRadius: BorderRadius.circular(24),
                           border: Border.all(
-                              color: L.border.withValues(alpha: 0.4)),
+                              color: L.border.withValues(alpha: context.isDark ? 0.2 : 0.4)),
                           boxShadow: [
                             BoxShadow(
                               color: AppColors.eatoNavy.withValues(alpha: 0.04),
@@ -265,10 +265,10 @@ class _DashboardTabState extends State<DashboardTab> {
                     child: Container(
                       padding: const EdgeInsets.all(AppSpacing.p16),
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: L.card,
                         borderRadius: BorderRadius.circular(24),
                         border:
-                            Border.all(color: L.border.withValues(alpha: 0.4)),
+                            Border.all(color: L.border.withValues(alpha: context.isDark ? 0.2 : 0.4)),
                         boxShadow: [
                           BoxShadow(
                             color: AppColors.eatoNavy.withValues(alpha: 0.04),
@@ -461,9 +461,9 @@ class _ConnectHealthCard extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(AppSpacing.p16),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: L.card,
           borderRadius: BorderRadius.circular(24),
-          border: Border.all(color: L.border.withValues(alpha: 0.4)),
+          border: Border.all(color: L.border.withValues(alpha: context.isDark ? 0.2 : 0.4)),
           boxShadow: [
             BoxShadow(
               color: AppColors.eatoNavy.withValues(alpha: 0.04),

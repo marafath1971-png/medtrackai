@@ -88,9 +88,9 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
       padding: const EdgeInsets.fromLTRB(
           AppSpacing.p16, AppSpacing.gutter, AppSpacing.p16, AppSpacing.p20),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: L.card,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: L.border.withValues(alpha: 0.4)),
+        border: Border.all(color: L.border.withValues(alpha: context.isDark ? 0.2 : 0.4)),
         boxShadow: [
           BoxShadow(
             color: AppColors.eatoNavy.withValues(alpha: 0.04),
@@ -112,7 +112,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                   // the home screen — 2% here beside "2 of 5 done" (40%) there.
                   '30-day adherence',
                   style: AppTypography.labelMedium.copyWith(
-                    color: AppColors.grey600,
+                    color: L.sub,
                     fontWeight: FontWeight.w700,
                   ),
                 ),
@@ -157,7 +157,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                           Text(
                             '$pct',
                             style: AppTypography.displayMedium.copyWith(
-                              color: AppColors.inkStrong,
+                              color: L.text,
                               fontWeight: FontWeight.w800,
                               fontSize: 48,
                               letterSpacing: -2,
@@ -167,7 +167,7 @@ class _DashboardAdherenceHeroState extends State<DashboardAdherenceHero>
                           Text(
                             '%',
                             style: AppTypography.titleLarge.copyWith(
-                              color: AppColors.grey600,
+                              color: L.sub,
                               fontWeight: FontWeight.w700,
                             ),
                           ),
